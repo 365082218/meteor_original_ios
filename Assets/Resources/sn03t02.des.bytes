@@ -1,0 +1,14 @@
+# GModel Description File V1.0
+# by Peter Pon for Interserv 2002/06/10
+SceneObjects 1 DummeyObjects 0
+Object Cylinder13
+{
+  Position:  0.000  2.120  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer = no
+    name="damage100"
+  }
+}

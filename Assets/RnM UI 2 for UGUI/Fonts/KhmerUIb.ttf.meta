@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7548c6634ec9ca5469b18aa4a3d65035
+TrueTypeFontImporter:
+  serializedVersion: 2
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 1
+  characterPadding: 0
+  includeFontData: 1
+  use2xBehaviour: 0
+  fontNames:
+  - Khmer UI Bold
+  customCharacters: 
+  fontRenderingMode: 0
+  userData: 

@@ -1,0 +1,30 @@
+# GModel Description File V1.0
+# Des for lxres.com
+SceneObjects 1 DummeyObjects 2
+Object tt2j01
+{
+  Position: -0.00856114 -0.0228043 0.0
+  Quaternion: 0.0 -0.707107 0.707107 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object d_wpnRE
+{
+  Position:  0.000 -26.29  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object d_wpnRS
+{
+  Position:  0.000  -7.621  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}

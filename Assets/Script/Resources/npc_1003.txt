@@ -1,0 +1,24 @@
+﻿--- NPC-1003 仓管员 触发
+  
+  local function saveItem()
+  U3D.ShowNpcTalk(nil, "仓库打开后可以把行囊里的物品放进去", nil)
+  U3D.ShowNpcTalkMenu(false)
+  end
+   
+  local function yes()
+  U3D.GetAllMaterial()
+  U3D.NpcTalkClose()
+  end
+
+  local function OnContinue()
+  U3D.ShowNpcTalk(nil, "不然你去采集点材料来\n我帮你合成一些装备再去试炼吧\n不过我只会低级合成。", nil)
+  U3D.AddNpcTalkMenu("合成", MakeItem)
+  U3D.ShowNpcTalkMenu(false)
+  end
+
+  function main()
+  U3D.ShowNpcTalk("仓管员", "楚大人，取走全部库存材料吗", nil)
+  U3D.AddNpcTalkMenu("没错", yes)
+  U3D.AddNpcTalkMenu("我要存放材料", saveItem)
+  U3D.ShowNpcTalkMenu(true)
+  end

@@ -1,0 +1,31 @@
+Name	= "火枪哨兵﹒甲";
+Model =	8;
+Weapon = 3;
+Weapon2 = 6;
+Team = 2;
+View = 1500;
+Think = 90;
+Attack1	= 10;
+Attack2 = 40;
+Attack3 = 30;
+Guard =	20;
+Dodge =	20;
+Jump = 10;
+Look = 50;
+Burst = 20;
+Aim = 90;
+GetItem = 5;
+Spawn = 98;
+HP = 1500;	
+
+g_selfAddr = 0;
+g_self = 0;
+function OnInit(a)
+	g_selfAddr = a;
+end
+
+function OnStart()
+	g_self = GetSelf(g_selfAddr);
+	local m = {"patrol", 98, 99, 23} --"patrol", 98, 99, 23
+	ChangeBehavior(g_self, m);
+end

@@ -1,0 +1,29 @@
+Name = "金枪侍卫﹒甲";
+Model =	8;
+Weapon = 25;
+Weapon2 = 15;
+Team = 2;
+View = 300;
+Think = 70;
+Attack1	= 25;
+Attack2 = 25;
+Attack3 = 20;
+Guard =	30;
+Dodge =	10;
+Jump = 10;
+Look = 30;
+Burst = 5;
+Aim = 70;
+GetItem = 8;
+Spawn = 74;
+HP = 2500;	
+g_selfAddr = 0;
+g_self = 0;
+function OnInit(a)
+	g_selfAddr = a;
+end
+
+function OnStart()
+	g_self = GetSelf(g_selfAddr);
+	ChangeBehavior(g_self, "wait");
+end

@@ -1,0 +1,15 @@
+# GModel Description File V1.0
+# by Peter Pon for Interserv 2002/06/10
+SceneObjects 1 DummeyObjects 0
+Object tp001
+{
+  Position:  0.000  0.000  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=1
+    blockplayer = no
+    collision = 1
+  }
+}

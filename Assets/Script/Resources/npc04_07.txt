@@ -1,0 +1,29 @@
+Name = "禁卫士兵﹒乙";
+Model =	9;
+Weapon = 18;
+Weapon2 = 0;
+Team = 2;
+View = 400;
+Think = 66;
+Attack1	= 20;
+Attack2 = 25;
+Attack3 = 30;
+Guard =	25;
+Dodge =	0;
+Jump = 10;
+Look = 30;
+Burst = 30;
+Aim = 80;
+GetItem = 10;
+Spawn = 139;
+HP = 2500;	
+g_selfAddr = 0;
+g_self = 0;
+function OnInit(a)
+	g_selfAddr = a;
+end
+
+function OnStart()
+	g_self = GetSelf(g_selfAddr);
+	ChangeBehavior(g_self, "patrol", 61, 59, 37, 45, 112, 0, 37);
+end

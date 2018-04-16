@@ -1,0 +1,24 @@
+# GModel Description File V1.0
+# by Peter Pon for Interserv 2002/06/10
+SceneObjects 2 DummeyObjects 0
+Object Cylinder03
+{
+  Position:  0.000  0.000  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer = no
+    name="damage100"
+  }
+}
+Object Box01
+{
+  Position: -6.145  0.221  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}

@@ -1,0 +1,45 @@
+﻿--10001剧情，卧房里4个校尉请求过招.
+  local function Leave()
+  U3D.NpcTalkClose()
+  end
+
+  local function OnClose()
+  U3D.NpcTalkClose()
+  U3D.OnDeadEnd()
+  end
+
+  local function GetMoney()
+  U3D.AddMoney(2000)
+  U3D.ShowNpcTalk("校尉甲乙丙丁", "我们休息好了，这就去换班了。", nil)
+  U3D.AddNpcTalkMenu("好的", OnClose)
+  U3D.ShowNpcTalkMenu(true)
+  end
+
+  --不要钱，就加随机浮动值.这个值决定了以后升级，强化，以及任何要用到概率的地方
+  local function Reject()
+  --U3D.AddRandCount(10)
+  U3D.ShowNpcTalk("校尉甲乙丙丁", "挺有骨气的!\n好吧\n我们休息好了,也该去换班了。", nil)
+  U3D.AddNpcTalkMenu("好的", OnClose)
+  U3D.ShowNpcTalkMenu(true)
+  end
+  --进入这里说明打赢了。但是还没退出场景.
+  local function OnDead()
+  U3D.ShowNpcTalk("校尉甲乙丙丁", "天赐\n武功不错呀\n给你2000文拿去买装备吧", nil)
+  U3D.AddNpcTalkMenu("收下", GetMoney)
+  U3D.AddNpcTalkMenu("不能要你们的钱", Reject)
+  U3D.ShowNpcTalkMenu(true)
+  end
+
+  local function Fight()
+  U3D.StartBattle(1001)
+  end
+  
+  
+  
+  function main()
+      U3D.ShowNpcTalk("【校尉甲乙丙丁】", "天赐!\n武功进步的怎么样?\n陪我们练两招吧。", nil)
+	  U3D.AddNpcTalkMenu("过招", Fight)
+      U3D.AddNpcTalkMenu("总让着我,没意思", Leave)
+	  U3D.ShowNpcTalkMenu(true)
+	  U3D.OnDead(1001, OnDead)
+  end

@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 712f610fc72ae0a48b8a08f8c43324fd, type: 3}
+  m_Name: Item Database
+  m_EditorClassIdentifier: 
+  items:
+  - ID: 1
+    Name: Sword of Ages
+    Icon: {fileID: 21300000, guid: 515dfdcee22a63f47b85711bb0e93e7f, type: 3}
+    Description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    EquipType: 1
+    ItemType: 1
+    Type: Sword
+    Subtype: Two-Handed
+    Damage: 1200
+    AttackSpeed: 3.6
+    Block: 0
+    Armor: 0
+    Stamina: 230
+    Strength: 370
+  - ID: 2
+    Name: Shield of the Protector
+    Icon: {fileID: 21300000, guid: bb056dbdf905f384480a328703d5f668, type: 3}
+    Description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam
+      gravida luctus tincidunt.
+    EquipType: 2
+    ItemType: 2
+    Type: Shield
+    Subtype: Off-Hand
+    Damage: 0
+    AttackSpeed: 0
+    Block: 1029
+    Armor: 8100
+    Stamina: 405
+    Strength: 160
+  - ID: 3
+    Name: Deadly Arrows
+    Icon: {fileID: 21300000, guid: 1c7db8019be87d64cacd9e95e14ef8c6, type: 3}
+    Description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam
+      gravida luctus tincidunt.
+    EquipType: 1
+    ItemType: 1
+    Type: Ranged
+    Subtype: Arrows
+    Damage: 246
+    AttackSpeed: 1.6
+    Block: 0
+    Armor: 0
+    Stamina: 120
+    Strength: 320

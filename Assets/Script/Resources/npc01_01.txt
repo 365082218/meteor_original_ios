@@ -1,0 +1,30 @@
+Name	= "铁枪哨兵﹒甲";
+Model =	8;
+Weapon = 7;
+Weapon2 = 0;
+Team = 2;
+View = 400;
+Think = 40;
+Attack1	= 50;
+Attack2 = 30;
+Attack3 = 0;
+Guard =	20;
+Dodge =	10;
+Jump = 5;
+Look = 10;
+Burst = 2;
+Aim = 60;
+GetItem = 3;
+Spawn = 53;
+HP = 1000;	
+
+g_selfAddr = 0;
+g_self = 0;
+function OnInit(a)
+	g_selfAddr = a;
+end
+
+function OnStart()
+	g_self = GetSelf(g_selfAddr);
+	ChangeBehavior(g_self, "wait");
+end

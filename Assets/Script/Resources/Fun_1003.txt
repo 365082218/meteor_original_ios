@@ -1,0 +1,7 @@
+﻿
+  --npc购买材料
+
+  function main()
+  U3D.NpcTalkClose()
+  U3D.ShowNpcShop()
+  end

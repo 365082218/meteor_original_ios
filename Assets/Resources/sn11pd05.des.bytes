@@ -1,0 +1,93 @@
+# GModel Description File V1.0
+# by Peter Pon for Interserv 2002/06/10
+SceneObjects 10 DummeyObjects 0
+Object Object104
+{
+  Position: 11.106 -0.000 72.017
+  Quaternion: -1.000 -0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object100
+{
+  Position: -10.906 -0.000 72.017
+  Quaternion: -0.707 -0.707 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object102
+{
+  Position: -33.832 -0.000 72.017
+  Quaternion: -0.707 -0.707 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object106
+{
+  Position: 34.032 -0.000 72.017
+  Quaternion: -1.000 -0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Pdoor05
+{
+  Position: -33.011 -0.000 35.961
+  Quaternion: -0.707 -0.707 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object105
+{
+  Position: 10.372 -0.000 35.961
+  Quaternion: -1.000 -0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object103
+{
+  Position: -43.326 -0.000 17.933
+  Quaternion: -0.707 -0.707 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object107
+{
+  Position: 43.526 -0.000 17.933
+  Quaternion: -1.000 -0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Pdoor502
+{
+  Position: 33.211 -0.000 35.961
+  Quaternion: -1.000 -0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object101
+{
+  Position: -10.172 -0.000 35.961
+  Quaternion: -0.707 -0.707 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}

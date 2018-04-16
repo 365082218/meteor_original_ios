@@ -1,0 +1,18 @@
+﻿--从战斗地图1的第二个下标建筑进入
+local function Leave()
+U3D.NpcTalkClose()
+U3D.gotoMap(1, 2)
+end
+
+--在北镇抚司增加传送NPC 车夫（1004） 地点 0，1 大门
+  function main()
+  U3D.TextAppend("三清殿是道教供奉最高尊神——三清祖师的殿堂。三清是道教的最高尊神，故而每个道观都必须供奉。三清殿内奉“玉清元始天尊、上清灵宝天尊、太清道德天尊即太上老君”、故名“三清殿”。")
+      if (U3D.FindNpc(1004, 1002, 0, 1)) then
+	  else
+	  U3D.AddNpc(1004, 1002, 0, 1)
+	  U3D.TextAppend("至北镇抚司的道路已经开通，可以乘坐马车来往二地了")
+	  end
+	  U3D.AddMenu("出城", Leave);
+	  --在北镇抚司大门连通 三清殿
+	  U3D.AddEntryPoint(1002, 0, 1, 1003, 2, 1)
+  end

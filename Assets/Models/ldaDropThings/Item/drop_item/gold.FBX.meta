@@ -1,0 +1,234 @@
+fileFormatVersion: 2
+guid: ee1cce2f1304bff4ba8207e184437624
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: drop_item_root
+    100002: //RootNode
+    100004: gold_01
+    100006: gold_02
+    100008: gold_03
+    100010: gold_04
+    100012: gold_05
+    100014: gold_06
+    100016: gold_07
+    100018: gold_08
+    100020: gold_09
+    100022: gold_10
+    100024: gold_11
+    100026: gold_12
+    100028: gold_13
+    100030: gold_14
+    100032: gold_15
+    100034: gold_16
+    100036: gold_17
+    100038: gold_18
+    100040: gold
+    400000: drop_item_root
+    400002: //RootNode
+    400004: gold_01
+    400006: gold_02
+    400008: gold_03
+    400010: gold_04
+    400012: gold_05
+    400014: gold_06
+    400016: gold_07
+    400018: gold_08
+    400020: gold_09
+    400022: gold_10
+    400024: gold_11
+    400026: gold_12
+    400028: gold_13
+    400030: gold_14
+    400032: gold_15
+    400034: gold_16
+    400036: gold_17
+    400038: gold_18
+    400040: gold
+    2300000: gold_01
+    2300002: gold_02
+    2300004: gold_03
+    2300006: gold_04
+    2300008: gold_05
+    2300010: gold_06
+    2300012: gold_07
+    2300014: gold_08
+    2300016: gold_09
+    2300018: gold_10
+    2300020: gold_11
+    2300022: gold_12
+    2300024: gold_13
+    2300026: gold_14
+    2300028: gold_15
+    2300030: gold_16
+    2300032: gold_17
+    2300034: gold_18
+    2300036: //RootNode
+    3300000: gold_01
+    3300002: gold_02
+    3300004: gold_03
+    3300006: gold_04
+    3300008: gold_05
+    3300010: gold_06
+    3300012: gold_07
+    3300014: gold_08
+    3300016: gold_09
+    3300018: gold_10
+    3300020: gold_11
+    3300022: gold_12
+    3300024: gold_13
+    3300026: gold_14
+    3300028: gold_15
+    3300030: gold_16
+    3300032: gold_17
+    3300034: gold_18
+    3300036: //RootNode
+    4300000: gold_18
+    4300002: gold_17
+    4300004: gold_16
+    4300006: gold_15
+    4300008: gold_14
+    4300010: gold_13
+    4300012: gold_12
+    4300014: gold_11
+    4300016: gold_10
+    4300018: gold_09
+    4300020: gold_08
+    4300022: gold_07
+    4300024: gold_06
+    4300026: gold_05
+    4300028: gold_03
+    4300030: gold_02
+    4300032: gold_01
+    4300034: gold_04
+    4300036: gold
+    7400000: gold_drop
+    7400002: gold_loop
+    9500000: //RootNode
+    13700000: gold
+  materials:
+    importMaterials: 0
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: '
+
+      Imported file ''gold'' conversion failed: Cannot find root motion transform
+      ''drop_item_root''
+
+
+'
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: gold_drop
+      takeName: gold
+      firstFrame: 0
+      lastFrame: 30
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: gold_loop
+      takeName: gold
+      firstFrame: 30
+      lastFrame: 80
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 1
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 0.01
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: drop_item_root
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

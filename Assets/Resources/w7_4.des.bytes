@@ -1,0 +1,40 @@
+# GModel Description File V1.0
+# by Peter Pon for Interserv 2002/06/10
+SceneObjects 2 DummeyObjects 2
+Object w7_4
+{
+  Position:  0.048 -6.297  0.031
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object atbox
+{
+  Position:  0.053 -4.594 -2.160
+  Quaternion: -1.000 -0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object d_wpnRS
+{
+  Position:  0.043 24.517 -0.000
+  Quaternion: -1.000 -0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object d_wpnRE
+{
+  Position: -0.085 -37.074 -0.000
+  Quaternion: -1.000 -0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}

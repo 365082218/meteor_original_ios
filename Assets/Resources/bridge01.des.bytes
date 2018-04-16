@@ -1,0 +1,84 @@
+# GModel Description File V1.0
+# by Peter Pon for Interserv 2002/06/10
+SceneObjects 9 DummeyObjects 0
+Object bridge0110
+{
+  Position: 186.369 -13.646 239.805
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object bridge0101
+{
+  Position: 178.338 -140.181 239.805
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object bridge0103
+{
+  Position: 314.014 35.011 261.767
+  Quaternion: -1.000 0.000 -0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object bridge0108
+{
+  Position: 247.348 -31.656 269.805
+  Quaternion: -1.000 0.000 -0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object bridge0106
+{
+  Position: 183.848 130.994 239.805
+  Quaternion: -1.000 0.000 -0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object bridge0104
+{
+  Position: 281.903 136.233 261.767
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object bridge0111
+{
+  Position: 269.865 195.337 301.826
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object bridge0113
+{
+  Position: 280.681 -131.656 261.767
+  Quaternion: -1.000 0.000 -0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object bridge0112
+{
+  Position: 268.216 -192.052 301.826
+  Quaternion: -1.000 0.000 -0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}

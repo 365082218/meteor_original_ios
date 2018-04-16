@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scene/Patch.unity
+  - enabled: 1
+    path: Assets/Scene/Menu.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_01.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_02.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_03.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_04.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_05.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_06.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_07.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_08.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_09.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_10.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_11.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_12.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_13.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_14.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_15.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_16.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_17.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_18.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_19.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_20.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_21.unity
+  - enabled: 1
+    path: Assets/Scene/Meteor/Meteor_22.unity
+  - enabled: 1
+    path: Assets/Scene/NewMeteor/Meteor_23.unity

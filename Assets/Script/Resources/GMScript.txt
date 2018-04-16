@@ -1,0 +1,51 @@
+﻿--1001--GM的NPC脚本.
+  function Leave()
+  U3D.DiaClose()
+  end
+
+  function No()
+  answer = 2
+  Leave()
+  end
+
+  function GetReward()
+  if getreward == 1 then
+  U3D.DiaClear()
+  U3D.Dialogue("【GM】", "别贪心，礼物给过你了")
+  return
+  end
+  U3D.AddItem("金币", 1000)
+  getreward = 1
+  end
+
+  function OfCourse()
+  answer = 1
+  U3D.DiaClear()
+  U3D.DiaMenuClear()
+  U3D.Dialogue("【GM】", "你小子真会说话")
+  U3D.AddDiaMenu("领取奖励", GetReward)
+  U3D.AddDiaMenu("离开", Leave)
+  end
+
+  function main()
+  if answer == 0 then
+  U3D.Dialogue("【GM】", "小伙子，我看你骨骼惊奇，你觉得我帅不帅")
+  U3D.AddDiaMenu("帅", OfCourse)
+  U3D.AddDiaMenu("没我帅", No)
+  end
+  if answer == 1 and getreward == 0 then
+  U3D.Dialogue("【GM】", "你小子真会说话")
+  U3D.AddDiaMenu("领取奖励", GetReward)
+  U3D.AddDiaMenu("离开", Leave)
+  end
+  if answer == 1 and getreward == 1 then
+  U3D.Dialogue("【GM】", "谢谢，你也很帅，不能再给你金币了")
+  U3D.AddDiaMenu("离开", Leave)
+  end
+  if answer == 2 then
+  U3D.Dialogue("【GM】", "你小子竟然比我还帅，那我还是不送东西你了")
+  U3D.AddDiaMenu("离开", Leave)
+  end
+--显示GM身上带的任务。已经完成的不会显示.
+  U3D.ShowTask(1001)
+  end

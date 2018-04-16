@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "meteor_original_ios.Plugins", "meteor_original_ios.Plugins.csproj", "{9283880D-A162-1E5C-D4BD-03594FE4F9F3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "meteor_original_ios", "meteor_original_ios.csproj", "{68DC732D-8682-AA75-100B-8559FCC436FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "meteor_original_ios.Editor.Plugins", "meteor_original_ios.Editor.Plugins.csproj", "{F42D53AD-77A0-FE08-EFDE-31992D92F658}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "meteor_original_ios.Editor", "meteor_original_ios.Editor.csproj", "{990986C1-3467-4A2B-AA57-37B9B4BEC3FF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9283880D-A162-1E5C-D4BD-03594FE4F9F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9283880D-A162-1E5C-D4BD-03594FE4F9F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9283880D-A162-1E5C-D4BD-03594FE4F9F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9283880D-A162-1E5C-D4BD-03594FE4F9F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68DC732D-8682-AA75-100B-8559FCC436FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68DC732D-8682-AA75-100B-8559FCC436FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68DC732D-8682-AA75-100B-8559FCC436FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68DC732D-8682-AA75-100B-8559FCC436FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F42D53AD-77A0-FE08-EFDE-31992D92F658}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F42D53AD-77A0-FE08-EFDE-31992D92F658}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F42D53AD-77A0-FE08-EFDE-31992D92F658}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F42D53AD-77A0-FE08-EFDE-31992D92F658}.Release|Any CPU.Build.0 = Release|Any CPU
+		{990986C1-3467-4A2B-AA57-37B9B4BEC3FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{990986C1-3467-4A2B-AA57-37B9B4BEC3FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{990986C1-3467-4A2B-AA57-37B9B4BEC3FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{990986C1-3467-4A2B-AA57-37B9B4BEC3FF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

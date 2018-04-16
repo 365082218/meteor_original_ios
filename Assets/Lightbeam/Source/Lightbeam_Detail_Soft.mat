@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: Lightbeam_Detail_Soft
+  m_Shader: {fileID: 4800000, guid: 9b18589ff581c0248a20808dde4ceab9, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 5
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  m_SavedProperties:
+    serializedVersion: 2
+    m_TexEnvs:
+    - first:
+        name: _DetailTex
+      second:
+        m_Texture: {fileID: 2800000, guid: 3b5689f7ba9984c48b9cceedcfa38734, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - first:
+        name: _DustTex
+      second:
+        m_Texture: {fileID: 2800000, guid: e592912ae4f92ac4c8766142fc1488f1, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - first:
+        name: _MainTex
+      second:
+        m_Texture: {fileID: 2800000, guid: c729117def90b1d48ac5eb5d0beccd85, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - first:
+        name: _MainTex2
+      second:
+        m_Texture: {fileID: 2800000, guid: 8ff2a79fd69e5ff46acd2a6c44740cf9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - first:
+        name: _ColorMultiplier
+      second: 1
+    - first:
+        name: _DetailContrast
+      second: 0.6268657
+    - first:
+        name: _DustContrast
+      second: 0.43283582
+    - first:
+        name: _FadeDistance
+      second: 2
+    - first:
+        name: _SoftEdge
+      second: 1
+    - first:
+        name: _Tweak
+      second: 0.65
+    - first:
+        name: _Width
+      second: 8.71
+    m_Colors:
+    - first:
+        name: _Color
+      second: {r: 0.99999994, g: 0.9737261, b: 0.9329076, a: 0.7019608}
+    - first:
+        name: _DetailAnim
+      second: {r: 0, g: 0, b: 0, a: 0}
+    - first:
+        name: _DustAnim
+      second: {r: 0.3, g: 1.08, b: 0, a: 0}

@@ -1,0 +1,48 @@
+Name = "蒙面人﹒乙";
+Model =	10;
+Weapon = 30;
+Weapon2 = 31;
+Team = 2;
+View = 800;
+Think = 80;
+Attack1	= 30;
+Attack2 = 30;
+Attack3 = 30;
+Guard =	10;
+Dodge =	10;
+Jump = 10;
+Look = 80;
+Burst = 10;
+Aim = 80;
+GetItem = 50;
+Spawn = 64;
+HP = 4000;	
+
+g_selfAddr = 0;
+g_self = 0;
+function OnInit(a)
+	g_selfAddr = a;
+end
+
+function OnStart()
+	g_self = GetSelf(g_selfAddr);
+	//ChangeBehavior(g_self, "patrol", 64, 63, 62, 132, 130, 61, 59, 82, 58, 54, 57, 68, 64);
+	ChangeBehavior(g_self, "follow", "player");
+end
+
+function Attack(enable)
+	if (enable == 1)
+	{
+		Attack1 = 30;
+		Attack2 = 30;
+		Attack3 = 30;
+		UpdateAIAttrib(g_self);
+	} 
+	else
+	{
+		Attack1 = 0;
+		Attack2 = 0;
+		Attack3 = 0;
+		UpdateAIAttrib(g_self);
+	}
+end

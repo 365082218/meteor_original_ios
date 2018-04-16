@@ -1,0 +1,3 @@
+﻿id	任务名称	等级限制	任务类型	任务介绍	可获取奖励	参数	参数解释	目的所在地图	执行脚本	给策划看的内容
+Idx	Name	Level	TaskType	Desc	Reward	Param	Explain	DesMapIndex	Script	HelpText
+10001	新手报到	0	1	向许大人报到	10001:100#10002:50	1010	新手指引ID	1		在外殿的GM处接此任务。去向外殿的NPC【新手指引】报到，报到完毕后获得100金币，50经验

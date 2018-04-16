@@ -1,0 +1,6 @@
+﻿
+  function main()
+  --NPC1004马车夫，自带功能坐车
+	 U3D.ShowNpcTalk("马车夫", "要坐车吗?", nil)
+	 U3D.ShowNpcTalkMenu(false)
+  end

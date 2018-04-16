@@ -1,0 +1,31 @@
+Name = "官差﹒甲";
+Model =	2;
+Weapon = 8;
+Weapon2 = 10;
+Team = 2;
+View = 300;
+Think = 60;
+Attack1	= 20;
+Attack2 = 25;
+Attack3 = 30;
+Guard =	25;
+Dodge =	10;
+Jump = 10;
+Look = 30;
+Burst = 10;
+Aim = 80;
+GetItem = 100;
+Spawn = 247;
+HP = 1500;	
+
+g_selfAddr = 0;
+g_self = 0;
+
+function OnInit(a)
+	g_selfAddr = a;
+end
+
+function OnStart()
+	g_self = GetSelf(g_selfAddr);
+	ChangeBehavior(g_self, "idle");
+end

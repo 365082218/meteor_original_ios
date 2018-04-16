@@ -1,0 +1,30 @@
+Name = "蒙面人﹒乙";
+Model =	10;
+Weapon = 30;
+Weapon2 = 31;
+Team = 2;
+View = 5000;
+Think = 80;
+Attack1	= 30;
+Attack2 = 30;
+Attack3 = 30;
+Guard =	10;
+Dodge =	10;
+Jump = 10;
+Look = 80;
+Burst = 10;
+Aim = 80;
+GetItem = 50;
+Spawn = 23;
+HP = 1500;
+
+g_selfAddr = 0;
+g_self = 0;
+function OnInit(a)
+	g_selfAddr = a;
+end
+
+function OnStart()
+	g_self = GetSelf(g_selfAddr);
+	ChangeBehavior(g_self, "follow", "player");
+end

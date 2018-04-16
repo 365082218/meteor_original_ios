@@ -1,0 +1,63 @@
+function main()
+end
+
+function load()
+end
+
+function save()
+U3D.SaveClean()
+--U3D.SaveState("answer", answer)
+--U3D.SaveState("getreward", getreward)
+--U3D.SaveState("npcId", npcId)
+--U3D.SaveState("chufu_npc_talk", chufu_npc_talk)
+U3D.SaveDone()
+end
+
+function SetSceneItem(a, b, c, d)
+	U3D.SetSceneItem(a, b, c, d)
+end
+
+function MakeString(b, c)
+	str = string.format("%02d",c)
+	return (b..str)
+end
+
+function GetSceneItem(a, b)
+	return U3D.GetSceneItem(a, b)
+end
+
+function GetTeam(a)
+	return U3D.GetTeam(a)--得到角色属于流星或者蝴蝶
+end
+
+function Output(a)
+	print(a)
+end
+
+function NetEvent(a)
+	U3D.NetEvent(a)
+end
+
+function CreateEffect(a, b)
+	U3D.CreateEffect(a, b)
+end
+
+function GetSelf(a)
+	return a
+end
+
+function ChangeBehavior(a, b)
+	return U3D.ChangeBehavior(a, b)
+end
+
+function ChangeBehavior(a, b, c)
+	return U3D.ChangeBehavior(a, b, c)
+end
+
+function ChangeBehavior(a, b, c, d, e, f, g, h, i, j, k)
+	return U3D.ChangeBehavior(a, b, c, d, e, f, g, h, i, j, k);
+end
+
+function UpdateAIAttrib(a)
+	U3D.UpdateAIAttrib(a);
+end

@@ -1,0 +1,31 @@
+Name = "无名";
+Model =	10;
+Weapon = 23;
+Weapon2 = 22;
+Team = 1;
+View = 600;
+Think = 100;
+Attack1	= 10;
+Attack2 = 20;
+Attack3 = 30;
+Guard =	50;
+Dodge =	50;
+Jump = 20;
+Look = 100;
+Burst = 50;
+Aim = 90;
+GetItem = 0;
+Spawn = 50;
+HP = 9999;
+	
+
+g_selfAddr = 0;
+g_self = 0;
+function OnInit(int this)
+	g_selfAddr = this;
+end
+
+function OnStart()
+	g_self = GetSelf(g_selfAddr);
+	ChangeBehavior(g_self, "follow", "vip");
+end

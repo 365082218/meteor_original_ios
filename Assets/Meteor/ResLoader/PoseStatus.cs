@@ -1,0 +1,912 @@
+﻿using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System;
+//管理角色的动画帧，用自己的方式实现动画
+[Serializable]
+public class PoseStatus
+{
+    public static Dictionary<int, List<Pose>> ActionList = new Dictionary<int, List<Pose>>();
+    //1一定不要重力，因为招式向上 2一定要重力，因为招式向下，3如果在空中，忽略重力
+    //public static Dictionary<int, int> IgnoreGravity = new Dictionary<int, int>();
+    public Pose mActiveAction = null;
+    static Dictionary<int, TextAsset> PosFile = new Dictionary<int, TextAsset>();
+    MeteorUnit _Self;
+    public Transform FollowBone;
+    public float FollowBoneScale = 1.0f;
+    int UnitId;
+    public bool CanMove;
+    public bool CanControl;
+    public bool CanRotateY
+    {
+        get
+        {
+            //如果被锁定
+            if (_Self.controller.InputLocked)
+                return false;
+            //如果有锁定目标，不许转向
+            if (_Self.GetLockedTarget() != null)
+                return false;
+            //攻击动作播放时不许摇杆控制角色转向
+            if (IsAttackPose())
+                return false;
+            if (_Self.Climbing)
+                return false;
+            //防御不许转向
+            if (mActiveAction.Idx >= CommonAction.DartDefence && mActiveAction.Idx <= CommonAction.HammerDefence)
+                return false;
+            if (mActiveAction.Idx >= CommonAction.ZhihuDefence && mActiveAction.Idx <= CommonAction.RendaoDefence)
+                return false;
+            //如果是一些特殊动作，比如前滚后滚，爆气，换武器，嘲讽，救人，受击中不许切换转向
+            if (mActiveAction.Idx >= CommonAction.DForw1 && mActiveAction.Idx <= CommonAction.DCBack)
+                return false;
+            if (mActiveAction.Idx >= CommonAction.DForw4 && mActiveAction.Idx <= CommonAction.DBack6)
+                return false;
+            if (mActiveAction.Idx == CommonAction.Struggle || mActiveAction.Idx == CommonAction.Dead)
+                return false;
+            if (mActiveAction.Idx == CommonAction.BreakOut || mActiveAction.Idx == CommonAction.ChangeWeapon ||
+                mActiveAction.Idx == CommonAction.Taunt || mActiveAction.Idx == CommonAction.AirChangeWeapon)
+                return false;
+            if (mActiveAction.Idx >= CommonAction.DefenceHitStart && mActiveAction.Idx <= CommonAction.DefenceHitEnd)
+                return false;
+            if (mActiveAction.Idx >= CommonAction.HitStart && mActiveAction.Idx <= CommonAction.HitEnd)
+                return false;
+            return true;
+        }
+    }
+    
+    //public bool CanJump;
+    public bool CanChangeWeapon;
+    public bool CanDefence
+    {
+        get
+        {
+            if (onDefence)
+                return false;
+            if (onhurt)
+                return false;
+            if (IsAttackPose())
+                return false;
+            //只有蹲下，空闲，移动，可以切换为防御
+            if (mActiveAction.Idx >= CommonAction.DForw1 && mActiveAction.Idx <= CommonAction.DCBack)
+                return false;
+            if (mActiveAction.Idx >= CommonAction.DForw4 && mActiveAction.Idx <= CommonAction.DBack6)
+                return false;
+            if (mActiveAction.Idx == CommonAction.Struggle || mActiveAction.Idx == CommonAction.Dead)
+                return false;
+            if (mActiveAction.Idx == CommonAction.BreakOut || mActiveAction.Idx == CommonAction.ChangeWeapon ||
+                mActiveAction.Idx == CommonAction.Taunt || mActiveAction.Idx == CommonAction.AirChangeWeapon)
+                return false;
+            if (mActiveAction.Idx >= CommonAction.Jump && mActiveAction.Idx <= CommonAction.JumpFallOnGround)
+                return false;
+            return true;
+        }
+    }
+    public bool CanSkill
+    {
+        get
+        {
+            return CanDefence;
+        }
+    }
+    public bool Rotateing = false;
+    public bool onDefence
+    {
+        get
+        {
+            if (mActiveAction.Idx >= CommonAction.DartDefence && mActiveAction.Idx <= CommonAction.HammerDefence)
+                return true;
+            if (mActiveAction.Idx >= CommonAction.ZhihuDefence && mActiveAction.Idx <= CommonAction.RendaoDefence)
+                return true;
+            if (mActiveAction.Idx >= CommonAction.DefenceHitStart && mActiveAction.Idx <= CommonAction.DefenceHitEnd)
+                return true;
+            if (mActiveAction.Idx >= 490 && mActiveAction.Idx <= 500)//指虎乾坤防御
+                return true;
+            if (mActiveAction.Idx >= 513 && mActiveAction.Idx <= 519)//忍刀防御
+                return true;
+            return false;
+        }
+    }
+
+    public bool onhurt
+    {
+        get
+        {
+            if (mActiveAction.Idx >= CommonAction.HitStart && mActiveAction.Idx <= CommonAction.HitEnd)
+                return true;
+            return false;
+        }
+    }
+
+    public float JumpTick = 0.2f;//0.2f内算为跳.
+    public bool Jump
+    {
+        get
+        {
+            if (mActiveAction.Idx == CommonAction.Jump || 
+                mActiveAction.Idx == CommonAction.JumpLeft ||
+                mActiveAction.Idx == CommonAction.JumpRight ||
+                mActiveAction.Idx == CommonAction.JumpBack ||
+                mActiveAction.Idx == CommonAction.WallLeftJump ||
+                mActiveAction.Idx == CommonAction.WallRightJump)
+                return true;
+            return false;
+        }
+    }
+
+    public void Init(MeteorUnit owner)
+    {
+        _Self = owner;
+        load = owner.GetComponent<CharacterLoader>();
+        UnitId = _Self == null ? 0 : _Self.UnitId;
+        CanMove = true;
+        if (!PosFile.ContainsKey(UnitId))
+        {
+            int TargetIdx = UnitId >= 20 ? 0 : UnitId;
+            PosFile.Add(UnitId, Resources.Load<TextAsset>("P" + TargetIdx + ".pos"));
+            ActionList.Add(UnitId, new List<Pose>());
+            ReadPose();
+        }
+    }
+
+    public void StopAction()
+    {
+        if (load != null)
+            load.SetPosData(null);
+    }
+
+    public Dictionary<int, int> LinkInput = new Dictionary<int, int>();
+
+    public static bool IgnoreVelocityXZ(int idx)
+    {
+        ActionBase act = GameData.actionMng.GetRowByIdx(idx) as ActionBase;
+        if (act == null)
+            return false;
+        return act.IgnoreXZVelocity == 1;
+    }
+    public static bool IgnorePhysical(int idx)
+    {
+        ActionBase act = GameData.actionMng.GetRowByIdx(idx) as ActionBase;
+        if (act == null)
+            return false;
+        return act.IgnoreCollision == 1;
+    }
+    public static bool IgnoreGravity(int idx)
+    {
+        ActionBase act = GameData.actionMng.GetRowByIdx(idx) as ActionBase;
+        if (act == null)
+            return false;
+        return act.IgnoreGravity == 1;
+    }
+
+    //受击或者被击，都无法转变X轴视角，在没有锁定目标状态下才能转变Y视角.
+    public bool IsAttackPose()
+    {
+        //if (mActiveAction.Idx >= CommonAction.ZhihuReady && mActiveAction.Idx <= CommonAction.RendaoReady)
+        //    return false;
+
+        //if (mActiveAction.Idx >= 490 && mActiveAction.Idx <= 500)//指虎乾坤防御
+        //    return false;
+        //if (mActiveAction.Idx >= 513 && mActiveAction.Idx <= 519)//忍刀防御
+        //    return false;
+
+        //return mActiveAction.Idx >= CommonAction.AttackActStart;
+        return !(mActiveAction.Attack == null || mActiveAction.Attack.Count == 0);
+    }
+
+    public void LinkAction(int idx)
+    {
+        //先把虚拟动作转换为实际动作ID
+        if (idx >= (int)VK_Pose.VK_Idle)
+        {
+            switch (idx)
+            {
+                case (int)VK_Pose.VK_Idle:idx = 0;break;
+            }
+        }
+
+        if (mActiveAction != null)
+        {
+            PosAction act = null;
+            int curIndex = load.GetCurrentFrameIndex();
+            for (int i = 0; i < mActiveAction.ActionList.Count; i++)
+            {
+                if (mActiveAction.ActionList[i].Type == "Blend")
+                {
+                    act = mActiveAction.ActionList[i];
+                    //在可切换帧范围内
+                    if (curIndex >= act.Start && curIndex <= act.End)
+                    {
+                        //如果角色在空中，那么出招会凝滞重力
+                        if (!_Self.IsOnGround())
+                            _Self.ResetYVelocity();
+                        //_Self.IgnoreGravitys(IgnoreGravity(idx));
+
+                        if (mActiveAction.Next != null)
+                        {
+                            Debug.LogError("直接切换动作：" + idx + " NextPose:" + mActiveAction.Next.Time);
+                            ChangeAction(idx, mActiveAction.Next.Time);
+                        }
+                        else
+                            ChangeAction(idx);
+                        return;
+                    }
+                    else if (curIndex < act.Start)
+                    {
+                        LinkInput[mActiveAction.Idx] = idx;
+                        Debug.LogError("等待混合动作：" + idx);
+                        return;
+                    }
+                }
+            }
+            //如果动作无尾部融合之类的，就立即切换动作吧,表明这个动作一开始跑,任意时候都接受输入并转换状态.
+            //如果角色在空中或者招式有向上的移动，那么出招会凝滞重力
+            //在空中出任意招式，向上的跳跃能力将会被清空
+            if (!_Self.IsOnGround())
+                _Self.ResetYVelocity();
+            //某些时候，XZ轴速度也会发生改变。这个部分比较细致，
+            //_Self.IgnoreGravitys(IgnoreGravity(idx));
+            //MeteorManager.Instance.PhysicalIgnore(_Self, IgnorePhysical(idx));
+            //else if (!_Self.IsOnGround())
+            //    _Self.EnableGravity(false);
+            if (IsAttackPose())
+            {
+                LinkInput[mActiveAction.Idx] = idx;
+                //Debug.LogError("等待结束后连接动作：" + idx);
+            }
+            else
+            {
+                if (mActiveAction.Next != null)
+                    ChangeAction(idx, mActiveAction.Next.Time);
+                else
+                    ChangeAction(idx);
+            }
+        }
+    }
+
+
+    public void OnActionFinished()
+    {
+        if (waitPause)
+        {
+            //
+        }
+        else
+        {
+            if (LinkInput.ContainsKey(mActiveAction.Idx))
+            {
+                int TargetActionIdx = mActiveAction.Idx;
+                if (mActiveAction.Next != null)
+                    ChangeAction(LinkInput[mActiveAction.Idx], mActiveAction.Next.Time);//
+                else
+                    ChangeAction(LinkInput[mActiveAction.Idx]);
+                LinkInput.Clear();
+            }
+            else
+            {
+                //_Self.IgnoreGravitys(false);//开启重力，默认link都是要带重力的
+                if (mActiveAction.Link != 0)
+                {
+                    //if (!_Self.IsOnGround())
+                    //_Self.ResetYVelocity();
+                    //_Self.IgnoreGravitys(IgnoreGravity(mActiveAction.Link));
+                    //MeteorManager.Instance.PhysicalIgnore(_Self, IgnorePhysical(mActiveAction.Link));//控制角色在此动作内不与其他角色发生碰撞
+                    //else if (!_Self.IsOnGround())
+                    //    _Self.EnableGravity(false);
+                    if (mActiveAction.Next != null)
+                        ChangeAction(mActiveAction.Link, 0.1f);
+                    else
+                        ChangeAction(mActiveAction.Link);
+                }
+                else
+                {
+                    if (_Self.IsOnGround())
+                    {
+                        //如果处于防御-受击状态中,恢复为防御pose
+                        if (onDefence)
+                        {
+                            _Self.Defence();
+                        }
+                        else
+                        if (_Self.GetLockedTarget() != null)
+                        {
+                            int ReadyAction = 0;
+                            switch ((EquipWeaponType)_Self.GetWeaponType())
+                            {
+                                case EquipWeaponType.Knife: ReadyAction = CommonAction.KnifeReady; break;
+                                case EquipWeaponType.Sword: ReadyAction = CommonAction.SwordReady; break;
+                                case EquipWeaponType.Blade: ReadyAction = CommonAction.BladeReady; break;
+                                case EquipWeaponType.Lance: ReadyAction = CommonAction.LanceReady; break;
+                                case EquipWeaponType.Brahchthrust: ReadyAction = CommonAction.BrahchthrustReady; break;
+                                case EquipWeaponType.Dart: ReadyAction = CommonAction.DartReady; break;
+                                case EquipWeaponType.Gloves: ReadyAction = CommonAction.ZhihuReady; break;//没找到
+                                case EquipWeaponType.Guillotines: ReadyAction = CommonAction.GuillotinesReady; break;
+                                case EquipWeaponType.Hammer: ReadyAction = CommonAction.HammerReady; break;
+                                case EquipWeaponType.NinjaSword: ReadyAction = CommonAction.RendaoReady; break;
+                                case EquipWeaponType.HeavenLance:
+                                    switch (_Self.GetWeaponSubType())
+                                    {
+                                        case 0: ReadyAction = CommonAction.QK_BADAO_READY; break;
+                                        case 1: ReadyAction = CommonAction.QK_CHIQIANG_READY; break;
+                                        case 2: ReadyAction = CommonAction.QK_JUHE_READY; break;
+                                    }
+                                    break;
+                                case EquipWeaponType.Gun: ReadyAction = CommonAction.GunReady; break;
+                            }
+                            if (mActiveAction.Next != null)
+                                ChangeAction(ReadyAction, 0.1f);
+                            else
+                                ChangeAction(ReadyAction);
+                        }
+                        else
+                        {
+                            if (mActiveAction.Next != null)
+                                ChangeAction(CommonAction.Idle, 0.1f);
+                            else
+                                ChangeAction(CommonAction.Idle);
+                            //ChangeAction(CommonAction.Idle, 0.1f);
+                        }
+                    }
+                    else
+                        ChangeAction(CommonAction.JumpFall, 0.1f);
+                }
+            }
+        }
+    }
+
+    bool waitPause = false;
+    public void WaitPause()
+    {
+        waitPause = true;//等待
+    }
+
+    public void OnDead()
+    {
+        CanControl = CanMove = false;
+    }
+    //根据动作号开始动画.
+    public CharacterLoader AnimalCtrlEx { get { return load; } }
+    CharacterLoader load;
+    //动作在地面还是空中
+    //动作是移动 防守 还是攻击 受伤 待机 
+    public void ChangeActionSingle(int idx = CommonAction.Idle)
+    {
+        if (ActionList[UnitId].Count > idx && load != null)
+        {
+            CanMove = false;
+            if (idx == CommonAction.Defence)
+            {
+                switch ((EquipWeaponType)_Self.GetWeaponType())
+                {
+                    case EquipWeaponType.Knife: idx = CommonAction.KnifeDefence; break;
+                    case EquipWeaponType.Sword: idx = CommonAction.SwordDefence; break;
+                    case EquipWeaponType.Blade: idx = CommonAction.BladeDefence; break;
+                    case EquipWeaponType.Lance: idx = CommonAction.LanceDefence; break;
+                    case EquipWeaponType.Brahchthrust: idx = CommonAction.BrahchthrustDefence; break;
+                    //case EquipWeaponType.Dart: idx = CommonAction.DartDefence;break;
+                    case EquipWeaponType.Gloves: idx = CommonAction.ZhihuDefence; break;//没找到
+                    //case EquipWeaponType.Guillotines: idx = CommonAction.GuillotinesDefence;break;
+                    case EquipWeaponType.Hammer: idx = CommonAction.HammerDefence; break;
+                    case EquipWeaponType.NinjaSword: idx = CommonAction.RendaoDefence; break;
+                    case EquipWeaponType.HeavenLance: idx = CommonAction.QiankunDefenct; break;//
+                                                                                               //case EquipWeaponType.Gun: return;//
+                }
+            }
+            else
+            if (idx == CommonAction.Jump)
+            {
+                CanMove = true;//跳跃后，可以微量移动
+            }
+            //else if (idx == Data.CommonActionI.ShortJump)
+            //{
+            //    CanChangeWeapon = false;//空中不可换武器
+            //    CanMove = true;
+            //}
+            else if ((idx >= CommonAction.WalkForward && idx <= CommonAction.RunOnDrug) || idx == CommonAction.Crouch)
+            {
+                CanMove = true;
+            }
+            else if (idx == CommonAction.Idle)
+            {
+                CanMove = true;
+            }
+            load.SetPosData(ActionList[UnitId][idx], 0, true);
+            load.Pause = false;
+            mActiveAction = ActionList[UnitId][idx];
+        }
+    }
+
+    //被动情况下播放动画，类似，受到攻击，或者防御住对方的攻击
+    public void OnChangeAction(int idx)
+    {
+        //如果是一些倒地动作，动作播放完之后还需要固定长时间才能起身
+        ChangeAction(idx);
+    }
+
+    public void ChangeAction(int idx = CommonAction.Idle, float time = 0.0f, int targetFrame = 0)
+    {
+        _Self.IgnoreGravitys(PoseStatus.IgnoreGravity(idx));//设置招式重力
+        bool ignorePhy = IgnorePhysical(idx);
+        if (ignorePhy != _Self.IgnorePhysical)
+            MeteorManager.Instance.PhysicalIgnore(_Self, ignorePhy);//设置招式是否忽略角色障碍
+        //设置招式，是否冻结XZ轴速度，比如忍刀空中A，就冻结XZ轴速度，一下向下的招式都会如此，而水平招式不会
+        _Self.ResetWorldVelocity(IgnoreVelocityXZ(idx));
+        if (load != null)
+        {
+            CanMove = false;
+            if (idx == CommonAction.Defence)
+            {
+                switch ((EquipWeaponType)_Self.GetWeaponType())
+                {
+                    case EquipWeaponType.Knife: idx = CommonAction.KnifeDefence;break;
+                    case EquipWeaponType.Sword: idx = CommonAction.SwordDefence; break;
+                    case EquipWeaponType.Blade: idx = CommonAction.BladeDefence; break;
+                    case EquipWeaponType.Lance: idx = CommonAction.LanceDefence; break;
+                    case EquipWeaponType.Brahchthrust: idx = CommonAction.BrahchthrustDefence;break;
+                    //case EquipWeaponType.Dart: idx = CommonAction.DartDefence;break;
+                    case EquipWeaponType.Gloves: idx = CommonAction.ZhihuDefence;break;//没找到
+                    //case EquipWeaponType.Guillotines: idx = CommonAction.GuillotinesDefence;break;
+                    case EquipWeaponType.Hammer: idx = CommonAction.HammerDefence;break;
+                    case EquipWeaponType.NinjaSword:idx = CommonAction.RendaoDefence;break;
+                    case EquipWeaponType.HeavenLance:idx = CommonAction.QiankunDefenct;break;//
+                    //case EquipWeaponType.Gun: return;//
+                }
+            }
+            else
+            if (idx == CommonAction.Jump)
+            {
+                CanMove = true;//跳跃后，可以微量移动
+            }
+            else if ((idx >= CommonAction.WalkForward && idx <= CommonAction.RunOnDrug) || idx == CommonAction.Crouch)
+            {
+                CanMove = true;
+            }
+            else if (idx == CommonAction.Idle)
+            {
+                CanMove = true;
+            }
+            //除了受击，防御，其他动作在有锁定目标下，都要转向锁定目标.
+            if (_Self.GetLockedTarget() != null && !onDefence && !onhurt)
+                _Self.FaceToTarget(_Self.GetLockedTarget());
+            load.SetPosData(ActionList[UnitId][idx], time, false, targetFrame);
+            mActiveAction = ActionList[UnitId][idx];
+            LinkInput.Clear();
+        }
+    }
+
+
+    void ReadPose()
+    {
+        if (PosFile[UnitId] != null)
+        {
+            Pose current = null;
+            PosAction curAct = null;
+            AttackDes att = null;
+            DragDes dra = null;
+            NextPose nex = null;
+            int left = 0;
+            int leftAct = 0;
+            int leftAtt = 0;
+            int leftDra = 0;
+            int leftNex = 0;
+            string text = System.Text.Encoding.ASCII.GetString(PosFile[UnitId].bytes);
+            string[] pos = text.Split(new char[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < pos.Length; i++)
+            {
+                if (current != null && current.Idx == 573)
+                {
+                    //Debug.Log("get");
+                }
+                string line = pos[i];
+                string[] lineObject = line.Split(new char[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
+                if (lineObject.Length == 0)
+                {
+                    //Debug.Log("line i:" + i);
+                    //空行跳过
+                    continue;
+                }
+                else if (lineObject[0].StartsWith("#"))
+                    continue;
+                else
+                if (lineObject[0] == "Pose" && left == 0 && leftAct == 0)
+                {
+                    Pose insert = new Pose();
+                    ActionList[UnitId].Add(insert);
+                    int idx = int.Parse(lineObject[1]);
+                    insert.Idx = idx;
+                    current = insert;
+                }
+                else if (lineObject[0] == "{")
+                {
+                    if (nex != null)
+                        leftNex++;
+                    else
+                    if (dra != null)
+                        leftDra++;
+                    else
+                    if (att != null)
+                    {
+                        leftAtt++;
+                    }
+                    else
+                        if (curAct != null)
+                        leftAct++;
+                    else
+                        left++;
+                }
+                else if (lineObject[0] == "}")
+                {
+                    if (nex != null)
+                    {
+                        leftNex--;
+                        if (leftNex == 0)
+                            nex = null;
+                    }
+                    else
+                    if (dra != null)
+                    {
+                        leftDra--;
+                        if (leftDra == 0)
+                            dra = null;
+                    }
+                    else
+                    if (att != null)
+                    {
+                        leftAtt--;
+                        if (leftAtt == 0)
+                            att = null;
+                    }
+                    else
+                    if (curAct != null)
+                    {
+                        leftAct--;
+                        if (leftAct == 0)
+                            curAct = null;
+                    }
+                    else
+                    {
+                        left--;
+                        if (left == 0)
+                            current = null;
+                    }
+
+                }
+                else if (lineObject[0] == "link" || lineObject[0] == "Link" || lineObject[0] == "Link\t" || lineObject[0] == "link\t")
+                {
+                    current.Link = int.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "source" || lineObject[0] == "Source")
+                {
+                    current.SourceIdx = int.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "Start" || lineObject[0] == "start")
+                {
+                    if (nex != null)
+                    {
+                        nex.Start = int.Parse(lineObject[1]);
+                    }
+                    else
+                    if (dra != null)
+                    {
+                        dra.Start = int.Parse(lineObject[1]);
+                    }
+                    else
+                    if (att != null)
+                    {
+                        att.Start = int.Parse(lineObject[1]);
+                    }
+                    else
+                    if (curAct != null)
+                        curAct.Start = int.Parse(lineObject[1]);
+                    else
+                        current.Start = int.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "End" || lineObject[0] == "end")
+                {
+                    if (nex != null)
+                    {
+                        nex.End = int.Parse(lineObject[1]);
+                    }
+                    else
+                    if (dra != null)
+                    {
+                        dra.End = int.Parse(lineObject[1]);
+                    }
+                    else
+                    if (att != null)
+                    {
+                        att.End = int.Parse(lineObject[1]);
+                    }
+                    else
+                    if (curAct != null)
+                        curAct.End = int.Parse(lineObject[1]);
+                    else
+                        current.End = int.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "Speed" ||lineObject[0] == "speed")
+                {
+                    if (curAct != null)
+                        curAct.Speed = float.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "LoopStart")
+                {
+                    current.LoopStart = int.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "LoopEnd")
+                {
+                    current.LoopEnd = int.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "EffectType")
+                {
+                    current.EffectType = int.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "EffectID")
+                {
+                    current.EffectID = lineObject[1];
+                }
+                else if (lineObject[0] == "Blend")
+                {
+                    PosAction act = new PosAction();
+                    act.Type = "Blend";
+                    current.ActionList.Add(act);
+                    curAct = act;
+                }
+                else if (lineObject[0] == "Action")
+                {
+                    PosAction act = new PosAction();
+                    act.Type = "Action";
+                    current.ActionList.Add(act);
+                    curAct = act;
+                }
+                else if (lineObject[0] == "Attack")
+                {
+                    att = new AttackDes();
+                    att.PoseIdx = current.Idx;
+                    current.Attack.Add(att);
+                }
+                else if (lineObject[0] == "bone")
+                {
+                    //重新分割，=号分割，右边的,号分割
+                    lineObject = line.Split(new char[] { '=' }, System.StringSplitOptions.RemoveEmptyEntries);
+                    string bones = lineObject[1];
+                    while (bones.EndsWith(","))
+                    {
+                        i++;
+                        lineObject = new string[1];
+                        lineObject[0] = pos[i];
+                        bones += lineObject[0];
+                    }
+                    //bones = bones.Replace(' ', '_');
+                    string[] bonesstr = bones.Split(new char[] { ',' });
+                    for (int j = 0; j < bonesstr.Length; j++)
+                    {
+                        string b = bonesstr[j].TrimStart(new char[] { ' ', '\"' });
+                        b = b.TrimEnd(new char[] { '\"',' ' });
+                        b = b.Replace(' ', '_');
+                        att.bones.Add(b);
+                    }
+                }
+                else if (lineObject[0] == "AttackType")
+                {
+                    att._AttackType = int.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "CheckFriend")
+                {
+                    att.CheckFriend = int.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "DefenseValue")
+                {
+                    att.DefenseValue = float.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "DefenseMove")
+                {
+                    att.DefenseMove = float.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "TargetValue")
+                {
+                    att.TargetValue = float.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "TargetMove")
+                {
+                    att.TargetMove = float.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "TargetPose")
+                {
+                    att.TargetPose = int.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "TargetPoseFront")
+                {
+                    att.TargetPoseFront = int.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "TargetPoseBack")
+                {
+                    att.TargetPoseBack = int.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "TargetPoseLeft")
+                {
+                    att.TargetPoseLeft = int.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "TargetPoseRight")
+                {
+                    att.TargetPoseRight = int.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "Drag")
+                {
+                    dra = new DragDes();
+                    current.Drag = dra;
+                }
+                else if (lineObject[0] == "Time")
+                {
+                    if (nex != null)
+                        nex.Time = float.Parse(lineObject[1]);
+                    else
+                        dra.Time = float.Parse(lineObject[1]);
+                }
+                else if (lineObject[0] == "Color")
+                {
+                    string[] rgb = lineObject[1].Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+                    dra.Color.x = int.Parse(rgb[0]);
+                    dra.Color.y = int.Parse(rgb[1]);
+                    dra.Color.z = int.Parse(rgb[2]);
+                }
+                else if (lineObject[0] == "NextPose")
+                {
+                    current.Next = new NextPose();
+                    nex = current.Next;
+                }
+                else if (lineObject[0] == "{}")
+                {
+                    current = null;
+                    continue;
+                }
+                else
+                {
+                    Debug.Log("line :" + i + " can t understand：" + pos[i]);
+                    break;
+                }
+            }
+        }
+    }
+}
+
+public class Pose
+{
+    public static int FPS;
+    public int Idx;
+    public int SourceIdx;
+    public int Start;
+    public int End;
+    public int LoopStart;
+    public int LoopEnd;
+    public int EffectType;//这个链接到特效事件表里.
+    public string EffectID;
+    public List<PosAction> ActionList = new List<PosAction>();
+    public int Link;
+    public List<AttackDes> Attack = new List<AttackDes>();
+    public DragDes Drag;
+    public NextPose Next;
+}
+
+//[System.Serializable]
+public class AttackDes
+{
+    public List<string> bones = new List<string>();//攻击伤害盒
+    public int PoseIdx;//伤害由哪个动作赋予，由动作可以反向查找技能，以此算伤害
+    public int Start;
+    public int End;
+    public int _AttackType;//0普攻1破防
+    public int CheckFriend;
+    public float DefenseValue;//防御僵硬
+    public float DefenseMove;//防御时移动.
+    public float TargetValue;//攻击僵硬
+    public float TargetMove;//攻击时移动
+    public int TargetPose;//受击时播放动作
+    public int TargetPoseFront;  //挨打倒地096
+    public int TargetPoseBack;//倒地前翻   099
+    public int TargetPoseLeft;//倒地右翻   098
+    public int TargetPoseRight;//倒地左翻  097
+}
+
+//[System.Serializable]
+public class DragDes
+{
+    public int Start;
+    public int End;
+    public float Time;
+    public Vector3 Color;
+}
+
+//[System.Serializable]
+public class NextPose
+{
+    public int Start;
+    public int End;
+    public float Time;
+}
+
+//攻击动作，即哪几帧使用攻击盒算伤害.
+/*
+ * Pose 572     #荡~臂锣ぇ~）９＋\辽~><~
+{
+  source     0
+  Start      16621
+  End        16732
+  EffectType 0
+  EffectID   Pos572
+  link       573
+  Blend
+  {
+    Start 16621
+    End   16641
+    Speed 1.5
+  }
+  Action
+  {
+    start 16642
+    end   16690
+    speed 1.5
+  }
+  Action
+  {
+    start 16691
+    end   16725
+    speed 1
+  }
+  Blend
+  {
+    start 16726
+    end   16726
+    speed 1
+  }
+  Action
+  {
+    start 16727
+    end   16732
+    speed 1
+  }
+  Attack
+  {
+    bone = "weapon","effect","bau Spine1","bau Spine",
+           "bau R UpperArm","bau R Forearm","bau R Hand",
+           "bau L UpperArm","bau L Forearm","bau L Hand",
+           "bad R Thigh","bad R Calf","bad R Foot",
+           "bad L Thigh","bad L Calf","bad L Foot"
+    Start       16693
+    End         16724
+    AttackType  0
+    CheckFriend 0
+    DefenseValue     0.3
+    DefenseMove      5
+    TargetValue      0.3
+    TargetMove       5
+    TargetPose       098   
+    TargetPoseFront  098
+    TargetPoseBack   097
+    TargetPoseLeft   099
+    TargetPoseRight  095
+  }
+  Drag
+  {
+    Start  16685
+    End    16732
+    Time   0.1
+    Color  255,255,198
+  }
+  NextPose
+  {
+    Start 16643
+    End   16731
+    Time  0.1
+  }
+  }
+ */
+[System.Serializable]
+public class PosAction
+{
+    public string Type;//"Blend/Action"
+    public int Start;
+    public int End;
+    public float Speed;//出招速度.
+
+}

@@ -1,0 +1,129 @@
+# GModel Description File V1.0
+# by Peter Pon for Interserv 2002/06/10
+SceneObjects 14 DummeyObjects 0
+Object Object05
+{
+  Position: -9.056 -20.017 20.232
+  Quaternion: -1.000 -0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object06
+{
+  Position: 10.384 -20.186 20.232
+  Quaternion: -1.000 -0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object07
+{
+  Position: 19.976 -6.674 20.232
+  Quaternion: -1.000 -0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object01
+{
+  Position: -0.024 -6.674 40.233
+  Quaternion: -1.000 0.000 -0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object02
+{
+  Position:  0.102  8.015 40.233
+  Quaternion: -1.000 -0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object03
+{
+  Position: -20.055 -9.964 20.232
+  Quaternion: -1.000 -0.000 -0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object04
+{
+  Position: -19.898  8.015 20.232
+  Quaternion: -1.000 -0.000 0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object146
+{
+  Position:  0.032 -0.095 40.233
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object08
+{
+  Position: 20.123 10.183 20.232
+  Quaternion: -1.000 -0.000 -0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object09
+{
+  Position:  7.634 19.839 20.232
+  Quaternion: -1.000 -0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object10
+{
+  Position: -10.191 19.995 20.232
+  Quaternion: -1.000 -0.000 -0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object11
+{
+  Position:  0.119 10.035  0.231
+  Quaternion: -1.000 -0.000 -0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object12
+{
+  Position:  0.032 -0.095  0.231
+  Quaternion: -1.000 0.000 -0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object13
+{
+  Position: -0.051 -9.816  0.231
+  Quaternion: -1.000 -0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}

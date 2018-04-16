@@ -1,0 +1,35 @@
+Version 1.8:
+- Updated vertex modifying scripts (Unity 5.2.2f1 changes).
+
+Version 1.7:
+- Updated vertex modifying scripts (Unity 5.2 changes).
+- Improved UIDragObject, now handles canvas scaling and all canvas render modes.
+
+Version 1.6:
+- Fixed a bug causing duplicate icons when dragging an empty slot onto an assigned one.
+
+Version 1.5:
+- Added a tool to disable all the navigations with a single click.
+- Disabled all the navigations to prevent highlight getting stuck.
+- Added missing navigation property to the UITab editor script.
+
+Version 1.4:
+- Removed Simple Sprite Packer.
+- Removed the atlas (the unity sprite packer should pack a new one).
+- Updated all sprite references in all scenes and prefabs.
+
+Version 1.3:
+- Improved UIDragObject inertia dampening.
+- Added constrain within canvas option to the UIDragObject script.
+- Fixed the Circular Raycast filter editor script not including the canvas scaling factor.
+- Fixed possible class name collision for Text in the select field label editor script.
+- Moved the database creation menu to section assets.
+
+Version 1.2:
+- Fixed AOT cross compile error.
+
+Version 1.1:
+- Improved UIButtonExtended_Target.
+- Improved UISelectField.
+- Improved UITooltip for quality, attribute rows will now have fixed size to quarantee pixel perfect text.
+- Updated the overlay shader.

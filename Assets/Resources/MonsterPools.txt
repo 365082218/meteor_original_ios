@@ -1,0 +1,3 @@
+﻿序号	名称	地图	刷怪盒地点	绕Y轴角度	怪物属性ID	刷怪盒预设	刷怪方式	巡逻配置
+Idx	Name	LevelIdx	SpawnPoint	SpawnRotate	MonsterId	SpawnPrefab	SpawnType	PatrolIdx
+1	怪物[刺客]_放置	1	1	90	1003			1

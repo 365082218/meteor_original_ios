@@ -1,0 +1,20 @@
+{"frames": {
+
+"t_gongjiqvyu.png":
+{
+	"frame": {"x":2,"y":2,"w":188,"h":188},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":188,"h":188},
+	"sourceSize": {"w":188,"h":188}
+}},
+"meta": {
+	"app": "http://www.texturepacker.com",
+	"version": "1.0",
+	"image": "SkillControl.png",
+	"format": "RGBA8888",
+	"size": {"w":192,"h":193},
+	"scale": "0.5",
+	"smartupdate": "$TexturePacker:SmartUpdate:e4cd3284fc2152395293d6b1ff9869a1$"
+}
+}

@@ -1,0 +1,30 @@
+Name = "禁卫侍官长";
+Model =	6;
+Weapon = 17;
+Weapon2 = 21;
+Team = 2;
+View = 400;
+Think = 100;
+Attack1	= 30;
+Attack2 = 30;
+Attack3 = 20;
+Guard =	20;
+Dodge =	20;
+Jump = 20;
+Look = 60;
+Burst = 30;
+Aim = 90;
+GetItem = 10;
+Spawn = 72;
+HP = 5000;	
+
+g_selfAddr = 0;
+g_self = 0;
+function OnInit(a)
+	g_selfAddr = a;
+end
+
+function OnStart()
+	g_self = GetSelf(g_selfAddr);
+	ChangeBehavior(g_self, "wait");
+end

@@ -1,0 +1,30 @@
+Name = "野和尚﹒乙";
+Model =	4;
+Weapon = 36;
+Weapon2 = 29;
+Team = 2;
+View = 300;
+Think = 70;
+Attack1	= 15;
+Attack2 = 20;
+Attack3 = 15;
+Guard =	50;
+Dodge =	10;
+Jump = 10;
+Look = 30;
+Burst = 30;
+Aim = 70;
+GetItem = 20;
+Spawn = 38;
+HP = 3500;	
+
+g_selfAddr = 0;
+g_self = 0;
+function OnInit(a)
+	g_selfAddr = a;
+end
+
+function OnStart()
+	g_self = GetSelf(g_selfAddr);
+	ChangeBehavior(g_self, "patrol", 38, 46, 49, 50, 45, 43, 41, 39, 36, 38);
+end

@@ -1,0 +1,33 @@
+string Name = "AI";
+int Model = 1;
+int Weapon = 5;
+int Weapon2 = 6;
+int Team = 1;
+int View = 10000;
+int Think = 100;
+int Attack1 = 0;
+int Attack2 = 0;
+int Attack3 = 0;
+int Guard = 0;
+int Dodge = 0;
+int Jump = 0;
+int Look = 0;
+int Burst = 80;
+int Aim = 0;
+int GetItem = 0;
+int Spawn = 0;
+int HP = 10000;
+
+int g_selfAddr;
+int g_self;
+OnInit(int this)
+{
+g_selfAddr = this;
+}
+
+OnStart()
+{
+g_self = GetSelf(g_selfAddr);
+ChangeBehavior(g_self, "idle"); 
+Perform(g_self,"crouch",1);
+}

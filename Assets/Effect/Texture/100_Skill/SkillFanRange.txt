@@ -1,0 +1,44 @@
+{"frames": {
+
+"bt_bg_fangxiang.png":
+{
+	"frame": {"x":2,"y":606,"w":237,"h":237},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":237,"h":237},
+	"sourceSize": {"w":237,"h":237}
+},
+"bt_fangxiang.png":
+{
+	"frame": {"x":304,"y":2,"w":112,"h":113},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":112,"h":113},
+	"sourceSize": {"w":112,"h":113}
+},
+"tx4.png":
+{
+	"frame": {"x":2,"y":304,"w":300,"h":300},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":300,"h":300},
+	"sourceSize": {"w":300,"h":300}
+},
+"tx4_1.png":
+{
+	"frame": {"x":2,"y":2,"w":300,"h":300},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":300,"h":300},
+	"sourceSize": {"w":300,"h":300}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker ",
+	"version": "1.0",
+	"image": "SkillFanRange.png",
+	"format": "RGBA8888",
+	"size": {"w":512,"h":1024},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:e42bada4df99006bebc48455c0c869e2:1/1$"
+}
+}

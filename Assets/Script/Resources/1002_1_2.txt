@@ -1,0 +1,6 @@
+﻿--寓所触发
+
+  function main()
+      U3D.TextAppend("这里是锦衣卫住宿的地方")
+	  U3D.RandTalk()
+  end

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?> 
+<linker> 
+<assembly fullname="I18N"> <type fullname="I18N.Common.Manager" preserve="all"/> 
+</assembly> 
+<assembly fullname="I18N.CJK"> 
+<type fullname="I18N.CJK.CP936" preserve="all"/> 
+<type fullname="I18N.CJK.CP950" preserve="all"/> 
+</assembly> 
+</linker>

@@ -1,0 +1,213 @@
+# Character Bone Export for Interserv
+#		by Peter Pon
+Bones: 30 Dummey: 6
+bone b
+{
+  parent d_base
+  pivot -0.001 -1.105 20.166
+  children 1
+}
+bone bad_Pelvis
+{
+  parent b
+  pivot -0.086 -0.000  0.000
+  children 1
+}
+bone bau_Spine
+{
+  parent bad_Pelvis
+  pivot  1.766  0.259  0.000
+  children 3
+}
+bone bad_L_Thigh
+{
+  parent bau_Spine
+  pivot -1.753 -0.334  1.649
+  children 1
+}
+bone bad_L_Calf
+{
+  parent bad_L_Thigh
+  pivot  9.075  0.000 -0.000
+  children 1
+}
+bone bad_L_Foot
+{
+  parent bad_L_Calf
+  pivot  9.395  0.000  0.000
+  children 1
+}
+bone bbd_L_Toe0
+{
+  parent bad_L_Foot
+  pivot  1.953  3.135 -0.000
+  children 0
+}
+bone bad_R_Thigh
+{
+  parent bau_Spine
+  pivot -1.753 -0.334 -1.649
+  children 1
+}
+bone bad_R_Calf
+{
+  parent bad_R_Thigh
+  pivot  9.075  0.000 -0.000
+  children 1
+}
+bone bad_R_Foot
+{
+  parent bad_R_Calf
+  pivot  9.395  0.000  0.000
+  children 1
+}
+bone bbd_R_Toe0
+{
+  parent bad_R_Foot
+  pivot  1.953  3.135 -0.000
+  children 0
+}
+bone bau_Spine1
+{
+  parent bau_Spine
+  pivot  3.870 -0.002 -0.000
+  children 1
+}
+bone bau_Neck
+{
+  parent bau_Spine1
+  pivot  3.121 -0.002 -0.000
+  children 3
+}
+bone bau_Head
+{
+  parent bau_Neck
+  pivot  2.200 -0.000 -0.000
+  children 0
+}
+bone bau_L_Clavicle
+{
+  parent bau_Neck
+  pivot -0.149 -0.400  1.112
+  children 1
+}
+bone bau_L_UpperArm
+{
+  parent bau_L_Clavicle
+  pivot  1.835  0.000  0.000
+  children 1
+}
+bone bau_L_Forearm
+{
+  parent bau_L_UpperArm
+  pivot  5.541 -0.000  0.000
+  children 1
+}
+bone bau_L_Hand
+{
+  parent bau_L_Forearm
+  pivot  4.240  0.000  0.000
+  children 2
+}
+bone bbu_L_Finger0
+{
+  parent bau_L_Hand
+  pivot  0.684  0.290 -0.361
+  children 1
+}
+bone bbu_L_Finger01
+{
+  parent bbu_L_Finger0
+  pivot  0.531  0.000  0.000
+  children 0
+}
+bone bbu_L_Finger1
+{
+  parent bau_L_Hand
+  pivot  1.185 -0.106  0.061
+  children 1
+}
+bone bbu_L_Finger11
+{
+  parent bbu_L_Finger1
+  pivot  1.169 -0.000 -0.000
+  children 0
+}
+bone bau_R_Clavicle
+{
+  parent bau_Neck
+  pivot -0.149 -0.400 -1.112
+  children 1
+}
+bone bau_R_UpperArm
+{
+  parent bau_R_Clavicle
+  pivot  1.835 -0.000 -0.000
+  children 1
+}
+bone bau_R_Forearm
+{
+  parent bau_R_UpperArm
+  pivot  5.541 -0.000  0.000
+  children 1
+}
+bone bau_R_Hand
+{
+  parent bau_R_Forearm
+  pivot  4.240 -0.000  0.000
+  children 2
+}
+bone bbu_R_Finger0
+{
+  parent bau_R_Hand
+  pivot  0.684  0.290  0.361
+  children 1
+}
+bone bbu_R_Finger01
+{
+  parent bbu_R_Finger0
+  pivot  0.531  0.000  0.000
+  children 0
+}
+bone bbu_R_Finger1
+{
+  parent bau_R_Hand
+  pivot  1.185 -0.106 -0.061
+  children 1
+}
+bone bbu_R_Finger11
+{
+  parent bbu_R_Finger1
+  pivot  1.169 -0.000  0.000
+  children 0
+}
+Dummey d_base
+{
+  parent NULL
+  pivot   0.001  1.105  0.122
+}
+Dummey d_top
+{
+  parent b13
+  pivot   3.916 -0.000 -0.000
+}
+Dummey d_wpnL
+{
+  parent d3
+  pivot  -0.000 -0.000 -0.000
+}
+Dummey d_wpnLP
+{
+  parent b17
+  pivot   1.902  0.210 -0.005
+}
+Dummey d_wpnR
+{
+  parent d5
+  pivot  -0.000 -0.000  0.000
+}
+Dummey d_wpnRP
+{
+  parent b25
+  pivot   1.401  0.423 -0.003
+}

@@ -1,0 +1,59 @@
+﻿using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+public class LoadingWnd : Window<LoadingWnd>
+{
+	Image mProgressBar;
+    public override string PrefabName { get { return "LoadingWnd"; } }
+	Text mProgessLab;
+    Text LoadingNoticeLabel;
+    protected override bool OnOpen()
+    {
+		if (GameObject.Find("CameraControl")!= null){
+			GameObject.Find("CameraControl").gameObject.SetActive(false);
+		}
+        mProgressBar = Control("Progress").GetComponent<Image>();
+        mProgessLab = Control("progressText").GetComponent<Text>();
+        LoadingNoticeLabel = Control("Goal").GetComponent<Text>();
+		
+
+        Material loadingTexture = null;
+        if (!string.IsNullOrEmpty(Global.GLevelItem.BgTexture))
+            loadingTexture = Resources.Load<Material>(Global.GLevelItem.BgTexture) as Material;
+        else
+            loadingTexture = Resources.Load<Material>("Scene10") as Material;
+        if (loadingTexture != null)
+            Control("ShowLoading").GetComponent<Image>().material = loadingTexture;
+        WinStyle = WindowStyle.WS_Ext;
+        SetLoadingNoticeLabel();
+		mProgressBar.fillAmount = 0f;
+        return base.OnOpen();
+    }
+
+    protected override bool OnClose()
+    {
+		if(GameObject.Find("CameraControl")!= null){
+			GameObject.Find("CameraControl").gameObject.SetActive(true);
+		}
+        return base.OnClose();
+    }
+	
+	public void UpdateProgress(int progress, int total = 0, long kpbs = 0)
+	{
+        mProgressBar.fillAmount = (float)progress / 100.0f;
+		mProgessLab.text = progress + "%";
+	}
+
+
+    public void SetLoadingNoticeLabel()
+    {
+        LoadingNoticeLabel.text = "";
+        //显示关卡目标.
+        //int nLen = LoadingTipsManager.Instance.GetAllItem().Length;
+        //int nStart = 1;
+        //int nID = Random.Range(nStart, nStart + nLen - 1);
+        //LoadingNoticeLabel.text = Startup.ins.Lang == 0 ? LoadingTipsManager.Instance.GetItem(nID).TipCh : LoadingTipsManager.Instance.GetItem(nID).TipEn;
+    }
+}

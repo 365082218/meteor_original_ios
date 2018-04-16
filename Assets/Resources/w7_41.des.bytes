@@ -1,0 +1,38 @@
+SceneObjects 2 DummeyObjects 2
+Object hgat
+{
+	Position: 0.000000 0.000000 0.000000
+	Quaternion: -1.000000 0.000000 0.000000 0.000000
+	TextureAnimation: 0 0.000000 0.000000
+	Custom:
+	{
+	}
+}
+Object Line02
+{
+	Position: -0.881253 -10.404918 -0.159685
+	Quaternion: -1.000000 0.000000 0.000000 0.000000
+	TextureAnimation: 0 0.000000 0.000000
+	Custom:
+	{
+	visible=0
+	}
+}
+Object d_wpnRS
+{
+  Position: -0.003 -20.317  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object d_wpnRE
+{
+  Position:  0 -45.0  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}

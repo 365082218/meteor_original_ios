@@ -1,0 +1,249 @@
+# Character Bone Export for Interserv
+#		by Peter Pon
+Bones: 30 Dummey: 6
+bone b
+{
+  parent d_base
+  pivot  0.000  0.000 21.012
+  quaternion -0.70711 0.00000 0.00000 0.70711
+  children 1
+}
+bone bad_Pelvis
+{
+  parent b
+  pivot -0.001 -0.000  0.000
+  quaternion -0.50000 0.50000 0.50000 0.50000
+  children 1
+}
+bone bau_Spine
+{
+  parent bad_Pelvis
+  pivot  3.194 -0.005  0.000
+  quaternion -0.99985 0.00000 0.00000 0.01705
+  children 3
+}
+bone bad_L_Thigh
+{
+  parent bau_Spine
+  pivot -3.193 -0.104  2.782
+  quaternion -0.04324 -0.04513 0.99802 0.00635
+  children 1
+}
+bone bad_L_Calf
+{
+  parent bad_L_Thigh
+  pivot  9.461  0.000 -0.000
+  quaternion -1.00000 -0.00000 0.00000 0.00158
+  children 1
+}
+bone bad_L_Foot
+{
+  parent bad_L_Calf
+  pivot  8.861  0.000 -0.000
+  quaternion -0.99761 0.04512 0.04461 -0.02739
+  children 1
+}
+bone bbd_L_Toe0
+{
+  parent bad_L_Foot
+  pivot  2.808  3.672 -0.000
+  quaternion -0.70705 0.00926 -0.00926 -0.70705
+  children 0
+}
+bone bad_R_Thigh
+{
+  parent bau_Spine
+  pivot -3.193 -0.104 -2.782
+  quaternion 0.04324 -0.04496 0.99803 -0.00617
+  children 1
+}
+bone bad_R_Calf
+{
+  parent bad_R_Thigh
+  pivot  9.461  0.000  0.000
+  quaternion -1.00000 0.00000 0.00000 0.00204
+  children 1
+}
+bone bad_R_Foot
+{
+  parent bad_R_Calf
+  pivot  8.861 -0.000 -0.000
+  quaternion -0.99760 -0.04529 -0.04462 -0.02751
+  children 1
+}
+bone bbd_R_Toe0
+{
+  parent bad_R_Foot
+  pivot  2.808  3.672 -0.000
+  quaternion -0.70693 -0.00925 0.00924 -0.70717
+  children 0
+}
+bone bau_Spine1
+{
+  parent bau_Spine
+  pivot  5.741 -0.004 -0.000
+  quaternion -1.00000 0.00000 0.00000 -0.00000
+  children 1
+}
+bone bau_Neck
+{
+  parent bau_Spine1
+  pivot  4.945 -0.001 -0.000
+  quaternion -0.98481 -0.00000 0.00000 -0.17365
+  children 3
+}
+bone bau_Head
+{
+  parent bau_Neck
+  pivot  0.840  0.000  0.000
+  quaternion -0.98549 0.00000 -0.00000 0.16974
+  children 0
+}
+bone bau_L_Clavicle
+{
+  parent bau_Neck
+  pivot -1.394  0.333  2.276
+  quaternion 0.12724 0.67185 -0.11874 0.71995
+  children 1
+}
+bone bau_L_UpperArm
+{
+  parent bau_L_Clavicle
+  pivot  2.545 -0.000  0.000
+  quaternion -0.99874 0.01032 0.04174 -0.02577
+  children 1
+}
+bone bau_L_Forearm
+{
+  parent bau_L_UpperArm
+  pivot  6.610  0.000 -0.000
+  quaternion -0.99995 -0.00000 0.00000 0.01018
+  children 1
+}
+bone bau_L_Hand
+{
+  parent bau_L_Forearm
+  pivot  6.282  0.000  0.000
+  quaternion -0.70657 0.70601 0.03394 0.03391
+  children 2
+}
+bone bbu_L_Finger0
+{
+  parent bau_L_Hand
+  pivot  0.352  0.543 -0.800
+  quaternion -0.67817 -0.70204 -0.21459 0.03428
+  children 1
+}
+bone bbu_L_Finger01
+{
+  parent bbu_L_Finger0
+  pivot  1.314  0.000  0.000
+  quaternion -0.99725 -0.00000 0.00000 -0.07411
+  children 0
+}
+bone bbu_L_Finger1
+{
+  parent bau_L_Hand
+  pivot  2.047 -0.313 -0.173
+  quaternion -0.98641 0.01589 0.12637 -0.10378
+  children 1
+}
+bone bbu_L_Finger11
+{
+  parent bbu_L_Finger1
+  pivot  1.309  0.000 -0.000
+  quaternion -0.99255 -0.00000 -0.00000 -0.12187
+  children 0
+}
+bone bau_R_Clavicle
+{
+  parent bau_Neck
+  pivot -1.394  0.333 -2.276
+  quaternion 0.12724 -0.67185 0.11874 0.71995
+  children 1
+}
+bone bau_R_UpperArm
+{
+  parent bau_R_Clavicle
+  pivot  2.545 -0.000 -0.000
+  quaternion -0.99874 -0.01032 -0.04174 -0.02577
+  children 1
+}
+bone bau_R_Forearm
+{
+  parent bau_R_UpperArm
+  pivot  6.610  0.000  0.000
+  quaternion -0.99995 -0.00000 -0.00000 0.01018
+  children 1
+}
+bone bau_R_Hand
+{
+  parent bau_R_Forearm
+  pivot  6.282 -0.000 -0.000
+  quaternion -0.70657 -0.70601 -0.03394 0.03391
+  children 2
+}
+bone bbu_R_Finger0
+{
+  parent bau_R_Hand
+  pivot  0.352  0.543  0.800
+  quaternion -0.67817 0.70204 0.21459 0.03428
+  children 1
+}
+bone bbu_R_Finger01
+{
+  parent bbu_R_Finger0
+  pivot  1.314 -0.000 -0.000
+  quaternion -0.99725 0.00000 0.00000 -0.07411
+  children 0
+}
+bone bbu_R_Finger1
+{
+  parent bau_R_Hand
+  pivot  2.047 -0.313  0.173
+  quaternion -0.98641 -0.01589 -0.12637 -0.10378
+  children 1
+}
+bone bbu_R_Finger11
+{
+  parent bbu_R_Finger1
+  pivot  1.309  0.000 -0.000
+  quaternion -0.99255 0.00000 0.00000 -0.12187
+  children 0
+}
+Dummey d_base
+{
+  parent NULL
+  pivot   0.000  0.000  0.000
+  quaternion -1.00000 0.00000 0.00000 0.00000
+}
+Dummey d_top
+{
+  parent b13
+  pivot   3.654  0.000  0.000
+  quaternion -1.00000 0.00000 -0.00000 0.00000
+}
+Dummey d_wpnL
+{
+  parent d3
+  pivot  -0.000 -0.000 -0.000
+  quaternion -1.00000 -0.00000 -0.00000 -0.00000
+}
+Dummey d_wpnLP
+{
+  parent b17
+  pivot   1.944  0.461 -0.762
+  quaternion -0.70816 -0.70605 0.00000 0.00000
+}
+Dummey d_wpnR
+{
+  parent d5
+  pivot   0.000 -0.000 -0.000
+  quaternion -1.00000 0.00000 -0.00000 0.00000
+}
+Dummey d_wpnRP
+{
+  parent b25
+  pivot   2.097  0.643  0.838
+  quaternion 0.01095 0.00808 0.70832 -0.70576
+}

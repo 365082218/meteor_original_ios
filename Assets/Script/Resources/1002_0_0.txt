@@ -1,0 +1,9 @@
+﻿
+
+  function main()
+      local str = tostring(U3D.GetPrisonLevel())
+	  local s1 = "天牢<color=#ff0000ff>["
+	  local s2 = "级]</color>内肃杀寂寥,唯有一个牢头正在值班"
+      U3D.TextAppend(s1..str..s2)
+	  U3D.RandTalk()
+  end

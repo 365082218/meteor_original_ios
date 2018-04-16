@@ -1,0 +1,36 @@
+﻿--1004任务提交后触发剧情
+  local function OnClose()
+  U3D.NpcTalkClose()
+  U3D.OnDeadEnd()
+  end
+
+  local function GetReward()
+  U3D.TaskComplete(1004)
+  U3D.ResetNpcTalkMenu()
+  U3D.AddNpcTalkMenu("离开", OnClose)
+  U3D.ShowNpcTalkMenu(true)
+  end
+
+  local function OnContinue()
+  U3D.ShowNpcTalk(nil, "待你成为真正的锦衣卫之后\n你将可以招募兵卒与你一起作战\n到那时再来找我吧", nil)
+  U3D.AddNpcTalkMenu("领取奖励", GetReward)
+  U3D.ShowNpcTalkMenu(true)
+  end
+
+  local function OnBattleWin()
+  U3D.ShowNpcTalk(nil, "恭喜通过试炼\n现在你可以出门游历一下\n如果有信心可以去参加锦衣卫考试", OnContinue)
+  end
+
+  local function Challenge()
+  U3D.AcceptTask(1004)
+  U3D.CloseNpcTalkMenu()
+  U3D.StartTaskBattle(1004, OnBattleWin)
+  end
+
+  
+  --挑战完成且领取奖励后，这个按钮就会消失.
+  function main()
+  U3D.ShowNpcTalk(nil, "你确定要挑战试炼吗", nil)
+  U3D.AddNpcTalkMenu("挑战", Challenge)
+  U3D.ShowNpcTalkMenu(false)
+  end

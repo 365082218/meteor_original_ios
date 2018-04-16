@@ -1,0 +1,3937 @@
+# GModel Description File V1.0
+# by Peter Pon for Interserv 2002/06/10
+SceneObjects 287 DummeyObjects 117
+Object Object07
+{
+  Position: 555.303 -1349.708 71.037
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box10
+{
+  Position: 554.989 -2169.218  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box168
+{
+  Position: 952.939 -1647.104  0.000
+  Quaternion: -0.707 0.000 0.000 -0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Roomb
+{
+  Position: 1001.188 -2123.059 135.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object06
+{
+  Position: -198.877 295.242 70.000
+  Quaternion: -0.595 0.000 0.000 0.804
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object11
+{
+  Position: -198.877 295.242 70.000
+  Quaternion: -0.595 0.000 0.000 0.804
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box303
+{
+  Position: -447.673 -853.883 207.814
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box25
+{
+  Position: -1561.010 -1550.107  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object ggg
+{
+  Position: -448.062 -848.884 137.304
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box23
+{
+  Position: -1366.390 -1850.385  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box27
+{
+  Position: -1476.316 -1132.618  0.000
+  Quaternion: -0.707 0.000 0.000 0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box17
+{
+  Position: -454.589 -1050.441  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object gggg
+{
+  Position: -1048.219 -2150.127  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box30
+{
+  Position: -648.304 -648.950  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box31
+{
+  Position: -298.564 -648.457  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box146
+{
+  Position: 950.573 -327.569  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box50
+{
+  Position: 858.499 429.789  0.000
+  Quaternion: -0.707 0.000 0.000 0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box34
+{
+  Position: 551.453 -350.628  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box80
+{
+  Position: -1471.164 -299.723  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box76
+{
+  Position: -1471.837 398.704  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box33
+{
+  Position: -349.057 -348.984  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box267
+{
+  Position: 738.714 -942.358  0.000
+  Quaternion: -0.729 0.000 0.000 -0.684
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box48
+{
+  Position: -751.753 -100.632  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object10
+{
+  Position: 650.735 -649.124 71.037
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box170
+{
+  Position: -745.738 -448.712 209.652
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box56
+{
+  Position: -745.738 -445.957 139.142
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object04
+{
+  Position: -1403.439 -785.499 36.239
+  Quaternion: -0.663 0.000 0.000 0.749
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object05
+{
+  Position: -1510.500 -791.886 90.488
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box278
+{
+  Position: 850.933 329.929 272.027
+  Quaternion: 0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box280
+{
+  Position: 865.453 -319.102 271.554
+  Quaternion: 0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box291
+{
+  Position: -301.527 -659.585 135.362
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Roomg9
+{
+  Position: 563.169 324.022 89.249
+  Quaternion: -0.680 0.000 0.000 -0.734
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object peng13
+{
+  Position: 399.740 -871.637 63.959
+  Quaternion: -0.717 0.015 -0.002 0.697
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box82
+{
+  Position: 153.864 1350.404 -0.800
+  Quaternion: -0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box167
+{
+  Position: -1513.952 1548.796  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box69
+{
+  Position: -1478.410 1062.203  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box58
+{
+  Position: -1550.280 1948.276  0.000
+  Quaternion: -1.000 -0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box84
+{
+  Position: -145.130 2199.427  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box129
+{
+  Position: -1450.538 1350.654 209.475
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Loft03
+{
+  Position: -243.525 2317.530 296.066
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object roomtop
+{
+  Position: -243.525 2317.530 296.066
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Loft04
+{
+  Position: 651.200 1344.330 296.066
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box241
+{
+  Position: 350.125 1683.218 140.010
+  Quaternion: -0.708 0.000 0.000 -0.706
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box288
+{
+  Position: 153.864 1350.536 218.922
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Roomtop2
+{
+  Position: 651.200 1344.330 296.066
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box60
+{
+  Position: -460.193 2139.000  0.000
+  Quaternion: -0.707 0.000 0.000 0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object roomg12
+{
+  Position: -447.317 1763.614 69.798
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object pai1
+{
+  Position: -1227.301 -971.762 70.619
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object pai
+{
+  Position: -451.456 1750.146 69.798
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box88
+{
+  Position: 268.163 1935.216  0.000
+  Quaternion: -0.707 0.000 0.000 -0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box74
+{
+  Position: -399.270 1333.265 -0.800
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box91
+{
+  Position: 756.557 1181.923  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box89
+{
+  Position: -125.350 1334.185 99.443
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box304
+{
+  Position: -399.254 1333.402 217.620
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object roomg01
+{
+  Position: 510.420 1332.160 91.091
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object02
+{
+  Position: 530.574 -1765.613 91.091
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object tan
+{
+  Position: 333.607 52.658 99.193
+  Quaternion: -0.708 0.015 -0.002 0.706
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    block=no
+  }
+}
+Object peng1
+{
+  Position: 333.607 52.658 99.193
+  Quaternion: -0.708 0.015 -0.002 0.706
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object peng03
+{
+  Position: -152.060 -32.863 56.277
+  Quaternion: -0.708 0.015 -0.002 0.706
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object peng12
+{
+  Position: -152.060 -948.507 56.277
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box47
+{
+  Position: -468.957 429.492  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box46
+{
+  Position: -749.992 814.255  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box52
+{
+  Position: -399.443 732.166  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box61
+{
+  Position: -799.838 450.160  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box305
+{
+  Position: -399.443 732.297 267.464
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box306
+{
+  Position: -749.992 814.387 207.749
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box294
+{
+  Position: -471.702 427.938 135.753
+  Quaternion: 0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object RoomG3
+{
+  Position: -2.361 -9.956 92.330
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object roomg02
+{
+  Position: -198.877 295.242 70.000
+  Quaternion: -0.595 0.000 0.000 0.804
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object RoomG2
+{
+  Position: -399.264 1688.994 70.000
+  Quaternion: -0.595 0.000 0.000 0.804
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box286
+{
+  Position: -456.977 2176.259 207.921
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object01
+{
+  Position: -1143.446 2663.939 171.339
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box151
+{
+  Position: -764.395 2663.269 270.441
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Roomg0
+{
+  Position: -1557.297 2250.253 236.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box229
+{
+  Position: -289.658 1756.424 140.010
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box285
+{
+  Position: 290.512 1958.148 272.027
+  Quaternion: -0.698 0.000 0.000 -0.716
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object13
+{
+  Position: -1504.333 1549.647 302.068
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object03
+{
+  Position: -1474.960 1305.726 245.288
+  Quaternion: -0.866 0.000 0.000 0.500
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object14
+{
+  Position: -1490.116 1062.931 304.160
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Roomg5
+{
+  Position: -1065.658 2648.257 171.339
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box245
+{
+  Position: -399.104 982.761 140.010
+  Quaternion: -0.710 0.000 0.000 -0.704
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box247
+{
+  Position: 541.679 53.060 140.010
+  Quaternion: -0.666 0.000 0.000 0.746
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box281
+{
+  Position: 549.236 -350.961 272.027
+  Quaternion: -0.666 0.000 0.000 0.746
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box292
+{
+  Position: -349.057 -346.380 267.303
+  Quaternion: -0.666 0.000 0.000 0.746
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box265
+{
+  Position: -753.639 -96.596 208.929
+  Quaternion: 0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object rrrr
+{
+  Position: -648.304 -648.950 242.260
+  Quaternion: -0.707 0.000 0.000 -0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object rrrr01
+{
+  Position: -451.218 -1050.441 242.260
+  Quaternion: -0.707 0.000 0.000 -0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box266
+{
+  Position: 763.853 -944.245 208.929
+  Quaternion: -0.502 0.000 0.000 0.865
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box251
+{
+  Position: 891.143 -1344.362 139.923
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object rrr
+{
+  Position: 903.944 -1647.104 293.636
+  Quaternion: -0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object rrr02
+{
+  Position: 910.530 -2143.294 299.825
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box302
+{
+  Position: 598.374 -2172.267 211.613
+  Quaternion: -0.500 -0.000 -0.000 0.866
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box298
+{
+  Position: -1058.224 -2157.242 212.764
+  Quaternion: -0.522 -0.000 -0.000 0.853
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box258
+{
+  Position: -1104.850 -1746.634 140.010
+  Quaternion: 0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box295
+{
+  Position: -1445.561 -1852.083 270.065
+  Quaternion: -0.565 -0.000 -0.000 0.825
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box296
+{
+  Position: -1482.930 -1543.187 210.679
+  Quaternion: -0.519 -0.000 -0.000 0.855
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box297
+{
+  Position: -850.672 -1748.241 272.200
+  Quaternion: -0.534 -0.000 -0.000 0.846
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box257
+{
+  Position: -518.077 -1352.580 140.010
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box277
+{
+  Position: -1460.666 -1149.271 210.679
+  Quaternion: -1.000 0.000 -0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box264
+{
+  Position: -799.443 452.241 140.010
+  Quaternion: 0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box243
+{
+  Position: 506.848 1027.015 140.010
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box469
+{
+  Position: 501.043 -652.792 140.276
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box550
+{
+  Position: -947.084 1693.813 52.391
+  Quaternion: -0.966 0.000 0.000 -0.259
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box565
+{
+  Position: 212.203 -1702.563 551.543
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box577
+{
+  Position: -117.587 -1912.372 547.593
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box629
+{
+  Position: -120.721 -1493.344 598.604
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object pop14
+{
+  Position: -931.516 1688.234 599.550
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box540
+{
+  Position: -1055.066 1688.234 599.550
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box538
+{
+  Position: -1115.081 1688.234 599.550
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box548
+{
+  Position: -871.501 1688.234 599.550
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box484
+{
+  Position: -1203.890 1867.861 521.654
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object ty1
+{
+  Position: -312.667 260.748 270.447
+  Quaternion: -0.714 0.000 0.000 0.700
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object RoomG09
+{
+  Position:  0.414 -1707.361 697.548
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box476
+{
+  Position: -1203.890 1927.876 521.654
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object yin2
+{
+  Position:  3.373 -1852.450 51.025
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Loft13
+{
+  Position:  4.914 -1707.361 682.682
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object ying
+{
+  Position: -995.595 2048.045 51.971
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box535
+{
+  Position: -1115.081 1688.234 497.597
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box537
+{
+  Position: -1055.066 1688.234 497.597
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object qiang2
+{
+  Position: -994.977 1688.104 356.697
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object qiang1
+{
+  Position:  2.764 -1914.074 355.750
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box496
+{
+  Position: -904.352 2108.125 579.375
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object po02
+{
+  Position: -931.516 1688.234 497.597
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object ui02
+{
+  Position: -871.501 1688.234 497.597
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Loft12
+{
+  Position: -997.136 1902.956 683.629
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object RoomG07
+{
+  Position: -998.370 1902.956 699.436
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box557
+{
+  Position:  3.373 -1852.450 50.525
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box475
+{
+  Position: -995.595 2048.045 51.471
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object ta03
+{
+  Position: -995.777 1698.036 356.419
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object ta04
+{
+  Position:  3.555 -1502.441 355.473
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object lan03
+{
+  Position: -907.470 1603.656 50.400
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box502
+{
+  Position: -934.650 2107.967 146.953
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object pop15
+{
+  Position: -931.516 1688.234 398.626
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box01
+{
+  Position: -1047.630 1693.813 52.391
+  Quaternion: -0.976 0.000 0.000 -0.216
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object cheng
+{
+  Position: -310.903 260.748 270.447
+  Quaternion: -0.714 0.000 0.000 0.700
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box02
+{
+  Position: -1048.424 1684.469 141.059
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box473
+{
+  Position: -931.516 1688.234 197.964
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box474
+{
+  Position: -871.501 1688.234 197.964
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box478
+{
+  Position: -1203.890 1927.876 323.645
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box479
+{
+  Position: -1203.890 1867.861 323.645
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box480
+{
+  Position: -1203.890 1927.876 422.694
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box482
+{
+  Position: -1203.890 1867.861 422.694
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box485
+{
+  Position: -1203.890 1927.876 220.301
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box486
+{
+  Position: -1204.172 1898.158 251.137
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box487
+{
+  Position: -1203.890 1867.861 220.301
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box524
+{
+  Position: -785.011 1867.876 173.880
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object pop17
+{
+  Position: -871.501 1688.234 398.626
+  Quaternion: -0.990 0.000 0.000 0.139
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box534
+{
+  Position: -1055.066 1688.234 398.626
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object pop13
+{
+  Position: -931.516 1688.234 297.080
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box514
+{
+  Position: -871.501 1688.234 297.080
+  Quaternion: -1.000 0.000 0.000 0.026
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box533
+{
+  Position: -1115.081 1688.234 398.626
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box530
+{
+  Position: -785.334 1897.594 204.716
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box545
+{
+  Position: -1085.363 1688.314 228.799
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box546
+{
+  Position: -1055.066 1688.234 197.964
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box541
+{
+  Position: -1115.081 1688.234 297.080
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box543
+{
+  Position: -1055.066 1688.234 297.080
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box544
+{
+  Position: -1115.081 1688.234 197.964
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Plane02
+{
+  Position: -253.026 277.556  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box549
+{
+  Position: -995.097 1898.720  0.368
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object zuoying1
+{
+  Position: -995.097 1855.120 26.137
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box631
+{
+  Position: 55.408 -1498.923 51.445
+  Quaternion: -0.147 -0.147 0.692 0.692
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box632
+{
+  Position: -45.138 -1498.923 51.445
+  Quaternion: -0.259 0.000 0.000 0.966
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object zuoying
+{
+  Position:  2.875 -1659.525 24.840
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object shadow
+{
+  Position: -294.610 261.118  0.700
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object lan04
+{
+  Position: -84.752 -1408.061 49.454
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box03
+{
+  Position: 11.167 -1805.526 626.527
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Box643
+{
+  Position: -994.276 2002.213 626.527
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object08
+{
+  Position: -84.752 -1408.061 49.454
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object12
+{
+  Position: -1546.361 2543.747  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object xu
+{
+  Position: -297.416 264.821 -97.583
+  Quaternion: -1.000 -0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object fog
+{
+  Position: -299.956 261.730 -69.866
+  Quaternion: -1.000 -0.000 0.000 0.000
+  TextureAnimation: 1 0.168 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object73
+{
+  Position: -297.416 264.821 -230.846
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 1 -0.035 -0.035
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object shi05
+{
+  Position: -913.430 1507.036 35.704
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object shi06
+{
+  Position: -78.754 -1311.416 35.704
+  Quaternion: 0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object15
+{
+  Position: -648.304 -648.950 242.260
+  Quaternion: -0.707 0.000 0.000 -0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object16
+{
+  Position: -349.057 -346.380 267.303
+  Quaternion: -0.666 0.000 0.000 0.746
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object17
+{
+  Position: -753.639 -96.596 208.929
+  Quaternion: 0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object18
+{
+  Position: -1143.446 2663.939 171.339
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object19
+{
+  Position: -764.395 2663.269 270.441
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object20
+{
+  Position: -1557.297 2250.253 236.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object21
+{
+  Position: -243.525 2317.530 296.066
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object22
+{
+  Position: -456.977 2176.259 207.921
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object23
+{
+  Position: 290.512 1958.148 272.027
+  Quaternion: -0.698 0.000 0.000 -0.716
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object24
+{
+  Position: -447.317 1763.614 69.798
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object25
+{
+  Position: -289.658 1756.424 140.010
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object26
+{
+  Position: 59.454 1684.664 88.013
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object27
+{
+  Position: 350.125 1683.218 140.010
+  Quaternion: -0.708 0.000 0.000 -0.706
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object28
+{
+  Position: 506.848 1027.015 140.010
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object29
+{
+  Position: -1504.333 1549.647 302.068
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object30
+{
+  Position: -1474.960 1305.726 245.288
+  Quaternion: -0.866 0.000 0.000 0.500
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object31
+{
+  Position: -1490.116 1062.931 304.160
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object32
+{
+  Position: -399.104 982.761 140.010
+  Quaternion: -0.710 0.000 0.000 -0.704
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object33
+{
+  Position: -1065.658 2648.257 171.339
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object34
+{
+  Position: -799.443 452.241 140.010
+  Quaternion: 0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object35
+{
+  Position: -471.702 427.938 135.753
+  Quaternion: 0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object36
+{
+  Position: -294.328 438.851 89.252
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object37
+{
+  Position: 563.169 324.022 89.249
+  Quaternion: -0.680 0.000 0.000 -0.734
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object38
+{
+  Position: 850.933 329.929 272.027
+  Quaternion: 0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object39
+{
+  Position: -451.456 1818.271 69.798
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object40
+{
+  Position: 541.679 53.060 140.010
+  Quaternion: -0.666 0.000 0.000 0.746
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object41
+{
+  Position: 549.236 -350.961 272.027
+  Quaternion: -0.666 0.000 0.000 0.746
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object42
+{
+  Position: 865.453 -319.102 271.554
+  Quaternion: 0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object43
+{
+  Position: 501.043 -652.792 140.276
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object44
+{
+  Position: -1510.500 -791.886 90.488
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object45
+{
+  Position: -301.527 -659.585 135.362
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object46
+{
+  Position: -496.673 -1749.261 88.013
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object47
+{
+  Position: -1460.666 -1149.271 210.679
+  Quaternion: -1.000 0.000 -0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object48
+{
+  Position: -451.218 -1050.441 242.260
+  Quaternion: -0.707 0.000 0.000 -0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object49
+{
+  Position: 763.853 -944.245 208.929
+  Quaternion: -0.502 0.000 0.000 0.865
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object50
+{
+  Position: -518.077 -1352.580 140.010
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object51
+{
+  Position: 555.303 -1349.708 71.037
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object52
+{
+  Position: 891.143 -1344.362 139.923
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object53
+{
+  Position: 882.974 -1344.362 139.923
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object54
+{
+  Position: 882.974 -1344.362 139.923
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object55
+{
+  Position: 530.477 -1767.164 88.013
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object56
+{
+  Position: 903.944 -1647.104 293.636
+  Quaternion: -0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object57
+{
+  Position: 910.530 -2143.294 299.825
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object58
+{
+  Position: 598.374 -2172.267 211.613
+  Quaternion: -0.500 -0.000 -0.000 0.866
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object60
+{
+  Position: -1058.224 -2157.242 212.764
+  Quaternion: -0.522 -0.000 -0.000 0.853
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object61
+{
+  Position: -850.672 -1748.241 272.200
+  Quaternion: -0.534 -0.000 -0.000 0.846
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object62
+{
+  Position: -1104.850 -1746.634 140.010
+  Quaternion: 0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object63
+{
+  Position: -1452.041 -1852.083 270.065
+  Quaternion: -0.557 -0.000 -0.000 0.830
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object64
+{
+  Position: -1482.930 -1543.187 210.679
+  Quaternion: -0.519 -0.000 -0.000 0.855
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object65
+{
+  Position: -446.752 1750.146 69.798
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object66
+{
+  Position: -750.110 1334.955 88.013
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object67
+{
+  Position: 698.288 -651.426 89.252
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object68
+{
+  Position: 530.496 -1767.018 35.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object69
+{
+  Position: 561.294 335.698 89.249
+  Quaternion: -0.707 0.000 0.000 -0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object70
+{
+  Position: -451.456 1750.146 69.798
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object71
+{
+  Position: -497.077 -1749.144 91.091
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object72
+{
+  Position: -1227.301 -977.229 70.619
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object09
+{
+  Position: -451.456 1818.271 69.798
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object74
+{
+  Position: 153.864 1350.536 220.680
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object75
+{
+  Position: -399.254 1333.402 219.371
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object76
+{
+  Position: -749.992 814.387 209.475
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object77
+{
+  Position: -399.443 732.297 269.221
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object78
+{
+  Position: -1070.226 -911.861 138.603
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object79
+{
+  Position: -451.456 1750.146 69.798
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object80
+{
+  Position: -451.456 1745.517 69.798
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object81
+{
+  Position: -451.456 1750.146 69.798
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object CBox
+{
+  Position: -288.306 277.560 -126.807
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    ObjectType = camerabox
+  }
+}
+Object Object84
+{
+  Position: 882.974 -1344.362 139.923
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object85
+{
+  Position: 882.974 -1344.362 139.923
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object86
+{
+  Position: -341.850 1688.994 70.000
+  Quaternion: -0.595 0.000 0.000 0.804
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object87
+{
+  Position: 59.352 1684.290 91.091
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object88
+{
+  Position: -1557.297 2250.253 236.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object89
+{
+  Position: -1557.297 2250.253 236.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object59
+{
+  Position: -451.456 1745.517 69.798
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object90
+{
+  Position: 698.807 -640.331 92.330
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object91
+{
+  Position: 510.501 1331.697 88.013
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object92
+{
+  Position: -749.854 1335.095 35.000
+  Quaternion: -0.595 0.000 0.000 0.804
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object93
+{
+  Position: -71.405 1335.072 91.091
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Box05
+{
+  Position: 502.060 -1349.834  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Box644
+{
+  Position: 502.060 -1762.838  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Box645
+{
+  Position: 702.679 -644.245  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Box646
+{
+  Position: -491.123 -1742.708  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Box647
+{
+  Position: -1501.739 -834.730  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Box648
+{
+  Position: -297.437 462.378  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Box649
+{
+  Position: -350.689 50.577  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Box650
+{
+  Position: 562.313 336.010  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Box651
+{
+  Position: -801.104 1337.710  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Box652
+{
+  Position: -548.173 1753.714  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Box653
+{
+  Position: 464.349 1333.714  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Box654
+{
+  Position: -35.424 1739.384  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane01
+{
+  Position: -60.923 -496.810 92.744
+  Quaternion: -0.707 -0.707 0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane03
+{
+  Position: 352.111 -497.949 92.744
+  Quaternion: -0.707 -0.707 0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane04
+{
+  Position: 241.443 -478.930 92.744
+  Quaternion: 0.000 0.000 0.707 0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane05
+{
+  Position: -163.972 -477.741 92.744
+  Quaternion: 0.000 0.000 0.707 0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane06
+{
+  Position: -198.775 597.250 92.744
+  Quaternion: 0.000 0.000 0.707 0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane07
+{
+  Position: 249.061 594.099 92.744
+  Quaternion: 0.000 0.000 0.707 0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane08
+{
+  Position: -997.746 687.499 92.744
+  Quaternion: 0.000 0.000 0.707 0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane09
+{
+  Position: -1302.671 693.768 92.744
+  Quaternion: 0.000 0.000 0.707 0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane10
+{
+  Position: -977.794 -900.445 92.744
+  Quaternion: 0.000 0.000 0.707 0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane11
+{
+  Position: -1276.303 -898.879 92.744
+  Quaternion: 0.000 0.000 0.707 0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane12
+{
+  Position: -67.492 578.154 92.744
+  Quaternion: -0.707 -0.707 0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane13
+{
+  Position: 343.819 574.624 92.744
+  Quaternion: -0.707 -0.707 0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane14
+{
+  Position: -887.191 668.241 92.744
+  Quaternion: -0.707 -0.707 0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane15
+{
+  Position: -1279.598 674.133 92.744
+  Quaternion: -0.707 -0.707 0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane16
+{
+  Position: -1256.607 -918.180 92.744
+  Quaternion: -0.707 -0.707 0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane17
+{
+  Position: -953.157 -919.406 92.744
+  Quaternion: -0.707 -0.707 0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane18
+{
+  Position: -329.119 292.067 472.960
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Plane19
+{
+  Position:  4.406 -1359.004  0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Object94
+{
+  Position: -84.752 -1408.061 49.454
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Object95
+{
+  Position: -995.097 1898.720  0.368
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    blockplayer=no
+  }
+}
+Object Plane20
+{
+  Position: -1001.620 1519.717  0.000
+  Quaternion: 0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    visible=0
+  }
+}
+Object Object96
+{
+  Position: -120.721 -1493.344 598.604
+  Quaternion: -0.990 0.000 0.000 0.139
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Object97
+{
+  Position:  4.100 -1483.451 153.085
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object D_user01
+{
+  Position: 12.558 -1235.711 14.492
+  Quaternion: -0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user01"
+  }
+}
+Object D_user02
+{
+  Position: -1117.042 -1381.760 14.492
+  Quaternion: -0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user02"
+  }
+}
+Object D_user03
+{
+  Position: -1007.529 -461.594 14.492
+  Quaternion: -0.000 0.000 0.000 1.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user03"
+  }
+}
+Object D_user04
+{
+  Position: 97.531 -372.966 14.492
+  Quaternion: -0.707 0.000 0.000 0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user04"
+  }
+}
+Object D_user05
+{
+  Position: -1160.109 513.748 14.492
+  Quaternion: -1.000 0.000 0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user05"
+  }
+}
+Object D_user06
+{
+  Position: -120.448 1203.088 14.492
+  Quaternion: -1.000 0.000 0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user06"
+  }
+}
+Object D_user07
+{
+  Position: -995.297 1422.550 14.492
+  Quaternion: -1.000 0.000 0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user07"
+  }
+}
+Object D_user08
+{
+  Position: 55.911 371.998 14.492
+  Quaternion: -1.000 0.000 0.000 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user08"
+  }
+}
+Object D_user09
+{
+  Position: 678.598 1543.173 328.744
+  Quaternion: -0.940 0.000 0.000 0.342
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user09"
+  }
+}
+Object D_user10
+{
+  Position: -98.715 2702.857 336.726
+  Quaternion: -0.940 0.000 0.000 0.342
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user10"
+  }
+}
+Object D_user11
+{
+  Position: -1575.801 2549.442 327.465
+  Quaternion: -0.940 0.000 0.000 0.342
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user11"
+  }
+}
+Object D_user12
+{
+  Position: -1115.169 -2220.104 261.777
+  Quaternion: 0.383 0.000 0.000 0.924
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user12"
+  }
+}
+Object D_user13
+{
+  Position: 834.661 -2155.791 320.942
+  Quaternion: -0.462 0.000 0.000 0.887
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user13"
+  }
+}
+Object D_user14
+{
+  Position: 834.661 -390.298 320.942
+  Quaternion: -0.707 0.000 0.000 0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user14"
+  }
+}
+Object D_user15
+{
+  Position: -1533.284 -390.298 330.180
+  Quaternion: -0.737 0.000 0.000 -0.676
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user15"
+  }
+}
+Object D_user16
+{
+  Position: -339.266 -324.692 354.655
+  Quaternion: -0.737 0.000 0.000 -0.676
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user16"
+  }
+}
+Object D_teamA01
+{
+  Position: -109.730 -1226.933 15.040
+  Quaternion: 0.301 0.000 0.000 0.954
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamA01"
+  }
+}
+Object D_teamA02
+{
+  Position: 129.279 -1226.933 15.040
+  Quaternion: -0.216 0.000 0.000 0.976
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamA02"
+  }
+}
+Object D_teamA03
+{
+  Position: 136.785 -1435.758 64.462
+  Quaternion: -0.707 0.000 0.000 0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamA03"
+  }
+}
+Object D_teamA04
+{
+  Position: -130.193 -1435.758 64.462
+  Quaternion: -0.707 0.000 0.000 -0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamA04"
+  }
+}
+Object D_teamA05
+{
+  Position: -115.855 -1568.972 64.462
+  Quaternion: -0.500 0.000 0.000 -0.866
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamA05"
+  }
+}
+Object D_teamA06
+{
+  Position: 116.324 -1568.972 64.462
+  Quaternion: -0.462 0.000 0.000 0.887
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamA06"
+  }
+}
+Object D_teamA07
+{
+  Position: 145.002 -1852.636 115.328
+  Quaternion: -0.301 0.000 0.000 0.954
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamA07"
+  }
+}
+Object D_teamA08
+{
+  Position: -131.432 -1852.636 115.328
+  Quaternion: 0.342 0.000 0.000 0.940
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamA08"
+  }
+}
+Object D_teamB02
+{
+  Position: -1126.133 1420.114 15.040
+  Quaternion: -0.976 0.000 0.000 -0.216
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamB02"
+  }
+}
+Object D_teamB01
+{
+  Position: -887.124 1420.114 15.040
+  Quaternion: -0.954 0.000 0.000 0.301
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamB01"
+  }
+}
+Object D_teamB04
+{
+  Position: -866.661 1628.940 64.462
+  Quaternion: -0.707 0.000 0.000 0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamB04"
+  }
+}
+Object D_teamB03
+{
+  Position: -1133.639 1628.940 64.462
+  Quaternion: -0.707 0.000 0.000 -0.707
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamB03"
+  }
+}
+Object D_teamB06
+{
+  Position: -1113.178 1762.153 64.462
+  Quaternion: -0.887 0.000 0.000 -0.462
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamB06"
+  }
+}
+Object D_teamB05
+{
+  Position: -880.999 1762.153 64.462
+  Quaternion: -0.866 0.000 0.000 0.500
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamB05"
+  }
+}
+Object D_teamB08
+{
+  Position: -865.422 2045.818 115.328
+  Quaternion: -0.940 0.000 0.000 0.342
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamB08"
+  }
+}
+Object D_teamB07
+{
+  Position: -1141.856 2045.818 115.328
+  Quaternion: -0.954 0.000 0.000 -0.301
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamB07"
+  }
+}
+Object D_BBox01
+{
+  Position: -149.255 -59.731 -0.211
+  Quaternion: -0.998 0.000 0.000 0.070
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox01"
+    ticket=1,4,5
+  }
+}
+Object D_itBBox01
+{
+  Position: -149.282 -59.922  7.845
+  Quaternion: -0.998 0.000 0.000 0.070
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item02"
+    ticket=1,4,5
+  }
+}
+Object D_BBox02
+{
+  Position: -944.786 -48.798 -0.211
+  Quaternion: -0.999 0.000 0.000 -0.044
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox01"
+    ticket=1,4,5
+  }
+}
+Object D_itBBox02
+{
+  Position: -944.769 -48.990  7.845
+  Quaternion: -0.999 0.000 0.000 -0.044
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item02"
+    ticket=1,4,5
+  }
+}
+Object D_BBox03
+{
+  Position: -944.786 -80.084 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox01"
+    ticket=1,4,5
+  }
+}
+Object D_itBBox03
+{
+  Position: -944.789 -80.277  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item03"
+    ticket=1,4,5
+  }
+}
+Object D_BBox04
+{
+  Position: -115.399 -56.704 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox01"
+    ticket=1,4,5
+  }
+}
+Object D_itBBox04
+{
+  Position: -115.402 -56.897  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item03"
+    ticket=1,4,5
+  }
+}
+Object D_BBox05
+{
+  Position: 327.126 124.101 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox01"
+    ticket=1,4,5
+  }
+}
+Object D_itBBox05
+{
+  Position: 327.123 123.909  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item04"
+    ticket=1,4,5
+  }
+}
+Object D_BBox06
+{
+  Position: -1321.507 -740.882 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox01"
+    ticket=1,4,5
+  }
+}
+Object D_itBBox06
+{
+  Position: -1321.510 -741.075  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item04"
+    ticket=1,4,5
+  }
+}
+Object D_BBox07
+{
+  Position: -1317.226 -770.875 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox01"
+    ticket=1,4,5
+  }
+}
+Object D_itBBox07
+{
+  Position: -1317.230 -771.068  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item05"
+    ticket=1,4,5
+  }
+}
+Object D_BBox08
+{
+  Position: 341.613 154.571 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox01"
+    ticket=1,4,5
+  }
+}
+Object D_itBBox08
+{
+  Position: 341.609 154.378  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item05"
+    ticket=1,4,5
+  }
+}
+Object D_BBox09
+{
+  Position: 410.939 -994.570 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox01"
+    ticket=1,4,5
+  }
+}
+Object D_itBBox09
+{
+  Position: 410.935 -994.763  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item05"
+    ticket=1,4,5
+  }
+}
+Object D_BBox10
+{
+  Position: 396.452 -1025.040 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox01"
+    ticket=1,4,5
+  }
+}
+Object D_itBBox10
+{
+  Position: 396.449 -1025.233  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item04"
+    ticket=1,4,5
+  }
+}
+Object D_BBox11
+{
+  Position: 402.657 -1053.835 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox01"
+    ticket=1,4,5
+  }
+}
+Object D_itBBox11
+{
+  Position: 402.654 -1054.028  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item03"
+    ticket=1,4,5
+  }
+}
+Object D_BBox12
+{
+  Position: -982.201 786.171 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox01"
+    ticket=1,4,5
+  }
+}
+Object D_itBBox12
+{
+  Position: -982.204 785.978  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item04"
+    ticket=1,4,5
+  }
+}
+Object D_BBox13
+{
+  Position: -977.920 756.177 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox01"
+    ticket=1,4,5
+  }
+}
+Object D_itBBox13
+{
+  Position: -977.923 755.985  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item05"
+    ticket=1,4,5
+  }
+}
+Object D_BBox14
+{
+  Position: -1014.687 738.064 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox01"
+    ticket=1,4,5
+  }
+}
+Object D_itBBox14
+{
+  Position: -1014.690 737.872  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item03"
+    ticket=1,4,5
+  }
+}
+Object D_BBox15
+{
+  Position: -525.192 -81.587 -0.211
+  Quaternion: -0.998 0.000 0.000 0.070
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox01"
+    ticket=1,4,5
+  }
+}
+Object D_itBBox15
+{
+  Position: -525.219 -81.778  7.845
+  Quaternion: -0.998 0.000 0.000 0.070
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item07"
+    ticket=1,4,5
+  }
+}
+Object D_RJug01
+{
+  Position: -145.046 -20.548  0.000
+  Quaternion: -0.980 0.000 0.000 0.199
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Jug01"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0101
+{
+  Position: -145.046 -20.548  6.374
+  Quaternion: -0.980 0.000 0.000 0.199
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item01"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0102
+{
+  Position: -145.046 -20.548  6.374
+  Quaternion: -0.980 0.000 0.000 0.199
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0101"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0103
+{
+  Position: -145.046 -20.548  6.374
+  Quaternion: -0.980 0.000 0.000 0.199
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0102"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0104
+{
+  Position: -145.046 -20.548  6.374
+  Quaternion: -0.980 0.000 0.000 0.199
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0103"
+    ticket=1,4,5
+  }
+}
+Object D_RJug02
+{
+  Position: -953.971 -111.803  0.000
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Jug01"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0201
+{
+  Position: -953.971 -111.803  6.374
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item01"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0202
+{
+  Position: -953.971 -111.803  6.374
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0101"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0203
+{
+  Position: -953.971 -111.803  6.374
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0102"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0204
+{
+  Position: -953.971 -111.803  6.374
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0103"
+    ticket=1,4,5
+  }
+}
+Object D_RJug03
+{
+  Position: -547.277 -455.655  0.000
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Jug01"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0301
+{
+  Position: -547.277 -455.655  6.374
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item01"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0302
+{
+  Position: -547.277 -455.655  6.374
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0101"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0303
+{
+  Position: -547.277 -455.655  6.374
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0102"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0304
+{
+  Position: -547.277 -455.655  6.374
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0103"
+    ticket=1,4,5
+  }
+}
+Object D_RJug04
+{
+  Position: 346.800 -46.271  0.000
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Jug01"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0401
+{
+  Position: 346.800 -46.271  6.374
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item01"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0402
+{
+  Position: 346.800 -46.271  6.374
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0101"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0403
+{
+  Position: 346.800 -46.271  6.374
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0102"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0404
+{
+  Position: 346.800 -46.271  6.374
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0103"
+    ticket=1,4,5
+  }
+}
+Object D_RJug05
+{
+  Position: -934.386 650.263  0.000
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Jug01"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0501
+{
+  Position: -934.386 650.263  6.374
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item01"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0502
+{
+  Position: -934.386 650.263  6.374
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0101"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0503
+{
+  Position: -934.386 650.263  6.374
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0102"
+    ticket=1,4,5
+  }
+}
+Object D_itRJug0504
+{
+  Position: -934.386 650.263  6.374
+  Quaternion: -0.946 0.000 0.000 0.326
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0103"
+    ticket=1,4,5
+  }
+}
+Object D_BBox16
+{
+  Position: -175.030 -216.072 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox02"
+    ticket=1,4,5
+  }
+}
+Object D_wpBBox16
+{
+  Position: -175.033 -216.265  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W0_0"
+    ticket=1,4,5
+  }
+}
+Object D_BBox17
+{
+  Position: -583.497 -243.181 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox02"
+    ticket=1,4,5
+  }
+}
+Object D_wpBBox17
+{
+  Position: -583.500 -243.373  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W1_0"
+    ticket=1,4,5
+  }
+}
+Object D_BBox18
+{
+  Position: -568.186 316.393 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox02"
+    ticket=1,4,5
+  }
+}
+Object D_wpBBox18
+{
+  Position: -568.189 316.200  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W4_0"
+    ticket=1,4,5
+  }
+}
+Object D_BBox19
+{
+  Position: -970.833 648.769 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox02"
+    ticket=1,4,5
+  }
+}
+Object D_wpBBox19
+{
+  Position: -970.836 648.577  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W5_0"
+    ticket=1,4,5
+  }
+}
+Object D_BBox20
+{
+  Position: -369.221 278.669 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox02"
+    ticket=1,4,5
+  }
+}
+Object D_wpBBox20
+{
+  Position: -369.225 278.476  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W7_0"
+    ticket=1,4,5
+  }
+}
+Object D_BBox21
+{
+  Position: -1304.829 -80.980 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox02"
+    ticket=1,4,5
+  }
+}
+Object D_wpBBox21
+{
+  Position: -1304.832 -81.173  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W8_0r"
+    ticket=1,4,5
+  }
+}
+Object D_BBox22
+{
+  Position: -978.818 -78.308 -0.211
+  Quaternion: -0.994 0.000 0.000 0.113
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox02"
+    ticket=1,4,5
+  }
+}
+Object D_wpBBox22
+{
+  Position: -978.861 -78.496  7.845
+  Quaternion: -0.994 0.000 0.000 0.113
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W6_0"
+    ticket=1,4,5
+  }
+}
+Object D_BBox23
+{
+  Position: -176.829 -248.723 -0.211
+  Quaternion: -0.994 0.000 0.000 0.113
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox02"
+    ticket=1,4,5
+  }
+}
+Object D_wpBBox23
+{
+  Position: -176.872 -248.911  7.845
+  Quaternion: -0.994 0.000 0.000 0.113
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W3_0"
+    ticket=1,4,5
+  }
+}
+Object D_Item01
+{
+  Position: -1268.714 1329.514 71.098
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item09"
+  }
+}
+Object D_Item02
+{
+  Position: -878.651 1329.514 71.098
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0901"
+  }
+}
+Object D_Item03
+{
+  Position: -878.651 998.902 71.098
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0903"
+  }
+}
+Object D_Item04
+{
+  Position: -1268.714 998.902 71.098
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0902"
+  }
+}
+Object D_Item05
+{
+  Position: 345.462 -862.313 71.098
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0903"
+  }
+}
+Object D_Item06
+{
+  Position: 345.462 -531.701 71.098
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0901"
+  }
+}
+Object D_Item07
+{
+  Position: -140.265 -531.701 71.098
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item09"
+  }
+}
+Object D_Item08
+{
+  Position: -140.265 -862.313 71.098
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0902"
+  }
+}
+Object D_BBox24
+{
+  Position: -583.497 26.987 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox02"
+    ticket=1,4,5
+  }
+}
+Object D_wpBBox24
+{
+  Position: -583.500 26.794  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W9_0r"
+    ticket=1,4,5
+  }
+}
+Object D_BBox25
+{
+  Position: -520.761 177.501 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox02"
+    ticket=1,4,5
+  }
+}
+Object D_wpBBox25
+{
+  Position: -520.765 177.308  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W10_0r"
+    ticket=1,4,5
+  }
+}
+Object D_BBox26
+{
+  Position: -515.550 -336.535 -0.211
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="BBox02"
+    ticket=1,4,5
+  }
+}
+Object D_wpBBox26
+{
+  Position: -515.553 -336.728  7.845
+  Quaternion: -1.000 0.000 0.000 0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W11_0"
+    ticket=1,4,5
+  }
+}

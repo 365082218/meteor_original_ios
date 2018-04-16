@@ -1,0 +1,5 @@
+﻿
+function main()
+U3D.TextAppend("锦衣卫北镇抚司苦力监。这里是囚犯们劳动改造的地方，一旦缺少粮食，就无法安排囚犯们工作了")
+U3D.RandTalk()
+end

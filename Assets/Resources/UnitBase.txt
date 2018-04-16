@@ -1,0 +1,43 @@
+﻿ID	预置物	中文名称	展示预置物	名称
+ID	Prefab	CHNname	ShowPrefab	Name
+1	boxkey_brass	黄铜钥匙	boxkey_brass	黄铜钥匙
+2	boxkey_golden	黄金钥匙		
+3	boxkey_sliver	白银钥匙		
+4	boxkey_wood	木制钥匙		
+5	boxbrass	黄铜宝箱		
+6	boxgolden	黄金宝箱		
+7	boxsliver	白银宝箱		
+8	boxskeleton	骷髅宝箱		
+9	boxwood	木制宝箱		
+10	gemred	血宝石		
+11	bag0002	袋子		
+12	crystal0002	水晶		
+13	gemblue	蓝宝石		
+14	gemgreen	绿宝石		
+15	gempurple	紫宝石		
+16	gemyellow	黄宝石		
+17	BBox01	木头箱子		
+18	Bbox02	铁箱子		
+19	Jug01	酒坛		
+20	IPItem02	宝盒		
+21	Item09	绿色灯		
+22	Item0903	蓝色灯		
+23	Item0902	灰色灯		
+24	Item0901	红色灯		
+25	sn03t01	尖刺栅栏（有攻击）		
+26	button01	制动杆		
+27	Pdoor02	巨大栅栏（无攻击）		
+28	sn03t02	横排尖刺栅栏(有攻击)		
+29	sn03Door	红色铁门		
+30	Item0101	大包子-3个		
+31	sn03st01	大石头		
+32	sn03st02	大石头		
+33	Item04	拳套-攻击提升		
+34	Item03	防御提升		
+35	Item02	灵芝		
+36	Item05	加速鞋		
+37	Item01	大包子-单个		
+38	Item0102	小包子		
+39	Item0103	毒包子		
+40	sn01st02	石头柱子		
+41	Pd02Box	阻隔器/大栅栏		

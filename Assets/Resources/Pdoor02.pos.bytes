@@ -1,0 +1,45 @@
+pose
+{
+	start 0
+	end 0
+}
+pose
+{
+	start 0
+	end 7
+}
+pose
+{
+	start 7
+	end 12
+}
+pose
+{
+	start 12
+	end 19
+}
+pose
+{
+	start 19
+	end 24 
+}
+pose
+{
+	start 24
+	end 31
+}
+pose
+{
+	start 31
+	end 36
+}
+pose
+{
+	start 36
+	end 43
+}
+pose
+{
+	start 43
+	end 93
+}

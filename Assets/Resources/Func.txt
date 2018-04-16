@@ -1,0 +1,3 @@
+﻿序号	名称	功能类别	脚本
+Idx	Name	FuncType	Script
+1	出售	1	

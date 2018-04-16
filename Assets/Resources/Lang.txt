@@ -1,0 +1,68 @@
+﻿序号	中文	英文	描述
+Idx	Ch	En	Des
+1	流星一梦	Meteor dream	主界面标题
+2	再见流星	Dream Again	主界面标题
+3	还未进入游戏无法存档	Nothing to Save	主界面标题
+100	重新游戏	Restart	系统菜单
+101	保存进度	Save Game	系统菜单
+102	切换进度	Load Game	
+103	战斗模式	Combat Mode	
+104	帮助	Help	
+105	探险指南	Adventure Guide	
+106	通缉榜	Wanted List	
+107	客服QQ:442346537	Custom Service QQ:442346537	
+108	语言	Language	
+201	返回	Go Back	
+202	系统	System	
+203	取消	Cancel	
+204	简体中文	Simplified Chinese	
+205	英文	English	
+206	请选择语言	Please Select Language	
+207	"升级了,现在的级别是:"	"Upgrade, the current level is:"	
+208	建造完毕	Construction Complete	
+209	没有空闲囚犯	No prisoners	
+300	升级	Upgrade	
+301	建造	Build	
+302	角色	Role	
+303	物品	Item	
+304	战斗	Battle	
+305	银两	Tael	
+306	背包	Backpack	
+307	回城	Return	
+308	食物:	Food:	
+309	位置:	Location:	
+310	发生事故!，机关鸢不受控制偏离了指定目标	"The accident happened!, the kite is out of control! Deviate from the specified target"	
+311	天牢	Celestial Prison	
+312	你可以制作:	You can produce:	
+313	你可以招募:	You can recruit:	
+314	习得技能:	Grasp the skill:	
+315	头部	Head	
+316	护甲	Armor	
+317	手部	Hand	
+318	腿部	Leg	
+319	饰品	Accessory	
+320	武器	Weapon	
+321	防具	Armor	
+322	攻击力	Damage	
+323	防御	Defence	
+324	内力	Mana	
+325	速度	Speed	
+326	装备	Equipment	
+327	技能	Skill	
+328	关闭	Close	
+329	水平	Level	
+330	经验	Exp	
+331	升级所需经验	Need Exp For Next	
+332	统率力	Leadership	
+333	历练	Life Experience	决定技能升级
+334	声望	Fame	决定官职升级
+335	上一页	Previous page	
+336	下一页	Next page	
+337	使用	Use	
+338	官职	Job	
+339	卸下	Take off	
+340	装备	Put on	
+341	生命值	Life	
+342	部队生命值	Army life	
+343	部队攻击	Army Damage	
+344	部队防御	Army Defence	

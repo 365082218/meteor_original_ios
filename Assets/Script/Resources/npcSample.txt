@@ -1,0 +1,101 @@
+// 姓名
+string Name	= "AI燕";
+	
+// 模型編號
+int Model =	1;
+	
+// 主要武器編號
+int Weapon = 6;
+	
+// 次要武器編號,沒有次要武器就不要寫或寫0
+int Weapon2 = 7;
+	
+// 隊伍 0:不分隊 1:流星 2:蝴蝶
+int Team = 1;
+	
+// 視線距離 100~2000
+int View = 500;
+	
+// 反應速度 0~100, 100最快
+int Think = 100;
+	
+// 攻擊機率（輕、中、重）, 攻擊+防禦 機率 <= 100
+int	Attack1	= 30;
+int Attack2 = 20;
+int Attack3 = 30;
+	
+// 防禦機率 0~100
+int	Guard =	10;
+	
+// 逃跑機率 0~100
+int	Dodge =	20;
+	
+// 跳躍機率 0~100
+int Jump = 20;
+	
+// 四處看機率 0~100
+int Look = 40;
+	
+// 快速移動機率 0~100
+int Burst = 10;
+	
+// 瞄準準確度 0~100
+int Aim = 80;
+	
+// 拿寶物機率 0~100
+int GetItem = 30;
+
+// 出生點編號
+int Spawn = 1;
+	
+// 初始生命值
+int HP = 1000;	
+
+// init function
+int g_selfAddr;
+int g_self;
+OnInit(int this)
+{
+	g_selfAddr = this;
+}
+
+OnStart()
+{
+	g_self = GetSelf(g_selfAddr);
+	
+	/*	
+	// 站在原地四處看
+	ChangeBehavior(g_self, "wait");
+
+	// 站在原地不動
+	ChangeBehavior(g_self, "idle");
+	
+	// 到處亂跑
+	ChangeBehavior(g_self, "run");
+	
+	// 在1、3、5...巡邏點移動
+	ChangeBehavior(g_self, "patrol", 1, 3, 5);
+	
+	// 跟在玩家身邊
+	ChangeBehavior(g_self, "follow", "player");
+	
+	// 跟在同隊VIP身邊
+	ChangeBehavior(g_self, "follow", "vip");
+	
+	// 跟在敵隊VIP身邊
+	ChangeBehavior(g_self, "follow", "enemyvip");
+	
+	// 跟在拿標物的人身邊
+	ChangeBehavior(g_self, "follow", "flag");
+	
+	// 跟在xxx身邊
+	ChangeBehavior(g_self, "follow", "xxx");
+	*/
+	ChangeBehavior(g_self, "wait");	
+}
+
+// run function
+OnUpdate()
+{
+	int a = 0;
+}

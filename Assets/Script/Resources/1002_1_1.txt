@@ -1,0 +1,55 @@
+﻿ask_qianji = 0
+ask_tianji = 0
+local function yes()
+chufu_npc_talk = 1
+U3D.NpcTalkClose()
+U3D.TextClear()
+U3D.TextAppend("得到<<长生诀>>")
+U3D.AddItem(10001, 1)
+U3D.TextAppend("许大人已经离开了,抓紧时间查阅<<长生诀>>")
+U3D.RemoveNpc(1001,1002, 1,1)
+end
+
+function select_tianji()
+ask_tianji = 1
+U3D.ShowNpcTalk("许大人", "这次我去上清宫调查先帝的死因\n就是猜疑先帝之死与天机宫有关。", nil)
+U3D.AddNpcTalkMenu("明白了", yes)
+if (ask_qianji == 0) then
+U3D.AddNpcTalkMenu("千机要诀?", select_qianji)
+end
+U3D.ShowNpcTalkMenu(true)
+end
+
+function select_qianji()
+ask_qianji = 1
+U3D.ShowNpcTalk("许大人", "看样子是一本道家秘法书。", nil)
+U3D.AddNpcTalkMenu("明白了", yes)
+if (ask_tianji == 0) then
+U3D.AddNpcTalkMenu("天机?", select_tianji)
+end
+U3D.ShowNpcTalkMenu(true)
+end
+
+local function OnContinue()
+U3D.ShowNpcTalk("许大人", "这本书是先帝驾崩时找到的\n你查一下这本书,发现什么情况\n就到上清宫来找我。", nil)
+U3D.AddNpcTalkMenu("明白了", yes)
+U3D.AddNpcTalkMenu("天机?", select_tianji)
+U3D.AddNpcTalkMenu("长生诀?", select_qianji)
+U3D.ShowNpcTalkMenu(true)
+end
+
+function main()
+if chufu_npc_talk == 0 then
+U3D.TextAppend("锦衣卫北镇抚司议事处。")
+U3D.ShowNpcTalk("同知许大人", "圣上令前往龙虎山上清宫调查天机组织\n我离开后由你代为履职。\n这本证物<<长生诀>>交给你保管", OnContinue)
+--场景上增加物品 长生诀
+else
+U3D.TextClear()
+U3D.TextAppend("这里是锦衣卫北镇抚司，许大人已经离开了")
+if (U3D.HaveReadBook(10001)) then
+U3D.TextAppend("长生诀是一本道家秘典，可惜真伪难辨，不如先找到 酔仙果 之后再找许大人商议")
+else
+U3D.TextAppend("看看长生诀吧，说不定能从中发现点什么")
+end
+end
+end

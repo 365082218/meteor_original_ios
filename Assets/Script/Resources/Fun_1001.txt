@@ -1,0 +1,31 @@
+﻿
+  --能传送的地方数据配置在当前地图里，NPC调用坐车，坐车就读取当前地图单元配置的传送点，点了之后就传送过去，一个地图最多7个传送点。
+  local tickets = 2000;
+
+  local function OnMoveComplete()
+  U3D.ResetNpcTalkMenu()
+  U3D.ShowNpcTalk(nil, "下次给你8折", nil)
+  U3D.ShowNpcTalkMenu(false)
+  end
+  local randTalk = 0
+  local function Payforfun()
+  if (U3D.UseMoney(tickets)) then
+	return true
+  else
+	if (randTalk == 0) then
+	U3D.NpcTalk("二两银子真不贵\n你没有就先去赚\n也没什么生意")
+	randTalk = 1
+	else
+	U3D.NpcTalk("你还是先去赚点钱吧\n我等你")
+	end
+	return false
+  end
+  end
+  function main()
+  local str = tostring(tickets)
+  local s1 = "去哪都是一口价:"
+  local s2 = "文钱。"
+  U3D.ShowNpcTalk(nil, s1..str..s2, nil)
+  U3D.ShowCellGate(Payforfun, nil)
+  U3D.ShowNpcTalkMenu(false)
+  end

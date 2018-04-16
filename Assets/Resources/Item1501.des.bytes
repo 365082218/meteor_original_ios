@@ -1,0 +1,39 @@
+# GModel Description File V1.0
+# by Peter Pon for Interserv 2002/06/10
+SceneObjects 4 DummeyObjects 0
+Object item12
+{
+  Position:  0.000 -0.000  2.494
+  Quaternion: -0.947 0.000 0.000 -0.321
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Cylinder01
+{
+  Position: -0.009  3.770  1.967
+  Quaternion: -0.629 -0.000 -0.778 -0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Cylinder02
+{
+  Position: -0.009  3.770  1.967
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}
+Object Cylinder03
+{
+  Position: -0.009  3.770  1.967
+  Quaternion: -0.629 -0.778 -0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+  }
+}

@@ -1,0 +1,16 @@
+﻿  local step
+  local function OnContinue()
+  if (step == 0) then
+	U3D.ShowNpcTalk("监工", "如果缺少粮食\n囚犯们就干不了活了\n仓库的采购员处可以买到粮食", OnContinue)
+	step = step + 1
+  else
+	U3D.ShowNpcTalk("监工", "工作安排的囚犯越多\n每次产出就会越多\n消耗的粮食和基础材料也会越多", nil)
+	U3D.ShowNpcTalkMenu(false)
+  end
+  end
+  
+  function main()
+  --NPC1006监工
+	step = 0
+	U3D.ShowNpcTalk("监工", "这里可以给囚犯安排工作\n每种工作都会有自己的产出\n比如采石场会产出石头", OnContinue)
+  end

@@ -1,0 +1,41 @@
+﻿  function HaveARestA()
+  if (U3D.UseMoney(2000)) then
+  U3D.HaveARest()
+  U3D.NpcTalkClose()
+  else
+  U3D.ShowNpcTalk(nil, "官爷，你的钱不够，你看是不是换间房")
+  U3D.AddNpcTalkMenu("地字号", HaveARestB)
+  U3D.AddNpcTalkMenu("人字号", HaveARestC)
+  U3D.ShowNpcTalkMenu(true)
+  end
+  end
+
+  function HaveARestB()
+  if (U3D.UseMoney(1000)) then
+  U3D.HaveARest()
+  U3D.NpcTalkClose()
+  else
+  U3D.ShowNpcTalk(nil, "官爷，你的钱不够，你看是不是换间房")
+  U3D.AddNpcTalkMenu("人字号", HaveARestC)
+  U3D.ShowNpcTalkMenu(true)
+  end
+  end
+
+  function HaveARestC()
+  if (U3D.UseMoney(500)) then
+  U3D.HaveARest()
+  U3D.NpcTalkClose()
+  else
+  U3D.ShowNpcTalk(nil, "官爷，你的钱不够，你还是到别处去住吧")
+  U3D.ShowNpcTalkMenu(false)
+  end
+  end
+
+  --住店
+  function main()
+  U3D.ShowNpcTalk("掌柜", "官爷,天字号房2两\n地字号1两\n人字号5钱，您住哪?", nil)
+  U3D.AddNpcTalkMenu("天字号", HaveARestA)
+  U3D.AddNpcTalkMenu("地字号", HaveARestB)
+  U3D.AddNpcTalkMenu("人字号", HaveARestC)
+  U3D.ShowNpcTalkMenu(true)
+  end

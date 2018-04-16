@@ -1,0 +1,29 @@
+Name = "屠城";
+Model =	15;
+Weapon = 35;
+Weapon2 = 34;
+Team = 2;
+View = 10000;
+Think = 100;
+Attack1	= 10;
+Attack2 = 40;
+Attack3 = 30;
+Guard =	20;
+Dodge =	30;
+Jump = 20;
+Look = 50;
+Burst = 50;
+Aim = 100;
+GetItem = 80;
+Spawn = 32;
+HP = 20000;
+g_selfAddr = 0;
+
+function OnInit(a)
+	g_selfAddr = a;
+end
+
+function OnStart()
+	c = GetSelf(g_selfAddr);
+	ChangeBehavior(c, "wait");
+end

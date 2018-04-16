@@ -1,0 +1,15 @@
+pose
+{
+	start 0
+	edn 0
+}
+pose
+{
+	start 0
+	end 48
+}
+pose
+{
+	start 49
+	end 95
+}
