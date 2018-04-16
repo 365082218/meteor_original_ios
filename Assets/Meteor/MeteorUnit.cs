@@ -951,7 +951,7 @@ public class MeteorUnit : MonoBehaviour
         charController.center = new Vector3(0, 17.5f, 0);
         charController.height = 35.0f;//32是跨越皇天城的栅栏的最大高度，超过这个高度就没法过去了。
         charController.radius = 6.0f;
-        charController.stepOffset = 4f;
+        charController.stepOffset = 8f;
 
         posMng.ChangeAction();
         if (controller != null)
