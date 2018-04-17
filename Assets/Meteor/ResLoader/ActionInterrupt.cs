@@ -104,6 +104,7 @@ public class CommonAction
     public const int LanceReady = 7;
     public const int BladeReady = 8;
     public const int HammerReady = 9;
+    public const int Reborn = 22;
     public const int DefenceHitStart = 40;//防御受击开始-不受伤，只播放动画
     public const int DefenceHitEnd = 88;//防御受击结束
     public const int HitStart = 90;//受击动作开始
@@ -188,7 +189,7 @@ public class CommonAction
     public const int BladeAttack = 0;//刀A
     public const int BreakOut = 367;
     public const int ChangeWeapon = 24;
-    public const int Taunt = 32;//嘲讽
+    public const int Taunt = 32;//嘲讽.挑衅
     public const int AirChangeWeapon = 36;//空中换武器
 
     public const int DartDefence = 11;//飞镖防御

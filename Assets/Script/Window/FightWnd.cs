@@ -112,6 +112,9 @@ public class FightWnd: Window<FightWnd>
         Global.ldaControlX("ChangeDebug", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnChangeDebug);
         Global.ldaControlX("AddAI", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnDebugAI);
         Global.ldaControlX("HeroHead", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnPlayerInfo);
+        Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnCrouchPress);
+        Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnCrouchRelease);
+        Global.ldaControlX("Drop", WndObject).GetComponent<Button>().onClick.AddListener(OnClickDrop);
         //Global.ldaControlX("Inventory", WndObject).GetComponentInChildren<Button>().onClick.AddListener(delegate () { U3D.OpenInVentory(); });
         Global.ldaControlX("System", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSystem(); });
         Global.ldaControlX("Unlock", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnClickChangeLock);
@@ -284,6 +287,26 @@ public class FightWnd: Window<FightWnd>
             GameBattleEx.Instance.Lock();
     }
 
+    void OnClickDrop()
+    {
+        MeteorManager.Instance.LocalPlayer.DropWeapon();
+    }
+
+    void OnCrouchPress()
+    {
+        if (MeteorManager.Instance.LocalPlayer.Dead)
+            return;
+
+        if (Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll) return;
+            Global.GMeteorInput.OnKeyDown(EKeyList.KL_Crouch);
+    }
+
+    void OnCrouchRelease()
+    {
+        if (Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll) return;
+            Global.GMeteorInput.OnKeyUp(EKeyList.KL_Crouch);
+    }
+
     void OnChangeWeaponPress()
     {
         if (MeteorManager.Instance.LocalPlayer.Dead)
@@ -450,7 +473,7 @@ public class FightWnd: Window<FightWnd>
         if (!targetInfo.activeInHierarchy)
             targetInfo.SetActive(true);
         targetHp.fillAmount = (float)mon.Attr.hpCur / (float)mon.Attr.TotalHp;
-        targetHpInfo.text = ":" + LangItem.GetLangString(StringIden.Life) + mon.Attr.hpCur + "/" + mon.Attr.TotalHp;
+        targetHpInfo.text = mon.Attr.hpCur + "/" + mon.Attr.TotalHp;
         //targetTitleInfo.text = mon.name;
         targetName.text = mon.name;
         //targetBuffInfo.text = "";

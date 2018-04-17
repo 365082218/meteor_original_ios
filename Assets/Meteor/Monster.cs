@@ -199,6 +199,7 @@ int g_self;*/
     public void AddSpeed(int speed)
     {
         Speed += speed;
+        Speed = Mathf.Clamp(Speed, 1000, 3500);
     }
 
     public void AddDefence(int def)

@@ -28,28 +28,27 @@ public class ActionBar : MonoBehaviour {
         switch (id)
         {
             case 1:
-                MeteorManager.Instance.LocalPlayer.DropWeapon();
+                MeteorManager.Instance.LocalPlayer.PlaySkill();
                 break;
             case 2:
                 //援助,要看状态机
+                if (MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle)
+                    MeteorManager.Instance.LocalPlayer.posMng.ChangeAction(CommonAction.Reborn);
                 break;
             case 3:
                 //挑衅，要看状态机
+                if (MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle)
+                    MeteorManager.Instance.LocalPlayer.posMng.ChangeAction(CommonAction.Taunt);
                 break;
             case 4:
                 //装死，要看状态机
+                if (MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle)
+                    MeteorManager.Instance.LocalPlayer.posMng.ChangeAction(CommonAction.Dead);
                 break;
             case 5:
-                //怒绝，要看状态机
-                //int target = -1;
-                //int keyMap = 0;
-                ////得到所有绝招的KeyMap,尝试释放。
-                //if (Global.GMeteorInput.CheckPos(keyMap, target))
-                //{
-                //    MeteorManager.Instance.LocalPlayer.posMng.LinkAction(target);
-                //    MeteorManager.Instance.LocalPlayer.AngryValue = 0;
-                //    FightWnd.Instance.UpdatePlayerInfo();
-                //}
+                //加速
+                MeteorManager.Instance.LocalPlayer.Attr.AddSpeed(150);
+                //MeteorManager.Instance.LocalPlayer.GetItem(5);
                 break;
         }
     }

@@ -2287,7 +2287,7 @@ public class MeteorUnit : MonoBehaviour
     
     /// BUFF处理
     //名字, 类型, 值, 持续, 间隔, 持续类型, 拾取后带特效.
-    public void AddBuf(Option ItemInfo)
+    public void AddBuf(Option ItemInfo, bool repeatAdd = false)
     {
         if (!BuffMng.Instance.BufDict.ContainsKey(ItemInfo.Idx))
         {
@@ -2516,10 +2516,15 @@ public class MeteorUnit : MonoBehaviour
     //0大绝，其他的就是pose号
     public void PlaySkill(int skill = 0)
     {
-        //得到武器的大绝pose号码。
-        int pose = GetSkillPose();
-        AngryValue -= 100;
-        posMng.ChangeAction(pose);
+        if (AngryValue >= 100 || GameData.gameStatus.EnableInfiniteAngry)
+        {
+            //得到武器的大绝pose号码。
+            int pose = GetSkillPose();
+            AngryValue -= GameData.gameStatus.EnableInfiniteAngry ? 0 : 100;
+            posMng.ChangeAction(pose);
+        }
+        else
+            U3D.InsertSystemMsg("怒气不足");
     }
 
     //从当前动作，挑选出下一个可接动作

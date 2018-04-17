@@ -1,6 +1,6 @@
 ﻿<Properties StartupItem="meteor_original_ios.Plugins.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Meteor\MeteorUnit.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Resources\P0.pos.bytes">
     <Files>
       <File FileName="Assets\Meteor\U3D.cs" Line="1" Column="1" />
       <File FileName="Assets\Script\Resources\npc13_03.txt" Line="1" Column="1" />
@@ -10,6 +10,7 @@
       <File FileName="Assets\Script\Window\FightWnd.cs" Line="1" Column="1" />
       <File FileName="Assets\Script\table\LevelMng.cs" Line="1" Column="1" />
       <File FileName="Assets\Meteor\MeteorUnit.cs" Line="1" Column="1" />
+      <File FileName="Assets\Resources\P0.pos.bytes" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

@@ -94,7 +94,7 @@ public static class FtpLog
 	static void FtpUpload(FileStream fs, string name)
 	{
 		FtpWebRequest ftp;
-		ftp = (FtpWebRequest)FtpWebRequest.Create(new Uri("ftp://www.idevgame.com/" + UUID + "_" + System.DateTime.Now.ToString("dd-MM-yy") + "_" + name));
+		ftp = (FtpWebRequest)FtpWebRequest.Create(new Uri("ftp://www.idevgame.com/" + UUID + "_" + name));
 		ftp.Credentials = new NetworkCredential("winson", "xuwen1013");
 		ftp.UsePassive = true;
 		ftp.ContentLength = fs.Length;
