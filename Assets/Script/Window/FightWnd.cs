@@ -275,7 +275,7 @@ public class FightWnd: Window<FightWnd>
 
     public void OnChangeLock(bool locked)
     {
-        Global.ldaControlX("Unlock", WndObject).GetComponentInChildren<Image>().overrideSprite = locked ? Resources.Load<Sprite>("CameraU") : Resources.Load<Sprite>("CameraL");
+        Global.ldaControlX("Unlock", WndObject).GetComponentInChildren<Image>().overrideSprite = locked ? Resources.Load<Sprite>("CameraL") : Resources.Load<Sprite>("CameraU");
     }
 
     void OnClickChangeLock()
