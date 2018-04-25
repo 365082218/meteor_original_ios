@@ -388,6 +388,38 @@ public class GameBattleEx : MonoBehaviour {
         if (agent != null && Collision.ContainsKey(agent))
             Collision.Remove(agent);
     }
+
+    //把有/无弹道的攻击统计进来，无弹道的下一帧统一计算，有弹道的直接发射一个子弹，按照武器种类，分轨迹计算
+    Dictionary<MeteorUnit, AttackDes> CheckList = new Dictionary<MeteorUnit, AttackDes>();
+    public void AddDamageCheck(MeteorUnit unit, AttackDes attackDef)
+    {
+        if (unit == null || unit.Dead)
+            return;
+        if (unit.GetWeaponType() == (int)EquipWeaponType.Gun)
+        {
+            //如果不这样做，2个人就无法同时射对方
+            if (!CheckList.ContainsKey(unit))
+            {
+                CheckList[unit] = attackDef;
+            }
+        }
+        else
+        {
+            //飞镖，那么从绑点生成一个物件，让他朝
+            //"Sphere3"是挂点
+            //即刻生成一个物件飞出去。
+            if (unit.charLoader.sfxEffect != null)
+            {
+                //飞镖，前
+                Transform bulletBone = unit.charLoader.sfxEffect.FindEffectByName("Sphere_3");//出生点，
+
+                //主角则方向朝着摄像机正前方
+                //不是主角没有摄像机，那么就看有没有目标，有则随机一个方向，根据与目标的包围盒的各个顶点的，判定这个方向
+
+            }
+        }
+    }
+
     //所有角色的攻击盒.
     Dictionary<MeteorUnit, List<Collider>> DamageList = new Dictionary<MeteorUnit, List<Collider>>();
     //缓存角色的攻击盒.
@@ -640,7 +672,6 @@ public class GameBattleEx : MonoBehaviour {
             //保存自动对象 与主角的角度
             if (autoTarget == MeteorManager.Instance.UnitInfos[i])
                 autoAngle = angle;
-
         }
 
         //与角色的夹角不能大于75度,否则主角脑袋骨骼可能注视不到自动目标.

@@ -125,18 +125,22 @@ public class NewSystemWnd : Window<NewSystemWnd>
         toggleEnableGodMode.isOn = GameData.gameStatus.EnableGodMode;
         toggleEnableGodMode.onValueChanged.AddListener(OnEnableGodMode);
 
-        //Control("Ver107").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer(107); });
+        Control("ChangeV107").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("1.07"); });
         //Control("Ver108").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer(108); });
-        //Control("Ver907").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer(907); });
+        Control("ChangeV907").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("9.07"); });
         Control("AppVerText").GetComponent<Text>().text = Global.AppVersion;
         Control("MeteorVerText").GetComponent<Text>().text = Global.MeteorVersion;
         Control("ChangeModel").GetComponent<Button>().onClick.AddListener(() => { ModelWnd.Instance.Open(); });
         mWindowStyle = WindowStyle.WS_Modal;
     }
 
-    void OnChangeVer(int ver)
+    void OnChangeVer(string ver)
     {
-        U3D.PopupTip("暂无此功能");
+        Global.MeteorVersion = ver;
+        GameData.gameStatus.MeteorVersion = Global.MeteorVersion;
+        GameData.SaveState();
+        //提示返回到主场景，然后重新加载数据
+        U3D.PopupTip("版本切换到:" + ver + " 重启后生效");
     }
 
     void OnEnableFunc(bool on)

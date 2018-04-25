@@ -114,7 +114,7 @@ public class CommonAction
     public const int QK_CHIQIANG_READY = 402;
     public const int QK_JUHE_READY = 403;
     public const int RendaoReady = 404;
-
+    public const int WaitWeaponReturn = 219;//等待飞轮回来
     public const int AttackActStart = 200;
     public const int BeHurted109 = 109;//受击低着头循环
     public const int BeHurted110 = 110;//受击抱着肚子
@@ -132,6 +132,8 @@ public class CommonAction
     public const int WalkBackward = 143;//走路 后
     public const int Run = 144;//跑步
     public const int Idle = 0;
+    public const int GunReload = 212;//装载子弹
+    public const int GunIdle = 213;//待发射子弹
     public const int Crouch = 10;//蹲着
     //蹲下 前右左后移动
     public const int CrouchForw = 145;
@@ -301,7 +303,7 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
         //AddInterrupt(CommonAction.Idle, VK_Pose.VK_JumpLeft, new List<int> { (int)EKeyList.KL_KeyA, (int)EKeyList.KL_Jump });
         //AddInterrupt(CommonAction.Idle, VK_Pose.VK_JumpRight, new List<int> { (int)EKeyList.KL_KeyD, (int)EKeyList.KL_Jump });
 
-        TextAsset act = Resources.Load<TextAsset>("characteract");
+        TextAsset act = Resources.Load<TextAsset>(Global.MeteorVersion + "/characteract");
         MemoryStream ms = new MemoryStream(act.bytes);
         StreamReader text = new StreamReader(ms);
 
@@ -382,16 +384,6 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
             level0.Add(n);
             Whole.Add(i, n);
         }
-
-        //任意出招
-        //for (int i = CommonAction.Dead; i <= CommonAction.Dead; i++)
-        //{
-        //    ActionNode n = new ActionNode();
-        //    n.ActionIdx = i;
-        //    n.KeyMap = 0;
-        //    level0.Add(n);
-        //    Whole.Add(i, n);
-        //}
 
         int line = 1;
         string sV = "";

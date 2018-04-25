@@ -596,7 +596,6 @@ public class MeteorUnit : MonoBehaviour
         for (int i = 0; i < removedM.Count; i++)
             Damaged.Remove(removedM[i]);
         List<SceneItemAgent> keyS = new List<SceneItemAgent>(Damaged2.Keys);
-
         List<SceneItemAgent> removedS = new List<SceneItemAgent>();
         foreach (var each in keyS)
         {
@@ -610,7 +609,6 @@ public class MeteorUnit : MonoBehaviour
 
         //机关或者尖刺打到我.
         List<SceneItemAgent> keyD = new List<SceneItemAgent>(attackDelay.Keys);
-
         List<SceneItemAgent> removedD = new List<SceneItemAgent>();
         foreach (var each in keyD)
         {
@@ -623,7 +621,43 @@ public class MeteorUnit : MonoBehaviour
             attackDelay.Remove(removedD[i]);
 
         charLoader.CharacterUpdate();
+        RefreshTarget();
         ProcessGravity();
+    }
+
+    void RefreshTarget()
+    {
+        //刷新友方目标
+
+        //刷新敌方目标
+        if (!Attr.IsPlayer)
+        {
+            MeteorUnit temp = lockTarget;
+            if (lockTarget == null)
+                SelectEnemy();
+            else
+            {
+                //死亡，失去视野，超出视力范围，重新选择
+                float d = Vector3.Distance(lockTarget.transform.position, transform.position);
+                if (lockTarget.Dead)
+                {
+                    lockTarget = null;
+                }
+                else if (lockTarget.HasBuff(EBUFF_Type.HIDE))
+                {
+                    //隐身20码内可发现，2个角色紧贴着
+                    if (d >= 35.0f)
+                    {
+                        lockTarget = null;
+                    }
+                }
+                else if (d >= (Attr.View))
+                {
+                    lockTarget = null;
+                    //下一帧再找目标.
+                }
+            }
+        }
     }
 
     public const float jumpVelocityForward = 200.0f;//向前跳跃速度
@@ -798,32 +832,65 @@ public class MeteorUnit : MonoBehaviour
         if (abs < 1.0f || controller.Input.OnInputMoving())
             return;
         OnCameraRotateStart();
-        if (orient < 0.0f)
+        if (GetWeaponType() == (int)EquipWeaponType.Gun)
         {
-            if (Crouching)
+            if (orient < 0.0f)
             {
-                if (posMng.mActiveAction.Idx == CommonAction.Crouch
-                || (posMng.mActiveAction.Idx == CommonAction.CrouchRight && controller.Input.mInputVector.x == 0))
-                    posMng.ChangeAction(CommonAction.CrouchLeft, 0.1f);
+                if (Crouching || posMng.mActiveAction.Idx == CommonAction.GunIdle)
+                {
+                    if (posMng.mActiveAction.Idx == CommonAction.Crouch || posMng.mActiveAction.Idx == CommonAction.GunIdle
+                    || (posMng.mActiveAction.Idx == CommonAction.CrouchRight && controller.Input.mInputVector.x == 0))
+                        posMng.ChangeAction(CommonAction.CrouchLeft, 0.1f);
+                }
+                else
+                if (posMng.mActiveAction.Idx == CommonAction.Idle
+                    || (posMng.mActiveAction.Idx == CommonAction.WalkRight && controller.Input.mInputVector.x == 0))
+                    posMng.ChangeAction(CommonAction.WalkLeft, 0.1f);
             }
             else
-            if (posMng.mActiveAction.Idx == CommonAction.Idle
-                ||(posMng.mActiveAction.Idx == CommonAction.WalkRight && controller.Input.mInputVector.x == 0))
-                posMng.ChangeAction(CommonAction.WalkLeft, 0.1f);
+            if (orient > 0.0f)
+            {
+                if (Crouching || posMng.mActiveAction.Idx == CommonAction.GunIdle)
+                {
+                    if (posMng.mActiveAction.Idx == CommonAction.Crouch || posMng.mActiveAction.Idx == CommonAction.GunIdle
+                    || (posMng.mActiveAction.Idx == CommonAction.CrouchLeft && controller.Input.mInputVector.x == 0))
+                        posMng.ChangeAction(CommonAction.CrouchRight, 0.1f);
+                }
+                else
+                if (posMng.mActiveAction.Idx == CommonAction.Idle
+                    || (posMng.mActiveAction.Idx == CommonAction.WalkLeft && controller.Input.mInputVector.x == 0))
+                    posMng.ChangeAction(CommonAction.WalkRight, 0.1f);
+            }
         }
         else
-        if (orient > 0.0f)
         {
-            if (Crouching)
+            if (orient < 0.0f)
             {
-                if (posMng.mActiveAction.Idx == CommonAction.Crouch
-                || (posMng.mActiveAction.Idx == CommonAction.CrouchLeft && controller.Input.mInputVector.x == 0))
-                    posMng.ChangeAction(CommonAction.CrouchRight, 0.1f);
+                if (Crouching)
+                {
+                    if (posMng.mActiveAction.Idx == CommonAction.Crouch
+                    || (posMng.mActiveAction.Idx == CommonAction.CrouchRight && controller.Input.mInputVector.x == 0))
+                        posMng.ChangeAction(CommonAction.CrouchLeft, 0.1f);
+                }
+                else
+                if (posMng.mActiveAction.Idx == CommonAction.Idle
+                    || (posMng.mActiveAction.Idx == CommonAction.WalkRight && controller.Input.mInputVector.x == 0))
+                    posMng.ChangeAction(CommonAction.WalkLeft, 0.1f);
             }
             else
-            if (posMng.mActiveAction.Idx == CommonAction.Idle
-                ||(posMng.mActiveAction.Idx == CommonAction.WalkLeft && controller.Input.mInputVector.x == 0))
-                posMng.ChangeAction(CommonAction.WalkRight, 0.1f);
+            if (orient > 0.0f)
+            {
+                if (Crouching)
+                {
+                    if (posMng.mActiveAction.Idx == CommonAction.Crouch
+                    || (posMng.mActiveAction.Idx == CommonAction.CrouchLeft && controller.Input.mInputVector.x == 0))
+                        posMng.ChangeAction(CommonAction.CrouchRight, 0.1f);
+                }
+                else
+                if (posMng.mActiveAction.Idx == CommonAction.Idle
+                    || (posMng.mActiveAction.Idx == CommonAction.WalkLeft && controller.Input.mInputVector.x == 0))
+                    posMng.ChangeAction(CommonAction.WalkRight, 0.1f);
+            }
         }
     }
 
@@ -854,9 +921,9 @@ public class MeteorUnit : MonoBehaviour
             robot.ChangeState(EAIStatus.Kill, 10.0f);
     }
 
-    public void FaceToTarget(MeteorUnit unit)
+    public void FaceToTarget(Vector3 target)
     {
-        Vector3 vdiff = transform.position - unit.transform.position;
+        Vector3 vdiff = transform.position - target;
         transform.rotation = Quaternion.LookRotation(new Vector3(vdiff.x, 0, vdiff.z), Vector3.up);
         if (this == MeteorManager.Instance.LocalPlayer)
         {
@@ -865,9 +932,23 @@ public class MeteorUnit : MonoBehaviour
         }
     }
 
+    public void FaceToTarget(MeteorUnit unit)
+    {
+        FaceToTarget(unit.transform.position);
+        //Vector3 vdiff = transform.position - unit.transform.position;
+        //transform.rotation = Quaternion.LookRotation(new Vector3(vdiff.x, 0, vdiff.z), Vector3.up);
+        //if (this == MeteorManager.Instance.LocalPlayer)
+        //{
+        //    if (CameraFollow.Ins != null)
+        //        CameraFollow.Ins.ForceUpdate();
+        //}
+    }
+
     public CharacterController charController;
     public void Init(int modelIdx, MonsterEx mon = null, bool updateModel = false)
     {
+        allowAttack = false;
+        WeaponReturned = true;
         Vector3 vec = transform.position;
         Quaternion rotation = transform.rotation;
 
@@ -962,14 +1043,19 @@ public class MeteorUnit : MonoBehaviour
 
         InventoryItem itWeapon = GameData.MakeEquip(Attr.Weapon);
         weaponLoader.EquipWeapon(itWeapon);
+
+        //换主角模型用
         if (updateModel)
         {
             transform.position = vec;
             transform.rotation = rotation;
         }
 
+        //换主角模型用
         if (flag)
             SetFlag(FlagItem, flagEffectIdx);
+
+        GunReady = false;
     }
 
     public void EquipWeapon(InventoryItem it)
@@ -1030,6 +1116,9 @@ public class MeteorUnit : MonoBehaviour
         if (IndicatedWeapon != null && weaponLoader != null)
             weaponLoader.EquipWeapon(IndicatedWeapon);
         IndicatedWeapon = null;
+        //没有自动目标，攻击目标，不许计算自动/锁定目标，无转向
+        if (Attr.IsPlayer && (GetWeaponType() == (int)EquipWeaponType.Gun || GetWeaponType() == (int)EquipWeaponType.Dart))
+            GameBattleEx.Instance.Unlock();
     }
 
 
@@ -1050,7 +1139,15 @@ public class MeteorUnit : MonoBehaviour
             return;
         posMng.ChangeAction(CommonAction.Defence, 0.1f);
     }
-   
+
+    //火枪是否进入预备状态，这个状态下，除了跳跃，爆气，受击之外都会继续回到预备姿势，而不进入默认的IDLE
+    public bool GunReady { get; set; }
+    public void SetGunReady(bool ready)
+    {
+        GunReady = ready;
+    }
+
+
     public void DoBreakOut()
     {
         if (AngryValue >= 60 || Startup.ins.debugMode || GameData.gameStatus.EnableInfiniteAngry)
@@ -1408,28 +1505,6 @@ public class MeteorUnit : MonoBehaviour
             UpdateFlags(collisionFlags);
         }
 
-        if (!Attr.IsPlayer)
-        {
-            MeteorUnit temp = lockTarget;
-            if (lockTarget == null)
-                SelectEnemy();
-            else
-            {
-                //死亡，失去视野，超出视力范围，重新选择
-                float d = Vector3.Distance(lockTarget.transform.position, transform.position);
-                if (lockTarget.Dead)
-                    SelectEnemy();
-                else if (lockTarget.HasBuff(EBUFF_Type.HIDE))
-                {
-                    //隐身20码内可发现，2个角色紧贴着
-                    if (d >= 35.0f)
-                        SelectEnemy();
-                }
-                else if (d >= (Attr.View))
-                    SelectEnemy();
-            }
-        }
-
         if (FightWnd.Exist)
             FightWnd.Instance.PlayerMoveNotify(transform, Camp, Attr.IsPlayer);
         if (maxHeight < transform.position.y)
@@ -1597,12 +1672,12 @@ public class MeteorUnit : MonoBehaviour
         vec.y = 0;
         hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 10);
     }
-
-    bool allowAttack;
+    public bool WeaponReturned { get; set; }
+    public bool allowAttack { get; set; }
     public AttackDes CurrentDamage { get { return damage; } }
     AttackDes damage;
     //每8帧一次伤害判定.(5 * 1.0f / 30.0f)
-    const float refreshTick = 10 * 1.0f / 30.0f;
+    const float refreshTick = 8 * 1.0f / 30.0f;
     Dictionary<SceneItemAgent, float> Damaged2 = new Dictionary<SceneItemAgent, float>();
     Dictionary<MeteorUnit, float> Damaged = new Dictionary<MeteorUnit, float>();
     public void ChangeAttack(AttackDes attack)
@@ -1619,15 +1694,21 @@ public class MeteorUnit : MonoBehaviour
             Damaged.Clear();
             GameBattleEx.Instance.ClearDamageCollision(this);
             ChangeAttack(false);
-
             Damaged2.Clear();
             return;
         }
 
         if (Attr.IsPlayer && lockTarget == null && GameBattleEx.Instance.autoTarget != null)
         {
-            lockTarget = GameBattleEx.Instance.autoTarget;
-            GameBattleEx.Instance.ChangeLockedTarget(lockTarget);
+            if (GetWeaponType() == (int)EquipWeaponType.Gun || GetWeaponType() == (int)EquipWeaponType.Dart || GetWeaponType() == (int)EquipWeaponType.Guillotines)
+            {
+                //远程武器不能锁定
+            }
+            else
+            {
+                lockTarget = GameBattleEx.Instance.autoTarget;
+                GameBattleEx.Instance.ChangeLockedTarget(lockTarget);
+            }
         }
 
         //遍历受击盒根据攻击定义，生成相应的攻击盒。
@@ -1652,6 +1733,12 @@ public class MeteorUnit : MonoBehaviour
                 GameBattleEx.Instance.AddDamageCollision(this, sfxList[i].damageBox);
             }
         }
+
+        //枪械射击之类,1,枪，无轨迹，2，飞镖，自由落体轨迹 3，飞轮，贝塞尔曲线/B样条线轨迹.
+        //这些武器的大招，一定是带effect攻击特效的.所以可以通过伤害里的骨骼列表判断是否属于
+        if (attack.bones.Count == 0)
+            GameBattleEx.Instance.AddDamageCheck(this, attack);
+
         ChangeAttack(true);
     }
 
@@ -1805,7 +1892,8 @@ public class MeteorUnit : MonoBehaviour
         int BuffDef = Attr.CalcBuffDef();
         AttackDes atk = attacker.damage;
         int WeaponDamage = attacker.CalcDamage();
-        int PoseDamage = MenuResLoader.Instance.FindOpt(atk.PoseIdx, 3).second[0].flag[6];
+        //主角一般空踢，秒杀-香港脚
+        int PoseDamage = (attacker.Attr.IsPlayer && atk.PoseIdx == 338) ? 99999 : MenuResLoader.Instance.FindOpt(atk.PoseIdx, 3).second[0].flag[6];
         int BuffDamage = attacker.Attr.CalcBuffDamage();
         //小于1按1算.
         int realDamage = Mathf.Abs(Mathf.CeilToInt((((WeaponDamage + BuffDamage) * PoseDamage) / 100.0f - (WeaponDef + BuffDef)) / 10.0f));
@@ -1856,6 +1944,9 @@ public class MeteorUnit : MonoBehaviour
 
         if (robot != null)
             robot.OnDamaged();
+
+        //任意受击，都会让角色退出持枪预备姿势
+        SetGunReady(false);
 
         if (attacker == null)
         {
@@ -2093,6 +2184,9 @@ public class MeteorUnit : MonoBehaviour
                 {
                     case (int)EquipWeaponType.Gun://火枪
                     case (int)EquipWeaponType.Dart://飞镖
+                    case (int)EquipWeaponType.Guillotines://飞轮
+                        CrouchRush(dir);
+                        break;
                     case (int)EquipWeaponType.Hammer://锤子
                     case (int)EquipWeaponType.Brahchthrust://双刺
                         posMng.ChangeAction(CommonAction.DForw1);
@@ -2103,7 +2197,7 @@ public class MeteorUnit : MonoBehaviour
                         break;
                     case (int)EquipWeaponType.Knife:
                     case (int)EquipWeaponType.Lance:
-                    case (int)EquipWeaponType.Guillotines:
+                    
                         posMng.ChangeAction(CommonAction.DForw3);
                         break;
                     case (int)EquipWeaponType.NinjaSword:
@@ -2123,6 +2217,9 @@ public class MeteorUnit : MonoBehaviour
                 {
                     case (int)EquipWeaponType.Gun://火枪
                     case (int)EquipWeaponType.Dart://飞镖
+                    case (int)EquipWeaponType.Guillotines://飞轮
+                        CrouchRush(dir);
+                        break;
                     case (int)EquipWeaponType.Hammer://锤子
                     case (int)EquipWeaponType.Brahchthrust://双刺
                         posMng.ChangeAction(CommonAction.DBack1);
@@ -2133,7 +2230,6 @@ public class MeteorUnit : MonoBehaviour
                         break;
                     case (int)EquipWeaponType.Knife:
                     case (int)EquipWeaponType.Lance:
-                    case (int)EquipWeaponType.Guillotines:
                         posMng.ChangeAction(CommonAction.DBack3);
                         break;
                     case (int)EquipWeaponType.NinjaSword:
@@ -2152,6 +2248,9 @@ public class MeteorUnit : MonoBehaviour
                 {
                     case (int)EquipWeaponType.Gun://火枪
                     case (int)EquipWeaponType.Dart://飞镖
+                    case (int)EquipWeaponType.Guillotines://飞轮
+                        CrouchRush(dir);
+                        break;
                     case (int)EquipWeaponType.Hammer://锤子
                     case (int)EquipWeaponType.Brahchthrust://双刺
                         posMng.ChangeAction(CommonAction.DLeft1);
@@ -2162,7 +2261,6 @@ public class MeteorUnit : MonoBehaviour
                         break;
                     case (int)EquipWeaponType.Knife:
                     case (int)EquipWeaponType.Lance:
-                    case (int)EquipWeaponType.Guillotines:
                         posMng.ChangeAction(CommonAction.DLeft3);
                         break;
                     case (int)EquipWeaponType.NinjaSword:
@@ -2181,6 +2279,9 @@ public class MeteorUnit : MonoBehaviour
                 {
                     case (int)EquipWeaponType.Gun://火枪
                     case (int)EquipWeaponType.Dart://飞镖
+                    case (int)EquipWeaponType.Guillotines://飞轮
+                        CrouchRush(dir);
+                        break;
                     case (int)EquipWeaponType.Hammer://锤子
                     case (int)EquipWeaponType.Brahchthrust://双刺
                         posMng.ChangeAction(CommonAction.DRight1);
@@ -2191,7 +2292,6 @@ public class MeteorUnit : MonoBehaviour
                         break;
                     case (int)EquipWeaponType.Knife:
                     case (int)EquipWeaponType.Lance:
-                    case (int)EquipWeaponType.Guillotines:
                         posMng.ChangeAction(CommonAction.DRight3);
                         break;
                     case (int)EquipWeaponType.NinjaSword:

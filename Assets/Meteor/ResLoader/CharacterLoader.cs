@@ -454,14 +454,19 @@ public class CharacterLoader : MonoBehaviour
         {
             if (curIndex >= po.Attack[i].Start && curIndex <= po.Attack[i].End)
             {
-                mOwner.ChangeAttack(po.Attack[i]);
+                //当前处于不允许攻击，才能切换到允许攻击
+                if (!mOwner.allowAttack)
+                    mOwner.ChangeAttack(po.Attack[i]);
                 open = true;
                 break;
             }
         }
 
         if (!open)
-            mOwner.ChangeAttack(null);
+        {
+            if (owner.allowAttack)
+                mOwner.ChangeAttack(null);
+        }
     }
 
     void ChangeWeaponTrail()
@@ -751,6 +756,12 @@ public class CharacterLoader : MonoBehaviour
         {
             //这些动作是不具有硬直的循环动作.
         }
+        else if (po.Idx == 219)//飞轮出击后等待接回飞轮
+        {
+            //等着收回武器
+            if (owner.WeaponReturned)
+                loop = false;
+        }
         else
         {
             if (PoseStraight <= 0.0f)
@@ -782,6 +793,7 @@ public class CharacterLoader : MonoBehaviour
     }
 
     //特效时间不是太准，需要考虑如何让特效和动作同步.
+    public SFXEffectPlay sfxEffect { get; set; }//当前动作特效，用于飞镖/飞轮的挂点查询
     void PlayEffect()
     {
         float timePlayed = 0;
@@ -790,7 +802,7 @@ public class CharacterLoader : MonoBehaviour
         //if (po.Idx != 325)
         timePlayed = GetTimePlayed(curIndex);
         if (!string.IsNullOrEmpty(po.EffectID) && po.EffectID != "0")
-            SFXLoader.Instance.PlayEffect(po.EffectID + ".ef", this, timePlayed);
+            sfxEffect = SFXLoader.Instance.PlayEffect(po.EffectID + ".ef", this, timePlayed);
         effectPlayed = true;
     }
 
@@ -820,12 +832,14 @@ public class CharacterLoader : MonoBehaviour
         TheLastFrame = 0;
         TheFirstFrame = 0;
         moveScale = 1.0f;
+
         //重置速度
         bool isAttackPos = false;
         if (po == null)
             isAttackPos = false;
         else
-            isAttackPos = po.Idx >= CommonAction.AttackActStart;
+            //isAttackPos = po.Idx >= CommonAction.AttackActStart && po.Idx != CommonAction.GunIdle;
+            isAttackPos = posMng.IsAttackPose(po.Idx);
         single = singlePos;
         //从IDLE往IDLE是不许融合的，否则武器位置插值非常难看
         if (pos != null && po != null && pos.Idx == po.Idx && pos.Idx == 0)
@@ -881,6 +895,7 @@ public class CharacterLoader : MonoBehaviour
             curIndex = pos.Start;
         blendStart = curIndex;
         effectPlayed = false;
+        sfxEffect = null;
         playedTime = 0;
         //下一个动作的第一帧所有虚拟物体
         if (po.SourceIdx == 0)

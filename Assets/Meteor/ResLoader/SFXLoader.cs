@@ -472,7 +472,7 @@ public class SFXLoader :Singleton<SFXLoader>{
     }
     //target描述，此特效的主调者
     //timePlayed用于同步动作和特效。快速出招时，特效要加一个已经播放时间，否则特效跟不上动作的播放步骤
-    public void PlayEffect(string file, CharacterLoader target, float timePlayed = 0.0f)
+    public SFXEffectPlay PlayEffect(string file, CharacterLoader target, float timePlayed = 0.0f)
     {
         if (!EffectList.ContainsKey(file))
         {
@@ -483,7 +483,7 @@ public class SFXLoader :Singleton<SFXLoader>{
                 {
                     EffectList.Add(file, f);
                     //Debug.LogError("effect file:" + file);
-                    f.Play(target, timePlayed);
+                    return f.Play(target, timePlayed);
                 }
             }
             catch
@@ -495,8 +495,9 @@ public class SFXLoader :Singleton<SFXLoader>{
         else
         {
             //Debug.LogError("effect file:" + file);
-            EffectList[file].Play(target, timePlayed);
+            return EffectList[file].Play(target, timePlayed);
         }
+        return null;
     }
 
     public void LoadEffect(string file)

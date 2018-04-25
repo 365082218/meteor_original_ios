@@ -313,8 +313,8 @@ public class MeteorInput
             int curIndex = mOwner.charLoader.GetCurrentFrameIndex();
             if (p.Next.Start <= curIndex && curIndex <= inputEnd)
             {
-                if (posMng.mActiveAction.Idx >= 295 && posMng.mActiveAction.Idx <= 300)
-                    Debug.LogError("pos:" + p.Idx + " p.next start:" + p.Next.Start + "  cur index = " + curIndex + " input end:" + inputEnd);
+                //if (posMng.mActiveAction.Idx >= 295 && posMng.mActiveAction.Idx <= 300)
+                //    Debug.LogError("pos:" + p.Idx + " p.next start:" + p.Next.Start + "  cur index = " + curIndex + " input end:" + inputEnd);
                 return true;
             }
             else
@@ -549,6 +549,9 @@ public class MeteorInput
                             result = true;
                         }
                         break;
+                    case 59://一般空踢
+                        result = true;
+                        break;
                 }
                 break;
             case (int)EquipWeaponType.Guillotines://血滴子
@@ -560,6 +563,9 @@ public class MeteorInput
                     case 12:
                     case 145:
                     case 146:
+                        result = true;
+                        break;
+                    case 59://一般空踢
                         result = true;
                         break;
                 }

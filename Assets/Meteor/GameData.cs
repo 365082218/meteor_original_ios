@@ -375,7 +375,9 @@ public class GameData
             gameStatus.useJoystickOrKeyBoard = false;
             gameStatus.JoyAnchor = new MyVector2(391,340);
             gameStatus.AxisSensitivity = new MyVector2(1, 1);
+            gameStatus.MeteorVersion = "9.07";
         }
+        Global.MeteorVersion = gameStatus.MeteorVersion;
     }
 
     public static void SaveState()

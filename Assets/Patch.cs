@@ -52,6 +52,7 @@ public class Patch : MonoBehaviour {
         Log.Uninit();
         FtpLog.Uninit();
         GameData.SaveState();
+        //保存升级的临时数据.
         GameData.SaveCache();
     }
 

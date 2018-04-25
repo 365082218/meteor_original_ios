@@ -221,11 +221,6 @@ public class MeteorAI {
             MeteorUnit u = owner.GetLockedTarget();
             if (u == null)
             {
-                owner.SelectEnemy();
-                u = owner.GetLockedTarget();
-            }
-            if (u == null)
-            {
                 targetPath.Clear();
                 pathIdx = -1;
                 targetPos = Vector3.zero;
@@ -572,6 +567,7 @@ public class MeteorAI {
 
     public void OnDamaged()
     {
+        //模拟出招被其他敌方角色攻击打断
         if (PlayWeaponPoseCorout != null)
         {
             owner.StopCoroutine(PlayWeaponPoseCorout);

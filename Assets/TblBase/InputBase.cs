@@ -122,7 +122,7 @@ public class InputItem
     {
         if (mOwner != null)
         {
-            if (ActionInterrupt.Instance.Whole.ContainsKey(mOwner.posMng.mActiveAction.Idx))
+            if (ActionInterrupt.Instance.Whole.ContainsKey(mOwner.posMng.mActiveAction.Idx) || mOwner.GetWeaponType() == (int)EquipWeaponType.Gun)
             {
                 int targetIdx = mOwner.posMng.mActiveAction.Idx;
                 //滚动或者闪动。可以连任意Pose与Idle一样
@@ -135,9 +135,25 @@ public class InputItem
                 if (targetIdx >= CommonAction.ZhihuReady && targetIdx <= CommonAction.RendaoReady)
                     targetIdx = 0;
 
+                //部分火枪动作，翻滚，攻击，都有后摇，不允许立即切换，必须等待动作完成
+                if (mOwner.GunReady && !mOwner.posMng.IsAttackPose() && 
+                    !(mOwner.posMng.mActiveAction.Idx >= CommonAction.DCForw && mOwner.posMng.mActiveAction.Idx <= CommonAction.DCBack))
+                {
+                    targetIdx = CommonAction.Idle;//模拟普通IDLE就可以发其他火枪招式了
+                    //Debug.LogError("useGun");
+                }
+
                 ActionNode no = ActionInterrupt.Instance.Whole[targetIdx];
                 if (mOwner.IsOnGround())
                 {
+                    //拦截火枪的状态机，只要不处于213-使用火枪就进入212POSE
+                    if (!mOwner.GunReady && mOwner.GetWeaponType() == (int)EquipWeaponType.Gun)
+                    {
+                        targetPose = 212;
+                        //Debug.LogError("targetPose = 212");
+                        return true;
+                    }
+
                     foreach (var each in lines)
                     {
                         for (int i = 0; i < no.target.Count; i++)

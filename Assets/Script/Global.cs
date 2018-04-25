@@ -8,7 +8,7 @@ public class Global
 {
     public const string AppVersion = "0.4.3";
     public const int Version = 20180411;
-    public const string MeteorVersion = "9.07";
+    public static string MeteorVersion = "9.07";
     //运行帧速率设置 60 = 12 30 = 6 120 = 24
 #if UNITY_IOS || UNITY_ANDROID
     public static int waitForNextInput = 9;//2个输入中间最大间隔6帧超过即断开.

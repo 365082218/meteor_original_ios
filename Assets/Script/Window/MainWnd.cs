@@ -8,6 +8,17 @@ using ProtoBuf;
 using System;
 using protocol;
 
+public class GunShootUI:Window<GunShootUI>
+{
+    public override string PrefabName
+    {
+        get
+        {
+            return "GunShootUI";
+        }
+    }
+}
+
 public class MainLobby : Window<MainLobby>
 {
     public override string PrefabName { get { return "MainLobby"; } }

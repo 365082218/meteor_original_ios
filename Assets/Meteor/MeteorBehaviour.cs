@@ -121,6 +121,7 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
             else
             if (Input.HasInput((int)EKeyList.KL_Crouch, (int)EInputType.EIT_Pressing, Time.deltaTime))
             {
+                //Debug.LogError("crouch");
                 Owner.OnCrouch();
                 return;
             }
@@ -162,6 +163,12 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
         }
         else if (posMng.mActiveAction.Idx == CommonAction.Crouch || (posMng.mActiveAction.Idx >= CommonAction.CrouchForw && posMng.mActiveAction.Idx <= CommonAction.CrouchBack))
         {
+            if (Owner.GetWeaponType() == (int)EquipWeaponType.Gun && Owner.GunReady)
+            {
+                ProcessGunAction(Owner);
+                return;
+            }
+
             //除了不能防御
             if (ProcessNormalAction(Owner))
             {
@@ -479,6 +486,69 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
                     Owner.ProcessJump2(true);
                 }
             }
+        }
+        else if (posMng.mActiveAction.Idx == CommonAction.GunIdle)
+        {
+            ProcessGunAction(Owner);
+        }
+    }
+
+    void ProcessGunAction(MeteorUnit target)
+    {
+        PoseStatus posMng = target.posMng;
+        MeteorInput Input = target.controller.Input;
+        MeteorUnit Owner = target;
+        //响应
+        if (Input.HasInput((int)EKeyList.KL_BreakOut, (int)EInputType.EIT_Click, Time.deltaTime))
+        {
+            Owner.SetGunReady(false);
+            Owner.DoBreakOut();
+        }
+        else//除了跳/受击/爆气 清了枪蹲下的状态，其他全部不能清理这个状态
+        if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease, Time.deltaTime) && Owner.IsOnGround())
+        {
+            Owner.SetGunReady(false);
+            Owner.SetGround(false);
+            Jump(Owner, Input.mInputVector, Input.KeyStates[(int)EKeyList.KL_Jump].PressedTime / MeteorInput.ShortPressTime);
+        }
+        else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress, Time.deltaTime) && Owner.IsOnGround())
+        {
+            Owner.SetGunReady(false);
+            Owner.SetGround(false);
+            Jump(Owner, Input.mInputVector);
+        }
+        else
+        if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+        {
+            //这里要判断武器
+            Owner.CrouchRush();
+        }
+        else
+        if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+        {
+            //这里要判断武器
+            Owner.CrouchRush(1);
+        }
+        else
+        if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+        {
+            //这里要判断武器
+            Owner.CrouchRush(2);
+        }
+        else
+        if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+        {
+            //这里要判断武器
+            Owner.CrouchRush(3);
+        }
+        else if (Input.mInputVector != Vector2.zero)
+        {
+            MoveOnCrouch(Owner, Input.mInputVector);
+        }
+        else if (Input.mInputVector == Vector2.zero && !posMng.Rotateing)
+        {
+            if (posMng.mActiveAction.Idx != CommonAction.GunIdle)
+                posMng.ChangeAction(CommonAction.GunIdle);
         }
     }
 }

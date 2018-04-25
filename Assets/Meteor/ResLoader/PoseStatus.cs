@@ -31,7 +31,11 @@ public class PoseStatus
             //攻击动作播放时不许摇杆控制角色转向
             if (IsAttackPose())
                 return false;
+            //爬墙不许转向
             if (_Self.Climbing)
+                return false;
+            //等待收回飞轮不许转向
+            if (mActiveAction.Idx == CommonAction.WaitWeaponReturn)
                 return false;
             //防御不许转向
             if (mActiveAction.Idx >= CommonAction.DartDefence && mActiveAction.Idx <= CommonAction.HammerDefence)
@@ -144,7 +148,7 @@ public class PoseStatus
         if (!PosFile.ContainsKey(UnitId))
         {
             int TargetIdx = UnitId >= 20 ? 0 : UnitId;
-            PosFile.Add(UnitId, Resources.Load<TextAsset>("P" + TargetIdx + ".pos"));
+            PosFile.Add(UnitId, Resources.Load<TextAsset>(Global.MeteorVersion + "/P" + TargetIdx + ".pos"));
             ActionList.Add(UnitId, new List<Pose>());
             ReadPose();
         }
@@ -195,6 +199,14 @@ public class PoseStatus
         return !(mActiveAction.Attack == null || mActiveAction.Attack.Count == 0);
     }
 
+    public bool IsAttackPose(int i)
+    {
+        if (i < 0 || i > 600)
+            return false;
+        Pose p = ActionList[UnitId][i];
+        return !(p.Attack == null || p.Attack.Count == 0);
+    }
+
     public void LinkAction(int idx)
     {
         //先把虚拟动作转换为实际动作ID
@@ -225,7 +237,7 @@ public class PoseStatus
 
                         if (mActiveAction.Next != null)
                         {
-                            Debug.LogError("直接切换动作：" + idx + " NextPose:" + mActiveAction.Next.Time);
+                            //Debug.LogError("直接切换动作：" + idx + " NextPose:" + mActiveAction.Next.Time);
                             ChangeAction(idx, mActiveAction.Next.Time);
                         }
                         else
@@ -235,7 +247,7 @@ public class PoseStatus
                     else if (curIndex < act.Start)
                     {
                         LinkInput[mActiveAction.Idx] = idx;
-                        Debug.LogError("等待混合动作：" + idx);
+                        //Debug.LogError("等待混合动作：" + idx);
                         return;
                     }
                 }
@@ -265,7 +277,7 @@ public class PoseStatus
         }
     }
 
-
+    //动作播放完毕，切换下一个可连接动作.
     public void OnActionFinished()
     {
         if (waitPause)
@@ -274,82 +286,124 @@ public class PoseStatus
         }
         else
         {
-            if (LinkInput.ContainsKey(mActiveAction.Idx))
+            //使用火枪，状态机与普通状态机不一致
+            if (_Self.GetWeaponType() == (int)EquipWeaponType.Gun)
             {
-                int TargetActionIdx = mActiveAction.Idx;
-                if (mActiveAction.Next != null)
-                    ChangeAction(LinkInput[mActiveAction.Idx], mActiveAction.Next.Time);//
-                else
-                    ChangeAction(LinkInput[mActiveAction.Idx]);
-                LinkInput.Clear();
-            }
-            else
-            {
-                //_Self.IgnoreGravitys(false);//开启重力，默认link都是要带重力的
-                if (mActiveAction.Link != 0)
+                //212=>213
+                if (mActiveAction.Idx == CommonAction.GunReload)
                 {
-                    //if (!_Self.IsOnGround())
-                    //_Self.ResetYVelocity();
-                    //_Self.IgnoreGravitys(IgnoreGravity(mActiveAction.Link));
-                    //MeteorManager.Instance.PhysicalIgnore(_Self, IgnorePhysical(mActiveAction.Link));//控制角色在此动作内不与其他角色发生碰撞
-                    //else if (!_Self.IsOnGround())
-                    //    _Self.EnableGravity(false);
-                    if (mActiveAction.Next != null)
-                        ChangeAction(mActiveAction.Link, 0.1f);
-                    else
-                        ChangeAction(mActiveAction.Link);
+                    ChangeAction(CommonAction.GunIdle, 0.1f);
                 }
                 else
                 {
-                    if (_Self.IsOnGround())
+                    //213=>213
+                    if (mActiveAction.Idx == CommonAction.GunIdle)
                     {
-                        //如果处于防御-受击状态中,恢复为防御pose
-                        if (onDefence)
-                        {
-                            _Self.Defence();
-                        }
-                        else
-                        if (_Self.GetLockedTarget() != null)
-                        {
-                            int ReadyAction = 0;
-                            switch ((EquipWeaponType)_Self.GetWeaponType())
-                            {
-                                case EquipWeaponType.Knife: ReadyAction = CommonAction.KnifeReady; break;
-                                case EquipWeaponType.Sword: ReadyAction = CommonAction.SwordReady; break;
-                                case EquipWeaponType.Blade: ReadyAction = CommonAction.BladeReady; break;
-                                case EquipWeaponType.Lance: ReadyAction = CommonAction.LanceReady; break;
-                                case EquipWeaponType.Brahchthrust: ReadyAction = CommonAction.BrahchthrustReady; break;
-                                case EquipWeaponType.Dart: ReadyAction = CommonAction.DartReady; break;
-                                case EquipWeaponType.Gloves: ReadyAction = CommonAction.ZhihuReady; break;//没找到
-                                case EquipWeaponType.Guillotines: ReadyAction = CommonAction.GuillotinesReady; break;
-                                case EquipWeaponType.Hammer: ReadyAction = CommonAction.HammerReady; break;
-                                case EquipWeaponType.NinjaSword: ReadyAction = CommonAction.RendaoReady; break;
-                                case EquipWeaponType.HeavenLance:
-                                    switch (_Self.GetWeaponSubType())
-                                    {
-                                        case 0: ReadyAction = CommonAction.QK_BADAO_READY; break;
-                                        case 1: ReadyAction = CommonAction.QK_CHIQIANG_READY; break;
-                                        case 2: ReadyAction = CommonAction.QK_JUHE_READY; break;
-                                    }
-                                    break;
-                                case EquipWeaponType.Gun: ReadyAction = CommonAction.GunReady; break;
-                            }
-                            if (mActiveAction.Next != null)
-                                ChangeAction(ReadyAction, 0.1f);
-                            else
-                                ChangeAction(ReadyAction);
-                        }
-                        else
-                        {
-                            if (mActiveAction.Next != null)
-                                ChangeAction(CommonAction.Idle, 0.1f);
-                            else
-                                ChangeAction(CommonAction.Idle);
-                            //ChangeAction(CommonAction.Idle, 0.1f);
-                        }
+                        ChangeAction(CommonAction.GunIdle);
                     }
                     else
-                        ChangeAction(CommonAction.JumpFall, 0.1f);
+                    {
+                        //其他有重装子弹的进入212
+                        if (mActiveAction.Link != 0)
+                        {
+                            if (mActiveAction.Next != null)
+                                ChangeAction(mActiveAction.Link, mActiveAction.Next.Time);
+                            else
+                                ChangeAction(mActiveAction.Link);
+                        }
+                        else
+                        {
+                            if (!_Self.GunReady)
+                            {
+                                if (mActiveAction.Next != null)
+                                    ChangeAction(CommonAction.Idle, 0.1f);
+                                else
+                                    ChangeAction(CommonAction.Idle);
+                            }
+                            else
+                            {
+                                //没有重装子弹的进入213
+                                if (mActiveAction.Next != null)
+                                    ChangeAction(CommonAction.GunIdle, mActiveAction.Next.Time);
+                                else
+                                    ChangeAction(CommonAction.GunIdle);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (LinkInput.ContainsKey(mActiveAction.Idx))
+                {
+                    int TargetActionIdx = mActiveAction.Idx;
+                    if (mActiveAction.Next != null)
+                        ChangeAction(LinkInput[mActiveAction.Idx], mActiveAction.Next.Time);//
+                    else
+                        ChangeAction(LinkInput[mActiveAction.Idx]);
+                    LinkInput.Clear();
+                }
+                else
+                {
+                    if (mActiveAction.Link != 0)
+                    {
+                        if (mActiveAction.Next != null)
+                            ChangeAction(mActiveAction.Link, 0.1f);
+                        else
+                            ChangeAction(mActiveAction.Link);
+                    }
+                    else
+                    {
+                        if (_Self.IsOnGround())
+                        {
+                            //如果处于防御-受击状态中,恢复为防御pose
+                            if (onDefence)
+                            {
+                                _Self.Defence();
+                            }
+                            else
+                            if (_Self.GetLockedTarget() != null)
+                            {
+                                int ReadyAction = 0;
+                                switch ((EquipWeaponType)_Self.GetWeaponType())
+                                {
+                                    case EquipWeaponType.Knife: ReadyAction = CommonAction.KnifeReady; break;
+                                    case EquipWeaponType.Sword: ReadyAction = CommonAction.SwordReady; break;
+                                    case EquipWeaponType.Blade: ReadyAction = CommonAction.BladeReady; break;
+                                    case EquipWeaponType.Lance: ReadyAction = CommonAction.LanceReady; break;
+                                    case EquipWeaponType.Brahchthrust: ReadyAction = CommonAction.BrahchthrustReady; break;
+                                    case EquipWeaponType.Dart: ReadyAction = CommonAction.DartReady; break;
+                                    case EquipWeaponType.Gloves: ReadyAction = CommonAction.ZhihuReady; break;//没找到
+                                    case EquipWeaponType.Guillotines: ReadyAction = CommonAction.GuillotinesReady; break;
+                                    case EquipWeaponType.Hammer: ReadyAction = CommonAction.HammerReady; break;
+                                    case EquipWeaponType.NinjaSword: ReadyAction = CommonAction.RendaoReady; break;
+                                    case EquipWeaponType.HeavenLance:
+                                        switch (_Self.GetWeaponSubType())
+                                        {
+                                            case 0: ReadyAction = CommonAction.QK_BADAO_READY; break;
+                                            case 1: ReadyAction = CommonAction.QK_CHIQIANG_READY; break;
+                                            case 2: ReadyAction = CommonAction.QK_JUHE_READY; break;
+                                        }
+                                        break;
+                                    case EquipWeaponType.Gun: ReadyAction = CommonAction.GunReady; break;
+                                }
+                                if (mActiveAction.Next != null)
+                                    ChangeAction(ReadyAction, 0.1f);
+                                else
+                                    ChangeAction(ReadyAction);
+                            }
+                            else
+                            {
+                                if (mActiveAction.Next != null)
+                                    ChangeAction(CommonAction.Idle, 0.1f);
+                                else
+                                    ChangeAction(CommonAction.Idle);
+                                //ChangeAction(CommonAction.Idle, 0.1f);
+                            }
+                        }
+                        else
+                            ChangeAction(CommonAction.JumpFall, 0.1f);
+                    }
                 }
             }
         }
@@ -426,6 +480,8 @@ public class PoseStatus
 
     public void ChangeAction(int idx = CommonAction.Idle, float time = 0.0f, int targetFrame = 0)
     {
+        //if (mActiveAction != null && mActiveAction.Idx == 176 && idx == CommonAction.GunIdle)
+        //    Debug.Break();
         _Self.IgnoreGravitys(PoseStatus.IgnoreGravity(idx));//设置招式重力
         bool ignorePhy = IgnorePhysical(idx);
         if (ignorePhy != _Self.IgnorePhysical)
@@ -434,23 +490,24 @@ public class PoseStatus
         _Self.ResetWorldVelocity(IgnoreVelocityXZ(idx));
         if (load != null)
         {
+            int weapon = _Self.GetWeaponType();
             CanMove = false;
             if (idx == CommonAction.Defence)
             {
-                switch ((EquipWeaponType)_Self.GetWeaponType())
+                switch ((EquipWeaponType)weapon)
                 {
-                    case EquipWeaponType.Knife: idx = CommonAction.KnifeDefence;break;
+                    case EquipWeaponType.Knife: idx = CommonAction.KnifeDefence; break;
                     case EquipWeaponType.Sword: idx = CommonAction.SwordDefence; break;
                     case EquipWeaponType.Blade: idx = CommonAction.BladeDefence; break;
                     case EquipWeaponType.Lance: idx = CommonAction.LanceDefence; break;
-                    case EquipWeaponType.Brahchthrust: idx = CommonAction.BrahchthrustDefence;break;
+                    case EquipWeaponType.Brahchthrust: idx = CommonAction.BrahchthrustDefence; break;
                     //case EquipWeaponType.Dart: idx = CommonAction.DartDefence;break;
-                    case EquipWeaponType.Gloves: idx = CommonAction.ZhihuDefence;break;//没找到
+                    case EquipWeaponType.Gloves: idx = CommonAction.ZhihuDefence; break;//没找到
                     //case EquipWeaponType.Guillotines: idx = CommonAction.GuillotinesDefence;break;
-                    case EquipWeaponType.Hammer: idx = CommonAction.HammerDefence;break;
-                    case EquipWeaponType.NinjaSword:idx = CommonAction.RendaoDefence;break;
-                    case EquipWeaponType.HeavenLance:idx = CommonAction.QiankunDefenct;break;//
-                    //case EquipWeaponType.Gun: return;//
+                    case EquipWeaponType.Hammer: idx = CommonAction.HammerDefence; break;
+                    case EquipWeaponType.NinjaSword: idx = CommonAction.RendaoDefence; break;
+                    case EquipWeaponType.HeavenLance: idx = CommonAction.QiankunDefenct; break;//
+                                                                                               //case EquipWeaponType.Gun: return;//
                 }
             }
             else
@@ -466,6 +523,43 @@ public class PoseStatus
             {
                 CanMove = true;
             }
+
+            //蹲下左右旋转-蹲下前后左右移动，只要之前处于火枪预备则都可以瞬间出火枪的攻击
+            if (weapon == (int)EquipWeaponType.Gun)
+            {
+                if ((idx >= CommonAction.CrouchForw && idx <= CommonAction.CrouchBack) || idx == CommonAction.GunIdle)
+                {
+                    if (idx == CommonAction.GunIdle && !_Self.GunReady)
+                        _Self.SetGunReady(true);
+                    if (_Self.Attr.IsPlayer)
+                    {
+                        if (_Self.GunReady)
+                        {
+                            if (!GunShootUI.Exist)
+                                GunShootUI.Instance.Open();
+                        }
+                        else
+                        {
+                            if (GunShootUI.Exist)
+                                GunShootUI.Instance.Close();
+                        }
+                    }
+                }
+                else
+                {
+                    if (_Self.Attr.IsPlayer)
+                    {
+                        if (GunShootUI.Exist)
+                            GunShootUI.Instance.Close();
+                    }
+                }
+            }
+            else if (_Self.Attr.IsPlayer)
+            {
+                if (GunShootUI.Exist)
+                    GunShootUI.Instance.Close();
+            }
+
             //除了受击，防御，其他动作在有锁定目标下，都要转向锁定目标.
             if (_Self.GetLockedTarget() != null && !onDefence && !onhurt)
                 _Self.FaceToTarget(_Self.GetLockedTarget());

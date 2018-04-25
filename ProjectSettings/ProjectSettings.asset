@@ -137,7 +137,7 @@ PlayerSettings:
   iPhoneScriptCallOptimization: 1
   iPhoneBuildNumber: 0
   ForceInternetPermission: 0
-  ForceSDCardPermission: 1
+  ForceSDCardPermission: 0
   CreateWallpaper: 0
   APKExpansionFiles: 0
   preloadShaders: 0
@@ -470,7 +470,7 @@ PlayerSettings:
   scriptingDefineSymbols:
     1: 
     4: BUILD_PC
-    7: 
+    7: BUILD_PC
   platformArchitecture:
     iOS: 2
   scriptingBackend:

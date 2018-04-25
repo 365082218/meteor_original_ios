@@ -39,6 +39,7 @@ public class GameState
     public bool EnableGodMode;//无敌模式
     public MyVector2 JoyAnchor;//摇杆坐标.
     public MyVector2 AxisSensitivity;//轴视角转向灵敏度
+    public string MeteorVersion;
 
 }
 

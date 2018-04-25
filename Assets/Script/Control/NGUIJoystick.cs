@@ -27,7 +27,7 @@ public class NGUIJoystick : MonoBehaviour
                 else if (mInstance.dKey.PointDown)
                     mDelta = Vector2.right;
             }
-            return (Time.timeScale != 0) ? mDelta : Vector2.zero;
+            return (Time.timeScale != 0) ? mDelta.normalized : Vector2.zero;
         }
     }
     public BoxCollider JoyCollider;
