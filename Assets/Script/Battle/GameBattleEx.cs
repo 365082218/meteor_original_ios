@@ -415,7 +415,7 @@ public class GameBattleEx : MonoBehaviour {
                 Transform bulletBone = unit.charLoader.sfxEffect.FindEffectByName("Sphere_3");//出生点，
                 Vector3 forw = Vector3.zero;
                 if (unit.Attr.IsPlayer)
-                    forw = CameraFollow.Ins.m_Camera.transform.forward;
+                    forw = (CameraFollow.Ins.m_Camera.ScreenToWorldPoint(new Vector3(Screen.width/2, Screen.height/2, 0)) - bulletBone.transform.position).normalized;
                 else
                 {
                     //敌人在未发现敌人时随便发飞镖?
@@ -424,7 +424,7 @@ public class GameBattleEx : MonoBehaviour {
 
                     }
                     else
-                        forw = (unit.GetLockedTarget().mPos - unit.mPos).normalized;
+                        forw = (unit.GetLockedTarget().mPos - unit.mPos).normalized;//要加一点随机，否则每次都打一个位置不正常
                 }
                 //主角则方向朝着摄像机正前方
                 //不是主角没有摄像机，那么就看有没有目标，有则随机一个方向，根据与目标的包围盒的各个顶点的，判定这个方向

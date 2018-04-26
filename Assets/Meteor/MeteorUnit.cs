@@ -1666,6 +1666,10 @@ public class MeteorUnit : MonoBehaviour
                     attackDelay[agent] = 2.0f;
                 }
             }
+
+            DartLoader dart = hit.gameObject.GetComponent<DartLoader>();
+            if (dart != null)
+                dart.AttackTarget(this);
             return;
         }
         Vector3 vec = hitUnit.mPos - transform.position;

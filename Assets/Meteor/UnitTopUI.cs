@@ -57,7 +57,7 @@ public class UnitTopUI : MonoBehaviour {
         owner = attach.GetComponent<MeteorUnit>();
         Info = GetComponentInChildren<UnitDebugInfo>(true);
         Info.SetOwner(owner);
-        Transform mainCanvas = GameObject.Find("UnitCanvas").transform;
+        Transform mainCanvas = GameObject.Find("Canvas").transform;
         transform.SetParent(mainCanvas);
         transform.localScale = Vector3.one;
         transform.localRotation = Quaternion.identity;

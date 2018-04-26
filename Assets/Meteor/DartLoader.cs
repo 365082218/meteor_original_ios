@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using CoClass;
 
-//飞镖飞行实现
+//飞镖飞行实现-Flight层
 public class DartLoader : MonoBehaviour {
     InventoryItem weapon;
     // Use this for initialization
@@ -44,6 +44,13 @@ public class DartLoader : MonoBehaviour {
         Weapon = weapon;
         LoadWeapon();
         transform.LookAt(transform.position + forward);
+        MeshRenderer mr = gameObject.GetComponentInChildren<MeshRenderer>();
+        if (mr != null)
+        {
+            MeshCollider mc = mr.gameObject.AddComponent<MeshCollider>();
+            mc.convex = true;
+            mc.isTrigger = true;
+        }
         if (fly != null)
             StopCoroutine(fly);
         fly = StartCoroutine(Fly());
@@ -68,8 +75,18 @@ public class DartLoader : MonoBehaviour {
     public static void Init(Vector3 spawn, Vector3 forw, InventoryItem weapon, AttackDes att, MeteorUnit owner)
     {
         GameObject dartObj = GameObject.Instantiate(Resources.Load("DartLoader"), spawn, Quaternion.identity, null) as GameObject;
+        dartObj.layer = LayerMask.NameToLayer("Flight");
         DartLoader dart = dartObj.GetComponent<DartLoader>();
         dart.LoadAttack(weapon, forw, att, owner);
+    }
+
+    public void AttackTarget(MeteorUnit target)
+    {
+        if (target.SameCamp(owner))
+            return;
+
+        if (target != null)
+            target.OnAttack(owner, _attack);
     }
 
     public void OnTriggerEnter(Collider other)
