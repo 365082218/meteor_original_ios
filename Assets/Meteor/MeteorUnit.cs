@@ -1779,6 +1779,10 @@ public class MeteorUnit : MonoBehaviour
         Damaged2.Add(other, refreshTick);
     }
     
+    public void OnAttack(MeteorUnit other, AttackDes des)
+    {
+        OnDamage(other, des);
+    }
     //成功被人攻击到，没有检测防御状态.
     public void OnAttack(MeteorUnit other)
     {
@@ -1934,6 +1938,186 @@ public class MeteorUnit : MonoBehaviour
             NGUICameraJoystick.instance.ResetJoystick();//防止受到攻击时还可以移动视角
         Attr.ReduceHp(buffDamage);
         posMng.OnChangeAction(CommonAction.OnDrugHurt);
+    }
+
+    //飞镖或飞轮的，含受击定义,即使飞镖拥有者死了，仍调用.
+    void OnDamage(MeteorUnit attacker, AttackDes attackdes)
+    {
+        if (NGUICameraJoystick.instance != null && Attr.IsPlayer)
+            NGUICameraJoystick.instance.ResetJoystick();//防止受到攻击时还可以移动视角
+
+        if (robot != null)
+            robot.OnDamaged();
+
+        //任意受击，都会让角色退出持枪预备姿势
+        SetGunReady(false);
+        if (attacker == null)
+        {
+            //
+        }
+        else
+        {
+            //到此处均无须判读阵营等。
+            AttackDes dam = attackdes;
+            int direction = CalcDirection(attacker);
+            int directionAct = dam.TargetPose;
+            switch (direction)
+            {
+                case 0: directionAct = dam.TargetPoseFront; break;//这个是前后左右，武器防御受击是 上下左右，上下指角色面朝方向头顶和底部
+                case 1: directionAct = dam.TargetPoseBack; break;
+                case 2: directionAct = dam.TargetPoseRight; break;
+                case 3: directionAct = dam.TargetPoseLeft; break;
+            }
+
+            if (posMng.onDefence)
+            {
+                if (dam._AttackType == 0)
+                {
+                    //在此时间结束前，不许使用输入设备输入.
+                    if (charLoader != null)
+                        charLoader.LockTime(dam.DefenseValue);
+                    //Move(-attacker.transform.forward * dam.DefenseMove);
+                    //通过当前武器和方向，得到防御动作ID  40+(x-1)*4类似 匕首 = 5=> 40+(5-1)*4 = 56,防御住前方攻击 57 58 59就是其他方向的
+                    int TargetPos = GetGuardPose(direction);
+                    string attackAudio = string.Format("W{0:D2}GD{1:D3}.ef", attacker.GetWeaponType(), directionAct);
+                    SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
+                    //TargetPos = 40 + ((int)idx - 1) * 4 + direction;
+                    //Debug.LogError("targetPos:" + TargetPos);
+                    posMng.ChangeAction(TargetPos);
+                    charLoader.SetActionScale(dam.DefenseMove);
+                    AngryValue += 5;//防御住伤害。则怒气增加
+                }
+                else if (dam._AttackType == 1)
+                {
+                    //这个招式伤害多少?
+                    //dam.PoseIdx;算伤害
+                    int realDamage = CalcDamage(attacker);
+                    //Debug.Log("受到:" + realDamage + " 点伤害");
+                    Option poseInfo = MenuResLoader.Instance.GetPoseInfo(dam.PoseIdx);
+                    if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)
+                        GetItem(poseInfo.first[0].flag[1]);
+                    //if (hurtRecord.ContainsKey(attacker))
+                    //    hurtRecord[attacker] += realDamage;
+                    //else
+                    //    hurtRecord.Add(attacker, realDamage);
+
+                    //当前打击者比当前目标伤害高，那么改去杀打击者.AI切换仇恨最深者
+                    //if (robot != null)
+                    //{
+                    //    if (lockTarget != null && hurtRecord.ContainsKey(lockTarget))
+                    //    {
+                    //        if (hurtRecord[lockTarget] < hurtRecord[attacker])
+                    //            lockTarget = attacker;
+                    //    }
+                    //    else
+                    //        lockTarget = attacker;
+                    //}
+
+                    if (Attr != null)
+                        Attr.ReduceHp(realDamage);
+                    if (charLoader != null)
+                    {
+                        if (dam.TargetValue == 0.0f)
+                            charLoader.LockTime(2.0f);
+                        else
+                            charLoader.LockTime(dam.TargetValue);
+                    }
+
+                    string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
+                    SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
+                    AngryValue += (realDamage * 5);
+                    if (Attr.Dead)
+                        OnDead(attacker);
+                    else
+                    {
+                        //如果攻击者是主角，而自己又没有死，那么设置一下锁定目标为自己.(匕首后A接大，自动转向)
+                        if (attacker.Attr.IsPlayer)
+                        {
+                            if (GameBattleEx.Instance.CanLockTarget(this))
+                            {
+                                GameBattleEx.Instance.ChangeLockedTarget(this);
+                                attacker.lockTarget = this;
+                            }
+                        }
+                        else
+                        {
+                            //不是主角打就记录伤害，谁伤害高，就去追着谁打。
+                        }
+                        //播放相应特效-音效 0飞镖1
+
+                        //被攻击后，防御相当与没有了.
+                        posMng.OnChangeAction(directionAct);
+                        charLoader.SetActionScale(dam.TargetMove);
+                    }
+                }
+            }
+            else
+            {
+                int realDamage = CalcDamage(attacker);
+                //Debug.Log("受到:" + realDamage + " 点伤害");
+                Attr.ReduceHp(realDamage);
+                //if (hurtRecord.ContainsKey(attacker))
+                //    hurtRecord[attacker] += realDamage;
+                //else
+                //    hurtRecord.Add(attacker, realDamage);
+
+                //当前打击者比当前目标伤害高，那么改去杀打击者,只针对AI
+                //if (robot != null)
+                //{
+                //    if (lockTarget != null && hurtRecord.ContainsKey(lockTarget))
+                //    {
+                //        if (hurtRecord[lockTarget] < hurtRecord[attacker])
+                //            lockTarget = attacker;
+                //    }
+                //    else
+                //        lockTarget = attacker;
+                //}
+                //处理招式打人后带毒
+                Option poseInfo = MenuResLoader.Instance.GetPoseInfo(dam.PoseIdx);
+                if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)//16受到此招式攻击会得到物品
+                    GetItem(poseInfo.first[0].flag[1]);
+
+                if (charLoader != null)
+                {
+                    if (dam.TargetValue == 0.0f)
+                        charLoader.LockTime(2.0f);
+                    else
+                        charLoader.LockTime(dam.TargetValue);
+                }
+                AngryValue += (realDamage * 3);
+                string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
+                SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
+                if (Attr.Dead)
+                    OnDead(attacker);
+                else
+                {
+                    //如果攻击者是主角，而自己又没有死，那么设置一下锁定目标为自己.(主角匕首后A打到我-接大，自动转向)
+                    if (attacker.Attr.IsPlayer)
+                    {
+                        if (GameBattleEx.Instance.CanLockTarget(this))
+                        {
+                            GameBattleEx.Instance.ChangeLockedTarget(this);
+                            attacker.lockTarget = this;
+                        }
+                    }
+                    else
+                    {
+                        //不是主角打就记录伤害，谁伤害高，就去追着谁打。
+                    }
+                    posMng.OnChangeAction(directionAct);
+                    charLoader.SetActionScale(dam.TargetMove);
+                }
+            }
+        }
+
+        if (FightWnd.Exist)
+        {
+            //先飘血。
+            if (Attr.IsPlayer)
+                FightWnd.Instance.UpdatePlayerInfo();
+            else if (attacker != null && attacker.Camp == EUnitCamp.EUC_FRIEND)
+                FightWnd.Instance.UpdateMonsterInfo(this);//设置当前受到伤害的是谁并显示其信息
+        }
     }
 
     //除了，武器碰撞，特效碰撞，还可以是buff，机关

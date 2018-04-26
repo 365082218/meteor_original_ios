@@ -86,7 +86,6 @@ public class LevelHelper : MonoBehaviour
         U3D.InitPlayer(script);;
         //先创建一个相机
         GameObject camera = GameObject.Instantiate(Resources.Load("CameraEx")) as GameObject;
-        camera.tag = "MainCamera";
         camera.name = "CameraEx";
         ////创建一个UI
         //GameObject canvas = GameObject.Instantiate(Resources.Load("CanvasEx")) as GameObject;

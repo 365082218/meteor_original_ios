@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using CoClass;
 
 //负责战斗中相机的位置指定之类，主角色目标组作为摄像机 视锥体范围，参考Tank教程里的简单相机控制
 //负责战斗场景内位置间的寻路缓存
@@ -412,10 +413,24 @@ public class GameBattleEx : MonoBehaviour {
             {
                 //飞镖，前
                 Transform bulletBone = unit.charLoader.sfxEffect.FindEffectByName("Sphere_3");//出生点，
+                Vector3 forw = Vector3.zero;
+                if (unit.Attr.IsPlayer)
+                    forw = CameraFollow.Ins.m_Camera.transform.forward;
+                else
+                {
+                    //敌人在未发现敌人时随便发飞镖?
+                    if (unit.GetLockedTarget() == null)
+                    {
 
+                    }
+                    else
+                        forw = (unit.GetLockedTarget().mPos - unit.mPos).normalized;
+                }
                 //主角则方向朝着摄像机正前方
                 //不是主角没有摄像机，那么就看有没有目标，有则随机一个方向，根据与目标的包围盒的各个顶点的，判定这个方向
-
+                //得到武器模型，在指定位置出生.
+                InventoryItem weapon = unit.weaponLoader.GetCurrentWeapon();
+                DartLoader.Init(bulletBone.transform.position, forw, weapon, attackDef, unit);
             }
         }
     }

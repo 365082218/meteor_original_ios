@@ -144,7 +144,7 @@ public class WeaponLoader : MonoBehaviour {
                     else
                     {
                         if (L != null)
-                            DestroyImmediate(R);
+                            DestroyImmediate(L);
                         GameObject objWeapon = GameObject.Instantiate(weaponPrefab);
                         objWeapon.layer = LayerMask.NameToLayer("Weapon") ;
                         L = objWeapon.transform;
@@ -178,11 +178,7 @@ public class WeaponLoader : MonoBehaviour {
                         if (box != null)
                         {
                             box.enabled = false;
-                            box.gameObject.tag = "weapon";
                             box.gameObject.layer = LayerMask.NameToLayer("Weapon");
-                            //Rigidbody rig = box.gameObject.AddComponent<Rigidbody>();
-                            //rig.useGravity = false;
-                            //rig.isKinematic = true;
                             weaponDamage.Add(box);
                         }
                         else
@@ -235,11 +231,7 @@ public class WeaponLoader : MonoBehaviour {
                         if (box != null)
                         {
                             box.enabled = false;
-                            box.gameObject.tag = "weapon";
                             box.gameObject.layer = LayerMask.NameToLayer("Weapon");
-                            //Rigidbody rig = box.gameObject.AddComponent<Rigidbody>();
-                            //rig.useGravity = false;
-                            //rig.isKinematic = true;
                             weaponDamage.Add(box);
                         }
                         else
@@ -471,7 +463,6 @@ public class WeaponLoader : MonoBehaviour {
                     if (fIns.SceneItems[i].name.EndsWith("Box"))
                     {
                         BoxCollider box = mr.gameObject.AddComponent<BoxCollider>();
-                        objMesh.tag = "weapon";
                         box.enabled = false;
                         weaponDamage.Add(box);
                     }
@@ -554,7 +545,7 @@ public class WeaponLoader : MonoBehaviour {
         else
         {
             if (L != null)
-                DestroyImmediate(R);
+                DestroyImmediate(L);
             L = new GameObject().transform;
             L.gameObject.layer = LayerMask.NameToLayer("Weapon");
             L.SetParent(LP);
@@ -719,7 +710,6 @@ public class WeaponLoader : MonoBehaviour {
                     if (fIns.SceneItems[i].name.EndsWith("Box"))
                     {
                         BoxCollider box = mr.gameObject.AddComponent<BoxCollider>();
-                        objMesh.tag = "weapon";
                         box.enabled = false;
                         weaponDamage.Add(box);
                     }

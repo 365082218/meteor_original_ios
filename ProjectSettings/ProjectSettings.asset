@@ -468,7 +468,7 @@ PlayerSettings:
   webGLUseWasm: 0
   webGLCompressionFormat: 1
   scriptingDefineSymbols:
-    1: 
+    1: BUILD_PC
     4: BUILD_PC
     7: BUILD_PC
   platformArchitecture:
