@@ -795,7 +795,7 @@ public class MeteorUnit : MonoBehaviour
     {
         while (true)
         {
-            if (GameBattleEx.Instance != null && GameBattleEx.Instance.autoTarget != null)
+            if (GameBattleEx.Instance != null && GameBattleEx.Instance.autoTarget != null && GetWeaponType() != (int)EquipWeaponType.Guillotines)
             {
                 HeadLookAtTarget(GameBattleEx.Instance.autoTarget.mPos);
                 //Debug.Log("HeadLookAt mPos:" + GameBattleEx.Instance.autoTarget.mPos);
@@ -1667,9 +1667,12 @@ public class MeteorUnit : MonoBehaviour
                 }
             }
 
-            DartLoader dart = hit.gameObject.GetComponent<DartLoader>();
+            DartLoader dart = hit.gameObject.GetComponentInParent<DartLoader>();
             if (dart != null)
+            {
+                Debug.LogError("dart attack unit");
                 dart.AttackTarget(this);
+            }
             return;
         }
         Vector3 vec = hitUnit.mPos - transform.position;
@@ -1891,14 +1894,14 @@ public class MeteorUnit : MonoBehaviour
         weaponLoader.ChangeWeaponTrail(drag);
     }
 
-    int CalcDamage(MeteorUnit attacker)
+    int CalcDamage(MeteorUnit attacker, AttackDes des = null)
     {
         //(((武器攻击力 + buff攻击力) x 招式攻击力） / 100) - （敌方武器防御力 + 敌方buff防御力） / 10
         //你的攻击力，和我的防御力之间的计算
         //attacker.damage.PoseIdx;
         int WeaponDef = CalcDef();
         int BuffDef = Attr.CalcBuffDef();
-        AttackDes atk = attacker.damage;
+        AttackDes atk = des == null ? attacker.damage : des;
         int WeaponDamage = attacker.CalcDamage();
         //主角一般空踢，秒杀-香港脚
         int PoseDamage = (attacker.Attr.IsPlayer && atk.PoseIdx == 338) ? 99999 : MenuResLoader.Instance.FindOpt(atk.PoseIdx, 3).second[0].flag[6];
@@ -2057,7 +2060,7 @@ public class MeteorUnit : MonoBehaviour
             }
             else
             {
-                int realDamage = CalcDamage(attacker);
+                int realDamage = CalcDamage(attacker, attackdes);
                 //Debug.Log("受到:" + realDamage + " 点伤害");
                 Attr.ReduceHp(realDamage);
                 //if (hurtRecord.ContainsKey(attacker))

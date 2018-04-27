@@ -390,18 +390,58 @@ public class GameBattleEx : MonoBehaviour {
             Collision.Remove(agent);
     }
 
-    //把有/无弹道的攻击统计进来，无弹道的下一帧统一计算，有弹道的直接发射一个子弹，按照武器种类，分轨迹计算
-    Dictionary<MeteorUnit, AttackDes> CheckList = new Dictionary<MeteorUnit, AttackDes>();
+    RaycastHit [] SortRaycastHit(RaycastHit [] hit)
+    {
+        int index = 0;
+        while (true)
+        {
+            //每次得到一个最小的插槽，与最前面一个调换位置.
+            int slot = -1;
+            float minDistance = float.MaxValue;
+            for (int i = index; i < hit.Length; i++)
+            {
+                if (hit[i].distance < minDistance)
+                {
+                    minDistance = hit[i].distance;
+                    slot = i;
+                }
+            }
+            if (slot != -1 && slot != index)
+            {
+                RaycastHit ray = hit[index];
+                hit[index] = hit[slot];
+                hit[slot] = ray;
+            }
+            index++;
+            if (index == hit.Length)
+                break;
+        }
+        return hit;
+    }
+
     public void AddDamageCheck(MeteorUnit unit, AttackDes attackDef)
     {
         if (unit == null || unit.Dead)
             return;
         if (unit.GetWeaponType() == (int)EquipWeaponType.Gun)
         {
-            //如果不这样做，2个人就无法同时射对方
-            if (!CheckList.ContainsKey(unit))
+            Ray r = CameraFollow.Ins.m_Camera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, DartLoader.MaxDistance));
+            RaycastHit[] allHit = Physics.RaycastAll(r, 3000, 1 << LayerMask.NameToLayer("Scene") | 1 << LayerMask.NameToLayer("Monster") | 1 << LayerMask.NameToLayer("LocalPlayer"));
+            RaycastHit[] allHitSort = SortRaycastHit(allHit);
+            //先排个序，从近到远
+            for (int i = 0; i < allHitSort.Length; i++)
             {
-                CheckList[unit] = attackDef;
+                if (allHitSort[i].transform.gameObject.layer == LayerMask.NameToLayer("Scene"))
+                    break;
+                MeteorUnit unitAttacked = allHitSort[i].transform.gameObject.GetComponentInParent<MeteorUnit>();
+                if (unitAttacked != null)
+                {
+                    if (unit.SameCamp(unitAttacked))
+                        continue;
+                    if (unitAttacked.Dead)
+                        continue;
+                    unitAttacked.OnAttack(unit, attackDef);
+                }
             }
         }
         else
@@ -411,26 +451,44 @@ public class GameBattleEx : MonoBehaviour {
             //即刻生成一个物件飞出去。
             if (unit.charLoader.sfxEffect != null)
             {
-                //飞镖，前
-                Transform bulletBone = unit.charLoader.sfxEffect.FindEffectByName("Sphere_3");//出生点，
-                Vector3 forw = Vector3.zero;
-                if (unit.Attr.IsPlayer)
-                    forw = (CameraFollow.Ins.m_Camera.ScreenToWorldPoint(new Vector3(Screen.width/2, Screen.height/2, 0)) - bulletBone.transform.position).normalized;
-                else
+                if (unit.GetWeaponType() == (int)EquipWeaponType.Dart)
                 {
-                    //敌人在未发现敌人时随便发飞镖?
-                    if (unit.GetLockedTarget() == null)
+                    //飞镖.
+                    Transform bulletBone = unit.charLoader.sfxEffect.FindEffectByName("Sphere_3");//出生点，
+                    Vector3 vecSpawn = bulletBone.position + 10 * Vector3.up;
+                    Vector3 forw = Vector3.zero;
+                    if (unit.Attr.IsPlayer)
                     {
-
+                        Vector3 vec = CameraFollow.Ins.m_Camera.ScreenToWorldPoint(new Vector3(Screen.width / 2, (Screen.height) / 2 + 75, DartLoader.MaxDistance));
+                        forw = (vec - vecSpawn).normalized;
                     }
                     else
-                        forw = (unit.GetLockedTarget().mPos - unit.mPos).normalized;//要加一点随机，否则每次都打一个位置不正常
+                    {
+                        //敌人在未发现敌人时随便发飞镖?
+                        if (unit.GetLockedTarget() == null)
+                        {
+                            forw = -unit.transform.forward;//角色的面向
+                        }
+                        else
+                            forw = (unit.GetLockedTarget().mPos - unit.mPos).normalized;//要加一点随机，否则每次都打一个位置不正常
+                    }
+                    //主角则方向朝着摄像机正前方
+                    //不是主角没有摄像机，那么就看有没有目标，有则随机一个方向，根据与目标的包围盒的各个顶点的，判定这个方向
+                    //得到武器模型，在指定位置出生.
+                    InventoryItem weapon = unit.weaponLoader.GetCurrentWeapon();
+                    DartLoader.Init(vecSpawn, forw, weapon, attackDef, unit);
                 }
-                //主角则方向朝着摄像机正前方
-                //不是主角没有摄像机，那么就看有没有目标，有则随机一个方向，根据与目标的包围盒的各个顶点的，判定这个方向
-                //得到武器模型，在指定位置出生.
-                InventoryItem weapon = unit.weaponLoader.GetCurrentWeapon();
-                DartLoader.Init(bulletBone.transform.position, forw, weapon, attackDef, unit);
+                else if (unit.GetWeaponType() == (int)EquipWeaponType.Guillotines)
+                {
+                    //隐藏右手的飞轮
+                    unit.weaponLoader.HideWeapon();
+                    unit.WeaponReturned = false;
+                    Debug.LogError("Hide R Weapon");
+                    //飞轮
+                    Vector3 vecSpawn = unit.WeaponR.transform.position;
+                    InventoryItem weapon = unit.weaponLoader.GetCurrentWeapon();
+                    FlyWheel.Init(vecSpawn, autoTarget, weapon, attackDef, unit);
+                }
             }
         }
     }
@@ -560,6 +618,14 @@ public class GameBattleEx : MonoBehaviour {
     public SFXEffectPlay autoEffect;
     public bool CanLockTarget(MeteorUnit unit)
     {
+        //使用枪械/远程武器时
+        int weapon = MeteorManager.Instance.LocalPlayer.GetWeaponType();
+        if (weapon == (int) EquipWeaponType.Dart || 
+            weapon == (int)EquipWeaponType.Gun || 
+            weapon == (int)EquipWeaponType.Guillotines)
+        {
+            return false;
+        }
         //只判断距离，因为匕首背刺不一定面对角色，但是在未有锁定目标时近距离打到敌人，则把敌人设置为目标.
         if (lockedTarget == null)
         {
@@ -646,6 +712,8 @@ public class GameBattleEx : MonoBehaviour {
     //敌方角色移动时，不用整个刷新，只需要用当前的自动目标和这个对象对比下角度就OK
     public void RefreshAutoTarget()
     {
+        if (MeteorManager.Instance.LocalPlayer.GetWeaponType() == (int)EquipWeaponType.Dart || MeteorManager.Instance.LocalPlayer.GetWeaponType() == (int)EquipWeaponType.Gun)
+            return;
         if (lockedTarget != null)
         {
             Vector3 vec = lockedTarget.transform.position - MeteorManager.Instance.LocalPlayer.transform.position;
@@ -670,10 +738,11 @@ public class GameBattleEx : MonoBehaviour {
                 continue;
             Vector3 vec = MeteorManager.Instance.UnitInfos[i].transform.position - player.transform.position;
             float v = vec.magnitude;
-            if (v > ViewLimit)
+            //飞轮时，无限角度距离
+            if (v > ViewLimit && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
                 continue;
             //高度差2个角色，不要成为自动对象，否则摄像机位置有问题
-            if (Mathf.Abs(vec.y) >= 75)
+            if (Mathf.Abs(vec.y) >= 75 && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
                 continue;
             vec.y = 0;
             vec = Vector3.Normalize(vec);
@@ -703,13 +772,13 @@ public class GameBattleEx : MonoBehaviour {
         }
 
         //如果当前的自动目标存在，且夹角超过75度，即在主角背后，那么自动目标清空
-        if (autoTarget != null && autoAngle < Mathf.Cos(75 * Mathf.Deg2Rad))
+        if (autoTarget != null && autoAngle < Mathf.Cos(75 * Mathf.Deg2Rad) && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
         {
             autoEffect.OnPlayAbort();
             autoTarget = null;
         }
 
-        if (autoTarget != null)
+        if (autoTarget != null && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
         {
             Vector3 vec = autoTarget.transform.position - player.transform.position;
             float v = vec.magnitude;

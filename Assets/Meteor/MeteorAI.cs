@@ -309,33 +309,34 @@ public class MeteorAI {
         else
         if (owner.posMng.mActiveAction.Idx == CommonAction.Idle)
         {
-            switch (random)
-            {
-                case 0:
-                    owner.posMng.ChangeAction(CommonAction.Taunt);
-                    break;
-                case 1:
-                case 2:
-                    owner.controller.Input.OnKeyDown(EKeyList.KL_Defence, true);
-                    waitDefence = 4.0f;
-                    break;
-                case 3:
-                case 4:
-                    owner.controller.Input.OnKeyDown(EKeyList.KL_Attack, true);
-                    break;
-                case 5:
-                case 6:
-                    if (owner.AngryValue >= Global.ANGRYMAX)
-                        owner.PlaySkill();
-                    break;
-                case 7:
-                    TryPlayWeaponPose();
-                    break;
-                case 8:
-                    owner.controller.Input.OnKeyDown(EKeyList.KL_Crouch, true);
-                    waitCrouch = 3.0f;
-                    break;
-            }
+            owner.posMng.ChangeAction(CommonAction.Taunt);
+            //switch (random)
+            //{
+                //case 0:
+                //    owner.posMng.ChangeAction(CommonAction.Taunt);
+                //    break;
+                //case 1:
+                //case 2:
+                    //owner.controller.Input.OnKeyDown(EKeyList.KL_Defence, true);
+                    //waitDefence = 4.0f;
+                    //break;
+                //case 3:
+                //case 4:
+                //    owner.controller.Input.OnKeyDown(EKeyList.KL_Attack, true);
+                //    break;
+                //case 5:
+                //case 6:
+                //    if (owner.AngryValue >= Global.ANGRYMAX)
+                //        owner.PlaySkill();
+                //    break;
+                //case 7:
+                //    TryPlayWeaponPose();
+                //    break;
+                //case 8:
+                //    owner.controller.Input.OnKeyDown(EKeyList.KL_Crouch, true);
+                //    waitCrouch = 3.0f;
+                //    break;
+            //}
         }
         else if (((owner.posMng.mActiveAction.Idx >= CommonAction.BrahchthrustDefence) && 
             (owner.posMng.mActiveAction.Idx <= CommonAction.HammerDefence)) || 

@@ -14,6 +14,20 @@ public class WeaponLoader : MonoBehaviour {
     Transform RP;//武器父
     Transform L;//武器
     Transform R;//武器
+
+    //主要是用来隐藏飞轮
+    public void HideWeapon()
+    {
+        if (RP != null)
+            RP.gameObject.SetActive(false);
+    }
+
+    public void ShowWeapon()
+    {
+        if (RP != null)
+            RP.gameObject.SetActive(true);
+    }
+
     public void RemoveTrail()
     {
         for (int i = 0; i < trail.Count; i++)

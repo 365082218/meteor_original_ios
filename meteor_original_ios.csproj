@@ -327,6 +327,7 @@
     <Compile Include="Assets\Meteor\DartLoader.cs" />
     <Compile Include="Assets\Meteor\DebugAttackRange1.cs" />
     <Compile Include="Assets\Meteor\Encrypt.cs" />
+    <Compile Include="Assets\Meteor\FlyWheel.cs" />
     <Compile Include="Assets\Meteor\GameButton.cs" />
     <Compile Include="Assets\Meteor\GameData.cs" />
     <Compile Include="Assets\Meteor\InAppPurchase\AppStore.cs" />
@@ -382,6 +383,7 @@
     <Compile Include="Assets\Meteor\SkillEvent\CharPoseShadow.cs" />
     <Compile Include="Assets\Meteor\SkillItem.cs" />
     <Compile Include="Assets\Meteor\SoundManager.cs" />
+    <Compile Include="Assets\Meteor\Spline.cs" />
     <Compile Include="Assets\Meteor\SpriteAnimationEx.cs" />
     <Compile Include="Assets\Meteor\Startup.cs" />
     <Compile Include="Assets\Meteor\StringTbl.cs" />

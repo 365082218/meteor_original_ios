@@ -1,100 +1,183 @@
-﻿using System.Collections;
+﻿using CoClass;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using CoClass;
 
-//飞镖飞行实现-Flight层
-public class DartLoader : MonoBehaviour {
-    InventoryItem weapon;
-    public const float MaxDistance = 500.0f;
-    // Use this for initialization
+public class FlyWheel : MonoBehaviour {
+    Spline spline = new Spline(3);
+    MeteorUnit owner;
+    MeteorUnit auto_target;
+    AttackDes _attack;
+    Transform WeaponRoot;
+    Transform R;//武器
+    InventoryItem Weapon;
+
+    int status = 0;//0-发射 1-回收
+    //射程-无限-跟踪，最多2秒-去1秒回1秒
+    float tTotal = 3.0f;
+    float tTick = 0.0f;
+    float speed = 500.0f;
+
+    bool outofArea = false;
     private void Awake()
     {
-        rig = GetComponent<Rigidbody>();
+        
     }
+    // Use this for initialization
     void Start () {
 		
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		
+        List<MeteorUnit> deleted = new List<MeteorUnit>();
+		foreach (var each in attackTick)
+        {
+            if (each.Value - Time.deltaTime <= 0.0f)
+                deleted.Add(each.Key);
+        }
+        for (int i = 0; i < deleted.Count; i++)
+            attackTick.Remove(deleted[i]);
 	}
-    
-    AttackDes _attack;
-    Vector3 _direction;
-    float _speed = 300.0f;//普通速度.
-    float gspeed = 300.0f;//加速度.
-    float maxLength = 500;//跑多远开始开启重力.
-    float maxDistance = 1000;//最远射程
-    Rigidbody rig;
-    Coroutine fly;
 
-    public void LoadAttack(InventoryItem weapon, Vector3 forward, AttackDes att, MeteorUnit Owner)
+    Coroutine fly;
+    LineRenderer line;
+    public void LoadAttack(InventoryItem weapon, MeteorUnit target, AttackDes attackdef, MeteorUnit Owner)
     {
+        line = gameObject.AddComponent<LineRenderer>();
+        line.startWidth = 1f;
+        line.endWidth = 1f;
+        
         owner = Owner;
-        _attack = att;
+        _attack = attackdef;
+        auto_target = target;
         WeaponRoot = new GameObject().transform;
         WeaponRoot.SetParent(transform);
         WeaponRoot.localPosition = Vector3.zero;
         WeaponRoot.localScale = Vector3.one;
-        WeaponRoot.localRotation = Quaternion.Euler(0, 180, 90);
+        WeaponRoot.localRotation = Quaternion.Euler(0, 0, 0);
         WeaponRoot.name = "WeaponRoot";
         WeaponRoot.gameObject.layer = gameObject.layer;
         Weapon = weapon;
+        //计算控制点
+        spline.SetControlPoint(0, transform.position);
+        InitSpline();
+        tTotal = spline.GetLength() / speed;
         LoadWeapon();
-        transform.LookAt(transform.position + forward);
         MeshRenderer mr = gameObject.GetComponentInChildren<MeshRenderer>();
         if (mr != null)
         {
             BoxCollider bc = mr.gameObject.AddComponent<BoxCollider>();
             bc.isTrigger = true;
-            bc.size = new Vector3(2, 1, 6);
+            bc.size = new Vector3(10, 5, 10);
         }
         if (fly != null)
             StopCoroutine(fly);
         fly = StartCoroutine(Fly());
     }
 
+    float refreshDelay = 0.1f;//0.1秒刷新一次目标缓存.
+    Vector3 TargetPosCache = Vector3.zero;
+    void InitSpline()
+    {
+        TargetPosCache = auto_target.mPos + Vector3.up * 25.0f;
+        //计算一个坐标，终点，作为贝塞尔曲线的控制点.
+        Vector3 vecforw = (auto_target.mPos + Vector3.up * 25.0f - owner.WeaponR.position).normalized;
+        //主角与目标的夹角的一半
+        float angle = Mathf.Acos(Vector3.Dot(-owner.transform.forward, vecforw));
+        if (angle * Mathf.Rad2Deg > 90.0f)
+        {
+            //比较特殊。这种情况说明是背对敌人，飞轮应该往前飞行一段时间后返回
+            outofArea = true;
+            spline.SetControlPoint(1, owner.WeaponR.position + 50 * (-owner.transform.forward));
+            spline.SetControlPoint(2, owner.WeaponR.position + 100 * (-owner.transform.forward));
+            return;
+        }
+        //angle *= 2.0f;
+        Vector3 vec = Quaternion.AngleAxis(-angle * Mathf.Rad2Deg, Vector3.up)  * (-owner.transform.forward);
+        Vector3 vecPosition = vec * (Vector3.Distance(auto_target.mPos, owner.mPos)) + owner.mPos + Vector3.up * 25.0f;
+        spline.SetControlPoint(1, vecPosition);
+        spline.SetControlPoint(2, TargetPosCache);
+        List<Vector3> veclst = spline.GetEquiDistantPointsOnCurve(200);
+        line.numPositions = 200;
+        line.SetPositions(veclst.ToArray());
+    }
+
+    void RefreshSpline()
+    {
+        //出击时就确定反向的，不能刷新跟踪
+        if (outofArea)
+            return;
+        TargetPosCache = auto_target.mPos + Vector3.up * 25.0f;
+        spline.SetControlPoint(2, TargetPosCache);
+    }
+
     IEnumerator Fly()
     {
         while (true)
         {
-            _speed += gspeed * Time.deltaTime;
-            float dis = Time.deltaTime * _speed;
-            transform.Translate(transform.forward * dis, Space.World);
-            maxLength -= dis;
-            maxDistance -= dis;
-            if (maxLength <= 0.0f && !rig.useGravity)
-                rig.useGravity = true;
-            if (maxDistance <= 0.0f)
-                DestroyObject(gameObject);
+            if (status == 0)
+            {
+                //发射,随机自转
+                tTick += Time.deltaTime;
+                refreshDelay -= Time.deltaTime;
+                if (refreshDelay <= 0.1f && !outofArea)
+                {
+                    RefreshSpline();
+                    List<Vector3> veclst = spline.GetEquiDistantPointsOnCurve(200);
+                    line.SetPositions(veclst.ToArray());
+                    refreshDelay = 0.1f;
+                }
+
+                if (tTick > tTotal)
+                {
+                    status = 1;//无论是否撞到敌人，返回.
+                    tTick = 0.0f;
+                    yield return 0;
+                    continue;
+                }
+                transform.Rotate(new Vector3(0, 15.0f, 0), Space.Self);
+                transform.position = spline.Eval(tTick / tTotal);
+            }
+            else if (status == 1)
+            {
+                //回收-直线回转-穿墙
+                tTick += Time.deltaTime;
+                if (tTick >= tTotal)
+                {
+                    owner.WeaponReturned = true;
+                    owner.weaponLoader.ShowWeapon();
+                    GameObject.Destroy(gameObject);
+                    yield break;
+                }
+                transform.Rotate(new Vector3(0, 15.0f, 0), Space.Self);
+                transform.position = Vector3.Lerp(spline.GetPathPoint(2), owner.WeaponR.position, tTick / tTotal);
+            }
             yield return 0;
         }
     }
 
-    public static void Init(Vector3 spawn, Vector3 forw, InventoryItem weapon, AttackDes att, MeteorUnit owner)
+    public static void Init(Vector3 spawn, MeteorUnit autoTarget, InventoryItem weapon, AttackDes attackDef, MeteorUnit unit)
     {
-        GameObject dartObj = GameObject.Instantiate(Resources.Load("DartLoader"), spawn, Quaternion.identity, null) as GameObject;
-        dartObj.layer = LayerMask.NameToLayer("Flight");
-        DartLoader dart = dartObj.GetComponent<DartLoader>();
-        dart.LoadAttack(weapon, forw, att, owner);
+        GameObject flyWheelObj = GameObject.Instantiate(Resources.Load("FlyWheel"), spawn, Quaternion.identity, null) as GameObject;
+        flyWheelObj.layer = LayerMask.NameToLayer("Flight");
+        FlyWheel wheel = flyWheelObj.GetComponent<FlyWheel>();
+        wheel.LoadAttack(weapon, autoTarget, attackDef, unit);
     }
 
-    public void AttackTarget(MeteorUnit target)
-    {
-        if (target.SameCamp(owner))
-            return;
+    Dictionary<MeteorUnit, float> attackTick = new Dictionary<MeteorUnit, float>();
 
-        if (target != null)
-            target.OnAttack(owner, _attack);
-    }
-
-    public void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         if (other.transform.root.gameObject.layer == LayerMask.NameToLayer("Scene"))
         {
-            GameObject.Destroy(gameObject);
+            if (status == 0)
+            {
+                status = 1;
+                tTick = 0.0f;
+                Debug.LogError("hit wall");
+                spline.SetControlPoint(2, transform.position);
+            }
         }
         else
         {
@@ -103,38 +186,50 @@ public class DartLoader : MonoBehaviour {
                 return;
             if (unit.Dead)
                 return;
+            if (attackTick.ContainsKey(unit))
+                return;
             //同队忽略攻击
             if (unit.SameCamp(owner))
                 return;
             unit.OnAttack(owner, _attack);
-            GameObject.Destroy(gameObject);
+            attackTick.Add(unit, 0.2f);
         }
     }
 
-    public void OnTriggerExit(Collider other)
+    public void OnTriggerEnter(Collider other)
     {
-
+        if (other.transform.root.gameObject.layer == LayerMask.NameToLayer("Scene"))
+        {
+            if (status == 0)
+            {
+                status = 1;
+                tTick = 0.0f;
+                spline.SetControlPoint(2, transform.position);
+            }
+        }
+        else
+        {
+            MeteorUnit unit = other.GetComponentInParent<MeteorUnit>();
+            if (unit == null)
+                return;
+            if (unit.Dead)
+                return;
+            if (attackTick.ContainsKey(unit))
+                return;
+            //同队忽略攻击
+            if (unit.SameCamp(owner))
+                return;
+            unit.OnAttack(owner, _attack);
+            attackTick.Add(unit, 0.2f);
+        }
     }
 
-    InventoryItem Weapon;
-    public InventoryItem GetCurrentWeapon() { return Weapon; }
-    MeteorUnit owner;
-    Transform WeaponRoot;//武器父-除非角色整个换了，否则不会删除。武器挂载点
-    Transform R;//武器
-
-    //public List<BoxCollider> weaponDamage = new List<BoxCollider>();
-    public int WeaponType()
-    {
-        return Weapon == null ? -1 : Weapon.Info().SubType;
-    }
-
-    //把飞镖显示出来.尺寸*2，否则看不清
     public void LoadWeapon()
     {
         InventoryItem item = Weapon;
         if (item.Info().MainType == (int)EquipType.Weapon)
         {
-            float scale = 2.0f;
+            float scale = 1.0f;
             WeaponBase weaponProperty = WeaponMng.Instance.GetItem(item.Info().UnitId);
             string weaponR = "";
             weaponR = weaponProperty.WeaponR;
@@ -177,6 +272,7 @@ public class DartLoader : MonoBehaviour {
                         box.enabled = false;
                         //box.gameObject.tag = "Flight";
                         box.gameObject.layer = LayerMask.NameToLayer("Flight");
+                        //weaponDamage.Add(box);
                     }
                     else
                     {
@@ -353,6 +449,7 @@ public class DartLoader : MonoBehaviour {
                             mr.enabled = false;
                             BoxCollider box = mr.gameObject.AddComponent<BoxCollider>();
                             box.enabled = false;
+                            //weaponDamage.Add(box);
                         }
                     }
                     else
@@ -360,6 +457,7 @@ public class DartLoader : MonoBehaviour {
                     {
                         BoxCollider box = mr.gameObject.AddComponent<BoxCollider>();
                         box.enabled = false;
+                        //weaponDamage.Add(box);
                     }
                 }
             }

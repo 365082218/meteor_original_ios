@@ -760,7 +760,10 @@ public class CharacterLoader : MonoBehaviour
         {
             //等着收回武器
             if (owner.WeaponReturned)
+            {
                 loop = false;
+                owner.WeaponReturned = false;
+            }
         }
         else
         {

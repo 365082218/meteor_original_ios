@@ -1271,17 +1271,8 @@ public class MeteorController : MonoBehaviour {
     {
         mOwner = GetComponent<MeteorUnit>();
         if (mOwner != null)
-            posMng = mOwner.posMng;
-        else
-            return;
-        OnEnable();
-        BossCamera.x = 18;
-    }
-
-    void OnEnable()
-    {
-        if (posMng != null)
         {
+            posMng = mOwner.posMng;
             Input = new MeteorInput(mOwner, this);
             if (Owner.Attr.IsPlayer)
                 Global.GMeteorInput = Input;
