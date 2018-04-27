@@ -16,7 +16,7 @@ public class FlyWheel : MonoBehaviour {
     //射程-无限-跟踪，最多2秒-去1秒回1秒
     float tTotal = 3.0f;
     float tTick = 0.0f;
-    float speed = 500.0f;
+    float speed = 600.0f;
 
     bool outofArea = false;
     private void Awake()
