@@ -483,7 +483,7 @@ public class GameBattleEx : MonoBehaviour {
                     //隐藏右手的飞轮
                     unit.weaponLoader.HideWeapon();
                     unit.WeaponReturned = false;
-                    Debug.LogError("Hide R Weapon");
+                    //Debug.LogError("Hide R Weapon");
                     //飞轮
                     Vector3 vecSpawn = unit.WeaponR.transform.position;
                     InventoryItem weapon = unit.weaponLoader.GetCurrentWeapon();
