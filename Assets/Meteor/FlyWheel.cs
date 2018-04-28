@@ -132,6 +132,7 @@ public class FlyWheel : MonoBehaviour {
                 if (tTick > tTotal)
                 {
                     status = 1;//无论是否撞到敌人，返回.
+                    tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / speed;
                     tTick = 0.0f;
                     yield return 0;
                     continue;
@@ -142,16 +143,17 @@ public class FlyWheel : MonoBehaviour {
             else if (status == 1)
             {
                 //回收-直线回转-穿墙
-                tTick += Time.deltaTime;
-                if (tTick >= tTotal)
+                transform.Rotate(new Vector3(0, 15.0f, 0), Space.Self);
+                Vector3 dir = owner.WeaponR.position - transform.position;
+                if (dir.magnitude <= speed * Time.deltaTime)//速度太大的时候，可能会2边跑，而且距离都大于5，这样要看夹角是否改变了方向.
                 {
-                    owner.WeaponReturned = true;
+                    Debug.LogError("WeaponReturned");
+                    owner.WeaponReturned();
                     owner.weaponLoader.ShowWeapon();
                     GameObject.Destroy(gameObject);
                     yield break;
                 }
-                transform.Rotate(new Vector3(0, 15.0f, 0), Space.Self);
-                transform.position = Vector3.Lerp(spline.GetPathPoint(2), owner.WeaponR.position, tTick / tTotal);
+                transform.position = transform.position + dir.normalized * speed * Time.deltaTime;
             }
             yield return 0;
         }
@@ -175,7 +177,7 @@ public class FlyWheel : MonoBehaviour {
             {
                 status = 1;
                 tTick = 0.0f;
-                Debug.LogError("hit wall");
+                tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / speed;
                 spline.SetControlPoint(2, transform.position);
             }
         }
@@ -204,6 +206,7 @@ public class FlyWheel : MonoBehaviour {
             {
                 status = 1;
                 tTick = 0.0f;
+                tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / speed;
                 spline.SetControlPoint(2, transform.position);
             }
         }
@@ -212,6 +215,14 @@ public class FlyWheel : MonoBehaviour {
             MeteorUnit unit = other.GetComponentInParent<MeteorUnit>();
             if (unit == null)
                 return;
+            if (unit == owner && status == 1)
+            {
+                Debug.LogError("WeaponReturned");
+                owner.WeaponReturned();
+                owner.weaponLoader.ShowWeapon();
+                GameObject.Destroy(gameObject);
+                return;
+            }
             if (unit.Dead)
                 return;
             if (attackTick.ContainsKey(unit))

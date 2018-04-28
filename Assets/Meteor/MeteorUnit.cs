@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public enum EBUFF_ID
 {
-    DrugEx = 12,//蛊毒，行走变为150
+    DrugEx = 10,//钝筋，蛊毒，行走变为150
 }
 public enum EBUFF_Type
 {
@@ -948,7 +948,7 @@ public class MeteorUnit : MonoBehaviour
     public void Init(int modelIdx, MonsterEx mon = null, bool updateModel = false)
     {
         allowAttack = false;
-        WeaponReturned = true;
+        WeaponReturned();
         Vector3 vec = transform.position;
         Quaternion rotation = transform.rotation;
 
@@ -1679,7 +1679,19 @@ public class MeteorUnit : MonoBehaviour
         vec.y = 0;
         hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 10);
     }
-    public bool WeaponReturned { get; set; }
+
+    public void WeaponReturned()
+    {
+        //219等待回收武器.
+        if (charLoader != null)
+        {
+            if (posMng.mActiveAction.Idx == 219)
+                charLoader.SetLoop(false);
+            else
+                charLoader.LinkEvent(219, PoseEvt.WeaponIsReturned);
+        }
+    }
+
     public bool allowAttack { get; set; }
     public AttackDes CurrentDamage { get { return damage; } }
     AttackDes damage;
@@ -2025,7 +2037,7 @@ public class MeteorUnit : MonoBehaviour
                     if (charLoader != null)
                     {
                         if (dam.TargetValue == 0.0f)
-                            charLoader.LockTime(2.0f);
+                            charLoader.LockTime(0.3f);
                         else
                             charLoader.LockTime(dam.TargetValue);
                     }

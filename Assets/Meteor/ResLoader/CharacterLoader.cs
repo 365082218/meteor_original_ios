@@ -10,6 +10,12 @@ public class AABBVector
     public Vector3 max;
 }
 
+//位或
+public enum PoseEvt
+{
+    WeaponIsReturned = 1,
+}
+
 //读取skc文件并且绘制骨骼，有一定问题，那个原始模型和骨骼是右手坐标系的
 //如果什么都不改，那么最后左右腿是互换了。但是改了半天，左右手坐标系并不好转换
 //负责处理动画帧的播放
@@ -293,8 +299,10 @@ public class CharacterLoader : MonoBehaviour
         }
     }
 
+    bool CheckStraight = false;
     public void LockTime(float t)
     {
+        CheckStraight = true;
         PoseStraight = t;
     }
 
@@ -334,17 +342,28 @@ public class CharacterLoader : MonoBehaviour
             PoseStraight -= delta;
         if (loop)
         {
-            if (curIndex > po.LoopEnd)
+            //检查僵直是否过期.
+            if (CheckStraight)
             {
-                //&& po.LoopStart == po.LoopEnd
-                if (curIndex > po.LoopStart)
+                if (PoseStraight < 0.0f)
                 {
-                    PlayPosEvent();
-                    curIndex = po.LoopStart;
-                    if (loop)
-                        return;
+                    loop = false;
+                    CheckStraight = false;
                 }
-                curIndex = po.LoopStart;
+            }
+            else
+            {
+                if (curIndex > po.LoopEnd)
+                {
+                    if (curIndex > po.LoopStart)
+                    {
+                        PlayPosEvent();
+                        curIndex = po.LoopStart;
+                        if (loop)
+                            return;
+                    }
+                    curIndex = po.LoopStart;
+                }
             }
         }
         else
@@ -509,31 +528,31 @@ public class CharacterLoader : MonoBehaviour
         return false;
     }
 
-    //播放从上一个插值帧，到下一个关键帧之间走过的位移.
     public void AnimationUpdate(float timeRatio)
     {
         float speedScale = GetSpeedScale();
-        //TryPlayEffect();
-        //ChangeAttack();
-        //ChangeWeaponTrail();
-        //if (TestInputLink())
-            //return;
-        float frameCost = FPS / (Speed * speedScale);
+        TryPlayEffect();
+        ChangeAttack();
+        ChangeWeaponTrail();
+        if (PoseStraight > 0.0f)
+            PoseStraight -= Time.deltaTime;
+        if (TestInputLink())
+            return;
         //超过末尾了.
-        //if (loop)
-        //{
-        //    if (curIndex >= po.LoopEnd)
-        //    {
-        //        if (curIndex >= po.LoopStart && po.LoopStart == po.LoopEnd)
-        //        {
-        //            PlayPosEvent();
-        //            curIndex = po.LoopStart;
-        //            if (loop)
-        //                return;
-        //        }
-        //        curIndex = po.LoopStart;
-        //    }
-        //}
+        if (loop)
+        {
+            if (curIndex >= po.LoopEnd)
+            {
+                if (curIndex >= po.LoopStart && po.LoopStart == po.LoopEnd)
+                {
+                    PlayPosEvent();
+                    curIndex = po.LoopStart;
+                    if (loop)
+                        return;
+                }
+                curIndex = po.LoopStart;
+            }
+        }
         //else
         //{
         //    if (curIndex >= po.End)
@@ -544,10 +563,10 @@ public class CharacterLoader : MonoBehaviour
         //            posMng.OnActionFinished();
         //        return;
         //    }
-            //if (TheFirstFrame == curIndex)
-            //    ActionEvent.HandlerFirstActionFrame(mOwner, po.Idx);
-            //if (TheLastFrame == curIndex)
-            //    ActionEvent.HandlerFinalActionFrame(mOwner, po.Idx);
+        //if (TheFirstFrame == curIndex)
+        //    ActionEvent.HandlerFirstActionFrame(mOwner, po.Idx);
+        //if (TheLastFrame == curIndex)
+        //    ActionEvent.HandlerFinalActionFrame(mOwner, po.Idx);
         //}
 
         //curIndex = targetIndex;
@@ -572,12 +591,12 @@ public class CharacterLoader : MonoBehaviour
 
             }
             else
-            {
                 bo[i].localRotation = Quaternion.Slerp(lastStatus.BoneQuat[i], status.BoneQuat[i], timeRatio);
-            }
+
             if (i == 0)
                 bo[i].localPosition = Vector3.Lerp(lastStatus.BonePos, status.BonePos, timeRatio);
         }
+
         for (int i = 0; i < dummy.Count; i++)
         {
             if (i == 0)
@@ -627,7 +646,7 @@ public class CharacterLoader : MonoBehaviour
                 if (lastFramePlayedTimes < fps)
                 {
                     //插值帧只负责让动画平滑.不移动当前帧位置.
-                    //AnimationUpdate(lastFramePlayedTimes / fps);
+                    AnimationUpdate(lastFramePlayedTimes / fps);
                 }
                 else
                 {
@@ -638,6 +657,13 @@ public class CharacterLoader : MonoBehaviour
                         speedScale = GetSpeedScale();
                         fps = FPS / (Speed * speedScale);
                     }
+                    //播放完毕，到最后还有不足一帧的时间，也要算上
+                    //if (lastFramePlayedTimes > 0.002f)
+                    //{
+                    //    speedScale = GetSpeedScale();
+                    //    fps = FPS / (Speed * speedScale);
+                    //    AnimationUpdate(lastFramePlayedTimes / fps);
+                    //}
                 }
             }
             else
@@ -743,7 +769,7 @@ public class CharacterLoader : MonoBehaviour
             mOwner.IgnoreGravitys(false);
             if (mOwner.IsOnGround()) loop = false;
         }
-        else if (po.Idx == CommonAction.Struggle)
+        else if (po.Idx == CommonAction.Struggle || po.Idx == CommonAction.Struggle0)
         {
             //一些有僵直的动作,必须等到僵直循环动作第一次结束后开始减少僵直值.
             if (PoseStraight <= 0)
@@ -759,10 +785,14 @@ public class CharacterLoader : MonoBehaviour
         else if (po.Idx == 219)//飞轮出击后等待接回飞轮
         {
             //等着收回武器
-            if (owner.WeaponReturned)
+            if (PoseEvent.ContainsKey(219))
             {
-                loop = false;
-                owner.WeaponReturned = false;
+                //当218发射飞轮，很快返回，还未到219动作时，下次播放219，就得立即取消循环，
+                if ((PoseEvent[219] & (int)PoseEvt.WeaponIsReturned) != 0)
+                {
+                    PoseEvent[219] &= ~(int)PoseEvt.WeaponIsReturned;
+                    loop = false;
+                }
             }
         }
         else
@@ -816,6 +846,21 @@ public class CharacterLoader : MonoBehaviour
     public int curIndex = 0;
     int blendStart = 0;
     public int GetCurrentFrameIndex() { return curIndex; }
+
+    //僵直清空/飞轮回收，等一些情况时，取消循环
+    public void SetLoop(bool looped)
+    {
+        loop = looped;
+    }
+    Dictionary<int, int> PoseEvent = new Dictionary<int, int>();
+    public void LinkEvent(int pose, PoseEvt evt)
+    {
+        if (PoseEvent.ContainsKey(pose))
+            PoseEvent[pose] |= (int)evt;
+        else
+            PoseEvent.Add(pose, (int)evt);
+    }
+
     bool loop = false;
     BoneStatus lastFrameStatus;
     //这2个用来实现一些技能
