@@ -16,8 +16,8 @@ public class FlyWheel : MonoBehaviour {
     //射程-无限-跟踪，最多2秒-去1秒回1秒
     float tTotal = 3.0f;
     float tTick = 0.0f;
-    float speed = 600.0f;
-
+    float speed = 550.0f;
+    float returnspeed = 450.0f;
     bool outofArea = false;
     private void Awake()
     {
@@ -82,8 +82,8 @@ public class FlyWheel : MonoBehaviour {
     {
         TargetPosCache = auto_target.mPos + Vector3.up * 25.0f;
         //计算一个坐标，终点，作为贝塞尔曲线的控制点.
-        Vector3 vecforw = (auto_target.mPos + Vector3.up * 25.0f - owner.WeaponR.position).normalized;
-        //主角与目标的夹角的一半
+        Vector3 vecforw = (new Vector3(auto_target.mPos.x, 0, auto_target.mPos.z) - new Vector3(owner.mPos.x, 0, owner.mPos.z)).normalized;
+        //主角面向向量与（主角朝目标向量）的夹角的一半
         float angle = Mathf.Acos(Vector3.Dot(-owner.transform.forward, vecforw));
         if (angle * Mathf.Rad2Deg > 90.0f)
         {
@@ -93,9 +93,11 @@ public class FlyWheel : MonoBehaviour {
             spline.SetControlPoint(2, owner.WeaponR.position + 100 * (-owner.transform.forward));
             return;
         }
-        //angle *= 2.0f;
-        Vector3 vec = Quaternion.AngleAxis(-angle * Mathf.Rad2Deg, Vector3.up)  * (-owner.transform.forward);
-        Vector3 vecPosition = vec * (Vector3.Distance(auto_target.mPos, owner.mPos)) + owner.mPos + Vector3.up * 25.0f;
+        //看下是左侧还是右侧
+        bool isLeft = Vector3.Dot(owner.transform.right, vecforw) < 0;
+        //左侧
+        Vector3 vec = Quaternion.AngleAxis((isLeft ? -angle / 2.0f : angle / 2.0f) * Mathf.Rad2Deg, Vector3.up)  * (-owner.transform.forward);
+        Vector3 vecPosition = vec * (Vector3.Distance(new Vector3(auto_target.mPos.x, 0, auto_target.mPos.z), new Vector3(owner.mPos.x, 0, owner.mPos.z))) + owner.WeaponR.position - 0.5f * Vector3.up * (owner.mPos.y - auto_target.mPos.y);
         spline.SetControlPoint(1, vecPosition);
         spline.SetControlPoint(2, TargetPosCache);
         List<Vector3> veclst = spline.GetEquiDistantPointsOnCurve(200);
@@ -124,15 +126,18 @@ public class FlyWheel : MonoBehaviour {
                 if (refreshDelay <= 0.1f && !outofArea)
                 {
                     RefreshSpline();
-                    List<Vector3> veclst = spline.GetEquiDistantPointsOnCurve(200);
-                    line.SetPositions(veclst.ToArray());
+                    if (GameData.gameStatus.EnableDebug)
+                    {
+                        List<Vector3> veclst = spline.GetEquiDistantPointsOnCurve(200);
+                        line.SetPositions(veclst.ToArray());
+                    }
                     refreshDelay = 0.1f;
                 }
 
                 if (tTick > tTotal)
                 {
                     status = 1;//无论是否撞到敌人，返回.
-                    tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / speed;
+                    tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / returnspeed;
                     tTick = 0.0f;
                     yield return 0;
                     continue;
@@ -147,7 +152,7 @@ public class FlyWheel : MonoBehaviour {
                 Vector3 dir = owner.WeaponR.position - transform.position;
                 if (dir.magnitude <= speed * Time.deltaTime)//速度太大的时候，可能会2边跑，而且距离都大于5，这样要看夹角是否改变了方向.
                 {
-                    Debug.LogError("WeaponReturned");
+                    //Debug.LogError("WeaponReturned");
                     owner.WeaponReturned();
                     owner.weaponLoader.ShowWeapon();
                     GameObject.Destroy(gameObject);
@@ -177,7 +182,7 @@ public class FlyWheel : MonoBehaviour {
             {
                 status = 1;
                 tTick = 0.0f;
-                tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / speed;
+                tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / returnspeed;
                 spline.SetControlPoint(2, transform.position);
             }
         }
@@ -206,7 +211,7 @@ public class FlyWheel : MonoBehaviour {
             {
                 status = 1;
                 tTick = 0.0f;
-                tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / speed;
+                tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / returnspeed;
                 spline.SetControlPoint(2, transform.position);
             }
         }

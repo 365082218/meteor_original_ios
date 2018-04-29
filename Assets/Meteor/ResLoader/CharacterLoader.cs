@@ -343,15 +343,15 @@ public class CharacterLoader : MonoBehaviour
         if (loop)
         {
             //检查僵直是否过期.
-            if (CheckStraight)
-            {
-                if (PoseStraight < 0.0f)
-                {
-                    loop = false;
-                    CheckStraight = false;
-                }
-            }
-            else
+            //if (CheckStraight)
+            //{
+            //    if (PoseStraight < 0.0f)
+            //    {
+            //        loop = false;
+            //        CheckStraight = false;
+            //    }
+            //}
+            //else
             {
                 if (curIndex > po.LoopEnd)
                 {
@@ -646,7 +646,7 @@ public class CharacterLoader : MonoBehaviour
                 if (lastFramePlayedTimes < fps)
                 {
                     //插值帧只负责让动画平滑.不移动当前帧位置.
-                    AnimationUpdate(lastFramePlayedTimes / fps);
+                    //AnimationUpdate(lastFramePlayedTimes / fps);
                 }
                 else
                 {
@@ -772,11 +772,12 @@ public class CharacterLoader : MonoBehaviour
         else if (po.Idx == CommonAction.Struggle || po.Idx == CommonAction.Struggle0)
         {
             //一些有僵直的动作,必须等到僵直循环动作第一次结束后开始减少僵直值.
-            if (PoseStraight <= 0)
-            {
-                mOwner.IgnoreGravitys(false);
-                if (mOwner.IsOnGround()) loop = false;
-            }
+            //if (CheckStraight && PoseStraight < 0)
+            //{
+            //    mOwner.IgnoreGravitys(false);
+            //    if (mOwner.IsOnGround()) loop = false;
+            //    CheckStraight = false;
+            //}
         }
         else if ((po.Idx >= CommonAction.Idle && po.Idx <= 21) || (po.Idx >= CommonAction.WalkForward && po.Idx <= CommonAction.RunOnDrug))
         {
