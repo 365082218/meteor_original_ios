@@ -179,11 +179,6 @@ public class MeteorAI {
         tick = 0.0f;
     }
 
-    public bool InputBlocked()
-    {
-        return StateStack.Count != 0;
-    }
-
     public void FollowTarget(int target)
     {
         followTarget = U3D.GetUnit(target);

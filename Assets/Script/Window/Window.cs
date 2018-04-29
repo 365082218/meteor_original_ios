@@ -205,7 +205,6 @@ public abstract class Window<T> :Windows where T : class, new()
             if (!CanvasMode())
             {
                 WndObject.transform.SetParent(mRootUI.transform);
-                //WndObject.transform.localPosition = Vector3.zero;
                 WndObject.transform.localScale = Vector3.one;
                 WndObject.transform.localRotation = Quaternion.identity;
             }

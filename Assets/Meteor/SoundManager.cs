@@ -114,8 +114,8 @@ public class SoundManager : Singleton<SoundManager>
     {
         if (Startup.ins != null)
         {
-            SetMusicVolume(Startup.ins.state.MusicVolume);
-            SetSoundVolume(Startup.ins.state.SoundVolume);
+            SetMusicVolume(GameData.gameStatus.MusicVolume);
+            SetSoundVolume(GameData.gameStatus.SoundVolume);
         }
     }
 

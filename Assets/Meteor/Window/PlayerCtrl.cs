@@ -256,7 +256,7 @@ public class PlayerCtrl : MonoBehaviour {
     //    RenderTexture.active = RenderMaskCamera.targetTexture;
     //    texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
     //    texture.Apply();
-    //    System.IO.File.WriteAllBytes(Application.persistentDataPath + "/" + Startup.ins.state.saveSlot + "/" + current.idx + "_mask.png", texture.EncodeToPNG());
+    //    System.IO.File.WriteAllBytes(Application.persistentDataPath + "/" + GameData.gameStatus.saveSlot + "/" + current.idx + "_mask.png", texture.EncodeToPNG());
     //    RenderTexture.active = null;
     //}
 
@@ -272,9 +272,9 @@ public class PlayerCtrl : MonoBehaviour {
        //     GameData.save.MapStates[idx] = current;
        // }
 
-       // if (!firstload && System.IO.File.Exists(Application.persistentDataPath + "/" + Startup.ins.state.saveSlot + "/" + current.idx + "_mask.png")) 
+       // if (!firstload && System.IO.File.Exists(Application.persistentDataPath + "/" + GameData.gameStatus.saveSlot + "/" + current.idx + "_mask.png")) 
        // {
-       //     byte[] png = System.IO.File.ReadAllBytes(Application.persistentDataPath + "/" + Startup.ins.state.saveSlot + "/" + current.idx + "_mask.png");
+       //     byte[] png = System.IO.File.ReadAllBytes(Application.persistentDataPath + "/" + GameData.gameStatus.saveSlot + "/" + current.idx + "_mask.png");
        //     Texture2D tex = new Texture2D(512, 512);
        //     tex.LoadImage(png);
        //     Graphics.Blit(tex, RenderMaskCamera.targetTexture);

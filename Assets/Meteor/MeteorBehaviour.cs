@@ -121,7 +121,7 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
             else
             if (Input.HasInput((int)EKeyList.KL_Crouch, (int)EInputType.EIT_Pressing, Time.deltaTime))
             {
-                //Debug.LogError("crouch");
+                Debug.LogError("crouch");
                 Owner.OnCrouch();
                 return;
             }

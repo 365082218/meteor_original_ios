@@ -33,11 +33,11 @@ Material:
       second: 1.5
     - first:
         name: _deformsize
-      second: 0.1
+      second: 0.5
     m_Colors:
     - first:
         name: _Color
       second: {r: 1, g: 1, b: 1, a: 1}
     - first:
         name: _deformref
-      second: {r: 0.5, g: 0.5, b: 0.5, a: 0}
+      second: {r: 1, g: 1, b: 1, a: 0}

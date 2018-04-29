@@ -51,6 +51,8 @@ public class CameraFollow : MonoBehaviour {
 
     public void Init()
     {
+        smoothIntensity = 20.0f;//移动平滑倍数
+        RotateIntensity = 6.0f;
         Unlocked = false;
         followHeight = 6;
         followDistance = 55.0f;
@@ -70,8 +72,8 @@ public class CameraFollow : MonoBehaviour {
             m_Targets[i].gameObject.layer = LayerMask.NameToLayer("Debug");
             m_Targets[i].localScale = 10 * Vector3.one;
         }
-        smoothIntensity = 10.0f;
-        RotateIntensity = 4.0f;
+
+        
 
         if (MeteorManager.Instance.LocalPlayer != null)
         {
@@ -101,8 +103,8 @@ public class CameraFollow : MonoBehaviour {
         Unlocked = true;
     }
 
-    public float smoothIntensity = 10.0f;//移动平滑倍数
-    public float RotateIntensity = 4.0f;//旋转平滑倍数
+    public float smoothIntensity = 20.0f;//移动平滑倍数
+    public float RotateIntensity = 8.0f;//旋转平滑倍数
     public float LookAtAngle = 0.0f;//朝目标俯视角度
     public float BodyHeight = 28.0f;//目标中心点在脚部往上多少
     Vector3 LasthitOffset = Vector3.zero;
@@ -255,7 +257,7 @@ public class CameraFollow : MonoBehaviour {
             if (MeteorManager.Instance.LocalPlayer.posMng.CanRotateY)
             {
                 if (Application.isMobilePlatform)
-                    yRotate = NGUICameraJoystick.instance.deltaLast.x * Startup.ins.state.AxisSensitivity.x;
+                    yRotate = NGUICameraJoystick.instance.deltaLast.x * GameData.gameStatus.AxisSensitivity.x;
                 else
                     yRotate = 2 * Input.GetAxis("Mouse X");
                 if (yRotate != 0)
@@ -263,7 +265,7 @@ public class CameraFollow : MonoBehaviour {
             }
             float xRotate = 0;
             if (Application.isMobilePlatform)
-                xRotate = NGUICameraJoystick.instance.deltaLast.y * Startup.ins.state.AxisSensitivity.y;
+                xRotate = NGUICameraJoystick.instance.deltaLast.y * GameData.gameStatus.AxisSensitivity.y;
             else
                 xRotate = 2 * Input.GetAxis("Mouse Y");
             if (xRotate != 0.0f)

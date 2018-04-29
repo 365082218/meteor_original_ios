@@ -18,6 +18,8 @@ public class SceneItemProperty
 public class SceneItemAgent : MonoBehaviour {
     // Use this for initialization
     List<Collider> collisions = new List<Collider>();
+    [SerializeField]
+    private AnimationCurve curve;
     //public bool registerCollision;
     public int InstanceId;//从0序号的实例ID
     FMCPlayer player;
@@ -29,8 +31,19 @@ public class SceneItemAgent : MonoBehaviour {
     bool billBoard = false;
     //场景初始化调用，或者爆出物品，待物品落地时调用
     public void OnStart(LevelScriptBase script = null)
-    { 
+    {
         initializeY = transform.position.y;
+        if (curve == null)
+        {
+            Keyframe[] ks = new Keyframe[2];
+            ks[0] = new Keyframe(0, -1);
+            ks[1] = new Keyframe(1, 1);
+            curve = new AnimationCurve(ks);
+            //curve.
+        }
+        curve.postWrapMode = WrapMode.PingPong;
+        curve.preWrapMode = WrapMode.PingPong;
+
         //自转+高度转
         if (!property.names.ContainsKey("machine") && gameObject.activeSelf && !billBoard)
             StartCoroutine(yMove());
@@ -49,18 +62,19 @@ public class SceneItemAgent : MonoBehaviour {
     {
         while (true)
         {
-            if (up)
-            {
-                transform.position = new Vector3(transform.position.x, transform.position.y + 5 * Time.deltaTime, transform.position.z);
-                if (transform.position.y >= initializeY + yHeight)
-                    up = false;
-            }
-            else
-            {
-                transform.position = new Vector3(transform.position.x, transform.position.y - 5 * Time.deltaTime, transform.position.z);
-                if (transform.position.y <= initializeY - yHeight)
-                    up = true;
-            }
+            float y = curve.Evaluate(Time.time);
+            //if (up)
+            //{
+                transform.position = new Vector3(transform.position.x, initializeY + 5 * y, transform.position.z);
+                //if (transform.position.y >= initializeY + yHeight)
+                //    up = false;
+            //}
+            //else
+            //{
+            //    transform.position = new Vector3(transform.position.x, transform.position.y - 5 * Time.deltaTime, transform.position.z);
+            //    if (transform.position.y <= initializeY - yHeight)
+            //        up = true;
+            //}
             transform.Rotate(new Vector3(0, 90 * Time.deltaTime, 0));
             yield return 0;
         }

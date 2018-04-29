@@ -36,7 +36,7 @@ public class GameState
     public bool EnableFunc;//战斗UI控制面板是否显示按钮
     public bool EnableInfiniteAngry;//无限气.
     public bool EnableItemName;//查看物品名称.
-    public bool EnableGodMode;//无敌模式
+    public bool EnableGodMode;//一击必杀
     public MyVector2 JoyAnchor;//摇杆坐标.
     public MyVector2 AxisSensitivity;//轴视角转向灵敏度
     public string MeteorVersion;

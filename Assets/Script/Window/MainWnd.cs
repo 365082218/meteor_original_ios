@@ -527,6 +527,14 @@ public class BattleResultWnd : Window<BattleResultWnd>
                 Dead.color = Color.red;
             }
         }
+        else
+        {
+            //得不到信息了。说明该NPC被移除掉了
+            Idx.color = Color.red;
+            Name.color = Color.red;
+            Killed.color = Color.red;
+            Dead.color = Color.red;
+        }
     }
 
     void InsertPlayerResult(string name_, GameBattleEx.BattleResultItem result)

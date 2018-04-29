@@ -127,6 +127,7 @@ public class InputItem
             if (ActionInterrupt.Instance.Whole.ContainsKey(mOwner.posMng.mActiveAction.Idx) || mOwner.GetWeaponType() == (int)EquipWeaponType.Gun)
             {
                 int targetIdx = mOwner.posMng.mActiveAction.Idx;
+
                 //滚动或者闪动。可以连任意Pose与Idle一样
                 if (targetIdx >= 164 && targetIdx <= 179)
                     targetIdx = 0;
@@ -145,13 +146,20 @@ public class InputItem
                     //Debug.LogError("useGun");
                 }
 
+                if (!ActionInterrupt.Instance.Whole.ContainsKey(targetIdx))
+                {
+                    Debug.LogError("not contains:" + targetIdx);
+                    targetPose = -1;
+                    return false;
+                }
+
                 ActionNode no = ActionInterrupt.Instance.Whole[targetIdx];
                 if (mOwner.IsOnGround())
                 {
                     //拦截火枪的状态机，只要不处于213-使用火枪就进入212POSE
                     if (!mOwner.GunReady && mOwner.GetWeaponType() == (int)EquipWeaponType.Gun)
                     {
-                        targetPose = 212;
+                        targetPose = CommonAction.GunReload;
                         //Debug.LogError("targetPose = 212");
                         return true;
                     }

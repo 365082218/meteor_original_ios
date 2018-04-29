@@ -89,10 +89,10 @@ public class NewSystemWnd : Window<NewSystemWnd>
         saveTab = Control("SaveTab").GetComponent<UITab>();
         if (Startup.ins != null)
         {
-            Control("BGMSlider").GetComponent<Slider>().value = Startup.ins.state.MusicVolume;
-            Control("EffectSlider").GetComponent<Slider>().value = Startup.ins.state.SoundVolume;
-            Control("HSliderBar").GetComponent<Slider>().value = Startup.ins.state.AxisSensitivity.x;
-            Control("VSliderBar").GetComponent<Slider>().value = Startup.ins.state.AxisSensitivity.y;
+            Control("BGMSlider").GetComponent<Slider>().value = GameData.gameStatus.MusicVolume;
+            Control("EffectSlider").GetComponent<Slider>().value = GameData.gameStatus.SoundVolume;
+            Control("HSliderBar").GetComponent<Slider>().value = GameData.gameStatus.AxisSensitivity.x;
+            Control("VSliderBar").GetComponent<Slider>().value = GameData.gameStatus.AxisSensitivity.y;
         }
         Control("BGMSlider").GetComponent<Slider>().onValueChanged.AddListener(OnMusicVolumeChange);
         Control("EffectSlider").GetComponent<Slider>().onValueChanged.AddListener(OnEffectVolumeChange);
@@ -205,26 +205,26 @@ public class NewSystemWnd : Window<NewSystemWnd>
     {
         SoundManager.Instance.SetMusicVolume(vo);
         if (Startup.ins != null)
-            Startup.ins.state.MusicVolume = vo;
+            GameData.gameStatus.MusicVolume = vo;
     }
 
     void OnXSensitivityChange(float v)
     {
         if (Startup.ins != null)
-            Startup.ins.state.AxisSensitivity.x = v;
+            GameData.gameStatus.AxisSensitivity.x = v;
     }
 
     void OnYSensitivityChange(float v)
     {
         if (Startup.ins != null)
-            Startup.ins.state.AxisSensitivity.y = v;
+            GameData.gameStatus.AxisSensitivity.y = v;
     }
 
     void OnEffectVolumeChange(float vo)
     {
         SoundManager.Instance.SetSoundVolume(vo);
         if (Startup.ins != null)
-            Startup.ins.state.SoundVolume = vo;
+            GameData.gameStatus.SoundVolume = vo;
     }
 
     void OnClickBack()

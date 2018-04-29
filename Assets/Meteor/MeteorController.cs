@@ -125,7 +125,6 @@ public class MeteorInput
         //如果正在旋转角色，且动作ID不是前跑，那么是无法移动的，原地旋转角色.
         //if (mOwner.posMng.Rotateing && mOwner.posMng.mActiveAction.Idx != CommonAction.Run)
         //    mInputVector = Vector2.zero;
-
         InputCore.Update();
         //主角色，扫描硬件信息
         if (mOwner.Attr.IsPlayer)
@@ -156,16 +155,16 @@ public class MeteorInput
 #if BUILD_PC
             float kValue = Input.GetAxisRaw(keyStatus.AxisName);
             bool pressed = kValue > 0;
-            if (pressed && keyStatus.Pressed == 0)
+            if (pressed && keyStatus.Pressed == 0 && !keyStatus.IsAI)
                 OnKeyDown(keyStatus, false);
-            else if (!pressed && keyStatus.Pressed != 0)
+            else if (!pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
                 OnKeyUp(keyStatus);
-            else if (pressed && keyStatus.Pressed != 0)
+            else if (pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
                 OnKeyPressing(keyStatus);
 #endif            
         }
 
-        //if (!Application.isMobilePlatform || Startup.ins.state.useJoystickOrKeyBoard)
+        //if (!Application.isMobilePlatform || GameData.gameStatus.useJoystickOrKeyBoard)
         //{
         //    //处理同轴2个按键抵消的问题
         //    //没有同时按下相反方向键的时候
@@ -1073,7 +1072,7 @@ public class MeteorInput
 
     public void OnKeyUp(EKeyList key)
     {
-        if (mOwner.controller.InputLocked)
+        if (mOwner.controller.InputLocked && !KeyStates[(int)key].IsAI)
             return;
         //Log.LogInfo("OnKeyUp key:" + key);
         OnKeyUp(KeyStates[(int)key]);
@@ -1082,7 +1081,7 @@ public class MeteorInput
     
     public void OnKeyDown(KeyState keyStatus, bool isAI)
     {
-        if (mOwner.controller.InputLocked)
+        if (mOwner.controller.InputLocked && !isAI)
             return;
         InputRecord rec = new InputRecord();
         rec.key = keyStatus.Key;
@@ -1100,50 +1099,13 @@ public class MeteorInput
         keyStatus.Pressed = keyStatus.PressedTime < DoubleClickTime ? 2 : 1;
         keyStatus.PressedTime = 0.0f;
         keyStatus.IsAI = isAI;
-        //if (FightWnd.Exist)
-        //    FightWnd.Instance.UpdateInputInfo();
     }
 
     public void OnKeyUp(KeyState keyStatus)
     {
-        if (mOwner.controller.InputLocked)
-            return;
-        //InputRecord rec = new InputRecord();
-        //rec.key = keyStatus.Key;
-        //rec.pressed = false;
-        //Record.Add(rec);
-        //if (Record.Count >= 5)
-        //    Record.RemoveAt(0);
-        //if (!PoseInputLocked())
-        //    InputModel.Instance.OnKeyUp(keyStatus);
-        //if (genFreq.ContainsKey(keyStatus.Key))
-        //    genFreq.Remove(keyStatus.Key);
         keyStatus.Pressed = 0;
         keyStatus.ReleasedTime = 0.0f;
-        //if (FightWnd.Exist)
-        //    FightWnd.Instance.UpdateInputInfo();
-    }
-
-    public bool IsKeyDown(EKeyList key)
-    {
-        foreach (KeyState keyStatus in KeyStates)
-        {
-            if (keyStatus.Key == key && keyStatus.Pressed != 0 && keyStatus.IsAI == false)
-                return true;
-        }
-        return false;
-    }
-
-    public bool HasKeyDown()
-    {
-        foreach (KeyState keyStatus in KeyStates)
-        {
-            if (string.IsNullOrEmpty(keyStatus.AxisName))
-                continue;
-            if (keyStatus.Pressed != 0 && keyStatus.IsAI == false)
-                return true;
-        }
-        return false;
+        keyStatus.IsAI = false;
     }
 
     void UpdateMoveInput(float deltaTime)
@@ -1289,19 +1251,12 @@ public class MeteorController : MonoBehaviour {
     {
         if (Global.PauseAll)
             return;
-
-        bool blockInput = false;
         if (Owner.robot != null)
-        {
             Owner.robot.Update();
-            blockInput = Owner.robot.InputBlocked();
-        }
-        if (!mInputLocked && !blockInput)
-        {
-            CheckActionInput(Time.deltaTime);
-            if (Input != null)
-                Input.Update(Time.deltaTime);
-        }
+
+        CheckActionInput(Time.deltaTime);
+        if (Input != null && !InputLocked)
+            Input.Update(Time.deltaTime);
     }
 
     // LateUpdate is called after all Update functions have been called

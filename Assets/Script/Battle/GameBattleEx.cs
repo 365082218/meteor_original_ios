@@ -114,7 +114,7 @@ public class GameBattleEx : MonoBehaviour {
     }
 
     GameObject SelectTarget;
-    float timeDelay = 0;
+    float timeDelay = 1;
 	// Update is called once per frame
 	void Update () {
         if (Global.PauseAll)
@@ -138,12 +138,14 @@ public class GameBattleEx : MonoBehaviour {
                 UnitActionStack[UnitActKey[i]].Update(Time.deltaTime);
         }
 
-        timeDelay -= Time.deltaTime;
         //3S以后开始播放剧本
-        if (lev_script != null)
+        if (lev_script != null && timeDelay >= 1.0f)
         {
             lev_script.OnUpdate();//每一秒调用一次剧本脚本
+            timeDelay = 0.0f;
         }
+
+        timeDelay += Time.deltaTime;
         if (lev_script != null)
             lev_script.Scene_OnIdle();//每一帧调用一次场景物件更新.
         RefreshAutoTarget();
@@ -985,9 +987,12 @@ public class ActionConfig
             {
                 MeteorUnit unit = U3D.GetUnit(id);
                 if (action[action.Count - 1].param == 1)
-                    unit.OnCrouch();
+                {
+                    Debug.LogError("on crouch");
+                    unit.controller.Input.OnKeyDown(EKeyList.KL_Crouch, true);
+                }
                 else
-                    unit.posMng.ChangeAction(0, 0.1f);
+                    unit.controller.Input.OnKeyUp(EKeyList.KL_Crouch);
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.BLOCK)

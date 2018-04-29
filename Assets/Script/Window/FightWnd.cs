@@ -371,7 +371,7 @@ public class FightWnd: Window<FightWnd>
             //Debug.Log("Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll");
             return;
         }
-        if (MeteorManager.Instance.LocalPlayer.AngryValue >= 60 || Startup.ins.state.EnableInfiniteAngry)
+        if (MeteorManager.Instance.LocalPlayer.AngryValue >= 60 || GameData.gameStatus.EnableInfiniteAngry)
         {
             Global.GMeteorInput.OnKeyDown(EKeyList.KL_BreakOut, false);
             //Debug.Log("OnKeyDown");

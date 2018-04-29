@@ -84,10 +84,10 @@
 
 //    void LoadRoleState()
 //    {
-//        bool success = GameData.LoadState(Startup.ins.state.saveSlot);
+//        bool success = GameData.LoadState(GameData.gameStatus.saveSlot);
 //        if (success)
 //        {
-//            saveSlot = Startup.ins.state.saveSlot;
+//            saveSlot = GameData.gameStatus.saveSlot;
 //            CharactorModelInit(0);
 //            FightWndEx.Instance.Open();
 //        }
@@ -156,11 +156,11 @@
 //            }
 //            else
 //            {
-//                Startup.ins.state.saveSlot = saveSlot;
+//                GameData.gameStatus.saveSlot = saveSlot;
 //            }
 //        }
 //        //调试关卡走下面，否则直接用当前存档进去.
-//        bool exist = GameData.LoadState(Startup.ins.state.saveSlot);
+//        bool exist = GameData.LoadState(GameData.gameStatus.saveSlot);
 //        if (exist)
 //        {
 //            try
@@ -169,7 +169,7 @@
 //            }
 //            catch
 //            {
-//                U3D.PopupTip((Startup.ins.state.saveSlot + 1) + "号存档已经损坏");
+//                U3D.PopupTip((GameData.gameStatus.saveSlot + 1) + "号存档已经损坏");
 //            }
 //            return;
 //        }

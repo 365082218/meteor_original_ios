@@ -20,9 +20,9 @@ public class SkcLoader : Singleton<SkcLoader> {
     public SkcFile Load(int characterIdx)
     {
         string BoneCnt = "";
-        //if (Startup.ins != null && Startup.ins.state != null)
+        //if (Startup.ins != null && GameData.gameStatus != null)
         //{
-        //    switch (Startup.ins.state.Quality)
+        //    switch (GameData.gameStatus.Quality)
         //    {
         //        case 0:
         //            BoneCnt = ""; break;

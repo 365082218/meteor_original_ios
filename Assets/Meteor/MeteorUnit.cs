@@ -1077,6 +1077,9 @@ public class MeteorUnit : MonoBehaviour
         if (toEquip != null && weaponLoader != null)
             weaponLoader.EquipWeapon(toEquip);
         IndicatedWeapon = null;
+        //没有自动目标，攻击目标，不许计算自动/锁定目标，无转向
+        if (Attr.IsPlayer && (GetWeaponType() == (int)EquipWeaponType.Gun || GetWeaponType() == (int)EquipWeaponType.Dart))
+            GameBattleEx.Instance.Unlock();
     }
 
     public void ChangeWeaponPos(int pose)
@@ -1568,7 +1571,7 @@ public class MeteorUnit : MonoBehaviour
     public void Jump(bool Short, float ShortScale, int act = CommonAction.Jump)
     {
         OnGround = false;
-        float jumpScale = Short ? (ShortScale * 0.32f) : 1.0f;
+        float jumpScale = Short ? 0.65f : 1.0f;
         float h = JumpLimit * jumpScale;
         ImpluseVec.y = CalcVelocity(h);
         //ImpluseVec.y = 0.0f;
@@ -1987,40 +1990,111 @@ public class MeteorUnit : MonoBehaviour
                 case 2: directionAct = dam.TargetPoseRight; break;
                 case 3: directionAct = dam.TargetPoseLeft; break;
             }
-
-            if (posMng.onDefence)
+            if (attacker.Attr.IsPlayer && GameData.gameStatus.EnableGodMode)
             {
-                if (dam._AttackType == 0)
+                //一击必杀
+                string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
+                SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
+
+                Attr.ReduceHp(Attr.HpMax);
+                if (Attr.Dead)
+                    OnDead(attacker);
+            }
+            else
+            {
+                if (posMng.onDefence)
                 {
-                    //在此时间结束前，不许使用输入设备输入.
-                    if (charLoader != null)
-                        charLoader.LockTime(dam.DefenseValue);
-                    //Move(-attacker.transform.forward * dam.DefenseMove);
-                    //通过当前武器和方向，得到防御动作ID  40+(x-1)*4类似 匕首 = 5=> 40+(5-1)*4 = 56,防御住前方攻击 57 58 59就是其他方向的
-                    int TargetPos = GetGuardPose(direction);
-                    string attackAudio = string.Format("W{0:D2}GD{1:D3}.ef", attacker.GetWeaponType(), directionAct);
-                    SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                    //TargetPos = 40 + ((int)idx - 1) * 4 + direction;
-                    //Debug.LogError("targetPos:" + TargetPos);
-                    posMng.ChangeAction(TargetPos);
-                    charLoader.SetActionScale(dam.DefenseMove);
-                    AngryValue += 5;//防御住伤害。则怒气增加
+                    if (dam._AttackType == 0)
+                    {
+                        //在此时间结束前，不许使用输入设备输入.
+                        if (charLoader != null)
+                            charLoader.LockTime(dam.DefenseValue);
+                        //Move(-attacker.transform.forward * dam.DefenseMove);
+                        //通过当前武器和方向，得到防御动作ID  40+(x-1)*4类似 匕首 = 5=> 40+(5-1)*4 = 56,防御住前方攻击 57 58 59就是其他方向的
+                        int TargetPos = GetGuardPose(direction);
+                        string attackAudio = string.Format("W{0:D2}GD{1:D3}.ef", attacker.GetWeaponType(), directionAct);
+                        SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
+                        //TargetPos = 40 + ((int)idx - 1) * 4 + direction;
+                        //Debug.LogError("targetPos:" + TargetPos);
+                        posMng.ChangeAction(TargetPos);
+                        charLoader.SetActionScale(dam.DefenseMove);
+                        AngryValue += 5;//防御住伤害。则怒气增加
+                    }
+                    else if (dam._AttackType == 1)
+                    {
+                        //这个招式伤害多少?
+                        //dam.PoseIdx;算伤害
+                        int realDamage = CalcDamage(attacker);
+                        //Debug.Log("受到:" + realDamage + " 点伤害");
+                        Option poseInfo = MenuResLoader.Instance.GetPoseInfo(dam.PoseIdx);
+                        if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)
+                            GetItem(poseInfo.first[0].flag[1]);
+                        //if (hurtRecord.ContainsKey(attacker))
+                        //    hurtRecord[attacker] += realDamage;
+                        //else
+                        //    hurtRecord.Add(attacker, realDamage);
+
+                        //当前打击者比当前目标伤害高，那么改去杀打击者.AI切换仇恨最深者
+                        //if (robot != null)
+                        //{
+                        //    if (lockTarget != null && hurtRecord.ContainsKey(lockTarget))
+                        //    {
+                        //        if (hurtRecord[lockTarget] < hurtRecord[attacker])
+                        //            lockTarget = attacker;
+                        //    }
+                        //    else
+                        //        lockTarget = attacker;
+                        //}
+
+                        if (Attr != null)
+                            Attr.ReduceHp(realDamage);
+                        if (charLoader != null)
+                        {
+                            if (dam.TargetValue == 0.0f)
+                                charLoader.LockTime(0.3f);
+                            else
+                                charLoader.LockTime(dam.TargetValue);
+                        }
+
+                        string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
+                        SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
+                        AngryValue += (realDamage * 5);
+                        if (Attr.Dead)
+                            OnDead(attacker);
+                        else
+                        {
+                            //如果攻击者是主角，而自己又没有死，那么设置一下锁定目标为自己.(匕首后A接大，自动转向)
+                            if (attacker.Attr.IsPlayer)
+                            {
+                                if (GameBattleEx.Instance.CanLockTarget(this))
+                                {
+                                    GameBattleEx.Instance.ChangeLockedTarget(this);
+                                    attacker.lockTarget = this;
+                                }
+                            }
+                            else
+                            {
+                                //不是主角打就记录伤害，谁伤害高，就去追着谁打。
+                            }
+                            //播放相应特效-音效 0飞镖1
+
+                            //被攻击后，防御相当与没有了.
+                            posMng.OnChangeAction(directionAct);
+                            charLoader.SetActionScale(dam.TargetMove);
+                        }
+                    }
                 }
-                else if (dam._AttackType == 1)
+                else
                 {
-                    //这个招式伤害多少?
-                    //dam.PoseIdx;算伤害
-                    int realDamage = CalcDamage(attacker);
+                    int realDamage = CalcDamage(attacker, attackdes);
                     //Debug.Log("受到:" + realDamage + " 点伤害");
-                    Option poseInfo = MenuResLoader.Instance.GetPoseInfo(dam.PoseIdx);
-                    if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)
-                        GetItem(poseInfo.first[0].flag[1]);
+                    Attr.ReduceHp(realDamage);
                     //if (hurtRecord.ContainsKey(attacker))
                     //    hurtRecord[attacker] += realDamage;
                     //else
                     //    hurtRecord.Add(attacker, realDamage);
 
-                    //当前打击者比当前目标伤害高，那么改去杀打击者.AI切换仇恨最深者
+                    //当前打击者比当前目标伤害高，那么改去杀打击者,只针对AI
                     //if (robot != null)
                     //{
                     //    if (lockTarget != null && hurtRecord.ContainsKey(lockTarget))
@@ -2031,25 +2105,26 @@ public class MeteorUnit : MonoBehaviour
                     //    else
                     //        lockTarget = attacker;
                     //}
+                    //处理招式打人后带毒
+                    Option poseInfo = MenuResLoader.Instance.GetPoseInfo(dam.PoseIdx);
+                    if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)//16受到此招式攻击会得到物品
+                        GetItem(poseInfo.first[0].flag[1]);
 
-                    if (Attr != null)
-                        Attr.ReduceHp(realDamage);
                     if (charLoader != null)
                     {
                         if (dam.TargetValue == 0.0f)
-                            charLoader.LockTime(0.3f);
+                            charLoader.LockTime(2.0f);
                         else
                             charLoader.LockTime(dam.TargetValue);
                     }
-
+                    AngryValue += (realDamage * 3);
                     string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                     SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                    AngryValue += (realDamage * 5);
                     if (Attr.Dead)
                         OnDead(attacker);
                     else
                     {
-                        //如果攻击者是主角，而自己又没有死，那么设置一下锁定目标为自己.(匕首后A接大，自动转向)
+                        //如果攻击者是主角，而自己又没有死，那么设置一下锁定目标为自己.(主角匕首后A打到我-接大，自动转向)
                         if (attacker.Attr.IsPlayer)
                         {
                             if (GameBattleEx.Instance.CanLockTarget(this))
@@ -2062,69 +2137,9 @@ public class MeteorUnit : MonoBehaviour
                         {
                             //不是主角打就记录伤害，谁伤害高，就去追着谁打。
                         }
-                        //播放相应特效-音效 0飞镖1
-
-                        //被攻击后，防御相当与没有了.
                         posMng.OnChangeAction(directionAct);
                         charLoader.SetActionScale(dam.TargetMove);
                     }
-                }
-            }
-            else
-            {
-                int realDamage = CalcDamage(attacker, attackdes);
-                //Debug.Log("受到:" + realDamage + " 点伤害");
-                Attr.ReduceHp(realDamage);
-                //if (hurtRecord.ContainsKey(attacker))
-                //    hurtRecord[attacker] += realDamage;
-                //else
-                //    hurtRecord.Add(attacker, realDamage);
-
-                //当前打击者比当前目标伤害高，那么改去杀打击者,只针对AI
-                //if (robot != null)
-                //{
-                //    if (lockTarget != null && hurtRecord.ContainsKey(lockTarget))
-                //    {
-                //        if (hurtRecord[lockTarget] < hurtRecord[attacker])
-                //            lockTarget = attacker;
-                //    }
-                //    else
-                //        lockTarget = attacker;
-                //}
-                //处理招式打人后带毒
-                Option poseInfo = MenuResLoader.Instance.GetPoseInfo(dam.PoseIdx);
-                if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)//16受到此招式攻击会得到物品
-                    GetItem(poseInfo.first[0].flag[1]);
-
-                if (charLoader != null)
-                {
-                    if (dam.TargetValue == 0.0f)
-                        charLoader.LockTime(2.0f);
-                    else
-                        charLoader.LockTime(dam.TargetValue);
-                }
-                AngryValue += (realDamage * 3);
-                string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
-                SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                if (Attr.Dead)
-                    OnDead(attacker);
-                else
-                {
-                    //如果攻击者是主角，而自己又没有死，那么设置一下锁定目标为自己.(主角匕首后A打到我-接大，自动转向)
-                    if (attacker.Attr.IsPlayer)
-                    {
-                        if (GameBattleEx.Instance.CanLockTarget(this))
-                        {
-                            GameBattleEx.Instance.ChangeLockedTarget(this);
-                            attacker.lockTarget = this;
-                        }
-                    }
-                    else
-                    {
-                        //不是主角打就记录伤害，谁伤害高，就去追着谁打。
-                    }
-                    posMng.OnChangeAction(directionAct);
-                    charLoader.SetActionScale(dam.TargetMove);
                 }
             }
         }
@@ -2171,45 +2186,132 @@ public class MeteorUnit : MonoBehaviour
             int directionAct = dam.TargetPose;
             switch (direction)
             {
-                case 0:directionAct = dam.TargetPoseFront;break;//这个是前后左右，武器防御受击是 上下左右，上下指角色面朝方向头顶和底部
-                case 1:directionAct = dam.TargetPoseBack; break;
-                case 2:directionAct = dam.TargetPoseRight;break;
-                case 3:directionAct = dam.TargetPoseLeft; break;
+                case 0: directionAct = dam.TargetPoseFront; break;//这个是前后左右，武器防御受击是 上下左右，上下指角色面朝方向头顶和底部
+                case 1: directionAct = dam.TargetPoseBack; break;
+                case 2: directionAct = dam.TargetPoseRight; break;
+                case 3: directionAct = dam.TargetPoseLeft; break;
             }
-            //Debug.LogError("attack direction:" + direction);
-            if (posMng.onDefence)
+
+            if (attacker.Attr.IsPlayer && GameData.gameStatus.EnableGodMode)
             {
-                if (dam._AttackType == 0)
+                //一击必杀
+                string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
+                SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
+
+                Attr.ReduceHp(Attr.HpMax);
+                if (Attr.Dead)
+                    OnDead(attacker);
+            }
+            else
+            {
+                if (posMng.onDefence)
                 {
-                    //在此时间结束前，不许使用输入设备输入.
-                    if (charLoader != null)
-                        charLoader.LockTime(dam.DefenseValue);
-                    //Move(-attacker.transform.forward * dam.DefenseMove);
-                    //通过当前武器和方向，得到防御动作ID  40+(x-1)*4类似 匕首 = 5=> 40+(5-1)*4 = 56,防御住前方攻击 57 58 59就是其他方向的
-                    int TargetPos = GetGuardPose(direction);
-                    string attackAudio = string.Format("W{0:D2}GD{1:D3}.ef", attacker.GetWeaponType(), directionAct);
-                    SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                    //TargetPos = 40 + ((int)idx - 1) * 4 + direction;
-                    //Debug.LogError("targetPos:" + TargetPos);
-                    posMng.ChangeAction(TargetPos);
-                    charLoader.SetActionScale(dam.DefenseMove);
-                    AngryValue += 5;//防御住伤害。则怒气增加
+
+                    if (dam._AttackType == 0)
+                    {
+                        //在此时间结束前，不许使用输入设备输入.
+                        if (charLoader != null)
+                            charLoader.LockTime(dam.DefenseValue);
+                        //Move(-attacker.transform.forward * dam.DefenseMove);
+                        //通过当前武器和方向，得到防御动作ID  40+(x-1)*4类似 匕首 = 5=> 40+(5-1)*4 = 56,防御住前方攻击 57 58 59就是其他方向的
+                        int TargetPos = GetGuardPose(direction);
+                        string attackAudio = string.Format("W{0:D2}GD{1:D3}.ef", attacker.GetWeaponType(), directionAct);
+                        SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
+                        //TargetPos = 40 + ((int)idx - 1) * 4 + direction;
+                        //Debug.LogError("targetPos:" + TargetPos);
+                        posMng.ChangeAction(TargetPos);
+                        charLoader.SetActionScale(dam.DefenseMove);
+                        AngryValue += 5;//防御住伤害。则怒气增加
+                    }
+                    else if (dam._AttackType == 1)
+                    {
+                        //这个招式伤害多少?
+                        //dam.PoseIdx;算伤害
+                        int realDamage = CalcDamage(attacker);
+                        //Debug.Log("受到:" + realDamage + " 点伤害");
+                        Option poseInfo = MenuResLoader.Instance.GetPoseInfo(dam.PoseIdx);
+                        if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)
+                            GetItem(poseInfo.first[0].flag[1]);
+                        //if (hurtRecord.ContainsKey(attacker))
+                        //    hurtRecord[attacker] += realDamage;
+                        //else
+                        //    hurtRecord.Add(attacker, realDamage);
+
+                        //当前打击者比当前目标伤害高，那么改去杀打击者.AI切换仇恨最深者
+                        //if (robot != null)
+                        //{
+                        //    if (lockTarget != null && hurtRecord.ContainsKey(lockTarget))
+                        //    {
+                        //        if (hurtRecord[lockTarget] < hurtRecord[attacker])
+                        //            lockTarget = attacker;
+                        //    }
+                        //    else
+                        //        lockTarget = attacker;
+                        //}
+
+                        Attr.ReduceHp(realDamage);
+                        if (charLoader != null)
+                        {
+                            if (dam.TargetValue == 0.0f)
+                                charLoader.LockTime(2.0f);
+                            else
+                                charLoader.LockTime(dam.TargetValue);
+                        }
+                        //EquipWeaponCode idx = EquipWeaponCode.Blade;
+                        //switch ((EquipWeaponType)attacker.GetWeaponType())
+                        //{
+                        //    case EquipWeaponType.Knife: idx = EquipWeaponCode.Knife; break;
+                        //    case EquipWeaponType.Sword: idx = EquipWeaponCode.Sword; break;
+                        //    case EquipWeaponType.Blade: idx = EquipWeaponCode.Blade; break;
+                        //    case EquipWeaponType.Lance: idx = EquipWeaponCode.Lance; break;
+                        //    case EquipWeaponType.Brahchthrust: idx = EquipWeaponCode.Brahchthrust; break;
+                        //    case EquipWeaponType.Gloves: idx = EquipWeaponCode.Gloves; break;
+                        //    case EquipWeaponType.Hammer: idx = EquipWeaponCode.Hammer; break;
+                        //    case EquipWeaponType.NinjaSword: idx = EquipWeaponCode.NinjaSword; break;
+                        //    case EquipWeaponType.HeavenLance: idx = EquipWeaponCode.HeavenLanceA; break;
+                        //    case EquipWeaponType.Gun: idx = EquipWeaponCode.Gun; break;
+                        //    case EquipWeaponType.Dart: idx = EquipWeaponCode.Dart; break;
+                        //    case EquipWeaponType.Guillotines: idx = EquipWeaponCode.Guillotines; break;
+                        //}
+                        string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
+                        SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
+                        AngryValue += (realDamage * 5);
+                        if (Attr.Dead)
+                            OnDead(attacker);
+                        else
+                        {
+                            //如果攻击者是主角，而自己又没有死，那么设置一下锁定目标为自己.(匕首后A接大，自动转向)
+                            if (attacker.Attr.IsPlayer)
+                            {
+                                if (GameBattleEx.Instance.CanLockTarget(this))
+                                {
+                                    GameBattleEx.Instance.ChangeLockedTarget(this);
+                                    attacker.lockTarget = this;
+                                }
+                            }
+                            else
+                            {
+                                //不是主角打就记录伤害，谁伤害高，就去追着谁打。
+                            }
+                            //播放相应特效-音效 0飞镖1
+
+                            //被攻击后，防御相当与没有了.
+                            posMng.OnChangeAction(directionAct);
+                            charLoader.SetActionScale(dam.TargetMove);
+                        }
+                    }
                 }
-                else if (dam._AttackType == 1)
+                else
                 {
-                    //这个招式伤害多少?
-                    //dam.PoseIdx;算伤害
                     int realDamage = CalcDamage(attacker);
                     //Debug.Log("受到:" + realDamage + " 点伤害");
-                    Option poseInfo = MenuResLoader.Instance.GetPoseInfo(dam.PoseIdx);
-                    if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)
-                        GetItem(poseInfo.first[0].flag[1]);
+                    Attr.ReduceHp(realDamage);
                     //if (hurtRecord.ContainsKey(attacker))
                     //    hurtRecord[attacker] += realDamage;
                     //else
                     //    hurtRecord.Add(attacker, realDamage);
 
-                    //当前打击者比当前目标伤害高，那么改去杀打击者.AI切换仇恨最深者
+                    //当前打击者比当前目标伤害高，那么改去杀打击者,只针对AI
                     //if (robot != null)
                     //{
                     //    if (lockTarget != null && hurtRecord.ContainsKey(lockTarget))
@@ -2220,9 +2322,11 @@ public class MeteorUnit : MonoBehaviour
                     //    else
                     //        lockTarget = attacker;
                     //}
+                    //处理招式打人后带毒
+                    Option poseInfo = MenuResLoader.Instance.GetPoseInfo(dam.PoseIdx);
+                    if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)//16受到此招式攻击会得到物品
+                        GetItem(poseInfo.first[0].flag[1]);
 
-                    if (Attr != null)
-                        Attr.ReduceHp(realDamage);
                     if (charLoader != null)
                     {
                         if (dam.TargetValue == 0.0f)
@@ -2230,6 +2334,7 @@ public class MeteorUnit : MonoBehaviour
                         else
                             charLoader.LockTime(dam.TargetValue);
                     }
+                    AngryValue += (realDamage * 3);
                     //EquipWeaponCode idx = EquipWeaponCode.Blade;
                     //switch ((EquipWeaponType)attacker.GetWeaponType())
                     //{
@@ -2248,12 +2353,11 @@ public class MeteorUnit : MonoBehaviour
                     //}
                     string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                     SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                    AngryValue += (realDamage * 5);
                     if (Attr.Dead)
                         OnDead(attacker);
                     else
                     {
-                        //如果攻击者是主角，而自己又没有死，那么设置一下锁定目标为自己.(匕首后A接大，自动转向)
+                        //如果攻击者是主角，而自己又没有死，那么设置一下锁定目标为自己.(主角匕首后A打到我-接大，自动转向)
                         if (attacker.Attr.IsPlayer)
                         {
                             if (GameBattleEx.Instance.CanLockTarget(this))
@@ -2266,89 +2370,12 @@ public class MeteorUnit : MonoBehaviour
                         {
                             //不是主角打就记录伤害，谁伤害高，就去追着谁打。
                         }
-                        //播放相应特效-音效 0飞镖1
-
-                        //被攻击后，防御相当与没有了.
                         posMng.OnChangeAction(directionAct);
                         charLoader.SetActionScale(dam.TargetMove);
                     }
                 }
             }
-            else
-            {
-                int realDamage = CalcDamage(attacker);
-                //Debug.Log("受到:" + realDamage + " 点伤害");
-                Attr.ReduceHp(realDamage);
-                //if (hurtRecord.ContainsKey(attacker))
-                //    hurtRecord[attacker] += realDamage;
-                //else
-                //    hurtRecord.Add(attacker, realDamage);
-
-                //当前打击者比当前目标伤害高，那么改去杀打击者,只针对AI
-                //if (robot != null)
-                //{
-                //    if (lockTarget != null && hurtRecord.ContainsKey(lockTarget))
-                //    {
-                //        if (hurtRecord[lockTarget] < hurtRecord[attacker])
-                //            lockTarget = attacker;
-                //    }
-                //    else
-                //        lockTarget = attacker;
-                //}
-                //处理招式打人后带毒
-                Option poseInfo = MenuResLoader.Instance.GetPoseInfo(dam.PoseIdx);
-                if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)//16受到此招式攻击会得到物品
-                    GetItem(poseInfo.first[0].flag[1]);
-
-                if (charLoader != null)
-                {
-                    if (dam.TargetValue == 0.0f)
-                        charLoader.LockTime(2.0f);
-                    else
-                        charLoader.LockTime(dam.TargetValue);
-                }
-                AngryValue += (realDamage * 3);
-                //EquipWeaponCode idx = EquipWeaponCode.Blade;
-                //switch ((EquipWeaponType)attacker.GetWeaponType())
-                //{
-                //    case EquipWeaponType.Knife: idx = EquipWeaponCode.Knife; break;
-                //    case EquipWeaponType.Sword: idx = EquipWeaponCode.Sword; break;
-                //    case EquipWeaponType.Blade: idx = EquipWeaponCode.Blade; break;
-                //    case EquipWeaponType.Lance: idx = EquipWeaponCode.Lance; break;
-                //    case EquipWeaponType.Brahchthrust: idx = EquipWeaponCode.Brahchthrust; break;
-                //    case EquipWeaponType.Gloves: idx = EquipWeaponCode.Gloves; break;
-                //    case EquipWeaponType.Hammer: idx = EquipWeaponCode.Hammer; break;
-                //    case EquipWeaponType.NinjaSword: idx = EquipWeaponCode.NinjaSword; break;
-                //    case EquipWeaponType.HeavenLance: idx = EquipWeaponCode.HeavenLanceA; break;
-                //    case EquipWeaponType.Gun: idx = EquipWeaponCode.Gun; break;
-                //    case EquipWeaponType.Dart: idx = EquipWeaponCode.Dart; break;
-                //    case EquipWeaponType.Guillotines: idx = EquipWeaponCode.Guillotines; break;
-                //}
-                string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
-                SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                if (Attr.Dead)
-                    OnDead(attacker);
-                else
-                {
-                    //如果攻击者是主角，而自己又没有死，那么设置一下锁定目标为自己.(主角匕首后A打到我-接大，自动转向)
-                    if (attacker.Attr.IsPlayer)
-                    {
-                        if (GameBattleEx.Instance.CanLockTarget(this))
-                        {
-                            GameBattleEx.Instance.ChangeLockedTarget(this);
-                            attacker.lockTarget = this;
-                        }
-                    }
-                    else
-                    {
-                        //不是主角打就记录伤害，谁伤害高，就去追着谁打。
-                    }
-                    posMng.OnChangeAction(directionAct);
-                    charLoader.SetActionScale(dam.TargetMove);
-                }
-            }
         }
-
         if (FightWnd.Exist)
         {
             //先飘血。

@@ -222,7 +222,7 @@ public class FlyWheel : MonoBehaviour {
                 return;
             if (unit == owner && status == 1)
             {
-                Debug.LogError("WeaponReturned");
+                //Debug.LogError("WeaponReturned");
                 owner.WeaponReturned();
                 owner.weaponLoader.ShowWeapon();
                 GameObject.Destroy(gameObject);

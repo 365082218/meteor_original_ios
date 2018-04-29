@@ -372,9 +372,9 @@ public class U3D : MonoBehaviour {
     {
         if (save == null)
         {
-            if (!Directory.Exists(Application.persistentDataPath + "/" + Startup.ins.state.saveSlot))
-                Directory.CreateDirectory(Application.persistentDataPath + "/" + Startup.ins.state.saveSlot);
-            save = File.Open(Application.persistentDataPath + "/" + Startup.ins.state.saveSlot + "/script_status.txt", FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
+            if (!Directory.Exists(Application.persistentDataPath + "/" + GameData.gameStatus.saveSlot))
+                Directory.CreateDirectory(Application.persistentDataPath + "/" + GameData.gameStatus.saveSlot);
+            save = File.Open(Application.persistentDataPath + "/" + GameData.gameStatus.saveSlot + "/script_status.txt", FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
             save.SetLength(0);
         }
         byte[] line = new byte[2] { (byte)'\r', (byte)'\n' };

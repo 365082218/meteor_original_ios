@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: sn21_00
-  m_Shader: {fileID: 4800000, guid: 86d6ddf56fc58eb4cbbb6dc442aa8f09, type: 3}
+  m_Shader: {fileID: 4800000, guid: 558817f5bfe6c61478e4fcc49cc61705, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_CustomRenderQueue: -1
@@ -33,7 +33,13 @@ Material:
         m_Texture: {fileID: 2800000, guid: 782443a30e062014eaf9214c0b1eb592, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _deformrange
+      second: 1.5
+    - first:
+        name: _deformsize
+      second: 0.5
     m_Colors:
     - first:
         name: <noninit>
@@ -41,3 +47,6 @@ Material:
     - first:
         name: _Color
       second: {r: 1, g: 1, b: 1, a: 1}
+    - first:
+        name: _deformref
+      second: {r: 1, g: 1, b: 1, a: 0}

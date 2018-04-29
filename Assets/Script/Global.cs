@@ -10,12 +10,12 @@ public class Global
     public const int Version = 20180411;
     public static string MeteorVersion = "9.07";
     //运行帧速率设置 60 = 12 30 = 6 120 = 24
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_IOS || UNITY_ANDROID && !UNITY_EDITOR
     public static int waitForNextInput = 9;//2个输入中间最大间隔6帧超过即断开.
     public static int targetFrame = 30;
-#elif UNITY_EIDTOR || UNITY_STANDALONE_WIN
+#elif UNITY_EDITOR
     public static int waitForNextInput = 12;//2个输入中间最大间隔24帧超过即断开.
-    public static int targetFrame = 60;
+    public static int targetFrame = 120;
 #endif
     public static string[] model = new string[] { "孟星魂", "冷燕", "铁胡子", "夜猫子", "破空", "冯浩", "孙剑", "萧安", "子興", "王强", "无名", "叶翔", "小何", "凤凤", "石群", "屠城", "范旋", "高老大", "孙玉伯", "律香川"};//"骷髅哥", "骷髅哥2", "火焰骷髅王", "僵尸2"
     public static MeteorInput GMeteorInput = null;

@@ -26,23 +26,19 @@ end
 
 function OnStart()
 	g_self = GetSelf(g_selfAddr);
-	//ChangeBehavior(g_self, "patrol", 129, 73, 133, 134, 71, 79, 78, 77, 74, 69);
 	ChangeBehavior(g_self, "follow", "player");
 end
 
 function Attack(enable)
-	if (enable == 1)
-	{
+	if (enable == 1) then
 		Attack1 = 40;
 		Attack2 = 30;
 		Attack3 = 10;
 		UpdateAIAttrib(g_self);
-	} 
 	else
-	{
 		Attack1 = 0;
 		Attack2 = 0;
 		Attack3 = 0;
 		UpdateAIAttrib(g_self);		
-	}
+	end
 end
