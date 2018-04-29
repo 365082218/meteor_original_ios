@@ -381,7 +381,6 @@
     <Compile Include="Assets\Meteor\SceneMng.cs" />
     <Compile Include="Assets\Meteor\ScriptMng.cs" />
     <Compile Include="Assets\Meteor\SkillEvent\CharPoseShadow.cs" />
-    <Compile Include="Assets\Meteor\SkillItem.cs" />
     <Compile Include="Assets\Meteor\SoundManager.cs" />
     <Compile Include="Assets\Meteor\Spline.cs" />
     <Compile Include="Assets\Meteor\SpriteAnimationEx.cs" />
@@ -629,7 +628,6 @@
     <Compile Include="Assets\Script\Control\EquipPressDrag.cs" />
     <Compile Include="Assets\Script\Control\EquipShow.cs" />
     <Compile Include="Assets\Script\Control\ExplosionObject01.cs" />
-    <Compile Include="Assets\Script\Control\FinishLevelControl.cs" />
     <Compile Include="Assets\Script\Control\GameTime.cs" />
     <Compile Include="Assets\Script\Control\GoodsList.cs" />
     <Compile Include="Assets\Script\Control\HeroAttrLabelItemControl.cs" />
@@ -643,9 +641,7 @@
     <Compile Include="Assets\Script\Control\NGUICameraJoystick.cs" />
     <Compile Include="Assets\Script\Control\NGUIJoystick.cs" />
     <Compile Include="Assets\Script\Control\NoControlBaseGrobe.cs" />
-    <Compile Include="Assets\Script\Control\PetSkillInput.cs" />
     <Compile Include="Assets\Script\Control\PressDrag.cs" />
-    <Compile Include="Assets\Script\Control\SkillInput.cs" />
     <Compile Include="Assets\Script\Control\SkillSlider.cs" />
     <Compile Include="Assets\Script\Control\SoulBall.cs" />
     <Compile Include="Assets\Script\Control\UIMoveControl.cs" />

@@ -20,8 +20,15 @@ class SceneMng
         Level lev = LevelMng.Instance.GetItem(level);
         //加载地图上无论如何都固有的环境,类似瀑布水流声，一些配置点，d_user d_team等
         //Loader load = GameObject.FindObjectOfType<Loader>();
-        Loader.Instance.LoadFixedScene(lev);
-        Loader.Instance.LoadDynamicTrigger(lev);//可破坏物件暂不处理.
+        if (Loader.Instance != null)
+        {
+            Loader.Instance.LoadFixedScene(lev);
+            Loader.Instance.LoadDynamicTrigger(lev);//可破坏物件暂不处理.
+        }
+        else
+        {
+            Debug.LogError("Loader not exist");
+        }
     }
 
     //生成指定怪物

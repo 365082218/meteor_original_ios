@@ -248,8 +248,15 @@ DRAG*/
         }
 
         if (effect.Hidden == 1)
+        {
+            if (particle != null)
+            {
+                ParticleSystemRenderer render = particle.GetComponent<ParticleSystemRenderer>();
+                if (render != null)
+                    render.enabled = false;
+            }
             mRender.enabled = false;
-
+        }
         if (effect.EffectName.StartsWith("Attack"))
         {
             if (effect.EffectType == "SPHERE")

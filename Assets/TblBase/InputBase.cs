@@ -124,6 +124,12 @@ public class InputItem
     {
         if (mOwner != null)
         {
+            //技能中的动作，不许接输入
+            if (mOwner.IsPlaySkill)
+            {
+                targetPose = -1;
+                return false;
+            }
             if (ActionInterrupt.Instance.Whole.ContainsKey(mOwner.posMng.mActiveAction.Idx) || mOwner.GetWeaponType() == (int)EquipWeaponType.Gun)
             {
                 int targetIdx = mOwner.posMng.mActiveAction.Idx;

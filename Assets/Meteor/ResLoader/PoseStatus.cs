@@ -478,14 +478,33 @@ public class PoseStatus
         ChangeAction(idx);
     }
 
+    bool IsSkillStartPose(int pose)
+    {
+        if (pose == 244)//合太极起始
+            return true;
+        return false;
+    }
+
+    bool IsSkillEndPose(int pose)
+    {
+        if (pose == 364)//合太极收尾
+            return true;
+        return false;
+    }
+
     public void ChangeAction(int idx = CommonAction.Idle, float time = 0.0f, int targetFrame = 0)
     {
-        //if (mActiveAction != null && mActiveAction.Idx == 176 && idx == CommonAction.GunIdle)
-        //    Debug.Break();
         _Self.IgnoreGravitys(PoseStatus.IgnoreGravity(idx));//设置招式重力
         bool ignorePhy = IgnorePhysical(idx);
         if (ignorePhy != _Self.IgnorePhysical)
             MeteorManager.Instance.PhysicalIgnore(_Self, ignorePhy);//设置招式是否忽略角色障碍
+
+        //看是否是大绝的起始招式/结束招式，大绝起始和结束招式之间的招式，不许响应输入切换招式.大绝不可取消.
+        if (IsSkillStartPose(idx) && !_Self.IsPlaySkill)
+            _Self.IsPlaySkill = true;
+        else if ((IsSkillEndPose(idx) || onhurt) && _Self.IsPlaySkill)
+            _Self.IsPlaySkill = false;
+
         //设置招式，是否冻结XZ轴速度，比如忍刀空中A，就冻结XZ轴速度，一下向下的招式都会如此，而水平招式不会
         _Self.ResetWorldVelocity(IgnoreVelocityXZ(idx));
         if (load != null)

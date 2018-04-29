@@ -796,31 +796,20 @@ public class MeteorUnit : MonoBehaviour
         while (true)
         {
             if (GameBattleEx.Instance != null && GameBattleEx.Instance.autoTarget != null && GetWeaponType() != (int)EquipWeaponType.Guillotines)
-            {
                 HeadLookAtTarget(GameBattleEx.Instance.autoTarget.mPos);
-                //Debug.Log("HeadLookAt mPos:" + GameBattleEx.Instance.autoTarget.mPos);
-            }
             yield return 0;
         }
     }
 
     //这个转脑袋很多问题，最好事先限制每个轴的转动，否则很容易扭曲脑袋。
+    //没有角速度
     public void HeadLookAtTarget(Vector3 pos)
     {
         if (pos == Vector3.zero)
             return;
         pos.y = transform.position.y + 35;
-        //Vector3 vec = HeadBone.forward;
-        //vec.y = 0;
-        //Vector3 dir = pos - mPos;
-        //dir.y = 0;
-        //float angle = Vector3.Dot(Vector3.Normalize(vec), Vector3.Normalize(dir));
-        //float degree = Mathf.Acos(angle) * Mathf.Rad2Deg;
-        //Quaternion to = Quaternion.AngleAxis(degree, HeadBone.right);
-        //HeadBone.rotation *= to;
         HeadBone.LookAt(pos);
         HeadBone.localEulerAngles = new Vector3(HeadBone.localEulerAngles.x, HeadBone.localEulerAngles.y, HeadBone.localEulerAngles.z + 90);
-        //HeadBone.RotateAround(HeadBone.position, HeadBone.right, degree);
     }
 
     //专门用来播放左转，右转动画的，直接面对角色不要调用这个。
@@ -1056,8 +1045,10 @@ public class MeteorUnit : MonoBehaviour
             SetFlag(FlagItem, flagEffectIdx);
 
         GunReady = false;
+        IsPlaySkill = false;
     }
 
+    public bool IsPlaySkill { get; set; }
     public void EquipWeapon(InventoryItem it)
     {
         IndicatedWeapon = it;
@@ -1938,19 +1929,23 @@ public class MeteorUnit : MonoBehaviour
             angle = 1.0f;
         else if (angle < -1.0f)
             angle = -1.0f;
-        float angles = Vector3.Dot(VecOffset, -transform.right);
-        if (angles > 1.0f)
-            angles = 1.0f;
-        else if (angles < -1.0f)
-            angles = -1.0f;
         float degree = Mathf.Acos(angle) * Mathf.Rad2Deg;
         if (degree <= 45)
+        {
+            Debug.LogError("正面");
             return 0;
-        if (degree <= 135 && angles >= 0)
+        }
+        if (degree <= 135 && angle >= 0)
+        {
+            Debug.LogError("右侧");
             return 2;
-        if (degree <= 135 && angles <= 0)
+        }
+        if (degree <= 135 && angle <= 0)
+        {
+            Debug.LogError("左侧");
             return 3;
-        Debug.LogError("degree:" + degree);
+        }
+        Debug.LogError("背面");
         return 1;
     }
 
@@ -1987,8 +1982,8 @@ public class MeteorUnit : MonoBehaviour
             {
                 case 0: directionAct = dam.TargetPoseFront; break;//这个是前后左右，武器防御受击是 上下左右，上下指角色面朝方向头顶和底部
                 case 1: directionAct = dam.TargetPoseBack; break;
-                case 2: directionAct = dam.TargetPoseRight; break;
-                case 3: directionAct = dam.TargetPoseLeft; break;
+                case 2: directionAct = dam.TargetPoseLeft; break;
+                case 3: directionAct = dam.TargetPoseRight; break;
             }
             if (attacker.Attr.IsPlayer && GameData.gameStatus.EnableGodMode)
             {

@@ -1,7 +1,7 @@
 ﻿[ProtoBuf.ProtoContract(ImplicitFields = ProtoBuf.ImplicitFields.AllFields)]
-public class SkillBase : ITableItem
+public class SkillData : ITableItem
 {
-    public SmartInt ID;
+    public int ID;
     public string Name;
     public int hurtType;//伤害类型
     public int skillType;//技能类型
@@ -18,7 +18,7 @@ public class SkillBase : ITableItem
     public int Key() { return ID; }
 };
 
-public class SkillBaseManager : TableManager<SkillBase, SkillBaseManager>
+public class SkillDataManager : TableManager<SkillData, SkillDataManager>
 {
-    public override string TableName() { return "SkillBase"; }
+    public override string TableName() { return "SkillData"; }
 }

@@ -25,7 +25,7 @@ public class LevelHelper : MonoBehaviour
         int displayProgress = 0;
         int toProgress = 0;
         Log.LogInfo("LoadLevelAsync");
-        yield return new WaitForEndOfFrame();
+        yield return 0;
         //yield return new WaitForSeconds(5);调试进度条
         Level lev = LevelMng.Instance.GetItem(levelId);
         Log.LogInfo("Load Scene Async:" + lev.Scene);
@@ -39,10 +39,10 @@ public class LevelHelper : MonoBehaviour
             {
                 ++displayProgress;
                 LoadingWnd.Instance.UpdateProgress(displayProgress);
-                yield return new WaitForEndOfFrame();
+                yield return 0;
             }
             //Log.LogInfo("while (displayProgress < toProgress) end");
-            yield return new WaitForEndOfFrame();
+            yield return 0;
         }
         toProgress = 100;
         Log.LogInfo("displayProgress < toProgress");
@@ -50,13 +50,14 @@ public class LevelHelper : MonoBehaviour
         {
             ++displayProgress;
             LoadingWnd.Instance.UpdateProgress(displayProgress);
-            yield return new WaitForEndOfFrame();
+            yield return 0;
         }
         Log.LogInfo("displayProgress < toProgress");
         mAsync.allowSceneActivation = true;
-        yield return new WaitForEndOfFrame();
+        yield return 0;
         Log.LogInfo("OnLoadFinishedEx");
         OnLoadFinishedEx(lev);
+        
     }
 
     /*
