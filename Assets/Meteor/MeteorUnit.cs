@@ -584,7 +584,7 @@ public class MeteorUnit : MonoBehaviour
         else
             ClimbingTime = 0;
         if (posMng.Jump)
-            posMng.JumpTick -= Time.deltaTime;
+            posMng.JumpTick += Time.deltaTime;
         List<MeteorUnit> keyM = new List<MeteorUnit>(Damaged.Keys);
         List<MeteorUnit> removedM = new List<MeteorUnit>();
         foreach (var each in keyM)
@@ -660,8 +660,8 @@ public class MeteorUnit : MonoBehaviour
         }
     }
 
-    public const float jumpVelocityForward = 200.0f;//向前跳跃速度
-    public const float jumpVelocityOther = 85.0f;//其他方向上的速度
+    public const float jumpVelocityForward = 120.0f;//向前跳跃速度
+    public const float jumpVelocityOther = 50.0f;//其他方向上的速度
     public const float gGravity = 980.0f;//971.4f;//向上0.55秒，向下0.45秒
     public const float groundFriction = 3000.0f;//地面摩擦力，在地面不是瞬间停止下来的。
     public const float yLimitMin = -550f;//最大向下速度
@@ -1310,16 +1310,22 @@ public class MeteorUnit : MonoBehaviour
                 //爬墙
                 if (!MoveOnGroundEx && ImpluseVec.y < yClimbEndLimit)
                 {
+                    Debug.LogError("爬墙速度低于最低速度-爬墙落下");
+                    posMng.ChangeAction(CommonAction.Jump, 0.1f);//短时间内落地姿势
                     ProcessFall();
                 }
                 else if (MoveOnGroundEx)
                 {
-                    //Debug.LogError("jumpfall");
-                    posMng.ChangeAction(CommonAction.JumpFall);//短时间内落地姿势
+                    Debug.LogError("爬墙碰到地面-落到地面");
+                    posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                 }
                 else//只要在爬行中接触到可以算做落地的位置，都弹开
                 {
-                    ProcessFall();
+                    Debug.LogError("爬墙状态不明");
+                    Debug.DebugBreak();
+                    
+                    //posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
+                    //ProcessFall();
                 }
             }
             else if (OnTouchWall && Floating)//贴墙浮空，被墙壁推开
@@ -1339,30 +1345,12 @@ public class MeteorUnit : MonoBehaviour
                         posMng.mActiveAction.Idx == CommonAction.JumpBackFall ||
                         posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
                 {
-                    posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
+                    //Debug.LogError("贴着墙壁-贴着地面-被墙壁推开");
                     ProcessFall();
                 }
             }
             else if (Floating)
             {
-                //在墙壁的边缘.给个速度让角色移动一下掉
-                if (posMng.mActiveAction.Idx == CommonAction.Idle ||
-                    posMng.mActiveAction.Idx == CommonAction.WalkLeft ||
-                    posMng.mActiveAction.Idx == CommonAction.Run ||
-                    posMng.mActiveAction.Idx == CommonAction.RunOnDrug ||
-                        posMng.mActiveAction.Idx == CommonAction.WalkRight ||
-                        posMng.mActiveAction.Idx == CommonAction.WalkBackward ||
-                        posMng.mActiveAction.Idx == CommonAction.Jump ||
-                        posMng.mActiveAction.Idx == CommonAction.JumpLeft ||
-                        posMng.mActiveAction.Idx == CommonAction.JumpRight ||
-                        posMng.mActiveAction.Idx == CommonAction.JumpBack ||
-                        posMng.mActiveAction.Idx == CommonAction.JumpLeftFall ||
-                        posMng.mActiveAction.Idx == CommonAction.JumpRightFall ||
-                        posMng.mActiveAction.Idx == CommonAction.JumpBackFall ||
-                        posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
-                {
-                    ProcessFall();
-                }
             }
         }
         else
@@ -1385,7 +1373,7 @@ public class MeteorUnit : MonoBehaviour
                         else
                         {
                             //只有当前跳时,或者爬墙时.或者从墙壁弹开时，可以继续爬墙.|| ClimbJumping
-                            if (posMng.mActiveAction.Idx == CommonAction.Jump || Climbing || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround && Floating)
+                            if (posMng.JumpTick >= Global.JumpTimeLimit && (posMng.mActiveAction.Idx == CommonAction.Jump || Climbing || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround && Floating))
                             {
                                 //3条射线，-5°面向 5°左边近就调用右爬，中间则上爬，右边近则左爬.
                                 float left = 100;
@@ -1407,19 +1395,7 @@ public class MeteorUnit : MonoBehaviour
                                     else if (fMin == middle)
                                         posMng.ChangeAction(CommonAction.ClimbUp, 0.1f);
                                 }
-                            }//向上，左跳右跳后跳，碰到墙壁被弹开
-                            //else if (posMng.mActiveAction.Idx == CommonAction.Jump ||
-                            //    posMng.mActiveAction.Idx == CommonAction.JumpFall ||
-                            //    posMng.mActiveAction.Idx == CommonAction.JumpLeft || 
-                            //    posMng.mActiveAction.Idx == CommonAction.JumpRight || 
-                            //    posMng.mActiveAction.Idx == CommonAction.JumpBack ||
-                            //    posMng.mActiveAction.Idx == CommonAction.JumpLeftFall ||
-                            //    posMng.mActiveAction.Idx == CommonAction.JumpRightFall ||
-                            //    posMng.mActiveAction.Idx == CommonAction.JumpBackFall ||
-                            //    posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
-                            //{
-                                //ProcessFall();
-                            //}
+                            }
                         }
 
                     }
@@ -1440,6 +1416,7 @@ public class MeteorUnit : MonoBehaviour
                             posMng.mActiveAction.Idx == CommonAction.JumpBackFall ||
                             posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
                         {
+                            Debug.LogError("被墙壁轻微推开，避免悬挂在墙壁上");
                             ProcessFall();
                         }
                     }
@@ -1452,6 +1429,7 @@ public class MeteorUnit : MonoBehaviour
             else if (Climbing)
             {
                 //爬墙过程中忽然没贴着墙壁了???直接落下
+                Debug.LogError("爬墙没有贴着墙壁-结束爬墙");
                 posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
             }
             //低8米还没到达地面 切换姿势为落地姿势.浮空的.如果是普通的行走姿势就变为落地姿势.
@@ -1466,6 +1444,7 @@ public class MeteorUnit : MonoBehaviour
                     posMng.mActiveAction.Idx == CommonAction.WalkBackward)
                 {
                     //没有贴墙，不用弹开.
+                    Debug.LogError("浮空-落地");
                     posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
                 }
             }
@@ -1566,7 +1545,7 @@ public class MeteorUnit : MonoBehaviour
         float h = JumpLimit * jumpScale;
         ImpluseVec.y = CalcVelocity(h);
         //ImpluseVec.y = 0.0f;
-        posMng.JumpTick = 0.2f;
+        posMng.JumpTick = 0.0f;
         posMng.ChangeAction(act, 0.1f);
         //charLoader.SetActionScale(jumpScale);
     }
@@ -1649,6 +1628,7 @@ public class MeteorUnit : MonoBehaviour
         MeteorUnit hitUnit = hit.gameObject.transform.root.GetComponent<MeteorUnit>();
         if (hitUnit == null)
         {
+            //撞到墙壁/其他物体
             hitPoint = hit.point;
             hitNormal = hit.normal;
             SceneItemAgent agent = hit.gameObject.GetComponentInParent<SceneItemAgent>();
@@ -1912,8 +1892,7 @@ public class MeteorUnit : MonoBehaviour
         //主角一般空踢，秒杀-香港脚
         int PoseDamage = (attacker.Attr.IsPlayer && atk.PoseIdx == 338) ? 99999 : MenuResLoader.Instance.FindOpt(atk.PoseIdx, 3).second[0].flag[6];
         int BuffDamage = attacker.Attr.CalcBuffDamage();
-        //小于1按1算.
-        int realDamage = Mathf.Abs(Mathf.CeilToInt((((WeaponDamage + BuffDamage) * PoseDamage) / 100.0f - (WeaponDef + BuffDef)) / 10.0f));
+        int realDamage = Mathf.Abs(Mathf.CeilToInt(((WeaponDamage + BuffDamage) * PoseDamage) / 100.0f - (WeaponDef + BuffDef)));
         return realDamage;
     }
 
@@ -2201,7 +2180,6 @@ public class MeteorUnit : MonoBehaviour
             {
                 if (posMng.onDefence)
                 {
-
                     if (dam._AttackType == 0)
                     {
                         //在此时间结束前，不许使用输入设备输入.

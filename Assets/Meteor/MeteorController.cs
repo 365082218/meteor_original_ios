@@ -1120,7 +1120,7 @@ public class MeteorInput
         {
             direction.Normalize();
             Vector2 runTrans = direction * mOwner.Speed;
-            float y = runTrans.y * 0.145f;//1.5倍
+            float y = runTrans.y * 0.15f;
             if (y > 0 && mOwner.ClimbingTime < Global.ClimbLimit)
             {
                 float climbScale = (Global.ClimbLimit - mOwner.ClimbingTime) / (Global.ClimbLimit);
@@ -1135,7 +1135,7 @@ public class MeteorInput
                 direction.Normalize();
                 //跑的速度 1000 = 145M/S 按原来游戏计算
                 Vector2 runTrans = direction * mOwner.Speed * (mOwner.Crouching ? 0.25f : 1);//蹲下是跑步的4/1
-                float x = runTrans.x * (mOwner.Crouching ? 0.065f : 0.036f), y = runTrans.y * (mOwner.Crouching ? 0.065f : (runTrans.y >= 0 ? 0.145f: 0.036f));//前走速度145 后走速度36,左右走速度是36 模型Z轴与角色面朝相反
+                float x = runTrans.x * (mOwner.Crouching ? 0.065f : 0.036f), y = runTrans.y * (mOwner.Crouching ? 0.065f : (runTrans.y >= 0 ? 0.125f: 0.036f));//前走速度145 后走速度36,左右走速度是36 模型Z轴与角色面朝相反
                 mOwner.SetVelocity(y, x);
             }
             else

@@ -91,6 +91,7 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
             else
                 Owner.Jump(Short, ShortsScale, CommonAction.JumpBack);
         }
+        else
         if (jumpVec.x != 0)
         {
             if (jumpVec.x > 0)
@@ -98,7 +99,7 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
             else
                 Owner.Jump(Short, ShortsScale, CommonAction.JumpLeft);
         }
-
+        else
         if (jumpVec == Vector2.zero)
             Owner.Jump(Short, ShortsScale);
     }

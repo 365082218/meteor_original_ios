@@ -33,6 +33,7 @@ public class Global
 	public static bool PauseMosterAI = false;
 	public static bool PauseProtection = false;
     public const float ClimbLimit = 1.5f;//爬墙上限
+    public const float JumpTimeLimit = 0.25f;//最少要跳跃这么久之后才能攀爬
     public const int LEVELSTART = 1;//初始关卡ID
     public const int LEVELMAX = 99;//角色级别上限
     public const int ANGRYMAX = 100;

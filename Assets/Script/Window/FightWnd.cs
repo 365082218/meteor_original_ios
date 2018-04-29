@@ -473,7 +473,7 @@ public class FightWnd: Window<FightWnd>
         if (!targetInfo.activeInHierarchy)
             targetInfo.SetActive(true);
         targetHp.fillAmount = (float)mon.Attr.hpCur / (float)mon.Attr.TotalHp;
-        targetHpInfo.text = mon.Attr.hpCur + "/" + mon.Attr.TotalHp;
+        targetHpInfo.text = ((int)(mon.Attr.hpCur / 10.0f)).ToString() + "/" + ((int)(mon.Attr.TotalHp / 10.0f)).ToString();
         //targetTitleInfo.text = mon.name;
         targetName.text = mon.name;
         //targetBuffInfo.text = "";
@@ -494,14 +494,12 @@ public class FightWnd: Window<FightWnd>
     IEnumerator UpdateHPMP()
     {
         float targetValueHp = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
-        //float targetValueMp = (float)PlayerEx.Instance.AngryValue / (float)100.0f;
         float tick = 0.0f;
         while (true)
         {
             if (!FightWnd.Exist)
                 yield break;
             hpBar.fillAmount = Mathf.Lerp(hpBar.fillAmount, targetValueHp, tick);
-            //mpBar.fillAmount = Mathf.Lerp(mpBar.fillAmount, targetValueMp, tick);
             tick += Time.deltaTime;
             if (tick >= 1.0f)
                 yield break;
@@ -519,17 +517,7 @@ public class FightWnd: Window<FightWnd>
             if (updateValue != null)
                 GameBattleEx.Instance.StopCoroutine(updateValue);
             updateValue = GameBattleEx.Instance.StartCoroutine(UpdateHPMP());
-            hpLabel.text = MeteorManager.Instance.LocalPlayer.Attr.hpCur + "/" + MeteorManager.Instance.LocalPlayer.Attr.HpMax;
-            //int level = MeteorManager.Instance.LocalPlayer.Attr.Level;
-            //uint curlevelExp = (GameData.expMng.GetRowByIdx(level) as ExpBaseEx).Exp;
-
-            //uint lastlevelExp = (GameData.expMng.GetRowByIdx(Mathf.Max(level - 1, 1)) as ExpBaseEx).Exp;
-            //if (lastlevelExp == curlevelExp)
-            //    exp.fillAmount = 0.0f;
-            //else
-            //    exp.fillAmount = (float)(GameData.MainRole.baseInfo.Exp - lastlevelExp) / (float)(curlevelExp - lastlevelExp);
-
-            //hpBar.fillAmount = 
+            hpLabel.text = ((int)(MeteorManager.Instance.LocalPlayer.Attr.hpCur / 10.0f)).ToString() + "/" + ((int)(MeteorManager.Instance.LocalPlayer.Attr.HpMax / 10.0f)).ToString();
             float hpPercent = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
             if (hpPercent <= 0.1f)
             {
@@ -540,40 +528,9 @@ public class FightWnd: Window<FightWnd>
             }
 
             UpdateAngryBar();
-            //mpLabel.text = PlayerEx.Instance.Heros[0].mpCur + "/" + PlayerEx.Instance.Heros[0].MpMax;
-            //mpBar.fillAmount = (float)PlayerEx.Instance.Heros[0].mpCur / (float)PlayerEx.Instance.Heros[0].MpMax;
-
-            //NameLabel.text = PlayerEx.Instance.Heros[0].Name;
-            //LvLabel.text = LangItem.GetLangString(StringIden.Level) + ":" + level;
         }
     }
 
-    //调试输入内容
-    //Dictionary<EKeyList, string> keystring = new Dictionary<EKeyList, string>();
-    //bool init = false;
-    //Text fightText;
-    //public void UpdateInputInfo()
-    //{
-    //    if (!init)
-    //    {
-    //        fightText = Global.ldaControlX("FightText", WndObject).GetComponent<Text>();
-    //        keystring.Add(EKeyList.KL_Jump, "K");
-    //        keystring.Add(EKeyList.KL_Attack, "J");
-    //        keystring.Add(EKeyList.KL_KeyD, "→");
-    //        keystring.Add(EKeyList.KL_KeyA, "←");
-    //        keystring.Add(EKeyList.KL_KeyW, "↑");
-    //        keystring.Add(EKeyList.KL_KeyS, "↓");
-    //        init = true;
-    //    }
-    //    string s = "";
-    //    for (int i = Global.GMeteorInput.Record.Count - 1; i >= 0; i--)
-    //    {
-    //        if (keystring.ContainsKey(Global.GMeteorInput.Record[i].key))
-    //            s += keystring[Global.GMeteorInput.Record[i].key] + "\n";
-    //    }
-    //    if (fightText != null)
-    //        fightText.text = s;
-    //}
     Dictionary<Buff, GameObject> buffList = new Dictionary<Buff, GameObject>();
     Coroutine update;
     public void AddBuff(Buff buf)

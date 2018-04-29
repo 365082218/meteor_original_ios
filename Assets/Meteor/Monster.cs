@@ -91,7 +91,7 @@ public class MonsterEx
         Team = 2;
         View = 40;
         //Think = (int)ScriptMng.ins.GetVariable("Think");
-        HpMax = 200;
+        HpMax = 2000;
         SpawnPoint = 1;
         Speed = 1000;
         hpCur = HpMax;
@@ -120,7 +120,7 @@ public class MonsterEx
         Team = (int)(double)ScriptMng.ins.GetVariable("Team");
         View = (int)(double)ScriptMng.ins.GetVariable("View") / 10;
         //Think = (int)ScriptMng.ins.GetVariable("Think");
-        HpMax = (int)(double)ScriptMng.ins.GetVariable("HP") / 10;
+        HpMax = (int)(double)ScriptMng.ins.GetVariable("HP");
         SpawnPoint = (int)(double)ScriptMng.ins.GetVariable("Spawn");
         Speed = 1000;
         /*
@@ -267,7 +267,7 @@ int g_self;*/
             
             Weapon = 51;
             Weapon2 = 47;
-            HpMax = hpCur = 100;
+            HpMax = hpCur = 1000;
         }
         else
         {
@@ -277,9 +277,9 @@ int g_self;*/
             SpawnDir = script.GetPlayerSpawnDir();//一个Z轴朝内，一个Z轴朝外,角度自己来换吧。
             Weapon = (int)(double)script.GetPlayerWeapon();
             Weapon2 = (int)(double)script.GetPlayerWeapon2();
-            HpMax = hpCur = (int)(double)script.GetPlayerMaxHp() / 10;
+            HpMax = hpCur = (int)(double)script.GetPlayerMaxHp();
             if (HpMax == 0)
-                hpCur = HpMax = 100;
+                hpCur = HpMax = 1000;
         }
         View = 50;
         AngryValue = 0;

@@ -398,6 +398,8 @@ public class CharacterLoader : MonoBehaviour
             if (i == 0)
                 bo[i].localPosition = status.BonePos;
         }
+
+        bool IgnoreActionMoves = IgnoreActionMove(po.Idx);
         for (int i = 0; i < dummy.Count; i++)
         {
             if (i == 0)
@@ -406,7 +408,7 @@ public class CharacterLoader : MonoBehaviour
                 {
                     Vector3 targetPos = status.DummyPos[i];
                     Vector3 vec = transform.rotation * (targetPos - lastDBasePos) * moveScale;
-                    if (IgnoreActionMove(po.Idx))
+                    if (IgnoreActionMoves)
                     {
                         vec.x = 0;
                         vec.z = 0;

@@ -51,8 +51,8 @@ public class CameraFollow : MonoBehaviour {
 
     public void Init()
     {
-        smoothIntensity = 20.0f;//移动平滑倍数
-        RotateIntensity = 6.0f;
+        smoothIntensity = 15.0f;//移动平滑倍数
+        RotateIntensity = 8.0f;
         Unlocked = false;
         followHeight = 6;
         followDistance = 55.0f;

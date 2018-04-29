@@ -591,9 +591,9 @@ public class SceneItemAgent : MonoBehaviour {
         if (HasDamage())
         {
             if (property.attribute.ContainsKey("damagevalue"))
-                return property.attribute["damagevalue"] / 10;
+                return property.attribute["damagevalue"];
             else if (property.names.ContainsKey("damage"))
-                return property.names["damage"] / 10;
+                return property.names["damage"];
         }
         return 0;
     }
