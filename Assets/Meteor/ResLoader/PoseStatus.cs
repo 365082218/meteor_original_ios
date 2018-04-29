@@ -117,6 +117,8 @@ public class PoseStatus
     {
         get
         {
+            if (mActiveAction == null)
+                return false;
             if (mActiveAction.Idx >= CommonAction.HitStart && mActiveAction.Idx <= CommonAction.HitEnd)
                 return true;
             return false;

@@ -39,8 +39,6 @@ public class InputItem
 
     public bool OnKeyDown(KeyState k)
     {
-        if (keyInput.Length < state)
-            Debug.DebugBreak();
         if (k.Key == KeyInput[state])
         {
             state++;
