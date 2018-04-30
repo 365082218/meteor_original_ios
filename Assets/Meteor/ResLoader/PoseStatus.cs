@@ -124,7 +124,7 @@ public class PoseStatus
             return false;
         }
     }
-
+    public bool CanAdjust { get; set; }
     public float JumpTick = 0.2f;//0.2f内算为跳.
     public bool Jump
     {
@@ -144,6 +144,7 @@ public class PoseStatus
     public void Init(MeteorUnit owner)
     {
         _Self = owner;
+        CanAdjust = true;
         load = owner.GetComponent<CharacterLoader>();
         UnitId = _Self == null ? 0 : _Self.UnitId;
         CanMove = true;

@@ -236,6 +236,8 @@ public class NewSystemWnd : Window<NewSystemWnd>
         MeteorManager.Instance.Clear();
         Close();
         FightWnd.Instance.Close();
+        if (GameOverlayWnd.Exist)
+            GameOverlayWnd.Instance.ClearSystemMsg();
         U3D.GoBack();
     }
 }

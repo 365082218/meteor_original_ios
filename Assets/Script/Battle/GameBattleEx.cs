@@ -988,7 +988,6 @@ public class ActionConfig
                 MeteorUnit unit = U3D.GetUnit(id);
                 if (action[action.Count - 1].param == 1)
                 {
-                    Debug.LogError("on crouch");
                     unit.controller.Input.OnKeyDown(EKeyList.KL_Crouch, true);
                 }
                 else

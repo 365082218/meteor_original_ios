@@ -51,4 +51,13 @@ public class GameOverlayWnd : Window<GameOverlayWnd>  {
             
         }
     }
+
+    public void ClearSystemMsg()
+    {
+        if (content != null)
+        {
+            for (int i = 0; i < content.transform.childCount; i++)
+                GameObject.Destroy(content.transform.GetChild(i).gameObject);
+        }
+    }
 }

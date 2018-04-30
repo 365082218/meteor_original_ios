@@ -1120,12 +1120,13 @@ public class MeteorInput
         {
             direction.Normalize();
             Vector2 runTrans = direction * mOwner.Speed;
-            float y = runTrans.y * 0.15f;
+            float y = runTrans.y;
+            if (y > 0)
+                mOwner.SetWorldVelocityExcludeY(-y * 0.3f * mOwner.transform.forward);//给角色面向方向一个冲量，让角色顺着墙壁跑，当Y达到一个限制时，就会从墙壁落下
             if (y > 0 && mOwner.ClimbingTime < Global.ClimbLimit)
             {
                 float climbScale = (Global.ClimbLimit - mOwner.ClimbingTime) / (Global.ClimbLimit);
-                mOwner.SetWorldVelocity(-y * mOwner.transform.forward);//给角色面向方向一个冲量，让角色顺着墙壁跑，当Y达到一个限制时，就会从墙壁落下
-                mOwner.AddYVelocity(y  * climbScale);
+                mOwner.AddYVelocity(y  * climbScale * 0.08f * Time.deltaTime);
             }
         }
         else if (mOwner.IsOnGround())
@@ -1143,13 +1144,23 @@ public class MeteorInput
                 //无法移动
             }
         }
-        else if (mOwner.posMng.mActiveAction.Idx == CommonAction.Jump && mOwner.ImpluseVec.x == 0.0f && mOwner.ImpluseVec.z == 0.0f)//跳跃后按下方向，微量的跳跃速度
+        else if (!mOwner.IsOnGround())
         {
-            direction.Normalize();
-            Vector2 runTrans = direction * mOwner.Speed;
-            float x = runTrans.x * 0.036f, y = runTrans.y * 0.036f;
-            mOwner.SetVelocity(y, x);
+            if (mOwner.posMng.mActiveAction.Idx == CommonAction.Jump && mOwner.ImpluseVec.x == 0.0f && mOwner.ImpluseVec.z == 0.0f)
+            {
+                //CanAdjust表示，在跳跃开始后，还未被任何状态打断为不可微调状态
+                //只要单次起跳过程一旦碰到墙壁-则切换为不可微调
+                if (mOwner.posMng.CanAdjust && !mOwner.OnTouchWall && !mOwner.OnTopGround && !mOwner.MoveOnGroundEx && !mOwner.OnGround)
+                {
+                    direction.Normalize();
+                    Vector2 runTrans = direction * mOwner.Speed;
+                    float x = runTrans.x * 0.036f, y = runTrans.y * 0.036f;
+                    mOwner.SetVelocity(y, x);
+                    Debug.LogError("垂直跳跃中轻微滑动摇杆");
+                }
+            }
         }
+
     }
 
     bool checkInputType(EKeyList inpuKey, EInputType inputType, float deltaTime)

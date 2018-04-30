@@ -659,14 +659,14 @@ public class MeteorUnit : MonoBehaviour
             }
         }
     }
-
-    public const float jumpVelocityForward = 120.0f;//向前跳跃速度
-    public const float jumpVelocityOther = 50.0f;//其他方向上的速度
+    public const float Jump2Velocity = 160;//蹬腿反弹速度
+    public const float JumpVelocityForward = 150.0f;//向前跳跃速度
+    public const float JumpVelocityOther = 90.0f;//其他方向上的速度
     public const float gGravity = 980.0f;//971.4f;//向上0.55秒，向下0.45秒
     public const float groundFriction = 3000.0f;//地面摩擦力，在地面不是瞬间停止下来的。
-    public const float yLimitMin = -550f;//最大向下速度
-    public const float yLimitMax = 550;//最大向上速度
-    public const float yClimbEndLimit = -100.0f;//爬墙时,Y速度到达此速度，就从墙壁自动弹开.与
+    public const float yLimitMin = -500f;//最大向下速度
+    public const float yLimitMax = 500;//最大向上速度
+    public const float yClimbEndLimit = -200.0f;//爬墙时,Y速度到达此速度，就从墙壁自动弹开.与
     //角色跳跃高度74，是以脚趾算最低点，倒过来算出dbase,则需要减去差值。
     public const float JumpLimit = 74f;//约为65.3f, 73.77f-dbase 与脚趾;//原大跳动作是73.77米高度 向上跳的动作12帧，约为0.4S 0.4S向上走了73.77米，那么冲量可以推算出来
     public bool IgnoreGravity = false;
@@ -1161,18 +1161,18 @@ public class MeteorUnit : MonoBehaviour
             if (posMng.mActiveAction.Idx == CommonAction.ClimbUp)
             {
                 //倒跳
-                SetWorldVelocity(transform.forward * jumpVelocityForward);
+                SetWorldVelocity(transform.forward * Jump2Velocity);
                 Jump(minVelocity, 1, CommonAction.JumpBack);
             }
             else if (posMng.mActiveAction.Idx == CommonAction.ClimbRight)
             {
                 //像右
-                SetWorldVelocity(-transform.right * jumpVelocityForward);
+                SetWorldVelocity(-transform.right * Jump2Velocity);
                 Jump(minVelocity, 1, CommonAction.WallLeftJump);
             }
             else if (posMng.mActiveAction.Idx == CommonAction.ClimbLeft)
             {
-                SetWorldVelocity(transform.right * jumpVelocityForward);
+                SetWorldVelocity(transform.right * Jump2Velocity);
                 Jump(minVelocity, 1, CommonAction.WallRightJump);
             }
         }
@@ -1188,6 +1188,7 @@ public class MeteorUnit : MonoBehaviour
                 if (Physics.Raycast(mPos, Quaternion.AngleAxis(i * 45, Vector3.up) * -transform.forward, out hit, charController.radius + 5, 1 << LayerMask.NameToLayer("Scene")))
                 {
                     vec = mPos - hit.point;
+                    vec.y = 0;
                     // = vec.magnitude;
                     if (length > vec.magnitude)
                     {
@@ -1203,16 +1204,16 @@ public class MeteorUnit : MonoBehaviour
             {
                 case -2:
                 case -1:
-                    SetWorldVelocity(Vector3.Normalize(vec) * jumpVelocityForward);
+                    SetWorldVelocity(Vector3.Normalize(vec) * 2 * Jump2Velocity);
                     Jump(minVelocity, 1, CommonAction.WallLeftJump);
                     break;
                 case 0:
-                    SetWorldVelocity(Vector3.Normalize(vec) * jumpVelocityForward);
-                    Jump(minVelocity, 1, CommonAction.JumpFall);
+                    SetWorldVelocity(Vector3.Normalize(vec) * Jump2Velocity);
+                    Jump(minVelocity, 1, CommonAction.JumpBack);
                     break;
                 case 1:
                 case 2:
-                    SetWorldVelocity(Vector3.Normalize(vec) * jumpVelocityForward);
+                    SetWorldVelocity(Vector3.Normalize(vec) * 2 * Jump2Velocity);
                     Jump(minVelocity, 1, CommonAction.WallRightJump);
                     break;
             }
@@ -1225,18 +1226,18 @@ public class MeteorUnit : MonoBehaviour
         if (posMng.mActiveAction.Idx == CommonAction.ClimbUp)
         {
             //倒跳
-            SetWorldVelocity(hitNormal * jumpVelocityForward);
+            SetWorldVelocity(hitNormal * Jump2Velocity);
             Jump(minVelocity, 1, CommonAction.JumpBack);
         }
         else if (posMng.mActiveAction.Idx == CommonAction.ClimbRight)
         {
             //像右
-            SetWorldVelocity(Quaternion.AngleAxis(-45, Vector3.up) * hitNormal * jumpVelocityForward);
+            SetWorldVelocity(Quaternion.AngleAxis(-45, Vector3.up) * hitNormal * 2 * Jump2Velocity);
             Jump(minVelocity, 1, CommonAction.WallLeftJump);
         }
         else if (posMng.mActiveAction.Idx == CommonAction.ClimbLeft)
         {
-            SetWorldVelocity(Quaternion.AngleAxis(45, Vector3.up) * hitNormal * jumpVelocityForward);
+            SetWorldVelocity(Quaternion.AngleAxis(45, Vector3.up) * hitNormal * 2 * Jump2Velocity);
             Jump(minVelocity, 1, CommonAction.WallRightJump);
         }
     }
@@ -1289,6 +1290,12 @@ public class MeteorUnit : MonoBehaviour
             OnTopGround = OnGround = OnTouchWall = false;
         if ((flag & CollisionFlags.Below) != 0)
             OnGround = true;
+
+        if (OnGround || OnTopGround || OnTouchWall)
+        {
+            if (posMng.JumpTick != 0.0f)
+                posMng.CanAdjust = false;
+        }
         //减少射线发射次数.
         bool Floating = false;
         RaycastHit hit;
@@ -1319,13 +1326,11 @@ public class MeteorUnit : MonoBehaviour
                     Debug.LogError("爬墙碰到地面-落到地面");
                     posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                 }
-                else//只要在爬行中接触到可以算做落地的位置，都弹开
+                else
                 {
-                    Debug.LogError("爬墙状态不明");
-                    Debug.DebugBreak();
-                    
-                    //posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
-                    //ProcessFall();
+                    //只要在爬行中接触到可以算做落地的位置，都弹开
+                    //尝试被推开.
+                    ProcessFall();
                 }
             }
             else if (OnTouchWall && Floating)//贴墙浮空，被墙壁推开
@@ -1399,6 +1404,22 @@ public class MeteorUnit : MonoBehaviour
                         }
 
                     }
+                    else//下落
+                    if (Climbing)
+                    {
+                        //爬墙
+                        if (!MoveOnGroundEx && ImpluseVec.y < yClimbEndLimit)
+                        {
+                            Debug.LogError("爬墙速度低于最低速度-爬墙落下");
+                            posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
+                            ProcessFall();
+                        }
+                        else if (MoveOnGroundEx)
+                        {
+                            Debug.LogError("爬墙碰到地面-落到地面");
+                            posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
+                        }
+                    }
                     else //落地时候碰到墙壁.给一个反向的推力,
                     {
                         //!!!!贴墙落下，不能站在墙壁上，必须被弹开，否则城墙直接跳就可以上去
@@ -1431,6 +1452,7 @@ public class MeteorUnit : MonoBehaviour
                 //爬墙过程中忽然没贴着墙壁了???直接落下
                 Debug.LogError("爬墙没有贴着墙壁-结束爬墙");
                 posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
+                ProcessFall();
             }
             //低8米还没到达地面 切换姿势为落地姿势.浮空的.如果是普通的行走姿势就变为落地姿势.
             else if (Floating)
@@ -1446,6 +1468,8 @@ public class MeteorUnit : MonoBehaviour
                     //没有贴墙，不用弹开.
                     Debug.LogError("浮空-落地");
                     posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
+                    //看是否被物件推开
+                    ProcessFall();
                 }
             }
         }
@@ -1490,6 +1514,12 @@ public class MeteorUnit : MonoBehaviour
             ImpluseVec.x = ImpluseVec.z = 0;
     }
 
+    public void SetWorldVelocityExcludeY(Vector3 vec)
+    {
+        ImpluseVec.x = vec.x;
+        ImpluseVec.z = vec.z;
+    }
+
     public void SetWorldVelocity(Vector3 vec)
     {
         ImpluseVec.x = vec.x;
@@ -1505,8 +1535,8 @@ public class MeteorUnit : MonoBehaviour
     //设置世界坐标系的速度,z向人物面前，x向人物右侧
     public void SetJumpVelocity(Vector2 velocityM)
     {
-        float z = velocityM.y * jumpVelocityForward;
-        float x = velocityM.x * jumpVelocityOther;
+        float z = velocityM.y * JumpVelocityForward;
+        float x = velocityM.x * JumpVelocityForward;
         Vector3 vec = z * -transform.forward + x * -transform.right;
         ImpluseVec.z = vec.z;
         ImpluseVec.x = vec.x;
@@ -1546,6 +1576,7 @@ public class MeteorUnit : MonoBehaviour
         ImpluseVec.y = CalcVelocity(h);
         //ImpluseVec.y = 0.0f;
         posMng.JumpTick = 0.0f;
+        posMng.CanAdjust = true;
         posMng.ChangeAction(act, 0.1f);
         //charLoader.SetActionScale(jumpScale);
     }
@@ -1670,7 +1701,7 @@ public class MeteorUnit : MonoBehaviour
     public AttackDes CurrentDamage { get { return damage; } }
     AttackDes damage;
     //每8帧一次伤害判定.(5 * 1.0f / 30.0f)
-    const float refreshTick = 8 * 1.0f / 30.0f;
+    const float refreshTick = 10 * 1.0f / 30.0f;
     Dictionary<SceneItemAgent, float> Damaged2 = new Dictionary<SceneItemAgent, float>();
     Dictionary<MeteorUnit, float> Damaged = new Dictionary<MeteorUnit, float>();
     public void ChangeAttack(AttackDes attack)
@@ -1903,28 +1934,31 @@ public class MeteorUnit : MonoBehaviour
         Vector3 Vec = new Vector3(mPos.x, 0, mPos.z);
         Vector3 VecOffset = Vector3.Normalize(otherVec - Vec);
         float angle = Vector3.Dot(VecOffset, -transform.forward);
+        float angleLeft = Vector3.Dot(VecOffset, transform.right);
         //unity精度问题容易得到nan
         if (angle > 1.0f)
             angle = 1.0f;
         else if (angle < -1.0f)
             angle = -1.0f;
-        float degree = Mathf.Acos(angle) * Mathf.Rad2Deg;
+        float degree =  Mathf.Acos(angle) * Mathf.Rad2Deg;
+        Debug.LogError("角度:" + degree);
         if (degree <= 45)
         {
-            //Debug.LogError("正面");
+            Debug.LogError("正面");
             return 0;
         }
-        if (degree <= 135 && angle >= 0)
+        if (degree <= 135 && angleLeft > 0)
         {
-            //Debug.LogError("右侧");
+            Debug.LogError("左侧");
             return 2;
         }
-        if (degree <= 135 && angle <= 0)
+        if (degree <= 135 && angleLeft < 0)
         {
-            //Debug.LogError("左侧");
+            Debug.LogError("右侧");
             return 3;
         }
-        //Debug.LogError("背面");
+        Debug.LogError("背面");
+        
         return 1;
     }
 

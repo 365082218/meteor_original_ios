@@ -217,6 +217,7 @@ public class MainWnd : Window<MainWnd>
             Application.Quit();
         });
         Control("UploadLog").GetComponent<Button>().onClick.AddListener(() => { FtpLog.UploadStart(); });
+        Global.timeScale = 1;
         //Cursor.SetCursor(Resources.Load<Texture2D>("mCursor"), new Vector2(0, 0), CursorMode.Auto);
         //Cursor.visible = true;
     }
