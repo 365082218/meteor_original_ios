@@ -19,7 +19,7 @@ public class LanguageSelectCtrl : MonoBehaviour {
     {
         selectChinese.gameObject.SetActive(false);
         selectEnglish.gameObject.SetActive(false);
-        if (Startup.ins.Lang == (int)LanguageType.Ch)
+        if (U3D.Lang == (int)LanguageType.Ch)
         {
             selectChinese.gameObject.SetActive(true);
         }
@@ -31,7 +31,7 @@ public class LanguageSelectCtrl : MonoBehaviour {
 
     public void SelectLanguage(int lang)
     {
-        if (Startup.ins.Lang == lang)
+        if (U3D.Lang == lang)
             return;
         U3D.ChangeLang(lang);
         UpdateUI();

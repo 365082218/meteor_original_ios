@@ -100,12 +100,12 @@ public class FlyWheel : MonoBehaviour {
         Vector3 vecPosition = vec * (Vector3.Distance(new Vector3(auto_target.mPos.x, 0, auto_target.mPos.z), new Vector3(owner.mPos.x, 0, owner.mPos.z))) + owner.WeaponR.position - 0.5f * Vector3.up * (owner.mPos.y - auto_target.mPos.y);
         spline.SetControlPoint(1, vecPosition);
         spline.SetControlPoint(2, TargetPosCache);
-        if (GameData.gameStatus.EnableDebug)
-        {
-            List<Vector3> veclst = spline.GetEquiDistantPointsOnCurve(200);
-            line.numPositions = 200;
-            line.SetPositions(veclst.ToArray());
-        }
+        //if (GameData.gameStatus.EnableDebug)
+        //{
+        //    List<Vector3> veclst = spline.GetEquiDistantPointsOnCurve(200);
+        //    line.numPositions = 200;
+        //    line.SetPositions(veclst.ToArray());
+        //}
     }
 
     void RefreshSpline()
@@ -129,11 +129,11 @@ public class FlyWheel : MonoBehaviour {
                 if (refreshDelay <= 0.1f && !outofArea)
                 {
                     RefreshSpline();
-                    if (GameData.gameStatus.EnableDebug)
-                    {
-                        List<Vector3> veclst = spline.GetEquiDistantPointsOnCurve(200);
-                        line.SetPositions(veclst.ToArray());
-                    }
+                    //if (GameData.gameStatus.EnableDebug)
+                    //{
+                    //    List<Vector3> veclst = spline.GetEquiDistantPointsOnCurve(200);
+                    //    line.SetPositions(veclst.ToArray());
+                    //}
                     refreshDelay = 0.1f;
                 }
 

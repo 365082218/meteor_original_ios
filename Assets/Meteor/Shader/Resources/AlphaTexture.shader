@@ -65,18 +65,8 @@ SubShader {
 			{
 				v2f o;
 				o.vertex = UnityObjectToClipPos(v.vertex);
-				//o.pos = UnityObjectToClipPos(v.pos);
 				o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
-				//Normal  
-				//o.worldNormal = mul(SCALED_NORMAL, (float3x3)unity_WorldToObject);            //2  
-				//																		//Light Direction  
-				//o.lightDir = mul((float3x3)unity_ObjectToWorld, ObjSpaceLightDir(v.vertex));  //3  
-				//																		//View Direction  
-				//o.viewDir = mul((float3x3)unity_ObjectToWorld, ObjSpaceViewDir(v.vertex));    //4  
-
-																						//Shadow  
-				TRANSFER_VERTEX_TO_FRAGMENT(o); //这个在android和在pc，字段不一样一个是vertex 一个是pos
-				//UNITY_TRANSFER_FOG(o,o.vertex);
+				TRANSFER_VERTEX_TO_FRAGMENT(o);
 				return o;
 			}
 

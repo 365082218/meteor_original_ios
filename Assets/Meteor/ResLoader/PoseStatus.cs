@@ -124,7 +124,10 @@ public class PoseStatus
             return false;
         }
     }
+    public float ClimbFallTick { get; set; }
+    public const float ClimbFallLimit = 0.5f;
     public bool CanAdjust { get; set; }
+    public bool CheckClimb { get; set; }//检查轻功开始，在按住上键和跳跃后，上键一旦松开就不再检查轻工
     public float JumpTick = 0.2f;//0.2f内算为跳.
     public bool Jump
     {
@@ -144,7 +147,9 @@ public class PoseStatus
     public void Init(MeteorUnit owner)
     {
         _Self = owner;
+        CheckClimb = false;
         CanAdjust = true;
+        ClimbFallTick = 0.0f;
         load = owner.GetComponent<CharacterLoader>();
         UnitId = _Self == null ? 0 : _Self.UnitId;
         CanMove = true;
@@ -478,7 +483,7 @@ public class PoseStatus
     public void OnChangeAction(int idx)
     {
         //如果是一些倒地动作，动作播放完之后还需要固定长时间才能起身
-        ChangeAction(idx);
+        ChangeAction(idx, 0.1f);
     }
 
     bool IsSkillStartPose(int pose)
@@ -584,7 +589,13 @@ public class PoseStatus
 
             //除了受击，防御，其他动作在有锁定目标下，都要转向锁定目标.
             if (_Self.GetLockedTarget() != null && !onDefence && !onhurt)
-                _Self.FaceToTarget(_Self.GetLockedTarget());
+            {
+                //NPC只在处于杀死敌方的状态时会朝角色转向
+                if (_Self.robot != null && _Self.robot.Status == EAIStatus.Kill)
+                    _Self.FaceToTarget(_Self.GetLockedTarget());
+                else if (_Self.robot == null)
+                    _Self.FaceToTarget(_Self.GetLockedTarget());
+            }
             load.SetPosData(ActionList[UnitId][idx], time, false, targetFrame);
             mActiveAction = ActionList[UnitId][idx];
             LinkInput.Clear();

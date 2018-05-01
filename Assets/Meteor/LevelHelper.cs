@@ -57,7 +57,9 @@ public class LevelHelper : MonoBehaviour
         yield return 0;
         Log.LogInfo("OnLoadFinishedEx");
         OnLoadFinishedEx(lev);
-        
+        for (int i = 0; i < 5; i++)
+            yield return 0;
+        LoadingWnd.Instance.Close();
     }
 
     /*
@@ -78,21 +80,13 @@ public class LevelHelper : MonoBehaviour
     }
     void OnLoadFinishedEx(Level lev)
     {
-        //GameOverlayWnd.Instance.Open();
-        //string goodList = "sn14_";
-        //ScriptMng.ins.CallScript(goodList);
-        //ScriptMng.ins.CallScript(lev.goodList + "_");//负责剧本逻辑。每个时态的AI设定。
         LevelScriptBase script = GetLevelScript(lev.goodList);
         //设置主角属性
         U3D.InitPlayer(script);;
         //先创建一个相机
         GameObject camera = GameObject.Instantiate(Resources.Load("CameraEx")) as GameObject;
         camera.name = "CameraEx";
-        ////创建一个UI
-        //GameObject canvas = GameObject.Instantiate(Resources.Load("CanvasEx")) as GameObject;
-        //canvas.name = "CanvasEx";
-        //加载主角色进入场景,从snxx_.pst里加载角色属性数据.
-        
+
         //角色摄像机跟随者着角色.
         CameraFollow followCamera = GameObject.Find("CameraEx").GetComponent<CameraFollow>();
         followCamera.Init();
@@ -106,7 +100,6 @@ public class LevelHelper : MonoBehaviour
         if (listen != null)
             DestroyImmediate(listen);
         MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
-        LoadingWnd.Instance.Close();
         FightWnd.Instance.Open();
         if (!string.IsNullOrEmpty(lev.BgmName))
             SoundManager.Instance.PlayMusic(lev.BgmName);
@@ -125,8 +118,6 @@ public class LevelHelper : MonoBehaviour
             MeteorUnit unitLog = MeteorManager.Instance.UnitInfos[i];
             U3D.InsertSystemMsg(GetCampStr(unitLog));
         }
-        //Cursor.visible = false;
-        //Cursor.lockState = CursorLockMode.Locked;
     }
 
     string GetCampStr(MeteorUnit unit)

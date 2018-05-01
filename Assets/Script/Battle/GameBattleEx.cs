@@ -139,10 +139,10 @@ public class GameBattleEx : MonoBehaviour {
         }
 
         //3S以后开始播放剧本
-        if (lev_script != null && timeDelay >= 1.0f)
+        if (lev_script != null)
         {
-            lev_script.OnUpdate();//每一秒调用一次剧本脚本
-            timeDelay = 0.0f;
+            lev_script.OnUpdate();//每0.1秒调用一次剧本脚本
+            //timeDelay = 0.0f;
         }
 
         timeDelay += Time.deltaTime;
@@ -337,13 +337,11 @@ public class GameBattleEx : MonoBehaviour {
         return false;
     }
     //SLua.LuaFunction updateFn;
-    public int totalPlayer;
     public LevelScriptBase Script { get { return lev_script; } }
     LevelScriptBase lev_script;
     public void Init(Level lev, LevelScriptBase script)
     {
         lev_script = script;
-        totalPlayer = MeteorManager.Instance.UnitInfos.Count;
         //updateFn = ScriptMng.ins.GetFunc("OnUpdate");
         if (script != null)
             time = script.GetRoundTime() * 60;
@@ -594,8 +592,6 @@ public class GameBattleEx : MonoBehaviour {
             MeteorManager.Instance.UnitInfos[i].EnableAI(false);
         Global.PauseAll = true;
         Time.timeScale = 0;
-        //StopAllCoroutines();
-        
     }
 
     public void Resume()
@@ -895,6 +891,22 @@ public class GameBattleEx : MonoBehaviour {
         PushAction(id, StackAction.SAY, 0, text);
     }
 
+    public void PushActionPatrol(int id, List<int> path)
+    {
+        if (!UnitActKey.Contains(id))
+            UnitActKey.Add(id);
+        if (!UnitActionStack.ContainsKey(id))
+        {
+            UnitActionStack.Add(id, new ActionConfig());
+            UnitActionStack[id].id = id;
+        }
+        ActionItem it = new ActionItem();
+        it.pause_time = 0;
+        it.type = StackAction.Patrol;
+        it.Path = path;
+        UnitActionStack[id].action.Add(it);
+    }
+
     void PushAction(int id, StackAction type, float t = 0.0f, string text = "", int param = 0)
     {
         if (!UnitActKey.Contains(id))
@@ -937,6 +949,25 @@ public class GameBattleEx : MonoBehaviour {
         PushAction(id, StackAction.PAUSE, pause, "");
     }
 
+    public void PushActionFollow(int id, int target)
+    {
+        PushAction(id, StackAction.Follow, 0, "", target);
+    }
+
+    public void PushActionWait(int id, float wait)
+    {
+        PushAction(id, StackAction.Wait, wait);
+    }
+
+    public void PushActionFaceTo(int id, int target)
+    {
+        PushAction(id, StackAction.FaceTo, 0, "", target);
+    }
+
+    public void PushActionKill(int id, int target)
+    {
+        PushAction(id, StackAction.Kill, 0, "", target);
+    }
     public void StopAction(int id)
     {
         if (UnitActKey.Contains(id))
@@ -954,6 +985,11 @@ public enum StackAction
     CROUCH = 4,
     BLOCK = 5,
     GUARD = 6,
+    Wait = 7,
+    Follow = 8,
+    Patrol = 9,
+    FaceTo = 10,
+    Kill = 11,
 }
 
 public class ActionConfig
@@ -997,6 +1033,7 @@ public class ActionConfig
             else if (action[action.Count - 1].type == StackAction.BLOCK)
             {
                 MeteorUnit unit = U3D.GetUnit(id);
+                unit.posMng.OnChangeAction(0);
                 unit.controller.LockInput(action[action.Count - 1].param == 1);
                 action.RemoveAt(action.Count - 1);
             }
@@ -1004,6 +1041,46 @@ public class ActionConfig
             {
                 MeteorUnit unit = U3D.GetUnit(id);
                 unit.Guard(action[action.Count - 1].param);
+                action.RemoveAt(action.Count - 1);
+            }
+            else if (action[action.Count - 1].type == StackAction.Wait)
+            {
+                MeteorUnit unit = U3D.GetUnit(id);
+                if (unit != null && unit.robot != null)
+                    unit.robot.ChangeState(EAIStatus.Wait, action[action.Count - 1].param);
+                action.RemoveAt(action.Count - 1);
+            }
+            else if (action[action.Count - 1].type == StackAction.Follow)
+            {
+                MeteorUnit unit = U3D.GetUnit(id);
+                if (unit != null && unit.robot != null)
+                    unit.robot.FollowTarget(action[action.Count - 1].param);
+                action.RemoveAt(action.Count - 1);
+            }
+            else if (action[action.Count - 1].type == StackAction.Patrol)
+            {
+                MeteorUnit unit = U3D.GetUnit(id);
+                if (unit != null && unit.robot != null)
+                {
+                    unit.robot.SetPatrolPath(action[action.Count - 1].Path);
+                    unit.robot.ChangeState(EAIStatus.Patrol, float.MaxValue);
+                }
+                action.RemoveAt(action.Count - 1);
+            }
+            else if (action[action.Count - 1].type == StackAction.FaceTo)
+            {
+                MeteorUnit unit = U3D.GetUnit(id);
+                MeteorUnit target = U3D.GetUnit(action[action.Count - 1].param);
+                if (unit != null && target != null)
+                    unit.FaceToTarget(target);
+                action.RemoveAt(action.Count - 1);
+            }
+            else if (action[action.Count - 1].type == StackAction.Kill)
+            {
+                MeteorUnit unit = U3D.GetUnit(id);
+                MeteorUnit target = U3D.GetUnit(action[action.Count - 1].param);
+                if (unit != null && target != null)
+                    unit.KillPlayer(target);
                 action.RemoveAt(action.Count - 1);
             }
         }
@@ -1015,4 +1092,5 @@ public class ActionItem
     public float pause_time;
     public string text;
     public int param;
+    public List<int> Path;//for patrol
 }

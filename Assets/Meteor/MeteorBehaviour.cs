@@ -457,7 +457,8 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
         {
             if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_Release, Time.deltaTime))
             {
-                Owner.ProcessFall();
+                //Owner.ProcessFall();
+                Owner.posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
             }
             else if (Owner.ImpluseVec.y > 0 && Owner.OnTouchWall)
             {

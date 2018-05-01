@@ -374,7 +374,7 @@ public class GameData
             gameStatus.NickName = "昱泉杀手";
             gameStatus.useJoystickOrKeyBoard = false;
             gameStatus.JoyAnchor = new MyVector2(391,340);
-            gameStatus.AxisSensitivity = new MyVector2(1, 1);
+            gameStatus.AxisSensitivity = new MyVector2(0.5f, 0.5f);
             gameStatus.MeteorVersion = "9.07";
         }
         Global.MeteorVersion = gameStatus.MeteorVersion;

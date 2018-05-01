@@ -338,8 +338,6 @@ public class CharacterLoader : MonoBehaviour
         //有连招.
         if (TestInputLink())
             return;
-        if (PoseStraight > 0.0f)
-            PoseStraight -= delta;
         if (loop)
         {
             //检查僵直是否过期.
@@ -478,6 +476,10 @@ public class CharacterLoader : MonoBehaviour
                 //当前处于不允许攻击，才能切换到允许攻击
                 if (!mOwner.allowAttack)
                     mOwner.ChangeAttack(po.Attack[i]);
+                else
+                {
+                    //Debug.LogError(po.Attack[i].PoseIdx + " attack ignored");
+                }
                 open = true;
                 break;
             }
@@ -536,8 +538,6 @@ public class CharacterLoader : MonoBehaviour
         TryPlayEffect();
         ChangeAttack();
         ChangeWeaponTrail();
-        if (PoseStraight > 0.0f)
-            PoseStraight -= Time.deltaTime;
         if (TestInputLink())
             return;
         //超过末尾了.
@@ -640,9 +640,12 @@ public class CharacterLoader : MonoBehaviour
         if (po != null)
         {
             moveDelta = Vector3.zero;
+            if (CheckStraight)
+                PoseStraight -= Time.deltaTime;
             if (blendTime == 0.0f)
             {
                 lastFramePlayedTimes += Time.deltaTime;
+                
                 float speedScale = GetSpeedScale();
                 float fps = FPS / (Speed * speedScale);
                 if (lastFramePlayedTimes < fps)

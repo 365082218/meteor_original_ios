@@ -210,21 +210,18 @@ public class NewSystemWnd : Window<NewSystemWnd>
 
     void OnXSensitivityChange(float v)
     {
-        if (Startup.ins != null)
-            GameData.gameStatus.AxisSensitivity.x = v;
+        GameData.gameStatus.AxisSensitivity.x = v;
     }
 
     void OnYSensitivityChange(float v)
     {
-        if (Startup.ins != null)
-            GameData.gameStatus.AxisSensitivity.y = v;
+        GameData.gameStatus.AxisSensitivity.y = v;
     }
 
     void OnEffectVolumeChange(float vo)
     {
         SoundManager.Instance.SetSoundVolume(vo);
-        if (Startup.ins != null)
-            GameData.gameStatus.SoundVolume = vo;
+        GameData.gameStatus.SoundVolume = vo;
     }
 
     void OnClickBack()

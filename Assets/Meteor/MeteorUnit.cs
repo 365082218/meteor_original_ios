@@ -262,8 +262,9 @@ public class MeteorUnit : MonoBehaviour
     public CharacterLoader charLoader;
     public MeteorController controller;
     public WeaponLoader weaponLoader;
+    [SerializeField]
     public MeteorAI robot;
-    public float maxHeight;
+    //public float maxHeight;
 
     //按照角色的坐标围成一圈，每个24度，距离40
     public List<int> FreeSlot = new List<int>();
@@ -467,7 +468,6 @@ public class MeteorUnit : MonoBehaviour
 
     public void Guard(int time)
     {
-        Defence();
         if (robot != null)
             robot.ChangeState(EAIStatus.Guard, time);
         //主角只要把输入锁定，就不会再变化了
@@ -511,6 +511,7 @@ public class MeteorUnit : MonoBehaviour
         if (dis <= 10)
             dis = 250.0f;//250码以内视野
         int index = -1;
+        //直接遍历算了
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
         {
             MeteorUnit unit = MeteorManager.Instance.UnitInfos[i];
@@ -621,41 +622,35 @@ public class MeteorUnit : MonoBehaviour
             attackDelay.Remove(removedD[i]);
 
         charLoader.CharacterUpdate();
-        RefreshTarget();
+        if (robot != null)
+            RefreshTarget();
         ProcessGravity();
     }
 
     void RefreshTarget()
     {
-        //刷新友方目标
-
-        //刷新敌方目标
-        if (!Attr.IsPlayer)
+        MeteorUnit temp = lockTarget;
+        if (lockTarget == null)
+            SelectEnemy();
+        else
         {
-            MeteorUnit temp = lockTarget;
-            if (lockTarget == null)
-                SelectEnemy();
-            else
+            //死亡，失去视野，超出视力范围，重新选择
+            float d = Vector3.Distance(lockTarget.transform.position, transform.position);
+            if (lockTarget.Dead)
             {
-                //死亡，失去视野，超出视力范围，重新选择
-                float d = Vector3.Distance(lockTarget.transform.position, transform.position);
-                if (lockTarget.Dead)
+                lockTarget = null;
+            }
+            else if (lockTarget.HasBuff(EBUFF_Type.HIDE))
+            {
+                //隐身20码内可发现，2个角色紧贴着
+                if (d >= 35.0f)
                 {
                     lockTarget = null;
                 }
-                else if (lockTarget.HasBuff(EBUFF_Type.HIDE))
-                {
-                    //隐身20码内可发现，2个角色紧贴着
-                    if (d >= 35.0f)
-                    {
-                        lockTarget = null;
-                    }
-                }
-                else if (d >= (Attr.View))
-                {
-                    lockTarget = null;
-                    //下一帧再找目标.
-                }
+            }
+            else if (d >= (Attr.View))
+            {
+                lockTarget = null;
             }
         }
     }
@@ -666,19 +661,20 @@ public class MeteorUnit : MonoBehaviour
     public const float groundFriction = 3000.0f;//地面摩擦力，在地面不是瞬间停止下来的。
     public const float yLimitMin = -500f;//最大向下速度
     public const float yLimitMax = 500;//最大向上速度
-    public const float yClimbEndLimit = -200.0f;//爬墙时,Y速度到达此速度，就从墙壁自动弹开.与
+    public const float yClimbLimitMax = 180.0f;
+    public const float yClimbEndLimit = -30.0f;//爬墙时,Y速度到达此速度，开始计时，时间到就从墙壁落下
     //角色跳跃高度74，是以脚趾算最低点，倒过来算出dbase,则需要减去差值。
     public const float JumpLimit = 74f;//约为65.3f, 73.77f-dbase 与脚趾;//原大跳动作是73.77米高度 向上跳的动作12帧，约为0.4S 0.4S向上走了73.77米，那么冲量可以推算出来
     public bool IgnoreGravity = false;
     //物体动量(质量*速度)的改变,等于物体所受外力冲量的总和.这就是动量定理
     public Vector3 ImpluseVec = Vector3.zero;//冲量，ft = mat = mv2 - mv1,冲量在时间内让物体动量由A变化为B
-    //速度在固定时间内被改变，也就是冲量的作用.
+
     //增加一点速度，让其爬墙，或者持续跳
     public void AddYVelocity(float y)
     {
         ImpluseVec.y += y;
-        if (ImpluseVec.y > yLimitMax)
-            ImpluseVec.y = yLimitMax;
+        if (ImpluseVec.y > yClimbLimitMax)
+            ImpluseVec.y = yClimbLimitMax;
     }
 
     public void ResetYVelocity()
@@ -733,13 +729,13 @@ public class MeteorUnit : MonoBehaviour
         //根据角色状态计算重力大小，在墙壁，空中，以及空中水平轴的阻力
         float gScale = gGravity;
         //跳跃起身与墙壁碰撞.重力模拟为墙壁摩擦
-        if (OnTouchWall)
-        {
-            if (ImpluseVec.y > 0)
-                gScale = gGravity * 0.5f;
-            else
-                gScale = gGravity * 0.5f;
-        }
+        //if (OnTouchWall)
+        //{
+        //    if (ImpluseVec.y > 0)
+        //        gScale = gGravity * 0.5f;
+        //    else
+        //        gScale = gGravity * 0.5f;
+        //}
         //if (OnTopGround)
         //    ImpluseVec.y = 0;
 
@@ -818,7 +814,7 @@ public class MeteorUnit : MonoBehaviour
         float abs = Mathf.Abs(orient);
         Quaternion quat = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y + orient, transform.eulerAngles.z);
         transform.rotation = quat;
-        if (abs < 1.0f || controller.Input.OnInputMoving())
+        if (controller.Input.OnInputMoving())
             return;
         OnCameraRotateStart();
         if (GetWeaponType() == (int)EquipWeaponType.Gun)
@@ -907,7 +903,7 @@ public class MeteorUnit : MonoBehaviour
     {
         lockTarget = unit;
         if (robot != null)
-            robot.ChangeState(EAIStatus.Kill, 10.0f);
+            robot.ChangeState(EAIStatus.Kill, 1000.0f);
     }
 
     public void FaceToTarget(Vector3 target)
@@ -1019,8 +1015,8 @@ public class MeteorUnit : MonoBehaviour
         if (charController == null)
             charController = gameObject.AddComponent<CharacterController>();
         charController.center = new Vector3(0, 17.5f, 0);
-        charController.height = 35.0f;//32是跨越皇天城的栅栏的最大高度，超过这个高度就没法过去了。
-        charController.radius = 6.0f;
+        charController.height = Global.GLevelItem.ID == 7 ? 32.0f: 35.0f;//32是跨越皇天城的栅栏的最大高度，超过这个高度就没法过去了。
+        charController.radius = 10.0f;
         charController.stepOffset = 8f;
 
         posMng.ChangeAction();
@@ -1144,10 +1140,10 @@ public class MeteorUnit : MonoBehaviour
 
     public void DoBreakOut()
     {
-        if (AngryValue >= 60 || Startup.ins.debugMode || GameData.gameStatus.EnableInfiniteAngry)
+        if (AngryValue >= 60 || (Attr.IsPlayer && GameData.gameStatus.EnableInfiniteAngry))
         {
             posMng.ChangeAction(CommonAction.BreakOut);
-            AngryValue -= GameData.gameStatus.EnableInfiniteAngry ? 0 : 60;
+            AngryValue -= Attr.IsPlayer ? (GameData.gameStatus.EnableInfiniteAngry ? 0 : 60) : 60;
             FightWnd.Instance.UpdateAngryBar();
         }
     }
@@ -1199,12 +1195,12 @@ public class MeteorUnit : MonoBehaviour
                 }
             }
 
-            Debug.LogError("idx:" + idx);
+            //Debug.LogError("idx:" + idx);
             switch (idx)
             {
                 case -2:
                 case -1:
-                    SetWorldVelocity(Vector3.Normalize(vec) * 2 * Jump2Velocity);
+                    SetWorldVelocity(Vector3.Normalize(vec) * Jump2Velocity);
                     Jump(minVelocity, 1, CommonAction.WallLeftJump);
                     break;
                 case 0:
@@ -1213,7 +1209,7 @@ public class MeteorUnit : MonoBehaviour
                     break;
                 case 1:
                 case 2:
-                    SetWorldVelocity(Vector3.Normalize(vec) * 2 * Jump2Velocity);
+                    SetWorldVelocity(Vector3.Normalize(vec) * Jump2Velocity);
                     Jump(minVelocity, 1, CommonAction.WallRightJump);
                     break;
             }
@@ -1232,12 +1228,12 @@ public class MeteorUnit : MonoBehaviour
         else if (posMng.mActiveAction.Idx == CommonAction.ClimbRight)
         {
             //像右
-            SetWorldVelocity(Quaternion.AngleAxis(-45, Vector3.up) * hitNormal * 2 * Jump2Velocity);
+            SetWorldVelocity(Quaternion.AngleAxis(-45, Vector3.up) * hitNormal * Jump2Velocity);
             Jump(minVelocity, 1, CommonAction.WallLeftJump);
         }
         else if (posMng.mActiveAction.Idx == CommonAction.ClimbLeft)
         {
-            SetWorldVelocity(Quaternion.AngleAxis(45, Vector3.up) * hitNormal * 2 * Jump2Velocity);
+            SetWorldVelocity(Quaternion.AngleAxis(45, Vector3.up) * hitNormal * Jump2Velocity);
             Jump(minVelocity, 1, CommonAction.WallRightJump);
         }
     }
@@ -1247,7 +1243,9 @@ public class MeteorUnit : MonoBehaviour
     {
         Vector3 vec = transform.position - hitPoint;
         vec.y = 0;
-        SetWorldVelocity(Vector3.Normalize(vec) * 50);
+        SetWorldVelocity(Vector3.Normalize(vec) * 30);
+        //WsGlobal.AddDebugLine(hitPoint, hitPoint + Vector3.Normalize(vec) * 50, Color.red, "pushDir", 10);
+        //Debug.LogError("被墙壁推开");
         //RaycastHit hit;
         //bool processed = false;
         //for (int i = 0; i < 12; i++)
@@ -1317,9 +1315,14 @@ public class MeteorUnit : MonoBehaviour
                 //爬墙
                 if (!MoveOnGroundEx && ImpluseVec.y < yClimbEndLimit)
                 {
-                    Debug.LogError("爬墙速度低于最低速度-爬墙落下");
-                    posMng.ChangeAction(CommonAction.Jump, 0.1f);//短时间内落地姿势
-                    ProcessFall();
+                    posMng.ClimbFallTick += Time.deltaTime;
+                    if (posMng.ClimbFallTick > PoseStatus.ClimbFallLimit)
+                    {
+                        Debug.LogError("爬墙速度低于最低速度-爬墙落下");
+                        posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
+                        ProcessFall();
+                        posMng.ClimbFallTick = 0.0f;
+                    }
                 }
                 else if (MoveOnGroundEx)
                 {
@@ -1350,12 +1353,14 @@ public class MeteorUnit : MonoBehaviour
                         posMng.mActiveAction.Idx == CommonAction.JumpBackFall ||
                         posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
                 {
-                    //Debug.LogError("贴着墙壁-贴着地面-被墙壁推开");
+                    Debug.LogError("贴着墙壁-贴着地面-被墙壁推开");
                     ProcessFall();
                 }
             }
             else if (Floating)
             {
+                Debug.LogError("在地面-但是角色底部浮空推开");
+                ProcessFall();
             }
         }
         else
@@ -1378,9 +1383,14 @@ public class MeteorUnit : MonoBehaviour
                         else
                         {
                             //只有当前跳时,或者爬墙时.或者从墙壁弹开时，可以继续爬墙.|| ClimbJumping
-                            if (posMng.JumpTick >= Global.JumpTimeLimit && (posMng.mActiveAction.Idx == CommonAction.Jump || Climbing || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround && Floating))
+                            if (posMng.JumpTick >= Global.JumpTimeLimit && 
+                                (posMng.mActiveAction.Idx == CommonAction.Jump || Climbing || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround && Floating) &&
+                                ImpluseVec.y > 100.0f &&
+                                posMng.CheckClimb)//速度最少要达到多少才能轻功
                             {
                                 //3条射线，-5°面向 5°左边近就调用右爬，中间则上爬，右边近则左爬.
+                                Debug.LogError("轻功开始");
+                                posMng.CheckClimb = false;//单次爬墙不重复检测
                                 float left = 100;
                                 float middle = 100;
                                 float right = 100;
@@ -1410,9 +1420,14 @@ public class MeteorUnit : MonoBehaviour
                         //爬墙
                         if (!MoveOnGroundEx && ImpluseVec.y < yClimbEndLimit)
                         {
-                            Debug.LogError("爬墙速度低于最低速度-爬墙落下");
-                            posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
-                            ProcessFall();
+                            posMng.ClimbFallTick += Time.deltaTime;
+                            if (posMng.ClimbFallTick > PoseStatus.ClimbFallLimit)
+                            {
+                                Debug.LogError("爬墙速度低于最低速度-爬墙落下");
+                                posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
+                                ProcessFall();
+                                posMng.ClimbFallTick = 0.0f;
+                            }
                         }
                         else if (MoveOnGroundEx)
                         {
@@ -1454,19 +1469,19 @@ public class MeteorUnit : MonoBehaviour
                 posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
                 ProcessFall();
             }
-            //低8米还没到达地面 切换姿势为落地姿势.浮空的.如果是普通的行走姿势就变为落地姿势.
             else if (Floating)
             {
-                //在行走，或者被墙壁推开落到空中
                 if (posMng.mActiveAction.Idx == CommonAction.Run ||
                     posMng.mActiveAction.Idx == CommonAction.Idle ||
                     posMng.mActiveAction.Idx == CommonAction.RunOnDrug ||
                     posMng.mActiveAction.Idx == CommonAction.WalkLeft ||
                     posMng.mActiveAction.Idx == CommonAction.WalkRight ||
-                    posMng.mActiveAction.Idx == CommonAction.WalkBackward)
+                    posMng.mActiveAction.Idx == CommonAction.WalkBackward ||
+                    posMng.mActiveAction.Idx >= CommonAction.DForw1 && posMng.mActiveAction.Idx <= CommonAction.DBack3 ||
+                    posMng.mActiveAction.Idx >= CommonAction.DForw4 && posMng.mActiveAction.Idx <= CommonAction.DBack6 ||
+                    posMng.mActiveAction.Idx >= CommonAction.DCForw && posMng.mActiveAction.Idx <= CommonAction.DCBack)
                 {
-                    //没有贴墙，不用弹开.
-                    Debug.LogError("浮空-落地");
+                    //Debug.LogError("浮空-落地");
                     posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
                     //看是否被物件推开
                     ProcessFall();
@@ -1475,13 +1490,16 @@ public class MeteorUnit : MonoBehaviour
         }
 
         //如果Y轴速度向下，但是已经接触地面了
-        if (ImpluseVec.y < 0)
+        if (ImpluseVec.y <= 0)
         {
             if (MoveOnGroundEx || OnGround)
             {
                 //接触地面就切换.
                 if ((posMng.mActiveAction.Idx >= CommonAction.Jump && posMng.mActiveAction.Idx <= CommonAction.JumpBackFall) || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
+                {
                     posMng.ChangeAction(0, 0.1f);
+                    //Debug.LogError("接触地面切换到IDle");
+                }
                 ResetYVelocity();
             }
         }
@@ -1504,8 +1522,8 @@ public class MeteorUnit : MonoBehaviour
 
         if (FightWnd.Exist)
             FightWnd.Instance.PlayerMoveNotify(transform, Camp, Attr.IsPlayer);
-        if (maxHeight < transform.position.y)
-            maxHeight = transform.position.y;
+        //if (maxHeight < transform.position.y)
+        //    maxHeight = transform.position.y;
     }
 
     public void ResetWorldVelocity(bool reset)
@@ -1556,9 +1574,6 @@ public class MeteorUnit : MonoBehaviour
         return ret;
     }
 
-    //给高度和时间,算出加速度和其他73.77 12帧向上 0.4S，3帧和后面的5帧向下是0.26S 54.778
-    //初速度 = 368.85
-    //向上跳跃时，向下的重力加速度 = 922.125
     public float CalcVelocity(float h)
     {
         float ret = gGravity * Mathf.Sqrt(2 * h / gGravity);
@@ -1577,6 +1592,7 @@ public class MeteorUnit : MonoBehaviour
         //ImpluseVec.y = 0.0f;
         posMng.JumpTick = 0.0f;
         posMng.CanAdjust = true;
+        posMng.CheckClimb = true;
         posMng.ChangeAction(act, 0.1f);
         //charLoader.SetActionScale(jumpScale);
     }
@@ -1706,6 +1722,10 @@ public class MeteorUnit : MonoBehaviour
     Dictionary<MeteorUnit, float> Damaged = new Dictionary<MeteorUnit, float>();
     public void ChangeAttack(AttackDes attack)
     {
+        //if (attack != null && attack.PoseIdx == 260)
+        //    Debug.LogError("260 attack start");
+        //if (attack == null && damage != null && damage.PoseIdx == 260)
+        //    Debug.LogError("260 attack end");
         if (attack != null && attack.PoseIdx < 200)
             return;
         if (GameBattleEx.Instance == null)
@@ -1941,23 +1961,23 @@ public class MeteorUnit : MonoBehaviour
         else if (angle < -1.0f)
             angle = -1.0f;
         float degree =  Mathf.Acos(angle) * Mathf.Rad2Deg;
-        Debug.LogError("角度:" + degree);
+        //Debug.LogError("角度:" + degree);
         if (degree <= 45)
         {
-            Debug.LogError("正面");
+            //Debug.LogError("正面");
             return 0;
         }
         if (degree <= 135 && angleLeft > 0)
         {
-            Debug.LogError("左侧");
+            //Debug.LogError("左侧");
             return 2;
         }
         if (degree <= 135 && angleLeft < 0)
         {
-            Debug.LogError("右侧");
+            //Debug.LogError("右侧");
             return 3;
         }
-        Debug.LogError("背面");
+        //Debug.LogError("背面");
         
         return 1;
     }
@@ -2217,6 +2237,8 @@ public class MeteorUnit : MonoBehaviour
                     if (dam._AttackType == 0)
                     {
                         //在此时间结束前，不许使用输入设备输入.
+                        if (robot != null)
+                            robot.OnDamaged();
                         if (charLoader != null)
                             charLoader.LockTime(dam.DefenseValue);
                         //Move(-attacker.transform.forward * dam.DefenseMove);
@@ -2232,6 +2254,8 @@ public class MeteorUnit : MonoBehaviour
                     }
                     else if (dam._AttackType == 1)
                     {
+                        if (robot != null)
+                            robot.OnDamaged();
                         //这个招式伤害多少?
                         //dam.PoseIdx;算伤害
                         int realDamage = CalcDamage(attacker);
@@ -2310,6 +2334,8 @@ public class MeteorUnit : MonoBehaviour
                 }
                 else
                 {
+                    if (robot != null)
+                        robot.OnDamaged();
                     int realDamage = CalcDamage(attacker);
                     //Debug.Log("受到:" + realDamage + " 点伤害");
                     Attr.ReduceHp(realDamage);
@@ -2572,56 +2598,6 @@ public class MeteorUnit : MonoBehaviour
         }
     }
 
-    public void ChangeBehavior(params object[] value)
-    {
-        if (value != null && value.Length != 0)
-        {
-            string act = value[0] as string;
-            if (act == "wait")
-            {
-                if (robot != null)
-                    robot.ChangeState(EAIStatus.Wait, 3.0f);
-            }
-            else if (act == "follow")
-            {
-                try
-                {
-                    int target = (int)value[1];
-                    if (robot != null)
-                        robot.FollowTarget(target);
-                }
-                catch
-                {
-                    string target = value[1] as string;
-                    int flag = U3D.GetChar("flag");
-                    if (flag >= 0)
-                    {
-
-                    }
-                }
-            }
-            else if (act == "patrol")
-            {
-
-            }
-            else if (act == "faceto")
-            {
-                int target = (int)value[1];
-                MeteorUnit t = U3D.GetUnit(target);
-                if (t != null)
-                    FaceToTarget(t);
-            }
-            else if (act == "kill")
-            {
-                int target = (int)value[1];
-                MeteorUnit t = U3D.GetUnit(target);
-                if (t != null)
-                    KillPlayer(t);
-            }
-        }
-    }
-
-    
     /// BUFF处理
     //名字, 类型, 值, 持续, 间隔, 持续类型, 拾取后带特效.
     public void AddBuf(Option ItemInfo, bool repeatAdd = false)
@@ -2853,14 +2829,14 @@ public class MeteorUnit : MonoBehaviour
     //0大绝，其他的就是pose号
     public void PlaySkill(int skill = 0)
     {
-        if (AngryValue >= 100 || GameData.gameStatus.EnableInfiniteAngry)
+        if (AngryValue >= 100 || (GameData.gameStatus.EnableInfiniteAngry && Attr.IsPlayer))
         {
             //得到武器的大绝pose号码。
             int pose = GetSkillPose();
-            AngryValue -= GameData.gameStatus.EnableInfiniteAngry ? 0 : 100;
+            AngryValue -= Attr.IsPlayer ? (GameData.gameStatus.EnableInfiniteAngry ? 0 : 100): 100;
             posMng.ChangeAction(pose);
         }
-        else
+        else if (Attr.IsPlayer)
             U3D.InsertSystemMsg("怒气不足");
     }
 

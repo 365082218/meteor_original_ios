@@ -54,7 +54,6 @@ public class Startup : MonoBehaviour {
     
     List<string> cheats = new List<string>();
     int cheatsel = -1;
-    public bool debugMode;//是否观看开头过场,是否不限制金钱
     public bool GODMODE = true;//上帝模式，玩家对怪物一击必杀.
     public long frameIdx;
     //public int ServerIdx;
@@ -72,23 +71,6 @@ public class Startup : MonoBehaviour {
         }
     }
 
-    public int Lang
-    {
-        get
-        {
-            if (state == null)
-                return (int)LanguageType.En;
-            else
-                return state.Language;
-        }
-        set
-        {
-            if (state == null)
-                return;
-            else
-                state.Language = value;
-        }
-    }
     // Use this for initialization
     void Start () {
         if (ins != this)
@@ -196,19 +178,9 @@ public class Startup : MonoBehaviour {
     //游戏接口
     public void GameStart()
 	{
-        //state = GameData.gameStatus;
-        //所有的多语言文本，在读取到语言设置前初始化过的，都需要重新设置文本.
         LangItem.ChangeLang();
-        //调试模式不显示过场文本.
-        if (debugMode && WSDebug.Ins == null)
-            gameObject.AddComponent<WSDebug>();
-        //if (debugMode || state.watchedNovel)
-        //{
-            OnGameStart();
-            return;
-        //}
-        //WsWindow.Open(WsWindow.StartGame);
-        //state.watchedNovel = true;
+        OnGameStart();
+        return;
     }
 
     /*
@@ -333,12 +305,6 @@ public class Startup : MonoBehaviour {
 	{
         MainWnd.Instance.Open();
     }
-
-    public void GameStartFromSlot()
-    {
-        ScriptMng.ins.Load(state.saveSlot);
-    }
-
 
     public void OnGameOver()
     {

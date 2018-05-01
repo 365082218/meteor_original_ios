@@ -5312,7 +5312,7 @@ public class LevelScript_sn13 : LevelScriptBase
                 {
                     Perform(survivor, "say", "是！");
                     Perform(survivor, "pause", 5);
-                    Perform(survivor, "say", "那个女飞贼找到了，但是他身边有了武功高手，我打不蠃他所以﹒﹒");
+                    Perform(survivor, "say", "那个女飞贼找到了，但是他身边有个高手，我打不蠃他所以﹒﹒");
                     Perform(survivor, "pause", 5);
                     Perform(survivor, "say", "报﹒﹒报报﹒报﹒");
                     Perform(survivor, "faceto", c);

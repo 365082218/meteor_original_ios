@@ -48,11 +48,6 @@ SubShader {
 			struct v2f {
 				float4 vertex : SV_POSITION;
 				half2 texcoord : TEXCOORD0;
-				float3 worldNormal : TEXCOORD1;
-				float3 lightDir : TEXCOORD2;
-				float3 viewDir : TEXCOORD3;
-				LIGHTING_COORDS(4, 5)                //1  
-				UNITY_FOG_COORDS(1)
 			};
 
 			sampler2D _MainTex;
@@ -75,7 +70,7 @@ SubShader {
 				//o.viewDir = mul((float3x3)unity_ObjectToWorld, ObjSpaceViewDir(v.vertex));    //4  
 
 																						//Shadow  
-				TRANSFER_VERTEX_TO_FRAGMENT(o); //这个在android和在pc，字段不一样一个是vertex 一个是pos
+				//TRANSFER_VERTEX_TO_FRAGMENT(o); //这个在android和在pc，字段不一样一个是vertex 一个是pos
 				//UNITY_TRANSFER_FOG(o,o.vertex);
 				return o;
 			}

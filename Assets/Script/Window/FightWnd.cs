@@ -95,7 +95,7 @@ public class FightWnd: Window<FightWnd>
         debugPanel = Control("Debug");
         LevelTalkRoot = Global.ldaControlX("LevelTalk", WndObject).transform;
         ctrl = LevelTalkRoot.GetComponent<AutoMsgCtrl>();
-        ctrl.SetConfig(3.0f, 2f);
+        ctrl.SetConfig(1.5f, 1f);
         FloatOpen = Control("FloatOpen");
         BuffRoot = Control("BuffPanel");
         FloatOpen.GetComponent<Button>().onClick.AddListener(OnChangeActionBarStatus);
@@ -202,16 +202,14 @@ public class FightWnd: Window<FightWnd>
         debugPanel.SetActive(false);
         Global.ldaControlX("AddAI", WndObject).SetActive(GameData.gameStatus.EnableFunc);
         Global.ldaControlX("ChangeDebug", WndObject).SetActive(GameData.gameStatus.EnableDebug);
-#if UNITY_Mobile
+
         if (NGUIJoystick.instance != null)
             NGUIJoystick.instance.SetAnchor(GameData.gameStatus.JoyAnchor);
-#elif BUILD_PC
-        Control("JoyArrow").SetActive(false);
-        Control("Unlock").SetActive(false);
-        Control("ClickPanel").SetActive(false);
-        Control("FloatOpen").SetActive(false);
-        Control("ActionFloat").SetActive(false);
-#endif
+        //Control("JoyArrow").SetActive(false);
+        //Control("Unlock").SetActive(false);
+        //Control("ClickPanel").SetActive(false);
+        //Control("FloatOpen").SetActive(false);
+        //Control("ActionFloat").SetActive(false);
     }
 
     int currentPosIdx;
@@ -387,8 +385,8 @@ public class FightWnd: Window<FightWnd>
             if (MeteorManager.Instance.LocalPlayer.AngryValue == Global.ANGRYMAX && lastAngry != Global.ANGRYMAX)
             {
                 if (angryWarningE != null)
-                    GameBattleEx.Instance.StopCoroutine(angryWarningE);
-                angryWarningE = GameBattleEx.Instance.StartCoroutine(ShowAngryWarning());
+                    MeteorManager.Instance.LocalPlayer.StopCoroutine(angryWarningE);
+                angryWarningE = MeteorManager.Instance.LocalPlayer.StartCoroutine(ShowAngryWarning());
                 lastAngry = Global.ANGRYMAX;
             }
             else
@@ -515,16 +513,16 @@ public class FightWnd: Window<FightWnd>
         if (MeteorManager.Instance.LocalPlayer != null && MeteorManager.Instance.LocalPlayer.Attr.hpCur >= 0)
         {
             if (updateValue != null)
-                GameBattleEx.Instance.StopCoroutine(updateValue);
-            updateValue = GameBattleEx.Instance.StartCoroutine(UpdateHPMP());
+                MeteorManager.Instance.LocalPlayer.StopCoroutine(updateValue);
+            updateValue = MeteorManager.Instance.LocalPlayer.StartCoroutine(UpdateHPMP());
             hpLabel.text = ((int)(MeteorManager.Instance.LocalPlayer.Attr.hpCur / 10.0f)).ToString() + "/" + ((int)(MeteorManager.Instance.LocalPlayer.Attr.HpMax / 10.0f)).ToString();
             float hpPercent = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
             if (hpPercent <= 0.1f)
             {
                 if (hpWarningE != null)
-                    GameBattleEx.Instance.StopCoroutine(hpWarningE);
+                    MeteorManager.Instance.LocalPlayer.StopCoroutine(hpWarningE);
                 if (!MeteorManager.Instance.LocalPlayer.Dead)
-                    hpWarningE = GameBattleEx.Instance.StartCoroutine(ShowHPWarning());
+                    hpWarningE = MeteorManager.Instance.LocalPlayer.StartCoroutine(ShowHPWarning());
             }
 
             UpdateAngryBar();

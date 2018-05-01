@@ -139,41 +139,6 @@ public class U3D : MonoBehaviour {
 
     public static int AddNPC(string script)
     {
-        //MonsterEx mon = SceneMng.InitMon(script);
-        //mon.Weapon = 1;
-        //mon.Weapon2 = 2;
-        //mon.IsPlayer = false;
-        //GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
-        //GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
-        //MeteorUnit unit = ins.GetComponent<MeteorUnit>();
-        //switch (mon.Team)
-        //{
-        //    case 0:
-        //        unit.Camp = EUnitCamp.EUC_KILLALL;//与所有人都是敌人
-        //        break;
-        //    case 1:
-        //        unit.Camp = EUnitCamp.EUC_FRIEND;//流星阵营
-        //        break;
-        //    case 2:
-        //        unit.Camp = EUnitCamp.EUC_ENEMY;//蝴蝶阵营
-        //        break;
-        //    default:
-        //        unit.Camp = EUnitCamp.EUC_NONE;//与所有人都是朋友，所有人都无法打我
-        //        break;
-        //}
-        //unit.Init(mon.Model, mon);
-        //MeteorManager.Instance.OnGenerateUnit(unit);
-        ////LuaFunction onInit = ScriptMng.ins.GetFunc("OnInit");
-        ////LuaFunction OnStart = ScriptMng.ins.GetFunc("OnStart");
-        ////onInit.call(unit.GetInstanceID());
-        //unit.SetGround(false);
-        //unit.transform.position = Global.GLevelItem.wayPoint[0].pos;
-        //unit.transform.rotation = new Quaternion(0, 0, 0, 1);
-        //    //PMDSave pmd = unit.gameObject.AddComponent<PMDSave>();
-        //    //pmd.Model = mon.name;
-        //    //pmd.Descript = "Auto Pmd:" + mon.name;
-        //    //pmd.Save(mon.name + "ex.pmd");
-
         MeteorUnit target = SceneMng.Spawn(script);
         return target.InstanceId;
     }
@@ -273,9 +238,9 @@ public class U3D : MonoBehaviour {
         PopupTip tip = WsWindow.OpenMul<PopupTip>(WsWindow.PopupTip);
         LangBase langIt = GameData.langMng.GetRowByIdx((int)strIden) as LangBase;
         string str = "";
-        if (Startup.ins.Lang == (int)LanguageType.Ch && langIt != null)
+        if (Lang == (int)LanguageType.Ch && langIt != null)
         str = langIt.Ch;
-        if (Startup.ins.Lang == (int)LanguageType.En && langIt != null)
+        if (Lang == (int)LanguageType.En && langIt != null)
             str = langIt.En;
         tip.Popup(str);
     }
@@ -502,7 +467,7 @@ public class U3D : MonoBehaviour {
     public static void ChangeLang(int lang)
     {
         //重新加载数据
-        Startup.ins.Lang = lang;
+        Lang = lang;
         //GameData.LoadData();
         //if (GameData.save != null)
         //    GameData.save.ChangeLanguage(lang);
@@ -848,42 +813,62 @@ public class U3D : MonoBehaviour {
     //提供给外部脚本调的
     public static void ChangeBehavior(int id, params object[] value)
     {
-        MeteorUnit target = null;
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        if (value != null && value.Length != 0)
         {
-            if (id == MeteorManager.Instance.UnitInfos[i].InstanceId)
+            string act = value[0] as string;
+            if (act == "wait")
             {
-                target = MeteorManager.Instance.UnitInfos[i];
-                break;
+                GameBattleEx.Instance.PushActionWait(id, 10000);
+            }
+            else if (act == "follow")
+            {
+                object target = null;
+                if (value[1].GetType() == typeof(int))
+                {
+                    GameBattleEx.Instance.PushActionFollow(id, (int)value[1]);
+                }
+                else
+                {
+                    target = value[1] as string;
+                    int flag = U3D.GetChar("flag");
+                    if (flag >= 0)
+                    {
+                        GameBattleEx.Instance.PushActionFollow(id, flag);
+                    }
+                }
+            }
+            else if (act == "patrol")
+            {
+                    List<int> Path = new List<int>();
+                    for (int i = 1; i < value.Length; i++)
+                    {
+                        Path.Add((int)value[i]);
+                    }
+                    GameBattleEx.Instance.PushActionPatrol(id, Path);
+            }
+            else if (act == "faceto")
+            {
+                GameBattleEx.Instance.PushActionFaceTo(id, (int)value[1]);
+            }
+            else if (act == "kill")
+            {
+                Debug.LogError("gamebattleex kill");
+                GameBattleEx.Instance.PushActionKill(id, (int)value[1]);
             }
         }
-        if (target != null)
-            target.ChangeBehavior(value);
     }
     // behavior="wait", "idle", "run", "follow", "patrol", "attacktarget", "kill"
     //只有string 和 int类型，后者
     public static void ChangeBehaviorEx(int id, string act, params object[] value)
     {
-        MeteorUnit target = null;
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        object[] param = new object[value == null ? 1 : value.Length + 1];
+        param[0] = act;
+        if (value != null)
         {
-            if (id == MeteorManager.Instance.UnitInfos[i].InstanceId)
-            {
-                target = MeteorManager.Instance.UnitInfos[i];
-                break;
-            }
+            for (int i = 0; i < value.Length; i++)
+                param[i + 1] = value[i];
         }
-        if (target != null)
-        {
-            object[] param = new object[value == null ? 1 : value.Length + 1];
-            param[0] = act;
-            if (value != null)
-            {
-                for (int i = 0; i < value.Length; i++)
-                    param[i + 1] = value[i];
-            }
-            target.ChangeBehavior(param);
-        }
+        ChangeBehavior(id, param);
     }
 
     public static int GetChar(string player)
@@ -1195,6 +1180,24 @@ public class U3D : MonoBehaviour {
         else if (it.MainType == 2)
         {
 
+        }
+    }
+
+    public static int Lang
+    {
+        get
+        {
+            if (GameData.gameStatus == null)
+                return (int)LanguageType.En;
+            else
+                return GameData.gameStatus.Language;
+        }
+        set
+        {
+            if (GameData.gameStatus == null)
+                return;
+            else
+                GameData.gameStatus.Language = value;
         }
     }
 }
