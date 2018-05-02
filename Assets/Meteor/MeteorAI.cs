@@ -728,7 +728,7 @@ public class MeteorAI {
                             return;
                         }
                         
-                        if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z)) <= 20)
+                        if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z)) <= 50)
                         {
                             owner.controller.Input.AIMove(0, 0);
                             RotateRound = Random.Range(1, 3);
@@ -771,7 +771,7 @@ public class MeteorAI {
                 break;
             case EAISubStatus.PatrolSubGotoTarget:
                 //Debug.LogError("进入巡逻子状态-朝目标输入移动");
-                if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z)) <= 20)
+                if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z)) <= 50)
                 {
                     RotateRound = Random.Range(1, 3);
                     SubStatus = EAISubStatus.PatrolSubRotateInPlace;//到底指定地点后旋转

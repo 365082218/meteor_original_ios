@@ -1132,11 +1132,11 @@ public class MeteorInput
             if (y > 0 && mOwner.ClimbingTime < Global.ClimbLimit)
             {
                 if (mOwner.posMng.mActiveAction.Idx == CommonAction.ClimbUp)
-                    mOwner.SetWorldVelocityExcludeY(- 100 * y * mOwner.transform.forward);
+                    mOwner.SetWorldVelocityExcludeY(- 200 * y * mOwner.transform.forward);
                 else if (mOwner.posMng.mActiveAction.Idx == CommonAction.ClimbRight)
-                    mOwner.SetWorldVelocityExcludeY(-100 * y * mOwner.transform.right - 100 * y * mOwner.transform.forward);
+                    mOwner.SetWorldVelocityExcludeY(-100 * y * mOwner.transform.right - 200 * y * mOwner.transform.forward);
                 else if (mOwner.posMng.mActiveAction.Idx == CommonAction.ClimbLeft)
-                    mOwner.SetWorldVelocityExcludeY(100 * y * mOwner.transform.right - 100 * y * mOwner.transform.forward);
+                    mOwner.SetWorldVelocityExcludeY(100 * y * mOwner.transform.right - 200 * y * mOwner.transform.forward);
                 float climbScale = (Global.ClimbLimit - mOwner.ClimbingTime) / (Global.ClimbLimit);
                 mOwner.AddYVelocity(y * 50 * climbScale);
             }

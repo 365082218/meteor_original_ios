@@ -25,8 +25,8 @@ public class DartLoader : MonoBehaviour {
     Vector3 _direction;
     float _speed = 300.0f;//普通速度.
     float gspeed = 300.0f;//加速度.
-    float maxLength = 500;//跑多远开始开启重力.
-    float maxDistance = 1000;//最远射程
+    float maxLength = 800;//跑多远开始开启重力.
+    float maxDistance = 1500;//最远射程
     Rigidbody rig;
     Coroutine fly;
 

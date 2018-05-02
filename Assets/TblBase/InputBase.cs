@@ -158,6 +158,10 @@ public class InputItem
                 }
 
                 ActionNode no = ActionInterrupt.Instance.Whole[targetIdx];
+                //if (targetIdx == 200)
+                //{
+                //    Debug.LogError("200--");
+                //}
                 if (mOwner.IsOnGround())
                 {
                     //拦截火枪的状态机，只要不处于213-使用火枪就进入212POSE
@@ -178,6 +182,11 @@ public class InputItem
                                 if (ret)
                                 {
                                     targetPose = no.target[i].ActionIdx;
+                                    //if (targetPose == 200 && targetIdx == 200)
+                                    //{
+                                    //    Debug.DebugBreak();
+                                    //    Debug.LogError("link 200");
+                                    //}
                                     return ret;
                                 }
                             }
