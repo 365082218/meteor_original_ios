@@ -653,13 +653,13 @@ public class SceneItemAgent : MonoBehaviour {
         int WeaponDamage = attacker.CalcDamage();
         int PoseDamage = MenuResLoader.Instance.FindOpt(atk.PoseIdx, 3).second[0].flag[6];
         int BuffDamage = attacker.Attr.CalcBuffDamage();
-        int realDamage = Mathf.FloorToInt((((WeaponDamage + BuffDamage) * PoseDamage) / 100.0f - (DefTmp)) / 10.0f);
+        int realDamage = Mathf.FloorToInt((((WeaponDamage + BuffDamage) * PoseDamage) / 100.0f - (DefTmp)));
         return realDamage;
     }
 
     public void OnDamage(MeteorUnit attacker)
     {
-        int realDamage = 8 * CalcDamage(attacker);
+        int realDamage = CalcDamage(attacker);
         //非铁箱子， 木箱子，酒坛， 桌子 椅子的受击处理
         if (MethodOnAttack != null)
             MethodOnAttack.Invoke(GameBattleEx.Instance.Script, new object[] { InstanceId, attacker.InstanceId, realDamage });
@@ -773,6 +773,5 @@ public class SceneItemAgent : MonoBehaviour {
         GameBattleEx.Instance.RegisterCollision(this);
         Index = int.Parse(name.Substring(name.Length - 2));
         WsGlobal.SetObjectLayer(gameObject, LayerMask.NameToLayer("Trigger"));
-        //LayerMask.
     }
 }
