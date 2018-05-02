@@ -157,6 +157,7 @@ public class MeteorInput
             //只有使用键盘的时候，键的状态才从与键盘状态同步。
             //return;
             //发布为PC的时候，才会从硬件扫描
+#if UNITY_EDITOR
             float kValue = Input.GetAxisRaw(keyStatus.AxisName);
             bool pressed = kValue > 0;
             if (pressed && keyStatus.Pressed == 0 && !keyStatus.IsAI)
@@ -164,7 +165,8 @@ public class MeteorInput
             else if (!pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
                 OnKeyUp(keyStatus);
             else if (pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
-                OnKeyPressing(keyStatus);          
+                OnKeyPressing(keyStatus);
+#endif
         }
 
         //if (!Application.isMobilePlatform || GameData.gameStatus.useJoystickOrKeyBoard)
