@@ -233,7 +233,6 @@
     <None Include="Assets\Meteor\Shader\Resources\WeaponTextureMask.shader" />
     <None Include="Assets\Meteor\mod\readme.txt" />
     <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored.shader" />
-    <None Include="Assets\Plugins\Android\AndroidManifest.xml" />
     <None Include="Assets\Resources\Action.txt" />
     <None Include="Assets\Resources\AttrExtra.txt" />
     <None Include="Assets\Resources\AttrPrice.txt" />
