@@ -839,12 +839,13 @@ public class U3D : MonoBehaviour {
             }
             else if (act == "patrol")
             {
-                    List<int> Path = new List<int>();
-                    for (int i = 1; i < value.Length; i++)
-                    {
-                        Path.Add((int)value[i]);
-                    }
-                    GameBattleEx.Instance.PushActionPatrol(id, Path);
+                List<int> Path = new List<int>();
+                for (int i = 1; i < value.Length; i++)
+                {
+                    if (value[i].GetType() == typeof(double))
+                    Path.Add((int)(double)value[i]);
+                }
+                GameBattleEx.Instance.PushActionPatrol(id, Path);
             }
             else if (act == "faceto")
             {

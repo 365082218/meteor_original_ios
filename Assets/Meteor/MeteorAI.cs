@@ -722,6 +722,12 @@ public class MeteorAI {
                         targetPatrolIndex = (curPatrolIndex + 1) % PatrolPath.Count;
                     if (targetPatrolIndex != curPatrolIndex)
                     {
+                        if (PatrolPath.Count <= targetPatrolIndex)
+                        {
+                            OnIdle();
+                            return;
+                        }
+                        
                         if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z)) <= 20)
                         {
                             owner.controller.Input.AIMove(0, 0);
