@@ -133,7 +133,7 @@ public class Buff
         switch (type)
         {
             case EBUFF_Type.MaxHP:
-                unit.Attr.AddMaxHP(-value / 10);
+                unit.Attr.AddMaxHP(-value);
                 break;
             case EBUFF_Type.HP:
                 //unit.Attr.AddHP(value / 10);//无需处理
@@ -163,13 +163,13 @@ public class Buff
         {
             //要看同BUFF，可否叠加，比如最大气血值
             case EBUFF_Type.MaxHP:
-                unit.Attr.AddMaxHP(value / 10);
+                unit.Attr.AddMaxHP(value);
                 break;
             case EBUFF_Type.HP:
                 if (value < 0)
-                    unit.OnBuffDamage(-value / 10);
+                    unit.OnBuffDamage(-value);
                 else
-                    unit.Attr.AddHP(value / 10);
+                    unit.Attr.AddHP(value);
                 break;
             case EBUFF_Type.ANG:
                 unit.AddAngry(value);
