@@ -1688,12 +1688,12 @@ public class MeteorUnit : MonoBehaviour
                 }
             }
 
-            DartLoader dart = hit.gameObject.GetComponentInParent<DartLoader>();
-            if (dart != null)
-            {
-                Debug.LogError("dart attack unit");
-                dart.AttackTarget(this);
-            }
+            //DartLoader dart = hit.gameObject.GetComponentInParent<DartLoader>();
+            //if (dart != null)
+            //{
+            //    Debug.LogError("dart attack unit");
+            //    dart.AttackTarget(this);
+            //}
             return;
         }
         Vector3 vec = hitUnit.mPos - transform.position;
@@ -1941,7 +1941,7 @@ public class MeteorUnit : MonoBehaviour
         AttackDes atk = des == null ? attacker.damage : des;
         int WeaponDamage = attacker.CalcDamage();
         //主角一般空踢，秒杀-香港脚
-        int PoseDamage = (attacker.Attr.IsPlayer && atk.PoseIdx == 338) ? 99999 : MenuResLoader.Instance.FindOpt(atk.PoseIdx, 3).second[0].flag[6];
+        int PoseDamage = MenuResLoader.Instance.FindOpt(atk.PoseIdx, 3).second[0].flag[6];
         int BuffDamage = attacker.Attr.CalcBuffDamage();
         int realDamage = Mathf.Abs(Mathf.CeilToInt(((WeaponDamage + BuffDamage) * PoseDamage) / 100.0f - (WeaponDef + BuffDef)));
         return realDamage;
@@ -2035,7 +2035,7 @@ public class MeteorUnit : MonoBehaviour
                     if (dam._AttackType == 0)
                     {
                         //在此时间结束前，不许使用输入设备输入.
-                        if (charLoader != null)
+                        if (charLoader != null && dam.DefenseValue != 0.0f)
                             charLoader.LockTime(dam.DefenseValue);
                         //Move(-attacker.transform.forward * dam.DefenseMove);
                         //通过当前武器和方向，得到防御动作ID  40+(x-1)*4类似 匕首 = 5=> 40+(5-1)*4 = 56,防御住前方攻击 57 58 59就是其他方向的
@@ -2076,13 +2076,8 @@ public class MeteorUnit : MonoBehaviour
 
                         if (Attr != null)
                             Attr.ReduceHp(realDamage);
-                        if (charLoader != null)
-                        {
-                            if (dam.TargetValue == 0.0f)
-                                charLoader.LockTime(0.3f);
-                            else
-                                charLoader.LockTime(dam.TargetValue);
-                        }
+                        if (charLoader != null && dam.TargetValue != 0.0f)
+                            charLoader.LockTime(dam.TargetValue);
 
                         string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
@@ -2115,7 +2110,7 @@ public class MeteorUnit : MonoBehaviour
                 else
                 {
                     int realDamage = CalcDamage(attacker, attackdes);
-                    //Debug.Log("受到:" + realDamage + " 点伤害");
+                    //Debug.LogError(Attr.Name + ":受到:" + attacker.Attr.name + " 的攻击 减少 " + realDamage + " 点气血");
                     Attr.ReduceHp(realDamage);
                     //if (hurtRecord.ContainsKey(attacker))
                     //    hurtRecord[attacker] += realDamage;
@@ -2138,13 +2133,8 @@ public class MeteorUnit : MonoBehaviour
                     if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)//16受到此招式攻击会得到物品
                         GetItem(poseInfo.first[0].flag[1]);
 
-                    if (charLoader != null)
-                    {
-                        if (dam.TargetValue == 0.0f)
-                            charLoader.LockTime(2.0f);
-                        else
-                            charLoader.LockTime(dam.TargetValue);
-                    }
+                    if (charLoader != null && dam.TargetValue != 0.0f)
+                        charLoader.LockTime(dam.TargetValue);
                     AngryValue += (realDamage * 3);
                     string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                     SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
@@ -2239,7 +2229,7 @@ public class MeteorUnit : MonoBehaviour
                         //在此时间结束前，不许使用输入设备输入.
                         if (robot != null)
                             robot.OnDamaged();
-                        if (charLoader != null)
+                        if (charLoader != null && dam.DefenseValue != 0.0f)
                             charLoader.LockTime(dam.DefenseValue);
                         //Move(-attacker.transform.forward * dam.DefenseMove);
                         //通过当前武器和方向，得到防御动作ID  40+(x-1)*4类似 匕首 = 5=> 40+(5-1)*4 = 56,防御住前方攻击 57 58 59就是其他方向的
@@ -2281,13 +2271,8 @@ public class MeteorUnit : MonoBehaviour
                         //}
 
                         Attr.ReduceHp(realDamage);
-                        if (charLoader != null)
-                        {
-                            if (dam.TargetValue == 0.0f)
-                                charLoader.LockTime(2.0f);
-                            else
-                                charLoader.LockTime(dam.TargetValue);
-                        }
+                        if (charLoader != null && dam.TargetValue != 0.0f)
+                            charLoader.LockTime(dam.TargetValue);
                         //EquipWeaponCode idx = EquipWeaponCode.Blade;
                         //switch ((EquipWeaponType)attacker.GetWeaponType())
                         //{
@@ -2360,13 +2345,8 @@ public class MeteorUnit : MonoBehaviour
                     if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)//16受到此招式攻击会得到物品
                         GetItem(poseInfo.first[0].flag[1]);
 
-                    if (charLoader != null)
-                    {
-                        if (dam.TargetValue == 0.0f)
-                            charLoader.LockTime(2.0f);
-                        else
-                            charLoader.LockTime(dam.TargetValue);
-                    }
+                    if (charLoader != null && dam.TargetValue != 0.0f)
+                        charLoader.LockTime(dam.TargetValue);
                     AngryValue += (realDamage * 3);
                     //EquipWeaponCode idx = EquipWeaponCode.Blade;
                     //switch ((EquipWeaponType)attacker.GetWeaponType())
@@ -2728,7 +2708,7 @@ public class MeteorUnit : MonoBehaviour
                         Debug.LogError("ERROR ID");
                         break;
                     case 2://现有血量 加血，扣血道具, 燕羽-无效 主要是包子 微尘
-                        Attr.AddHP(ItemInfo.second[0].flag[6] / 10);
+                        Attr.AddHP(ItemInfo.second[0].flag[6]);
                         //Debug.LogError("skill done");
                         CheckUnitDead();
                         break;

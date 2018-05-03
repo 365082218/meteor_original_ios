@@ -340,28 +340,16 @@ public class CharacterLoader : MonoBehaviour
             return;
         if (loop)
         {
-            //检查僵直是否过期.
-            //if (CheckStraight)
-            //{
-            //    if (PoseStraight < 0.0f)
-            //    {
-            //        loop = false;
-            //        CheckStraight = false;
-            //    }
-            //}
-            //else
+            if (curIndex > po.LoopEnd)
             {
-                if (curIndex > po.LoopEnd)
+                if (curIndex > po.LoopStart)
                 {
-                    if (curIndex > po.LoopStart)
-                    {
-                        PlayPosEvent();
-                        curIndex = po.LoopStart;
-                        if (loop)
-                            return;
-                    }
+                    PlayPosEvent();
                     curIndex = po.LoopStart;
+                    if (loop)
+                        return;
                 }
+                curIndex = po.LoopStart;
             }
         }
         else
@@ -641,7 +629,16 @@ public class CharacterLoader : MonoBehaviour
         {
             moveDelta = Vector3.zero;
             if (CheckStraight)
+            {
                 PoseStraight -= Time.deltaTime;
+                //检查僵直是否过期.
+                if (PoseStraight < 0.0f && loop)
+                {
+                    loop = false;
+                    curIndex = po.LoopEnd;
+                    CheckStraight = false;
+                }
+            }
             if (blendTime == 0.0f)
             {
                 lastFramePlayedTimes += Time.deltaTime;
@@ -650,8 +647,7 @@ public class CharacterLoader : MonoBehaviour
                 float fps = FPS / (Speed * speedScale);
                 if (lastFramePlayedTimes < fps)
                 {
-                    //插值帧只负责让动画平滑.不移动当前帧位置.
-                    //AnimationUpdate(lastFramePlayedTimes / fps);
+
                 }
                 else
                 {
@@ -662,13 +658,6 @@ public class CharacterLoader : MonoBehaviour
                         speedScale = GetSpeedScale();
                         fps = FPS / (Speed * speedScale);
                     }
-                    //播放完毕，到最后还有不足一帧的时间，也要算上
-                    //if (lastFramePlayedTimes > 0.002f)
-                    //{
-                    //    speedScale = GetSpeedScale();
-                    //    fps = FPS / (Speed * speedScale);
-                    //    AnimationUpdate(lastFramePlayedTimes / fps);
-                    //}
                 }
             }
             else
