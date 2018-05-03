@@ -2728,7 +2728,7 @@ public class MeteorUnit : MonoBehaviour
                         Debug.LogError("ERROR ID");
                         break;
                     case 2://现有血量 加血，扣血道具, 燕羽-无效 主要是包子 微尘
-                        Attr.AddHP(ItemInfo.second[0].flag[6] / 10);
+                        Attr.AddHP(ItemInfo.second[0].flag[6]);
                         //Debug.LogError("skill done");
                         CheckUnitDead();
                         break;
