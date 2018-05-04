@@ -467,10 +467,10 @@ public class GameBattleEx : MonoBehaviour {
                         //敌人在未发现敌人时随便发飞镖?
                         if (unit.GetLockedTarget() == null)
                         {
-                            forw = -unit.transform.forward;//角色的面向
+                            forw = (-unit.transform.forward + new Vector3(Random.Range(1, 10), Random.Range(1, 10), Random.Range(1, 10))).normalized;//角色的面向
                         }
                         else
-                            forw = (unit.GetLockedTarget().mPos - unit.mPos).normalized;//要加一点随机，否则每次都打一个位置不正常
+                            forw = (unit.GetLockedTarget().mPos - new Vector3(unit.mPos.x + Random.Range(1, 10), unit.mPos.y + Random.Range(1, 20), unit.mPos.z + Random.Range(1, 10))).normalized;//要加一点随机，否则每次都打一个位置不正常
                     }
                     //主角则方向朝着摄像机正前方
                     //不是主角没有摄像机，那么就看有没有目标，有则随机一个方向，根据与目标的包围盒的各个顶点的，判定这个方向
@@ -485,7 +485,10 @@ public class GameBattleEx : MonoBehaviour {
                     //飞轮
                     Vector3 vecSpawn = unit.WeaponR.transform.position;
                     InventoryItem weapon = unit.weaponLoader.GetCurrentWeapon();
-                    FlyWheel.Init(vecSpawn, autoTarget, weapon, attackDef, unit);
+                    if (unit.Attr.IsPlayer)
+                        FlyWheel.Init(vecSpawn, autoTarget, weapon, attackDef, unit);
+                    else
+                        FlyWheel.Init(vecSpawn, unit.GetLockedTarget(), weapon, attackDef, unit);
                 }
             }
         }
