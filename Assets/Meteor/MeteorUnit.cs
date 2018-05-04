@@ -1586,7 +1586,7 @@ public class MeteorUnit : MonoBehaviour
     public void Jump(bool Short, float ShortScale, int act = CommonAction.Jump)
     {
         OnGround = false;
-        float jumpScale = Short ? 0.32f : 1.0f;
+        float jumpScale = Short ? (ShortScale * 0.32f) : 1.0f;
         float h = JumpLimit * jumpScale;
         ImpluseVec.y = CalcVelocity(h);
         //ImpluseVec.y = 0.0f;
