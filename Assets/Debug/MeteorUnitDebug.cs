@@ -24,7 +24,7 @@ public class MeteorUnitDebug : MonoBehaviour
 
     void Start()
     {
-        //Init(0);
+        Init(0);
     }
 
 

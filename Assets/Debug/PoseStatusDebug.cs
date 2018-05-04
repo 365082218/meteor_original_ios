@@ -63,7 +63,7 @@ public class PoseStatusDebug : MonoBehaviour
             if (UnitId >= 20)
                 PosFile.Add(UnitId, PosFile[0]);
             else
-                PosFile.Add(UnitId, Resources.Load<TextAsset>("P" + UnitId + ".pos"));
+                PosFile.Add(UnitId, Resources.Load<TextAsset>("9.07/" + "P" + UnitId + ".pos"));
             ActionList.Add(UnitId, new List<Pose>());
             ReadPose();
         }
