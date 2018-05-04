@@ -358,7 +358,9 @@ public class Global
             return monsterPrefix[0];
         return monsterPrefix[quality - 1];
     }
-    
+
+    public static bool IsNetworkAvailable { get { return Application.internetReachability != NetworkReachability.NotReachable; } }
+
     public static string[] monsterPrefix = { "<color=#ffffffff>", "<color=#804000ff>", "<color=#94D2F1ff>", "<color=#9933faff>"};
     public static string[] colorPrefix = { "<color=#ffffffff>", "<color=#1eff00ff>", "<color=#0081ffff>", "<color=#c600ffff>", "<color=#ff8000ff>", "<color=#e5cc80ff>" };
     public static string colorSuffix = "</color>";

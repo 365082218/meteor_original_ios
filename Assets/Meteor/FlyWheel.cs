@@ -80,32 +80,35 @@ public class FlyWheel : MonoBehaviour {
     Vector3 TargetPosCache = Vector3.zero;
     void InitSpline()
     {
-        TargetPosCache = auto_target.mPos + Vector3.up * 25.0f;
-        //计算一个坐标，终点，作为贝塞尔曲线的控制点.
-        Vector3 vecforw = (new Vector3(auto_target.mPos.x, 0, auto_target.mPos.z) - new Vector3(owner.mPos.x, 0, owner.mPos.z)).normalized;
-        //主角面向向量与（主角朝目标向量）的夹角的一半
-        float angle = Mathf.Acos(Vector3.Dot(-owner.transform.forward, vecforw));
-        if (angle * Mathf.Rad2Deg > 90.0f)
+        if (auto_target != null)
         {
-            //比较特殊。这种情况说明是背对敌人，飞轮应该往前飞行一段时间后返回
+            TargetPosCache = auto_target.mPos + Vector3.up * 25.0f;
+            //计算一个坐标，终点，作为贝塞尔曲线的控制点.
+            Vector3 vecforw = (new Vector3(auto_target.mPos.x, 0, auto_target.mPos.z) - new Vector3(owner.mPos.x, 0, owner.mPos.z)).normalized;
+            //主角面向向量与（主角朝目标向量）的夹角的一半
+            float angle = Mathf.Acos(Vector3.Dot(-owner.transform.forward, vecforw));
+            if (angle * Mathf.Rad2Deg > 90.0f)
+            {
+                //比较特殊。这种情况说明是背对敌人，飞轮应该往前飞行一段时间后返回
+                outofArea = true;
+                spline.SetControlPoint(1, owner.WeaponR.position + 50 * (-owner.transform.forward));
+                spline.SetControlPoint(2, owner.WeaponR.position + 100 * (-owner.transform.forward));
+                return;
+            }
+            //看下是左侧还是右侧
+            bool isLeft = Vector3.Dot(owner.transform.right, vecforw) < 0;
+            //左侧
+            Vector3 vec = Quaternion.AngleAxis((isLeft ? -angle / 2.0f : angle / 2.0f) * Mathf.Rad2Deg, Vector3.up) * (-owner.transform.forward);
+            Vector3 vecPosition = vec * (Vector3.Distance(new Vector3(auto_target.mPos.x, 0, auto_target.mPos.z), new Vector3(owner.mPos.x, 0, owner.mPos.z))) + owner.WeaponR.position - 0.5f * Vector3.up * (owner.mPos.y - auto_target.mPos.y);
+            spline.SetControlPoint(1, vecPosition);
+            spline.SetControlPoint(2, TargetPosCache);
+        }
+        else
+        {
             outofArea = true;
             spline.SetControlPoint(1, owner.WeaponR.position + 50 * (-owner.transform.forward));
             spline.SetControlPoint(2, owner.WeaponR.position + 100 * (-owner.transform.forward));
-            return;
         }
-        //看下是左侧还是右侧
-        bool isLeft = Vector3.Dot(owner.transform.right, vecforw) < 0;
-        //左侧
-        Vector3 vec = Quaternion.AngleAxis((isLeft ? -angle / 2.0f : angle / 2.0f) * Mathf.Rad2Deg, Vector3.up)  * (-owner.transform.forward);
-        Vector3 vecPosition = vec * (Vector3.Distance(new Vector3(auto_target.mPos.x, 0, auto_target.mPos.z), new Vector3(owner.mPos.x, 0, owner.mPos.z))) + owner.WeaponR.position - 0.5f * Vector3.up * (owner.mPos.y - auto_target.mPos.y);
-        spline.SetControlPoint(1, vecPosition);
-        spline.SetControlPoint(2, TargetPosCache);
-        //if (GameData.gameStatus.EnableDebug)
-        //{
-        //    List<Vector3> veclst = spline.GetEquiDistantPointsOnCurve(200);
-        //    line.numPositions = 200;
-        //    line.SetPositions(veclst.ToArray());
-        //}
     }
 
     void RefreshSpline()

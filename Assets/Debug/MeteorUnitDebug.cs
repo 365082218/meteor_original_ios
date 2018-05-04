@@ -24,7 +24,9 @@ public class MeteorUnitDebug : MonoBehaviour
 
     void Start()
     {
-        //Init(0);
+        UnitId %= 20;
+        
+        Init(UnitId < 0 ? 0:UnitId);
     }
 
 

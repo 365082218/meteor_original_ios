@@ -103,6 +103,7 @@ public class CharacterLoaderDebug : MonoBehaviour
     //POSE切换时，不插值位移，只插值 旋转等
     //pose关键帧切换时，每个POSE第一帧作为TPOSE,如果后面的帧相对当前TPOSE有移动，旋转，那么计算每2个插值帧之间的差距
     //用这个差距来调用charController.Move
+    //特效时间不是太准，需要考虑如何让特效和动作同步.
     void Update()
     {
         if (Pause)

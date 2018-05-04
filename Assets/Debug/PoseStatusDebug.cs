@@ -63,7 +63,7 @@ public class PoseStatusDebug : MonoBehaviour
             if (UnitId >= 20)
                 PosFile.Add(UnitId, PosFile[0]);
             else
-                PosFile.Add(UnitId, Resources.Load<TextAsset>("P" + UnitId + ".pos"));
+                PosFile.Add(UnitId, Resources.Load<TextAsset>("9.07/" + "P" + UnitId + ".pos"));
             ActionList.Add(UnitId, new List<Pose>());
             ReadPose();
         }
@@ -240,6 +240,8 @@ public class PoseStatusDebug : MonoBehaviour
                     //空行跳过
                     continue;
                 }
+                else if (lineObject[0].StartsWith("#"))
+                    continue;
                 else
                 if (lineObject[0] == "Pose" && left == 0 && leftAct == 0)
                 {
@@ -356,7 +358,7 @@ public class PoseStatusDebug : MonoBehaviour
                     else
                         current.End = int.Parse(lineObject[1]);
                 }
-                else if (lineObject[0] == "Speed" ||lineObject[0] == "speed")
+                else if (lineObject[0] == "Speed" || lineObject[0] == "speed")
                 {
                     if (curAct != null)
                         curAct.Speed = float.Parse(lineObject[1]);
@@ -399,22 +401,23 @@ public class PoseStatusDebug : MonoBehaviour
                 }
                 else if (lineObject[0] == "bone")
                 {
-                    string bones = "";
-                    for (int k = 2; k < lineObject.Length; k++)
-                        bones += lineObject[k];
-                    
-                    while (lineObject[lineObject.Length - 1][lineObject[lineObject.Length - 1].Length - 1] == ',')
+                    //重新分割，=号分割，右边的,号分割
+                    lineObject = line.Split(new char[] { '=' }, System.StringSplitOptions.RemoveEmptyEntries);
+                    string bones = lineObject[1];
+                    while (bones.EndsWith(","))
                     {
                         i++;
                         lineObject = new string[1];
                         lineObject[0] = pos[i];
                         bones += lineObject[0];
                     }
-                    string[] bonesstr = bones.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+                    //bones = bones.Replace(' ', '_');
+                    string[] bonesstr = bones.Split(new char[] { ',' });
                     for (int j = 0; j < bonesstr.Length; j++)
                     {
                         string b = bonesstr[j].TrimStart(new char[] { ' ', '\"' });
-                        b = b.TrimEnd(new char[] { '\"',' ' });
+                        b = b.TrimEnd(new char[] { '\"', ' ' });
+                        b = b.Replace(' ', '_');
                         att.bones.Add(b);
                     }
                 }
