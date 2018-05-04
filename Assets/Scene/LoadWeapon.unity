@@ -122,6 +122,7 @@ GameObject:
   - component: {fileID: 1236269309}
   - component: {fileID: 1236269308}
   - component: {fileID: 1236269307}
+  - component: {fileID: 1236269306}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -129,6 +130,42 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &1236269306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1236269305}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a92b5d748695fd44aac9feef17ba415, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug: 0
+  useMouse: 1
+  useTouch: 1
+  allowMultiTouch: 1
+  useKeyboard: 1
+  useController: 1
+  stickyPress: 1
+  eventReceiverMask:
+    serializedVersion: 2
+    m_Bits: 1025
+  clipRaycasts: 1
+  tooltipDelay: 1
+  stickyTooltip: 1
+  mouseDragThreshold: 4
+  mouseClickThreshold: 10
+  touchDragThreshold: 40
+  touchClickThreshold: 40
+  rangeDistance: -1
+  scrollAxisName: Mouse ScrollWheel
+  verticalAxisName: Vertical
+  horizontalAxisName: Horizontal
+  submitKey0: 13
+  submitKey1: 330
+  cancelKey0: 27
+  cancelKey1: 331
 --- !u!92 &1236269307
 Behaviour:
   m_ObjectHideFlags: 0
@@ -229,6 +266,10 @@ Prefab:
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1000013896176638, guid: f219c23d91d935a49822402c589cf259, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: f219c23d91d935a49822402c589cf259, type: 2}
   m_IsPrefabParent: 0
@@ -270,6 +311,11 @@ Prefab:
     - target: {fileID: 4851663559305906, guid: 8b3dff0e68b7f564e8c819477c4fcb97, type: 2}
       propertyPath: m_RootOrder
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114540670738784474, guid: 8b3dff0e68b7f564e8c819477c4fcb97,
+        type: 2}
+      propertyPath: UnitId
+      value: 19
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 8b3dff0e68b7f564e8c819477c4fcb97, type: 2}
