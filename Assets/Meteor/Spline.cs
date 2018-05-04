@@ -34,6 +34,12 @@ public class Spline
     //得到全部控制点组成的曲线的长度, 大致的等于2个线段的和吧，不然用微积分算很麻烦
     public float GetLength()
     {
+        //Debug.LogError("getlength start");
+        //for (int i = 0; i < 3; i++)
+        //    Debug.LogError("ControlPath:" + i + " :" + ControlPath[i].ToString());
+        //Debug.LogError(Vector3.Distance(ControlPath[1], ControlPath[0]));
+        //Debug.LogError(Vector3.Distance(ControlPath[1], ControlPath[2]));
+        //Debug.LogError("getlength end");
         return Vector3.Distance(ControlPath[1], ControlPath[0]) + Vector3.Distance(ControlPath[1], ControlPath[2]);
     }
 
@@ -56,11 +62,12 @@ public class Spline
 
     public Vector3 Eval(float t)
     {
+        //Debug.LogError("t:" + t);
         if (ControlPoint < 2 || ControlPath.Length < 2)
             return Vector3.zero;
-        if (t > 1)
+        if (t >= 1)
             return ControlPath[ControlPoint - 1];
-        if (t < 0)
+        if (t <= 0)
             return ControlPath[0];
         if (ControlPoint == 2)
             return (t) * (t * (ControlPath[2] - ControlPath[1]) - t * (ControlPath[1] - ControlPath[0]));

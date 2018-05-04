@@ -592,7 +592,12 @@ public class PoseStatus
             {
                 //NPC只在处于杀死敌方的状态时会朝角色转向
                 if (_Self.robot != null && _Self.robot.Status == EAIStatus.Kill)
+                {
+                    if (_Self.GetWeaponType() != (int)EquipWeaponType.Guillotines && 
+                        _Self.GetWeaponType() != (int)EquipWeaponType.Gun && 
+                        _Self.GetWeaponType() != (int)EquipWeaponType.Dart)
                     _Self.FaceToTarget(_Self.GetLockedTarget());
+                }
                 else if (_Self.robot == null)
                     _Self.FaceToTarget(_Self.GetLockedTarget());
             }

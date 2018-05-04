@@ -233,17 +233,12 @@ public class MeteorAI {
         yield return 0;
         while (true)
         {
-            owner.controller.Input.OnKeyDown(EKeyList.KL_Jump, true);
-            yield return 0;
             yield return 0;
             yield return 0;
             owner.controller.Input.OnKeyDown(EKeyList.KL_Attack, true);
             yield return 0;
             yield return 0;
             owner.controller.Input.OnKeyUp(EKeyList.KL_Attack);
-            yield return 0;
-            yield return 0;
-            owner.controller.Input.OnKeyUp(EKeyList.KL_Jump);
             break;
         }
         struggleCoroutine = null;
@@ -341,6 +336,12 @@ public class MeteorAI {
 
         //}
         int random = Global.Rand.Next(0, 101);
+        switch (SubStatus)
+        {
+            case EAISubStatus.Think://采取一个什么行动,朝目标丢招式,转向目标
+                
+                break;
+        }
         //Log.LogFrame("随机0-7:得到" + random);
         if (PlayWeaponPoseCorout != null)
         {

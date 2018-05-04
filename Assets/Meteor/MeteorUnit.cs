@@ -525,7 +525,7 @@ public class MeteorUnit : MonoBehaviour
             //隐身只能在10M内发现目标
             if (HasBuff(EBUFF_Type.HIDE))
             {
-                if (d > 20.0f)
+                if (d > 35.0f)
                     continue;
             }
 
@@ -933,7 +933,7 @@ public class MeteorUnit : MonoBehaviour
     public void Init(int modelIdx, MonsterEx mon = null, bool updateModel = false)
     {
         allowAttack = false;
-        WeaponReturned();
+        WeaponReturned(0);
         Vector3 vec = transform.position;
         Quaternion rotation = transform.rotation;
 
@@ -1701,15 +1701,29 @@ public class MeteorUnit : MonoBehaviour
         hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 10);
     }
 
-    public void WeaponReturned()
+    public void WeaponReturned(int poseIdx)
     {
         //219等待回收武器.
         if (charLoader != null)
         {
-            if (posMng.mActiveAction.Idx == 219)
-                charLoader.SetLoop(false);
-            else
-                charLoader.LinkEvent(219, PoseEvt.WeaponIsReturned);
+            if (Global.MeteorVersion == "1.07")
+            {
+                if (posMng.mActiveAction.Idx == (poseIdx + 1))
+                {
+                    charLoader.SetLoop(false);
+                }
+                else
+                {
+                    charLoader.LinkEvent(poseIdx + 1, PoseEvt.WeaponIsReturned);
+                }
+            }
+            else if (Global.MeteorVersion == "9.07")
+            {
+                if (posMng.mActiveAction.Idx == 219)
+                    charLoader.SetLoop(false);
+                else
+                    charLoader.LinkEvent(219, PoseEvt.WeaponIsReturned);
+            }
         }
     }
 
@@ -2081,7 +2095,7 @@ public class MeteorUnit : MonoBehaviour
 
                         string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                        AngryValue += (realDamage * 5);
+                        AngryValue += (int)((realDamage * 5) / 10.0f);
                         if (Attr.Dead)
                             OnDead(attacker);
                         else
@@ -2135,7 +2149,7 @@ public class MeteorUnit : MonoBehaviour
 
                     if (charLoader != null && dam.TargetValue != 0.0f)
                         charLoader.LockTime(dam.TargetValue);
-                    AngryValue += (realDamage * 3);
+                    AngryValue += (int)((realDamage * 3) / 10.0f);
                     string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                     SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
                     if (Attr.Dead)
@@ -2206,8 +2220,8 @@ public class MeteorUnit : MonoBehaviour
             {
                 case 0: directionAct = dam.TargetPoseFront; break;//这个是前后左右，武器防御受击是 上下左右，上下指角色面朝方向头顶和底部
                 case 1: directionAct = dam.TargetPoseBack; break;
-                case 2: directionAct = dam.TargetPoseRight; break;
-                case 3: directionAct = dam.TargetPoseLeft; break;
+                case 2: directionAct = dam.TargetPoseLeft; break;
+                case 3: directionAct = dam.TargetPoseRight; break;
             }
 
             if (attacker.Attr.IsPlayer && GameData.gameStatus.EnableGodMode)
@@ -2291,7 +2305,7 @@ public class MeteorUnit : MonoBehaviour
                         //}
                         string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                        AngryValue += (realDamage * 5);
+                        AngryValue += (int)((realDamage * 5) / 10.0f);
                         if (Attr.Dead)
                             OnDead(attacker);
                         else
@@ -2347,7 +2361,7 @@ public class MeteorUnit : MonoBehaviour
 
                     if (charLoader != null && dam.TargetValue != 0.0f)
                         charLoader.LockTime(dam.TargetValue);
-                    AngryValue += (realDamage * 3);
+                    AngryValue += (int)((realDamage * 3) / 10.0f);
                     //EquipWeaponCode idx = EquipWeaponCode.Blade;
                     //switch ((EquipWeaponType)attacker.GetWeaponType())
                     //{
@@ -2814,6 +2828,7 @@ public class MeteorUnit : MonoBehaviour
             //得到武器的大绝pose号码。
             int pose = GetSkillPose();
             AngryValue -= Attr.IsPlayer ? (GameData.gameStatus.EnableInfiniteAngry ? 0 : 100): 100;
+            Debug.LogError("使用技能后:怒气值:" + AngryValue);
             posMng.ChangeAction(pose);
         }
         else if (Attr.IsPlayer)

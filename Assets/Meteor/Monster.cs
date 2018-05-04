@@ -89,7 +89,7 @@ public class MonsterEx
         //Weapon = (int)(double)ScriptMng.ins.GetVariable("Weapon");
         //Weapon2 = (int)(double)ScriptMng.ins.GetVariable("Weapon2");
         Team = 2;
-        View = 40;
+        View = 600;
         //Think = (int)ScriptMng.ins.GetVariable("Think");
         HpMax = 2000;
         SpawnPoint = 1;

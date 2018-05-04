@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using ProtoBuf;
+using System.Linq;
 
 public class AABBVector
 {
@@ -335,6 +336,18 @@ public class CharacterLoader : MonoBehaviour
         TryPlayEffect();
         ChangeAttack();
         ChangeWeaponTrail();
+
+        if (PoseEvent.ContainsKey(po.Idx))
+        {
+            //当218发射飞轮，很快返回，还未到219动作时，下次播放219，就得立即取消循环，221 223
+            if ((PoseEvent[po.Idx] & (int)PoseEvt.WeaponIsReturned) != 0)
+            {
+                PoseEvent[po.Idx] &= ~(int)PoseEvt.WeaponIsReturned;
+                loop = false;
+                curIndex = po.LoopEnd;
+            }
+        }
+
         //有连招.
         if (TestInputLink())
             return;
@@ -464,10 +477,6 @@ public class CharacterLoader : MonoBehaviour
                 //当前处于不允许攻击，才能切换到允许攻击
                 if (!mOwner.allowAttack)
                     mOwner.ChangeAttack(po.Attack[i]);
-                else
-                {
-                    //Debug.LogError(po.Attack[i].PoseIdx + " attack ignored");
-                }
                 open = true;
                 break;
             }
@@ -780,15 +789,7 @@ public class CharacterLoader : MonoBehaviour
         else if (po.Idx == 219)//飞轮出击后等待接回飞轮
         {
             //等着收回武器
-            if (PoseEvent.ContainsKey(219))
-            {
-                //当218发射飞轮，很快返回，还未到219动作时，下次播放219，就得立即取消循环，
-                if ((PoseEvent[219] & (int)PoseEvt.WeaponIsReturned) != 0)
-                {
-                    PoseEvent[219] &= ~(int)PoseEvt.WeaponIsReturned;
-                    loop = false;
-                }
-            }
+            
         }
         else
         {
@@ -842,11 +843,13 @@ public class CharacterLoader : MonoBehaviour
     int blendStart = 0;
     public int GetCurrentFrameIndex() { return curIndex; }
 
-    //僵直清空/飞轮回收，等一些情况时，取消循环
+    //僵直清空/飞轮回收，等一些情况时，取消循环,立即切换到动作结束
     public void SetLoop(bool looped)
     {
         loop = looped;
+        curIndex = po.LoopEnd;
     }
+
     Dictionary<int, int> PoseEvent = new Dictionary<int, int>();
     public void LinkEvent(int pose, PoseEvt evt)
     {

@@ -47,7 +47,7 @@ public class FlyWheel : MonoBehaviour {
         line = gameObject.AddComponent<LineRenderer>();
         line.startWidth = 1f;
         line.endWidth = 1f;
-        
+        //line.numPositions = 200;
         owner = Owner;
         _attack = attackdef;
         auto_target = target;
@@ -62,7 +62,10 @@ public class FlyWheel : MonoBehaviour {
         //计算控制点
         spline.SetControlPoint(0, transform.position);
         InitSpline();
+        //List<Vector3> veclst = spline.GetEquiDistantPointsOnCurve(200);
+        //line.SetPositions(veclst.ToArray());
         tTotal = spline.GetLength() / speed;
+        //Debug.LogError("tTotal Init:" + tTotal + " length:" + spline.GetLength() + " speed:" + speed);
         LoadWeapon();
         MeshRenderer mr = gameObject.GetComponentInChildren<MeshRenderer>();
         if (mr != null)
@@ -86,7 +89,7 @@ public class FlyWheel : MonoBehaviour {
             //计算一个坐标，终点，作为贝塞尔曲线的控制点.
             Vector3 vecforw = (new Vector3(auto_target.mPos.x, 0, auto_target.mPos.z) - new Vector3(owner.mPos.x, 0, owner.mPos.z)).normalized;
             //主角面向向量与（主角朝目标向量）的夹角的一半
-            float angle = Mathf.Acos(Vector3.Dot(-owner.transform.forward, vecforw));
+            float angle = Mathf.Acos(Mathf.Clamp(Vector3.Dot(-owner.transform.forward, vecforw), -1.0f, 1.0f));
             if (angle * Mathf.Rad2Deg > 90.0f)
             {
                 //比较特殊。这种情况说明是背对敌人，飞轮应该往前飞行一段时间后返回
@@ -99,7 +102,9 @@ public class FlyWheel : MonoBehaviour {
             bool isLeft = Vector3.Dot(owner.transform.right, vecforw) < 0;
             //左侧
             Vector3 vec = Quaternion.AngleAxis((isLeft ? -angle / 2.0f : angle / 2.0f) * Mathf.Rad2Deg, Vector3.up) * (-owner.transform.forward);
+            //Debug.LogError("vec:" + vec);
             Vector3 vecPosition = vec * (Vector3.Distance(new Vector3(auto_target.mPos.x, 0, auto_target.mPos.z), new Vector3(owner.mPos.x, 0, owner.mPos.z))) + owner.WeaponR.position - 0.5f * Vector3.up * (owner.mPos.y - auto_target.mPos.y);
+            //Debug.LogError("vecPosition:" + vecPosition);
             spline.SetControlPoint(1, vecPosition);
             spline.SetControlPoint(2, TargetPosCache);
         }
@@ -126,17 +131,13 @@ public class FlyWheel : MonoBehaviour {
         {
             if (status == 0)
             {
+                //Debug.LogError("status == 0");
                 //发射,随机自转
                 tTick += Time.deltaTime;
                 refreshDelay -= Time.deltaTime;
                 if (refreshDelay <= 0.1f && !outofArea)
                 {
                     RefreshSpline();
-                    //if (GameData.gameStatus.EnableDebug)
-                    //{
-                    //    List<Vector3> veclst = spline.GetEquiDistantPointsOnCurve(200);
-                    //    line.SetPositions(veclst.ToArray());
-                    //}
                     refreshDelay = 0.1f;
                 }
 
@@ -144,22 +145,32 @@ public class FlyWheel : MonoBehaviour {
                 {
                     status = 1;//无论是否撞到敌人，返回.
                     tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / returnspeed;
+                    //if (float.IsNaN(tTotal) || tTotal == 0.0f)
+                    //{
+                    //    Debug.LogError("error nan " + Vector3.Distance(transform.position, owner.WeaponR.position).ToString() + " return speed:" + returnspeed);
+                    //}
                     tTick = 0.0f;
                     yield return 0;
                     continue;
                 }
                 transform.Rotate(new Vector3(0, 15.0f, 0), Space.Self);
-                transform.position = spline.Eval(tTick / tTotal);
+                //Debug.LogError("tTick:" + tTick + " tTotal:" + tTotal);
+                Vector3 v = spline.Eval(tTick / tTotal);
+                //Debug.LogError(v.ToString());
+                transform.position = v;
             }
             else if (status == 1)
             {
+                //Debug.LogError("status == 1");
                 //回收-直线回转-穿墙
                 transform.Rotate(new Vector3(0, 15.0f, 0), Space.Self);
                 Vector3 dir = owner.WeaponR.position - transform.position;
+                //Debug.LogError("dir.magnitude:" + dir.sqrMagnitude + " speed*time.deltatime:" + speed * Time.deltaTime);
+                //WsGlobal.AddDebugLine(transform.position, transform.position + dir, Color.red, "dir");
                 if (dir.magnitude <= speed * Time.deltaTime)//速度太大的时候，可能会2边跑，而且距离都大于5，这样要看夹角是否改变了方向.
                 {
-                    //Debug.LogError("WeaponReturned");
-                    owner.WeaponReturned();
+                    Debug.LogError("WeaponReturned");
+                    owner.WeaponReturned(_attack.PoseIdx);
                     owner.weaponLoader.ShowWeapon();
                     GameObject.Destroy(gameObject);
                     yield break;
@@ -229,7 +240,7 @@ public class FlyWheel : MonoBehaviour {
             if (unit == owner && status == 1)
             {
                 //Debug.LogError("WeaponReturned");
-                owner.WeaponReturned();
+                owner.WeaponReturned(_attack.PoseIdx);
                 owner.weaponLoader.ShowWeapon();
                 GameObject.Destroy(gameObject);
                 return;
