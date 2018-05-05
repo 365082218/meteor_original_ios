@@ -564,10 +564,43 @@ public class MeteorInput
                     case 9:
                     case 10:
                     case 11:
-                    case 12:
-                    case 145:
-                    case 146:
                         result = true;
+                        break;
+                    case 12:
+                        if (mOwner.Attr.IsPlayer && GameData.gameStatus.EnableInfiniteAngry)
+                            result = true;
+                        else
+                        if (mOwner.AngryValue < 100)
+                            result = false;
+                        else
+                        {
+                            mOwner.AngryValue -= 100;
+                            result = true;
+                        }
+                        break;
+                    case 145:
+                        if (mOwner.Attr.IsPlayer && GameData.gameStatus.EnableInfiniteAngry)
+                            result = true;
+                        else
+                        if (mOwner.AngryValue < 60)
+                            result = false;
+                        else
+                        {
+                            mOwner.AngryValue -= 60;
+                            result = true;
+                        }
+                        break;
+                    case 146:
+                        if (mOwner.Attr.IsPlayer && GameData.gameStatus.EnableInfiniteAngry)
+                            result = true;
+                        else
+                        if (mOwner.AngryValue < 60)
+                            result = false;
+                        else
+                        {
+                            mOwner.AngryValue -= 60;
+                            result = true;
+                        }
                         break;
                     case 59://一般空踢
                         result = true;
