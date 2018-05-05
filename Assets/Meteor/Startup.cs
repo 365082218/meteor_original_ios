@@ -99,12 +99,6 @@ public class Startup : MonoBehaviour {
         ProtoHandler.Update();
     }
 
-	//APP接口
-	public void AppStart()
-	{
-        OCAgent.AppStart();
-	}
-
     #region (notification)
     //void CleanNotification()
     //{

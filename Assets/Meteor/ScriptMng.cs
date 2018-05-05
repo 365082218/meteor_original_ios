@@ -9,7 +9,6 @@ using System.IO;
 public class ScriptMng:MonoBehaviour
 {
 	LuaSvr svr;
-    public bool AsAppStart;
     public static ScriptMng ins = null;
     LuaFunction save;
     void Awake()
@@ -30,12 +29,7 @@ public class ScriptMng:MonoBehaviour
         {
             CallScript("Main");
             save = LuaSvr.mainState.getFunction("save");
-            if (AsAppStart)
-            {
-                Startup.ins.AppStart();
-            }
-            else
-                Startup.ins.GameStart();
+            Startup.ins.GameStart();
         });
 	}
 

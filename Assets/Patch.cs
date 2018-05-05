@@ -12,6 +12,11 @@ public class Patch : MonoBehaviour {
     public Image border;
     //单机版不更新.
 	void Start () {
+#if UNITY_ANDROID
+        AndroidWrapper.Init();
+#elif UNITY_IOS
+        IosWrapper.Init();
+#endif
         GameData.LoadVersion();
         GameData.LoadState();
         StartCoroutine(LoadData());
