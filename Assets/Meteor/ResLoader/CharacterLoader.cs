@@ -475,8 +475,8 @@ public class CharacterLoader : MonoBehaviour
             if (curIndex >= po.Attack[i].Start && curIndex <= po.Attack[i].End)
             {
                 //当前处于不允许攻击，才能切换到允许攻击
-                if (!mOwner.allowAttack)
-                    mOwner.ChangeAttack(po.Attack[i]);
+                //if (!mOwner.allowAttack)
+                mOwner.ChangeAttack(po.Attack[i]);
                 open = true;
                 break;
             }
@@ -484,7 +484,7 @@ public class CharacterLoader : MonoBehaviour
 
         if (!open)
         {
-            if (owner.allowAttack)
+            //if (owner.allowAttack)
                 mOwner.ChangeAttack(null);
         }
     }

@@ -4,8 +4,10 @@ using System.Runtime.InteropServices;
 
 //代理OC平台上的调用
 public class IosWrapper : MonoBehaviour {
-	[DllImport("__Internal")]
-	private static extern void IOS_AXXX();
+#if UNITY_IOS
+    [DllImport("__Internal")]
+    private static extern void IOS_AXXX();
+#endif
     public static IosWrapper IosInstance;
     private void Awake()
     {

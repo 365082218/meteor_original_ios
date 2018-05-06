@@ -932,7 +932,7 @@ public class MeteorUnit : MonoBehaviour
     public CharacterController charController;
     public void Init(int modelIdx, MonsterEx mon = null, bool updateModel = false)
     {
-        allowAttack = false;
+        //allowAttack = false;
         WeaponReturned(0);
         Vector3 vec = transform.position;
         Quaternion rotation = transform.rotation;
@@ -1727,7 +1727,7 @@ public class MeteorUnit : MonoBehaviour
         }
     }
 
-    public bool allowAttack { get; set; }
+    //public bool allowAttack { get; set; }
     public AttackDes CurrentDamage { get { return damage; } }
     AttackDes damage;
     //每8帧一次伤害判定.(5 * 1.0f / 30.0f)
@@ -1803,7 +1803,7 @@ public class MeteorUnit : MonoBehaviour
     public void ChangeAttack(bool allow)
     {
         weaponLoader.ChangeAttack(allow);
-        allowAttack = allow;
+        //allowAttack = allow;
         for (int i = 0; i < sfxList.Count; i++)
             sfxList[i].ChangeAttack(allow);
         if (!allow)
