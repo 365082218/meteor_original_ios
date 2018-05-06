@@ -56,7 +56,7 @@ public class CameraFollow : MonoBehaviour {
         Unlocked = false;
         followHeight = 6;
         followDistance = 55.0f;
-        BodyHeight = 32;
+        BodyHeight = 10;
         m_MinSize = 60;
         LookAtAngle = 5.0f;
         m_Camera = GetComponent<Camera>();
@@ -73,11 +73,9 @@ public class CameraFollow : MonoBehaviour {
             m_Targets[i].localScale = 10 * Vector3.one;
         }
 
-        
-
         if (MeteorManager.Instance.LocalPlayer != null)
         {
-            cameraLookAt = MeteorManager.Instance.LocalPlayer.transform.position + new Vector3(0, BodyHeight, 0);
+            cameraLookAt = new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, MeteorManager.Instance.LocalPlayer.ROOTNull.transform.position.y + BodyHeight, MeteorManager.Instance.LocalPlayer.mPos.z);
             Vector3 vpos = new Vector3(0, followHeight, 0) + cameraLookAt + followDistance * (MeteorManager.Instance.LocalPlayer.transform.forward);
             transform.position = vpos;
             Vector3 vdiff = MeteorManager.Instance.LocalPlayer.transform.position - transform.position;
@@ -106,7 +104,7 @@ public class CameraFollow : MonoBehaviour {
     public float smoothIntensity = 20.0f;//移动平滑倍数
     public float RotateIntensity = 8.0f;//旋转平滑倍数
     public float LookAtAngle = 0.0f;//朝目标俯视角度
-    public float BodyHeight = 28.0f;//目标中心点在脚部往上多少
+    public float BodyHeight = 10.0f;//目标脊椎往上多少
     Vector3 LasthitOffset = Vector3.zero;
     public Vector3[] newViewIndex = new Vector3[3];
     int ViewIndex = 0;
@@ -292,7 +290,7 @@ public class CameraFollow : MonoBehaviour {
                 }
             }
 
-            cameraLookAt = MeteorManager.Instance.LocalPlayer.transform.position + new Vector3(0, BodyHeight, 0);//朝向焦点
+            cameraLookAt = new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, MeteorManager.Instance.LocalPlayer.ROOTNull.transform.position.y + BodyHeight, MeteorManager.Instance.LocalPlayer.mPos.z);//朝向焦点
             newPos = cameraLookAt + MeteorManager.Instance.LocalPlayer.transform.forward * followDistance + new Vector3(0, followHeight, 0);
             RaycastHit wallHit;
             bool hitWall = false;

@@ -990,10 +990,10 @@ public class MeteorUnit : MonoBehaviour
         }
         WeaponR = Global.ldaControlX("d_wpnR", charLoader.rootBone.gameObject).transform;
         WeaponL = Global.ldaControlX("d_wpnL", charLoader.rootBone.gameObject).transform;
-
         ROOTNull = Global.ldaControlX("b", charLoader.rootBone.gameObject).transform;
         HeadBone = Global.ldaControlX("bau_Head", charLoader.rootBone.gameObject).transform;
         RootdBase = charLoader.rootBone;
+
         weaponLoader = gameObject.GetComponent<WeaponLoader>();
         if (updateModel)
         {
