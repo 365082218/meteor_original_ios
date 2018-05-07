@@ -14,9 +14,9 @@ public class AndroidWrapper:MonoBehaviour
     private void Awake()
     {
 #if UNITY_ANDROID
-        Meteor = new AndroidJavaClass("com.meteorsdk.MainActivity");
-        if (Meteor != null)
-            ActivityInstance = Meteor.GetStatic<AndroidJavaObject>("Instance");
+        //Meteor = new AndroidJavaClass("com.meteorsdk.MainActivity");
+        //if (Meteor != null)
+            //ActivityInstance = Meteor.GetStatic<AndroidJavaObject>("Instance");
 #endif
     }
     public static void Init()
