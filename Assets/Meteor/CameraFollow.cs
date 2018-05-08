@@ -56,7 +56,7 @@ public class CameraFollow : MonoBehaviour {
         Unlocked = false;
         followHeight = 6;
         followDistance = 55.0f;
-        BodyHeight = 10;
+        BodyHeight = 32;
         m_MinSize = 60;
         LookAtAngle = 5.0f;
         m_Camera = GetComponent<Camera>();
@@ -75,7 +75,7 @@ public class CameraFollow : MonoBehaviour {
 
         if (MeteorManager.Instance.LocalPlayer != null)
         {
-            cameraLookAt = new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, MeteorManager.Instance.LocalPlayer.ROOTNull.transform.position.y + BodyHeight, MeteorManager.Instance.LocalPlayer.mPos.z);
+            cameraLookAt = new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, MeteorManager.Instance.LocalPlayer.transform.position.y + BodyHeight, MeteorManager.Instance.LocalPlayer.mPos.z);
             Vector3 vpos = new Vector3(0, followHeight, 0) + cameraLookAt + followDistance * (MeteorManager.Instance.LocalPlayer.transform.forward);
             transform.position = vpos;
             Vector3 vdiff = MeteorManager.Instance.LocalPlayer.transform.position - transform.position;
@@ -290,7 +290,7 @@ public class CameraFollow : MonoBehaviour {
                 }
             }
 
-            cameraLookAt = new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, MeteorManager.Instance.LocalPlayer.ROOTNull.transform.position.y + BodyHeight, MeteorManager.Instance.LocalPlayer.mPos.z);//朝向焦点
+            cameraLookAt = new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, MeteorManager.Instance.LocalPlayer.transform.position.y + BodyHeight, MeteorManager.Instance.LocalPlayer.mPos.z);//朝向焦点
             newPos = cameraLookAt + MeteorManager.Instance.LocalPlayer.transform.forward * followDistance + new Vector3(0, followHeight, 0);
             RaycastHit wallHit;
             bool hitWall = false;
