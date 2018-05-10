@@ -585,12 +585,12 @@ public class CharacterLoader : MonoBehaviour
 
         for (int i = 0; i < bo.Count; i++)
         {
-            if (bo[i] == owner.HeadBone && GameBattleEx.Instance.autoTarget != null && owner.Attr.IsPlayer)
-            {
+            //if (bo[i] == owner.HeadBone && GameBattleEx.Instance.autoTarget != null && owner.Attr.IsPlayer)
+            //{
 
-            }
-            else
-                bo[i].localRotation = Quaternion.Slerp(lastStatus.BoneQuat[i], status.BoneQuat[i], timeRatio);
+            //}
+            //else
+            bo[i].localRotation = Quaternion.Slerp(lastStatus.BoneQuat[i], status.BoneQuat[i], timeRatio);
 
             if (i == 0)
                 bo[i].localPosition = Vector3.Lerp(lastStatus.BonePos, status.BonePos, timeRatio);

@@ -658,7 +658,7 @@ public class MeteorUnit : MonoBehaviour
     public const float JumpVelocityForward = 150.0f;//向前跳跃速度
     public const float JumpVelocityOther = 90.0f;//其他方向上的速度
     public const float gGravity = 980.0f;//971.4f;//向上0.55秒，向下0.45秒
-    public const float groundFriction = 3000.0f;//地面摩擦力，在地面不是瞬间停止下来的。
+    public const float groundFriction = 1000.0f;//地面摩擦力，在地面不是瞬间停止下来的。
     public const float yLimitMin = -500f;//最大向下速度
     public const float yLimitMax = 500;//最大向上速度
     public const float yClimbLimitMax = 180.0f;
@@ -1007,8 +1007,8 @@ public class MeteorUnit : MonoBehaviour
         if (Attr.IsPlayer)
         {
             //CameraFollow followCamera = GameObject.Find("CameraEx").GetComponent<CameraFollow>();
-            //头部骨骼朝向自动目标对象
-            StartCoroutine("HeadLookAt");
+            //头部骨骼朝向自动目标对象-取消，部分情况下出现扭曲
+            //StartCoroutine("HeadLookAt");
         }
 
         charController = gameObject.GetComponent<CharacterController>();
@@ -1243,8 +1243,9 @@ public class MeteorUnit : MonoBehaviour
     {
         Vector3 vec = transform.position - hitPoint;
         vec.y = 0;
-        SetWorldVelocity(Vector3.Normalize(vec) * 30);
-        //WsGlobal.AddDebugLine(hitPoint, hitPoint + Vector3.Normalize(vec) * 50, Color.red, "pushDir", 10);
+
+        SetWorldVelocity(Vector3.Normalize(vec) * 50);
+        //WsGlobal.AddDebugLine(hitPoint, hitPoint + Vector3.Normalize(vec) * 30, Color.red, "pushDir", 10);
         //Debug.LogError("被墙壁推开");
         //RaycastHit hit;
         //bool processed = false;
@@ -1698,7 +1699,7 @@ public class MeteorUnit : MonoBehaviour
         }
         Vector3 vec = hitUnit.mPos - transform.position;
         vec.y = 0;
-        hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 10);
+        hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 30);
     }
 
     public void WeaponReturned(int poseIdx)
