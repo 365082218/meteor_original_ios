@@ -1807,7 +1807,7 @@ public class LevelScript_sn03 : LevelScriptBase
 
     int g_iADoor02OpenTime;
     int g_iBDoor01OpenTime;
-    int g_iDoorWaitTime = 7000;
+    int g_iDoorWaitTime = 12000;
 
     int g_iPdoorMaxHP = 2000;
     int g_iPdoorState1HP;
