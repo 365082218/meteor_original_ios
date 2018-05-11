@@ -104,7 +104,6 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Control("LoadLevel").GetComponent<Button>().onClick.AddListener(OnLoadLevel);
         Control("SetJoyPosition").GetComponent<Button>().onClick.AddListener(OnSetJoyPosition);
         Control("DoScript").GetComponent<Button>().onClick.AddListener(OnDoScript);
-
         Toggle toggleDebug = Control("EnableDebug").GetComponent<Toggle>();
         toggleDebug.isOn = GameData.gameStatus.EnableDebug;
         toggleDebug.onValueChanged.AddListener(OnEnableDebug);
@@ -124,6 +123,10 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Toggle toggleEnableGodMode = Control("EnableGodMode").GetComponent<Toggle>();
         toggleEnableGodMode.isOn = GameData.gameStatus.EnableGodMode;
         toggleEnableGodMode.onValueChanged.AddListener(OnEnableGodMode);
+
+        Toggle toggleShowWayPoint = Control("ShowWayPoint").GetComponent<Toggle>();
+        toggleShowWayPoint.isOn = false;
+        toggleShowWayPoint.onValueChanged.AddListener(OnShowWayPoint);
 
         Control("ChangeV107").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("1.07"); });
         //Control("Ver108").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer(108); });
@@ -176,6 +179,11 @@ public class NewSystemWnd : Window<NewSystemWnd>
     {
         WsGlobal.ShowLevelSelect();
         OnClickClose();
+    }
+
+    void OnShowWayPoint(bool on)
+    {
+        GameBattleEx.Instance.ShowWayPoint(on);
     }
 
     void OnDoScript()

@@ -279,6 +279,11 @@ public class FightWnd: Window<FightWnd>
     void OnClickChangeLock()
     {
         if (Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll) return;
+        //远程武器禁止切换锁定状态
+        int weaponEquiped = MeteorManager.Instance.LocalPlayer.GetWeaponType();
+        if (weaponEquiped == (int)EquipWeaponType.Gun || weaponEquiped == (int)EquipWeaponType.Dart || weaponEquiped == (int)EquipWeaponType.Guillotines)
+            return;
+
         if (GameBattleEx.Instance.bLocked)
             GameBattleEx.Instance.Unlock();
         else

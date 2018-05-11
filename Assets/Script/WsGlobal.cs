@@ -6,14 +6,26 @@ using System.Collections.Generic;
 public class WsGlobal {
 	public static Dictionary<int, GameObject> DebugLine = new Dictionary<int, GameObject>();
 	public static List<int> removeNodeIndex = new List<int>();
+
+    public static void RemoveLine(int idx)
+    {
+        if (DebugLine.ContainsKey(idx))
+        {
+            GameObject.Destroy(DebugLine[idx]);
+            DebugLine.Remove(idx);
+        }
+    }
+
 	public static int AddDebugLine(Vector3 pos, Color co, string strTag = "", float fLastTime = float.MaxValue)
 	{
 		GameObject obj = GameObject.Instantiate(Resources.Load("DebugLineRender")) as GameObject;
 		obj.transform.position = pos;
 		LineRenderer line = obj.GetComponent<LineRenderer>();
-		line.SetWidth(1, 1);
-		line.SetColors(co, co);
-		line.SetVertexCount(2);
+		line.startWidth = 1;
+        line.endWidth = 1;
+        line.startColor = co;
+        line.endColor = co;
+		line.numCapVertices = 2;
 		line.SetPosition(0, pos);
 		line.SetPosition(1, pos + Vector3.up * 15);
 		UITalkBubble text = obj.GetComponent<UITalkBubble>();
@@ -31,6 +43,7 @@ public class WsGlobal {
 		DebugLine.Add(nCount, obj);
 		return nCount;
 	}
+
     public static int AddDebugLine(Vector3 pos, Vector3 pos2, Color co, string strTag = "", float fLastTime = float.MaxValue)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load("DebugLineRender")) as GameObject;

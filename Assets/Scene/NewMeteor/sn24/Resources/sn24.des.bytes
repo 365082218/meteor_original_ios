@@ -1,0 +1,1018 @@
+# GModel Description File V1.0
+# by yish for 2011-04-05
+SceneObjects 55 DummeyObjects 999
+Object BSP_Object_model_0
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_1
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_2
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_3
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_4
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_5
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_6
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_7
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_8
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_9
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_10
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_11
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_12
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_13
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_14
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_15
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_16
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_17
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_18
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_19
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_20
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_21
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_22
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_23
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_24
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_25
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_26
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_27
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_28
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_29
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_30
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_31
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_32
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_33
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_34
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_35
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_36
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_37
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_38
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_39
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_40
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_41
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_42
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_43
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_44
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_45
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_46
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_47
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_48
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_49
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_50
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_51
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_52
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object BSP_Object_model_53
+{
+  Position: 0.0 0.0 0.0
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object gezi
+{
+  Position: 226.833 -353.043 -714.785
+  Quaternion: 1.0 0.0 0.0 0.0
+  TextureAnimation: 0 0 0
+  Custom:
+  {
+  }
+}
+Object D_user01
+{
+  Position: 519.000 214.000 0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user01"
+  }
+}
+Object D_user02
+{
+  Position: 19.000 -1169.000 0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user02"
+  }
+}
+Object D_user03
+{
+  Position: 263.000 -1799.000 0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="user03"
+  }
+}
+Object D_teamA01
+{
+  Position: 249.000 1232.000 0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamA01"
+  }
+}
+Object D_teamA02
+{
+  Position: -260.000 1100.000 1.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamA02"
+  }
+}
+Object D_teamA03
+{
+  Position: 179.000 1497.000 -150.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamA03"
+  }
+}
+Object D_teamB01
+{
+  Position: -231.000 -1838.000 0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamB01"
+  }
+}
+Object D_teamB02
+{
+  Position: 464.000 -2180.000 150.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamB02"
+  }
+}
+Object D_teamB03
+{
+  Position: 618.000 -1646.000 0.000
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    name="teamB03"
+  }
+}
+Object D_Wpn01
+{
+  Position: 666.544 1637.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W0_0"
+  }
+}
+Object D_Wpn02
+{
+  Position: 666.544 1577.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W1_0"
+  }
+}
+Object D_Wpn03
+{
+  Position: 666.544 1517.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W2_0"
+  }
+}
+Object D_Wpn04
+{
+  Position: 666.544 1457.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W3_0"
+  }
+}
+Object D_Wpn05
+{
+  Position: 666.544 1397.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W4_0"
+  }
+}
+Object D_Wpn06
+{
+  Position: 666.544 1337.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W5_0"
+  }
+}
+Object D_Wpn07
+{
+  Position: 557.544 1337.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W6_0"
+  }
+}
+Object D_Wpn08
+{
+  Position: 557.544 1397.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W7_0"
+  }
+}
+Object D_Wpn09
+{
+  Position: 557.544 1457.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W8_0r"
+  }
+}
+Object D_Wpn10
+{
+  Position: 557.544 1517.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W9_0r"
+  }
+}
+Object D_Wpn11
+{
+  Position: 557.544 1577.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W10_0r"
+  }
+}
+Object D_Wpn12
+{
+  Position: 557.544 1637.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W11_0"
+  }
+}
+Object D_Wpn13
+{
+  Position: -232.544 -1980.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W0_0"
+  }
+}
+Object D_Wpn14
+{
+  Position: -172.544 -1980.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W1_0"
+  }
+}
+Object D_Wpn15
+{
+  Position: -112.544 -1980.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W2_0"
+  }
+}
+Object D_Wpn16
+{
+  Position: -52.544 -1980.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W3_0"
+  }
+}
+Object D_Wpn17
+{
+  Position: 12.544 -1980.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W4_0"
+  }
+}
+Object D_Wpn18
+{
+  Position: 72.544 -1980.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W5_0"
+  }
+}
+Object D_Wpn19
+{
+  Position: 72.544 -2095.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W6_0"
+  }
+}
+Object D_Wpn20
+{
+  Position: 12.544 -2095.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W7_0"
+  }
+}
+Object D_Wpn21
+{
+  Position: -52.544 -2095.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W8_0r"
+  }
+}
+Object D_Wpn22
+{
+  Position: -112.544 -2095.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W9_0r"
+  }
+}
+Object D_Wpn23
+{
+  Position: -172.544 -2095.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W10_0r"
+  }
+}
+Object D_Wpn24
+{
+  Position: -232.544 -2095.599 -190.506
+  Quaternion: -1.000 0.000 0.000 0.000
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="W11_0"
+  }
+}
+Object D_Item01
+{
+  Position: -285.902 1548.990 -100.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0902"
+  }
+}
+Object D_Item02
+{
+  Position: -185.902 1548.990 -100.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0903"
+  }
+}
+Object D_Item03
+{
+  Position: -285.902 1648.990 -100.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0901"
+  }
+}
+Object D_Item04
+{
+  Position: -185.902 1648.990 -100.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item09"
+  }
+}
+Object D_Item05
+{
+  Position: 756.751 -2166.916 -100.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0901"
+  }
+}
+Object D_Item06
+{
+  Position: 756.751 -2266.916 -100.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0902"
+  }
+}
+Object D_Item07
+{
+  Position: 656.751 -2166.916 -100.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0903"
+  }
+}
+Object D_Item08
+{
+  Position: 656.751 -2266.916 -100.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item09"
+  }
+}
+Object D_Item09
+{
+  Position: -1738.751 729.916 270.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0101"
+  }
+}
+Object D_Item10
+{
+  Position: 436.751 -257.916 -60.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item01"
+  }
+}
+Object D_Item11
+{
+  Position: 495.751 -397.916 -60.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item01"
+  }
+}
+Object D_Item12
+{
+  Position: 474.751 -342.916 -60.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0102"
+  }
+}
+Object D_Item13
+{
+  Position: 390.751 -134.916 -60.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item0103"
+  }
+}
+Object D_Item14
+{
+  Position: 312.751 -682.916 -26.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item07"
+  }
+}
+Object D_Item15
+{
+  Position: 20.751 -433.916 -60.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item05"
+  }
+}
+Object D_Item16
+{
+  Position: 203.751 -1026.916 -60.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item02"
+  }
+}
+Object D_Item17
+{
+  Position: 25.751 -314.916 -60.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item04"
+  }
+}
+Object D_Item18
+{
+  Position: 117.751 -369.916 -60.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item03"
+  }
+}
+Object D_Item19
+{
+  Position: 131.751 -256.916 -60.592
+  Quaternion: -1.000 0.000 -0.000 -0.009
+  TextureAnimation: 0 0.000 0.000
+  Custom:
+  {
+    model="Item08"
+  }
+}

@@ -1107,7 +1107,10 @@ public class MeteorUnit : MonoBehaviour
             weaponLoader.EquipWeapon(IndicatedWeapon);
         IndicatedWeapon = null;
         //没有自动目标，攻击目标，不许计算自动/锁定目标，无转向
-        if (Attr.IsPlayer && (GetWeaponType() == (int)EquipWeaponType.Gun || GetWeaponType() == (int)EquipWeaponType.Dart))
+        if (Attr.IsPlayer && 
+            (GetWeaponType() == (int)EquipWeaponType.Gun || 
+             GetWeaponType() == (int)EquipWeaponType.Dart || 
+             GetWeaponType() == (int)EquipWeaponType.Guillotines))
             GameBattleEx.Instance.Unlock();
     }
 

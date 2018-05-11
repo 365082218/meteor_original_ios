@@ -229,87 +229,12 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
     {
         if (Root != null)
             return;
-        //初始化基本输入表
-        //基础动作，Idle->移动（前后左右）  Idle->防御（与武器有关系）  Idle->跳(前后左右各动作不同) Idle->双击移动（前后左右） Idle->蹲下
-        //蹲下->滚动（前后左右）
-
-        //一些循环的动作，可以退出 (注意是单个键的)
-        //从上下左右走动到 空闲
-    //    AddInterrupt(CommonAction.WalkLeft, VK_Pose.VK_Idle, (int)EKeyList.KL_KeyA, (int)EInputType.EIT_Release);
-    //    AddInterrupt(CommonAction.WalkRight, VK_Pose.VK_Idle, (int)EKeyList.KL_KeyD, (int)EInputType.EIT_Release);
-    //    AddInterrupt(CommonAction.Run, VK_Pose.VK_Idle, (int)EKeyList.KL_KeyW, (int)EInputType.EIT_Release);
-     //   AddInterrupt(CommonAction.WalkBackward, VK_Pose.VK_Idle, (int)EKeyList.KL_KeyS, (int)EInputType.EIT_Release);
-    //    AddInterrupt(CommonAction.RunOnDrug, VK_Pose.VK_Idle, (int)EKeyList.KL_KeyW, (int)EInputType.EIT_Release);
-
-        //空闲->跳跃
-        //AddInterrupt(CommonAction.Idle, VK_Pose.VK_Jump, (int)EKeyList.KL_Jump, (int)EInputType.EIT_Click);
-        ////空闲->防御
-        //AddInterrupt(CommonAction.Idle, VK_Pose.VK_Defence, (int)EKeyList.KL_Defence, (int)EInputType.EIT_Click);
-
-        //防御姿态在松开防御后转为空闲
-        //AddInterrupt(CommonAction.Defence, VK_Pose.VK_Idle, (int)EKeyList.KL_Defence, (int)EInputType.EIT_Releasing);
-   //     AddInterrupt(CommonAction.Defence, VK_Pose.VK_Idle, (int)EKeyList.KL_Defence, (int)EInputType.EIT_Release);
-
-        //普通切换武器
-  //      AddInterrupt(CommonAction.Idle, VK_Pose.VK_ChangeWeapon1, (int)EKeyList.KL_ChangeWeapon1, (int)EInputType.EIT_Click);
-  //      AddInterrupt(CommonAction.Idle, VK_Pose.VK_ChangeWeapon2, (int)EKeyList.KL_ChangeWeapon2, (int)EInputType.EIT_Click);
-
-        //跳跃在空中或者落地过程切换武器1-2
-        //AddInterrupt(CommonAction.LongJump, VK_Pose.VK_ChangeWeapon1, (int)EKeyList.KL_ChangeWeapon1, (int)EInputType.EIT_Click);
-        //AddInterrupt(CommonAction.LongJump, VK_Pose.VK_ChangeWeapon2, (int)EKeyList.KL_ChangeWeapon2, (int)EInputType.EIT_Click);
-        //落地切换武器1-2
-  //      AddInterrupt(CommonAction.JumpFall, VK_Pose.VK_ChangeWeapon1, (int)EKeyList.KL_ChangeWeapon1, (int)EInputType.EIT_Click);
-  //      AddInterrupt(CommonAction.JumpFall, VK_Pose.VK_ChangeWeapon2, (int)EKeyList.KL_ChangeWeapon2, (int)EInputType.EIT_Click);
-
-        //普通走，中毒走，空闲->移动
-        //AddInterrupt(CommonAction.Idle, VK_Pose.VK_Run, (int)EKeyList.KL_KeyW, (int)EInputType.EIT_Pressing);
-        //AddInterrupt(CommonAction.Idle, VK_Pose.VK_WalkBackward, (int)EKeyList.KL_KeyS, (int)EInputType.EIT_Pressing);
-        //AddInterrupt(CommonAction.Idle, VK_Pose.VK_WalkLeft, (int)EKeyList.KL_KeyA, (int)EInputType.EIT_Pressing);
-        //AddInterrupt(CommonAction.Idle, VK_Pose.VK_WalkRight, (int)EKeyList.KL_KeyD, (int)EInputType.EIT_Pressing);
-
-        //前后左右方向2连
-        //AddInterrupt(CommonAction.Idle, VK_Pose.VK_DForw, new List<int> { (int)EKeyList.KL_KeyW, (int)EKeyList.KL_KeyW });
-        //AddInterrupt(CommonAction.Idle, VK_Pose.VK_DBack, new List<int> { (int)EKeyList.KL_KeyS, (int)EKeyList.KL_KeyS });
-        //AddInterrupt(CommonAction.Idle, VK_Pose.VK_DLeft, new List<int> { (int)EKeyList.KL_KeyA, (int)EKeyList.KL_KeyA });
-        //AddInterrupt(CommonAction.Idle, VK_Pose.VK_DRight, new List<int> { (int)EKeyList.KL_KeyD, (int)EKeyList.KL_KeyD });
-
-        //爆气
-        //AddInterrupt(CommonAction.Idle, VK_Pose.VK_Break, (int)EKeyList.KL_BreakOut, (int)EInputType.EIT_Click);
-
-        //爬墙落下
-  //      AddInterrupt(CommonAction.ClimbUp, VK_Pose.VK_Fall, (int)EKeyList.KL_KeyW, (int)EInputType.EIT_Release);
-  //      AddInterrupt(CommonAction.ClimbLeft, VK_Pose.VK_Fall, (int)EKeyList.KL_KeyW, (int)EInputType.EIT_Release);
-  //      AddInterrupt(CommonAction.ClimbRight, VK_Pose.VK_Fall, (int)EKeyList.KL_KeyW, (int)EInputType.EIT_Release);
-
-        //爬墙 蹬腿,单键判定，不需要方向，要用当前状态算方向
- //       AddInterrupt(CommonAction.ClimbUp, VK_Pose.VK_Jump, (int)EKeyList.KL_Jump, (int)EInputType.EIT_Click);
- //       AddInterrupt(CommonAction.ClimbLeft, VK_Pose.VK_Jump, (int)EKeyList.KL_Jump, (int)EInputType.EIT_Click);
- //       AddInterrupt(CommonAction.ClimbRight, VK_Pose.VK_Jump, (int)EKeyList.KL_Jump, (int)EInputType.EIT_Click);
-
-        //蹲
-        //AddInterrupt(CommonAction.Idle, VK_Pose.VK_Couch, (int)EKeyList.KL_Crouch, (int)EInputType.EIT_Pressing);
-//        AddInterrupt(CommonAction.Crouch, VK_Pose.VK_Idle, (int)EKeyList.KL_Crouch, (int)EInputType.EIT_Release);
-
-        //蹲->滚动
-//        AddInterrupt(CommonAction.Crouch, VK_Pose.VK_DForw, new List<int> { (int)EKeyList.KL_KeyW, (int)EKeyList.KL_KeyW });
- //       AddInterrupt(CommonAction.Crouch, VK_Pose.VK_DBack, new List<int> { (int)EKeyList.KL_KeyS, (int)EKeyList.KL_KeyS });
-//        AddInterrupt(CommonAction.Crouch, VK_Pose.VK_DLeft, new List<int> { (int)EKeyList.KL_KeyA, (int)EKeyList.KL_KeyA });
-//        AddInterrupt(CommonAction.Crouch, VK_Pose.VK_DRight, new List<int> { (int)EKeyList.KL_KeyD, (int)EKeyList.KL_KeyD });
-
-
-        //IDle->上下左右跳
-        //AddInterrupt(CommonAction.Idle, VK_Pose.VK_JumpForw, new List<int> { (int)EKeyList.KL_KeyW, (int)EKeyList.KL_Jump });
-        //AddInterrupt(CommonAction.Idle, VK_Pose.VK_JumpBack, new List<int> { (int)EKeyList.KL_KeyS, (int)EKeyList.KL_Jump });
-        //AddInterrupt(CommonAction.Idle, VK_Pose.VK_JumpLeft, new List<int> { (int)EKeyList.KL_KeyA, (int)EKeyList.KL_Jump });
-        //AddInterrupt(CommonAction.Idle, VK_Pose.VK_JumpRight, new List<int> { (int)EKeyList.KL_KeyD, (int)EKeyList.KL_Jump });
 
         TextAsset act = Resources.Load<TextAsset>(Global.MeteorVersion + "/characteract");
         MemoryStream ms = new MemoryStream(act.bytes);
         StreamReader text = new StreamReader(ms);
 
-        //添加基本输入支持，上下左右，上上，下下，左左，右右，跳，上跳，左跳，右跳，后跳
-        //Lines.Add()
-        //IDLE是最顶级。
+        //添加基本输入支持
         Root = new ActionNode();
         Root.ActionIdx = 0;
         Root.KeyMap = 0;//也就是什么都不输入，直接可以切换到Idle。
@@ -349,6 +274,7 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
             Whole.Add(i, n);
         }
 
+        //受击动作
         for (int i = 40; i <= 88; i++)
         {
             ActionNode n = new ActionNode();
@@ -358,6 +284,7 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
             Whole.Add(i, n);
         }
 
+        //
         for (int i = 140; i <= 148; i++)
         {
             ActionNode n = new ActionNode();
@@ -367,6 +294,7 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
             Whole.Add(i, n);
         }
 
+        //跳跃
         for (int i = 150; i <= 180; i++)
         {
             ActionNode n = new ActionNode();
@@ -376,6 +304,7 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
             Whole.Add(i, n);
         }
 
+        //普通武器双击方向可以接任意招式
         for (int i = CommonAction.DForw4; i <= CommonAction.DBack6; i++)
         {
             ActionNode n = new ActionNode();
@@ -384,6 +313,16 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
             level0.Add(n);
             Whole.Add(i, n);
         }
+
+        //远程武器双击方向滚动可以接任何招式-(处理远程武器大招-滚动完毕后再出招BUG)
+        //for (int i = CommonAction.DCForw; i <= CommonAction.DCBack; i++)
+        //{
+        //    ActionNode n = new ActionNode();
+        //    n.ActionIdx = i;
+        //    n.KeyMap = 0;
+        //    level0.Add(n);
+        //    Whole.Add(i, n);
+        //}
 
         int line = 1;
         string sV = "";

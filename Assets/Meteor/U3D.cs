@@ -843,7 +843,9 @@ public class U3D : MonoBehaviour {
                 for (int i = 1; i < value.Length; i++)
                 {
                     if (value[i].GetType() == typeof(double))
-                    Path.Add((int)(double)value[i]);
+                        Path.Add((int)(double)value[i]);
+                    else if (value[i].GetType() == typeof(int))
+                        Path.Add((int)value[i]);
                 }
                 GameBattleEx.Instance.PushActionPatrol(id, Path);
             }

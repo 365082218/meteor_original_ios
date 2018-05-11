@@ -280,12 +280,13 @@ GameObject:
   - component: {fileID: 1820842697}
   - component: {fileID: 1820842703}
   - component: {fileID: 1820842702}
-  - component: {fileID: 1820842701}
   - component: {fileID: 1820842700}
   - component: {fileID: 1820842699}
   - component: {fileID: 1820842698}
   - component: {fileID: 1820842705}
   - component: {fileID: 1820842706}
+  - component: {fileID: 1820842707}
+  - component: {fileID: 1820842701}
   m_Layer: 0
   m_Name: Main
   m_TagString: Untagged
@@ -483,7 +484,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1820842696}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d16481107b99c14b9ca01da351034fa, type: 3}
+  m_Script: {fileID: 11500000, guid: 68829e13d781e904ea41d013957aeac2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &1820842702
@@ -514,7 +515,6 @@ MonoBehaviour:
   Music: {fileID: 1820842700}
   Sound: {fileID: 1820842699}
   Listener: {fileID: 1820842698}
-  debugMode: 1
   GODMODE: 0
   frameIdx: 0
 --- !u!4 &1820842704
@@ -541,7 +541,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21e30ce4ac9345045b7f62de950111d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AsAppStart: 0
 --- !u!114 &1820842706
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -551,5 +550,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 16edc67b7740ada4ebe96fcd1290091a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1820842707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1820842696}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4825d250ca99874e9db2734e2165904, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

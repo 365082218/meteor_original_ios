@@ -55,3 +55,5 @@ EditorBuildSettings:
     path: Assets/Scene/Meteor/Meteor_22.unity
   - enabled: 1
     path: Assets/Scene/NewMeteor/Meteor_23.unity
+  - enabled: 1
+    path: Assets/Scene/NewMeteor/Meteor_24.unity

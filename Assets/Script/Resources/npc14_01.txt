@@ -17,7 +17,7 @@ Aim = 50;
 GetItem = 0;
 Spawn = 0;
 HP = 1000;
-	
+
 g_selfAddr = 0;
 g_self = 0;
 function OnInit(a)

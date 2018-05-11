@@ -1121,13 +1121,6 @@ public class MeteorInput
     {
         if (mOwner.controller.InputLocked && !isAI)
             return;
-        InputRecord rec = new InputRecord();
-        rec.key = keyStatus.Key;
-        rec.pressed = true;
-        //Record.Add(rec);
-        //if (Record.Count >= 5)
-        //    Record.RemoveAt(0);
-        //if (!PoseInputLocked())
         InputCore.OnKeyDown(keyStatus);
         //任意的按下一个按键，会让重复扫描功能暂停
         EKeyList[] keys = new EKeyList[genFreq.Keys.Count];

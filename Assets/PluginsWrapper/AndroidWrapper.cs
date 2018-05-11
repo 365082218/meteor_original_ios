@@ -7,13 +7,14 @@ public class AndroidWrapper:MonoBehaviour
 {
 	static AndroidWrapper _ins;
     public static AndroidWrapper Instance { get { return _ins; } }
-#if UNITY_ANDROID
+#if UNITY_ANDROID && !UNITY_EDITOR
     AndroidJavaClass Meteor;
     AndroidJavaObject ActivityInstance;
 #endif
     private void Awake()
     {
-#if UNITY_ANDROID
+        _ins = this;
+#if UNITY_ANDROID && !UNITY_EDITOR
         //Meteor = new AndroidJavaClass("com.meteorsdk.MainActivity");
         //if (Meteor != null)
             //ActivityInstance = Meteor.GetStatic<AndroidJavaObject>("Instance");
@@ -35,7 +36,7 @@ public class AndroidWrapper:MonoBehaviour
 	//platform dependence
 	public void CallMethod(string function, params object[] args)
 	{
-		#if UNITY_ANDROID
+		#if UNITY_ANDROID && !UNITY_EDITOR
         if (ActivityInstance != null)
             ActivityInstance.Call(function, args);
         #endif

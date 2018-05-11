@@ -30,6 +30,7 @@ public class Level : ITableItem
     public string SceneDebug;
     public string Name;
     List<WayPoint> wayPoints;
+    //23关卡前使用旧版本的WP文件，23关卡后使用场景里设置的出生点.
     public List<WayPoint> wayPoint
     {
         get
@@ -39,19 +40,6 @@ public class Level : ITableItem
             else if (WayMng.Instance != null)
                 wayPoints = WayMng.Instance.wayPoints;
             return wayPoints;
-        }
-    }
-    public Vector3 _SpawnPoint
-    {
-        get
-        {
-            if (wayPoints == null && !string.IsNullOrEmpty(goodList))
-            {
-                wayPoints = WayLoader.Instance.Load(goodList);
-                if (wayPoint != null && 0 < wayPoints.Count)
-                    return wayPoints[0].pos;
-            }
-            return Vector3.zero;
         }
     }
 	

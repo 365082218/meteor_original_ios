@@ -12,6 +12,7 @@ public class IosWrapper : MonoBehaviour {
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
+        IosInstance = this;
     }
 
 

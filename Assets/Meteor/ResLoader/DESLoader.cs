@@ -9,8 +9,11 @@ public class DesLoader:Singleton<DesLoader>{
     public DesFile Load(string file)
     {
         file += ".des";
-        if (DesFile.ContainsKey(file))
-            return DesFile[file];
+        if (Application.isPlaying)
+        {
+            if (DesFile.ContainsKey(file))
+                return DesFile[file];
+        }
         DesFile f = new global::DesFile();
         f.Load(file);
         DesFile[file] = f;

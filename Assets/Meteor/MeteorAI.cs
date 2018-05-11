@@ -138,19 +138,20 @@ public class MeteorAI {
                 owner.controller.Input.OnKeyDown(EKeyList.KL_Defence, true);//防御
                 break;
             case EAIStatus.Wait:
+                //Debug.LogError("wait");
                 break;
             case EAIStatus.Patrol:
+                //Debug.LogError("patrol");
                 OnPatrol();
                 break;
             case EAIStatus.Follow:
                 MovetoTarget(followTarget);
                 break;
             case EAIStatus.Kill:
-                //Debug.LogError("killstatus");
                 switch (SubStatus)
                 {
                     case EAISubStatus.KillGotoTarget:
-                        //Debug.LogError("KillGotoTarget");
+                        
                         if (killTarget == null)
                             killTarget = owner.GetLockedTarget();
                         if (killTarget != null)
@@ -162,7 +163,7 @@ public class MeteorAI {
                         }
                         break;
                     case EAISubStatus.KillGetTarget:
-                        //Debug.LogError("KillGetTarget");
+                        
                         OnIdle();
                         break;
                     case EAISubStatus.KillOnHurt:
@@ -725,6 +726,7 @@ public class MeteorAI {
                     {
                         if (PatrolPath.Count <= targetPatrolIndex)
                         {
+                            //Debug.LogError("PatrolPath->OnIdle");
                             OnIdle();
                             return;
                         }

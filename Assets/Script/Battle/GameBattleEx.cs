@@ -141,7 +141,7 @@ public class GameBattleEx : MonoBehaviour {
         //3S以后开始播放剧本
         if (lev_script != null)
         {
-            lev_script.OnUpdate();//每0.1秒调用一次剧本脚本
+            lev_script.OnUpdate();
             //timeDelay = 0.0f;
         }
 
@@ -977,6 +977,25 @@ public class GameBattleEx : MonoBehaviour {
             UnitActKey.Remove(id);
         if (UnitActionStack.ContainsKey(id))
             UnitActionStack.Remove(id);
+    }
+
+    public List<int> wayPointList = new List<int>();
+    public void ShowWayPoint(bool on)
+    {
+        if (!on)
+        {
+            for (int i = 0; i < wayPointList.Count; i++)
+            {
+                 WsGlobal.RemoveLine(wayPointList[i]);
+            }
+            wayPointList.Clear();
+        }
+
+        if (on)
+        {
+            for (int i = 0; i < Global.GLevelItem.wayPoint.Count; i++)
+               wayPointList.Add(WsGlobal.AddDebugLine(Global.GLevelItem.wayPoint[i].pos, Global.GLevelItem.wayPoint[i].pos - 100 * Vector3.up, Color.red, "WayPoint" + i));
+        }
     }
 }
 

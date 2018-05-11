@@ -502,7 +502,6 @@ public class HttpClient{
                             fs.Seek(req.cbstart, SeekOrigin.Begin);
 
                         //calc kbps
-
                         //total recved / total time => kbps
                         long nTotalRecved = req.cbstart;
                         int nLoop = 0;
