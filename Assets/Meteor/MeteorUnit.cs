@@ -2832,7 +2832,7 @@ public class MeteorUnit : MonoBehaviour
             //得到武器的大绝pose号码。
             int pose = GetSkillPose();
             AngryValue -= Attr.IsPlayer ? (GameData.gameStatus.EnableInfiniteAngry ? 0 : 100): 100;
-            Debug.LogError("使用技能后:怒气值:" + AngryValue);
+            //Debug.LogError("使用技能后:怒气值:" + AngryValue);
             posMng.ChangeAction(pose);
         }
         else if (Attr.IsPlayer)

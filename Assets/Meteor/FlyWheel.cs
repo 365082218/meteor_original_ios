@@ -169,7 +169,7 @@ public class FlyWheel : MonoBehaviour {
                 //WsGlobal.AddDebugLine(transform.position, transform.position + dir, Color.red, "dir");
                 if (dir.magnitude <= speed * Time.deltaTime)//速度太大的时候，可能会2边跑，而且距离都大于5，这样要看夹角是否改变了方向.
                 {
-                    Debug.LogError("WeaponReturned");
+                    //Debug.LogError("WeaponReturned");
                     owner.WeaponReturned(_attack.PoseIdx);
                     owner.weaponLoader.ShowWeapon();
                     GameObject.Destroy(gameObject);

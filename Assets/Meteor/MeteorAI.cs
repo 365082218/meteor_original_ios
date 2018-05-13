@@ -540,7 +540,7 @@ public class MeteorAI {
         if (type == EAIStatus.Kill)
         {
             SubStatus = EAISubStatus.KillGotoTarget;
-            Debug.LogError("kill");
+            //Debug.LogError("kill");
             killTarget = owner.GetLockedTarget();
         }
         ResetAIKey();

@@ -855,7 +855,7 @@ public class U3D : MonoBehaviour {
             }
             else if (act == "kill")
             {
-                Debug.LogError("gamebattleex kill");
+                //Debug.LogError("gamebattleex kill");
                 GameBattleEx.Instance.PushActionKill(id, (int)value[1]);
             }
         }

@@ -340,12 +340,9 @@ public class CharacterLoader : MonoBehaviour
         if (PoseEvent.ContainsKey(po.Idx))
         {
             //当218发射飞轮，很快返回，还未到219动作时，下次播放219，就得立即取消循环，221 223
-            if ((PoseEvent[po.Idx] & (int)PoseEvt.WeaponIsReturned) != 0)
-            {
-                PoseEvent[po.Idx] &= ~(int)PoseEvt.WeaponIsReturned;
-                loop = false;
-                curIndex = po.LoopEnd;
-            }
+            PoseEvent.Remove(po.Idx);
+            loop = false;
+            curIndex = po.LoopEnd;
         }
 
         //有连招.
@@ -786,7 +783,7 @@ public class CharacterLoader : MonoBehaviour
         {
             //这些动作是不具有硬直的循环动作.
         }
-        else if (po.Idx == 219)//飞轮出击后等待接回飞轮
+        else if (po.Idx == 219 || po.Idx == 221 || po.Idx == 223)//飞轮出击后等待接回飞轮
         {
             //等着收回武器
             
@@ -854,7 +851,7 @@ public class CharacterLoader : MonoBehaviour
     public void LinkEvent(int pose, PoseEvt evt)
     {
         if (PoseEvent.ContainsKey(pose))
-            PoseEvent[pose] |= (int)evt;
+            PoseEvent[pose] = (int)evt;
         else
             PoseEvent.Add(pose, (int)evt);
     }

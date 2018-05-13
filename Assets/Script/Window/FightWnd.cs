@@ -111,7 +111,7 @@ public class FightWnd: Window<FightWnd>
         Global.ldaControlX("BreakOut", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnBreakOut);
         Global.ldaControlX("ChangeDebug", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnChangeDebug);
         Global.ldaControlX("AddAI", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnDebugAI);
-        Global.ldaControlX("HeroHead", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnPlayerInfo);
+        Global.ldaControlX("MXH", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnPlayerInfo);
         Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnCrouchPress);
         Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnCrouchRelease);
         Global.ldaControlX("Drop", WndObject).GetComponent<Button>().onClick.AddListener(OnClickDrop);
