@@ -249,6 +249,11 @@ public class PlayerWnd:Window<PlayerWnd>
         return base.OnOpen();
     }
 
+    protected override int GetZ() { return 200; }
+    protected override bool Use3DCanvas()
+    {
+        return true;
+    }
     protected override bool OnClose()
     {
         return base.OnClose();

@@ -192,6 +192,10 @@ public class PoseStatus
         return act.IgnoreGravity == 1;
     }
 
+    public bool IsHurtPose()
+    {
+        return (mActiveAction.Idx >= CommonAction.HitStart && mActiveAction.Idx <= CommonAction.HitEnd);
+    }
     //受击或者被击，都无法转变X轴视角，在没有锁定目标状态下才能转变Y视角.
     public bool IsAttackPose()
     {
@@ -403,9 +407,9 @@ public class PoseStatus
                             else
                             {
                                 if (mActiveAction.Next != null)
-                                    ChangeAction(CommonAction.Idle, 0.1f);
+                                    ChangeAction(CommonAction.Idle, mActiveAction.Next.Time);
                                 else
-                                    ChangeAction(CommonAction.Idle);
+                                    ChangeAction(CommonAction.Idle, 0.1f);
                                 //ChangeAction(CommonAction.Idle, 0.1f);
                             }
                         }

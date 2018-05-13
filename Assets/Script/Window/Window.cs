@@ -81,7 +81,10 @@ public abstract class Window<T> :Windows where T : class, new()
     {
         return true; 
     }
-
+    protected virtual bool Use3DCanvas()
+    {
+        return false;
+    }
     protected virtual bool CanvasMode()
     {
         return false;
@@ -190,7 +193,17 @@ public abstract class Window<T> :Windows where T : class, new()
             
         }
 #if UNITY_2017 || UNITY_5_5
-        mRootUI = GameObject.Find("Canvas");
+        if (Use3DCanvas())
+        {
+            mRootUI = GameObject.Find("3dCanvas");
+            if (mRootUI == null)
+            {
+                mRootUI = GameObject.Instantiate(Resources.Load<GameObject>("3dCanvas"), Vector3.zero, Quaternion.identity);
+                mRootUI.name = "3dCanvas";
+            }
+        }
+        if (mRootUI == null)
+            mRootUI = GameObject.Find("Canvas");
         if (mRootUI != null)
         {
             if (!CanvasMode())
@@ -207,6 +220,7 @@ public abstract class Window<T> :Windows where T : class, new()
                 WndObject.transform.SetParent(mRootUI.transform);
                 WndObject.transform.localScale = Vector3.one;
                 WndObject.transform.localRotation = Quaternion.identity;
+                WndObject.layer = mRootUI.transform.gameObject.layer;
             }
             RectTransform rectTran = WndObject.GetComponent<RectTransform>();
             if (rectTran != null && rectTran.anchorMin == Vector2.zero && rectTran.anchorMax == Vector2.one)
@@ -216,7 +230,7 @@ public abstract class Window<T> :Windows where T : class, new()
 
             }
             if (rectTran != null)
-                rectTran.anchoredPosition3D = new Vector3(0, 0, 0);
+                rectTran.anchoredPosition3D = new Vector3(0, 0, GetZ());
         }
         else
         {

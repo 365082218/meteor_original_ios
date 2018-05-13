@@ -492,6 +492,11 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
         {
             ProcessGunAction(Owner);
         }
+        else if (!posMng.IsAttackPose() && posMng.IsHurtPose() &&
+            Input.HasInput((int)EKeyList.KL_BreakOut, (int)EInputType.EIT_Click, Time.deltaTime))
+        {
+            Owner.DoBreakOut();
+        }
     }
 
     void ProcessGunAction(MeteorUnit target)
