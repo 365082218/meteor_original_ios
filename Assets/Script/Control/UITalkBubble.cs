@@ -11,17 +11,16 @@ public class UITalkBubble : MonoBehaviour {
 	GameObject Panel;
 	GameObject bgSprite;
 	Text label;
-	// Update is called once per frame
-	void Update () {
+    RectTransform rect;
+    private void Awake()
+    {
+        rect = GetComponent<RectTransform>();
+        TheCamera = Camera.main.transform;
+    }
+    // Update is called once per frame
+    void Update () {
 		if (Panel != null)
-		{
 			Panel.transform.rotation = TheCamera.transform.rotation;
-//			if (bgSprite != null && label != null)
-//			{
-//				Bounds bound = NGUIMath.CalculateAbsoluteWidgetBounds(label.transform);
-//				bgSprite.transform.localScale = new Vector3(bound.size.x, bound.size.y, 1);
-//			}
-		}
 		if (Time.time - begintime >= showtime)
 		{
 			GameObject.DestroyImmediate(Panel);
@@ -31,23 +30,29 @@ public class UITalkBubble : MonoBehaviour {
 
 	public void SetText()
 	{
-		begintime = Time.time;
+        begintime = Time.time;
         MeteorUnit unit = gameObject.GetComponent<MeteorUnit>();
-		Vector3 vecPos = new Vector3(transform.position.x, transform.position.y + 15.0f, transform.position.z);
+
+        //Vector3 vec = Camera.main.WorldToScreenPoint(new Vector3(Panel.transform.position.x, Panel.transform.position.y + 40.0f, Panel.transform.position.z));
+        //float scalex = vec.x / Screen.width;
+        //float scaley = vec.y / Screen.height;
+        //rect.anchoredPosition3D = new Vector3(1920f * scalex, 1080f * scaley, vec.z);
+
+        Vector3 vecPos = new Vector3(transform.position.x, transform.position.y + 15.0f, transform.position.z);
 		if (Panel == null)
 		{
 			Panel = GameObject.Instantiate(Resources.Load("BubbleTalk"), vecPos, Quaternion.identity) as GameObject;
-			vecPos.y += 15.0f;
+            vecPos.y += 15.0f;
 			iTween.MoveTo(Panel, iTween.Hash(
 				"position", vecPos,
 				"time", 0.5f,
 				"easetype", iTween.EaseType.linear,
 				"delay", 0.0f));
 			Panel.transform.parent = unit.transform;
-            Panel.transform.localScale = new Vector3(0.4f, 0.4f, 1.0f);
+            GetComponentInChildren<Canvas>().worldCamera = GameObject.Find("CameraEx").GetComponent<Camera>();
+            Panel.transform.localScale = new Vector3(8.0f / 425.0f, 2.0f / 80.0f, 1.0f);
         }
-		TheCamera = Camera.main.transform;
-		//bgSprite = Global.ldaControlX("SpriteBg", Panel);
+		
 		label = Panel.GetComponentInChildren<Text>();
         if (label != null)
             label.text = strText;
@@ -57,7 +62,6 @@ public class UITalkBubble : MonoBehaviour {
 		Vector3 scale = t.localScale;
 		b.min = Vector3.Scale(b.min, scale);
 		b.max = Vector3.Scale(b.max, scale);
-		//bgSprite.transform.localScale = new Vector3(b.size.x,b.size.y,1f);
 	}
 
 	public void SetDebugText()
@@ -68,24 +72,25 @@ public class UITalkBubble : MonoBehaviour {
 		{
 			Vector3 vecPos = transform.position;
 			Panel = GameObject.Instantiate(Resources.Load("BubbleTalk"), vecPos, Quaternion.identity) as GameObject;
-			vecPos.y += 15.0f;
+            vecPos.y += 15.0f;
 			iTween.MoveTo(Panel, iTween.Hash(
 				"position", vecPos,
 				"time", 0.5f,
 				"easetype", iTween.EaseType.linear,
 				"delay", 0.0f));
-			Panel.transform.SetParent(gameObject.transform);			
-		}
+			Panel.transform.SetParent(gameObject.transform);
+            GetComponentInChildren<Canvas>().worldCamera = GameObject.Find("CameraEx").GetComponent<Camera>();
+        }
 		TheCamera = Camera.main.transform;
 		label = Panel.GetComponentInChildren<Text>();
         if (label != null)
             label.text = strText;
-		Transform t = label.transform;
-		Bounds b = NGUIMath.CalculateRelativeWidgetBounds(t);
-		
-		Vector3 scale = t.localScale;
-		b.min = Vector3.Scale(b.min, scale);
-		b.max = Vector3.Scale(b.max, scale);
-		//bgSprite.transform.localScale = new Vector3(b.size.x,b.size.y,1f);
-	}
+        Panel.transform.localScale = new Vector3(25.0f / (label.preferredWidth + 20), 10.0f / (label.preferredHeight + 10), 1.0f);
+        //Transform t = label.transform;
+        //Bounds b = NGUIMath.CalculateRelativeWidgetBounds(t);
+
+        //Vector3 scale = t.localScale;
+        //b.min = Vector3.Scale(b.min, scale);
+        //b.max = Vector3.Scale(b.max, scale);
+    }
 }

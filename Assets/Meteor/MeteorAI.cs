@@ -175,16 +175,21 @@ public class MeteorAI {
     }
     //在其他角色上使用的插槽位置，
     Dictionary<MeteorUnit, int> FreeCache = new Dictionary<MeteorUnit, int>();
+
     void MovetoTarget(MeteorUnit target)
     {
-        //if (pathIdx == -1 && !FreeCache.ContainsKey(followTarget) && Vector3.Distance(owner.transform.position, followTarget.mPos) > 40.0f)
-        //{
-        //    int FreeSlot = -1;
-        //    targetPath = GameBattleEx.Instance.FindPath(owner.transform.position, followTarget, out FreeSlot);
-        //    pathIdx = 0;
-        //    targetPos = followTarget.transform.position;
-        //}
-        //tick = 0.0f;
+        //开始寻路，找到目标与之最近的路点，从当前点如何到达-目标点
+        int freeSlot = -1;
+        List<WayPoint> path = GameBattleEx.Instance.FindPath(owner.mPos, target, out freeSlot);
+        //成功找到路径.且占据了目标上的一个位置槽
+        if (freeSlot != -1)
+        {
+            if (FreeCache.ContainsKey(target))
+                FreeCache[target] = freeSlot;
+            else
+                FreeCache.Add(target, freeSlot);
+            SubStatus = EAISubStatus.KillGotoTarget;
+        }
         owner.FaceToTarget(target);
         if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(target.mPos.x, 0, target.mPos.z)) <= 35)
         {
@@ -617,6 +622,7 @@ public class MeteorAI {
 
     //寻路相关的.
     int curPatrolIndex;
+    bool reverse = false;
     int targetPatrolIndex;
     List<WayPoint> PatrolPath = new List<WayPoint>();
     public void SetPatrolPath(List<int> path)
@@ -680,7 +686,7 @@ public class MeteorAI {
     Coroutine PatrolRotateToTargetCoroutine;
     IEnumerator PatrolRotateToTarget(Vector3 vec)
     {
-        WsGlobal.AddDebugLine(vec, vec - Vector3.up * 10, Color.red, "PatrolPoint", 20.0f);
+        WsGlobal.AddDebugLine(vec, vec + Vector3.up * 10, Color.red, "PatrolPoint", 20.0f);
         Vector3 diff = (vec - owner.mPos);
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
@@ -718,35 +724,80 @@ public class MeteorAI {
             case EAISubStatus.Patrol:
                 //Debug.LogError("进入巡逻子状态-EAISubStatus.Patrol");
                 {
-                    if (curPatrolIndex == PatrolPath.Count - 1)
-                        targetPatrolIndex = 0;
-                    else
-                        targetPatrolIndex = (curPatrolIndex + 1) % PatrolPath.Count;
-                    if (targetPatrolIndex != curPatrolIndex)
+                    //逆序巡逻
+                    if (reverse)
                     {
-                        if (PatrolPath.Count <= targetPatrolIndex)
+                        if (curPatrolIndex == 0)
                         {
-                            //Debug.LogError("PatrolPath->OnIdle");
-                            OnIdle();
-                            return;
+                            reverse = false;
+                            break;
                         }
-                        
-                        if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z)) <= 50)
+                        else
                         {
-                            owner.controller.Input.AIMove(0, 0);
-                            RotateRound = Random.Range(1, 3);
-                            SubStatus = EAISubStatus.PatrolSubRotateInPlace;//到底指定地点后旋转
-                            curPatrolIndex = targetPatrolIndex;
-                            //Debug.LogError("进入巡逻子状态-到底指定地点后原地旋转.PatrolSubRotateInPlace");
-                            return;
+                            targetPatrolIndex = (curPatrolIndex - 1) % PatrolPath.Count;
+                            if (targetPatrolIndex != curPatrolIndex)
+                            {
+                                if (PatrolPath.Count <= targetPatrolIndex)
+                                {
+                                    OnIdle();
+                                    return;
+                                }
+
+                                if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z)) <= 5)
+                                {
+                                    owner.controller.Input.AIMove(0, 0);
+                                    RotateRound = Random.Range(1, 3);
+                                    SubStatus = EAISubStatus.PatrolSubRotateInPlace;//到底指定地点后旋转
+                                    curPatrolIndex = targetPatrolIndex;
+                                    //Debug.LogError("进入巡逻子状态-到底指定地点后原地旋转.PatrolSubRotateInPlace");
+                                    return;
+                                }
+                                //Debug.LogError("进入巡逻子状态-朝目标旋转");
+                                SubStatus = EAISubStatus.PatrolSubRotateToTarget;//准备先对准目标
+                            }
+                            else
+                            {
+                                RotateRound = Random.Range(1, 3);
+                                SubStatus = EAISubStatus.PatrolSubRotateInPlace;
+                            }
                         }
-                        //Debug.LogError("进入巡逻子状态-朝目标旋转");
-                        SubStatus = EAISubStatus.PatrolSubRotateToTarget;//准备先对准目标
                     }
                     else
                     {
-                        RotateRound = Random.Range(1, 3);
-                        SubStatus = EAISubStatus.PatrolSubRotateInPlace;
+                        //顺序巡逻
+                        if (curPatrolIndex == PatrolPath.Count - 1)
+                        {
+                            reverse = true;
+                            break;
+                        }
+                        else
+                            targetPatrolIndex = (curPatrolIndex + 1) % PatrolPath.Count;
+                        if (targetPatrolIndex != curPatrolIndex)
+                        {
+                            if (PatrolPath.Count <= targetPatrolIndex)
+                            {
+                                //Debug.LogError("PatrolPath->OnIdle");
+                                OnIdle();
+                                return;
+                            }
+
+                            if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z)) <= 5)
+                            {
+                                owner.controller.Input.AIMove(0, 0);
+                                RotateRound = Random.Range(1, 3);
+                                SubStatus = EAISubStatus.PatrolSubRotateInPlace;//到底指定地点后旋转
+                                curPatrolIndex = targetPatrolIndex;
+                                //Debug.LogError("进入巡逻子状态-到底指定地点后原地旋转.PatrolSubRotateInPlace");
+                                return;
+                            }
+                            //Debug.LogError("进入巡逻子状态-朝目标旋转");
+                            SubStatus = EAISubStatus.PatrolSubRotateToTarget;//准备先对准目标
+                        }
+                        else
+                        {
+                            RotateRound = Random.Range(1, 3);
+                            SubStatus = EAISubStatus.PatrolSubRotateInPlace;
+                        }
                     }
                 }
                 break;
@@ -774,7 +825,7 @@ public class MeteorAI {
                 break;
             case EAISubStatus.PatrolSubGotoTarget:
                 //Debug.LogError("进入巡逻子状态-朝目标输入移动");
-                if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z)) <= 50)
+                if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z)) <= 5)
                 {
                     RotateRound = Random.Range(1, 3);
                     SubStatus = EAISubStatus.PatrolSubRotateInPlace;//到底指定地点后旋转

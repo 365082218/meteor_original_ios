@@ -262,6 +262,7 @@ public class MeteorUnit : MonoBehaviour
     public CharacterLoader charLoader;
     public MeteorController controller;
     public WeaponLoader weaponLoader;
+    public int wayIndex;
     [SerializeField]
     public MeteorAI robot;
     //public float maxHeight;
@@ -879,6 +880,11 @@ public class MeteorUnit : MonoBehaviour
         }
     }
 
+    public bool IsFacetoTarget(MeteorUnit target)
+    {
+        return Vector3.Dot(-transform.forward, (new Vector3(target.mPos.x, 0, target.mPos.z) - new Vector3(mPos.x, 0, mPos.z)).normalized) <= 0;
+    }
+
     //战斗场景,控制视角相机
     public void SetOrientation(Quaternion quatDiff, Quaternion orig)
     {
@@ -920,19 +926,12 @@ public class MeteorUnit : MonoBehaviour
     public void FaceToTarget(MeteorUnit unit)
     {
         FaceToTarget(unit.transform.position);
-        //Vector3 vdiff = transform.position - unit.transform.position;
-        //transform.rotation = Quaternion.LookRotation(new Vector3(vdiff.x, 0, vdiff.z), Vector3.up);
-        //if (this == MeteorManager.Instance.LocalPlayer)
-        //{
-        //    if (CameraFollow.Ins != null)
-        //        CameraFollow.Ins.ForceUpdate();
-        //}
     }
 
     public CharacterController charController;
     public void Init(int modelIdx, MonsterEx mon = null, bool updateModel = false)
     {
-        //allowAttack = false;
+        wayIndex = mon == null ? 0 : mon.SpawnPoint;
         WeaponReturned(0);
         Vector3 vec = transform.position;
         Quaternion rotation = transform.rotation;
