@@ -4,19 +4,19 @@ using System.Collections.Generic;
 //using UnityEditor;
 
 public class WsGlobal {
-	public static Dictionary<int, GameObject> DebugLine = new Dictionary<int, GameObject>();
+    public static List<GameObject> DebugLine = new List<GameObject>();
 	public static List<int> removeNodeIndex = new List<int>();
 
-    public static void RemoveLine(int idx)
+    public static void RemoveLine(GameObject obj)
     {
-        if (DebugLine.ContainsKey(idx))
+        if (DebugLine.Contains(obj))
         {
-            GameObject.Destroy(DebugLine[idx]);
-            DebugLine.Remove(idx);
+            GameObject.Destroy(obj);
+            DebugLine.Remove(obj);
         }
     }
 
-	public static int AddDebugLine(Vector3 pos, Color co, string strTag = "", float fLastTime = float.MaxValue)
+	public static GameObject AddDebugLine(Vector3 pos, Color co, string strTag = "", float fLastTime = float.MaxValue)
 	{
 		GameObject obj = GameObject.Instantiate(Resources.Load("DebugLineRender")) as GameObject;
 		obj.transform.position = pos;
@@ -40,11 +40,11 @@ public class WsGlobal {
 			nCount = removeNodeIndex[0];
 			removeNodeIndex.RemoveAt(0);
 		}
-		DebugLine.Add(nCount, obj);
-		return nCount;
+		DebugLine.Add(obj);
+		return obj;
 	}
 
-    public static int AddDebugLine(Vector3 pos, Vector3 pos2, Color co, string strTag = "", float fLastTime = float.MaxValue)
+    public static GameObject AddDebugLine(Vector3 pos, Vector3 pos2, Color co, string strTag = "", float fLastTime = float.MaxValue)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load("DebugLineRender")) as GameObject;
         obj.transform.position = (pos + pos2) / 2;
@@ -66,8 +66,8 @@ public class WsGlobal {
             nCount = removeNodeIndex[0];
             removeNodeIndex.RemoveAt(0);
         }
-        DebugLine.Add(nCount, obj);
-        return nCount;
+        DebugLine.Add(obj);
+        return obj;
     }
     public static bool ResponseCmd(string strCmd)
 	{
