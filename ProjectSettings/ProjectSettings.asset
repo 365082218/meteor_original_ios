@@ -470,7 +470,7 @@ PlayerSettings:
   scriptingDefineSymbols:
     1: BUILD_PC
     4: BUILD_PC
-    7: 
+    7: NOLOG
   platformArchitecture:
     iOS: 2
   scriptingBackend:
