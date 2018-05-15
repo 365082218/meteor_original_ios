@@ -156,7 +156,7 @@ public class MainLoader : MonoBehaviour {
         //主线程阻塞到下载线程结束.
 		//HttpManager.Quit();
         //释放日志占用
-        //Log.Uninit();
+        //WSLog.Uninit();
         //保存下载进度
 		//SaveConfig(true);
 	//}
@@ -170,7 +170,7 @@ public class MainLoader : MonoBehaviour {
     {
         Ins = this;
         GameData.LoadState();
-        //Log.LogInfo("load start");
+        //WSLog.LogInfo("load start");
         if (Application.platform != RuntimePlatform.OSXEditor && Application.platform != RuntimePlatform.WindowsEditor)
             strPlatform = Application.platform.ToString();
         strResource = Application.persistentDataPath + "/Resource";
@@ -224,7 +224,7 @@ public class MainLoader : MonoBehaviour {
 	{
 		if (req.error != null)
 		{
-			Log.LogInfo(req.error);
+			WSLog.LogInfo(req.error);
 			errorCount++;
 			return;
 		}
@@ -388,7 +388,7 @@ public class MainLoader : MonoBehaviour {
 					}
 					catch
 					{
-						Log.LogInfo("error");
+						WSLog.LogInfo("error");
 					}
 				}
 			}
@@ -422,12 +422,12 @@ public class MainLoader : MonoBehaviour {
                         ResMng.CollectDownloadRes(check.root.strResources, ref download, ref root);
 						if (download.Count == 0)
 						{
-							Log.LogInfo("download.count == 0 can load res");
+							WSLog.LogInfo("download.count == 0 can load res");
 							del = check;
 						}
 						else
 						{
-							Log.LogInfo("load " + check.strResource + "need extra res" + download.Count);
+							WSLog.LogInfo("load " + check.strResource + "need extra res" + download.Count);
 						}
 					}
 					else
@@ -439,11 +439,11 @@ public class MainLoader : MonoBehaviour {
 
 				if (del != null)
 				{
-					Log.LogInfo("remove condition:" + del + "resource" + del.strResource);
+					WSLog.LogInfo("remove condition:" + del + "resource" + del.strResource);
 					checkList.Remove(del);
 					if (download != null && download.Count == 0)
 					{
-						Log.LogInfo("call callback to load resources" + del.strResource);
+						WSLog.LogInfo("call callback to load resources" + del.strResource);
 						del.cb(del.param);
 					}
 				}
@@ -496,7 +496,7 @@ public class MainLoader : MonoBehaviour {
 	{
 		if (Application.internetReachability == NetworkReachability.NotReachable)
 		{
-			Log.LogInfo("connect time out");
+			WSLog.LogInfo("connect time out");
             MainLoader.ChangeStep(LoadStep.NotNeedUpdate);
 			yield break;
 		}
@@ -519,7 +519,7 @@ public class MainLoader : MonoBehaviour {
 				} 
 				catch (System.Exception e) 
 				{
-					Log.LogInfo(e.Message + "|" + e.StackTrace);
+					WSLog.LogInfo(e.Message + "|" + e.StackTrace);
 				}
 				finally
 				{
@@ -530,7 +530,7 @@ public class MainLoader : MonoBehaviour {
 			//timeout
 			if (!connectDone.WaitOne(2000))
 			{
-				Log.LogInfo("connect time out");
+				WSLog.LogInfo("connect time out");
                 MainLoader.ChangeStep(LoadStep.CannotConnect);
 				yield break;
 			}
@@ -538,7 +538,7 @@ public class MainLoader : MonoBehaviour {
 			{
 				if (!sClient.Connected)
 				{
-					Log.LogInfo("connect disabled by server");
+					WSLog.LogInfo("connect disabled by server");
                     MainLoader.ChangeStep(LoadStep.CannotConnect);
 					yield break;
 				}
@@ -554,14 +554,14 @@ public class MainLoader : MonoBehaviour {
 		{
 			connectDone.Close();
 		}
-		//Log.LogInfo("download:" + string.Format(strVFile, strHost, strPort, strProjectUrl, strPlatform, strVFileName));
+		//WSLog.LogInfo("download:" + string.Format(strVFile, strHost, strPort, strProjectUrl, strPlatform, strVFileName));
 		using (WWW vFile = new WWW (string.Format(strVFile, strHost, strPort, strProjectUrl, strPlatform, strVFileName)))
 		{
-			//Log.LogInfo("error:" + vFile.error);
+			//WSLog.LogInfo("error:" + vFile.error);
 			yield return vFile;
 			if (vFile.error != null && vFile.error.Length != 0)
 			{
-				//Log.LogInfo("error " + vFile.error);
+				//WSLog.LogInfo("error " + vFile.error);
 				vFile.Dispose();
                 //not have new version file
                 //can continue game
@@ -606,7 +606,7 @@ public class MainLoader : MonoBehaviour {
 			//}
 			//else
 			//{
-			//	Log.LogInfo("not need update");
+			//	WSLog.LogInfo("not need update");
    //             MainLoader.ChangeStep(LoadStep.NotNeedUpdate);
 			//}
 		}
@@ -718,7 +718,7 @@ public class MainLoader : MonoBehaviour {
     //                UpdateConfig.fs = null;
     //            }
 
-				//Log.LogInfo(exp.Message + "" + exp.StackTrace);
+				//WSLog.LogInfo(exp.Message + "" + exp.StackTrace);
 				//File.Delete(strUpdateConfig);
     //            MainLoader.config = new UpdateConfig();
 				//UpdateConfig.fs = File.Open(strUpdateConfig, FileMode.Create, FileAccess.ReadWrite);

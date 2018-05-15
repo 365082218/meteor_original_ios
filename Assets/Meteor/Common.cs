@@ -281,7 +281,7 @@ public class Common
             }
             catch (Exception exp)
             {
-                UnityEngine.Debug.LogError(exp.Message);
+                WSLog.LogError(exp.Message);
             }
         }
     }
@@ -306,7 +306,7 @@ public class Common
             }
             catch (Exception exp)
             {
-                UnityEngine.Debug.LogError(exp.Message);
+                WSLog.LogError(exp.Message);
             }
         }
     }

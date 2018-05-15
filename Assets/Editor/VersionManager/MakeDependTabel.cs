@@ -35,7 +35,7 @@ public class ReferenceNode
     public void AddDependencyNode(ReferenceNode childnode)
     {
         if (childnode == null)
-            UnityEngine.Debug.LogError("childnode == null");
+            WSLog.LogError("childnode == null");
 
         if (!referenceDict.ContainsKey(childnode.strResources))
             referenceDict.Add(childnode.strResources, childnode);
@@ -54,7 +54,7 @@ public class ReferenceNode
     public void AddDependencyByNode(ReferenceNode parentnode)
     {
         if (parentnode == null)
-            UnityEngine.Debug.LogError("parentnode == null");
+            WSLog.LogError("parentnode == null");
 
         if (!referenceDict.ContainsKey(parentnode.strResources))
             referenceDict.Add(parentnode.strResources, parentnode);
@@ -189,7 +189,7 @@ public class ReferenceNode
                 }
                 catch(System.Exception exp)
                 {
-                    UnityEngine.Debug.LogError(exp.Message + "|" + exp.StackTrace);
+                    WSLog.LogError(exp.Message + "|" + exp.StackTrace);
                 }
             }
 
@@ -590,7 +590,7 @@ public class ReferenceNode
 
     static void GenMergeLog(List<ReferenceNode> mergedNode, string strSavePath)
     {
-        string strExtPath = strSavePath + "MergeLog.txt";//合并记录表.
+        string strExtPath = strSavePath + "MergeWSLog.txt";//合并记录表.
         FileStream fsExt = File.Create(strExtPath);
         foreach (var node in mergedNode)
         {
@@ -727,7 +727,7 @@ public class ReferenceNode
                 }
                 catch (System.Exception exp)
                 {
-                    UnityEngine.Debug.LogError(exp.Message);
+                    WSLog.LogError(exp.Message);
                     return;
                 }
             }
@@ -953,7 +953,7 @@ public class ReferenceNode
 
                 catch (System.Exception exp)
                 {
-                    UnityEngine.Debug.Log("<color=green>打包ab出错:</color>" + exp.Message);
+                    WSLog.Log("<color=green>打包ab出错:</color>" + exp.Message);
                     return;
                 }
             }
@@ -984,7 +984,7 @@ public class ReferenceNode
                 }
                 catch (System.Exception exp)
                 {
-                    UnityEngine.Debug.Log("<color=green>打包场景出错:</color>" + exp.Message);
+                    WSLog.Log("<color=green>打包场景出错:</color>" + exp.Message);
                     return;
                 }
             }

@@ -54,7 +54,7 @@ public class Patch : MonoBehaviour {
     public void OnApplicationQuit()
     {
         ClientProxy.Exit();
-        Log.Uninit();
+        WSLog.Uninit();
         FtpLog.Uninit();
         GameData.SaveState();
         //保存升级的临时数据.
@@ -179,6 +179,6 @@ public class Patch : MonoBehaviour {
 
     void UncaughtException(object sender, UnhandledExceptionEventArgs e)
     { 
-        Log.LogInfo("UnCaughtException:" + e.ExceptionObject.ToString());
+        WSLog.LogInfo("UnCaughtException:" + e.ExceptionObject.ToString());
     }
 }

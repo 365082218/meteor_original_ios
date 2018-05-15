@@ -47,7 +47,7 @@ class ClientProxy
         }
         catch (Exception exp)
         {
-            Log.LogInfo(exp.Message);
+            WSLog.LogInfo(exp.Message);
             result.Message = (int)LocalMsgType.Connect;
             result.Result = 0;
             ProtoHandler.PostMessage(result);

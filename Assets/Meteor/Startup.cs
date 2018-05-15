@@ -89,7 +89,7 @@ public class Startup : MonoBehaviour {
             DestroyImmediate(gameObject);//U3D OCAgent等其他挂在这里的都会没有.
             return;
         }
-        //Log.LogInfo("GameStart");
+        //WSLog.LogInfo("GameStart");
         Random.InitState(System.Guid.NewGuid().GetHashCode());
     }
 
@@ -163,7 +163,7 @@ public class Startup : MonoBehaviour {
     public void OnApplicationQuit()
     {
         ClientProxy.Exit();
-        Log.Uninit();
+        WSLog.Uninit();
         FtpLog.Uninit();
         GameData.SaveState();
         GameData.SaveCache();

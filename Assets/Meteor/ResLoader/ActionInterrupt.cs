@@ -438,7 +438,7 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
         List<ActionNode> first = Whole.Values.ToList();
         for (int i = 0; i < first.Count; i++)
         {
-            Log.LogInfo("Input:" + first[i].KeyMap + "targetAction = " + first[i].ActionIdx);
+            WSLog.LogInfo("Input:" + first[i].KeyMap + "targetAction = " + first[i].ActionIdx);
         }
     }
 

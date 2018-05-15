@@ -2,22 +2,30 @@
 using System.Collections;
 using System.IO;
 
-public static class Log
+public static class WSLog
 {
-    static Log()
+    static WSLog()
     {
         Init();
     }
 
-    public static void LogFrame(string message)
+    public static void Log(string message)
+    {
+        #if !NOLOG
+        Debug.Log("f:" + Time.frameCount + ":" + message);
+        #endif
+    }
+
+    public static void LogError(string message)
     {
         Debug.LogError("f:" + Time.frameCount + ":" + message);
     }
 
-	private static FileStream fs_thread;
+    private static FileStream fs_thread;
 	static void LogFile(string strWarning, string strStackTrace, LogType type)
 	{
-		if (type == LogType.Error || type == LogType.Exception)
+#if !NOLOG
+        if (type == LogType.Error || type == LogType.Exception)
 		{
 			byte [] line = new byte[2] {(byte)'\r', (byte)'\n'};
 			if (fs_thread != null)
@@ -31,19 +39,23 @@ public static class Log
 				fs_thread.Flush();
 			}
 		}
+#endif
 	}
 
 	public static void Init()
 	{
-		fs = File.Open(Application.persistentDataPath + "/" + Application.platform + "_debug.log", FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite);
+#if !NOLOG
+        fs = File.Open(Application.persistentDataPath + "/" + Application.platform + "_debug.log", FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite);
         fs_thread = File.Open(Application.persistentDataPath + "/" + Application.platform + "_error.log", FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite);
         fs_ref = File.Open(Application.persistentDataPath + "/" + Application.platform + "_ref.log", FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite);
 		Application.logMessageReceivedThreaded += LogFile;
+#endif
 	}
 
 	private static FileStream fs;
 	public static void LogInfo(string str)
 	{
+#if !NOLOG
         if (fs == null)
             return;
 		lock(fs)
@@ -57,11 +69,13 @@ public static class Log
 				fs.Flush();
 			}
 		}
+#endif
 	}
 
 	private static FileStream fs_ref;
 	public static void LogRefer(ReferenceNode root, System.Collections.Generic.List<ReferenceNode> refer)
 	{
+#if !NOLOG
         if (fs_ref == null)
             return;
 		lock(fs_ref)
@@ -84,10 +98,12 @@ public static class Log
                 fs_ref.Flush();
 			}
 		}
+#endif
 	}
 	
     public static void Uninit()
     {
+#if !NOLOG
         if (fs_thread != null)
         {
             lock (fs_thread)
@@ -111,5 +127,6 @@ public static class Log
             fs_ref.Close();
             fs_ref = null;
         }
+#endif
     }      
 }

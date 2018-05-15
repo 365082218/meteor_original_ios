@@ -36,7 +36,7 @@ public class CreateMD5List
                 filePath.EndsWith("ForceUpdate.txt") ||
                 filePath.EndsWith("referenceTable.txt") ||
                 filePath.EndsWith("ext.txt") ||
-                filePath.EndsWith("MergeLog.txt"))
+                filePath.EndsWith("MergeWSLog.txt"))
                 continue;
             if (!(filePath.EndsWith(".zip") || filePath.EndsWith(".assetbundle")))
                 Debug.LogError("未知类型的文件: " + filePath);
@@ -100,7 +100,7 @@ public class CreateMD5List
 				filePath.EndsWith("ForceUpdate.txt") ||
 			    filePath.EndsWith("referenceTable.txt") ||
 			    filePath.EndsWith("ext.txt") ||
-                filePath.EndsWith("MergeLog.txt"))
+                filePath.EndsWith("MergeWSLog.txt"))
 				continue;
 			
 			FileStream file = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);

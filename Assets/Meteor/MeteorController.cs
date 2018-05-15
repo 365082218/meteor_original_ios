@@ -1112,7 +1112,7 @@ public class MeteorInput
     {
         if (mOwner.controller.InputLocked && !KeyStates[(int)key].IsAI)
             return;
-        //Log.LogInfo("OnKeyUp key:" + key);
+        //WSLog.LogInfo("OnKeyUp key:" + key);
         OnKeyUp(KeyStates[(int)key]);
     }
 

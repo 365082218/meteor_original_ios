@@ -689,21 +689,21 @@ public class CleanUPRes:ScriptableWizard
 			{
 				System.IO.FileInfo fInfo = new System.IO.FileInfo(s.Key);
 				byte[] content = System.Text.Encoding.UTF8.GetBytes(s.Key + " " + "Left" + fInfo.Length.ToString() + " byte" + "\r\n");
-				fsLog.Write(content, 0, content.Length);
+                fsLog.Write(content, 0, content.Length);
 			}
 		}
 
-		fsLog.Flush();
-		fsLog.Close();
+        fsLog.Flush();
+        fsLog.Close();
 
 		fsLog = File.Open(strLogPath + "_NotDelete.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite);
 		foreach (var s in LeftReason)
 		{
 			byte[] content = System.Text.Encoding.UTF8.GetBytes(s.Key + ":" + s.Value + "\r\n");
-			fsLog.Write(content, 0, content.Length);
+            fsLog.Write(content, 0, content.Length);
 		}
-		fsLog.Flush();
-		fsLog.Close();
+        fsLog.Flush();
+        fsLog.Close();
 	}
 
 	Vector2 vecPos = new Vector2(0, 0);

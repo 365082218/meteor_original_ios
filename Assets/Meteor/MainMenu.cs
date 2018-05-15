@@ -46,11 +46,11 @@ public class MainMenu : Window<MainMenu> {
     {
         if (select != null)
         {
-            Log.LogInfo("u3d.loadlevel");
+            WSLog.LogInfo("u3d.loadlevel");
             U3D.LoadLevel(select.ID);
         }
         else
-            Log.LogInfo("select == null");
+            WSLog.LogInfo("select == null");
     }
 
     void AddGridItem(Level lev, Transform parent)

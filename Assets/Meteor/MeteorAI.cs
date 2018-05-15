@@ -348,7 +348,7 @@ public class MeteorAI {
                 
                 break;
         }
-        //Log.LogFrame("随机0-7:得到" + random);
+        //WSLog.LogFrame("随机0-7:得到" + random);
         if (PlayWeaponPoseCorout != null)
         {
 

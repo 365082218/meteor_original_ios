@@ -795,7 +795,7 @@ public class CharacterLoader : MonoBehaviour
                 mOwner.IgnoreGravitys(false);
                 if (mOwner.IsOnGround()) loop = false;
             }
-            //Log.LogFrame("POSE:" + po.Idx + " Straight:" + PoseStraight);
+            //WSLog.LogFrame("POSE:" + po.Idx + " Straight:" + PoseStraight);
         }
     }
 

@@ -392,7 +392,7 @@ public class GameData
         }
         catch (System.Exception exp)
         {
-            Debug.LogError(exp.Message);
+            WSLog.LogError(exp.Message);
         }
     }
 

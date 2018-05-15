@@ -39,7 +39,7 @@ public class CreateAssetBundle
             }
             catch (Exception exp)
             {
-                UnityEngine.Debug.LogError(exp.Message);
+                WSLog.LogError(exp.Message);
             }
             strBuilded.Clear();
         }

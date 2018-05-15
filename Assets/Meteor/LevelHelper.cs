@@ -15,47 +15,47 @@ public class LevelHelper : MonoBehaviour
 
     public void Load(int id, int gate = 0)
     {
-        Log.LogInfo("StartCoroutine");
+        WSLog.LogInfo("StartCoroutine");
         StartCoroutine("LoadLevelAsync", id);
-        Log.LogInfo("StartCoroutine end OnLoadLevelAsync");
+        WSLog.LogInfo("StartCoroutine end OnLoadLevelAsync");
     }
 
     IEnumerator LoadLevelAsync(int levelId)
     {
         int displayProgress = 0;
         int toProgress = 0;
-        Log.LogInfo("LoadLevelAsync");
+        WSLog.LogInfo("LoadLevelAsync");
         yield return 0;
         //yield return new WaitForSeconds(5);调试进度条
         Level lev = LevelMng.Instance.GetItem(levelId);
-        Log.LogInfo("Load Scene Async:" + lev.Scene);
+        WSLog.LogInfo("Load Scene Async:" + lev.Scene);
         mAsync = SceneManager.LoadSceneAsync(lev.Scene);
         mAsync.allowSceneActivation = false;
         while (mAsync.progress < 0.9f)
         {
             toProgress = (int)mAsync.progress * 100;
-            //Log.LogInfo("while (mAsync.progress < 0.9f)");
+            //WSLog.LogInfo("while (mAsync.progress < 0.9f)");
             while (displayProgress < toProgress)
             {
                 ++displayProgress;
                 LoadingWnd.Instance.UpdateProgress(displayProgress);
                 yield return 0;
             }
-            //Log.LogInfo("while (displayProgress < toProgress) end");
+            //WSLog.LogInfo("while (displayProgress < toProgress) end");
             yield return 0;
         }
         toProgress = 100;
-        Log.LogInfo("displayProgress < toProgress");
+        WSLog.LogInfo("displayProgress < toProgress");
         while (displayProgress < toProgress)
         {
             ++displayProgress;
             LoadingWnd.Instance.UpdateProgress(displayProgress);
             yield return 0;
         }
-        Log.LogInfo("displayProgress < toProgress");
+        WSLog.LogInfo("displayProgress < toProgress");
         mAsync.allowSceneActivation = true;
         yield return 0;
-        Log.LogInfo("OnLoadFinishedEx");
+        WSLog.LogInfo("OnLoadFinishedEx");
         OnLoadFinishedEx(lev);
         for (int i = 0; i < 5; i++)
             yield return 0;

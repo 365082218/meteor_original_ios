@@ -106,24 +106,24 @@ public class MenuResLoader : Singleton<MenuResLoader> {
                 string str = Idx + ":" + iden;
                 if (op.second.Length == 1 && op.second[0].flag[2] == 3)
                     str += "-攻击力:" + op.second[0].flag[6];
-                Log.LogInfo(str);
+                WSLog.LogInfo(str);
             }
             else if (type == 1)//武器
             {
 
-                Log.LogInfo(Idx + ":" + iden + " 模型:" + op.model + "攻击:" + op.second[0].flag[6] + " 防御:" + op.second[1].flag[6] + " 移动速度:" + op.second[2].flag[6]);
+                WSLog.LogInfo(Idx + ":" + iden + " 模型:" + op.model + "攻击:" + op.second[0].flag[6] + " 防御:" + op.second[1].flag[6] + " 移动速度:" + op.second[2].flag[6]);
             }
             else if (type == 2)//物品
             {
-                Log.LogInfo(Idx + ":" + iden + " 模型:" + op.model);
+                WSLog.LogInfo(Idx + ":" + iden + " 模型:" + op.model);
             }
             else if (type == 4)//镖物
             {
-                Log.LogInfo(Idx + ":" + iden + " 模型" + op.model);
+                WSLog.LogInfo(Idx + ":" + iden + " 模型" + op.model);
             }
             else if (type == 5)//地图
             {
-                Log.LogInfo(Idx + ":" + iden + " 模型" + op.model);
+                WSLog.LogInfo(Idx + ":" + iden + " 模型" + op.model);
             }
             */
             itemCnt--; 

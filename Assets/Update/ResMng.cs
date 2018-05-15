@@ -53,7 +53,7 @@ public class ReferenceNode
 	public void AddDependencyNode(ReferenceNode childnode)
 	{
 		if (childnode == null)
-			UnityEngine.Debug.LogError("childnode == null");
+			WSLog.LogError("childnode == null");
 		
 //		if (!referenceDict.ContainsKey(childnode.strResources))
 //			referenceDict.Add(childnode.strResources, childnode);
@@ -72,7 +72,7 @@ public class ReferenceNode
 	public void AddDependencyByNode(ReferenceNode parentnode)
 	{
 		if (parentnode == null)
-			UnityEngine.Debug.LogError("parentnode == null");
+			WSLog.LogError("parentnode == null");
 		
 //		if (!referenceDict.ContainsKey(parentnode.strResources))
 //			referenceDict.Add(parentnode.strResources, parentnode);
@@ -122,7 +122,7 @@ public class ReferenceNode
 				}
 				catch(System.Exception exp)
 				{
-					UnityEngine.Debug.LogError(exp.Message + "|" + exp.StackTrace);
+					WSLog.LogError(exp.Message + "|" + exp.StackTrace);
 				}
 			}
 			
@@ -360,7 +360,7 @@ public class ResMng {
 		string strRes = "";
 		if (req.error != null)
 		{
-			Log.LogInfo(req.error);
+			WSLog.LogInfo(req.error);
 			//errorCount++;
 			return;
 		}
@@ -507,7 +507,7 @@ public class ResMng {
 			//xxx.unity
             if (strName.LastIndexOf(".") == -1)
             {
-                Log.LogInfo("server config error");
+                WSLog.LogInfo("server config error");
                 return;
             }
 			string strExt = strName.Substring(strName.LastIndexOf(".")).ToLower();
@@ -1028,7 +1028,7 @@ public class ResMng {
 				//check reference chain is full
 				ReferenceNode top = ReferenceNode.Alloc(strLocation);
 				List<ReferenceNode> childList = CollectDependencies(top);
-				Log.LogRefer(top, childList);
+				WSLog.LogRefer(top, childList);
 				List<ReferenceNode> needDownload = new List<ReferenceNode>();
 				foreach (ReferenceNode node in childList)
 				{
@@ -1098,7 +1098,7 @@ public class ResMng {
                             {
                                 Debug.Log("error1");
                             }
-							Log.LogInfo("AddResource:" + strIden);
+							WSLog.LogInfo("AddResource:" + strIden);
                             try
                             {
                                 if (ResTypeDict.ContainsKey(strExt))
@@ -1387,7 +1387,7 @@ public class ResMng {
                 ResObject = bundle.LoadAsset(strIden);
                 va.mainAsset = bundle;
 				if (ResObject != null)
-					Log.LogInfo("AddResource:" + strIden + "|resobject:" + ResObject.ToString());
+					WSLog.LogInfo("AddResource:" + strIden + "|resobject:" + ResObject.ToString());
 				if (ResTypeDict.ContainsKey(strExt) && ResObject != null)
 				{
 					va.Assets.Add(ResTypeDict[strExt], ResObject);
@@ -1409,7 +1409,7 @@ public class ResMng {
 		}
 		catch (System.Exception exp)
 		{
-			Log.LogInfo(exp.Message + "|" + exp.StackTrace);
+			WSLog.LogInfo(exp.Message + "|" + exp.StackTrace);
 			return;
 		}
 	}
@@ -1422,7 +1422,7 @@ public class ResMng {
 		CollectDownloadRes(strLocation, ref download, ref root);
 		if (download.Count == 0)
 		{
-			Log.LogInfo("LoadLevelSync");
+			WSLog.LogInfo("LoadLevelSync");
 			LoadLevelSync(strScene, strLocation, root);
 			if (cb != null)
 			{
@@ -1466,7 +1466,7 @@ public class ResMng {
         }
    
 		download = CollectDependencies(root);
-		Log.LogRefer(root, download);
+		WSLog.LogRefer(root, download);
         //首先查看已经下载好的资源表里有没有要使用的，是则不再下载这个文件.
 		List<string> fullpath = new List<string>();
 		foreach (var each in ResourceRes.Keys)
@@ -1527,14 +1527,14 @@ public class ResMng {
         }
 
 		if (download.Count != 0)
-			Log.LogInfo("main res need begin:" + strResource);
+			WSLog.LogInfo("main res need begin:" + strResource);
 		foreach (var each in download)
 		{
-			Log.LogInfo("need:" + each.strResources);
+			WSLog.LogInfo("need:" + each.strResources);
 		}
 
 		if (download.Count != 0)
-			Log.LogInfo("main res need end:" + strResource);
+			WSLog.LogInfo("main res need end:" + strResource);
 	}
 
     static bool FindInCache(string strLocation, ref Object ResObject, ResourceType TargetType)

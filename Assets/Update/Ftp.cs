@@ -120,7 +120,7 @@ public static class FtpLog
         } 
 		catch (Exception e) 
 		{
-            UnityEngine.Debug.LogError("upload log file exception:" + e.Message);
+            WSLog.LogError("upload log file exception:" + e.Message);
 		}
 		finally
 		{

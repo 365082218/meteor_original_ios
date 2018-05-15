@@ -536,25 +536,25 @@ public class U3D : MonoBehaviour {
         uint profileTotalAllocate = Profiler.GetTotalAllocatedMemory();
         uint profileTotalReserved = Profiler.GetTotalReservedMemory();
         long gcTotal = System.GC.GetTotalMemory(false);
-        Log.LogInfo("profile totalAllocate:" + profileTotalAllocate + " profile TotalReserved:" + profileTotalReserved + " gc totalAllocate:" + gcTotal);
-        Log.LogInfo("start load level:" + id);
+        WSLog.LogInfo("profile totalAllocate:" + profileTotalAllocate + " profile TotalReserved:" + profileTotalReserved + " gc totalAllocate:" + gcTotal);
+        WSLog.LogInfo("start load level:" + id);
         if (FightWnd.Exist)
             FightWnd.Instance.Close();
         //if (StateWnd.Exist)
         //    StateWnd.Instance.Close();
         WindowMng.CloseAll();
-        Log.LogInfo("WindowMng.CloseAll();");
+        WSLog.LogInfo("WindowMng.CloseAll();");
         //暂时不允许使用声音管理器，在切换场景时不允许播放
         SoundManager.Instance.StopAll();
         SoundManager.Instance.Enable(false);
         SaveLastLevelData();
         ClearLevelData();
-        Log.LogInfo("ClearLevelData");
+        WSLog.LogInfo("ClearLevelData");
         Level lev = LevelMng.Instance.GetItem(id);
         Global.GLevelItem = lev;
-        Log.LogInfo("Global.GLevelItem = lev;");
+        WSLog.LogInfo("Global.GLevelItem = lev;");
         LoadingWnd.Instance.Open();
-        Log.LogInfo("LoadingWnd.Instance.Open();");
+        WSLog.LogInfo("LoadingWnd.Instance.Open();");
         Resources.UnloadUnusedAssets();
         GC.Collect();
         if (!string.IsNullOrEmpty(lev.goodList))
@@ -566,7 +566,7 @@ public class U3D : MonoBehaviour {
         }
         LevelHelper helper = ins.gameObject.AddComponent<LevelHelper>();
         helper.Load(id);
-        Log.LogInfo("helper.load end");
+        WSLog.LogInfo("helper.load end");
     }
 
     public static void LoadLevel(int id, int gate)

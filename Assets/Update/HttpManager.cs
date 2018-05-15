@@ -179,7 +179,7 @@ public class HttpClient{
 		} 
 		catch (Exception e) 
 		{
-			//UnityEngine.Debug.LogError(e.Message);
+			//WSLog.LogError(e.Message);
 		}
 		finally
 		{
@@ -341,7 +341,7 @@ public class HttpClient{
                             connectDone.WaitOne(2000, false);
                             if (!sClient.Connected)
                             {
-                                Log.LogInfo("connect time out");
+                                WSLog.LogInfo("connect time out");
                                 //repush to download again
                                 lock (RequestMap)
                                 {
@@ -391,7 +391,7 @@ public class HttpClient{
                             continue;
                         }
                         string strSend = string.Format(strHttpVer, strRelativePath, strHost, strPort, req.cbstart);
-                        Log.LogInfo("send packet:" + strSend);
+                        WSLog.LogInfo("send packet:" + strSend);
                         byte[] bySend = System.Text.Encoding.UTF8.GetBytes(string.Format(strHttpVer, strRelativePath, strHost, strPort, req.cbstart));
                         sClient.Send(bySend);
                         int nByteRecved = 0;
@@ -438,7 +438,7 @@ public class HttpClient{
                         }
                         nByteRecved = 0;
                         string strHead = System.Text.Encoding.UTF8.GetString(ms.GetBuffer());
-                        Log.LogInfo("http recv:" + strHead);
+                        WSLog.LogInfo("http recv:" + strHead);
                         string strHeadLower = strHead.ToLower();
                         //check http1.1 return code
                         int nReturnCode = 0;
@@ -454,7 +454,7 @@ public class HttpClient{
                             {
                                 string strStatus = strResponse[i];
                                 nReturnCode = System.Convert.ToInt32(strStatus.Substring(9, 3));
-                                Log.LogInfo("http result:" + nReturnCode.ToString());
+                                WSLog.LogInfo("http result:" + nReturnCode.ToString());
                             }
                             else if (strResponse[i].Contains("content-length:"))
                             {
@@ -469,7 +469,7 @@ public class HttpClient{
                             }
 							else if (strResponse[i].Contains("tranfer-encoding:chunked"))
 							{
-								Log.LogInfo("error !!! can not read chunked data");
+								WSLog.LogInfo("error !!! can not read chunked data");
 							}
 
                             if (nReturnCode != 0 && nContentLength != 0)
@@ -550,7 +550,7 @@ public class HttpClient{
             }
             if (close != null)
             {
-                Log.LogInfo("thread quit signal open");
+                WSLog.LogInfo("thread quit signal open");
                 close.Set();
                 close = null;
             }
@@ -708,7 +708,7 @@ public class HttpManager{
 				}
 				else
 				{
-					Log.LogInfo("application quit normal return");
+					WSLog.LogInfo("application quit normal return");
 					return;
 				}
 			}
