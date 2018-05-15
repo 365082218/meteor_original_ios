@@ -656,8 +656,8 @@ public class MeteorUnit : MonoBehaviour
         }
     }
     public const float Jump2Velocity = 160;//蹬腿反弹速度
-    public const float JumpVelocityForward = 150.0f;//向前跳跃速度
-    public const float JumpVelocityOther = 90.0f;//其他方向上的速度
+    public const float JumpVelocityForward = 180.0f;//向前跳跃速度
+    public const float JumpVelocityOther = 100.0f;//其他方向上的速度
     public const float gGravity = 980.0f;//971.4f;//向上0.55秒，向下0.45秒
     public const float groundFriction = 1000.0f;//地面摩擦力，在地面不是瞬间停止下来的。
     public const float yLimitMin = -500f;//最大向下速度
@@ -1013,10 +1013,10 @@ public class MeteorUnit : MonoBehaviour
         charController = gameObject.GetComponent<CharacterController>();
         if (charController == null)
             charController = gameObject.AddComponent<CharacterController>();
-        charController.center = new Vector3(0, 17.5f, 0);
+        charController.center = new Vector3(0, 17.8f, 0);
         charController.height = Global.GLevelItem.ID == 7 ? 32.0f: 35.0f;//32是跨越皇天城的栅栏的最大高度，超过这个高度就没法过去了。
-        charController.radius = 10.0f;
-        charController.stepOffset = 8f;
+        charController.radius = 9.0f;
+        charController.stepOffset = 7.6f;
 
         posMng.ChangeAction();
         if (controller != null)
@@ -1241,12 +1241,11 @@ public class MeteorUnit : MonoBehaviour
     }
 
     //被墙壁推开.
-    public void ProcessFall()
+    public void ProcessFall(float scale = 1.0f)
     {
         Vector3 vec = transform.position - hitPoint;
         vec.y = 0;
-
-        SetWorldVelocity(Vector3.Normalize(vec) * 50);
+        SetWorldVelocity(Vector3.Normalize(vec) * 50 * scale);
         //WsGlobal.AddDebugLine(hitPoint, hitPoint + Vector3.Normalize(vec) * 30, Color.red, "pushDir", 10);
         //Debug.LogError("被墙壁推开");
         //RaycastHit hit;
@@ -1279,6 +1278,7 @@ public class MeteorUnit : MonoBehaviour
         //}
     }
 
+    float floatTick = -1.0f;
     void UpdateFlags(CollisionFlags flag)
     {
         if ((flag & CollisionFlags.Sides) != 0)
@@ -1301,7 +1301,7 @@ public class MeteorUnit : MonoBehaviour
         bool Floating = false;
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene")))
+        if (Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene")))
         {
             MoveOnGroundEx = hit.distance <= 2.0f;
             Floating = hit.distance >= 16.0f;
@@ -1356,14 +1356,16 @@ public class MeteorUnit : MonoBehaviour
                         posMng.mActiveAction.Idx == CommonAction.JumpBackFall ||
                         posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
                 {
-                    Debug.LogError("贴着墙壁-贴着地面-被墙壁推开");
+                    //Debug.LogError("贴着墙壁-贴着地面-被墙壁推开");
                     ProcessFall();
+                    floatTick = Time.timeSinceLevelLoad;
                 }
             }
             else if (Floating)
             {
-                Debug.LogError("在地面-但是角色底部浮空推开");
-                ProcessFall();
+                //Debug.LogError("在地面-但是角色底部浮空推开");
+                ProcessFall(0.75f);
+                floatTick = Time.timeSinceLevelLoad;
             }
         }
         else
@@ -1488,6 +1490,7 @@ public class MeteorUnit : MonoBehaviour
                     posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
                     //看是否被物件推开
                     ProcessFall();
+                    floatTick = Time.timeSinceLevelLoad;
                 }
             }
         }
