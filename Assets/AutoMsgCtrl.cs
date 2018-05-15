@@ -28,6 +28,7 @@ public class AutoMsgCtrl : MonoBehaviour {
         for (int i = 0; i < transform.childCount; i++)
             GameObject.Destroy(transform.GetChild(i).gameObject);
         tick = lastTime + alphaTime;
+        StartCoroutine(SortMessage());
     }
 
     void Start() {
@@ -66,22 +67,60 @@ public class AutoMsgCtrl : MonoBehaviour {
 
     float tick;
     bool crossFade;
-    
+
+    float lastTick;
+    List<string> msg = new List<string>();
     public void PushMessage(string text)
     {
-        GameObject obj = new GameObject();
-        obj.name = (transform.childCount + 1).ToString();
-        Text txt = obj.AddComponent<Text>();
-        txt.text = text;
-        //00AAFFFF
-        txt.font = Startup.ins.TextFont;
-        txt.fontSize = 32;
-        txt.alignment = TextAnchor.MiddleLeft;
-        txt.raycastTarget = false;
-        txt.color = new Color(1.0f, 1.0f, 1.0f, 1f);
-        obj.transform.SetParent(transform);
-        obj.transform.localScale = Vector3.one;
-        obj.transform.localPosition = Vector3.zero;
-        obj.transform.localRotation = Quaternion.identity;
+        if (Time.timeSinceLevelLoad - lastTick <= 1f || msg.Count != 0)
+        {
+            msg.Add(text);
+        }
+        else
+        {
+            GameObject obj = new GameObject();
+            obj.name = (transform.childCount + 1).ToString();
+            Text txt = obj.AddComponent<Text>();
+            txt.text = text;
+            //00AAFFFF
+            txt.font = Startup.ins.TextFont;
+            txt.fontSize = 32;
+            txt.alignment = TextAnchor.MiddleLeft;
+            txt.raycastTarget = false;
+            txt.color = new Color(1.0f, 1.0f, 1.0f, 1f);
+            obj.transform.SetParent(transform);
+            obj.transform.localScale = Vector3.one;
+            obj.transform.localPosition = Vector3.zero;
+            obj.transform.localRotation = Quaternion.identity;
+            lastTick = Time.timeSinceLevelLoad;
+        }
+    }
+
+    IEnumerator SortMessage()
+    {
+        while (true)
+        {
+            if (Time.timeSinceLevelLoad - lastTick > 1f && msg.Count != 0)
+            {
+                GameObject obj = new GameObject();
+                obj.name = (transform.childCount + 1).ToString();
+                Text txt = obj.AddComponent<Text>();
+                txt.text = msg[0];
+                //00AAFFFF
+                txt.font = Startup.ins.TextFont;
+                txt.fontSize = 32;
+                txt.alignment = TextAnchor.MiddleLeft;
+                txt.raycastTarget = false;
+                txt.color = new Color(1.0f, 1.0f, 1.0f, 1f);
+                obj.transform.SetParent(transform);
+                obj.transform.localScale = Vector3.one;
+                obj.transform.localPosition = Vector3.zero;
+                obj.transform.localRotation = Quaternion.identity;
+                lastTick = Time.timeSinceLevelLoad;
+                msg.RemoveAt(0);
+            }
+            yield return 0;
+        }
+        
     }
 }

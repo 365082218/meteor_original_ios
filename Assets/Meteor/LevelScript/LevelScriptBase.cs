@@ -5832,7 +5832,8 @@ public class LevelScript_sn14 : LevelScriptBase
             }
         }
 
-
+        //当大刀哨兵发现主角，停止铁枪和大刀兵之前的行为，进行默认看到敌方时的处理-追击敌方/（丢失视野后会停止追击） 
+        //Kill指令无视视野-无论多远都可以看到要追杀的目标
         if (trg1 == 0)
         {
             c = GetChar("大刀哨兵");
