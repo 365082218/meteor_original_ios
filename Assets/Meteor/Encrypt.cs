@@ -1,6 +1,4 @@
 ﻿using System.Security.Cryptography;
-
-
 public class Encrypt
 {
     private static string key = "AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHH";//32

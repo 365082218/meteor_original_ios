@@ -7,7 +7,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{9283880D-A162-1E5C-D4BD-03594FE4F9F3}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AssemblyName>Assembly-CSharp-firstpass.dll</AssemblyName>
+    <AssemblyName>Assembly-CSharp-firstpass</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
@@ -27,7 +27,7 @@
     <IntermediateOutputPath>Temp\UnityVS_obj\Debug\</IntermediateOutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DefineConstants>DEBUG;TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_5_4;UNITY_5_5;UNITY_5;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_GENERICS;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;INCLUDE_DYNAMIC_GI;INCLUDE_GI;PLATFORM_SUPPORTS_MONO;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_SCRIPTING_NEW_CSHARP_COMPILER;UNITY_ANDROID;ENABLE_SUBSTANCE;UNITY_ANDROID_API;ENABLE_EGL;ENABLE_NETWORK;ENABLE_RUNTIME_GI;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;PLATFORM_SUPPORTS_ADS_ID;UNITY_CAN_SHOW_SPLASH_SCREEN;ENABLE_VIDEO;ENABLE_VR;ENABLE_UNITYADS_RUNTIME;UNITY_UNITYADS_API;ENABLE_MONO;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;UNITY_TEAM_LICENSE;ENABLE_VSTU;</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_5_4;UNITY_5_5;UNITY_5;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_GENERICS;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;INCLUDE_DYNAMIC_GI;INCLUDE_GI;PLATFORM_SUPPORTS_MONO;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_SCRIPTING_NEW_CSHARP_COMPILER;UNITY_ANDROID;ENABLE_SUBSTANCE;UNITY_ANDROID_API;ENABLE_EGL;ENABLE_NETWORK;ENABLE_RUNTIME_GI;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;PLATFORM_SUPPORTS_ADS_ID;UNITY_CAN_SHOW_SPLASH_SCREEN;ENABLE_VIDEO;ENABLE_VR;ENABLE_UNITYADS_RUNTIME;UNITY_UNITYADS_API;ENABLE_MONO;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;UNITY_TEAM_LICENSE;ENABLE_VSTU;NOLOG;</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -37,7 +37,7 @@
     <IntermediateOutputPath>Temp\UnityVS_obj\Release\</IntermediateOutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DefineConstants>TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_5_4;UNITY_5_5;UNITY_5;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_GENERICS;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;INCLUDE_DYNAMIC_GI;INCLUDE_GI;PLATFORM_SUPPORTS_MONO;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_SCRIPTING_NEW_CSHARP_COMPILER;UNITY_ANDROID;ENABLE_SUBSTANCE;UNITY_ANDROID_API;ENABLE_EGL;ENABLE_NETWORK;ENABLE_RUNTIME_GI;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;PLATFORM_SUPPORTS_ADS_ID;UNITY_CAN_SHOW_SPLASH_SCREEN;ENABLE_VIDEO;ENABLE_VR;ENABLE_UNITYADS_RUNTIME;UNITY_UNITYADS_API;ENABLE_MONO;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;UNITY_TEAM_LICENSE;ENABLE_VSTU;</DefineConstants>
+    <DefineConstants>TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_5_4;UNITY_5_5;UNITY_5;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_GENERICS;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;INCLUDE_DYNAMIC_GI;INCLUDE_GI;PLATFORM_SUPPORTS_MONO;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_SCRIPTING_NEW_CSHARP_COMPILER;UNITY_ANDROID;ENABLE_SUBSTANCE;UNITY_ANDROID_API;ENABLE_EGL;ENABLE_NETWORK;ENABLE_RUNTIME_GI;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;PLATFORM_SUPPORTS_ADS_ID;UNITY_CAN_SHOW_SPLASH_SCREEN;ENABLE_VIDEO;ENABLE_VR;ENABLE_UNITYADS_RUNTIME;UNITY_UNITYADS_API;ENABLE_MONO;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;UNITY_TEAM_LICENSE;ENABLE_VSTU;NOLOG;</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
@@ -50,25 +50,25 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="UnityEngine">
-      <HintPath>D:/Unity554f1/Editor/Data/Managed/UnityEngine.dll</HintPath>
+      <HintPath>G:/Unity5.5.4f1/Editor/Data/Managed/UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>D:/Unity554f1/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
+      <HintPath>G:/Unity5.5.4f1/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.Networking">
-      <HintPath>D:/Unity554f1/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
+      <HintPath>G:/Unity5.5.4f1/Editor/Data/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.PlaymodeTestsRunner">
-      <HintPath>D:/Unity554f1/Editor/Data/UnityExtensions/Unity/PlaymodeTestsRunner/UnityEngine.PlaymodeTestsRunner.dll</HintPath>
+      <HintPath>G:/Unity5.5.4f1/Editor/Data/UnityExtensions/Unity/PlaymodeTestsRunner/UnityEngine.PlaymodeTestsRunner.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.Analytics">
-      <HintPath>D:/Unity554f1/Editor/Data/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
+      <HintPath>G:/Unity5.5.4f1/Editor/Data/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.HoloLens">
-      <HintPath>D:/Unity554f1/Editor/Data/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor/UnityEngine.HoloLens.dll</HintPath>
+      <HintPath>G:/Unity5.5.4f1/Editor/Data/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor/UnityEngine.HoloLens.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.VR">
-      <HintPath>D:/Unity554f1/Editor/Data/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
+      <HintPath>G:/Unity5.5.4f1/Editor/Data/UnityExtensions/Unity/UnityVR/RuntimeEditor/UnityEngine.VR.dll</HintPath>
     </Reference>
     <Reference Include="I18N.CJK">
       <HintPath>Assets/I18N.CJK.dll</HintPath>
@@ -104,13 +104,13 @@
       <HintPath>Assets/ThirdParty/DOTween/DOTween50.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor">
-      <HintPath>D:/Unity554f1/Editor/Data/Managed/UnityEditor.dll</HintPath>
+      <HintPath>G:/Unity5.5.4f1/Editor/Data/Managed/UnityEditor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.iOS.Extensions.Xcode">
-      <HintPath>D:/Unity554f1/Editor/Data/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
+      <HintPath>G:/Unity5.5.4f1/Editor/Data/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.iOS.Extensions.Common">
-      <HintPath>D:/Unity554f1/Editor/Data/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Common.dll</HintPath>
+      <HintPath>G:/Unity5.5.4f1/Editor/Data/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Common.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -249,135 +249,140 @@
     <None Include="Assets\Meteor\Shader\Resources\WeaponTextureMask.shader" />
     <None Include="Assets\Meteor\mod\readme.txt" />
     <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored.shader" />
-    <None Include="Assets\Resources\Action.txt" />
-    <None Include="Assets\Resources\AttrExtra.txt" />
-    <None Include="Assets\Resources\AttrPrice.txt" />
-    <None Include="Assets\Resources\BuffBase.txt" />
-    <None Include="Assets\Resources\Chest.txt" />
-    <None Include="Assets\Resources\CloseUp.txt" />
-    <None Include="Assets\Resources\Exp.txt" />
-    <None Include="Assets\Resources\FubenBase.txt" />
-    <None Include="Assets\Resources\Func.txt" />
-    <None Include="Assets\Resources\Gate.txt" />
-    <None Include="Assets\Resources\Input.txt" />
-    <None Include="Assets\Resources\Item.txt" />
-    <None Include="Assets\Resources\JobImprove.txt" />
-    <None Include="Assets\Resources\Lang.txt" />
-    <None Include="Assets\Resources\Languages.txt" />
-    <None Include="Assets\Resources\Level.txt" />
-    <None Include="Assets\Resources\LoadingTips.txt" />
-    <None Include="Assets\Resources\Monster.txt" />
-    <None Include="Assets\Resources\MonsterPools.txt" />
-    <None Include="Assets\Resources\Npc.txt" />
-    <None Include="Assets\Resources\NpcPools.txt" />
-    <None Include="Assets\Resources\Patrol.txt" />
-    <None Include="Assets\Resources\Platform.txt" />
-    <None Include="Assets\Resources\PlotTalk.txt" />
-    <None Include="Assets\Resources\ReHandle.txt" />
-    <None Include="Assets\Resources\Robot.txt" />
-    <None Include="Assets\Resources\Skill.txt" />
-    <None Include="Assets\Resources\Task.txt" />
-    <None Include="Assets\Resources\UnitBase.txt" />
-    <None Include="Assets\Resources\Wanted.txt" />
-    <None Include="Assets\Resources\WayPoints.txt" />
-    <None Include="Assets\Resources\Weapon.txt" />
-    <None Include="Assets\Resources\meteorFont.fnt" />
+    <None Include="Assets\Plugins\Android\AndroidManifest.xml" />
+    <None Include="Assets\Plugins\Android\res\layout\activity_main2.xml" />
+    <None Include="Assets\Plugins\Android\res\layout\activity_main3.xml" />
+    <None Include="Assets\Plugins\Android\res\values\strings.xml" />
+    <None Include="Assets\Resource\Script\Resources\1002_0_0.txt" />
+    <None Include="Assets\Resource\Script\Resources\1002_0_1.txt" />
+    <None Include="Assets\Resource\Script\Resources\1002_0_2.txt" />
+    <None Include="Assets\Resource\Script\Resources\1002_1_0.txt" />
+    <None Include="Assets\Resource\Script\Resources\1002_1_1.txt" />
+    <None Include="Assets\Resource\Script\Resources\1002_1_2.txt" />
+    <None Include="Assets\Resource\Script\Resources\1002_2_0.txt" />
+    <None Include="Assets\Resource\Script\Resources\1002_2_1.txt" />
+    <None Include="Assets\Resource\Script\Resources\1003_2_1.txt" />
+    <None Include="Assets\Resource\Script\Resources\AI.txt" />
+    <None Include="Assets\Resource\Script\Resources\Battle_1001.txt" />
+    <None Include="Assets\Resource\Script\Resources\Blade.txt" />
+    <None Include="Assets\Resource\Script\Resources\Dagger.txt" />
+    <None Include="Assets\Resource\Script\Resources\Fun_1000.txt" />
+    <None Include="Assets\Resource\Script\Resources\Fun_1001.txt" />
+    <None Include="Assets\Resource\Script\Resources\Fun_1003.txt" />
+    <None Include="Assets\Resource\Script\Resources\Fun_1004.txt" />
+    <None Include="Assets\Resource\Script\Resources\Fun_Rest.txt" />
+    <None Include="Assets\Resource\Script\Resources\GMScript.txt" />
+    <None Include="Assets\Resource\Script\Resources\GUARD.txt" />
+    <None Include="Assets\Resource\Script\Resources\Global.txt" />
+    <None Include="Assets\Resource\Script\Resources\Hammer.txt" />
+    <None Include="Assets\Resource\Script\Resources\KATANA.txt" />
+    <None Include="Assets\Resource\Script\Resources\Lance.txt" />
+    <None Include="Assets\Resource\Script\Resources\Main.txt" />
+    <None Include="Assets\Resource\Script\Resources\PUNCH.txt" />
+    <None Include="Assets\Resource\Script\Resources\SAMURAI.txt" />
+    <None Include="Assets\Resource\Script\Resources\Stinger.txt" />
+    <None Include="Assets\Resource\Script\Resources\Sword.txt" />
+    <None Include="Assets\Resource\Script\Resources\Task_1003_OnComplete.txt" />
+    <None Include="Assets\Resource\Script\Resources\Task_1004_OnComplete.txt" />
+    <None Include="Assets\Resource\Script\Resources\UNGUARD.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc01_01.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc01_02.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc01_03.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc03_01.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc03_02.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc03_03.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc03_04.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc03_05.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc03_06.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc04_01.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc04_02.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc04_03.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc04_04.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc04_05.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc04_06.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc04_07.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc05_01.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc05_02.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc05_03.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc05_04.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc05_05.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc05_06.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc05_07.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc05_08.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc05_09.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc09_01.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc09_02.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc10_01.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc10_02.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc10_03.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc10_04.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc10_05.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc13_01.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc13_02.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc13_03.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc13_04.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc13_05.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc13_06.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc13_07.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc13_08.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc14_01.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc14_02.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc15_01.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc15_02.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc15_03.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc15_04.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc15_05.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc15_06.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc15_07.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc15_08.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc23_01.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc23_02.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc23_03.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc23_04.txt" />
+    <None Include="Assets\Resource\Script\Resources\npcSample.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc_1002.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc_1003.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc_1004.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc_1005.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc_1006.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc_2001.txt" />
+    <None Include="Assets\Resource\Table\Resources\Action.txt" />
+    <None Include="Assets\Resource\Table\Resources\AttrExtra.txt" />
+    <None Include="Assets\Resource\Table\Resources\AttrPrice.txt" />
+    <None Include="Assets\Resource\Table\Resources\BuffBase.txt" />
+    <None Include="Assets\Resource\Table\Resources\Chest.txt" />
+    <None Include="Assets\Resource\Table\Resources\CloseUp.txt" />
+    <None Include="Assets\Resource\Table\Resources\Exp.txt" />
+    <None Include="Assets\Resource\Table\Resources\FubenBase.txt" />
+    <None Include="Assets\Resource\Table\Resources\Func.txt" />
+    <None Include="Assets\Resource\Table\Resources\Gate.txt" />
+    <None Include="Assets\Resource\Table\Resources\Input.txt" />
+    <None Include="Assets\Resource\Table\Resources\Item.txt" />
+    <None Include="Assets\Resource\Table\Resources\JobImprove.txt" />
+    <None Include="Assets\Resource\Table\Resources\Lang.txt" />
+    <None Include="Assets\Resource\Table\Resources\Languages.txt" />
+    <None Include="Assets\Resource\Table\Resources\Level.txt" />
+    <None Include="Assets\Resource\Table\Resources\LoadingTips.txt" />
+    <None Include="Assets\Resource\Table\Resources\Monster.txt" />
+    <None Include="Assets\Resource\Table\Resources\MonsterPools.txt" />
+    <None Include="Assets\Resource\Table\Resources\Npc.txt" />
+    <None Include="Assets\Resource\Table\Resources\NpcPools.txt" />
+    <None Include="Assets\Resource\Table\Resources\Patrol.txt" />
+    <None Include="Assets\Resource\Table\Resources\Platform.txt" />
+    <None Include="Assets\Resource\Table\Resources\PlotTalk.txt" />
+    <None Include="Assets\Resource\Table\Resources\ReHandle.txt" />
+    <None Include="Assets\Resource\Table\Resources\Robot.txt" />
+    <None Include="Assets\Resource\Table\Resources\Skill.txt" />
+    <None Include="Assets\Resource\Table\Resources\Task.txt" />
+    <None Include="Assets\Resource\Table\Resources\UnitBase.txt" />
+    <None Include="Assets\Resource\Table\Resources\Wanted.txt" />
+    <None Include="Assets\Resource\Table\Resources\WayPoints.txt" />
+    <None Include="Assets\Resource\Table\Resources\Weapon.txt" />
+    <None Include="Assets\Resource\Version\Resources\meteorFont.fnt" />
     <None Include="Assets\RnM UI 2 for UGUI\Changelog.txt" />
     <None Include="Assets\RnM UI 2 for UGUI\Readme.txt" />
     <None Include="Assets\RnM UI 2 for UGUI\Shaders\Overlay.shader" />
     <None Include="Assets\SceneWater\Tasharen Water.shader" />
-    <None Include="Assets\Script\Resources\1002_0_0.txt" />
-    <None Include="Assets\Script\Resources\1002_0_1.txt" />
-    <None Include="Assets\Script\Resources\1002_0_2.txt" />
-    <None Include="Assets\Script\Resources\1002_1_0.txt" />
-    <None Include="Assets\Script\Resources\1002_1_1.txt" />
-    <None Include="Assets\Script\Resources\1002_1_2.txt" />
-    <None Include="Assets\Script\Resources\1002_2_0.txt" />
-    <None Include="Assets\Script\Resources\1002_2_1.txt" />
-    <None Include="Assets\Script\Resources\1003_2_1.txt" />
-    <None Include="Assets\Script\Resources\AI.txt" />
-    <None Include="Assets\Script\Resources\Battle_1001.txt" />
-    <None Include="Assets\Script\Resources\Blade.txt" />
-    <None Include="Assets\Script\Resources\Dagger.txt" />
-    <None Include="Assets\Script\Resources\Fun_1000.txt" />
-    <None Include="Assets\Script\Resources\Fun_1001.txt" />
-    <None Include="Assets\Script\Resources\Fun_1003.txt" />
-    <None Include="Assets\Script\Resources\Fun_1004.txt" />
-    <None Include="Assets\Script\Resources\Fun_Rest.txt" />
-    <None Include="Assets\Script\Resources\GMScript.txt" />
-    <None Include="Assets\Script\Resources\GUARD.txt" />
-    <None Include="Assets\Script\Resources\Hammer.txt" />
-    <None Include="Assets\Script\Resources\KATANA.txt" />
-    <None Include="Assets\Script\Resources\Lance.txt" />
-    <None Include="Assets\Script\Resources\Main.txt" />
-    <None Include="Assets\Script\Resources\PUNCH.txt" />
-    <None Include="Assets\Script\Resources\SAMURAI.txt" />
-    <None Include="Assets\Script\Resources\Stinger.txt" />
-    <None Include="Assets\Script\Resources\Sword.txt" />
-    <None Include="Assets\Script\Resources\Task_1003_OnComplete.txt" />
-    <None Include="Assets\Script\Resources\Task_1004_OnComplete.txt" />
-    <None Include="Assets\Script\Resources\UNGUARD.txt" />
-    <None Include="Assets\Script\Resources\npc01_01.txt" />
-    <None Include="Assets\Script\Resources\npc01_02.txt" />
-    <None Include="Assets\Script\Resources\npc01_03.txt" />
-    <None Include="Assets\Script\Resources\npc03_01.txt" />
-    <None Include="Assets\Script\Resources\npc03_02.txt" />
-    <None Include="Assets\Script\Resources\npc03_03.txt" />
-    <None Include="Assets\Script\Resources\npc03_04.txt" />
-    <None Include="Assets\Script\Resources\npc03_05.txt" />
-    <None Include="Assets\Script\Resources\npc03_06.txt" />
-    <None Include="Assets\Script\Resources\npc04_01.txt" />
-    <None Include="Assets\Script\Resources\npc04_02.txt" />
-    <None Include="Assets\Script\Resources\npc04_03.txt" />
-    <None Include="Assets\Script\Resources\npc04_04.txt" />
-    <None Include="Assets\Script\Resources\npc04_05.txt" />
-    <None Include="Assets\Script\Resources\npc04_06.txt" />
-    <None Include="Assets\Script\Resources\npc04_07.txt" />
-    <None Include="Assets\Script\Resources\npc05_01.txt" />
-    <None Include="Assets\Script\Resources\npc05_02.txt" />
-    <None Include="Assets\Script\Resources\npc05_03.txt" />
-    <None Include="Assets\Script\Resources\npc05_04.txt" />
-    <None Include="Assets\Script\Resources\npc05_05.txt" />
-    <None Include="Assets\Script\Resources\npc05_06.txt" />
-    <None Include="Assets\Script\Resources\npc05_07.txt" />
-    <None Include="Assets\Script\Resources\npc05_08.txt" />
-    <None Include="Assets\Script\Resources\npc05_09.txt" />
-    <None Include="Assets\Script\Resources\npc09_01.txt" />
-    <None Include="Assets\Script\Resources\npc09_02.txt" />
-    <None Include="Assets\Script\Resources\npc10_01.txt" />
-    <None Include="Assets\Script\Resources\npc10_02.txt" />
-    <None Include="Assets\Script\Resources\npc10_03.txt" />
-    <None Include="Assets\Script\Resources\npc10_04.txt" />
-    <None Include="Assets\Script\Resources\npc10_05.txt" />
-    <None Include="Assets\Script\Resources\npc13_01.txt" />
-    <None Include="Assets\Script\Resources\npc13_02.txt" />
-    <None Include="Assets\Script\Resources\npc13_03.txt" />
-    <None Include="Assets\Script\Resources\npc13_04.txt" />
-    <None Include="Assets\Script\Resources\npc13_05.txt" />
-    <None Include="Assets\Script\Resources\npc13_06.txt" />
-    <None Include="Assets\Script\Resources\npc13_07.txt" />
-    <None Include="Assets\Script\Resources\npc13_08.txt" />
-    <None Include="Assets\Script\Resources\npc14_01.txt" />
-    <None Include="Assets\Script\Resources\npc14_02.txt" />
-    <None Include="Assets\Script\Resources\npc15_01.txt" />
-    <None Include="Assets\Script\Resources\npc15_02.txt" />
-    <None Include="Assets\Script\Resources\npc15_03.txt" />
-    <None Include="Assets\Script\Resources\npc15_04.txt" />
-    <None Include="Assets\Script\Resources\npc15_05.txt" />
-    <None Include="Assets\Script\Resources\npc15_06.txt" />
-    <None Include="Assets\Script\Resources\npc15_07.txt" />
-    <None Include="Assets\Script\Resources\npc15_08.txt" />
-    <None Include="Assets\Script\Resources\npc23_01.txt" />
-    <None Include="Assets\Script\Resources\npc23_02.txt" />
-    <None Include="Assets\Script\Resources\npc23_03.txt" />
-    <None Include="Assets\Script\Resources\npc23_04.txt" />
-    <None Include="Assets\Script\Resources\npcSample.txt" />
-    <None Include="Assets\Script\Resources\npc_1002.txt" />
-    <None Include="Assets\Script\Resources\npc_1003.txt" />
-    <None Include="Assets\Script\Resources\npc_1004.txt" />
-    <None Include="Assets\Script\Resources\npc_1005.txt" />
-    <None Include="Assets\Script\Resources\npc_1006.txt" />
-    <None Include="Assets\Script\Resources\npc_2001.txt" />
     <None Include="Assets\Shaders\CustomFog.shader" />
     <None Include="Assets\Shaders\DoubleSided.shader" />
     <None Include="Assets\Shaders\ModelShader\BossShader.shader" />
@@ -386,14 +391,14 @@
     <None Include="Assets\Shaders\ldaDepthMask\ldaDepthMask1.shader" />
     <None Include="Assets\Shaders\ldaDissolve\MobileDissolveUnlit.shader" />
     <None Include="Assets\Shaders\ldaGUITextShader.shader" />
-    <None Include="Assets\Slua\Resources\circle\circle.txt" />
-    <None Include="Assets\Slua\Resources\custom.txt" />
-    <None Include="Assets\Slua\Resources\delegate.txt" />
-    <None Include="Assets\Slua\Resources\module\some.txt" />
-    <None Include="Assets\Slua\Resources\new_coroutine.txt" />
-    <None Include="Assets\Slua\Resources\perf.txt" />
-    <None Include="Assets\Slua\Resources\valuetype.txt" />
-    <None Include="Assets\Slua\Resources\varobj.txt" />
+    <None Include="Assets\Slua\Resources_\circle\circle.txt" />
+    <None Include="Assets\Slua\Resources_\custom.txt" />
+    <None Include="Assets\Slua\Resources_\delegate.txt" />
+    <None Include="Assets\Slua\Resources_\module\some.txt" />
+    <None Include="Assets\Slua\Resources_\new_coroutine.txt" />
+    <None Include="Assets\Slua\Resources_\perf.txt" />
+    <None Include="Assets\Slua\Resources_\valuetype.txt" />
+    <None Include="Assets\Slua\Resources_\varobj.txt" />
     <None Include="Assets\Standard Assets (Mobile)\Shaders\Vertex Colored Shaders\Mobile Transparent Vertex Color.shader" />
     <None Include="Assets\Standard Assets\Effects\GlassRefraction\Shaders\GlassStainedBumpDistort.shader" />
     <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\BlendModesOverlay.shader" />

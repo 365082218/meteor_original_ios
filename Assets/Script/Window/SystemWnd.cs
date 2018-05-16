@@ -131,7 +131,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Control("ChangeV107").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("1.07"); });
         //Control("Ver108").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer(108); });
         Control("ChangeV907").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("9.07"); });
-        Control("AppVerText").GetComponent<Text>().text = Global.AppVersion;
+        Control("AppVerText").GetComponent<Text>().text = Global.AppVersion();
         Control("MeteorVerText").GetComponent<Text>().text = Global.MeteorVersion;
         Control("ChangeModel").GetComponent<Button>().onClick.AddListener(() => { ModelWnd.Instance.Open(); });
         mWindowStyle = WindowStyle.WS_Modal;

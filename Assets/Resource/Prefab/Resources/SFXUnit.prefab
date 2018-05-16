@@ -1,0 +1,139 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1000013043959464}
+  m_IsPrefabParent: 1
+--- !u!1 &1000013043959464
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4000010226987974}
+  - component: {fileID: 114000013353417230}
+  - component: {fileID: 23000012695520562}
+  - component: {fileID: 33000012346146494}
+  m_Layer: 13
+  m_Name: SFXUnit
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4000010226987974
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000013043959464}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &23000012695520562
+MeshRenderer:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000013043959464}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_Materials:
+  - {fileID: 2100000, guid: e02aadbe89f3d8047882aeeaf1633bc9, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+--- !u!33 &33000012346146494
+MeshFilter:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000013043959464}
+  m_Mesh: {fileID: 0}
+--- !u!114 &114000013353417230
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000013043959464}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b75ae52a89be854d8a89e81f00112a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentSfx: {fileID: 0}
+  effectIndex: 0
+  tex: {fileID: 0}
+  source:
+    localSpace: 0
+    EffectType: 
+    EffectName: 
+    Bone0: 
+    Bone1: 
+    Texture: 
+    Active: 0
+    Hidden: 0
+    uSpeed: 0
+    vSpeed: 0
+    Unknown2: 0
+    BlendType: 0
+    Unknown3: 0
+    FrameCnt: 0
+    audioLoop: 0
+    SphereScale: 0
+    frames: []
+    origScale: {x: 1, y: 1, z: 1}
+    origAtt: {x: 0, y: 0}
+    sphereAttr: {x: 0, y: 0, z: 0, w: 0}
+    Tails:
+    - 
+    - 
+    - 
+  EffectType: 
+  mOwner: {fileID: 0}
+  damageBox: {fileID: 0}
+  PositionFollow: {fileID: 0}
+  RotateFollow: {fileID: 0}
+  texture: 
+  mesh:
+  - {fileID: 0}
+  - {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  - {fileID: 4300004, guid: 182f3ed070f39c84181730911cc73dca, type: 3}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 4300000, guid: eb4143d7efee4ee4389cd38c3168bc6f, type: 3}
+  - {fileID: 4300000, guid: e8b101f0d12ce50479fbce260b36e6a7, type: 3}
+  particle: {fileID: 0}
+  iflTexture: {fileID: 0}
+  PlayDone: 0
+  pause: 0

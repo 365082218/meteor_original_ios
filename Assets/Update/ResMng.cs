@@ -1179,7 +1179,7 @@ public class ResMng {
 			fs.Read(buffer, 0, buffer.Length);
 			fs.Close();
 			//the table is encrypted
-			EncryptXOR.EncryptXorString(ref buffer);
+			Encrypt.EncryptArray(buffer);
 			if (buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF)
 				txt = System.Text.Encoding.UTF8.GetString(buffer);
 			else if ((buffer[0] == 0xFF && buffer[1] == 0xFE) || (buffer[0] == 0xFE && buffer[1] == 0xFF))

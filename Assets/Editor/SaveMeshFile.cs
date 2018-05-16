@@ -8,7 +8,7 @@ using System.Text;
 
 public class SaveMeshFile:ScriptableWizard 
 {
-	[MenuItem("Assets/Tool/SaveMeshToMSXFile", false, 0)]
+	[MenuItem("MeteorTool/Mesh/SaveMeshToMSXFile", false, 0)]
 	static void SaveMesh()
 	{
 		if (Selection.activeObject != null)
@@ -552,7 +552,7 @@ public class EditorObjExporter : ScriptableObject
         return true;
     }
 
-    [MenuItem("Custom/Export/Export all MeshFilters in selection to separate OBJs")]
+    [MenuItem("MeteorTool/Mesh/Export/Export all MeshFilters in selection to separate OBJs")]
     static void ExportSelectionToSeparate()
     {
         if (!CreateTargetFolder())
@@ -585,7 +585,7 @@ public class EditorObjExporter : ScriptableObject
             EditorUtility.DisplayDialog("Objects not exported", "Make sure at least some of your selected objects have mesh filters!", "");
     }
 
-    [MenuItem("Custom/Export/Export whole selection to single OBJ")]
+    [MenuItem("MeteorTool/Mesh/Export/Export whole selection to single OBJ")]
     static void ExportWholeSelectionToSingle()
     {
         if (!CreateTargetFolder())
@@ -673,7 +673,7 @@ public class EditorObjExporter : ScriptableObject
 
 
 
-    [MenuItem("Custom/Export/Export each selected to single OBJ")]
+    [MenuItem("MeteorTool/Mesh/Export/Export each selected to single OBJ")]
     static void ExportEachSelectionToSingle()
     {
         if (!CreateTargetFolder())
@@ -713,7 +713,7 @@ public class EditorObjExporter : ScriptableObject
             EditorUtility.DisplayDialog("Objects not exported", "Make sure at least some of your selected objects have mesh filters!", "");
     }
 
-    [MenuItem("Custom/SaveMeshAsset")]
+    [MenuItem("MeteorTool/Mesh/SaveMeshAsset")]
     static void SaveMeshAsset()
     {
         if (Selection.activeGameObject == null)

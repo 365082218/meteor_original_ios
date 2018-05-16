@@ -14,5 +14,5 @@ MonoBehaviour:
   eol: 0
   exportExtensionMethod: 1
   UnityEngineGeneratePath: Assets/Slua/LuaObject/
-  debugPort: 10240
-  debugIP: 0.0.0.0
+  PrintTrace: 1
+  jitType: 0

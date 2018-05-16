@@ -8,8 +8,18 @@ using System.Collections.Generic;
 
 public class BuildLevelBytes
 {
+    [MenuItem("MeteorTool/Build/Package")]
+    public static void Package()
+    {
+        string path = "Assets/";
+        if (!File.Exists(PlatformMap.GetPlatformPath(BuildTarget.Android) + "/" + "0.0.0.1"))
+            System.IO.Directory.CreateDirectory(PlatformMap.GetPlatformPath(BuildTarget.Android) + "/" + "0.0.0.1");
+        path = PlatformMap.GetPlatformPath(BuildTarget.Android) + "/" + "0.0.0.1";
+        BuildPipeline.BuildAssetBundles(path, BuildAssetBundleOptions.None, BuildTarget.Android);
+        AssetDatabase.Refresh();
+    }
 
-    [MenuItem("SceDesMng/SaveLevelItem")]
+    [MenuItem("MeteorTool/SceDesMng/SaveLevelItem")]
     public static void ConvertLevelDataToBytes()
     {
         AssetDatabase.Refresh();
@@ -99,7 +109,7 @@ public class BuildLevelBytes
     }
 
     //加载原流星场景物件des文件
-    [MenuItem("SceDesMng/LoadMeteorSceneDes")]
+    [MenuItem("MeteorTool/SceDesMng/LoadMeteorSceneDes")]
     public static void LoadDesFile()
     {
         string strFile = EditorUtility.OpenFilePanel("选择流星关卡描述文件", "D:/Meteor/", "des");
@@ -161,7 +171,7 @@ public class BuildLevelBytes
     }
 
 
-    [MenuItem("SceDesMng/SaveColliderFile")]
+    [MenuItem("MeteorTool/SceDesMng/SaveColliderFile")]
     public static void SaveColliderFile()
     {
         if (Selection.activeObject as GameObject == null)

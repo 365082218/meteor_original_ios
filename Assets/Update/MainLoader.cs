@@ -14,15 +14,11 @@ using System.Net;
 public class UpdateItem
 {
 	[ProtoBuf.ProtoMember(1)]
-	public string strIdentifier;
+	public string strLocalPath;
 	[ProtoBuf.ProtoMember(2)]
-	public string strResourceType;
-	[ProtoBuf.ProtoMember(3)]
-	public List<string> strResIden
-	{
-		get;
-		set;
-	}
+	public string md5;
+    [ProtoBuf.ProtoMember(3)]
+    public long size;
 }
 
 [ProtoBuf.ProtoContract]
@@ -130,16 +126,15 @@ public class MainLoader : MonoBehaviour {
 	static LoadStep state = LoadStep.Wait;
 	private static string strHost = "www.idevgame.com";
 	private static string strPort = "80";
-	private static string strProjectUrl = "versions";
+	private static string strProjectUrl = "meteor";
+    private static string strPlatform { get { return Application.platform.ToString(); } }
+    private static string strVFileName = "v.zip";
 
-	private static string strPlatform = "WindowsPlayer";
-	private static string strVFileName = "v.zip";
-
-	//vfile
-	//http://{192.168.14.163}:{80}/{resource}/{iphone}/v.zip
-	private static string strVFile = "http://{0}:{1}/{2}/{3}/{4}";
+    //vfile
+    //http://{192.168.14.163}:{80}/{meteor}/{iphone}/v.zip
+    private static string strVFile = "http://{0}:{1}/{2}/{3}/{4}";
 	//download base directory
-	//http://{192.168.14.163}:{80}/{resource}/{iphone}/{0.0.0.1}/XXDirectory/XXFile
+	//http://{192.168.14.163}:{80}/{meteor}/{iphone}/{0.0.0.1}/XXDirectory/XXFile
 	private static string strDirectoryBase = "http://{0}:{1}/{2}/{3}/{4}/{5}";
 	private static string strUpdateFile;
 	private static string strClientVer = "0.0.0.0";
@@ -170,9 +165,6 @@ public class MainLoader : MonoBehaviour {
     {
         Ins = this;
         GameData.LoadState();
-        //WSLog.LogInfo("load start");
-        if (Application.platform != RuntimePlatform.OSXEditor && Application.platform != RuntimePlatform.WindowsEditor)
-            strPlatform = Application.platform.ToString();
         strResource = Application.persistentDataPath + "/Resource";
         strUpdatePath = Application.persistentDataPath + "/Update";
         strUpdateConfig = Application.persistentDataPath + "/" + "config.xml";

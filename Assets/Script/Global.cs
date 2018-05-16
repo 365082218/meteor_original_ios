@@ -6,7 +6,10 @@ using System.Collections.Generic;
 
 public class Global
 {
-    public const string AppVersion = "0.5.1";
+    public static string AppVersion()
+    {
+        return (string)ScriptMng.ins.GetVariable("AppVersion");
+    }
     public const int Version = 20180502;
     public static string MeteorVersion = "9.07";
     //运行帧速率设置 60 = 12 30 = 6 120 = 24
@@ -21,16 +24,13 @@ public class Global
     public static MeteorInput GMeteorInput = null;
 	public static Level GLevelItem = null;
     public static System.Random Rand = new System.Random((int)DateTime.Now.ToFileTime());
-	static bool mPauseAll ; 
+	static bool mPauseAll ;
     public static bool PauseAll
-	{
-		get{return mPauseAll;}
-		set
-		{
-			mPauseAll = value;
-		}
-	}
-	public static bool PauseMosterAI = false;
+    {
+        get { return mPauseAll; }
+        set { mPauseAll = value; }
+    }
+    public static bool PauseMosterAI = false;
 	public static bool PauseProtection = false;
     public const float ClimbLimit = 1.5f;//爬墙持续提供向上的力
     public const float JumpTimeLimit = 0.15f;//最少要跳跃这么久之后才能攀爬
@@ -50,8 +50,7 @@ public class Global
 
     public static DateTime JSLongToDataTime(long longTime)
     {
-        long tempLong = new DateTime(1970, 1, 1).Ticks +
-            longTime * 10000 + TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).Hours * 3600 * (long)10000000;
+        long tempLong = new DateTime(1970, 1, 1).Ticks + longTime * 10000 + TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now).Hours * 3600 * (long)10000000;
         return new DateTime(tempLong);
     }
 
@@ -351,7 +350,6 @@ public class Global
         }
     }
 
-    //new Color(148f/255f, 210f/255f, 241f/255f), new Color(153f/255f,51f/255f,250f/255f) };
     public static string GetMonsterColor(int quality)
     {
         if (quality < 1 || quality > 4)
@@ -360,7 +358,6 @@ public class Global
     }
 
     public static bool IsNetworkAvailable { get { return Application.internetReachability != NetworkReachability.NotReachable; } }
-
     public static string[] monsterPrefix = { "<color=#ffffffff>", "<color=#804000ff>", "<color=#94D2F1ff>", "<color=#9933faff>"};
     public static string[] colorPrefix = { "<color=#ffffffff>", "<color=#1eff00ff>", "<color=#0081ffff>", "<color=#c600ffff>", "<color=#ff8000ff>", "<color=#e5cc80ff>" };
     public static string colorSuffix = "</color>";
