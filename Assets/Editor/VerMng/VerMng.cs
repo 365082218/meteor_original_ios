@@ -94,7 +94,7 @@ public class VerMng : EditorWindow{
         //开始打包.=>打包预设=>打包在BuildSetting内的场景=>打包Resources目录下的其他资源=>加密资源=>压缩资源=>放置在版本路径，记录其信息（文件大小，是否加密，是否压缩，文件hash值）=>生成版本资源清单=>编辑版本更新信息
         //=>依次各个版本清单文件对比，生成各个版本的一次性更新差异文件，把该平台下的资源打包后的存储路径放到服务器，就完成了更新配置.
         //生成资源清单文件.
-        CreateAssetBundle.PackageAllPrefab(target, strVer);//打包所有资源
+        CreateAssetBundle.PackageAll(target, strVer);//打包所有资源
         BuildScene(target);//打包所有场景
         CreateMD5List.GenFileListXml(PlatformMap.GetPlatformPath(target), strVer);//生成文件信息列表
         GenAllUpdateVersionXml.Execute(target);//用当前版本对比之前各个版本，生成一次更新文件

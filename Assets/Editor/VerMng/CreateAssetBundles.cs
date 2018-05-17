@@ -8,53 +8,14 @@ using System;
 public class CreateAssetBundle
 {
     public static List<string> strBuilded = new List<string>();
-    public static bool PackageAllPrefab(BuildTarget target, string newVersion)
+    public static bool PackageAll(BuildTarget target, string newVersion)
 	{
-		string SavePath = "";
-        //取得路径内含Resources的全部预设文件，依次打包
-        string SelectPath = "Assets/";
-        string []files = null;
-        try
-        {
-            files = Directory.GetFiles(SelectPath, "*.prefab", SearchOption.AllDirectories);
-        }
-        catch (Exception exp)
-        {
-            WSLog.LogError(exp.Message);
-        }
-
-        strBuilded.Clear();
-		int packagefile = 0;
-		int unpackagefile = 0;
-		foreach (string eachfile in files)
-		{
-            string file = eachfile.Replace('\\', '/');
-			string path = file;
-			packagefile++;
-			path = SavePath + path;
-			path = path.Substring(0, path.LastIndexOf('.'));
-			path += ".assetbundle";
-            if (strBuilded.Contains(file))
-                continue;
-            UnityEngine.Object o = AssetDatabase.LoadMainAssetAtPath(file);
-            //BuildPipeline.BuildAssetBundles();
-            BuildPipeline.BuildAssetBundle(o, null, path, BuildAssetBundleOptions.CompleteAssets | BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.CollectDependencies, target);
-            strBuilded.Add(file);
-            UnityEngine.Object[] depend = EditorUtility.CollectDependencies(new UnityEngine.Object[] { o });
-            foreach (UnityEngine.Object inner in depend)
-            {
-                string str = AssetDatabase.GetAssetPath(inner);
-                if (str.EndsWith(".cs") || str == "")
-                    continue;
-                if (str == file)
-                    continue;
-                if (inner != null)
-                    PackageOnePrefab(target, inner);
-            }
-		}
-        EditorUtility.DisplayDialog("Tip", "Package file : " + packagefile.ToString() + "\r\nunPackage file : " + unpackagefile.ToString(), "OK");
-        AssetDatabase.Refresh();
-		return true;
+        string path = "";
+        if (!File.Exists(PlatformMap.GetPlatformPath(BuildTarget.Android) + "/" + newVersion))
+            System.IO.Directory.CreateDirectory(PlatformMap.GetPlatformPath(BuildTarget.Android) + "/" + newVersion);
+        path = PlatformMap.GetPlatformPath(BuildTarget.Android) + "/" + newVersion;
+        BuildPipeline.BuildAssetBundles(path, BuildAssetBundleOptions.None, BuildTarget.Android);
+        return true;
 	}
 
     static void PackageOnePrefab(UnityEditor.BuildTarget target, UnityEngine.Object SelectObject)
