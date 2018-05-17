@@ -601,6 +601,7 @@
     <Compile Include="Assets\Script\Base\Singleton.cs" />
     <Compile Include="Assets\Script\Base\UIHelper.cs" />
     <Compile Include="Assets\Script\Battle\GameBattleEx.cs" />
+    <Compile Include="Assets\Script\Common\Assert.cs" />
     <Compile Include="Assets\Script\Common\GameColor.cs" />
     <Compile Include="Assets\Script\Common\MathUtility.cs" />
     <Compile Include="Assets\Script\Common\NetCommon.cs" />
@@ -682,9 +683,7 @@
     <Compile Include="Assets\Script\ReadyHero.cs" />
     <Compile Include="Assets\Script\Trigger\PickupItemAgent.cs" />
     <Compile Include="Assets\Script\Trigger\SceneItemAgent.cs" />
-    <Compile Include="Assets\Script\Window\BigConfirmWnd.cs" />
     <Compile Include="Assets\Script\Window\CharactorWnd.cs" />
-    <Compile Include="Assets\Script\Window\ConfirmWnd.cs" />
     <Compile Include="Assets\Script\Window\CreateRoleWnd.cs" />
     <Compile Include="Assets\Script\Window\EmptyForLoadingWnd.cs" />
     <Compile Include="Assets\Script\Window\FightWnd.cs" />
@@ -1788,14 +1787,6 @@
     <None Include="Assets\Shaders\ldaDepthMask\ldaDepthMask1.shader" />
     <None Include="Assets\Shaders\ldaDissolve\MobileDissolveUnlit.shader" />
     <None Include="Assets\Shaders\ldaGUITextShader.shader" />
-    <None Include="Assets\Slua\Resources_\circle\circle.txt" />
-    <None Include="Assets\Slua\Resources_\custom.txt" />
-    <None Include="Assets\Slua\Resources_\delegate.txt" />
-    <None Include="Assets\Slua\Resources_\module\some.txt" />
-    <None Include="Assets\Slua\Resources_\new_coroutine.txt" />
-    <None Include="Assets\Slua\Resources_\perf.txt" />
-    <None Include="Assets\Slua\Resources_\valuetype.txt" />
-    <None Include="Assets\Slua\Resources_\varobj.txt" />
     <None Include="Assets\Standard Assets (Mobile)\Shaders\Vertex Colored Shaders\Mobile Transparent Vertex Color.shader" />
     <None Include="Assets\Standard Assets\Effects\GlassRefraction\Shaders\GlassStainedBumpDistort.shader" />
     <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\BlendModesOverlay.shader" />

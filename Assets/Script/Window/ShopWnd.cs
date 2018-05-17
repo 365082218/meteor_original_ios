@@ -178,9 +178,9 @@ public class ShopWnd : Window<ShopWnd>
             string NorefreshBtn = LanguagesManager.Instance.GetItem("Shop_NoRefresh_Btn");
             string Title = LanguagesManager.Instance.GetItem("Shop_Refresh_Title");
 
-            BigConfirmWnd<ShopWnd> cwnd = new BigConfirmWnd<ShopWnd>();
-            cwnd.OnOpen();
-            cwnd.SetParentWnd(this, (int)ConfirmTag.DiaRefresh, tips, refreshBtn, NorefreshBtn, Title);
+            //BigConfirmWnd<ShopWnd> cwnd = new BigConfirmWnd<ShopWnd>();
+            //cwnd.OnOpen();
+            //cwnd.SetParentWnd(this, (int)ConfirmTag.DiaRefresh, tips, refreshBtn, NorefreshBtn, Title);
         }
         else
         {

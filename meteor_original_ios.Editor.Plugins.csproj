@@ -375,14 +375,6 @@
     <None Include="Assets\Shaders\ldaDepthMask\ldaDepthMask1.shader" />
     <None Include="Assets\Shaders\ldaDissolve\MobileDissolveUnlit.shader" />
     <None Include="Assets\Shaders\ldaGUITextShader.shader" />
-    <None Include="Assets\Slua\Resources_\circle\circle.txt" />
-    <None Include="Assets\Slua\Resources_\custom.txt" />
-    <None Include="Assets\Slua\Resources_\delegate.txt" />
-    <None Include="Assets\Slua\Resources_\module\some.txt" />
-    <None Include="Assets\Slua\Resources_\new_coroutine.txt" />
-    <None Include="Assets\Slua\Resources_\perf.txt" />
-    <None Include="Assets\Slua\Resources_\valuetype.txt" />
-    <None Include="Assets\Slua\Resources_\varobj.txt" />
     <None Include="Assets\Standard Assets (Mobile)\Shaders\Vertex Colored Shaders\Mobile Transparent Vertex Color.shader" />
     <None Include="Assets\Standard Assets\Effects\GlassRefraction\Shaders\GlassStainedBumpDistort.shader" />
     <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\BlendModesOverlay.shader" />

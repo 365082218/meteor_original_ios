@@ -5,10 +5,8 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Security.Cryptography;
 
-
 public class ReferenceNode
 {
-    public static Dictionary<string, string> SceneDict = new Dictionary<string, string>();
 	public static void Reset()
 	{
 		referenceDict.Clear();
@@ -27,14 +25,6 @@ public class ReferenceNode
 			return referenceDict[str];
 		ReferenceNode ret = new ReferenceNode(str);
 		referenceDict.Add(str, ret);
-        if (str.ToLower().Contains("unity.assetbundle"))
-        {
-            string strExt = "";
-            List<string> sub = new List<string>();
-            ResMng.SplitResPath(ref sub, ref strExt, str);
-            if (!SceneDict.ContainsKey(str))
-                SceneDict.Add(str, sub[0]);
-        }
 		return ret;
 	}
 	
@@ -54,10 +44,7 @@ public class ReferenceNode
 	{
 		if (childnode == null)
 			WSLog.LogError("childnode == null");
-		
-//		if (!referenceDict.ContainsKey(childnode.strResources))
-//			referenceDict.Add(childnode.strResources, childnode);
-		
+        	
 		foreach (ReferenceNode node in child)
 		{
 			if (node.strResources == childnode.strResources)
@@ -96,7 +83,6 @@ public class ReferenceNode
 		}
 		return ret;
 	}
-
 
 	//子树摘叶，每次摘最外层的叶子，然后push一次依赖关系.
 	public static List<ReferenceNode> GetTopLayerNode(ref List<ReferenceNode> root)
@@ -169,37 +155,14 @@ public class ReferenceNode
 
 
 }
-//*.unity *.prefab *.fbx *.mat *.png *.jpg *.shader *.exr *.tga *.flare *.ttf *.GUISKin *.psd *.tif
-//*.txt *.wav *.anim *.obj *.bmp *.asset *.mp3 *.controller
-public enum ResourceType
-{
-	ResMaterial,//mat
-	ResTexture,//png,exr,
-	ResPrefab,//prefab
-	ResScene,//unity
-	ResTable,//.txt
-	ResCsl,//.csl
-	ResBytes,//.bytes
-	ResFbx,
-	ResShader,
-	ResExr,
-	ResFlare,
-	ResTtf,
-	ResGuiskin,
-	ResPsd,
-	ResTif,
-    ResAudio,
-	ResAnim,
-	ResObj,
-	ResAsset,
-	ResController,
-    ResUnknown,//cubemap.
-}
 
+/// <summary>
+/// AssetBundle包装类
+/// </summary>
 public class ABWrapper
 {
     public AssetBundle mainAsset;
-    public Dictionary<ResourceType, Object> Assets = new Dictionary<ResourceType,Object>();
+    public Dictionary<System.Type, Object> Assets = new Dictionary<System.Type, Object>();
     public int nCacheCount = 0;
     public static int nTotalCacheCount = 0;
 }
@@ -212,43 +175,6 @@ public class ResMng {
 		public bool bLoadDone;
 	}
 	public delegate void LoadCallback(object param);
-	static Dictionary<string, ResourceType> ResTypeDict = new Dictionary<string, ResourceType>()
-	{
-		{".unity", ResourceType.ResScene},
-		{".prefab", ResourceType.ResPrefab},
-		{".fbx", ResourceType.ResFbx},
-		{".mat",ResourceType.ResMaterial},
-		{".png", ResourceType.ResTexture},
-		{".jpg", ResourceType.ResTexture},
-		{".shader", ResourceType.ResShader},
-		{".exr", ResourceType.ResExr},
-		{".tga", ResourceType.ResTexture},
-		{".flare", ResourceType.ResFlare},
-		{".ttf", ResourceType.ResTtf},
-		{".guiskin", ResourceType.ResGuiskin},
-		{".psd", ResourceType.ResTexture},
-		{".tif", ResourceType.ResTif},
-		{".wav", ResourceType.ResAudio},
-		{".anim", ResourceType.ResAnim},
-		{".obj", ResourceType.ResObj},
-		{".bmp", ResourceType.ResTexture},
-		{".asset", ResourceType.ResAsset},
-		{".mp3", ResourceType.ResAudio},
-		{".controller", ResourceType.ResController},
-		{".txt",ResourceType.ResTable},
-		{".csl",ResourceType.ResCsl},
-		{".bytes",ResourceType.ResBytes},
-        {".unknown", ResourceType.ResUnknown}
-	};
-
-	//.byte file
-	public static Dictionary<string, int> byteCacheCount = new Dictionary<string, int>();
-	public static Dictionary<string, byte[]> byteCache = new Dictionary<string, byte[]>();
-	//.txt file
-	public static Dictionary<string, int> stringCacheCount = new Dictionary<string, int>();
-	public static Dictionary<string, string> stringCache = new Dictionary<string, string>();
-
-
     //重新加载场景时，所有的bundle需要释放文件内存
     static void CleanBundleMap()
     {
@@ -270,61 +196,6 @@ public class ResMng {
 
 	public static void Clean()
 	{
-		int nTotalCall = 0;
-		int nTotalCache = byteCacheCount.Count + stringCacheCount.Count;
-		foreach (KeyValuePair<string, int> pair in byteCacheCount)
-			nTotalCall += pair.Value;
-		foreach (KeyValuePair<string, int> pair in stringCacheCount)
-			nTotalCall += pair.Value;
-		int nEqual = nTotalCall / (nTotalCache == 0 ? 1 : nTotalCache);
-
-		Dictionary<string, bool> lst = new Dictionary<string, bool>();
-		foreach (KeyValuePair<string, int> pair in byteCacheCount)
-		{
-			if (pair.Value <= nEqual)
-			{
-				if (!lst.ContainsKey(pair.Key))
-					lst.Add(pair.Key, true);
-			}
-			else
-			{
-				if (!lst.ContainsKey(pair.Key))
-					lst.Add(pair.Key, false);
-			}
-		}
-
-		foreach (KeyValuePair<string, int> pair in stringCacheCount)
-		{
-			if (pair.Value <= nEqual)
-			{
-				if (!lst.ContainsKey(pair.Key))
-					lst.Add(pair.Key, true);
-			}
-			else
-			{
-				if (!lst.ContainsKey(pair.Key))
-					lst.Add(pair.Key, false);
-			}
-		}
-
-		foreach (var each in lst)
-		{
-			if (each.Value)
-			{
-				if (byteCache.ContainsKey(each.Key))
-				{
-					byteCache.Remove(each.Key);
-				}
-				if (byteCacheCount.ContainsKey(each.Key))
-					byteCacheCount.Remove(each.Key);
-
-				if (stringCache.ContainsKey(each.Key))
-					stringCache.Remove(each.Key);
-				if (stringCacheCount.ContainsKey(each.Key))
-					stringCacheCount.Remove(each.Key);
-			}
-		}
-
         //Free Bundle File Memory 
         List<string> deled = new List<string>();
         int nTotalDeledCount = 0;
@@ -491,13 +362,13 @@ public class ResMng {
 				}
 			}
 			
-			foreach (var value in subIden.Values)
-			{
-				if (ResTypeDict.ContainsKey(strExt))
-				{
-					AddResource(value, strPath.Replace("\\", "/"), ResTypeDict[strExt], bDownloadDone);
-				}
-			}
+			//foreach (var value in subIden.Values)
+			//{
+			//	if (ResTypeDict.ContainsKey(strExt))
+			//	{
+			//		AddResource(value, strPath.Replace("\\", "/"), ResTypeDict[strExt], bDownloadDone);
+			//	}
+			//}
 		}
 		else
 		{
@@ -511,11 +382,11 @@ public class ResMng {
                 return;
             }
 			string strExt = strName.Substring(strName.LastIndexOf(".")).ToLower();
-			if (!ReferenceRes.ContainsKey(strPath.Replace("\\", "/")))
-			{
-				if (ResTypeDict.ContainsKey(strExt))
-					ReferenceRes.Add(strPath, ResTypeDict[strExt]);
-			}
+			//if (!ReferenceRes.ContainsKey(strPath.Replace("\\", "/")))
+			//{
+			//	if (ResTypeDict.ContainsKey(strExt))
+			//		ReferenceRes.Add(strPath, ResTypeDict[strExt]);
+			//}
 			strName = strName.Substring(0, strName.LastIndexOf("."));
 			if (!ResourceResReverse.ContainsKey(strName))
 			{
@@ -532,26 +403,26 @@ public class ResMng {
 			}
 
 			//in loader.checkcondition will call this
-			if (bDownloadDone && ResTypeDict.ContainsKey(strExt))
-			{
-				if (!ResourceRes.ContainsKey(strPath))
-				{
-					KeyValuePair<ResourceType, List<string>> value = new KeyValuePair<ResourceType, List<string>>(ResTypeDict[strExt], new List<string>());
-					value.Value.Add(strName);
-					ResourceRes.Add(strPath, value);
-				}
-				else
-				{
-					KeyValuePair<ResourceType, List<string>> value;
-					if (ResourceRes.TryGetValue(strPath, out value))
-					{
-						if (!value.Value.Contains(strName))
-							value.Value.Add(strName);
-					}
-				}
-			}
-			else if (!ResTypeDict.ContainsKey(strExt))
-					Debug.LogError("strext error");
+			//if (bDownloadDone && ResTypeDict.ContainsKey(strExt))
+			//{
+			//	if (!ResourceRes.ContainsKey(strPath))
+			//	{
+			//		KeyValuePair<ResourceType, List<string>> value = new KeyValuePair<ResourceType, List<string>>(ResTypeDict[strExt], new List<string>());
+			//		value.Value.Add(strName);
+			//		ResourceRes.Add(strPath, value);
+			//	}
+			//	else
+			//	{
+			//		KeyValuePair<ResourceType, List<string>> value;
+			//		if (ResourceRes.TryGetValue(strPath, out value))
+			//		{
+			//			if (!value.Value.Contains(strName))
+			//				value.Value.Add(strName);
+			//		}
+			//	}
+			//}
+			//else if (!ResTypeDict.ContainsKey(strExt))
+			//		Debug.LogError("strext error");
 		}
 	}
 	
@@ -679,10 +550,10 @@ public class ResMng {
 
 				foreach (var each in subIden.Values)
 				{
-					if (ResTypeDict.ContainsKey(strExt))
-					{
-						AddResource(each, str.Replace("\\", "/"), ResTypeDict[strExt], Item.bHashChecked);
-					}
+					//if (ResTypeDict.ContainsKey(strExt))
+					//{
+					//	AddResource(each, str.Replace("\\", "/"), ResTypeDict[strExt], Item.bHashChecked);
+					//}
 				}
 			}
 			else
@@ -700,14 +571,14 @@ public class ResMng {
 					continue;
 				string strExt2 = strIden.Substring(nDotIndex2).ToLower();
 				strIden = strIden.Substring(nDirectoryIndex + 1, nDotIndex2 - nDirectoryIndex - 1);
-				if (ResTypeDict.ContainsKey(strExt2))
-				{
-					if (!ReferenceRes.ContainsKey(str))
-						ReferenceRes.Add(str, ResTypeDict[strExt2]);
-					AddResource(strIden, str, ResTypeDict[strExt2], Item.bHashChecked);
-				}
-				else
-					Debug.LogError(strExt2);
+				//if (ResTypeDict.ContainsKey(strExt2))
+				//{
+				//	if (!ReferenceRes.ContainsKey(str))
+				//		ReferenceRes.Add(str, ResTypeDict[strExt2]);
+				//	AddResource(strIden, str, ResTypeDict[strExt2], Item.bHashChecked);
+				//}
+				//else
+				//	Debug.LogError(strExt2);
 			}
 		}
 
@@ -750,30 +621,30 @@ public class ResMng {
 	//or Resources.Load(Resources/XXX) will get same object
 	//one resource full path only contains one ResourceType, and a lot of call String Like XXX Resources/XXX
 	public static Dictionary<string, List<string>> ResourceResReverse = new Dictionary<string, List<string>>();
-	public static Dictionary<string, KeyValuePair<ResourceType, List<string>>> ResourceRes = new Dictionary<string, KeyValuePair<ResourceType, List<string>>>();
-	//can not use Resources.Load
-	public static Dictionary<string, ResourceType> ReferenceRes = new Dictionary<string, ResourceType>();
+    public static Dictionary<string, List<string>> ResourceRes = new Dictionary<string, List<string>>();
+    //can not use Resources.Load
+    public static List<string> ReferenceRes = new List<string>();
 	//resource relative path , keyvaluepair<type, object>
     public static Dictionary<string, ABWrapper> ResourceBundleMap = new Dictionary<string, ABWrapper>();
-	static void AddResource(string strIden, string strRelative, ResourceType tp, bool bDownloadOver = true)
+	static void AddResource(string strIden, string strRelative, bool bDownloadOver = true)
 	{
 		//local res
 		if (bDownloadOver)
 		{
 			if (!ResourceRes.ContainsKey(strRelative))
 			{
-				KeyValuePair<ResourceType, List<string>> value = new KeyValuePair<ResourceType, List<string>>(tp, new List<string>());
-				value.Value.Add(strIden);
-				ResourceRes.Add(strRelative, value);
+				//KeyValuePair<, List<string>> value = new KeyValuePair<ResourceType, List<string>>(tp, new List<string>());
+				//value.Value.Add(strIden);
+				//ResourceRes.Add(strRelative, value);
 			}
 			else
 			{
-				KeyValuePair<ResourceType, List<string>> value;
-				if (ResourceRes.TryGetValue(strRelative, out value))
-				{
-					if (!value.Value.Contains(strIden))
-						value.Value.Add(strIden);
-				}
+				//KeyValuePair<ResourceType, List<string>> value;
+				//if (ResourceRes.TryGetValue(strRelative, out value))
+				//{
+				//	if (!value.Value.Contains(strIden))
+				//		value.Value.Add(strIden);
+				//}
 			}
 		}
 
@@ -812,29 +683,7 @@ public class ResMng {
 		return null;
 	}
 
-	public static string LoadStringFromCache(string strLocation)
-	{
-		if (stringCache.ContainsKey(strLocation))
-		{
-			if (stringCacheCount.ContainsKey(strLocation))
-				stringCacheCount[strLocation]++;
-			return stringCache[strLocation];
-		}
-		return "";
-	}
-
-	public static byte[] LoadActionFromCache(string strLocation)
-	{
-		if (byteCache.ContainsKey(strLocation))
-		{
-			if (byteCacheCount.ContainsKey(strLocation))
-				byteCacheCount[strLocation]++;
-			return byteCache[strLocation];
-	    }
-		return null;
-	}
-
-	public static string GetResourceByIden(string iden, ResourceType tp, bool bOnlyFindResources = true)
+	public static string GetResourceByIden(string iden, System.Type tp, bool bOnlyFindResources = true)
 	{
 		if (ResourceResReverse.ContainsKey(iden))
 		{
@@ -863,40 +712,16 @@ public class ResMng {
 					string strLocation = str;
 					strLocation = strLocation.Substring(0, strLocation.LastIndexOf("."));
 					strLocation = strLocation.Substring(strLocation.LastIndexOf(".")).ToLower();
-					if (ResTypeDict.ContainsKey(strLocation) && ResTypeDict[strLocation] == tp)
-						return str;
-					else
-						continue;
+					//if (ResTypeDict.ContainsKey(strLocation) && ResTypeDict[strLocation] == tp)
+					//	return str;
+					//else
+					//	continue;
 				}
 			}
 		}
 
 		return "";
 	}
-
-	public static byte[] LoadAction(string strActionIdentifier)
-	{
-		byte[] retBytes = null;
-		string strLocation = GetResourceByIden(strActionIdentifier, ResourceType.ResBytes);
-		if (strLocation != "" && ResourceRes.ContainsKey(strLocation))
-		{
-			retBytes = LoadActionFromCache(strLocation);
-			if (retBytes != null)
-				return retBytes;
-			retBytes = File.ReadAllBytes(strResourcePath + "/" + strLocation);
-			if (!byteCache.ContainsKey(strLocation))
-				byteCache.Add(strLocation, retBytes);
-			if (!byteCacheCount.ContainsKey(strLocation))
-				byteCacheCount.Add(strLocation, 1);
-			return retBytes;
-		}
-
-		TextAsset asset = Resources.Load<TextAsset>(strActionIdentifier);
-		if (asset != null)
-			return asset.bytes;
-		return null;
-	}
-
 
 	static List<ReferenceNode> CollectDependencies(ReferenceNode root)
 	{
@@ -998,10 +823,7 @@ public class ResMng {
                     strSubIden = strSubIden.Substring(nDirectoryIndex + 1);
                 strExt = strSubIden.Substring(strSubIden.LastIndexOf(".")).ToLower();
                 strSubIden = strSubIden.Substring(0, strSubIden.LastIndexOf("."));
-                if (!ResTypeDict.ContainsKey(strExt))
-                {
-                    Debug.LogError("ResTypeDict not contains key:" + strExt);
-                }
+
                 strIden.Add(strSubIden);
             }
             catch
@@ -1019,7 +841,7 @@ public class ResMng {
 		if (strResourcePath == null || strResourcePath == "")
 			return Resources.Load(strResource, typeof(GameObject));
 
-		string strLocation = GetResourceByIden(strResource, ResourceType.ResPrefab);
+		string strLocation = GetResourceByIden(strResource, typeof(GameObject));
         if (strLocation != "")
 		{
             ABWrapper va = null;
@@ -1057,13 +879,13 @@ public class ResMng {
 							string strExt = "";
 							List<string> strIden2 = new List<string>();
 							SplitResPath(ref strIden2, ref strExt, node.strResources);
-                            if (ResTypeDict.ContainsKey(strExt))
-                            {
-                                if (FindInCache(node.strResources, ref ResObject, ResTypeDict[strExt]))
-                                    continue;
-                            }
-                            else
-                                continue;
+                            //if (ResTypeDict.ContainsKey(strExt))
+                            //{
+                            //    if (FindInCache(node.strResources, ref ResObject, ResTypeDict[strExt]))
+                            //        continue;
+                            //}
+                            //else
+                            //    continue;
 
 							foreach (string str in strIden2)
 							{
@@ -1101,11 +923,11 @@ public class ResMng {
 							WSLog.LogInfo("AddResource:" + strIden);
                             try
                             {
-                                if (ResTypeDict.ContainsKey(strExt))
-                                {
-                                    va.Assets.Add(ResTypeDict[strExt], ResObject);
-                                    ResourceBundleMap.Add(node.strResources, va);
-                                }
+                                //if (ResTypeDict.ContainsKey(strExt))
+                                //{
+                                //    va.Assets.Add(ResTypeDict[strExt], ResObject);
+                                //    ResourceBundleMap.Add(node.strResources, va);
+                                //}
                             }
                             catch
                             {
@@ -1136,7 +958,7 @@ public class ResMng {
 				CollectDownloadRes(strLocation, ref download, ref root);
 				if (download.Count == 0)
 				{
-					return LoadResource(strLocation, root, ResourceType.ResPrefab);
+					return LoadResource(strLocation, root);
 				}
 				else
 				{
@@ -1149,85 +971,6 @@ public class ResMng {
 			return Resources.Load(strResource, typeof(GameObject));
 	}
 
-	public static Object LoadAtlas(string strResource)
-	{
-        Object ResObject = null;
-        if (strResourcePath == null || strResourcePath == "")
-            return Resources.Load(strResource, typeof(UIAtlas));
-
-        ResObject = LoadPrefab(strResource);
-        if (ResObject != null)
-        {
-            GameObject Prefab = ResObject as GameObject;
-            return Prefab.GetComponent<UIAtlas>();
-        }
-		return Resources.Load(strResource, typeof(UIAtlas));
-	}
-
-	public static string LoadTable(string strResource)
-	{
-		string txt = "";
-		if (ResourceResReverse.ContainsKey(strResource))
-		{
-			string strLocation = GetResourceByIden(strResource, ResourceType.ResTable);
-			txt = LoadStringFromCache(strLocation);
-			if (txt != "")
-				return txt;
-
-			FileStream fs = File.Open(strResourcePath + "/" + strLocation, FileMode.Open, FileAccess.Read);
-			byte []buffer = new byte[fs.Length];
-			fs.Read(buffer, 0, buffer.Length);
-			fs.Close();
-			//the table is encrypted
-			Encrypt.EncryptArray(buffer);
-			if (buffer[0] == 0xEF && buffer[1] == 0xBB && buffer[2] == 0xBF)
-				txt = System.Text.Encoding.UTF8.GetString(buffer);
-			else if ((buffer[0] == 0xFF && buffer[1] == 0xFE) || (buffer[0] == 0xFE && buffer[1] == 0xFF))
-				txt = System.Text.Encoding.Unicode.GetString(buffer);
-			else
-			{
-				Debug.LogError("text coding error");
-			}
-			if (!stringCache.ContainsKey(strLocation))
-				stringCache.Add(strLocation, txt);
-			if (!stringCacheCount.ContainsKey(strLocation))
-				stringCacheCount.Add(strLocation, 1);
-			return txt;
-		}
-		TextAsset asset = Resources.Load(strResource, typeof(TextAsset)) as TextAsset;
-		if (asset != null)
-			return asset.text;
-		return null;
-	}
-	public static Object LoadTexture(string strResource)
-	{
-        Object ResObject = null;
-        if (strResourcePath == null || strResourcePath == "")
-            return Resources.Load(strResource, typeof(Texture));
-
-        string strLocation = GetResourceByIden(strResource, ResourceType.ResTexture);
-        if (strLocation == "")
-            return Resources.Load(strResource, typeof(Texture));
-        ResObject = LoadResource(strLocation, ReferenceNode.Alloc(strLocation), ResourceType.ResTexture);
-        if (ResObject != null)
-            return ResObject;
-		return Resources.Load(strResource, typeof(Texture));
-	}
-	public static Object LoadAudioClip(string strResource)
-	{
-        Object ResObject = null;
-        if (strResourcePath == null || strResourcePath == "")
-            return Resources.Load(strResource, typeof(AudioClip));
-
-        string strLocation = GetResourceByIden(strResource, ResourceType.ResAudio);
-        if (strLocation == "")
-            return Resources.Load(strResource, typeof(AudioClip));
-        ResObject = LoadResource(strLocation, ReferenceNode.Alloc(strLocation), ResourceType.ResAudio);
-        if (ResObject != null)
-            return ResObject;
-        return Resources.Load(strResource, typeof(AudioClip));
-	}
-
     /// <summary>
     /// load a res from file system
     /// </summary>
@@ -1237,81 +980,41 @@ public class ResMng {
 	public static Object Load<T>(string str) where T:UnityEngine.Object
 	{
         Object ResObject = null;
-        if (typeof(T) == typeof(UnityEngine.GameObject))
-        {
-            ResObject = LoadPrefab(str);
-        }
-        else if (typeof(T) == typeof(UnityEngine.AudioClip))
-        {
-            ResObject = LoadAudioClip(str);
-        }
-        else if (typeof(T) == typeof(UIAtlas))
-        {
-            ResObject = LoadAtlas(str);
-        }
-        else if (typeof(T) == typeof(TextAsset))
-        {
-            throw new System.NotImplementedException("can not load a file convert to TextAsset, use LoadTable instead");
-        }
-        else if (typeof(T) == typeof(Texture))
-        {
-            ResObject = LoadTexture(str);
-        }
         return ResObject;
 	}
 
 	public static Object Load(string str, System.Type tp)
 	{
         Object ResObject = null;
-        if (tp == typeof(UnityEngine.GameObject))
-        {
-            ResObject = LoadPrefab(str);
-        }
-        else if (tp == typeof(UnityEngine.AudioClip))
-        {
-            ResObject = LoadAudioClip(str);
-        }
-        else if (tp == typeof(UIAtlas))
-        {
-            ResObject = LoadAtlas(str);
-        }
-		else if (tp == typeof(TextAsset))
-		{
-			throw new System.NotImplementedException("can not load a file convert to TextAsset, use LoadTable instead");
-		}
-		else if (tp == typeof(Texture))
-        {
-            ResObject = LoadTexture(str);
-        }
         return ResObject;
 	}
 
 
-	public static bool ResIdenEqual(string strReleativePath, string strIden, ResourceType tp)
+	public static bool ResIdenEqual(string strReleativePath, string strIden)
 	{
 		int nIndex = strReleativePath.IndexOf("/");
 		int nDotIndex = strReleativePath.LastIndexOf(".");
 		strReleativePath = strReleativePath.Substring(0, nDotIndex);
 		nDotIndex = strReleativePath.LastIndexOf(".");
 		string strExt = strReleativePath.Substring(nDotIndex).ToLower();
-		if (ResTypeDict.ContainsKey(strExt))
-		{
-			if (ResTypeDict[strExt] == tp)
-			{
-				strReleativePath = strReleativePath.Substring(0, nDotIndex);
-				strReleativePath = strReleativePath.Substring(nIndex + 1);
-				if (strReleativePath == strIden)
-					return true;
-			}
-		}
+		//if (ResTypeDict.ContainsKey(strExt))
+		//{
+		//	if (ResTypeDict[strExt] == tp)
+		//	{
+		//		strReleativePath = strReleativePath.Substring(0, nDotIndex);
+		//		strReleativePath = strReleativePath.Substring(nIndex + 1);
+		//		if (strReleativePath == strIden)
+		//			return true;
+		//	}
+		//}
 		return false;
 	}
 
 
 	public static bool IsSceneUpdated(string strScene, ref string strLocation)
 	{
-		//unity file may be not in resources path
-		string str = GetResourceByIden(strScene, ResourceType.ResScene, false);
+        //unity file may be not in resources path
+        string str = "";// GetResourceByIden(strScene, ResourceType.ResScene, false);
 		if (str != "")
 		{
 			strLocation = str;
@@ -1320,17 +1023,17 @@ public class ResMng {
 
 		foreach (var each in ReferenceRes)
 		{
-			if (ResIdenEqual(each.Key, strScene, ResourceType.ResScene))
-			{
-				strLocation = each.Key;
-				return true;
-			}
+			//if (ResIdenEqual(each.Key, strScene, ResourceType.ResScene))
+			//{
+			//	strLocation = each.Key;
+			//	return true;
+			//}
 		}
 		return false;
 	}
 	
 
-	static Object LoadResource(string strResource, ReferenceNode root, ResourceType tp)
+	static Object LoadResource(string strResource, ReferenceNode root)
 	{
 		ReferenceNode rootClone = ReferenceNode.CloneTree(root);
 		List<ReferenceNode> referenceTree = new List<ReferenceNode>();
@@ -1351,13 +1054,13 @@ public class ResMng {
 				List<string> strIden2 = new List<string>();
 				SplitResPath(ref strIden2, ref strExt, node.strResources);
 				ABWrapper va = null;
-                if (ResTypeDict.ContainsKey(strExt))
-                {
-                    if (FindInCache(node.strResources, ref ResObject, ResTypeDict[strExt]))
-                        continue;
-                }
-                else
-                    continue;
+                //if (ResTypeDict.ContainsKey(strExt))
+                //{
+                //    if (FindInCache(node.strResources, ref ResObject, ResTypeDict[strExt]))
+                //        continue;
+                //}
+                //else
+                //    continue;
 
 				if (ResObject == null)
 				{
@@ -1388,21 +1091,21 @@ public class ResMng {
                 va.mainAsset = bundle;
 				if (ResObject != null)
 					WSLog.LogInfo("AddResource:" + strIden + "|resobject:" + ResObject.ToString());
-				if (ResTypeDict.ContainsKey(strExt) && ResObject != null)
-				{
-					va.Assets.Add(ResTypeDict[strExt], ResObject);
-					ResourceBundleMap.Add(node.strResources, va);
-				}
+				//if (ResTypeDict.ContainsKey(strExt) && ResObject != null)
+				//{
+				//	va.Assets.Add(ResTypeDict[strExt], ResObject);
+				//	ResourceBundleMap.Add(node.strResources, va);
+				//}
 			}
 		}
-		if (ResObject == null && tp == ResourceType.ResPrefab)
-			Debug.LogError("load prefab error");
+		//if (ResObject == null && tp == ResourceType.ResPrefab)
+		//	Debug.LogError("load prefab error");
 		return ResObject;
 	}
 
 	static void LoadLevelSync(string strScene, string strLocation, ReferenceNode root)
 	{
-		LoadResource(strLocation, root, ResourceType.ResScene);
+		//LoadResource(strLocation, root, ResourceType.ResScene);
 		try
 		{
 			//Application.LoadLevel(strScene);
@@ -1537,7 +1240,7 @@ public class ResMng {
 			WSLog.LogInfo("main res need end:" + strResource);
 	}
 
-    static bool FindInCache(string strLocation, ref Object ResObject, ResourceType TargetType)
+    static bool FindInCache(string strLocation, ref Object ResObject, System.Type TargetType)
     {
         ABWrapper va = null;
         if (ResourceRes.ContainsKey(strLocation))

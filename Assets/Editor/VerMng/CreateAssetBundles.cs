@@ -10,6 +10,7 @@ public class CreateAssetBundle
     public static List<string> strBuilded = new List<string>();
     public static bool PackageAll(BuildTarget target, string newVersion)
 	{
+        //很大粒度打包，不太好使用
         string path = "";
         if (!File.Exists(PlatformMap.GetPlatformPath(BuildTarget.Android) + "/" + newVersion))
             System.IO.Directory.CreateDirectory(PlatformMap.GetPlatformPath(BuildTarget.Android) + "/" + newVersion);

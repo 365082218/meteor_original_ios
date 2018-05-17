@@ -5,7 +5,7 @@ using System.IO;
 using System;
 
 public class PlatformMap {
-    private const string PathBase = "Assets/VerMng/"; 
+    private const string PathBase = "Assets/.VerMng/"; 
 	public static string GetPlatformPath(UnityEditor.BuildTarget target)
 	{
         string SavePath = "";

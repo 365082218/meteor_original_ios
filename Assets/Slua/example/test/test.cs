@@ -43,32 +43,6 @@ using System;
 using SLua;
 using NLuaTest.Mock;
 
-class Assert{
-	public static void True(bool v)
-	{
-		IsTrue(v);
-	}
-	public static void IsTrue(bool v)
-	{
-		if (!v) {
-			throw new Exception("not true");
-		}
-	}
-
-	public static void AreEqual(object a, object b, string extra = "")
-	{
-		if (!object.Equals(a,b)) {
-			throw new Exception(a + " != " + b + ", " + extra);
-		}
-	}
-
-	public static void AreNotEqual(object a, object b)
-	{
-		if (object.Equals (a, b)) {
-			throw new Exception(a + " == " + b);
-		}
-	}
-}
 public class test : MonoBehaviour {
 
 	private LuaSvr l;

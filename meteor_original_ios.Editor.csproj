@@ -208,6 +208,7 @@
     <Compile Include="Assets\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCTouchPadInspector.cs" />
     <Compile Include="Assets\Editor\AnimationWizard.cs" />
     <Compile Include="Assets\Editor\BakePlus.cs" />
+    <Compile Include="Assets\Editor\BuildLevelBytes.cs" />
     <Compile Include="Assets\Editor\CheckResources.cs" />
     <Compile Include="Assets\Editor\EngineMenus.cs" />
     <Compile Include="Assets\Editor\GenVersionInfo.cs" />
@@ -225,7 +226,7 @@
     <Compile Include="Assets\Editor\ImageEffects\SunShaftsEditor.cs" />
     <Compile Include="Assets\Editor\ImageEffects\TonemappingEditor.cs" />
     <Compile Include="Assets\Editor\ImageEffects\VignetteAndChromaticAberrationEditor.cs" />
-    <Compile Include="Assets\Editor\LevelBuild\BuildLevelBytes.cs" />
+    <Compile Include="Assets\Editor\MakeDependTabel.cs" />
     <Compile Include="Assets\Editor\MeshCombinerWizard.cs" />
     <Compile Include="Assets\Editor\SaveMeshFile.cs" />
     <Compile Include="Assets\Editor\SearchLanguageInPrefabs.cs" />
@@ -555,14 +556,6 @@
     <None Include="Assets\Shaders\ldaDepthMask\ldaDepthMask1.shader" />
     <None Include="Assets\Shaders\ldaDissolve\MobileDissolveUnlit.shader" />
     <None Include="Assets\Shaders\ldaGUITextShader.shader" />
-    <None Include="Assets\Slua\Resources_\circle\circle.txt" />
-    <None Include="Assets\Slua\Resources_\custom.txt" />
-    <None Include="Assets\Slua\Resources_\delegate.txt" />
-    <None Include="Assets\Slua\Resources_\module\some.txt" />
-    <None Include="Assets\Slua\Resources_\new_coroutine.txt" />
-    <None Include="Assets\Slua\Resources_\perf.txt" />
-    <None Include="Assets\Slua\Resources_\valuetype.txt" />
-    <None Include="Assets\Slua\Resources_\varobj.txt" />
     <None Include="Assets\Standard Assets (Mobile)\Shaders\Vertex Colored Shaders\Mobile Transparent Vertex Color.shader" />
     <None Include="Assets\Standard Assets\Effects\GlassRefraction\Shaders\GlassStainedBumpDistort.shader" />
     <None Include="Assets\Standard Assets\Effects\ImageEffects\Shaders\BlendModesOverlay.shader" />

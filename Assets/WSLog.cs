@@ -18,7 +18,7 @@ public static class WSLog
 
     public static void LogError(string message)
     {
-        Debug.LogError("f:" + Time.frameCount + ":" + message);
+        Debug.LogError("帧数: " + Time.frameCount + " 信息: " + message);
     }
 
     private static FileStream fs_thread;
