@@ -8,7 +8,6 @@ using System.IO.Compression;
 
 public class CompressForFile
 {
-
 	private static void CompressFileLZMA(string inFile, string outFile)
 	{
 		SevenZip.Compression.LZMA.Encoder coder = new SevenZip.Compression.LZMA.Encoder();
@@ -56,14 +55,6 @@ public class CompressForFile
 		CompressFileLZMA(strFileSource, strFileTarget);
 		AssetDatabase.Refresh();
 		return true;
-	}
-
-	public static void CompressVersionXml(UnityEditor.BuildTarget target)
-	{
-		string SavePath = PlatformMap.GetPlatformPath(target);
-		CompressFileLZMA(SavePath + "/" + GenAllUpdateVersionXml.strVFile + ".xml", SavePath + "/" + GenAllUpdateVersionXml.strVFile + ".zip");
-		AssetDatabase.Refresh();
-		return;
 	}
 
     //对加密文件压缩并删除.
@@ -122,7 +113,7 @@ public class CompressForFile
 	
 	public static void Extract(UnityEditor.BuildTarget target)
 	{
-		string SavePath = PlatformMap.GetPlatformPath(target);
+		string SavePath = VerMng.GetPlatformPath(target);
 		DecompressFileLZMA(SavePath + "/v.zip", SavePath + "/" + "v_bak.xml");
 		AssetDatabase.Refresh();
 //		FileStream fsWrite = new FileStream(SavePath + "/" + "v_bak.xml", FileMode.CreateNew, FileAccess.ReadWrite, FileShare.ReadWrite);
@@ -138,10 +129,5 @@ public class CompressForFile
 //		fsWrite.Flush();
 //		fsWrite.Close();
 //		AssetDatabase.Refresh();
-	}
-	
-	public static string ConvertToAssetBundleName(string ResName)
-	{
-		return ResName.Replace('/', '.');
 	}
 }

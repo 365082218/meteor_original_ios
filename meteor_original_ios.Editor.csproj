@@ -207,7 +207,6 @@
     <Compile Include="Assets\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCMenu.cs" />
     <Compile Include="Assets\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCTouchPadInspector.cs" />
     <Compile Include="Assets\Editor\AnimationWizard.cs" />
-    <Compile Include="Assets\Editor\BakePlus.cs" />
     <Compile Include="Assets\Editor\BuildLevelBytes.cs" />
     <Compile Include="Assets\Editor\CheckResources.cs" />
     <Compile Include="Assets\Editor\EngineMenus.cs" />
@@ -231,13 +230,7 @@
     <Compile Include="Assets\Editor\SaveMeshFile.cs" />
     <Compile Include="Assets\Editor\SearchLanguageInPrefabs.cs" />
     <Compile Include="Assets\Editor\VerMng\CompressForFile.cs" />
-    <Compile Include="Assets\Editor\VerMng\CreateAssetBundles.cs" />
     <Compile Include="Assets\Editor\VerMng\CreateCone.cs" />
-    <Compile Include="Assets\Editor\VerMng\CreateMd5List.cs" />
-    <Compile Include="Assets\Editor\VerMng\CreateSceneBundles.cs" />
-    <Compile Include="Assets\Editor\VerMng\EncryptEditor.cs" />
-    <Compile Include="Assets\Editor\VerMng\GenAllUpdateVersionXml.cs" />
-    <Compile Include="Assets\Editor\VerMng\PlatformMap.cs" />
     <Compile Include="Assets\Editor\VerMng\VerMng.cs" />
     <Compile Include="Assets\Editor\VerMng\VersionWizard.cs" />
     <Compile Include="Assets\Effect\Package\IGSoft_Tools\FXMaker\ToolScript\Editor\FXMakerModelToPrefabWindow.cs" />
@@ -520,7 +513,6 @@
     <None Include="Assets\Resource\Table\Resources\Exp.txt" />
     <None Include="Assets\Resource\Table\Resources\FubenBase.txt" />
     <None Include="Assets\Resource\Table\Resources\Func.txt" />
-    <None Include="Assets\Resource\Table\Resources\Gate.txt" />
     <None Include="Assets\Resource\Table\Resources\Input.txt" />
     <None Include="Assets\Resource\Table\Resources\Item.txt" />
     <None Include="Assets\Resource\Table\Resources\JobImprove.txt" />
@@ -533,7 +525,6 @@
     <None Include="Assets\Resource\Table\Resources\Npc.txt" />
     <None Include="Assets\Resource\Table\Resources\NpcPools.txt" />
     <None Include="Assets\Resource\Table\Resources\Patrol.txt" />
-    <None Include="Assets\Resource\Table\Resources\Platform.txt" />
     <None Include="Assets\Resource\Table\Resources\PlotTalk.txt" />
     <None Include="Assets\Resource\Table\Resources\ReHandle.txt" />
     <None Include="Assets\Resource\Table\Resources\Robot.txt" />

@@ -450,7 +450,7 @@ public class EasyTouch : MonoBehaviour {
 		// The texture to display the simulation of the second finger.
 		#if ((!UNITY_ANDROID && !UNITY_IOS &&  !UNITY_TVOS && !UNITY_WINRT && !UNITY_BLACKBERRY) || UNITY_EDITOR)
 			if (secondFingerTexture==null && enableSimulation){
-				secondFingerTexture =Resources.Load("secondFinger") as Texture;
+				secondFingerTexture = Resources.Load("secondFinger") as Texture;
 			}
 		#endif	
 	}

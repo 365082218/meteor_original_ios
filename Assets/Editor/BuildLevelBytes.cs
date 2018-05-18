@@ -12,9 +12,9 @@ public class BuildLevelBytes
     //public static void Package()
     //{
     //    string path = "Assets/";
-    //    if (!File.Exists(PlatformMap.GetPlatformPath(BuildTarget.Android) + "/" + "0.0.0.1"))
-    //        System.IO.Directory.CreateDirectory(PlatformMap.GetPlatformPath(BuildTarget.Android) + "/" + "0.0.0.1");
-    //    path = PlatformMap.GetPlatformPath(BuildTarget.Android) + "/" + "0.0.0.1";
+    //    if (!File.Exists(VerMng.GetPlatformPath(BuildTarget.Android) + "/" + "0.0.0.1"))
+    //        System.IO.Directory.CreateDirectory(VerMng.GetPlatformPath(BuildTarget.Android) + "/" + "0.0.0.1");
+    //    path = VerMng.GetPlatformPath(BuildTarget.Android) + "/" + "0.0.0.1";
     //    BuildPipeline.BuildAssetBundles(path, BuildAssetBundleOptions.None, BuildTarget.Android);
     //    AssetDatabase.Refresh();
     //}

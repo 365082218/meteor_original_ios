@@ -4,3 +4,5 @@ Temp
 *.cache
 *.cache
 Temp/UnityVS_obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
+/Assets/.VerMng/Android
+*.meta

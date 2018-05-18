@@ -339,7 +339,6 @@
     <None Include="Assets\Resource\Table\Resources\Exp.txt" />
     <None Include="Assets\Resource\Table\Resources\FubenBase.txt" />
     <None Include="Assets\Resource\Table\Resources\Func.txt" />
-    <None Include="Assets\Resource\Table\Resources\Gate.txt" />
     <None Include="Assets\Resource\Table\Resources\Input.txt" />
     <None Include="Assets\Resource\Table\Resources\Item.txt" />
     <None Include="Assets\Resource\Table\Resources\JobImprove.txt" />
@@ -352,7 +351,6 @@
     <None Include="Assets\Resource\Table\Resources\Npc.txt" />
     <None Include="Assets\Resource\Table\Resources\NpcPools.txt" />
     <None Include="Assets\Resource\Table\Resources\Patrol.txt" />
-    <None Include="Assets\Resource\Table\Resources\Platform.txt" />
     <None Include="Assets\Resource\Table\Resources\PlotTalk.txt" />
     <None Include="Assets\Resource\Table\Resources\ReHandle.txt" />
     <None Include="Assets\Resource\Table\Resources\Robot.txt" />

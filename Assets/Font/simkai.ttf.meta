@@ -9,6 +9,7 @@ TrueTypeFontImporter:
   characterSpacing: 0
   characterPadding: 1
   includeFontData: 1
+  fontName: KaiTi_GB2312
   fontNames:
   - KaiTi
   fallbackFontReferences: []
@@ -16,5 +17,5 @@ TrueTypeFontImporter:
   fontRenderingMode: 0
   ascentCalculationMode: 1
   userData: 
-  assetBundleName: 
+  assetBundleName: simkai.ttf
   assetBundleVariant: 

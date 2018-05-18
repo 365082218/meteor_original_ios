@@ -508,6 +508,7 @@
     <Compile Include="Assets\PluginsWrapper\AndroidWrapper.cs" />
     <Compile Include="Assets\PluginsWrapper\IosWrapper.cs" />
     <Compile Include="Assets\ProtoHandler.cs" />
+    <Compile Include="Assets\ReferenceNode.cs" />
     <Compile Include="Assets\RepeatPressButton.cs" />
     <Compile Include="Assets\RnM UI 2 for UGUI\Scripts\Databases\UIItemDatabase.cs" />
     <Compile Include="Assets\RnM UI 2 for UGUI\Scripts\Databases\UISpellDatabase.cs" />
@@ -1484,11 +1485,15 @@
     <Compile Include="Assets\Test\Fan2DTest\SetFan2DAngle_OnlyDrawEdge.cs" />
     <Compile Include="Assets\Test\Gradient.cs" />
     <Compile Include="Assets\Test\HpEffect.cs" />
+    <Compile Include="Assets\TestResources.cs" />
     <Compile Include="Assets\UnitDebugInfo.cs" />
     <Compile Include="Assets\Update\Ftp.cs" />
     <Compile Include="Assets\Update\HttpManager.cs" />
     <Compile Include="Assets\Update\MainLoader.cs" />
+    <Compile Include="Assets\Update\MyPackRes.cs" />
+    <Compile Include="Assets\Update\OneFileInfor.cs" />
     <Compile Include="Assets\Update\ResMng.cs" />
+    <Compile Include="Assets\Update\UpkExtra.cs" />
     <Compile Include="Assets\WSLog.cs" />
     <Compile Include="Assets\WayPoints.cs" />
     <Compile Include="Assets\iTweenEditor\Helper Classes\EventParamMappings.cs" />
@@ -1751,7 +1756,6 @@
     <None Include="Assets\Resource\Table\Resources\Exp.txt" />
     <None Include="Assets\Resource\Table\Resources\FubenBase.txt" />
     <None Include="Assets\Resource\Table\Resources\Func.txt" />
-    <None Include="Assets\Resource\Table\Resources\Gate.txt" />
     <None Include="Assets\Resource\Table\Resources\Input.txt" />
     <None Include="Assets\Resource\Table\Resources\Item.txt" />
     <None Include="Assets\Resource\Table\Resources\JobImprove.txt" />
@@ -1764,7 +1768,6 @@
     <None Include="Assets\Resource\Table\Resources\Npc.txt" />
     <None Include="Assets\Resource\Table\Resources\NpcPools.txt" />
     <None Include="Assets\Resource\Table\Resources\Patrol.txt" />
-    <None Include="Assets\Resource\Table\Resources\Platform.txt" />
     <None Include="Assets\Resource\Table\Resources\PlotTalk.txt" />
     <None Include="Assets\Resource\Table\Resources\ReHandle.txt" />
     <None Include="Assets\Resource\Table\Resources\Robot.txt" />

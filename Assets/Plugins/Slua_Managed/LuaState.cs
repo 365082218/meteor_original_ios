@@ -1300,7 +1300,7 @@ return dumpstack
 					}
 
 #else
-					asset = (TextAsset)Resources.Load(fn);
+					asset = (TextAsset)Resources.Load<TextAsset>(fn);
 #endif
 
 					if (asset == null)
