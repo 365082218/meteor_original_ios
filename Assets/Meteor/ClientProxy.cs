@@ -142,9 +142,9 @@ class ClientProxy
     {
         if (server == null)
         {
-            IPAddress[] addr = Dns.GetHostAddresses(GameData.Domain);
+            IPAddress[] addr = Dns.GetHostAddresses(AppInfo.Domain);
             if (addr.Length != 0)
-                server = new IPEndPoint(addr[0], GameData.GatePort);
+                server = new IPEndPoint(addr[0], AppInfo.GatePort);
         }
     }
 

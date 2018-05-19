@@ -6,20 +6,6 @@ using System.Collections.Generic;
 
 public class Global
 {
-    public static string AppVersion()
-    {
-        return (string)ScriptMng.ins.GetVariable("AppVersion");
-    }
-    public const int Version = 20180502;
-    public static string MeteorVersion = "9.07";
-    //运行帧速率设置 60 = 12 30 = 6 120 = 24
-#if UNITY_IOS || UNITY_ANDROID
-    public static int waitForNextInput = 10;//2个输入中间最大间隔6帧超过即断开.
-    public static int targetFrame = 30;
-#elif UNITY_EDITOR
-    public static int waitForNextInput = 12;//2个输入中间最大间隔24帧超过即断开.
-    public static int targetFrame = 120;
-#endif
     public static string[] model = new string[] { "孟星魂", "冷燕", "铁胡子", "夜猫子", "破空", "冯浩", "孙剑", "萧安", "子興", "王强", "无名", "叶翔", "小何", "凤凤", "石群", "屠城", "范旋", "高老大", "孙玉伯", "律香川"};
     public static MeteorInput GMeteorInput = null;
 	public static Level GLevelItem = null;

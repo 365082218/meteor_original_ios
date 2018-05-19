@@ -62,7 +62,7 @@ public class MainLobby : Window<MainLobby>
         Control("Password", roomObj).GetComponent<Text>().text = "无";
         Control("Rule", roomObj).GetComponent<Text>().text = ruleS[(int)room.rule - 1];//盟主，死斗，暗杀
         Control("LevelName", roomObj).GetComponent<Text>().text = LevelMng.Instance.GetItem((int)room.levelIdx).Name;
-        Control("Version", roomObj).GetComponent<Text>().text = Global.MeteorVersion;
+        Control("Version", roomObj).GetComponent<Text>().text = AppInfo.MeteorVersion;
         Control("Ping", roomObj).GetComponent<Text>().text = "???";
         Control("Group1", roomObj).GetComponent<Text>().text = room.Group1.ToString();
         Control("Group2", roomObj).GetComponent<Text>().text = room.Group2.ToString();
@@ -203,7 +203,7 @@ public class MainWnd : Window<MainWnd>
 
 	void Init()
 	{
-        Control("Version").GetComponent<Text>().text = Global.MeteorVersion;
+        Control("Version").GetComponent<Text>().text = AppInfo.MeteorVersion;
         Control("SinglePlayer").GetComponent<Button>().onClick.AddListener(()=> {
             OnSinglePlayer();
         });

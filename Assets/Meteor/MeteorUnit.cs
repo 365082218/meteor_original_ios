@@ -1712,7 +1712,7 @@ public class MeteorUnit : MonoBehaviour
         //219等待回收武器.
         if (charLoader != null)
         {
-            if (Global.MeteorVersion == "1.07")
+            if (AppInfo.MeteorVersion == "1.07")
             {
                 if (posMng.mActiveAction.Idx == (poseIdx + 1))
                 {
@@ -1723,7 +1723,7 @@ public class MeteorUnit : MonoBehaviour
                     charLoader.LinkEvent(poseIdx + 1, PoseEvt.WeaponIsReturned);
                 }
             }
-            else if (Global.MeteorVersion == "9.07")
+            else if (AppInfo.MeteorVersion == "9.07")
             {
                 if (posMng.mActiveAction.Idx == 219)
                     charLoader.SetLoop(false);

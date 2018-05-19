@@ -230,7 +230,7 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
         if (Root != null)
             return;
 
-        TextAsset act = Resources.Load<TextAsset>(Global.MeteorVersion + "/characteract");
+        TextAsset act = Resources.Load<TextAsset>(AppInfo.MeteorVersion + "/characteract");
         MemoryStream ms = new MemoryStream(act.bytes);
         StreamReader text = new StreamReader(ms);
 

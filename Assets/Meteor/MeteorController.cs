@@ -1101,11 +1101,11 @@ public class MeteorInput
             if (genFreq[keyStatus.Key] == 0)
             {
                 InputCore.OnKeyPressing(keyStatus);
-                genFreq[keyStatus.Key] = Global.waitForNextInput + 1;
+                genFreq[keyStatus.Key] = AppInfo.waitForNextInput + 1;
             }
         }
         else
-            genFreq.Add(keyStatus.Key, Global.waitForNextInput + 1);
+            genFreq.Add(keyStatus.Key, AppInfo.waitForNextInput + 1);
     }
 
     public void OnKeyUp(EKeyList key)
@@ -1126,7 +1126,7 @@ public class MeteorInput
         EKeyList[] keys = new EKeyList[genFreq.Keys.Count];
         genFreq.Keys.CopyTo(keys, 0);
         for (int i = 0; i < keys.Length; i++)
-            genFreq[keys[i]] = Global.waitForNextInput + 1;
+            genFreq[keys[i]] = AppInfo.waitForNextInput + 1;
         keyStatus.Pressed = keyStatus.PressedTime < DoubleClickTime ? 2 : 1;
         keyStatus.PressedTime = 0.0f;
         keyStatus.IsAI = isAI;

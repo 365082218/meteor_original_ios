@@ -6,43 +6,6 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Collections;
 
-public enum LanguageType
-{
-    Ch,
-    En,
-}
-
-
-[ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
-public class ClientVersion
-{
-    public int Version;
-}
-
-//整个游戏只有一份的开关状态.就是整个
-[ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
-public class GameState
-{
-    public int saveSlot;//默认使用的存档编号
-    public int Language;//语言设置. 0 中文 1 英文
-    public float MusicVolume;//设置背景音乐
-    public float SoundVolume;//设置声音
-    public string ClientId;//IOS GAMECENTER账号。
-    public int Quality;//0默认最高,1中_800面,2低_300面
-    public int Level;//当前最远通过的关卡
-    public string NickName;
-    public bool useJoystickOrKeyBoard;//是否使用外设摇杆
-    public bool EnableDebug;//战斗UI调试面板是否显示按钮
-    public bool EnableFunc;//战斗UI控制面板是否显示按钮
-    public bool EnableInfiniteAngry;//无限气.
-    public bool EnableItemName;//查看物品名称.
-    public bool EnableGodMode;//一击必杀
-    public MyVector2 JoyAnchor;//摇杆坐标.
-    public MyVector2 AxisSensitivity;//轴视角转向灵敏度
-    public string MeteorVersion;
-
-}
-
 public class Startup : MonoBehaviour {
     public static Startup ins;
     public Font TextFont;

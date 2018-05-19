@@ -143,8 +143,10 @@
     <Compile Include="Assets\7zip\Compress\RangeCoder\RangeCoderBit.cs" />
     <Compile Include="Assets\7zip\Compress\RangeCoder\RangeCoderBitTree.cs" />
     <Compile Include="Assets\7zip\ICoder.cs" />
+    <Compile Include="Assets\7zip\LZMAHelper.cs" />
     <Compile Include="Assets\ActionBar.cs" />
     <Compile Include="Assets\AlphaFilter.cs" />
+    <Compile Include="Assets\AppInfo.cs" />
     <Compile Include="Assets\AutoMsgCtrl.cs" />
     <Compile Include="Assets\ChangeShader.cs" />
     <Compile Include="Assets\Debug\CharacterLoaderDebug.cs" />
@@ -296,7 +298,6 @@
     <Compile Include="Assets\Engine\ldaScripts\BakeMeshTest.cs" />
     <Compile Include="Assets\Engine\ldaScripts\ldaBuildToolScript.cs" />
     <Compile Include="Assets\Engine\ldaScripts\ldaDestroyThisTimed.cs" />
-    <Compile Include="Assets\Engine\ldaScripts\ldaExportResScript.cs" />
     <Compile Include="Assets\Engine\ldaScripts\ldaFreeCam3.cs" />
     <Compile Include="Assets\Engine\ldaScripts\ldaInitData.cs" />
     <Compile Include="Assets\Engine\ldaScripts\ldaModelCamera.cs" />
@@ -1490,9 +1491,8 @@
     <Compile Include="Assets\Update\Ftp.cs" />
     <Compile Include="Assets\Update\HttpManager.cs" />
     <Compile Include="Assets\Update\MainLoader.cs" />
-    <Compile Include="Assets\Update\MyPackRes.cs" />
-    <Compile Include="Assets\Update\OneFileInfor.cs" />
     <Compile Include="Assets\Update\ResMng.cs" />
+    <Compile Include="Assets\Update\UPKPacker.cs" />
     <Compile Include="Assets\Update\UpkExtra.cs" />
     <Compile Include="Assets\WSLog.cs" />
     <Compile Include="Assets\WayPoints.cs" />

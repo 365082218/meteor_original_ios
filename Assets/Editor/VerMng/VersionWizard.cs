@@ -28,16 +28,25 @@ public class BuildWizardAndroid : ScriptableWizard {
         PlayerSettings.bundleIdentifier = "com.Idevgame.Meteor";
         PlayerSettings.iPhoneBundleIdentifier = "com.Idevgame.Meteor";
         PlayerSettings.bundleVersion = NewVersion;
+        EditorUserBuildSettings.androidBuildSubtarget = MobileTextureSubtarget.ETC;
+        PlayerSettings.use32BitDisplayBuffer = true;
+        PlayerSettings.Android.useAPKExpansionFiles = true;
+        PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeRight;
+        PlayerSettings.allowedAutorotateToLandscapeLeft = true;
+        PlayerSettings.allowedAutorotateToLandscapeRight = true;
+        PlayerSettings.allowedAutorotateToPortrait = false;
+        PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
+
         PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, "NOLOG");//设置宏
         string targetPath = "";
-        targetPath = EditorUtility.SaveFolderPanel("选择存储路径", "D:/", PlayerSettings.bundleIdentifier + "_" + NewVersion);
+        targetPath = EditorUtility.SaveFolderPanel("选择存储路径", "D:/", "");
         if (string.IsNullOrEmpty(targetPath))
         {
             WSLog.LogError("user canceled");
             return;
         }
-
-        BuildPipeline.BuildPlayer(VerMng.GetBuildScenes().ToArray(), targetPath, BuildTarget.Android, BuildOptions.None);
+        string[] scenes = VerMng.GetBuildScenes().ToArray();
+        BuildPipeline.BuildPlayer(scenes, targetPath + PlayerSettings.bundleIdentifier + "_" + NewVersion + ".apk", BuildTarget.Android, BuildOptions.None);
     }
 
 	void OnWizardOtherButton()
@@ -117,4 +126,22 @@ public class BuildTool
         //加载依赖表
         VerMng.TestDepend(BuildTarget.Android, "0.5.2.0");
     }
+
+    [MenuItem("MeteorTool/Build/TestCopy", false, 0)]
+    static void TestCopy()
+    {
+        //测试复制文件到一个基路径
+        DirectoryInfo baseDir = Directory.CreateDirectory(System.IO.Path.GetTempPath() + string.Format("{0}_{1}", "0.0.0.0", "0.5.2.0"));
+        string file = "9.07/characteract.bytes";
+        string dir = baseDir.FullName + "/" + file;
+        int dirIndex = file.LastIndexOf('/');
+        if (dirIndex != -1)
+        {
+            dir = baseDir.FullName + "/" + file.Substring(0, dirIndex);
+            Directory.CreateDirectory(dir);
+        }
+        File.Copy(VerMng.GetPlatformPath(BuildTarget.Android) + "/" + "0.5.2.0" + "/" + "9.07/characteract.bytes", baseDir.FullName + "/" + "9.07/characteract.bytes");
+    }
+
+    
 }

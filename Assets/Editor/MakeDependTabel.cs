@@ -841,16 +841,6 @@ public class MakeDependTabel : ScriptableWizard
 
     //以前存在的版本的.
     public List<string> strOldVersion = new List<string>();
-
-    [MenuItem("Assets/Tool/FixUILabelEncoding")]
-    static void FixUILabelEncoding()
-    {
-        UILabel[] labels = GameObject.FindObjectsOfType<UILabel>();
-        for (int i = 0; i < labels.Length; i++)
-        {
-            labels[i].supportEncoding = false;
-        } 
-    }
     [MenuItem("Assets/Tool/ViewReference")]
     static void GetWhichPrefabDependThisAsset()
     {

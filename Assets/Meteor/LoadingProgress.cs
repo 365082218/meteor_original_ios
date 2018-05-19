@@ -29,7 +29,7 @@ public class LoadingProgress : Window<LoadingProgress>
         loadbar.SetProgress(0);
         cur = 0;
         min = 0;
-        max = GameData.updateVersion.Total;
+        //max = GameData.updateVersion.Total;
     }
 
     public void SetProgress(int current)

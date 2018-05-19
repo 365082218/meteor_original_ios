@@ -131,16 +131,16 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Control("ChangeV107").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("1.07"); });
         //Control("Ver108").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer(108); });
         Control("ChangeV907").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("9.07"); });
-        Control("AppVerText").GetComponent<Text>().text = Global.AppVersion();
-        Control("MeteorVerText").GetComponent<Text>().text = Global.MeteorVersion;
+        Control("AppVerText").GetComponent<Text>().text = AppInfo.AppVersion();
+        Control("MeteorVerText").GetComponent<Text>().text = AppInfo.MeteorVersion;
         Control("ChangeModel").GetComponent<Button>().onClick.AddListener(() => { ModelWnd.Instance.Open(); });
         mWindowStyle = WindowStyle.WS_Modal;
     }
 
     void OnChangeVer(string ver)
     {
-        Global.MeteorVersion = ver;
-        GameData.gameStatus.MeteorVersion = Global.MeteorVersion;
+        AppInfo.MeteorVersion = ver;
+        GameData.gameStatus.MeteorVersion = AppInfo.MeteorVersion;
         GameData.SaveState();
         //提示返回到主场景，然后重新加载数据
         U3D.PopupTip("版本切换到:" + ver + " 重启后生效");

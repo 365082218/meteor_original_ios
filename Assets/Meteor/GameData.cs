@@ -19,18 +19,46 @@ public class UpdateVersion
     public int Version;//当前版本
     public int TargetVersion;//目标版本
     public List<UpdateFile> FileList = new List<UpdateFile>();
-    public List<string> Notices = new List<string>();
-    public int Total;
+    public string Notices;
+}
+
+public enum LanguageType
+{
+    Ch,
+    En,
+}
+
+[ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
+public class ClientVersion
+{
+    public int Version;
+}
+
+//整个游戏只有一份的开关状态.就是整个
+[ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
+public class GameState
+{
+    public int saveSlot;//默认使用的存档编号
+    public int Language;//语言设置. 0 中文 1 英文
+    public float MusicVolume;//设置背景音乐
+    public float SoundVolume;//设置声音
+    public string ClientId;//IOS GAMECENTER账号。
+    public int Quality;//0默认最高,1中_800面,2低_300面
+    public int Level;//当前最远通过的关卡
+    public string NickName;
+    public bool useJoystickOrKeyBoard;//是否使用外设摇杆
+    public bool EnableDebug;//战斗UI调试面板是否显示按钮
+    public bool EnableFunc;//战斗UI控制面板是否显示按钮
+    public bool EnableInfiniteAngry;//无限气.
+    public bool EnableItemName;//查看物品名称.
+    public bool EnableGodMode;//一击必杀
+    public MyVector2 JoyAnchor;//摇杆坐标.
+    public MyVector2 AxisSensitivity;//轴视角转向灵敏度
+    public string MeteorVersion;
 }
 
 public class GameData
 {
-#if LOCALHOST
-    public static string Domain = "127.0.0.1";
-#else
-    public static string Domain = "www.idevgame.com";
-#endif
-    public static ushort GatePort = 7200;
     public static TblMng<LangBase> langMng = TblMng<LangBase>.Instance.GetTable();
     public static TblMng<ItemBase> itemMng = TblMng<ItemBase>.Instance.GetTable();
     public static TblMng<ActionBase> actionMng = TblMng<ActionBase>.Instance.GetTable();
@@ -292,7 +320,7 @@ public class GameData
         {
             save.SetLength(0);
             clientVersion = new ClientVersion();
-            clientVersion.Version = Global.Version;
+            clientVersion.Version = AppInfo.Version;
             Serializer.Serialize<ClientVersion>(save, clientVersion);
             save.Close();
             save = null;
@@ -330,7 +358,7 @@ public class GameData
                 File.Delete(Application.persistentDataPath + "/" + "game_state.dat");
             SaveVersion();
         }
-        else if (clientVersion.Version < Global.Version)
+        else if (clientVersion.Version < AppInfo.Version)
         {
             //加载到存档版本信息，比当前客户端小.
             if (File.Exists(Application.persistentDataPath + "/" + "game_state.dat"))
@@ -377,7 +405,7 @@ public class GameData
             gameStatus.AxisSensitivity = new MyVector2(0.5f, 0.5f);
             gameStatus.MeteorVersion = "9.07";
         }
-        Global.MeteorVersion = gameStatus.MeteorVersion;
+        AppInfo.MeteorVersion = gameStatus.MeteorVersion;
     }
 
     public static void SaveState()

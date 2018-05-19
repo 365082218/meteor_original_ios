@@ -7,24 +7,6 @@ using UnityEngine;
 
 public static class FtpLog
 {
-	private static void CompressFileLZMA(string inFile, string outFile)
-	{
-		SevenZip.Compression.LZMA.Encoder coder = new SevenZip.Compression.LZMA.Encoder();
-		FileStream input = new FileStream(inFile, FileMode.Open);
-		FileStream output = new FileStream(outFile, FileMode.Create);
-		
-		// Write the encoder properties
-		coder.WriteCoderProperties(output);
-		
-		// Write the decompressed file size.
-		for (int i = 0; i < 8; i++)
-			output.WriteByte((Byte)(input.Length >> (8 * i)));
-
-		coder.Code(input, output, input.Length, -1, null);
-		output.Flush();
-		output.Close();
-		input.Close();
-	}
     static List<string> logFile = new List<string>();
     static System.Threading.Thread uploadThread;
     public static void Uninit()

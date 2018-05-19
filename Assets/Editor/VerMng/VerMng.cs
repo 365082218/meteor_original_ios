@@ -6,30 +6,6 @@ using System;
 using System.IO;
 using LitJson;
 using System.Security.Cryptography;
-using DG.Tweening;
-
-public class UpdateZip
-{
-    public string fileName;//v0-v1.zip
-    public string Md5;//hash
-    public long size;
-}
-
-public class VersionItem
-{
-    public string strVersion;//版本号.
-    public string strVersionMax;//最新版本号.
-    public string strFilelist;//文件清单名.GetPlatForm(Target)目录下
-    public List<UpdateZip> zips = new List<UpdateZip>();//该版本与之前的各个版本的更新包.
-    //比如该版本是首版本，则当后续有第二版本时，首版本与第二个版本对比，得到更新压缩包，v0-v1.zip,包括其MD5,大小
-}
-
-public class PackageItem
-{
-    public string Iden;//唯一标识+拓展名
-    public string Md5;//hash.
-    public string Path;//本地路径名.
-}
 
 public class VerMng : EditorWindow{
     private const string PathBase = "Assets/.VerMng/";
@@ -292,21 +268,13 @@ public class VerMng : EditorWindow{
         curItem.strFilelist = manifest;
         curItem.strVersion = newVersion;
         curItem.strVersionMax = newVersion;
-        curItem.zips = null;//最新的包，是没有更新可用的.
+        curItem.zip = null;//最新的包，是没有更新可用的.
         //与之前的各个版本列表对比.
         UpdateVersionJson(target, curItem, VersionList);
         VersionList.Add(curItem);
         File.WriteAllText(VerMng.GetPlatformPath(target) + "/" + strVerFile, JsonMapper.ToJson(VersionList));
-        CompressForFile.CompressFile(VerMng.GetPlatformPath(target) + "/" + strVerFile, VerMng.GetPlatformPath(target) + "/" + strVerFile + ".zip");
+        LZMAHelper.CompressFileLZMA(VerMng.GetPlatformPath(target) + "/" + strVerFile, VerMng.GetPlatformPath(target) + "/" + strVerFile + ".zip");
     }
-
-    public static bool UpdateVersion(BuildTarget target, List<string>strOldVersionLst, string strNewVer)
-	{
-		string strVersionPath;
-		strVersionPath = GetPlatformPath(target);
-		strVersionPath += "/" + strVerFile;
-		return true;
-	}
 
 	void OnGUI()
 	{
@@ -328,18 +296,79 @@ public class VerMng : EditorWindow{
             zip.fileName = str;
             zip.Md5 = GetFileMd5(str);
             zip.size = new FileInfo(str).Length;
-            if (OldVersion[i].zips == null)
-                OldVersion[i].zips = new List<UpdateZip>();
-            OldVersion[i].zips.Add(zip);
+            if (OldVersion[i].zip != null)
+            {
+                if (File.Exists(GetPlatformPath(target) + "/" + OldVersion[i].zip.fileName))
+                {
+                    try
+                    {
+                        File.Delete(OldVersion[i].zip.fileName);
+                    }
+                    catch
+                    {
+                        WSLog.LogError(string.Format("file:{0} cannot deleted", OldVersion[i].zip.fileName));
+                    }
+                }
+            }
+            OldVersion[i].zip = zip;
         }
     }
 
     //对比2个包的文件列表，进行差异文件分析，把修改的，更新的，全部放到压缩包内，最后返回压缩包的文件子路径.
     static string MakeDiffZip(VersionItem old, VersionItem update)
     {
-        //old.strFilelist;
-        //update.strFilelist;
-        return "";
+        List<PackageItem> files_update = JsonMapper.ToObject<List<PackageItem>>(GetPlatformPath(Target) + "/" + update.strFilelist, false);
+        List<PackageItem> files_old = JsonMapper.ToObject<List<PackageItem>>(GetPlatformPath(Target) + "/" + old.strFilelist, false);
+        List<PackageItem> update_files = new List<PackageItem>();
+        for (int i = 0; i < files_update.Count; i++)
+        {
+            if (Updated(files_update[i], files_old))
+                update_files.Add(files_update[i]);
+        }
+        //把更新的文件复制到一个指定路径，把该路径作为
+        DirectoryInfo baseDir = null;
+        if (update_files.Count != 0)
+        {
+            //取得一个临时目录，把全部更新文件按结构放到这个临时目录
+            baseDir = Directory.CreateDirectory(System.IO.Path.GetTempPath() + string.Format("{0}_{1}", old.strVersion, update.strVersion));
+        }
+
+        for (int i = 0; i < update_files.Count; i++)
+        {
+            string file = update_files[i].Iden;
+            string dir = baseDir.FullName + "/" + file;
+            int dirIndex = file.LastIndexOf('/');
+            if (dirIndex != -1)
+            {
+                dir = baseDir.FullName + "/" + file.Substring(0, dirIndex);
+                Directory.CreateDirectory(dir);
+            }
+            File.Copy(GetPlatformPath(Target) + "/" + update.strVersion + "/" + update_files[i].Iden, baseDir.FullName + "/" + update_files[i].Iden);
+        }
+
+        //打包PUK
+        string upk = System.IO.Path.GetTempPath() + string.Format("{0}_{1}.upk", old.strVersion, update.strVersion);
+        string zip = GetPlatformPath(Target) + "/" + string.Format("{0}_{1}.zip", old.strVersion, update.strVersion);
+        UPKPacker.PackFolder(baseDir.FullName, upk);
+        LZMAHelper.CompressFileLZMA(upk, zip);
+        return zip;
+    }
+
+    //返回高版本某个资源是否需要更新
+    static bool Updated(PackageItem updateItem, List<PackageItem> pkg)
+    {
+        bool needUpdate = true;
+        for (int i = 0; i < pkg.Count; i++)
+        {
+            if (pkg[i].Path == updateItem.Path && pkg[i].Iden == updateItem.Iden)
+            {
+                if (pkg[i].Md5 == updateItem.Md5)
+                    needUpdate = false;
+                break;
+            }
+        }
+
+        return needUpdate;
     }
 
     public static string GetFileMd5(string path)
@@ -353,8 +382,6 @@ public class VerMng : EditorWindow{
 
     public static void TestDepend(BuildTarget target, string newVersion)
     {
-        DOTween.Clear();
-        DOTween.ClearCachedTweens();
         Target = target;
         Version = newVersion;
         FileStream fs = File.Open(SavePath + RefTable, FileMode.Open);

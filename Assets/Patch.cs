@@ -39,10 +39,7 @@ public class Patch : MonoBehaviour {
     {
         ConnectWnd.Instance.Close();
         LoadingNotice.Instance.Open();
-        string notice = "";
-        for (int i = 0; i < GameData.updateVersion.Notices.Count; i++)
-            notice += (i + 1) + ":" + GameData.updateVersion.Notices[i] + Environment.NewLine;
-        LoadingNotice.Instance.SetNotice(notice, () => {
+        LoadingNotice.Instance.SetNotice(GameData.updateVersion.Notices, () => {
             LoadingProgress.Instance.Open();
             LoadingProgress.Instance.InitProgress();
             StartCoroutine("DownLoad");
@@ -79,23 +76,23 @@ public class Patch : MonoBehaviour {
     IEnumerator DownLoad()
     {
         int i = 0;
-        while (i < GameData.updateVersion.Total)
-        {
-            //if (GameData.gameVersion.FileList[i].done)
-            {
-                i++;
-                continue;
-            }
-            //WWW f = new WWW(GameData.gameVersion.FileList[i].path);
-            //if (f.isDone)
-            {
-                //GameData.gameVersion.FileList[i].done = true;
-                i++;
-                continue;
-            }
-            LoadingProgress.Instance.SetProgress(i);
-            yield return 0;
-        }
+        //while (i < GameData.updateVersion.Total)
+        //{
+        //    //if (GameData.gameVersion.FileList[i].done)
+        //    {
+        //        i++;
+        //        continue;
+        //    }
+        //    //WWW f = new WWW(GameData.gameVersion.FileList[i].path);
+        //    //if (f.isDone)
+        //    {
+        //        //GameData.gameVersion.FileList[i].done = true;
+        //        i++;
+        //        continue;
+        //    }
+        //    LoadingProgress.Instance.SetProgress(i);
+        //    yield return 0;
+        //}
         GameData.clientVersion.Version = GameData.updateVersion.TargetVersion;
         GameData.updateVersion = null;
         GameData.SaveState();
@@ -171,7 +168,7 @@ public class Patch : MonoBehaviour {
             yield return new WaitForEndOfFrame();
         }
         yield return new WaitForEndOfFrame();
-        Application.targetFrameRate = Global.targetFrame;
+        Application.targetFrameRate = AppInfo.targetFrame;
         U3D.PlayMovie("start.mv");
         AppDomain.CurrentDomain.UnhandledException += UncaughtException;
         SceneManager.LoadScene("Menu");

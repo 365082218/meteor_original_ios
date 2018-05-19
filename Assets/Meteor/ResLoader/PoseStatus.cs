@@ -156,7 +156,7 @@ public class PoseStatus
         if (!PosFile.ContainsKey(UnitId))
         {
             int TargetIdx = UnitId >= 20 ? 0 : UnitId;
-            PosFile.Add(UnitId, Resources.Load<TextAsset>(Global.MeteorVersion + "/P" + TargetIdx + ".pos"));
+            PosFile.Add(UnitId, Resources.Load<TextAsset>(AppInfo.MeteorVersion + "/P" + TargetIdx + ".pos"));
             ActionList.Add(UnitId, new List<Pose>());
             ReadPose();
         }

@@ -249,29 +249,7 @@ public class MainLoader : MonoBehaviour {
 		}
 	}
 
-	static bool DeCompressFile(string inFile, string outFile)
-	{
-		SevenZip.Compression.LZMA.Decoder coder = new SevenZip.Compression.LZMA.Decoder();
-		FileStream input = new FileStream(inFile, FileMode.Open);
-		FileStream output = new FileStream(outFile, FileMode.Create);
-		
-		// Read the decoder properties
-		byte[] properties = new byte[5];
-		input.Read(properties, 0, 5);
-		
-		// Read in the decompress file size.
-		byte [] fileLengthBytes = new byte[8];
-		input.Read(fileLengthBytes, 0, 8);
-		long fileLength = System.BitConverter.ToInt64(fileLengthBytes, 0);
-		
-		// Decompress the file.
-		coder.SetDecoderProperties(properties);
-		coder.Code(input, output, input.Length, fileLength, null);
-		output.Flush();
-		output.Close();
-		input.Close();
-		return true;
-	}
+	
 
 	static bool TableUpdate()
 	{
@@ -318,7 +296,7 @@ public class MainLoader : MonoBehaviour {
 					//createdirectory
 					if (nDirectoryIndex != -1)
 						Directory.CreateDirectory(strResource + "/" + strReplace.Substring(0, nDirectoryIndex));
-					if (DeCompressFile(strUpdatePath + "/" + str, strResource + "/" + strReplace))
+					if (LZMAHelper.DeCompressFile(strUpdatePath + "/" + str, strResource + "/" + strReplace))
 						File.Delete(strUpdatePath + "/" + str);
 				}
 				else
@@ -498,7 +476,7 @@ public class MainLoader : MonoBehaviour {
 		}
 		//Restore DownLoad From Progress.xml
 		System.Net.Sockets.Socket sClient = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Stream, System.Net.Sockets.ProtocolType.IP);
-        System.Net.EndPoint server = new System.Net.IPEndPoint(Dns.GetHostAddresses(GameData.Domain)[0], System.Convert.ToInt32(strPort));
+        System.Net.EndPoint server = new System.Net.IPEndPoint(Dns.GetHostAddresses(AppInfo.Domain)[0], System.Convert.ToInt32(strPort));
 		System.Threading.ManualResetEvent connectDone = new System.Threading.ManualResetEvent(false);
 		try
 		{
@@ -563,7 +541,7 @@ public class MainLoader : MonoBehaviour {
 			if (vFile.bytes != null && vFile.bytes.Length != 0)
 			{
 				File.WriteAllBytes(strUpdatePath + "/" + "v.zip", vFile.bytes);
-				DeCompressFile(strUpdatePath + "/" + "v.zip", strUpdatePath + "/" + "v.xml");
+				LZMAHelper.DeCompressFile(strUpdatePath + "/" + "v.zip", strUpdatePath + "/" + "v.xml");
 				vFile.Dispose();
 			}
 			else
@@ -814,7 +792,7 @@ public class MainLoader : MonoBehaviour {
 		{
 			yield return updateXml;
 			File.WriteAllBytes(strLocalFile, updateXml.bytes);
-			DeCompressFile(strLocalFile, strUpdatePath + "/" + "update.xml");
+			LZMAHelper.DeCompressFile(strLocalFile, strUpdatePath + "/" + "update.xml");
 			XmlDocument xmlVer = new XmlDocument();
 			xmlVer.Load(strUpdatePath + "/" + "update.xml");
 			XmlElement updateFilelst = xmlVer.DocumentElement;

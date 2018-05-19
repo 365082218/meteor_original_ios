@@ -59,7 +59,7 @@ public class InputItem
             }
             else
             {
-                frame = Global.waitForNextInput;
+                frame = AppInfo.waitForNextInput;
             }
         }
         return false;
@@ -112,7 +112,7 @@ public class InputItem
             }
             else
             {
-                frame = Global.waitForNextInput;
+                frame = AppInfo.waitForNextInput;
             }
         }
         return false;
@@ -238,7 +238,7 @@ public class InputItem
     public void Reset()
     {
         state = 0;
-        frame = Global.waitForNextInput;
+        frame = AppInfo.waitForNextInput;
     }
 
     public bool Wait()
@@ -317,7 +317,7 @@ public class InputModule
                 it.linesAir.Add(int.Parse(str[j]), new List<int>());
                 //input.Add(int.Parse(str[j]), int.Parse(str[j]));
             }
-            it.frame = Global.waitForNextInput;
+            it.frame = AppInfo.waitForNextInput;
             it.state = 0;
             it.totalState = it.keyInput.Length;
             int[] lines = new int[it.lines.Keys.Count];

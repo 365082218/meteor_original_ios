@@ -229,7 +229,6 @@
     <Compile Include="Assets\Editor\MeshCombinerWizard.cs" />
     <Compile Include="Assets\Editor\SaveMeshFile.cs" />
     <Compile Include="Assets\Editor\SearchLanguageInPrefabs.cs" />
-    <Compile Include="Assets\Editor\VerMng\CompressForFile.cs" />
     <Compile Include="Assets\Editor\VerMng\CreateCone.cs" />
     <Compile Include="Assets\Editor\VerMng\VerMng.cs" />
     <Compile Include="Assets\Editor\VerMng\VersionWizard.cs" />

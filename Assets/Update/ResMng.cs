@@ -5,6 +5,28 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Security.Cryptography;
 
+public class UpdateZip
+{
+    public string fileName;//v0-v1.zip
+    public string Md5;//hash
+    public long size;
+}
+
+public class VersionItem
+{
+    public string strVersion;//版本号.
+    public string strVersionMax;//最新版本号.
+    public string strFilelist;//文件清单名.GetPlatForm(Target)目录下
+    public UpdateZip zip;//该版本与最高版本的更新包.
+    public bool Flush;//关闭APP时、更新完成时、需要保存配置数据
+}
+
+public class PackageItem
+{
+    public string Iden;//唯一标识+拓展名
+    public string Md5;//hash.
+    public string Path;//本地路径名.
+}
 
 /// <summary>
 /// AssetBundle包装类

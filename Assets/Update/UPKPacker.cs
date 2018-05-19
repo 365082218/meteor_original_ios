@@ -5,15 +5,21 @@ using System.Text;
 using System.IO;
 using UnityEngine;
 
+public class OneFileInfor
+{
+    public int m_id = 0;
+    public int m_StartPos = 0;
+    public int m_Size = 0;
+    public int m_PathLength = 0;
+    public string m_Path = "";
+    public byte[] m_data = null;
+};
 
-class MyPackRes
+public class UPKPacker
 {
     private static int m_id = 0;
     private static int m_totalSize = 0;
-
     private static Dictionary<int, OneFileInfor> m_allFileInfoDic = new Dictionary<int, OneFileInfor>();
-
-
     /** 遍历文件夹获取所有文件信息 **/
     private static void ScanFolder(string folderpath)
     {
