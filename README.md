@@ -13,8 +13,6 @@
 游戏起始场景是Patch场景。这个场景是做更新的，但是现在没做。</br>
 Patch会跳到Menu场景，这个是游戏主菜单场景。</br>
 
-BUILD_PC宏用于控制在PC平台上，不显示移动平台的操作UI</br>
-
 推荐使用git desktop软件</br>
 使用File->Clone Repository</br>
 把该git仓库复制到你的本地</br>
