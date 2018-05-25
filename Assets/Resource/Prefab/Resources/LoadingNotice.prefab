@@ -1239,7 +1239,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetImage: {fileID: 114614092413289990}
   bar: {fileID: 114693057843843938}
-  offset: 1
+  offset: 0.3
   autoVisibility: 1
   showAfterPct: 0.05
   hideAfterPct: 0.96
@@ -1318,7 +1318,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   imageComponent: {fileID: 114956113162402478}
   textComponent: {fileID: 114675573199383218}
-  Duration: 5
+  Duration: 0.2
 --- !u!114 &114701457463666468
 MonoBehaviour:
   m_ObjectHideFlags: 1
