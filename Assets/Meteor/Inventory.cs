@@ -243,8 +243,6 @@ using System.Text;
         //
         public bool HaveEnoughItem(int idx, uint cnt)
         {
-            if (Startup.ins.GODMODE)
-                return true;
             uint existcnt = 0;
             try
             {

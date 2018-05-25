@@ -60,16 +60,17 @@ public abstract class Window<T> :Windows where T : class, new()
     
    	static T msInstance = null;
 	static int mCullingMask = 0;
-    public static T Instance { get {
-		//return msInstance ?? (msInstance = new T());
-		if(msInstance == null)
-		{
-				msInstance = new T();
-		}
-			return msInstance;
-		} }
+    public static T Instance
+    {
+        get
+        {
+            if (msInstance == null)
+                msInstance = new T();
+            return msInstance;
+        }
+    }
 
-	public static bool Exist { get { return msInstance != null; } }
+    public static bool Exist { get { return msInstance != null; } }
 	GameObject mRootUI = null;
     GameObject mWndObject = null;
 	GameObject mExtBackground = null;
@@ -330,56 +331,55 @@ public abstract class Window<T> :Windows where T : class, new()
 	}
 
     public bool WndShown { get { return WndObject.activeSelf; } }
-	public void BtnSetAble(GameObject go,bool bStatus)
-	{
-		GameObject goDis = go.transform.Find("Disable").gameObject;
-		if(goDis == null)
-			return;
-		
-		go.GetComponent<BoxCollider>().enabled = bStatus;
-		goDis.SetActive(!bStatus);
-		if(bStatus)//NGUI Bug
-		{
-			UIImageButton uiib = go.GetComponent<UIImageButton>();
-			go.transform.Find("Background").GetComponent<UISprite>().spriteName = uiib.normalSprite;
-		}
-	}
-	
+    public void BtnSetAble(GameObject go, bool bStatus)
+    {
+        GameObject goDis = go.transform.Find("Disable").gameObject;
+        if (goDis == null)
+            return;
 
-	//public void UpdateItemQualityFrameIcon(GameObject go,ItemBase itemBase)
-	//{
-	//	//Debug.Log(quality);
-	//	QualitySprite QSp = QualitySprite.Button10_BaseItem_Quality_00;
-		
-	//	switch((int)itemBase.Quality)
-	//	{
-	//		case (int) QualitySprite.Button10_BaseItem_Quality_00:
-	//			QSp = QualitySprite.Button10_BaseItem_Quality_00;
-	//			go.SetActive(false);
-	//			break;
-	//		case (int) QualitySprite.Button10_BaseItem_Quality_01:
-	//			QSp = QualitySprite.Button10_BaseItem_Quality_01;
-	//			go.SetActive(true);
-	//			go.GetComponent<UISprite>().spriteName= QSp.ToString();
-	//			break;
-	//		case (int) QualitySprite.Button10_BaseItem_Quality_02:
-	//			QSp = QualitySprite.Button10_BaseItem_Quality_02;
-	//			go.SetActive(true);
-	//			go.GetComponent<UISprite>().spriteName= QSp.ToString();
-	//			break;
-	//		case (int) QualitySprite.Button10_BaseItem_Quality_03:
-	//			QSp = QualitySprite.Button10_BaseItem_Quality_03;
-	//			go.SetActive(true);
-	//			go.GetComponent<UISprite>().spriteName= QSp.ToString();
-	//			break;
-	//		case (int) QualitySprite.Button10_BaseItem_Quality_04:
-	//			QSp = QualitySprite.Button10_BaseItem_Quality_04;
-	//			go.SetActive(true);
-	//			go.GetComponent<UISprite>().spriteName= QSp.ToString();
-	//			break;
-	//		default:
-	//			go.SetActive(false);
-	//			break;
-	//	}
-	//}
+        go.GetComponent<BoxCollider>().enabled = bStatus;
+        goDis.SetActive(!bStatus);
+        if (bStatus)//NGUI Bug
+        {
+            UIImageButton uiib = go.GetComponent<UIImageButton>();
+            go.transform.Find("Background").GetComponent<UISprite>().spriteName = uiib.normalSprite;
+        }
+    }
+
+    //public void UpdateItemQualityFrameIcon(GameObject go,ItemBase itemBase)
+    //{
+    //	//Debug.Log(quality);
+    //	QualitySprite QSp = QualitySprite.Button10_BaseItem_Quality_00;
+
+    //	switch((int)itemBase.Quality)
+    //	{
+    //		case (int) QualitySprite.Button10_BaseItem_Quality_00:
+    //			QSp = QualitySprite.Button10_BaseItem_Quality_00;
+    //			go.SetActive(false);
+    //			break;
+    //		case (int) QualitySprite.Button10_BaseItem_Quality_01:
+    //			QSp = QualitySprite.Button10_BaseItem_Quality_01;
+    //			go.SetActive(true);
+    //			go.GetComponent<UISprite>().spriteName= QSp.ToString();
+    //			break;
+    //		case (int) QualitySprite.Button10_BaseItem_Quality_02:
+    //			QSp = QualitySprite.Button10_BaseItem_Quality_02;
+    //			go.SetActive(true);
+    //			go.GetComponent<UISprite>().spriteName= QSp.ToString();
+    //			break;
+    //		case (int) QualitySprite.Button10_BaseItem_Quality_03:
+    //			QSp = QualitySprite.Button10_BaseItem_Quality_03;
+    //			go.SetActive(true);
+    //			go.GetComponent<UISprite>().spriteName= QSp.ToString();
+    //			break;
+    //		case (int) QualitySprite.Button10_BaseItem_Quality_04:
+    //			QSp = QualitySprite.Button10_BaseItem_Quality_04;
+    //			go.SetActive(true);
+    //			go.GetComponent<UISprite>().spriteName= QSp.ToString();
+    //			break;
+    //		default:
+    //			go.SetActive(false);
+    //			break;
+    //	}
+    //}
 }

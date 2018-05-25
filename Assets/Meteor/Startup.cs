@@ -15,10 +15,6 @@ public class Startup : MonoBehaviour {
     public AudioSource Sound;
     public AudioListener Listener;
     
-    List<string> cheats = new List<string>();
-    int cheatsel = -1;
-    public bool GODMODE = true;//上帝模式，玩家对怪物一击必杀.
-    public long frameIdx;
     //public int ServerIdx;
     //public string GameServerIP;
     //public string ServerName;
@@ -58,8 +54,6 @@ public class Startup : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        frameIdx++;
-        ProtoHandler.Update();
     }
 
     #region (notification)
@@ -129,7 +123,7 @@ public class Startup : MonoBehaviour {
         WSLog.Uninit();
         FtpLog.Uninit();
         GameData.SaveState();
-        GameData.SaveCache();
+        GlobalUpdate.SaveCache();
     }
 
     //游戏接口

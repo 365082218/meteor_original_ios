@@ -11,14 +11,30 @@ public static class WSLog
 
     public static void Log(string message)
     {
-        #if !NOLOG
-        Debug.Log("f:" + Time.frameCount + ":" + message);
-        #endif
+#if !NOLOG
+        byte[] line = new byte[2] { (byte)'\r', (byte)'\n' };
+        if (fs != null)
+        {
+            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(string.Format("debug:{0}", message));
+            fs.Write(buffer, 0, buffer.Length);
+            fs.Write(line, 0, 2);
+            fs.Flush();
+        }
+#endif
     }
 
     public static void LogError(string message)
     {
-        Debug.LogError("帧数: " + Time.frameCount + " 信息: " + message);
+#if !NOLOG
+        byte[] line = new byte[2] { (byte)'\r', (byte)'\n' };
+        if (fs != null)
+        {
+            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(string.Format("error:{0}", message));
+            fs.Write(buffer, 0, buffer.Length);
+            fs.Write(line, 0, 2);
+            fs.Flush();
+        }
+#endif
     }
 
     private static FileStream fs_thread;

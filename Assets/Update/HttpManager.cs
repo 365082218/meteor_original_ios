@@ -7,39 +7,45 @@ using System.Net;
 using System.IO;
 using System;
 
-public enum RequestStatus
+public enum TaskStatus
 {
-	Normal,
-	Pause,
+	Normal,//下载中
+	Pause,//暂停中
+    Wait,//等待下载中
+    Done,//下载完成
+    Error,//出错.
 }
 
-
+//unity下载器
 public class HttpRequest
 {
-	public HttpRequest(string file, HttpClient parent, HttpClient.cb call, long start, string strLocal, UpdateFile src)
+	public HttpRequest(string file, HttpClient parent, HttpClient.OnReceivedDataDelegate call, long seek, string strLocal, UpdateFile src)
 	{
 		strfile = file;
 		owner = parent;
-		callback = call;
-		cbstart = start;
+        OnReceivedData = call;
+		cbstart = seek;
 		cboffset = 0;
-		cbsize = 0;
+        loadBytes = 0;
+        totalBytes = src.Totalbytes;
 		strLocalPath = strLocal;
-        cell = src;
+        Source = src;
+        fs = null;
 	}
-    public UpdateFile cell;
-	public HttpClient.cb callback;
+    public FileStream fs;
+    public UpdateFile Source;
+	public HttpClient.OnReceivedDataDelegate OnReceivedData;
 	public string strfile;
 	public long cbstart;
 	public HttpClient owner;
 	public string error;
 	//seek point
 	public long cboffset;
-	public long cbsize;
+	public long totalBytes;
 	public string strLocalPath;
-	public long loadBytes = 0;
+	public long loadBytes;
 	//download order
-	public RequestStatus order = RequestStatus.Normal;
+	public TaskStatus Status = TaskStatus.Normal;
 	public bool bDone = false;
 }
 
@@ -60,116 +66,58 @@ public class HttpClient{
 			+   "Range: bytes={3}-\r\n"
 			+	"Cache-Control:no-cache\r\n\r\n";
 
-	public static int nThreadSlotCount = 4;
-	public static AutoResetEvent[] autoEvent = new AutoResetEvent[nThreadSlotCount];
-	public static Thread []ThreadSlot = new Thread[nThreadSlotCount];
-	public static ManualResetEvent[] Closed = new ManualResetEvent[nThreadSlotCount];
-	public string strURIBase;
-	public static bool bContinue = true;
-	private static ManualResetEvent connectDone = new ManualResetEvent(false);
-	static long nLastTick = 0;
-	static long nLastTotalByte = 0;
-	static long nLastKpbs = 0;
-	static long nUpdateRate = 2;
-	public static long Kbps
-	{
-		get
-		{
-			if (nLastTick == 0)
-				nLastTick = DateTime.Now.Ticks;
-			long nValue = 0;
-			TimeSpan elapsedSpan = new TimeSpan(DateTime.Now.Ticks - nLastTick);
-			if (elapsedSpan.TotalSeconds >= nUpdateRate)
-			{
-				nLastTick = DateTime.Now.Ticks;
-				int nTimeCount = (int)elapsedSpan.TotalMilliseconds;
-				lock(DownloadMap)
-				{
-					//downloading now or downloading end
-					foreach (KeyValuePair<string, HttpRequest> pair in DownloadMap)
-					{
-						nValue += pair.Value.loadBytes;
-					}
-				}
-				long nTmp = nLastTotalByte;
-				nLastTotalByte = nValue;
-				if (nTimeCount < 1)
-				{
-					Debug.Log("error");
-				}
-				nLastKpbs = ((nValue - nTmp) * 1000) / (1024 * nTimeCount);
-				return nLastKpbs;
-			}
-			else
-				return nLastKpbs;
-		}
-	}
+	public const int nThreadSlotCount = 1;
+	public AutoResetEvent[] autoEvent = new AutoResetEvent[nThreadSlotCount];
+	public Thread []ThreadSlot = new Thread[nThreadSlotCount];
+	public ManualResetEvent[] Closed = new ManualResetEvent[nThreadSlotCount];
+	public bool bContinue = true;
+	private ManualResetEvent connectDone = new ManualResetEvent(false);
+	long nLastTick = 0;
+	public long nLastTotalByte = 0;
+	long nLastKpbs = 0;
+	static long nUpdateRate = 1;
 
-	public class Condition
-	{
-		public ResMng.LoadCallback cb;
-		public object param;
-		public string strResource;
-		public ReferenceNode root;
-	}
-
-	public static List<Condition> RegisterCondition = new List<Condition>();
-	//check callback handler
-	public static void RegisterCallback(ResMng.LoadCallback cb, object param, string strMain, ReferenceNode root)
-	{
-		lock(RegisterCondition)
-		{
-			Condition check = null;
-			foreach (var each in RegisterCondition)
-			{
-				if (each.strResource == strMain)
-				{
-					check = each;
-					break;
-				}
-			}
-
-			if (check != null)
-			{
-				check.cb = cb;
-				check.root = new ReferenceNode(root.strResources);
-				check.param = param;
-			}
-			else
-			{
-				check = new Condition();
-				check.cb = cb;
-				check.root = new ReferenceNode(root.strResources);
-				check.param = param;
-				check.strResource = strMain;
-				RegisterCondition.Add(check);
-			}
-		}
-	}
-
-	public static void CheckCondition(string strRes)
-	{
-        if (string.IsNullOrEmpty(strRes))
+    public void Update()
+    {
+        if (nLastTick == 0)
+            nLastTick = DateTime.Now.Ticks;
+        long nValue = 0;
+        TimeSpan elapsedSpan = new TimeSpan(DateTime.Now.Ticks - nLastTick);
+        if (elapsedSpan.TotalSeconds >= nUpdateRate)
         {
-            Debug.LogError("error:resource is empty");
-            return;
+            nLastTick = DateTime.Now.Ticks;
+            int nTimeCount = (int)elapsedSpan.TotalMilliseconds;
+            //downloading now or downloading end
+            foreach (KeyValuePair<string, HttpRequest> pair in TaskMap)
+            {
+                nValue += pair.Value.loadBytes;
+            }
+            long nTmp = nLastTotalByte;
+            nLastTotalByte = nValue;
+            if (nTimeCount < 1)
+            {
+                Debug.Log("error");
+            }
+            nLastKpbs = ((nValue - nTmp) * 1000) / (1024 * nTimeCount);
         }
-		MainLoader.AddDownloadDone(strRes);
-		List<Condition> check = null;
-		lock (RegisterCondition)
-		{
-			check = RegisterCondition;
-			RegisterCondition = new List<Condition>();
-		}
+    }
 
-		//another thread call may be invalid so must push it into loader.list to check in update
-		if (check != null)
-		{
-			MainLoader.AddCheck(check);
-		}
+    public long Kbps
+	{
+        get { return nLastKpbs; }
 	}
 
-	private static void ConnectCallback(IAsyncResult ar) 
+    long totalBytes;
+    public long TotalBytes()
+    {
+        if (totalBytes != 0)
+            return totalBytes;
+        foreach (var each in TaskMap)
+            totalBytes += each.Value.totalBytes;
+        return totalBytes;
+    }
+
+    private void ConnectCallback(IAsyncResult ar) 
 	{
 		try 
 		{
@@ -187,6 +135,44 @@ public class HttpClient{
 		}
 	}
 
+    public void Quit()
+    {
+        bContinue = false;
+        for (int i = 0; i < ThreadSlot.Length; ++i)
+        {
+            if (autoEvent[i] == null)
+                continue;
+            autoEvent[i].Set();
+        }
+        List<WaitHandle> handle = new List<WaitHandle>();
+        for (int i = 0; i < Closed.Length; i++)
+        {
+            if (Closed[i] == null)
+                break;
+            handle.Add(Closed[i]);
+        }
+        //may be in writing file
+        if (handle.Count != 0)
+        {
+            while (true)
+            {
+                if (!WaitHandle.WaitAll(handle.ToArray(), 500))
+                {
+                    for (int i = 0; i < ThreadSlot.Length; ++i)
+                    {
+                        if (autoEvent[i] == null)
+                            continue;
+                        autoEvent[i].Set();
+                    }
+                }
+                else
+                {
+                    WSLog.LogError("application quit normal return");
+                    return;
+                }
+            }
+        }
+    }
 	public static bool ParseURI(string strURI, ref string strAddress, ref string strPort, ref string strRelativePath)
 	{
 		string strAddressRet;
@@ -264,7 +250,7 @@ public class HttpClient{
 		return sb;
 	}
 
-	public static void DownLoad(object param)
+	public void DownLoad(object param)
 	{
 		ThreadParam tParam = param as ThreadParam;
 		ManualResetEvent close = tParam.close;
@@ -280,45 +266,18 @@ public class HttpClient{
                 {
                     req = null;
                     strURI = null;
-                    lock (RequestMap)
+                    foreach (KeyValuePair<string, HttpRequest> each in TaskMap)
                     {
-                        if (RequestMap.Count == 0)
-                            break;
-
-                        bool bFindOrder = false;
-                        foreach (KeyValuePair<string, HttpRequest> each in RequestMap)
-                        {
-                            if (req == null)
-                                req = each.Value;
-                            if (strURI == null)
-                                strURI = each.Key;
-
-                            if (each.Value != null)
-                            {
-                                if (each.Value.order != RequestStatus.Pause)
-                                {
-                                    req = each.Value;
-                                    strURI = each.Key;
-                                    bFindOrder = true;
-                                    break;
-                                }
-                                else
-                                    continue;
-                            }
-                        }
-
-                        if (strURI != null)
-                        {
-                            //may be is retry 
-							lock (DownloadMap)
-							{
-	                            if (!DownloadMap.ContainsKey(strURI))
-	                                DownloadMap.Add(strURI, req);
-							}
-                            RequestMap.Remove(strURI);
-                        }
+                        if (each.Value.Status != TaskStatus.Normal)
+                            continue;
+                        if (req == null)
+                            req = each.Value;
+                        if (strURI == null)
+                            strURI = each.Key;
                     }
 
+                    if (req == null)
+                        continue;
                     Socket sClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
                     //http1.1 download start
                     string strHost = "";
@@ -328,7 +287,8 @@ public class HttpClient{
                     if (!ParseURI(strURI, ref strHost, ref strPort, ref strRelativePath))
                     {
                         req.error = "404";
-                        req.callback(ref req);
+                        if (req.OnReceivedData != null && !req.bDone)
+                            req.OnReceivedData(ref req);
                         break;
                     }
                     else
@@ -341,57 +301,30 @@ public class HttpClient{
                             connectDone.WaitOne(2000, false);
                             if (!sClient.Connected)
                             {
-                                WSLog.LogInfo("connect time out");
-                                //repush to download again
-                                lock (RequestMap)
-                                {
-                                    if (!RequestMap.ContainsKey(strURI))
-                                    {
-                                        req.error = null;
-                                        req.order = 0;
-                                        RequestMap.Add(strURI, req);
-                                    }
-                                }
+                                WSLog.LogError("connect time out");
+                                req.Status = TaskStatus.Error;
                                 continue;
                             }
                         }
                         catch
                         {
                             req.error = "connect failed";
-                            req.callback(ref req);
-
-                            //repush to download again
-                            lock (RequestMap)
-                            {
-                                if (!RequestMap.ContainsKey(strURI))
-                                {
-                                    req.error = null;
-                                    req.order = 0;
-                                    RequestMap.Add(strURI, req);
-                                }
-                            }
+                            if (req.OnReceivedData != null && !req.bDone)
+                                req.OnReceivedData(ref req);
+                            req.Status = TaskStatus.Error;
                             continue;
                         }
 
                         if (!sClient.Connected)
                         {
                             req.error = "connect failed";
-                            req.callback(ref req);
-
-                            //repush to download again
-                            lock (RequestMap)
-                            {
-                                if (!RequestMap.ContainsKey(strURI))
-                                {
-                                    req.error = null;
-                                    req.order = 0;
-                                    RequestMap.Add(strURI, req);
-                                }
-                            }
+                            req.OnReceivedData(ref req);
+                            req.Status = TaskStatus.Error;
                             continue;
                         }
+
                         string strSend = string.Format(strHttpVer, strRelativePath, strHost, strPort, req.cbstart);
-                        WSLog.LogInfo("send packet:" + strSend);
+                        WSLog.LogError("send packet:" + strSend);
                         byte[] bySend = System.Text.Encoding.UTF8.GetBytes(string.Format(strHttpVer, strRelativePath, strHost, strPort, req.cbstart));
                         sClient.Send(bySend);
                         int nByteRecved = 0;
@@ -424,27 +357,18 @@ public class HttpClient{
                         if (!sClient.Connected || !bContinue)
                         {
                             req.error = "recv interrupt";
-                            req.callback(ref req);
-                            lock (RequestMap)
-                            {
-                                if (!RequestMap.ContainsKey(strURI))
-                                {
-                                    req.error = null;
-                                    req.order = 0;
-                                    RequestMap.Add(strURI, req);
-                                }
-                            }
+                            if (req.OnReceivedData != null && !req.bDone)
+                                req.OnReceivedData(ref req);
+                            req.Status = TaskStatus.Error;
                             continue;
                         }
                         nByteRecved = 0;
                         string strHead = System.Text.Encoding.UTF8.GetString(ms.GetBuffer());
-                        WSLog.LogInfo("http recv:" + strHead);
+                        WSLog.LogError("http recv:" + strHead);
                         string strHeadLower = strHead.ToLower();
                         //check http1.1 return code
                         int nReturnCode = 0;
                         long nContentLength = 0;
-                        int nRangeStart = 0;
-                        int nRangeStop = 0;
                         string[] strResponse = new string[nNewLine];
                         char[] split = { '\n' };
                         strResponse = strHeadLower.Split(split);
@@ -454,7 +378,7 @@ public class HttpClient{
                             {
                                 string strStatus = strResponse[i];
                                 nReturnCode = System.Convert.ToInt32(strStatus.Substring(9, 3));
-                                WSLog.LogInfo("http result:" + nReturnCode.ToString());
+                                WSLog.LogError("http result:" + nReturnCode.ToString());
                             }
                             else if (strResponse[i].Contains("content-length:"))
                             {
@@ -463,13 +387,16 @@ public class HttpClient{
                                 nContentLength = System.Convert.ToInt64(strSplit[1]);
                                 if (req.cbstart == 0)
                                 {
-                                    req.cbsize = nContentLength;
-                                    req.callback(ref req);
+                                    req.totalBytes = nContentLength;
+                                    if (req.OnReceivedData != null && !req.bDone)
+                                        req.OnReceivedData(ref req);
                                 }
                             }
 							else if (strResponse[i].Contains("tranfer-encoding:chunked"))
 							{
-								WSLog.LogInfo("error !!! can not read chunked data");
+								WSLog.LogError("error !!! can not read chunked data");
+                                req.error = "can not read chunked data";
+                                req.Status = TaskStatus.Error;
 							}
 
                             if (nReturnCode != 0 && nContentLength != 0)
@@ -479,27 +406,29 @@ public class HttpClient{
                         ms.Close();
                         ms = null;
 
+                        if (!string.IsNullOrEmpty(req.error) || req.Status != TaskStatus.Normal)
+                        {
+                            if (req.OnReceivedData != null)
+                                req.OnReceivedData(ref req);
+                            continue;
+                        }
+
                         if (nReturnCode != 206 && nReturnCode != 200)
                         {
                             req.error = nReturnCode.ToString();
-                            req.callback(ref req);
-                            lock (RequestMap)
-                            {
-                                if (!RequestMap.ContainsKey(strURI))
-                                {
-                                    req.error = null;
-                                    req.order = 0;
-                                    RequestMap.Add(strURI, req);
-                                }
-                            }
-                
+                            if (req.OnReceivedData != null && !req.bDone)
+                                req.OnReceivedData(ref req);
+                            req.Status = TaskStatus.Error;
                             sClient.Close();
                             continue;
                         }
 
-                        FileStream fs = File.Open(req.strLocalPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite);
-                        if (req.cbstart != 0)
-                            fs.Seek(req.cbstart, SeekOrigin.Begin);
+                        if (req.fs == null)
+                        {
+                            req.fs = File.Open(req.strLocalPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite);
+                            if (req.cbstart != 0)
+                                req.fs.Seek(req.cbstart, SeekOrigin.Begin);
+                        }
 
                         //calc kbps
                         //total recved / total time => kbps
@@ -524,33 +453,35 @@ public class HttpClient{
                             nLoop++;
 
                             //Loader.LogErr("recv bytes:" + nByteRecved.ToString());
-                            fs.Write(memory, 0, nByteRecved);
-                            fs.Flush();
+                            req.fs.Write(memory, 0, nByteRecved);
+                            req.fs.Flush();
                             nTotalRecved += nByteRecved;
                             req.cboffset = nTotalRecved;
-                            req.loadBytes += nByteRecved;
+                            req.loadBytes = nTotalRecved;
                             if (nTotalRecved == nContentLength)
                                 break;
                             if (nLoop >= 10)
                             {
-                                req.callback(ref req);
+                                if (req.OnReceivedData != null && !req.bDone)
+                                    req.OnReceivedData(ref req);
                                 nLoop = 0;
                             }
                         }
                         
                         sClient.Close();
-                        //Loader.LogErr("file transfer result:" + nByteRecved.ToString());
-                        req.cboffset = fs.Seek(0, SeekOrigin.Current);
-                        fs.Flush();
-                        fs.Close();
-                        req.callback(ref req);
+                        req.cboffset = req.fs.Seek(0, SeekOrigin.Current);
+                        req.fs.Flush();
+                        req.fs.Close();
+                        req.fs = null;
+                        if (req.OnReceivedData != null && !req.bDone)
+                            req.OnReceivedData(ref req);
                         req.bDone = true;
                     }
                 }
             }
             if (close != null)
             {
-                WSLog.LogInfo("thread quit signal open");
+                WSLog.LogError("thread quit signal open");
                 close.Set();
                 close = null;
             }
@@ -569,83 +500,71 @@ public class HttpClient{
         }
 	}
 
-	public static void InitThread()
+	public void InitThread()
 	{
 		for (int i = 0; i < ThreadSlot.Length; ++i)
 		{
-			autoEvent[i] = new AutoResetEvent(false);
-			Closed[i] = new ManualResetEvent(true);
-			ThreadSlot[i] = new Thread(new ParameterizedThreadStart(DownLoad));
-			ThreadParam param = new ThreadParam();
-			param.close = Closed[i];
-			param.waitfor = autoEvent[i];
-			ThreadSlot[i].Start(param);
+            if (ThreadSlot[i] == null)
+            {
+                autoEvent[i] = new AutoResetEvent(false);
+                Closed[i] = new ManualResetEvent(true);
+                ThreadSlot[i] = new Thread(new ParameterizedThreadStart(DownLoad));
+                ThreadParam param = new ThreadParam();
+                param.close = Closed[i];
+                param.waitfor = autoEvent[i];
+                ThreadSlot[i].Start(param);
+            }
 		}
 	}
 	
-	public delegate void cb(ref HttpRequest req);
-	public HttpClient(string str)
-	{
-		strURIBase = str;
-	}
+	public delegate void OnReceivedDataDelegate(ref HttpRequest req);
+    public Dictionary<string, HttpRequest> TaskMap = new Dictionary<string, HttpRequest>();
 
-	public static Dictionary<string, HttpRequest> DownloadMap = new Dictionary<string, HttpRequest>();
-	public static Dictionary<string, HttpRequest> RequestMap = new Dictionary<string, HttpRequest>();
-
-	public void ResetOrder()
+	public void Pause()
 	{
-		lock (RequestMap)
+		foreach (var req in TaskMap)
 		{
-			foreach (var req in RequestMap)
-			{
-				req.Value.order = RequestStatus.Pause;
-			}
+			req.Value.Status = TaskStatus.Pause;
 		}
 	}
 
-	public void AddRequest(string file, string localpath, cb callback, long offset, UpdateFile item)
+	public void AddRequest(string file, string localpath, OnReceivedDataDelegate callback, long offset, UpdateFile item)
 	{
-		if (file == null || file.Length == 0 || localpath == null || localpath.Length == 0)
+		if (string.IsNullOrEmpty(file) || string.IsNullOrEmpty(localpath))
 		{
-			//Debug.LogError("AddRequest Error Invalid Param");
+			WSLog.LogError("AddRequest Error Invalid Param");
 			return;
 		}
 		localpath = localpath.Replace("\\", "/");
 		int nDirectoryIndex = localpath.LastIndexOf('/');
 		Directory.CreateDirectory(localpath.Substring(0, nDirectoryIndex));
-		HttpManager.InitHttpModule();
 		HttpRequest req = null;
 		//dont allow request same file again
-		lock (RequestMap)
+		if (TaskMap.TryGetValue(file, out req))
 		{
-			if (DownloadMap.TryGetValue(strURIBase + file, out req))
-			{
-				if (req.bDone)
-					return;
-				else
-					req.order = RequestStatus.Normal;
-				return;
-			}
-
-			if (!RequestMap.TryGetValue(strURIBase + file, out req))
-			{
-                req = new HttpRequest(file, this, callback, offset, localpath, item);
-				RequestMap.Add(strURIBase + file, req);
-			}
-			else
-			{
-				req.order = RequestStatus.Normal;
-			}
+            if (req.bDone)
+                return;
+            else
+                req.Status = TaskStatus.Normal;
+			return;
 		}
+
+		if (!TaskMap.TryGetValue(file, out req))
+		{
+            req = new HttpRequest(file, this, callback, offset, localpath, item);
+			TaskMap.Add(file, req);
+		}
+		else
+		{
+			req.Status = TaskStatus.Normal;
+		}
+        InitThread();
 	}
 
-	public static bool StartDownload()
+	public bool StartDownload()
 	{
-		lock (RequestMap)
-		{
-			if (RequestMap.Count == 0)
-				return false;
-		}
+		if (TaskMap.Count == 0)
+			return false;
 		for (int i = 0; i < autoEvent.Length; i++)
 		{
 			if (autoEvent[i] == null)
@@ -658,72 +577,72 @@ public class HttpClient{
 
 
 public class HttpManager{
+    static HttpManager _Ins;
+    public static HttpManager Instance
+    {
+        get
+        {
+            if (_Ins == null)
+                _Ins = new HttpManager();
+            return _Ins;
+        }
+    }
 
-	public static bool Inited()
+    List<HttpClient> clients = new List<HttpClient>();
+	public void Quit()
 	{
-		return bInit;
-	}
-	static bool bInit = false;
-	public static Dictionary<string, HttpClient> ClientMap = new Dictionary<string, HttpClient>();
-
-	public static void InitHttpModule()
-	{
-		if (bInit)
-			return;
-		bInit = true;
-		HttpClient.InitThread();
-	}
-
-	public static void Quit()
-	{
-		HttpClient.bContinue = false;
-		if (!HttpManager.Inited())
-			return;
-		for (int i = 0; i < HttpClient.ThreadSlot.Length; ++i)
-		{
-			if (HttpClient.autoEvent[i] == null)
-				continue;
-			HttpClient.autoEvent[i].Set();
-		}
-		List<WaitHandle> handle = new List<WaitHandle>();
-		for (int i = 0; i < HttpClient.Closed.Length; i++)
-		{
-			if (HttpClient.Closed[i] == null)
-				break;
-			handle.Add(HttpClient.Closed[i]);
-		}
-		//may be in writing file
-		if (handle.Count != 0)
-		{
-			while (true)
-			{
-				if (!WaitHandle.WaitAll(handle.ToArray(), 500))
-				{
-					for (int i = 0; i < HttpClient.ThreadSlot.Length; ++i)
-					{
-						if (HttpClient.autoEvent[i] == null)
-							continue;
-						HttpClient.autoEvent[i].Set();
-					}
-				}
-				else
-				{
-					WSLog.LogInfo("application quit normal return");
-					return;
-				}
-			}
-		}
+        for (int i = 0; i < clients.Count; i++)
+        {
+            clients[i].Quit();
+        }
 	}
 
-	public static HttpClient AllocClient(string strURI)
-	{
-		HttpClient Client = null;
-		if (ClientMap.TryGetValue(strURI, out Client))
-			return Client;
+    public HttpClient Alloc()
+    {
+        HttpClient client = new HttpClient();
+        clients.Add(client);
+        return client;
+    }
 
-		Client = new HttpClient(strURI);
-		ClientMap.Add(strURI, Client);
-		return Client;
-	}
+    public void UpdateInfo()
+    {
+        for (int i = 0; i < clients.Count; i++)
+        {
+            clients[i].Update();
+        }
+    }
+
+    public long Kbps
+    {
+        get
+        {
+            long k = 0;
+            for (int i = 0; i < clients.Count; i++)
+                k += clients[i].Kbps;
+            return k;
+        }
+    }
+
+    public long LoadBytes
+    {
+        get
+        {
+            long k = 0;
+            for (int i = 0; i < clients.Count; i++)
+                k += clients[i].nLastTotalByte;
+            return k;
+        }
+    }
+
+    public long TotalBytes
+    {
+        get
+        {
+            long k = 0;
+            for (int i = 0; i < clients.Count; i++)
+                k += clients[i].TotalBytes();
+            return k;
+        }
+    }
 }
 

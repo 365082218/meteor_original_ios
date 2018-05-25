@@ -286,6 +286,7 @@ public class U3D : MonoBehaviour {
     }
     static AsyncOperation backOp;
     static Coroutine loadMain;
+    //返回到主目录
     public static void GoBack(Action t = null)
     {
         Global.GLevelItem = null;
@@ -297,15 +298,35 @@ public class U3D : MonoBehaviour {
         loadMain = ins.StartCoroutine(ins.LoadMainWnd(t));
     }
 
-    IEnumerator LoadMainWnd(Action t)
+    //修改版本号后回到Startup重新加载资源
+    public static void ReStart(Action t = null)
     {
-        //yield return new WaitForSeconds(5);调试进度条
-        backOp = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Menu", UnityEngine.SceneManagement.LoadSceneMode.Single);//.LoadSceneAsync_s (1);
-        yield return backOp;
-        OnLoadFinished(t);
+        Global.GLevelItem = null;
+        if (loadMain != null)
+        {
+            Startup.ins.StopCoroutine(loadMain);
+            loadMain = null;
+        }
+        loadMain = ins.StartCoroutine(ins.LoadStartup(t));
     }
 
-    void OnLoadFinished(Action t)
+    IEnumerator LoadStartup(Action t)
+    {
+        ResMng.LoadScene("Startup");
+        backOp = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Startup", UnityEngine.SceneManagement.LoadSceneMode.Single);//.LoadSceneAsync_s (1);
+        yield return backOp;
+        OnLoadStartupFinished(t);
+    }
+
+    IEnumerator LoadMainWnd(Action t)
+    {
+        ResMng.LoadScene("Menu");
+        backOp = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Menu", UnityEngine.SceneManagement.LoadSceneMode.Single);//.LoadSceneAsync_s (1);
+        yield return backOp;
+        OnLoadMainFinished(t);
+    }
+
+    void OnLoadMainFinished(Action t)
     {
         AudioListener listen = Startup.ins.gameObject.GetComponent<AudioListener>();
         if (listen == null)
@@ -313,8 +334,12 @@ public class U3D : MonoBehaviour {
         MainWnd.Instance.Open();
         if (t != null)
             t.Invoke();
-        //GameOverlayWnd.Instance.Open();
-        //Cursor.visible = true;
+    }
+
+    void OnLoadStartupFinished(Action t)
+    {
+        if (t != null)
+            t.Invoke();
     }
 
     //当前场景里的一个宝箱是否是空的.
@@ -533,6 +558,11 @@ public class U3D : MonoBehaviour {
 
     public static void LoadLevel(int id)
     {
+        LoadLevel(id, LoadingWnd.Instance);
+    }
+
+    public static void LoadLevel(int id, LoadingUI loading)
+    {
         uint profileTotalAllocate = Profiler.GetTotalAllocatedMemory();
         uint profileTotalReserved = Profiler.GetTotalReservedMemory();
         long gcTotal = System.GC.GetTotalMemory(false);
@@ -565,27 +595,8 @@ public class U3D : MonoBehaviour {
             PlayMovie("b" + number);
         }
         LevelHelper helper = ins.gameObject.AddComponent<LevelHelper>();
-        helper.Load(id);
+        helper.Load(id, loading);
         WSLog.LogInfo("helper.load end");
-    }
-
-    public static void LoadLevel(int id, int gate)
-    {
-        if (FightWnd.Exist)
-            FightWnd.Instance.Close();
-        //if (StateWnd.Exist)
-        //    StateWnd.Instance.Close();
-        SoundManager.Instance.StopAll();
-        SoundManager.Instance.Enable(false);
-        WindowMng.CloseAll();
-        SaveLastLevelData();
-        ClearLevelData();
-        Destroy(GameBattleEx.Instance.gameObject);
-        Level lev = LevelMng.Instance.GetItem(id);
-        Global.GLevelItem = lev;
-        LoadingWnd.Instance.Open();
-        LevelHelper helper = ins.gameObject.AddComponent<LevelHelper>();
-        helper.Load(id, gate);
     }
 
     static void ClearLevelData()

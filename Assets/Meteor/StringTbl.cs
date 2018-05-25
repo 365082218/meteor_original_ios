@@ -86,7 +86,7 @@ public static class TextHelper
         {
             string text = ctrl.GetLangStr();
             //如果找不到字串，那么不改变.
-            if (text != null)
+            if (text != null && !string.IsNullOrEmpty(text))
                 txt.text = text;
         }
     }

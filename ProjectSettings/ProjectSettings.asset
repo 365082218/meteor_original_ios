@@ -202,7 +202,7 @@ PlayerSettings:
   AndroidKeystoreName: 
   AndroidKeyaliasName: 
   AndroidTVCompatibility: 0
-  AndroidIsGame: 0
+  AndroidIsGame: 1
   androidEnableBanner: 1
   m_AndroidBanners:
   - width: 320
@@ -470,7 +470,7 @@ PlayerSettings:
   scriptingDefineSymbols:
     1: BUILD_PC
     4: BUILD_PC
-    7: NOLOG
+    7: 
   platformArchitecture:
     iOS: 2
   scriptingBackend:

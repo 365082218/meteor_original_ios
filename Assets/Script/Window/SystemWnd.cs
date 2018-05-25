@@ -78,8 +78,8 @@ public class NewSystemWnd : Window<NewSystemWnd>
 
     public override void OnClick()
     {
-        if (mWindowStyle >= WindowStyle.WS_Ext)
-            OnClickClose();
+        //if (mWindowStyle >= WindowStyle.WS_Ext)
+        //    OnClickClose();
     }
 
     void Init()
@@ -143,7 +143,16 @@ public class NewSystemWnd : Window<NewSystemWnd>
         GameData.gameStatus.MeteorVersion = AppInfo.MeteorVersion;
         GameData.SaveState();
         //提示返回到主场景，然后重新加载数据
-        U3D.PopupTip("版本切换到:" + ver + " 重启后生效");
+        GameBattleEx.Instance.Pause();
+        GameBattleEx.Instance.StopAllCoroutines();
+        SoundManager.Instance.StopAll();
+        BuffMng.Instance.Clear();
+        MeteorManager.Instance.Clear();
+        Close();
+        FightWnd.Instance.Close();
+        if (GameOverlayWnd.Exist)
+            GameOverlayWnd.Instance.ClearSystemMsg();
+        U3D.ReStart();
     }
 
     void OnEnableFunc(bool on)

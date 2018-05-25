@@ -171,7 +171,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 			if(argc==1){
 				System.Object a1;
 				checkType(l,1,out a1);
-				//WSLog.Log(a1);
+				UnityEngine.Debug.Log(a1);
 				pushValue(l,true);
 				return 1;
 			}
@@ -180,7 +180,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 				checkType(l,1,out a1);
 				UnityEngine.Object a2;
 				checkType(l,2,out a2);
-				//WSLog.Log(a1,a2);
+				UnityEngine.Debug.Log(a1,a2);
 				pushValue(l,true);
 				return 1;
 			}
@@ -202,7 +202,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 				checkType(l,1,out a1);
 				System.Object[] a2;
 				checkParams(l,2,out a2);
-				//WSLog.LogFormat(a1,a2);
+				UnityEngine.Debug.LogFormat(a1,a2);
 				pushValue(l,true);
 				return 1;
 			}
@@ -213,7 +213,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 				checkType(l,2,out a2);
 				System.Object[] a3;
 				checkParams(l,3,out a3);
-				//WSLog.LogFormat(a1,a2,a3);
+				UnityEngine.Debug.LogFormat(a1,a2,a3);
 				pushValue(l,true);
 				return 1;
 			}
@@ -233,7 +233,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 			if(argc==1){
 				System.Object a1;
 				checkType(l,1,out a1);
-				//WSLog.LogError(a1);
+				UnityEngine.Debug.LogError(a1);
 				pushValue(l,true);
 				return 1;
 			}
@@ -242,7 +242,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 				checkType(l,1,out a1);
 				UnityEngine.Object a2;
 				checkType(l,2,out a2);
-				//WSLog.LogError(a1,a2);
+				UnityEngine.Debug.LogError(a1,a2);
 				pushValue(l,true);
 				return 1;
 			}
@@ -264,7 +264,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 				checkType(l,1,out a1);
 				System.Object[] a2;
 				checkParams(l,2,out a2);
-				//WSLog.LogErrorFormat(a1,a2);
+				UnityEngine.Debug.LogErrorFormat(a1,a2);
 				pushValue(l,true);
 				return 1;
 			}
@@ -275,7 +275,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 				checkType(l,2,out a2);
 				System.Object[] a3;
 				checkParams(l,3,out a3);
-				//WSLog.LogErrorFormat(a1,a2,a3);
+				UnityEngine.Debug.LogErrorFormat(a1,a2,a3);
 				pushValue(l,true);
 				return 1;
 			}
@@ -307,7 +307,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 			if(argc==1){
 				System.Exception a1;
 				checkType(l,1,out a1);
-				//WSLog.LogException(a1);
+				UnityEngine.Debug.LogException(a1);
 				pushValue(l,true);
 				return 1;
 			}
@@ -316,7 +316,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 				checkType(l,1,out a1);
 				UnityEngine.Object a2;
 				checkType(l,2,out a2);
-				//WSLog.LogException(a1,a2);
+				UnityEngine.Debug.LogException(a1,a2);
 				pushValue(l,true);
 				return 1;
 			}
@@ -336,7 +336,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 			if(argc==1){
 				System.Object a1;
 				checkType(l,1,out a1);
-				//WSLog.LogWarning(a1);
+				UnityEngine.Debug.LogWarning(a1);
 				pushValue(l,true);
 				return 1;
 			}
@@ -345,7 +345,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 				checkType(l,1,out a1);
 				UnityEngine.Object a2;
 				checkType(l,2,out a2);
-				//WSLog.LogWarning(a1,a2);
+				UnityEngine.Debug.LogWarning(a1,a2);
 				pushValue(l,true);
 				return 1;
 			}
@@ -367,7 +367,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 				checkType(l,1,out a1);
 				System.Object[] a2;
 				checkParams(l,2,out a2);
-				//WSLog.LogWarningFormat(a1,a2);
+				UnityEngine.Debug.LogWarningFormat(a1,a2);
 				pushValue(l,true);
 				return 1;
 			}
@@ -378,7 +378,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 				checkType(l,2,out a2);
 				System.Object[] a3;
 				checkParams(l,3,out a3);
-				//WSLog.LogWarningFormat(a1,a2,a3);
+				UnityEngine.Debug.LogWarningFormat(a1,a2,a3);
 				pushValue(l,true);
 				return 1;
 			}
@@ -504,7 +504,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 			if(argc==1){
 				System.Object a1;
 				checkType(l,1,out a1);
-				//WSLog.LogAssertion(a1);
+				UnityEngine.Debug.LogAssertion(a1);
 				pushValue(l,true);
 				return 1;
 			}
@@ -513,7 +513,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 				checkType(l,1,out a1);
 				UnityEngine.Object a2;
 				checkType(l,2,out a2);
-				//WSLog.LogAssertion(a1,a2);
+				UnityEngine.Debug.LogAssertion(a1,a2);
 				pushValue(l,true);
 				return 1;
 			}
@@ -535,7 +535,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 				checkType(l,1,out a1);
 				System.Object[] a2;
 				checkParams(l,2,out a2);
-				//WSLog.LogAssertionFormat(a1,a2);
+				UnityEngine.Debug.LogAssertionFormat(a1,a2);
 				pushValue(l,true);
 				return 1;
 			}
@@ -546,7 +546,7 @@ public class Lua_UnityEngine_Debug : LuaObject {
 				checkType(l,2,out a2);
 				System.Object[] a3;
 				checkParams(l,3,out a3);
-				//WSLog.LogAssertionFormat(a1,a2,a3);
+				UnityEngine.Debug.LogAssertionFormat(a1,a2,a3);
 				pushValue(l,true);
 				return 1;
 			}

@@ -661,7 +661,7 @@ public class Lua_U3D : LuaObject {
 			else if(argc==2){
 				System.Int32 a1;
 				checkType(l,1,out a1);
-				System.Int32 a2;
+				LoadingUI a2;
 				checkType(l,2,out a2);
 				U3D.LoadLevel(a1,a2);
 				pushValue(l,true);
@@ -1534,6 +1534,32 @@ public class Lua_U3D : LuaObject {
 			return error(l,e);
 		}
 	}
+	[SLua.MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	[UnityEngine.Scripting.Preserve]
+	static public int get_Lang(IntPtr l) {
+		try {
+			pushValue(l,true);
+			pushValue(l,U3D.Lang);
+			return 2;
+		}
+		catch(Exception e) {
+			return error(l,e);
+		}
+	}
+	[SLua.MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	[UnityEngine.Scripting.Preserve]
+	static public int set_Lang(IntPtr l) {
+		try {
+			int v;
+			checkType(l,2,out v);
+			U3D.Lang=v;
+			pushValue(l,true);
+			return 1;
+		}
+		catch(Exception e) {
+			return error(l,e);
+		}
+	}
 	[UnityEngine.Scripting.Preserve]
 	static public void reg(IntPtr l) {
 		getTypeTable(l,"U3D");
@@ -1624,6 +1650,7 @@ public class Lua_U3D : LuaObject {
 		addMember(l,"IosText",get_IosText,set_IosText,true);
 		addMember(l,"ins",get_ins,set_ins,false);
 		addMember(l,"save",get_save,set_save,false);
+		addMember(l,"Lang",get_Lang,set_Lang,false);
 		createTypeMetatable(l,null, typeof(U3D),typeof(UnityEngine.MonoBehaviour));
 	}
 }

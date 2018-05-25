@@ -4,6 +4,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
+//for loadingui updateui
+public interface LoadingUI
+{
+    void UpdateProgress(float percent);
+}
+
 public class LevelHelper : MonoBehaviour
 {
 	AsyncOperation mAsync;
@@ -13,22 +19,20 @@ public class LevelHelper : MonoBehaviour
         public int gate;
     }
 
-    public void Load(int id, int gate = 0)
+    public void Load(int id, LoadingUI loading)
     {
-        WSLog.LogInfo("StartCoroutine");
-        StartCoroutine("LoadLevelAsync", id);
-        WSLog.LogInfo("StartCoroutine end OnLoadLevelAsync");
+        StartCoroutine(LoadLevelAsync(id, loading));
     }
 
-    IEnumerator LoadLevelAsync(int levelId)
+    IEnumerator LoadLevelAsync(int levelId, LoadingUI loading)
     {
         int displayProgress = 0;
         int toProgress = 0;
         WSLog.LogInfo("LoadLevelAsync");
         yield return 0;
-        //yield return new WaitForSeconds(5);调试进度条
         Level lev = LevelMng.Instance.GetItem(levelId);
         WSLog.LogInfo("Load Scene Async:" + lev.Scene);
+        ResMng.LoadScene(lev.Scene);
         mAsync = SceneManager.LoadSceneAsync(lev.Scene);
         mAsync.allowSceneActivation = false;
         while (mAsync.progress < 0.9f)
@@ -38,7 +42,8 @@ public class LevelHelper : MonoBehaviour
             while (displayProgress < toProgress)
             {
                 ++displayProgress;
-                LoadingWnd.Instance.UpdateProgress(displayProgress);
+                if (loading != null)
+                    loading.UpdateProgress(displayProgress);
                 yield return 0;
             }
             //WSLog.LogInfo("while (displayProgress < toProgress) end");
@@ -49,7 +54,8 @@ public class LevelHelper : MonoBehaviour
         while (displayProgress < toProgress)
         {
             ++displayProgress;
-            LoadingWnd.Instance.UpdateProgress(displayProgress);
+            if (loading != null)
+                loading.UpdateProgress(displayProgress);
             yield return 0;
         }
         WSLog.LogInfo("displayProgress < toProgress");
@@ -62,15 +68,6 @@ public class LevelHelper : MonoBehaviour
         LoadingWnd.Instance.Close();
     }
 
-    /*
-     * local Rule = 2;
-        local RoundTime = 15;
-        local PlayerSpawn = 53;
-        local PlayerSpawnDir = 0;
-        local PlayerWeapon = 15;
-        local PlayerWeapon2 = 0;
-        local PlayerHP = 1500;
-     * */
     LevelScriptBase GetLevelScript(string sn)
     {
         Type type = Type.GetType("LevelScript_" + sn);
@@ -78,6 +75,7 @@ public class LevelHelper : MonoBehaviour
             return null;
         return System.Activator.CreateInstance(type) as LevelScriptBase;
     }
+
     void OnLoadFinishedEx(Level lev)
     {
         LevelScriptBase script = GetLevelScript(lev.goodList);

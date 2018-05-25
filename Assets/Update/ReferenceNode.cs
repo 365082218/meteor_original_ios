@@ -88,7 +88,6 @@ public class ReferenceNode
         return ret;
     }
 
-    //子树摘叶，每次摘最外层的叶子，然后push一次依赖关系.
     public static List<ReferenceNode> GetTopLayerNode(ref List<ReferenceNode> root)
     {
         if (root == null)
@@ -120,7 +119,6 @@ public class ReferenceNode
         return ret;
     }
 
-    //返回该节点是否是叶子节点，是叶子节点证明其被摘取
     public static bool GetTopNode(ref List<ReferenceNode> lst, ReferenceNode root)
     {
         if (root.child != null && root.child.Count == 0)

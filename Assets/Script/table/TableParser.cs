@@ -105,44 +105,8 @@ public static class TableParser
 
     public static T[] Parse<T>(string name)
     {
-    //#if !UNITY_EDITOR
-        // we load from the server tables.
-//        if (MainScript.Instance != null && 
-//            MainScript.Instance.CheckUpdate && 
-//            UpdateHelper.Instance != null)
-//            return LoadTable<T>(name);
-    //#endif
-
-        // here we load the text asset.
 		string[] lines;
-
-//#if UNITY_EDITOR
-//        TextAsset textAsset = (TextAsset)Resources.Load(name);
-//        if (textAsset == null)
-//        {
-//            Debug.LogError("无法加载表格文件：" + name);
-//            return null;
-//        }
-//
-//        // try parse the table lines.
-//        lines = textAsset.text.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-//#else
-//		String text = ResourceManager.Instance.ReadTableString(name);
-//		//byte[] bytes = ResourceManager.Instance.ReadBytes("Table/Resources/"+name+".txt");
-//		//string text = System.Text.Encoding.ASCII.GetString(EncryptUtil.DecodeData(bytes));
-//		if(string.IsNullOrEmpty(text)){
-//			Debug.LogError("无法加载表格文件：" + name);
-//			return null;
-//		}
-//		lines = text.Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-//#endif
 		string strText = Resources.Load<TextAsset>(name).text;
-//		TextAsset textAsset = (TextAsset)Resources.Load(name,typeof(TextAsset));
-//		if (textAsset == null)
-//		{
-//			Debug.LogError("无法加载表格文件：" + name);
-//			return null;
-//		}
 		if (strText == null)
 		{
 			Debug.LogError("无法加载表格文件：" + name);

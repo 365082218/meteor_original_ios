@@ -91,16 +91,18 @@ public class UPKExtra
             string path = info.m_Path;
 
             //创建文件;
-            string dirpath = outputpath + path.Substring(0, path.LastIndexOf('/'));
+            int dirSubIndex = path.LastIndexOf('/');
+            string dirpath = "";
+            if (dirSubIndex != -1)
+                dirpath = outputpath + path.Substring(0, dirSubIndex);
+            else
+                dirpath = outputpath;
             string filepath = outputpath + path;
-            if (Directory.Exists(dirpath) == false)
-            {
+
+            if (!Directory.Exists(dirpath))
                 Directory.CreateDirectory(dirpath);
-            }
             if (File.Exists(filepath))
-            {
                 File.Delete(filepath);
-            }
 
             FileStream fileStream = new FileStream(filepath, FileMode.Create);
 

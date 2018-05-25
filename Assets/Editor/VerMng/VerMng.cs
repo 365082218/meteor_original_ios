@@ -16,7 +16,7 @@ public class VerMng : EditorWindow{
             SavePath = PathBase + RuntimePlatform.Android.ToString();
         else if (target == BuildTarget.iOS)
             SavePath = PathBase + RuntimePlatform.IPhonePlayer.ToString();
-        else if (target == BuildTarget.StandaloneWindows)
+        else if (target == BuildTarget.StandaloneWindows || target == BuildTarget.StandaloneWindows64)
             SavePath = PathBase + RuntimePlatform.WindowsPlayer.ToString();
         else
         {
@@ -35,23 +35,45 @@ public class VerMng : EditorWindow{
         get { return GetPlatformPath(Target) + "/" + Version + "/"; }
     }
 
-	internal static string strVerFile = "Version.json";
+    //对指定平台做最初版本的文件列表（空) 版本号0.0.0.0-首版本号
+    public static void Initialize(BuildTarget target)
+    {
+        if (!Directory.Exists(GetPlatformPath(target) + "/" + "0.0.0.0"))
+        {
+            Directory.CreateDirectory(GetPlatformPath(target) + "/" + "0.0.0.0");
+            //写文件列表
+            List<PackageItem> package = new List<PackageItem>();
+            string manifest = "0.0.0.0.json";
+            File.WriteAllText(GetPlatformPath(target) + "/" + manifest, JsonMapper.ToJson(package));
+
+            //写版本号
+            VersionItem curItem = new VersionItem();
+            curItem.strFilelist = manifest;
+            curItem.strVersion = "0.0.0.0";
+            curItem.strVersionMax = "0.0.0.0";
+            curItem.zip = null;
+            List<VersionItem> VersionList = new List<VersionItem> { curItem};
+            File.WriteAllText(VerMng.GetPlatformPath(target) + "/" + Main.strVerFile, JsonMapper.ToJson(VersionList));
+        }
+    }
+
     internal static string Version = "0.5.2.0";
-    internal static string RefTable = "RefTable.dat";
     internal static BuildTarget Target;
     //获取某个平台的全部版本.
     public static List<VersionItem> GetAllVersion(UnityEditor.BuildTarget target)
 	{
         List<VersionItem> strRet = new List<VersionItem>();
-		string strVersionPath = GetPlatformPath(target) + "/" + strVerFile;
-        strRet = ReadVersion(strVersionPath);
+		string strVersionPath = GetPlatformPath(target) + "/" + Main.strVerFile;
+        if (!File.Exists(strVersionPath))
+            return strRet;
+        strRet = Main.ReadVersionJson(File.ReadAllText(strVersionPath));
 		return strRet;
 	}
 
 	public static List<VersionItem> GetHistoryVersion(UnityEditor.BuildTarget target)
 	{
 		List<VersionItem> strRet = new List<VersionItem>();
-		string strVersionPath = GetPlatformPath(target) + "/" + strVerFile;
+		string strVersionPath = GetPlatformPath(target) + "/" + Main.strVerFile;
 		strRet =  ReadVersion(strVersionPath);
 		return strRet;
 	}
@@ -61,7 +83,7 @@ public class VerMng : EditorWindow{
         List<VersionItem> strCurver = new List<VersionItem>();
 		if (!System.IO.File.Exists(fileName))
 			return strCurver;
-        strCurver = JsonMapper.ToObject<List<VersionItem>>(File.ReadAllText(fileName), false);
+        strCurver = Main.ReadVersionJson(File.ReadAllText(fileName));
 		return strCurver;
 	}
 
@@ -113,7 +135,7 @@ public class VerMng : EditorWindow{
             m_importer.assetBundleName = name;
         else
         {
-            WSLog.LogError("path:" + path + " can not find importer");
+            Debug.LogError("path:" + path + " can not find importer");
             return "";
         }
         return m_importer.assetBundleName;
@@ -238,11 +260,13 @@ public class VerMng : EditorWindow{
                 WSLog.LogError(string.Format("node all ready exist:{1}", each.Key));
         }
 
-        FileStream fs = File.Open(SavePath + RefTable, FileMode.OpenOrCreate);
+        FileStream fs = File.Open(SavePath + ResMng.RefTable, FileMode.OpenOrCreate);
         ProtoBuf.Serializer.Serialize<List<ReferenceNode>>(fs, referenceTable);
         fs.Close();
+        //给bundle添加RefTable.dat
+        bundle.Add(SavePath + ResMng.RefTable, ResMng.RefTable);
 
-        BuildPipeline.BuildAssetBundles(path, BuildAssetBundleOptions.None, BuildTarget.Android);
+        BuildPipeline.BuildAssetBundles(path, BuildAssetBundleOptions.None, target);
         AssetDatabase.Refresh();
 
         //清除所有manifest,自己保存依赖
@@ -272,8 +296,8 @@ public class VerMng : EditorWindow{
         //与之前的各个版本列表对比.
         UpdateVersionJson(target, curItem, VersionList);
         VersionList.Add(curItem);
-        File.WriteAllText(VerMng.GetPlatformPath(target) + "/" + strVerFile, JsonMapper.ToJson(VersionList));
-        LZMAHelper.CompressFileLZMA(VerMng.GetPlatformPath(target) + "/" + strVerFile, VerMng.GetPlatformPath(target) + "/" + strVerFile + ".zip");
+        File.WriteAllText(VerMng.GetPlatformPath(target) + "/" + Main.strVerFile, JsonMapper.ToJson(VersionList));
+        LZMAHelper.CompressFileLZMA(VerMng.GetPlatformPath(target) + "/" + Main.strVerFile, VerMng.GetPlatformPath(target) + "/" + Main.strVerFile + ".zip");
     }
 
 	void OnGUI()
@@ -294,8 +318,8 @@ public class VerMng : EditorWindow{
             OldVersion[i].strVersionMax = NewVersion.strVersion;
             UpdateZip zip = new UpdateZip();
             zip.fileName = str;
-            zip.Md5 = GetFileMd5(str);
-            zip.size = new FileInfo(str).Length;
+            zip.Md5 = GetFileMd5(GetPlatformPath(target) + "/" + str);
+            zip.size = new FileInfo(GetPlatformPath(target) + "/" + str).Length;
             if (OldVersion[i].zip != null)
             {
                 if (File.Exists(GetPlatformPath(target) + "/" + OldVersion[i].zip.fileName))
@@ -317,8 +341,8 @@ public class VerMng : EditorWindow{
     //对比2个包的文件列表，进行差异文件分析，把修改的，更新的，全部放到压缩包内，最后返回压缩包的文件子路径.
     static string MakeDiffZip(VersionItem old, VersionItem update)
     {
-        List<PackageItem> files_update = JsonMapper.ToObject<List<PackageItem>>(GetPlatformPath(Target) + "/" + update.strFilelist, false);
-        List<PackageItem> files_old = JsonMapper.ToObject<List<PackageItem>>(GetPlatformPath(Target) + "/" + old.strFilelist, false);
+        List<PackageItem> files_update = JsonMapper.ToObject<List<PackageItem>>(File.ReadAllText(GetPlatformPath(Target) + "/" + update.strFilelist), false);
+        List<PackageItem> files_old = JsonMapper.ToObject<List<PackageItem>>(File.ReadAllText(GetPlatformPath(Target) + "/" + old.strFilelist), false);
         List<PackageItem> update_files = new List<PackageItem>();
         for (int i = 0; i < files_update.Count; i++)
         {
@@ -329,8 +353,11 @@ public class VerMng : EditorWindow{
         DirectoryInfo baseDir = null;
         if (update_files.Count != 0)
         {
+            string dir = System.IO.Path.GetTempPath() + string.Format("{0}_{1}", old.strVersion, update.strVersion);
+            if (Directory.Exists(dir))
+                Directory.Delete(dir, true);
             //取得一个临时目录，把全部更新文件按结构放到这个临时目录
-            baseDir = Directory.CreateDirectory(System.IO.Path.GetTempPath() + string.Format("{0}_{1}", old.strVersion, update.strVersion));
+            baseDir = Directory.CreateDirectory(dir);
         }
 
         for (int i = 0; i < update_files.Count; i++)
@@ -348,9 +375,9 @@ public class VerMng : EditorWindow{
 
         //打包PUK
         string upk = System.IO.Path.GetTempPath() + string.Format("{0}_{1}.upk", old.strVersion, update.strVersion);
-        string zip = GetPlatformPath(Target) + "/" + string.Format("{0}_{1}.zip", old.strVersion, update.strVersion);
+        string zip = string.Format("{0}_{1}.zip", old.strVersion, update.strVersion);
         UPKPacker.PackFolder(baseDir.FullName, upk);
-        LZMAHelper.CompressFileLZMA(upk, zip);
+        LZMAHelper.CompressFileLZMA(upk, GetPlatformPath(Target) + "/" + zip);
         return zip;
     }
 
@@ -380,11 +407,11 @@ public class VerMng : EditorWindow{
         return strMD5;
     }
 
-    public static void TestDepend(BuildTarget target, string newVersion)
+    public static void TestDepend(BuildTarget target, string NewVersion)
     {
         Target = target;
-        Version = newVersion;
-        FileStream fs = File.Open(SavePath + RefTable, FileMode.Open);
+        Version = NewVersion;
+        FileStream fs = File.Open(SavePath + ResMng.RefTable, FileMode.Open);
         List<ReferenceNode> refTable = ProtoBuf.Serializer.Deserialize<List<ReferenceNode>>(fs);
         for (int i = 0; i < refTable.Count; i++)
             if (refTable[i].strResources.IndexOf(".dll") != -1)

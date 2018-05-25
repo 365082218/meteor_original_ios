@@ -6,8 +6,8 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: W0_15_01
-  m_Shader: {fileID: 4800000, guid: ef621c64e7b2bba4ead3fdfbdaf32cde, type: 3}
+  m_Name: Meteor05BugMat1
+  m_Shader: {fileID: 4800000, guid: 6fd12e1dbaea24b4e99fa3926ba97f88, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_CustomRenderQueue: -1
@@ -16,6 +16,12 @@ Material:
     serializedVersion: 2
     m_TexEnvs:
     - first:
+        name: <noninit>
+      second:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - first:
         name: _MainTex
       second:
         m_Texture: {fileID: 0}
@@ -23,18 +29,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - first:
-        name: _Alpha
-      second: 1
-    - first:
-        name: _u
-      second: 0
-    - first:
-        name: _v
+        name: <noninit>
       second: 0
     m_Colors:
     - first:
-        name: _Color
-      second: {r: 1, g: 1, b: 1, a: 0}
+        name: <noninit>
+      second: {r: 0, g: 3984.0957, b: 0, a: 3984.08}
     - first:
-        name: _TintColor
+        name: _Color
       second: {r: 1, g: 1, b: 1, a: 1}

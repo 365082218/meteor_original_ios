@@ -5,20 +5,22 @@ using UnityEngine.SceneManagement;
 using System;
 
 public class Patch : MonoBehaviour {
-
     public Text percent;
     public Image progress;
     public Text tip;
     public Image border;
+    public Image Background;
     //单机版不更新.
 	void Start () {
 #if UNITY_ANDROID
         //AndroidWrapper.Init();
 #elif UNITY_IOS
-        IosWrapper.Init();
+        //IosWrapper.Init();
 #endif
-        GameData.LoadVersion();
         GameData.LoadState();
+        GameData.InitTable();
+        //清理数据
+        ResMng.Reload();
         StartCoroutine(LoadData());
     }
 	
@@ -26,26 +28,6 @@ public class Patch : MonoBehaviour {
 	void Update () {
 	
 	}
-
-    void UpdateFile()
-    {
-        if (GameData.updateVersion == null)
-            StartCoroutine("UpdateXml");
-        else
-            ShowNotice();
-    }
-
-    void ShowNotice()
-    {
-        ConnectWnd.Instance.Close();
-        LoadingNotice.Instance.Open();
-        LoadingNotice.Instance.SetNotice(GameData.updateVersion.Notices, () => {
-            LoadingProgress.Instance.Open();
-            LoadingProgress.Instance.InitProgress();
-            StartCoroutine("DownLoad");
-            LoadingNotice.Instance.Close();
-        });
-    }
 
     //如果还没有进入Menu就退出，则还是保存信息.
     public void OnApplicationQuit()
@@ -55,53 +37,20 @@ public class Patch : MonoBehaviour {
         FtpLog.Uninit();
         GameData.SaveState();
         //保存升级的临时数据.
-        GameData.SaveCache();
+        GlobalUpdate.SaveCache();
     }
 
-    IEnumerator UpdateXml()
-    {
-        WWW xml = new WWW("http://www.idevgame.com/WindowsPlayer/v.zip");
-        yield return xml;
-        if (xml.error != null)
-            StartCoroutine("LoadData");
-        else
-        {
-            //得到当前版本号前往的目的版本号.和所有文件列表
-            GameData.updateVersion = ProtoBuf.Serializer.Deserialize<UpdateVersion>(new System.IO.MemoryStream(xml.bytes));
-            GameData.SaveCache();
-            ShowNotice();
-        }
-    }
-
-    IEnumerator DownLoad()
-    {
-        int i = 0;
-        //while (i < GameData.updateVersion.Total)
-        //{
-        //    //if (GameData.gameVersion.FileList[i].done)
-        //    {
-        //        i++;
-        //        continue;
-        //    }
-        //    //WWW f = new WWW(GameData.gameVersion.FileList[i].path);
-        //    //if (f.isDone)
-        //    {
-        //        //GameData.gameVersion.FileList[i].done = true;
-        //        i++;
-        //        continue;
-        //    }
-        //    LoadingProgress.Instance.SetProgress(i);
-        //    yield return 0;
-        //}
-        GameData.clientVersion.Version = GameData.updateVersion.TargetVersion;
-        GameData.updateVersion = null;
-        GameData.SaveState();
-        GameData.SaveCache();
-        LoadingProgress.Instance.Close();
-        ConnectWnd.Instance.Open();
-        StartCoroutine("UpdateXml");
-        yield return null;
-    }
+    //IEnumerator DownLoad()
+    //{
+    //    GameData.clientVersion.Version = GameData.updateVersion.TargetVersion;
+    //    GameData.updateVersion = null;
+    //    GameData.SaveState();
+    //    GameData.SaveCache();
+    //    LoadingProgress.Instance.Close();
+    //    ConnectWnd.Instance.Open();
+    //    StartCoroutine("UpdateXml");
+    //    yield return null;
+    //}
 
     IEnumerator LoadData()
     {
@@ -114,7 +63,6 @@ public class Patch : MonoBehaviour {
         if (ConnectWnd.Exist)
             ConnectWnd.Instance.Close();
         SFXLoader.Instance.Init();
-        GameData.InitTable();
         yield return new WaitForEndOfFrame();
         toProgress = 30;
         while (displayProgress < toProgress)
@@ -171,6 +119,7 @@ public class Patch : MonoBehaviour {
         Application.targetFrameRate = AppInfo.targetFrame;
         U3D.PlayMovie("start.mv");
         AppDomain.CurrentDomain.UnhandledException += UncaughtException;
+        ResMng.LoadScene("Menu");
         SceneManager.LoadScene("Menu");
     }
 

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-public class LoadingWnd : Window<LoadingWnd>
+public class LoadingWnd : Window<LoadingWnd>, LoadingUI
 {
 	Image mProgressBar;
     public override string PrefabName { get { return "LoadingWnd"; } }
@@ -40,11 +40,11 @@ public class LoadingWnd : Window<LoadingWnd>
         return base.OnClose();
     }
 	
-	public void UpdateProgress(int progress, int total = 0, long kpbs = 0)
+	public void UpdateProgress(float progress)
 	{
-        mProgressBar.fillAmount = (float)progress / 100.0f;
-		mProgessLab.text = progress + "%";
-	}
+        mProgressBar.fillAmount = progress;
+		mProgessLab.text = string.Format("{0:P1}", progress);
+    }
 
 
     public void SetLoadingNoticeLabel()

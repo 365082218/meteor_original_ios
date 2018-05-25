@@ -5,33 +5,55 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-//[ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
-//public class UpdateFile
-//{
-//    public string file;
-//    public string path;
-//    public bool done;
-//}
+[ProtoBuf.ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
+public class UpdateFile
+{
+    [ProtoBuf.ProtoMember(1)]
+    public string strFile;
+    [ProtoBuf.ProtoMember(2)]
+    public string strLocalPath;
+    [ProtoBuf.ProtoMember(3)]
+    public string strMd5;
+    [ProtoBuf.ProtoMember(4)]
+    public long Loadbytes;
+    [ProtoBuf.ProtoMember(5)]
+    public long Totalbytes;
+    [ProtoBuf.ProtoMember(6)]
+    public bool bHashChecked;
+    public UpdateFile()
+    {
+        strFile = "";//网络文件名
+        strMd5 = "";
+        strLocalPath = "";//本地临时文件名
+        Loadbytes = 0;
+        Totalbytes = 0;
+        bHashChecked = false;
+    }
+
+    public UpdateFile(string file, string md5, long loadbytes, long totalbytes)
+    {
+        strFile = file;
+        strMd5 = md5;
+        strLocalPath = "";
+        Loadbytes = loadbytes;
+        Totalbytes = totalbytes;
+        bHashChecked = false;
+    }
+}
 
 [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
 public class UpdateVersion
 {
-    public int Version;//当前版本
-    public int TargetVersion;//目标版本
-    public List<UpdateFile> FileList = new List<UpdateFile>();
-    public string Notices;
+    public string Version;//当前版本
+    public string VersionMax;//目标版本
+    public UpdateFile File = new UpdateFile();//1个压缩包，包含全部文件，以免http不断连接，到本地先解压缩，再解UPK，之后加载依赖表，OK后全资源可以由本地加载
+    public string Notices;//版本更新信息.
 }
 
 public enum LanguageType
 {
     Ch,
     En,
-}
-
-[ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
-public class ClientVersion
-{
-    public int Version;
 }
 
 //整个游戏只有一份的开关状态.就是整个
@@ -66,7 +88,6 @@ public class GameData
 
     public static ClientVersion clientVersion;
     public static GameState gameStatus;
-    public static UpdateVersion updateVersion;
 
     //必须放在这里，因为其成员会初始化表格类数据
     public static void InitTable()
@@ -263,110 +284,6 @@ public class GameData
         return itemMng.GetRowByIdx(itemid) as ItemBase ;
     }
 
-    public static void LoadCache()
-    {
-        FileStream save = null;
-        try
-        {
-            save = File.Open(Application.persistentDataPath + "/" + "game_cache.dat", FileMode.Open, FileAccess.Read, FileShare.Read);
-        }
-        catch
-        {
-
-        }
-        if (save != null)
-        {
-            updateVersion = Serializer.Deserialize<UpdateVersion>(save);
-            save.Close();
-            save = null;
-        }
-    }
-
-    public static void SaveCache()
-    {
-        if (updateVersion != null)
-        {
-            FileStream save = null;
-            try
-            {
-                save = File.Open(Application.persistentDataPath + "/" + "game_cache.dat", FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
-            }
-            catch
-            {
-
-            }
-            if (save != null)
-            {
-                save.SetLength(0);
-                Serializer.Serialize(save, updateVersion);
-                save.Close();
-                save = null;
-            }
-        }
-    }
-
-    static void SaveVersion()
-    {
-        FileStream save = null;
-        try
-        {
-            save = File.Open(Application.persistentDataPath + "/" + "game_version.dat", FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
-        }
-        catch
-        {
-
-        }
-        if (save != null)
-        {
-            save.SetLength(0);
-            clientVersion = new ClientVersion();
-            clientVersion.Version = AppInfo.Version;
-            Serializer.Serialize<ClientVersion>(save, clientVersion);
-            save.Close();
-            save = null;
-        }
-    }
-
-    public static void LoadVersion()
-    {
-        FileStream save = null;
-        try
-        {
-            save = File.Open(Application.persistentDataPath + "/" + "game_version.dat", FileMode.Open, FileAccess.Read, FileShare.Read);
-        }
-        catch
-        {
-
-        }
-        if (save != null && save.Length != 0)
-        {
-            try
-            {
-                clientVersion = Serializer.Deserialize<ClientVersion>(save);
-            }
-            catch
-            {
-                clientVersion = null;
-            }
-            save.Close();
-            save = null;
-        }
-        //没有加载到版本信息，表示是旧版本
-        if (clientVersion == null)
-        {
-            if (File.Exists(Application.persistentDataPath + "/" + "game_state.dat"))
-                File.Delete(Application.persistentDataPath + "/" + "game_state.dat");
-            SaveVersion();
-        }
-        else if (clientVersion.Version < AppInfo.Version)
-        {
-            //加载到存档版本信息，比当前客户端小.
-            if (File.Exists(Application.persistentDataPath + "/" + "game_state.dat"))
-                File.Delete(Application.persistentDataPath + "/" + "game_state.dat");
-            SaveVersion();
-        }
-    }
-
     public static void LoadState()
     {
         FileStream save = null;
@@ -447,3 +364,122 @@ public class GameData
     }
 }
 
+//处理版本更新相关
+public class GlobalUpdate
+{
+    public static UpdateVersion updateVersion;
+    public static void LoadCache()
+    {
+        FileStream save = null;
+        try
+        {
+            save = File.Open(Application.persistentDataPath + "/" + "game_cache.dat", FileMode.Open, FileAccess.Read, FileShare.Read);
+        }
+        catch
+        {
+
+        }
+        if (save != null)
+        {
+            updateVersion = Serializer.Deserialize<UpdateVersion>(save);
+            save.Close();
+            save = null;
+        }
+    }
+
+    public static void SaveCache()
+    {
+        if (updateVersion != null)
+        {
+            FileStream save = null;
+            try
+            {
+                save = File.Open(Application.persistentDataPath + "/" + "game_cache.dat", FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
+            }
+            catch
+            {
+
+            }
+            if (save != null)
+            {
+                save.SetLength(0);
+                Serializer.Serialize(save, updateVersion);
+                save.Close();
+                save = null;
+            }
+        }
+    }
+
+    //应用一个版本
+    public static void ApplyVersion(VersionItem ver, Main loader)
+    {
+        ConnectWnd.Instance.Close();
+        LoadingNotice.Instance.Open();
+        LoadingNotice.Instance.SetNotice(ver.strVersionMax, 
+            ()=> 
+            {
+                LoadingNotice.Instance.DisableAcceptBtn();
+                //如果之前有更新进度
+                if (updateVersion != null)
+                {
+                    if (updateVersion.Version == ver.strVersion && updateVersion.VersionMax == ver.strVersionMax)
+                    {
+                        //不管更新包大小是否超过剩余磁盘空间
+                        //long freeSpace = AppInfo.GetFreeSpace();
+                        //if (updateVersion.File.Totalbytes - updateVersion.File.Loadbytes > freeSpace)
+                        //{
+
+                        //}
+                        //弹一个界面，让玩家决定是否继续更新
+                        if (updateVersion.File.Totalbytes != 0)
+                            LoadingNotice.Instance.UpdateProgress((float)updateVersion.File.Loadbytes / (float)updateVersion.File.Totalbytes , "0");
+                        loader.StartDownLoad(updateVersion);
+                    }
+                    else
+                    {
+                        //说明自从上次升级一半，服务端又升级了，丢弃掉之前升级的内容
+                        CleanVersion();
+                        DownLoadVersion(ver, loader);
+                    }
+                }
+                else
+                {
+                    DownLoadVersion(ver, loader);
+                }
+            }
+            , 
+        ()=> 
+        {
+            LoadingNotice.Instance.Close();
+            Main.Ins.GameStart();
+        });
+        
+    }
+
+    public static void DownLoadVersion(VersionItem ver, Main loader)
+    {
+        updateVersion = new UpdateVersion();
+        updateVersion.Version = ver.strVersion;
+        updateVersion.VersionMax = ver.strVersionMax;
+        updateVersion.File = new UpdateFile();
+        updateVersion.File.bHashChecked = false;
+        updateVersion.File.Loadbytes = 0;
+        updateVersion.File.strFile = ver.zip.fileName;
+        if (File.Exists(ResMng.GetUpdateTmpPath() + "/" + ver.zip.fileName))
+            File.Delete(ResMng.GetUpdateTmpPath() + "/" + ver.zip.fileName);
+        updateVersion.File.strLocalPath = ResMng.GetUpdateTmpPath() + "/" + ver.zip.fileName;
+        updateVersion.File.Totalbytes = ver.zip.size;
+        updateVersion.File.strMd5 = ver.zip.Md5;
+        loader.StartDownLoad(updateVersion);
+    }
+
+    public static void CleanVersion()
+    {
+        if (updateVersion != null && updateVersion.File != null)
+        {
+            if (File.Exists(updateVersion.File.strLocalPath))
+                File.Delete(updateVersion.File.strLocalPath);
+            updateVersion = null;
+        }
+    }
+}

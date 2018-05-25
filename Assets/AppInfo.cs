@@ -1,12 +1,30 @@
-﻿using System.Collections;
+﻿using ProtoBuf;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
+
+[ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
+public class ClientVersion
+{
+    public int Version;//存档版本
+    public string strVersion;//软件版本
+}
 
 public class AppInfo
 {
+    public const string versionKey = "APPVERSION";
     public static string AppVersion()
     {
-        return (string)ScriptMng.ins.GetVariable("AppVersion");
+        string sVersion = PlayerPrefs.GetString(versionKey);
+        if (string.IsNullOrEmpty(sVersion))
+            PlayerPrefs.SetString(versionKey, "0.0.0.0");
+        return PlayerPrefs.GetString(versionKey);
+    }
+
+    public static void SetAppVersion(string v)
+    {
+        PlayerPrefs.SetString(versionKey, v);
     }
     public const int Version = 20180502;
     public static string MeteorVersion = "9.07";

@@ -11,6 +11,7 @@ public enum LocalMsgType
     Connect,
     DisConnect,
     SendFTPLogComplete,//全部日志发送完成
+    GameStart,//下载中断，进入Startup场景
 }
 
 public class LocalMsg
@@ -93,6 +94,7 @@ class ProtoHandler
                     case (short)LocalMsgType.Connect: OnConnect(messageQueue[i].Result);break;
                     case (short)LocalMsgType.DisConnect: OnDisconnect();break;
                     case (short)LocalMsgType.SendFTPLogComplete: OnSendComplete(messageQueue[i].Result, messageQueue[i].Param);break;
+                    case (short)LocalMsgType.GameStart:OnGameStart();break;
                 }
             }
             messageQueue.Clear();
@@ -229,5 +231,10 @@ class ProtoHandler
             U3D.PopupTip("日志上传完毕 成功发送" + sendFileCount + "个文件");
         else
             U3D.PopupTip("日志上传失败");
+    }
+
+    static void OnGameStart()
+    {
+        Main.Ins.GameStart();
     }
 }

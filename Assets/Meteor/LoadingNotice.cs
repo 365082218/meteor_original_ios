@@ -21,12 +21,32 @@ public class LoadingNotice: Window<LoadingNotice>
     {
         Notice = Control("Notice").GetComponent<Text>();
         Accept = Control("Accept").GetComponent<UIButtonExtended>();
+        Cancel = Control("Cancel").GetComponent<UIButtonExtended>();
+        LoadingBar = Control("LoadingProgressBar").GetComponent<UILoadingBar>();
+        SpeedText = Control("Speed").GetComponent<Text>();
     }
     Text Notice;
     UIButtonExtended Accept;
-    public void SetNotice(string text, UnityAction onaccept)
+    UIButtonExtended Cancel;
+    UILoadingBar LoadingBar;
+    Text SpeedText;
+    public void SetNotice(string text, UnityAction onaccept, UnityAction oncancel)
     {
         Notice.text = text;
         Accept.onClick.AddListener(onaccept);
+        Cancel.onClick.AddListener(oncancel);
+    }
+
+    public void UpdateProgress(float percent, string speedstr)
+    {
+        if (LoadingBar != null)
+            LoadingBar.SetProgress(percent);
+        if (SpeedText != null)
+            SpeedText.text = speedstr;
+    }
+
+    public void DisableAcceptBtn()
+    {
+        Accept.interactable = false;
     }
 }
