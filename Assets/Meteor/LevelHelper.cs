@@ -43,7 +43,7 @@ public class LevelHelper : MonoBehaviour
             {
                 ++displayProgress;
                 if (loading != null)
-                    loading.UpdateProgress(displayProgress);
+                    loading.UpdateProgress(displayProgress / 100.0f);
                 yield return 0;
             }
             //WSLog.LogInfo("while (displayProgress < toProgress) end");
@@ -55,7 +55,7 @@ public class LevelHelper : MonoBehaviour
         {
             ++displayProgress;
             if (loading != null)
-                loading.UpdateProgress(displayProgress);
+                loading.UpdateProgress(displayProgress / 100.0f);
             yield return 0;
         }
         WSLog.LogInfo("displayProgress < toProgress");
