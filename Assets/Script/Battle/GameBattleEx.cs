@@ -67,7 +67,7 @@ public class GameBattleEx : MonoBehaviour {
         if (result == 1 && GameData.gameStatus.Level < 9 && Global.GLevelItem.ID + 1 > GameData.gameStatus.Level)
             GameData.gameStatus.Level = Global.GLevelItem.ID + 1;
         Global.PauseAll = true;
-        Invoke("PlayEndMovie", 10.0f);
+        Invoke("PlayEndMovie", 5.0f);
     }
 
     void PlayEndMovie()
@@ -1086,8 +1086,8 @@ public class ActionConfig
             else if (action[action.Count - 1].type == StackAction.BLOCK)
             {
                 MeteorUnit unit = U3D.GetUnit(id);
-                unit.posMng.OnChangeAction(0);
                 unit.controller.LockInput(action[action.Count - 1].param == 1);
+                unit.posMng.OnChangeAction(0);
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.GUARD)

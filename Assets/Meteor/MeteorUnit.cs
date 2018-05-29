@@ -1660,9 +1660,6 @@ public class MeteorUnit : MonoBehaviour
 
         if (robot != null)
             robot.OnUnitDead(deadunit);
-
-        //if (hurtRecord.ContainsKey(deadunit))
-        //    hurtRecord.Remove(deadunit);
     }
 
     //特殊招式时，关闭碰撞，让角色互相穿透,
@@ -1911,6 +1908,8 @@ public class MeteorUnit : MonoBehaviour
             else
             {
                 //持续血阵，状态
+                if (trigger.root != null)
+                    trigger.OnPickup(this);
             }
         }
     }

@@ -12,6 +12,11 @@ public class DoubleSideMeshCollider : MonoBehaviour
     }
     void Start()
     {
+        if (meshCollider == null)
+        {
+            Destroy(this);
+            return;
+        }
         var mesh1 = meshCollider.sharedMesh;
         var mesh2 = Instantiate(mesh1);
 

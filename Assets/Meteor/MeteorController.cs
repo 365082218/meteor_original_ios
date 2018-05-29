@@ -114,19 +114,23 @@ public class MeteorInput
     public void Update(float deltaTime)
     {
         //if (!NGUIJoystick.instance.ArrowPressed) mLastInputVector = Vector2.zero;
-        if (mOwner.Attr.IsPlayer)
+        if (!mOwner.controller.InputLocked)
         {
-            //如果方向键按下了
-            if (NGUIJoystick.instance.mJoyPressed)
-                mInputVector = new Vector2(NGUIJoystick.instance.Delta.x, NGUIJoystick.instance.Delta.y);
-            else if (NGUIJoystick.instance.ArrowPressed)
-                mInputVector = new Vector2(NGUIJoystick.instance.Delta.x, NGUIJoystick.instance.Delta.y);
+            if (mOwner.Attr.IsPlayer)
+            {
+                //如果方向键按下了
+                if (NGUIJoystick.instance.mJoyPressed)
+                    mInputVector = new Vector2(NGUIJoystick.instance.Delta.x, NGUIJoystick.instance.Delta.y);
+                else if (NGUIJoystick.instance.ArrowPressed)
+                    mInputVector = new Vector2(NGUIJoystick.instance.Delta.x, NGUIJoystick.instance.Delta.y);
+                else
+                    mInputVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+            }
             else
-                mInputVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+                mInputVector = new Vector2(OffX, OffZ);//AIMove 自动战斗输入
         }
         else
-            mInputVector = new Vector2(OffX, OffZ);//AIMove 自动战斗输入
-
+            mInputVector = new Vector2(0, 0);
         //如果正在旋转角色，且动作ID不是前跑，那么是无法移动的，原地旋转角色.
         //if (mOwner.posMng.Rotateing && mOwner.posMng.mActiveAction.Idx != CommonAction.Run)
         //    mInputVector = Vector2.zero;

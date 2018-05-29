@@ -853,6 +853,8 @@ public class U3D : MonoBehaviour {
                 List<int> Path = new List<int>();
                 for (int i = 1; i < value.Length; i++)
                 {
+                    if (value[i] == null)
+                        continue;
                     if (value[i].GetType() == typeof(double))
                         Path.Add((int)(double)value[i]);
                     else if (value[i].GetType() == typeof(int))
@@ -1124,6 +1126,13 @@ public class U3D : MonoBehaviour {
             if (MeteorManager.Instance.DeadUnits[i].InstanceId == id)
                 return MeteorManager.Instance.DeadUnits[i];
         }
+
+        for (int i = 0; i < MeteorManager.Instance.LeavedUnits.Count; i++)
+        {
+            if (MeteorManager.Instance.LeavedUnits[i].InstanceId == id)
+                return MeteorManager.Instance.LeavedUnits[i];
+        }
+
         return null;
     }
 

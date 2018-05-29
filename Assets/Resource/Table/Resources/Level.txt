@@ -6,7 +6,7 @@ FuBenID	Scene	Name	LevelType	goodList	BgmName	BgTexture	Pass	Param
 4	Meteor_13	金华城		sn13	S4	scene4	2	npc13_02
 5	Meteor_04	炽雪城		sn04	S5	scene5		
 6	Meteor_15	飞鹏堡		sn15	S6	scene6	2	npc15_01
-7	Meteor_05	皇天城		sn05	S7	scene7	2	npc05_01
+7	Meteor_05	皇天城		sn05	S7	scene7	1	
 8	Meteor_09	决死阵		sn09	S8	scene8		
 9	Meteor_10	炼铁狱		sn10	S9	scene9	2	npc10_01
 10	Meteor_07	死阵		sn07	S8			

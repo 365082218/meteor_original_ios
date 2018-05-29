@@ -66,7 +66,12 @@ public class PickupItemAgent : MonoBehaviour {
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
+    {
+        OnPickup(other);
+    }
+
+    private void OnPickup(Collider other)
     {
         MeteorUnit unit = other.GetComponentInParent<MeteorUnit>();
         if (unit != null && !unit.Dead)
@@ -109,5 +114,10 @@ public class PickupItemAgent : MonoBehaviour {
             SFXLoader.Instance.PlayEffect(672, unit.gameObject, true);
             Destroy(gameObject);
         }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        OnPickup(other);
     }
 }

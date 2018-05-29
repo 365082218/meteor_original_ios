@@ -12,6 +12,7 @@ public class MeteorManager {
     public MeteorUnit LocalPlayer;//当前操纵着主英雄.
     public List<MeteorUnit> UnitInfos = new List<MeteorUnit>();
     public List<MeteorUnit> DeadUnits = new List<MeteorUnit>();
+    public List<MeteorUnit> LeavedUnits = new List<MeteorUnit>();//离场的NPC,设置禁用，取消激活游戏对象，但是可以查询
     public List<SceneItemAgent> SceneItems = new List<SceneItemAgent>();
     public List<GameObject> Coins = new List<GameObject>();
     public List<GameObject> DropThing = new List<GameObject>();
@@ -92,8 +93,10 @@ public class MeteorManager {
             UnitInfos.Remove(unit);
         if (DeadUnits.Contains(unit))
             DeadUnits.Remove(unit);
+        LeavedUnits.Add(unit);
         BuffMng.Instance.RemoveUnit(unit);
-        GameObject.Destroy(unit.gameObject);
+        unit.transform.position = new Vector3(-10000, -10000, -10000);
+        unit.gameObject.SetActive(false);
     }
 
     public void OnUnitDead(MeteorUnit unit)
@@ -112,9 +115,6 @@ public class MeteorManager {
             for (int i = 0; i < area.Length; i++)
                 area[i].OnUnitDead(unit);
         }
-        //由RemoveNpc处理删除尸体.
-        //if (unit.Attr != null)
-        //    GameObject.Destroy(unit.gameObject, 5.0f);
     }
 
     public void Clear()
@@ -126,8 +126,11 @@ public class MeteorManager {
         }
         for (int i = 0; i < DeadUnits.Count; i++)
             GameObject.Destroy(DeadUnits[i].gameObject);
+        for (int i = 0; i < LeavedUnits.Count; i++)
+            GameObject.Destroy(LeavedUnits[i].gameObject);
         UnitInfos.Clear();
         DeadUnits.Clear();
+        LeavedUnits.Clear();
         SceneItems.Clear();
         LocalPlayer = null;
         UnitInstanceIdx = 0;

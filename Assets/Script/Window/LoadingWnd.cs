@@ -43,7 +43,7 @@ public class LoadingWnd : Window<LoadingWnd>, LoadingUI
 	public void UpdateProgress(float progress)
 	{
         mProgressBar.fillAmount = progress;
-		mProgessLab.text = string.Format("{0:P1}", progress);
+		mProgessLab.text = string.Format("{0:P0}", progress);
     }
 
 

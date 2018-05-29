@@ -56,8 +56,8 @@ public class SceneItemAgent : MonoBehaviour {
             RefreshCollision();
     }
 
-    bool up = true;
-    float yHeight = 5.0f;
+    //bool up = true;
+    //float yHeight = 5.0f;
     IEnumerator yMove()
     {
         while (true)

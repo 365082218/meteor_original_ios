@@ -5990,6 +5990,9 @@ public class LevelScript_sn14 : LevelScriptBase
     }
 }
 
+/// <summary>
+/// 飞鹏堡
+/// </summary>
 public class LevelScript_sn15 : LevelScriptBase
 {
     public override int GetRule() { return Rule; }
@@ -5999,7 +6002,7 @@ public class LevelScript_sn15 : LevelScriptBase
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
-    // 飞鹏堡
+
     int Rule = 4;
     int RoundTime = 25;
     int PlayerSpawn = 30;
