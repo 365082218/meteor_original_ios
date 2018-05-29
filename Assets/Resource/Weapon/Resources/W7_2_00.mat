@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: W7_2_00
-  m_Shader: {fileID: 4800000, guid: ef621c64e7b2bba4ead3fdfbdaf32cde, type: 3}
+  m_Shader: {fileID: 4800000, guid: f716b38aa8fa9eb4892f9632015e3e22, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_CustomRenderQueue: -1
@@ -26,6 +26,12 @@ Material:
         name: _Alpha
       second: 1
     m_Colors:
+    - first:
+        name: _Color
+      second: {r: 1, g: 1, b: 1, a: 1}
+    - first:
+        name: _ColorKey
+      second: {r: 1, g: 1, b: 1, a: 1}
     - first:
         name: _TintColor
       second: {r: 1, g: 1, b: 1, a: 1}

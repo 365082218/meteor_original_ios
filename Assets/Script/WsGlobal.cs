@@ -303,6 +303,9 @@ public class WsGlobal {
                     iflL.LoadIFL();
                 }
 
+                //如果是板凳桌子，加上双面网格，避免一些BUG
+                if (parent.name.ToLower().Contains("chair") || parent.name.ToLower().Contains("desk"))
+                    objMesh.AddComponent<DoubleSideMeshCollider>();
                 objMesh.transform.localRotation = fIns.SceneItems[i].quat;
                 objMesh.transform.localScale = Vector3.one;
                 objMesh.transform.localPosition = fIns.SceneItems[i].pos;
@@ -517,7 +520,9 @@ public class WsGlobal {
                     iflL.useSharedMaterial = false;
                     iflL.LoadIFL();
                 }
-
+                //如果是板凳桌子，加上双面网格，避免一些BUG
+                if (parent.name.ToLower().Contains("chair") || parent.name.ToLower().Contains("desk"))
+                    objMesh.AddComponent<DoubleSideMeshCollider>();
                 objMesh.transform.localRotation = fIns.SceneItems[i].quat;
                 objMesh.transform.localScale = Vector3.one;
                 objMesh.transform.localPosition = fIns.SceneItems[i].pos;

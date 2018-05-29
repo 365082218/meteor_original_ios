@@ -24,7 +24,7 @@ Material:
     m_Floats:
     - first:
         name: _AlphaTimes
-      second: 0.41
+      second: 0.3
     - first:
         name: _Reverse
       second: 1

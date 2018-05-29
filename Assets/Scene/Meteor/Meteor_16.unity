@@ -570,6 +570,7 @@ GameObject:
   - component: {fileID: 12417093}
   - component: {fileID: 12417092}
   - component: {fileID: 12417091}
+  - component: {fileID: 12417094}
   m_Layer: 10
   m_Name: Box159
   m_TagString: Untagged
@@ -642,6 +643,18 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingOrder: 0
+--- !u!114 &12417094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 12417089}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65ff5d0bbd57aac41b8ef9dc38fa3993, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshCollider: {fileID: 0}
 --- !u!1 &18071015
 GameObject:
   m_ObjectHideFlags: 0
@@ -1191,6 +1204,7 @@ GameObject:
   - component: {fileID: 55558652}
   - component: {fileID: 55558651}
   - component: {fileID: 55558650}
+  - component: {fileID: 55558653}
   m_Layer: 10
   m_Name: Torus11
   m_TagString: Untagged
@@ -1263,6 +1277,18 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingOrder: 0
+--- !u!114 &55558653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 55558648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65ff5d0bbd57aac41b8ef9dc38fa3993, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshCollider: {fileID: 0}
 --- !u!43 &73663685
 Mesh:
   m_ObjectHideFlags: 0
@@ -4783,6 +4809,7 @@ GameObject:
   - component: {fileID: 269991611}
   - component: {fileID: 269991610}
   - component: {fileID: 269991609}
+  - component: {fileID: 269991612}
   m_Layer: 10
   m_Name: Box151
   m_TagString: Untagged
@@ -4855,6 +4882,18 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingOrder: 0
+--- !u!114 &269991612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 269991607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65ff5d0bbd57aac41b8ef9dc38fa3993, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshCollider: {fileID: 0}
 --- !u!1 &271039066
 GameObject:
   m_ObjectHideFlags: 0
@@ -9416,6 +9455,7 @@ GameObject:
   - component: {fileID: 635069539}
   - component: {fileID: 635069538}
   - component: {fileID: 635069537}
+  - component: {fileID: 635069540}
   m_Layer: 10
   m_Name: Box126
   m_TagString: Untagged
@@ -9488,6 +9528,18 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingOrder: 0
+--- !u!114 &635069540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 635069535}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65ff5d0bbd57aac41b8ef9dc38fa3993, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshCollider: {fileID: 0}
 --- !u!43 &637181253
 Mesh:
   m_ObjectHideFlags: 0
@@ -14260,6 +14312,7 @@ GameObject:
   - component: {fileID: 900867824}
   - component: {fileID: 900867823}
   - component: {fileID: 900867822}
+  - component: {fileID: 900867825}
   m_Layer: 10
   m_Name: Torus16
   m_TagString: Untagged
@@ -14332,6 +14385,18 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingOrder: 0
+--- !u!114 &900867825
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 900867820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65ff5d0bbd57aac41b8ef9dc38fa3993, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshCollider: {fileID: 0}
 --- !u!1 &901029588
 GameObject:
   m_ObjectHideFlags: 0
@@ -14750,6 +14815,7 @@ GameObject:
   - component: {fileID: 917299483}
   - component: {fileID: 917299482}
   - component: {fileID: 917299481}
+  - component: {fileID: 917299484}
   m_Layer: 10
   m_Name: Torus10
   m_TagString: Untagged
@@ -14822,6 +14888,18 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingOrder: 0
+--- !u!114 &917299484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 917299479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65ff5d0bbd57aac41b8ef9dc38fa3993, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshCollider: {fileID: 0}
 --- !u!1 &920879235
 GameObject:
   m_ObjectHideFlags: 0
@@ -23049,6 +23127,7 @@ GameObject:
   - component: {fileID: 1384772494}
   - component: {fileID: 1384772493}
   - component: {fileID: 1384772492}
+  - component: {fileID: 1384772495}
   m_Layer: 10
   m_Name: Box170
   m_TagString: Untagged
@@ -23121,6 +23200,18 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingOrder: 0
+--- !u!114 &1384772495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1384772490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65ff5d0bbd57aac41b8ef9dc38fa3993, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshCollider: {fileID: 0}
 --- !u!1 &1385118941
 GameObject:
   m_ObjectHideFlags: 0
@@ -24955,6 +25046,7 @@ GameObject:
   - component: {fileID: 1497819994}
   - component: {fileID: 1497819993}
   - component: {fileID: 1497819992}
+  - component: {fileID: 1497819995}
   m_Layer: 10
   m_Name: Torus17
   m_TagString: Untagged
@@ -25027,6 +25119,18 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingOrder: 0
+--- !u!114 &1497819995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1497819990}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65ff5d0bbd57aac41b8ef9dc38fa3993, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshCollider: {fileID: 0}
 --- !u!43 &1501925194
 Mesh:
   m_ObjectHideFlags: 0
@@ -26704,6 +26808,7 @@ GameObject:
   - component: {fileID: 1600921504}
   - component: {fileID: 1600921503}
   - component: {fileID: 1600921502}
+  - component: {fileID: 1600921505}
   m_Layer: 10
   m_Name: Torus15
   m_TagString: Untagged
@@ -26776,6 +26881,18 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingOrder: 0
+--- !u!114 &1600921505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1600921500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65ff5d0bbd57aac41b8ef9dc38fa3993, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshCollider: {fileID: 0}
 --- !u!43 &1605011249
 Mesh:
   m_ObjectHideFlags: 0
@@ -31477,6 +31594,7 @@ GameObject:
   - component: {fileID: 1912229928}
   - component: {fileID: 1912229927}
   - component: {fileID: 1912229926}
+  - component: {fileID: 1912229929}
   m_Layer: 10
   m_Name: Torus09
   m_TagString: Untagged
@@ -31549,6 +31667,18 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingOrder: 0
+--- !u!114 &1912229929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1912229924}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65ff5d0bbd57aac41b8ef9dc38fa3993, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshCollider: {fileID: 0}
 --- !u!43 &1921103540
 Mesh:
   m_ObjectHideFlags: 0
@@ -34225,6 +34355,7 @@ GameObject:
   - component: {fileID: 2076660799}
   - component: {fileID: 2076660798}
   - component: {fileID: 2076660797}
+  - component: {fileID: 2076660800}
   m_Layer: 10
   m_Name: Box164
   m_TagString: Untagged
@@ -34297,6 +34428,18 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingOrder: 0
+--- !u!114 &2076660800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2076660795}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65ff5d0bbd57aac41b8ef9dc38fa3993, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  meshCollider: {fileID: 0}
 --- !u!1 &2081308938
 GameObject:
   m_ObjectHideFlags: 0
