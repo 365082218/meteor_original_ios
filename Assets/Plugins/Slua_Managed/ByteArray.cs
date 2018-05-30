@@ -255,8 +255,10 @@ namespace SLua
 		public void Write (byte[] arr)
 		{
 			ReAlloc (ref data_, pos_, arr.Length);
-			foreach (byte v in arr) {
-				data_ [pos_++] = v;
+            for (int i = 0; i < arr.Length; i++)
+            {
+			//foreach (byte v in arr) {
+				data_ [pos_++] = arr[i];
 			}
 		}
 		

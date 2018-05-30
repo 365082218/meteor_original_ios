@@ -98,8 +98,10 @@ namespace UnityEditor.UI
 			
 			// Prepare the string to be used in the text area
 			string text = "";
-			foreach (string s in slider.options)
-				text += s + "\n";
+            for (int i = 0; i < slider.options.Count; i++)
+                text += slider.options[i] + "\n";
+			//foreach (string s in slider.options)
+			//	text += s + "\n";
 			
 			string modified = EditorGUILayout.TextArea(text, GUI.skin.textArea, GUILayout.Height(100f));
 			
@@ -109,9 +111,12 @@ namespace UnityEditor.UI
 				Undo.RecordObject(target, "UI Slider Extended changed.");
 				
 				string[] split = modified.Split(new char[] { '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
-				
-				foreach (string s in split)
-					newOptions.Add(s);
+
+                for (int i = 0; i < split.Length; i++)
+                    newOptions.Add(split[i]);
+
+				//foreach (string s in split)
+				//	newOptions.Add(s);
 				
 				// Apply the new list
 				slider.options = newOptions;
