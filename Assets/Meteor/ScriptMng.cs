@@ -13,23 +13,17 @@ public class ScriptMng:MonoBehaviour
     LuaFunction save;
     void Awake()
     {
-        if (ins == null)
-            ins = this;
+        ins = this;
     }
 
 	public void Start()
 	{
-        if (ins != this)
-        {
-            DestroyImmediate(this);
-            return;
-        }
         svr = new LuaSvr();
 		svr.init (null, ()=>
         {
             CallScript("Main");
             save = LuaSvr.mainState.getFunction("save");
-            Startup.ins.GameStart();
+            //Startup.ins.GameStart();
         });
 	}
 

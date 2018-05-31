@@ -10,10 +10,9 @@ public class Startup : MonoBehaviour {
     public static Startup ins;
     public Font TextFont;
     public GameState state { get { return GameData.gameStatus; } }
-    public InputField cheat;
+    //public InputField cheat;
     public AudioSource Music;
     public AudioSource Sound;
-    public AudioListener Listener;
     
     //public int ServerIdx;
     //public string GameServerIP;
@@ -23,31 +22,25 @@ public class Startup : MonoBehaviour {
 
     void Awake()
     {
-        if (ins == null)
-        {
-            ins = this;
-            DontDestroyOnLoad(this);
-        }
+        ins = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     // Use this for initialization
     void Start () {
-        if (ins != this)
-        {
-            if (Music != null)
-                DestroyImmediate(Music);
-            if (Sound != null)
-                DestroyImmediate(Sound);
-            if (Listener != null)
-                DestroyImmediate(Listener);
-            Music = null;
-            Sound = null;
-            Listener = null;
-            //UI上的元素重新赋值过去，从其他场景转回来就会出现新的一套UI
-            ins.cheat = cheat;
-            DestroyImmediate(gameObject);//U3D OCAgent等其他挂在这里的都会没有.
-            return;
-        }
+        //if (ins != this)
+        //{
+        //    //Music = null;
+        //    //Sound = null;
+        //    //Listener = null;
+        //    //UI上的元素重新赋值过去，从其他场景转回来就会出现新的一套UI
+        //    //ins.cheat = cheat;
+        //    Destroy(gameObject);//U3D OCAgent等其他挂在这里的都会没有.
+        //    if (ins.GetComponent<AudioListener>() == null)
+        //        ins.gameObject.AddComponent<AudioListener>();
+        //    ins.GameStart();
+        //    return;
+        //}
         //WSLog.LogInfo("GameStart");
         Random.InitState(System.Guid.NewGuid().GetHashCode());
     }

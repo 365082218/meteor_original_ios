@@ -12,6 +12,11 @@ public class PoseStatus
     //public static Dictionary<int, int> IgnoreGravity = new Dictionary<int, int>();
     public Pose mActiveAction = null;
     static Dictionary<int, TextAsset> PosFile = new Dictionary<int, TextAsset>();
+    public static void Clear()
+    {
+        PosFile.Clear();
+        ActionList.Clear();
+    }
     MeteorUnit _Self;
     public Transform FollowBone;
     public float FollowBoneScale = 1.0f;
@@ -608,6 +613,9 @@ public class PoseStatus
             load.SetPosData(ActionList[UnitId][idx], time, false, targetFrame);
             mActiveAction = ActionList[UnitId][idx];
             LinkInput.Clear();
+            //是倒地姿势，都僵直一秒
+            if (idx == CommonAction.Struggle || idx == CommonAction.Struggle0)
+                _Self.charLoader.LockTime(1.0f);
         }
     }
 

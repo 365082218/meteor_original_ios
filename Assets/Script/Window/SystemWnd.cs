@@ -139,6 +139,11 @@ public class NewSystemWnd : Window<NewSystemWnd>
 
     void OnChangeVer(string ver)
     {
+        if (AppInfo.MeteorVersion == ver)
+        {
+            U3D.PopupTip(string.Format("当前流星版本已为{0}", ver));
+            return;
+        }
         AppInfo.MeteorVersion = ver;
         GameData.gameStatus.MeteorVersion = AppInfo.MeteorVersion;
         GameData.SaveState();

@@ -101,6 +101,15 @@ public class MeteorAI {
             return;
         }
 
+        //if (true)
+        //{
+        //    if (owner.posMng.mActiveAction.Idx != CommonAction.BreakOut)
+        //    {
+        //        owner.AngryValue = 100;
+        //        owner.DoBreakOut();
+        //    }
+        //    return;
+        //}
         if (StateStack.Count != 0)
         {
             StateStack[StateStack.Count - 1].last -= Time.deltaTime;
@@ -191,7 +200,8 @@ public class MeteorAI {
             SubStatus = EAISubStatus.KillGotoTarget;
         }
         owner.FaceToTarget(target);
-        if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(target.mPos.x, 0, target.mPos.z)) <= 35)
+        float dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(target.mPos.x, 0, target.mPos.z));
+        if (dis <= 35)//小于35码停止跟随
         {
             owner.controller.Input.AIMove(0, 0);
             if (Status == EAIStatus.Kill)
@@ -203,12 +213,12 @@ public class MeteorAI {
             }
             return;
         }
-        else
+        else if (dis >= 60)//距离大于70码开始跟随移动
         {
             if (SubStatus == EAISubStatus.KillGetTarget)
                 SubStatus = EAISubStatus.KillGotoTarget;
+            owner.controller.Input.AIMove(0, 1);
         }
-        owner.controller.Input.AIMove(0, 1);
     }
 
     public void FollowTarget(int target)
@@ -228,7 +238,7 @@ public class MeteorAI {
         owner.controller.Input.ResetInput();
         if (owner.posMng.mActiveAction.Idx == CommonAction.Struggle || owner.posMng.mActiveAction.Idx == CommonAction.Struggle0)
         {
-            if (struggleCoroutine == null)
+            if (struggleCoroutine == null && !owner.charLoader.InStraight)
                 struggleCoroutine = owner.StartCoroutine(ProcessStruggle());
         }
         SubStatus = EAISubStatus.KillGotoTarget;
@@ -421,8 +431,12 @@ public class MeteorAI {
         else
         if (owner.posMng.mActiveAction.Idx == CommonAction.Struggle || owner.posMng.mActiveAction.Idx == CommonAction.Struggle0)
         {
-            if (struggleCoroutine == null)
-                struggleCoroutine = owner.StartCoroutine(ProcessStruggle());
+            if (!owner.charLoader.InStraight)
+            {
+                //可以从僵直状态切换出
+                if (struggleCoroutine == null)
+                    struggleCoroutine = owner.StartCoroutine(ProcessStruggle());
+            }
         }
         else if (owner.posMng.IsAttackPose() && owner.controller.Input.AcceptInput())
         {
@@ -473,39 +487,39 @@ public class MeteorAI {
 
     }
 
-    void Move(float deltaTime)
-    {
-        //笔直朝前走就好了.
-        Vector2 direction = new Vector2(-owner.transform.forward.x, -owner.transform.forward.z);
-        if (direction == Vector2.zero)
-            return;
-        //如果摇杆按着边缘的方向键，触发任意方向，则移动，否则，旋转目标。
-        //跳跃的时候，方向轴移动不受控制，模拟跳跃
-        if (owner.IsOnGround())
-        {
-            if (owner.posMng.CanMove && owner.Speed > 0)
-            {
-                direction.Normalize();
-                float runSpeed = owner.Speed;//跑的速度 1000 = 145M/S 按原来游戏计算
+    //void Move(float deltaTime)
+    //{
+    //    //笔直朝前走就好了.
+    //    Vector2 direction = new Vector2(-owner.transform.forward.x, -owner.transform.forward.z);
+    //    if (direction == Vector2.zero)
+    //        return;
+    //    //如果摇杆按着边缘的方向键，触发任意方向，则移动，否则，旋转目标。
+    //    //跳跃的时候，方向轴移动不受控制，模拟跳跃
+    //    if (owner.IsOnGround())
+    //    {
+    //        if (owner.posMng.CanMove && owner.Speed > 0)
+    //        {
+    //            direction.Normalize();
+    //            float runSpeed = owner.Speed;//跑的速度 1000 = 145M/S 按原来游戏计算
 
-                Vector2 runTrans = direction * runSpeed * deltaTime;
-                //怪物和AI在预览中无法跑动
+    //            Vector2 runTrans = direction * runSpeed * deltaTime;
+    //            //怪物和AI在预览中无法跑动
 
-                owner.Move(new Vector3((runTrans * 0.130f).x, 0, (runTrans * 0.130f).y));
-                if (owner.posMng.mActiveAction.Idx != CommonAction.Run)
-                    owner.posMng.ChangeAction(CommonAction.Run);
+    //            owner.Move(new Vector3((runTrans * 0.130f).x, 0, (runTrans * 0.130f).y));
+    //            if (owner.posMng.mActiveAction.Idx != CommonAction.Run)
+    //                owner.posMng.ChangeAction(CommonAction.Run);
 
-                //小于30码防御吧。后面配置好数据
-                if (Vector3.Distance(targetPos, owner.transform.position) <= 30)
-                {
-                    //还是防御先。
-                    //Status = EAIStatus.Defence;
-                    owner.Defence();
-                    return;
-                }
-            }
-        }
-    }
+    //            //小于30码防御吧。后面配置好数据
+    //            if (Vector3.Distance(targetPos, owner.transform.position) <= 30)
+    //            {
+    //                //还是防御先。
+    //                //Status = EAIStatus.Defence;
+    //                owner.Defence();
+    //                return;
+    //            }
+    //        }
+    //    }
+    //}
 
     //倒在地面上。判断是否在地面多躺一会，第二，哪个方向起身，第三，是否跳跃起身.第四，是否带方向速度.
     void FallDown(float time)
@@ -547,7 +561,6 @@ public class MeteorAI {
         if (type == EAIStatus.Kill)
         {
             SubStatus = EAISubStatus.KillGotoTarget;
-            //Debug.LogError("kill");
             killTarget = owner.GetLockedTarget();
         }
         ResetAIKey();
@@ -603,12 +616,6 @@ public class MeteorAI {
         PlayWeaponPoseCorout = null;
     }
 
-    //加载AI设定.
-    public void Init()
-    {
-
-    }
-
     public void OnDamaged()
     {
         //模拟出招被其他敌方角色攻击打断
@@ -652,7 +659,7 @@ public class MeteorAI {
         bool rightRotate = dot2 < 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(target);
-        float timeTotal = offsetmax / 75.0f;
+        float timeTotal = offsetmax / 150.0f;
         float timeTick = 0.0f;
         while (true)
         {
@@ -697,7 +704,7 @@ public class MeteorAI {
         bool rightRotate = dot2 < 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
-        float timeTotal = offsetmax / 75.0f;
+        float timeTotal = offsetmax / 150.0f;
         float timeTick = 0.0f;
         while (true)
         {
@@ -783,7 +790,8 @@ public class MeteorAI {
                                 return;
                             }
 
-                            if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z)) <= 5)
+                            //中断寻路，当距离小于下一帧移动的距离时.
+                            if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z)) <= owner.Speed * Time.deltaTime * 0.13f)
                             {
                                 owner.controller.Input.AIMove(0, 0);
                                 RotateRound = Random.Range(1, 3);
@@ -827,7 +835,7 @@ public class MeteorAI {
                 break;
             case EAISubStatus.PatrolSubGotoTarget:
                 //Debug.LogError("进入巡逻子状态-朝目标输入移动");
-                if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z)) <= 5)
+                if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z)) <= owner.Speed * Time.deltaTime * 0.13f)
                 {
                     RotateRound = Random.Range(1, 3);
                     SubStatus = EAISubStatus.PatrolSubRotateInPlace;//到底指定地点后旋转

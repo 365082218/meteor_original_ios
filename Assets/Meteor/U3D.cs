@@ -12,7 +12,6 @@ using UnityEngine.Profiling;
 
 [CustomLuaClassAttribute]
 public class U3D : MonoBehaviour {
-	public Text IosText;
     public static U3D ins = null;
     void Awake()
     {
@@ -299,7 +298,7 @@ public class U3D : MonoBehaviour {
     }
 
     //修改版本号后回到Startup重新加载资源
-    public static void ReStart(Action t = null)
+    public static void ReStart()
     {
         Global.GLevelItem = null;
         if (loadMain != null)
@@ -307,15 +306,14 @@ public class U3D : MonoBehaviour {
             Startup.ins.StopCoroutine(loadMain);
             loadMain = null;
         }
-        loadMain = ins.StartCoroutine(ins.LoadStartup(t));
+        loadMain = ins.StartCoroutine(ins.LoadStartup());
     }
 
-    IEnumerator LoadStartup(Action t)
+    IEnumerator LoadStartup()
     {
         ResMng.LoadScene("Startup");
         backOp = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Startup", UnityEngine.SceneManagement.LoadSceneMode.Single);//.LoadSceneAsync_s (1);
         yield return backOp;
-        OnLoadStartupFinished(t);
     }
 
     IEnumerator LoadMainWnd(Action t)
@@ -332,12 +330,6 @@ public class U3D : MonoBehaviour {
         if (listen == null)
             Startup.ins.gameObject.AddComponent<AudioListener>();
         MainWnd.Instance.Open();
-        if (t != null)
-            t.Invoke();
-    }
-
-    void OnLoadStartupFinished(Action t)
-    {
         if (t != null)
             t.Invoke();
     }

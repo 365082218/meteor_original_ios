@@ -301,6 +301,9 @@ public class CharacterLoader : MonoBehaviour
     }
 
     bool CheckStraight = false;
+    public bool InStraight {
+        get { return CheckStraight; }
+    }
     public void LockTime(float t)
     {
         CheckStraight = true;
@@ -772,12 +775,12 @@ public class CharacterLoader : MonoBehaviour
         else if (po.Idx == CommonAction.Struggle || po.Idx == CommonAction.Struggle0)
         {
             //一些有僵直的动作,必须等到僵直循环动作第一次结束后开始减少僵直值.
-            //if (CheckStraight && PoseStraight < 0)
-            //{
-            //    mOwner.IgnoreGravitys(false);
-            //    if (mOwner.IsOnGround()) loop = false;
-            //    CheckStraight = false;
-            //}
+            if (CheckStraight && PoseStraight < 0)
+            {
+                mOwner.IgnoreGravitys(false);
+                if (mOwner.IsOnGround()) loop = false;
+                CheckStraight = false;
+            }
         }
         else if ((po.Idx >= CommonAction.Idle && po.Idx <= 21) || (po.Idx >= CommonAction.WalkForward && po.Idx <= CommonAction.RunOnDrug))
         {

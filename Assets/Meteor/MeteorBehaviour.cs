@@ -426,7 +426,7 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
                 Owner.ReleaseDefence();
             }
         }
-        else if (posMng.mActiveAction.Idx == CommonAction.Struggle || posMng.mActiveAction.Idx == CommonAction.Struggle0)//地面挣扎.
+        else if (posMng.mActiveAction.Idx == CommonAction.Struggle || posMng.mActiveAction.Idx == CommonAction.Struggle0)//地面挣扎.僵直中无法输入.
         {
             if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_Release, Time.deltaTime))
             {

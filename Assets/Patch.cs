@@ -63,16 +63,19 @@ public class Patch : MonoBehaviour {
         if (ConnectWnd.Exist)
             ConnectWnd.Instance.Close();
         SFXLoader.Instance.Init();
-        yield return new WaitForEndOfFrame();
-        toProgress = 30;
-        while (displayProgress < toProgress)
-        {
-            displayProgress++;
-            progress.fillAmount = (float)displayProgress / 100.0f;
-            percent.text = displayProgress + "%";
-            yield return new WaitForEndOfFrame();
-        }
+        //yield return new WaitForEndOfFrame();
+        //toProgress = 30;
+        //while (displayProgress < toProgress)
+        //{
+        //    displayProgress++;
+        //    progress.fillAmount = (float)displayProgress / 100.0f;
+        //    percent.text = displayProgress + "%";
+        //    yield return new WaitForEndOfFrame();
+        //}
         //在读取character.act后再初始化输入模块。
+        ActionInterrupt.Instance.Lines.Clear();
+        ActionInterrupt.Instance.Whole.Clear();
+        ActionInterrupt.Instance.Root = null;
         ActionInterrupt.Instance.Init();
         yield return new WaitForEndOfFrame();
         toProgress = 40;
@@ -106,6 +109,7 @@ public class Patch : MonoBehaviour {
         //    }
         //    yield return new WaitForEndOfFrame();
         //}
+        PoseStatus.Clear();
         AmbLoader.Ins.LoadCharacterAmb();
         toProgress = 100;
         while (displayProgress < toProgress)

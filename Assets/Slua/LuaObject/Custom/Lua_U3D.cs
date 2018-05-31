@@ -1456,34 +1456,6 @@ public class Lua_U3D : LuaObject {
 	}
 	[SLua.MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	[UnityEngine.Scripting.Preserve]
-	static public int get_IosText(IntPtr l) {
-		try {
-			U3D self=(U3D)checkSelf(l);
-			pushValue(l,true);
-			pushValue(l,self.IosText);
-			return 2;
-		}
-		catch(Exception e) {
-			return error(l,e);
-		}
-	}
-	[SLua.MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-	[UnityEngine.Scripting.Preserve]
-	static public int set_IosText(IntPtr l) {
-		try {
-			U3D self=(U3D)checkSelf(l);
-			UnityEngine.UI.Text v;
-			checkType(l,2,out v);
-			self.IosText=v;
-			pushValue(l,true);
-			return 1;
-		}
-		catch(Exception e) {
-			return error(l,e);
-		}
-	}
-	[SLua.MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-	[UnityEngine.Scripting.Preserve]
 	static public int get_ins(IntPtr l) {
 		try {
 			pushValue(l,true);
@@ -1647,7 +1619,6 @@ public class Lua_U3D : LuaObject {
 		addMember(l,AddAngry_s);
 		addMember(l,PlaySkill_s);
 		addMember(l,MakeItem_s);
-		addMember(l,"IosText",get_IosText,set_IosText,true);
 		addMember(l,"ins",get_ins,set_ins,false);
 		addMember(l,"save",get_save,set_save,false);
 		addMember(l,"Lang",get_Lang,set_Lang,false);

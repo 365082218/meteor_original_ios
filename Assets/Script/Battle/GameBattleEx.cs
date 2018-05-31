@@ -590,19 +590,31 @@ public class GameBattleEx : MonoBehaviour {
         if (start == -1 || end == -1)
             return path;
         //从开始点，跑到最终点，最短线路？
-
+        if (Global.GLevelItem.wayPoint[start].link.ContainsKey(end))
+        {
+            path.Add(Global.GLevelItem.wayPoint[start]);
+            path.Add(Global.GLevelItem.wayPoint[end]);
+        }
         return path;
     }
 
     int GetWayIndex(Vector3 now)
     {
+        int ret = -1;
+        float min = 10000.0f;
         for (int i = 0; i < Global.GLevelItem.wayPoint.Count; i++)
         {
             WayPoint way = Global.GLevelItem.wayPoint[i];
-            if (Vector3.Distance(way.pos, now) <= way.size)
+            float dis = Vector3.Distance(way.pos, now);
+            if (dis <= way.size)
                 return i;
+            if (dis < min)
+            {
+                min = dis;
+                ret = i;
+            }
         }
-        return -1;
+        return ret;
     }
     #endregion
 
