@@ -12,6 +12,7 @@ public class WayLength
 [Serializable]
 public class WayPoint
 {
+    public int index;
     public Vector3 pos;
     public int size;
     public Dictionary<int, WayLength> link;

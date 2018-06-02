@@ -265,19 +265,31 @@ public class MeteorUnit : MonoBehaviour
     public int wayIndex;
     [SerializeField]
     public MeteorAI robot;
-    //public float maxHeight;
 
-    //按照角色的坐标围成一圈，每个24度，距离40
-    public List<int> FreeSlot = new List<int>();
-    public Vector3 GetFreePos(out int slot)
+    //按照角色的坐标围成一圈，每个24度 15个空位，距离40
+    public Dictionary<int, MeteorUnit> SlotInfo = new Dictionary<int, MeteorUnit>();
+    public Vector3 GetFreePos(out int slot, MeteorUnit user)
     {
         int k = -1;
+
+        //如果已有该使用者，直接返回该使用者占用的位置.
         for (int i = 0; i < 15; i++)
         {
-            if (FreeSlot.Contains(i))
+            if (SlotInfo[i] == user)
+            {
+                slot = i;
+                k = slot;
+                Vector3 ret = transform.position + Quaternion.AngleAxis(k * 24, Vector3.up) * (Vector3.forward * 40);
+                return ret;
+            }
+        }
+        //没有该使用者占用一个空位
+        for (int i = 0; i < 15; i++)
+        {
+            if (SlotInfo[i] != null)
                 continue;
             k = i;
-            FreeSlot.Add(k);
+            SlotInfo[i] = user;
             break;
         }
 
@@ -296,7 +308,6 @@ public class MeteorUnit : MonoBehaviour
     //public List<SkillInput> SkillList = new List<SkillInput>();
     //MeteorUnit wantTarget = null;//绿色目标.只有主角拥有。
     MeteorUnit lockTarget = null;//攻击目标.主角主动攻击敌方后，没解锁前，都以这个目标作为锁定攻击目标，摄像机自动以主角和此目标，做一个自动视围盒，
-    //MeteorUnit friend = null;//友方目标
     public Vector3 mPos { get { return transform.position; } }
     public bool Crouching { get { return posMng.mActiveAction.Idx == CommonAction.Crouch || (posMng.mActiveAction.Idx >= CommonAction.CrouchForw && posMng.mActiveAction.Idx <= CommonAction.CrouchBack); } }
     public bool Climbing { get { return posMng.mActiveAction.Idx == CommonAction.ClimbLeft || posMng.mActiveAction.Idx == CommonAction.ClimbRight || posMng.mActiveAction.Idx == CommonAction.ClimbUp; } }
@@ -1041,6 +1052,10 @@ public class MeteorUnit : MonoBehaviour
 
         GunReady = false;
         IsPlaySkill = false;
+
+        //初始化角色周围的占位寻路点
+        for (int i = 0; i <= 15; i++)
+            SlotInfo.Add(i, null);
     }
 
     public bool IsPlaySkill { get; set; }

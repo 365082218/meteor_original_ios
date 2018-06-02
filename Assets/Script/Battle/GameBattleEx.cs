@@ -576,16 +576,23 @@ public class GameBattleEx : MonoBehaviour {
     //}
 
     #region 寻路缓存
-    public List<WayPoint> FindPath(Vector3 now, MeteorUnit target, out int freeSlot)
+    List<int> looked = new List<int>();
+    public List<WayPoint> FindPath(Vector3 now, MeteorUnit user, MeteorUnit target, out int freeSlot, out Vector3 end)
     {
         int p0 = GetWayIndex(now);
-        Vector3 vec = target.GetFreePos(out freeSlot);
+        Vector3 vec = target.GetFreePos(out freeSlot, user);
+        end = vec;
         int p1 = GetWayIndex(vec);
-        return FindPath2(p0, p1);
+        looked.Clear();
+        List<WayPoint> ret = FindPath2(p0, p1);
+        return ret;
     }
 
     List<WayPoint> FindPath2(int start, int end)
     {
+        if (looked.Contains(start))
+            return null;
+        looked.Add(start);
         List<WayPoint> path = new List<WayPoint>();
         if (start == -1 || end == -1)
             return path;
@@ -594,6 +601,22 @@ public class GameBattleEx : MonoBehaviour {
         {
             path.Add(Global.GLevelItem.wayPoint[start]);
             path.Add(Global.GLevelItem.wayPoint[end]);
+            return path;
+        }
+        else
+        {
+            //深度优先递归.
+            Dictionary<int, WayLength> ways = Global.GLevelItem.wayPoint[start].link;
+            foreach (var each in ways)
+            {
+                List<WayPoint> p = FindPath2(each.Key, end);
+                if (p != null && p.Count != 0)
+                {
+                    for (int i = 0; i < p.Count; i++)
+                        path.Add(p[i]);
+                    return path;
+                }
+            }
         }
         return path;
     }

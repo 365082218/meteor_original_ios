@@ -160,7 +160,6 @@ public class MeteorAI {
                 switch (SubStatus)
                 {
                     case EAISubStatus.KillGotoTarget:
-                        
                         if (killTarget == null)
                             killTarget = owner.GetLockedTarget();
                         if (killTarget != null)
@@ -182,25 +181,34 @@ public class MeteorAI {
                 break;
         }
     }
-    //在其他角色上使用的插槽位置，
-    Dictionary<MeteorUnit, int> FreeCache = new Dictionary<MeteorUnit, int>();
 
+    //在其他角色上使用的插槽位置，
+    Dictionary<MeteorUnit, int> SlotCache = new Dictionary<MeteorUnit, int>();
+    Vector3 vecEnd;
+    Vector3 vecStart;
     void MovetoTarget(MeteorUnit target)
     {
         //开始寻路，找到目标与之最近的路点，从当前点如何到达-目标点
         int freeSlot = -1;
-        List<WayPoint> path = GameBattleEx.Instance.FindPath(owner.mPos, target, out freeSlot);
-        //成功找到路径.且占据了目标上的一个位置槽
-        if (freeSlot != -1)
+        if (true)
         {
-            if (FreeCache.ContainsKey(target))
-                FreeCache[target] = freeSlot;
-            else
-                FreeCache.Add(target, freeSlot);
-            SubStatus = EAISubStatus.KillGotoTarget;
+            List<WayPoint> path = GameBattleEx.Instance.FindPath(owner.mPos, owner, target, out freeSlot, out vecEnd);
+            if (path.Count != 0)
+                vecStart = path[0].pos;
+            //成功找到路径.且占据了目标上的一个位置槽
+            if (freeSlot != -1)
+            {
+                if (SlotCache.ContainsKey(target))
+                    SlotCache[target] = freeSlot;
+                else
+                    SlotCache.Add(target, freeSlot);
+                SubStatus = EAISubStatus.KillGotoTarget;
+            }
         }
-        owner.FaceToTarget(target);
-        float dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(target.mPos.x, 0, target.mPos.z));
+
+        owner.FaceToTarget(vecStart);
+        WsGlobal.AddDebugLine(vecStart, vecStart + Vector3.up * 10, Color.red, "");
+        float dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(vecEnd.x, 0, vecEnd.z));
         if (dis <= 35)//小于35码停止跟随
         {
             owner.controller.Input.AIMove(0, 0);

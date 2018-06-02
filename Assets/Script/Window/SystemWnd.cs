@@ -116,9 +116,9 @@ public class NewSystemWnd : Window<NewSystemWnd>
         toggleEnableInfiniteAngry.isOn = GameData.gameStatus.EnableInfiniteAngry;
         toggleEnableInfiniteAngry.onValueChanged.AddListener(OnEnableInfiniteAngry);
 
-        Toggle toggleEnableItemName = Control("EnableItemName").GetComponent<Toggle>();
-        toggleEnableItemName.isOn = GameData.gameStatus.EnableItemName;
-        toggleEnableItemName.onValueChanged.AddListener(OnEnableItemName);
+        //Toggle toggleEnableItemName = Control("EnableItemName").GetComponent<Toggle>();
+        //toggleEnableItemName.isOn = GameData.gameStatus.EnableItemName;
+        //toggleEnableItemName.onValueChanged.AddListener(OnEnableItemName);
 
         Toggle toggleEnableGodMode = Control("EnableGodMode").GetComponent<Toggle>();
         toggleEnableGodMode.isOn = GameData.gameStatus.EnableGodMode;
@@ -177,10 +177,10 @@ public class NewSystemWnd : Window<NewSystemWnd>
         GameData.gameStatus.EnableInfiniteAngry = on;
     }
 
-    void OnEnableItemName(bool on)
-    {
-        GameData.gameStatus.EnableItemName = on;
-    }
+    //void OnEnableItemName(bool on)
+    //{
+    //    GameData.gameStatus.EnableItemName = on;
+    //}
 
     void OnEnableDebug(bool on)
     {

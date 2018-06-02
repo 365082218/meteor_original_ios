@@ -18,6 +18,7 @@ public class WayLoader:Singleton<WayLoader> {
             StreamReader read = new StreamReader(ms);
             int wayCount = 0;
             WayPoint wpeach = null;
+            int wayPointIdx = 0;
             while (!read.EndOfStream)
             {
                 string line = read.ReadLine();
@@ -32,6 +33,8 @@ public class WayLoader:Singleton<WayLoader> {
                         wp.Add(wpeach);
                     wpeach = new WayPoint();
                     wpeach.pos = new Vector3(float.Parse(eachline[1]), float.Parse(eachline[3]), float.Parse(eachline[2]));
+                    wpeach.index = wayPointIdx;
+                    wayPointIdx++;
                 }
                 else if (eachline[0] == "Size")
                 {

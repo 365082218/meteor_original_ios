@@ -336,6 +336,7 @@
     <Compile Include="Assets\Meteor\Interpolate.cs" />
     <Compile Include="Assets\Meteor\Inventory.cs" />
     <Compile Include="Assets\Meteor\ItemLoader.cs" />
+    <Compile Include="Assets\Meteor\ItemTopUI.cs" />
     <Compile Include="Assets\Meteor\LangItem.cs" />
     <Compile Include="Assets\Meteor\LevelHelper.cs" />
     <Compile Include="Assets\Meteor\LevelScript\LevelScriptBase.cs" />

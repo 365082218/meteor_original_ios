@@ -1215,4 +1215,10 @@ public class U3D : MonoBehaviour {
                 GameData.gameStatus.Language = value;
         }
     }
+
+    public static Camera GetMainCamera()
+    {
+        GameObject objCamera = GameObject.Find("CameraEx");
+        return objCamera == null ? null : objCamera.GetComponent<Camera>();
+    }
 }
