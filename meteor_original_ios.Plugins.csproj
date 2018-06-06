@@ -273,7 +273,6 @@
     <None Include="Assets\Resource\Script\Resources\Fun_Rest.txt" />
     <None Include="Assets\Resource\Script\Resources\GMScript.txt" />
     <None Include="Assets\Resource\Script\Resources\GUARD.txt" />
-    <None Include="Assets\Resource\Script\Resources\Global.txt" />
     <None Include="Assets\Resource\Script\Resources\Hammer.txt" />
     <None Include="Assets\Resource\Script\Resources\KATANA.txt" />
     <None Include="Assets\Resource\Script\Resources\Lance.txt" />

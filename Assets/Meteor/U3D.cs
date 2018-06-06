@@ -813,6 +813,34 @@ public class U3D : MonoBehaviour {
 
     }
 
+    static MeteorUnit GetTeamLeader(EUnitCamp camp)
+    {
+        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        {
+            if (MeteorManager.Instance.UnitInfos[i].Camp == camp)
+                return MeteorManager.Instance.UnitInfos[i];
+        }
+        return null;
+    }
+
+    
+    static bool IsEnemyCamp(EUnitCamp camp1, EUnitCamp camp2)
+    {
+        if (camp1 == EUnitCamp.EUC_ENEMY && camp2 == EUnitCamp.EUC_FRIEND)
+            return true;
+        return false;
+    }
+
+    static MeteorUnit GetEnemyTeamLeader(EUnitCamp camp)
+    {
+        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        {
+            if (IsEnemyCamp(MeteorManager.Instance.UnitInfos[i].Camp, camp))
+                return MeteorManager.Instance.UnitInfos[i];
+        }
+        return null;
+    }
+
     //提供给外部脚本调的
     public static void ChangeBehavior(int id, params object[] value)
     {
@@ -833,10 +861,35 @@ public class U3D : MonoBehaviour {
                 else
                 {
                     target = value[1] as string;
-                    int flag = U3D.GetChar("flag");
-                    if (flag >= 0)
+                    if (value[1] as string == "vip")
                     {
-                        GameBattleEx.Instance.PushActionFollow(id, flag);
+                        //跟随己方首领.
+                        MeteorUnit u = GetUnit(id);
+                        if (u != null)
+                        {
+                            MeteorUnit t = GetTeamLeader(u.Camp);
+                            if (t != null)
+                                GameBattleEx.Instance.PushActionFollow(id, t.InstanceId);
+                        }
+                    }
+                    else if (value[1] as string == "enemyvip")
+                    {
+                        //跟随敌方首领.
+                        MeteorUnit u = GetUnit(id);
+                        if (u != null)
+                        {
+                            MeteorUnit t = GetEnemyTeamLeader(u.Camp);
+                            if (t != null)
+                                GameBattleEx.Instance.PushActionFollow(id, t.InstanceId);
+                        }
+                    }
+                    else
+                    {
+                        int flag = U3D.GetChar("flag");
+                        if (flag >= 0)
+                        {
+                            GameBattleEx.Instance.PushActionFollow(id, flag);
+                        }
                     }
                 }
             }
@@ -997,7 +1050,7 @@ public class U3D : MonoBehaviour {
             else if (pose == "guard" && fun != null && fun.Length == 1)
                 GameBattleEx.Instance.PushActionGuard(id, fun[0]);
             else if (pose == "aggress")
-                unit.posMng.ChangeAction(CommonAction.Taunt);
+                GameBattleEx.Instance.PushActionAggress(id);
             else if (pose == "attack")
             {
 

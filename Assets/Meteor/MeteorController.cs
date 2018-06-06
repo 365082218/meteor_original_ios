@@ -1428,8 +1428,14 @@ public class MeteorController : MonoBehaviour {
     public void LockInput(bool param)
     {
         mInputLocked = param;
-        if (Input != null)
-            Input.ResetInput();
+        if (mInputLocked)
+        {
+            if (Input != null)
+            {
+                Input.ResetInput();
+                Input.mInputVector = Vector2.zero;
+            }
+        }
         //CheckActionInput(Time.deltaTime);
     }
 }

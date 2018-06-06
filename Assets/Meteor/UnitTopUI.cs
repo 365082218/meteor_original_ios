@@ -7,7 +7,7 @@ public class UnitTopUI : MonoBehaviour {
     RectTransform rect;
     MeteorUnit owner;
     UnitDebugInfo Info;
-    const float ViewLimit = 60.0f;
+    const float ViewLimit = 250.0f;
     // Use this for initialization
     private void Awake()
     {

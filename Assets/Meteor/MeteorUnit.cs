@@ -266,30 +266,33 @@ public class MeteorUnit : MonoBehaviour
     [SerializeField]
     public MeteorAI robot;
 
-    //按照角色的坐标围成一圈，每个24度 15个空位，距离40
+    //按照角色的坐标围成一圈，每个30度 12个空位，距离40
     public Dictionary<int, MeteorUnit> SlotInfo = new Dictionary<int, MeteorUnit>();
+    public Dictionary<int, GameObject> SlotFreePos = new Dictionary<int, GameObject>(); 
     public Vector3 GetFreePos(out int slot, MeteorUnit user)
     {
         int k = -1;
-
         //如果已有该使用者，直接返回该使用者占用的位置.
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < 12; i++)
         {
             if (SlotInfo[i] == user)
             {
                 slot = i;
                 k = slot;
-                Vector3 ret = transform.position + Quaternion.AngleAxis(k * 24, Vector3.up) * (Vector3.forward * 40);
+                Vector3 ret = transform.position + Quaternion.AngleAxis(k * 30, Vector3.up) * (Vector3.forward * 40);
+                SlotFreePos[slot].GetComponentInChildren<MeshRenderer>().material.color = Color.red;
+                Debug.LogError(string.Format("{0}的位置{1}已经被{2}占用", name, slot, user.name));
                 return ret;
             }
         }
         //没有该使用者占用一个空位
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < 12; i++)
         {
             if (SlotInfo[i] != null)
                 continue;
             k = i;
             SlotInfo[i] = user;
+            
             break;
         }
 
@@ -298,6 +301,7 @@ public class MeteorUnit : MonoBehaviour
             Vector3 ret = transform.position + Quaternion.AngleAxis(k * 24, Vector3.up) * (Vector3.forward * 40);
             //没计算高度到地面是否有
             slot = k;
+            Debug.LogError(string.Format("{0}的位置{1}被{2}占用", name, slot, user.name));
             return ret;
         }
 
@@ -639,6 +643,18 @@ public class MeteorUnit : MonoBehaviour
         ProcessGravity();
     }
 
+    private void LateUpdate()
+    {
+        ProcessFreePos();
+    }
+
+    void ProcessFreePos()
+    {
+        foreach (var each in SlotFreePos)
+        {
+            each.Value.transform.position = transform.position + Quaternion.AngleAxis(each.Key * 24, Vector3.up) * (Vector3.forward * 40);
+        }
+    }
     void RefreshTarget()
     {
         MeteorUnit temp = lockTarget;
@@ -660,7 +676,7 @@ public class MeteorUnit : MonoBehaviour
                     lockTarget = null;
                 }
             }
-            else if (d >= (Attr.View))
+            else if (d >= (Attr.View + 50))//给一定距离以免不停的切换目标
             {
                 lockTarget = null;
             }
@@ -1054,8 +1070,13 @@ public class MeteorUnit : MonoBehaviour
         IsPlaySkill = false;
 
         //初始化角色周围的占位寻路点
-        for (int i = 0; i <= 15; i++)
+        for (int i = 0; i < 15; i++)
+        {
             SlotInfo.Add(i, null);
+            GameObject obj = GameObject.Instantiate(ResMng.LoadPrefab("FreePos"), transform.position + Quaternion.AngleAxis(i * 24, Vector3.up) * (Vector3.forward * 40), Quaternion.identity, null) as GameObject;
+            obj.transform.localScale = new Vector3(1, 0.1f, 1);
+            SlotFreePos.Add(i, obj);
+        }
     }
 
     public bool IsPlaySkill { get; set; }
@@ -1716,7 +1737,7 @@ public class MeteorUnit : MonoBehaviour
         }
         Vector3 vec = hitUnit.mPos - transform.position;
         vec.y = 0;
-        hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 30);
+        hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 100);
     }
 
     public void WeaponReturned(int poseIdx)
@@ -1998,21 +2019,20 @@ public class MeteorUnit : MonoBehaviour
         //Debug.LogError("角度:" + degree);
         if (degree <= 45)
         {
-            //Debug.LogError("正面");
+            Debug.LogError("正面");
             return 0;
         }
         if (degree <= 135 && angleLeft > 0)
         {
-            //Debug.LogError("左侧");
+            Debug.LogError("左侧");
             return 2;
         }
         if (degree <= 135 && angleLeft < 0)
         {
-            //Debug.LogError("右侧");
+            Debug.LogError("右侧");
             return 3;
         }
-        //Debug.LogError("背面");
-        
+        Debug.LogError("背面");
         return 1;
     }
 

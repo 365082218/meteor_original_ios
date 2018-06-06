@@ -5595,8 +5595,8 @@ public class LevelScript_sn13 : LevelScriptBase
 
     public override void Scene_OnLoad()
     {
-        int i;
-        string name = "";
+        //int i;
+        //string name = "";
 
         SetSceneItem("D_bridge01", "name", "machine");
         SetSceneItem("D_bridge01", "attribute", "collision", 1);
@@ -5609,8 +5609,8 @@ public class LevelScript_sn13 : LevelScriptBase
 
     public override void Scene_OnInit()
     {
-        int i;
-        string name = "";
+        //int i;
+        //string name = "";
 
         g_bBridge01Alive = 1;
         g_iBridge01HP = g_iLevel13BridgeHP;

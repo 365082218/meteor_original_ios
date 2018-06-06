@@ -334,7 +334,7 @@ public class CharacterLoader : MonoBehaviour
         moveScale = scale;
     }
 
-    void PlayNextFrame(float delta)
+    void PlayNextKeyFrame(float delta)
     {
         TryPlayEffect();
         ChangeAttack();
@@ -529,7 +529,7 @@ public class CharacterLoader : MonoBehaviour
         return false;
     }
 
-    public void AnimationUpdate(float timeRatio)
+    public void PlayFrame(float timeRatio)
     {
         float speedScale = GetSpeedScale();
         TryPlayEffect();
@@ -552,21 +552,21 @@ public class CharacterLoader : MonoBehaviour
                 curIndex = po.LoopStart;
             }
         }
-        //else
-        //{
-        //    if (curIndex >= po.End)
-        //    {
-        //        if (single)
-        //            Pause = true;
-        //        else
-        //            posMng.OnActionFinished();
-        //        return;
-        //    }
-        //if (TheFirstFrame == curIndex)
-        //    ActionEvent.HandlerFirstActionFrame(mOwner, po.Idx);
-        //if (TheLastFrame == curIndex)
-        //    ActionEvent.HandlerFinalActionFrame(mOwner, po.Idx);
-        //}
+        else
+        {
+            if (curIndex >= po.End)
+            {
+                if (single)
+                    Pause = true;
+                else
+                    posMng.OnActionFinished();
+                return;
+            }
+            if (TheFirstFrame == curIndex)
+                ActionEvent.HandlerFirstActionFrame(mOwner, po.Idx);
+            if (TheLastFrame == curIndex)
+                ActionEvent.HandlerFinalActionFrame(mOwner, po.Idx);
+        }
 
         //curIndex = targetIndex;
         BoneStatus status = null;
@@ -596,6 +596,7 @@ public class CharacterLoader : MonoBehaviour
                 bo[i].localPosition = Vector3.Lerp(lastStatus.BonePos, status.BonePos, timeRatio);
         }
 
+        bool IgnoreActionMoves = IgnoreActionMove(po.Idx);
         for (int i = 0; i < dummy.Count; i++)
         {
             if (i == 0)
@@ -604,7 +605,7 @@ public class CharacterLoader : MonoBehaviour
                 {
                     Vector3 targetPos = Vector3.Lerp(lastStatus.DummyPos[i], status.DummyPos[i], timeRatio);
                     Vector3 vec = transform.rotation * (targetPos - lastDBasePos) * moveScale;
-                    if (IgnoreActionMove(po.Idx))
+                    if (IgnoreActionMoves)
                     {
                         vec.x = 0;
                         vec.z = 0;
@@ -624,10 +625,6 @@ public class CharacterLoader : MonoBehaviour
                 dummy[i].localPosition = Vector3.Lerp(lastStatus.DummyPos[i], status.DummyPos[i], timeRatio);
             }
         }
-
-        //lastFrameIndex = curIndex;
-        //lastSource = po.SourceIdx;
-        //lastPosIdx = po.Idx;
     }
 
     public void CharacterUpdate()
@@ -656,13 +653,13 @@ public class CharacterLoader : MonoBehaviour
                 float fps = FPS / (Speed * speedScale);
                 if (lastFramePlayedTimes < fps)
                 {
-
+                    PlayFrame(lastFramePlayedTimes / fps);
                 }
                 else
                 {
                     while (lastFramePlayedTimes >= fps)
                     {
-                        PlayNextFrame(fps);
+                        PlayNextKeyFrame(fps);
                         lastFramePlayedTimes -= fps;
                         speedScale = GetSpeedScale();
                         fps = FPS / (Speed * speedScale);

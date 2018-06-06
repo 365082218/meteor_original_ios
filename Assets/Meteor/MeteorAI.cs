@@ -92,6 +92,9 @@ public class MeteorAI {
         //是否暂停AI。
         if (stoped)
             return;
+
+        if (owner.Dead)
+            return;
         //return;
         if (paused)
         {
@@ -186,6 +189,10 @@ public class MeteorAI {
     Dictionary<MeteorUnit, int> SlotCache = new Dictionary<MeteorUnit, int>();
     Vector3 vecEnd;
     Vector3 vecStart;
+
+    GameObject[] Pos = new GameObject[100];
+    GameObject[] debugPos = new GameObject[100];
+    int curIndex = 0;
     void MovetoTarget(MeteorUnit target)
     {
         //开始寻路，找到目标与之最近的路点，从当前点如何到达-目标点
@@ -193,8 +200,57 @@ public class MeteorAI {
         if (true)
         {
             List<WayPoint> path = GameBattleEx.Instance.FindPath(owner.mPos, owner, target, out freeSlot, out vecEnd);
-            if (path.Count != 0)
-                vecStart = path[0].pos;
+            if (path.Count == 1)
+            {
+                vecStart = vecEnd;
+                if (Pos[0] == null)
+                    Pos[0] = GameObject.Instantiate(Resources.Load("FreePos"), vecStart, Quaternion.identity, null) as GameObject;
+                Pos[0].transform.position = vecStart;
+                if (debugPos[0] == null)
+                    debugPos[0] = WsGlobal.AddDebugLine(vecStart, vecStart + Vector3.up * 20, Color.red, string.Format("{0} pos:{1}", owner.name, 0));
+                debugPos[0].transform.position = vecStart;
+                LineRenderer l = debugPos[0].GetComponent<LineRenderer>();
+                l.SetPosition(0, vecStart);
+                l.SetPosition(1, vecStart + Vector3.up * 20);
+            }
+            else if (path.Count > 1)
+            {
+                for (int i = 0; i < path.Count; i++)
+                {
+                    if (Pos[i] == null)
+                        Pos[i] = GameObject.Instantiate(Resources.Load("FreePos"), path[i].pos, Quaternion.identity, null) as GameObject;
+                    Pos[i].transform.position = path[i].pos;
+                    if (debugPos[i] == null)
+                        debugPos[i] = WsGlobal.AddDebugLine(path[i].pos, path[i].pos + Vector3.up * 20, Color.red, string.Format("{0} pos:{1}", owner.name, i));
+                    debugPos[i].transform.position = path[i].pos;
+                    LineRenderer le = debugPos[i].GetComponent<LineRenderer>();
+                    le.SetPosition(0, path[i].pos);
+                    le.SetPosition(1, path[i].pos + Vector3.up * 20);
+                }
+
+                //最后一个点
+                if (Pos[path.Count] == null)
+                    Pos[path.Count] = GameObject.Instantiate(Resources.Load("FreePos"), vecEnd, Quaternion.identity, null) as GameObject;
+                Pos[path.Count].transform.position = vecEnd;
+                if (debugPos[path.Count] == null)
+                    debugPos[path.Count] = WsGlobal.AddDebugLine(vecEnd, vecEnd + Vector3.up * 20, Color.red, string.Format("{0} pos:{1}", owner.name, path.Count));
+                debugPos[path.Count].transform.position = vecEnd + Vector3.up * 20;
+                LineRenderer le2 = debugPos[path.Count].GetComponent<LineRenderer>();
+                le2.SetPosition(0, vecEnd);
+                le2.SetPosition(1, vecEnd + Vector3.up * 20);
+                if (curIndex == path.Count)
+                {
+                    vecStart = vecEnd;
+                }
+                else if (curIndex < path.Count)
+                {
+                    float dismin = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(path[curIndex].pos.x, 0, path[curIndex].pos.z));
+                    if (dismin <= 5)
+                        curIndex++;
+                    vecStart = path[curIndex].pos;
+                }
+            }
+
             //成功找到路径.且占据了目标上的一个位置槽
             if (freeSlot != -1)
             {
@@ -207,7 +263,6 @@ public class MeteorAI {
         }
 
         owner.FaceToTarget(vecStart);
-        WsGlobal.AddDebugLine(vecStart, vecStart + Vector3.up * 10, Color.red, "");
         float dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(vecEnd.x, 0, vecEnd.z));
         if (dis <= 35)//小于35码停止跟随
         {
@@ -221,7 +276,7 @@ public class MeteorAI {
             }
             return;
         }
-        else if (dis >= 60)//距离大于70码开始跟随移动
+        else if (dis >= 50)//距离大于50码开始跟随移动
         {
             if (SubStatus == EAISubStatus.KillGetTarget)
                 SubStatus = EAISubStatus.KillGotoTarget;
@@ -645,8 +700,28 @@ public class MeteorAI {
     public void SetPatrolPath(List<int> path)
     {
         PatrolPath.Clear();
+        List<WayPoint> PathTmp = new List<WayPoint>();
         for (int i = 0; i < path.Count; i++)
-            PatrolPath.Add(Global.GLevelItem.wayPoint[path[i]]);
+            PathTmp.Add(Global.GLevelItem.wayPoint[path[i]]);
+
+        //计算从第一个点到最后一个点的完整路径，放到完整巡逻点钟
+        List<int> idx = new List<int>();
+        for (int i = 0; i < PathTmp.Count - 1; i++)
+        {
+            List<WayPoint> r = GameBattleEx.Instance.FindShortPath(PathTmp[i].index, PathTmp[i + 1].index);
+            for (int j = 0; j < r.Count; j++)
+            {
+                //if (!idx.Contains(r[j].index))
+                    idx.Add(r[j].index);
+            }
+        }
+        for (int i = 0; i < idx.Count; i++)
+            PatrolPath.Add(Global.GLevelItem.wayPoint[idx[i]]);
+        Debug.LogError(string.Format("{0}设置巡逻路径", owner.name));
+        for (int i = 0; i < PatrolPath.Count; i++)
+        {
+            Debug.LogError(string.Format("{0}", PatrolPath[i].index));
+        }
         //-1代表在当前角色所在位置
         curPatrolIndex = -1;
         SubStatus = EAISubStatus.Patrol;
@@ -852,6 +927,7 @@ public class MeteorAI {
                     owner.controller.Input.AIMove(0, 0);
                     return;
                 }
+                owner.FaceToTarget(new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z));
                 owner.controller.Input.AIMove(0, 1);
                 break;
         }

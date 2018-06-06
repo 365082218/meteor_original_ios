@@ -588,6 +588,69 @@ public class GameBattleEx : MonoBehaviour {
         return ret;
     }
 
+    public List<WayPoint> FindPath(int start, int end)
+    {
+        looked.Clear();
+        return FindPath2(start, end);
+    }
+
+    public List<WayPoint> FindShortPath(int start, int end)
+    {
+        //全路径搜索，得到最短路径
+        int kMin = 0;
+        List<WayPoint> ret = new List<WayPoint>();
+        if (Global.GLevelItem.wayPoint[start].link.ContainsKey(end))
+        {
+            ret.Add(Global.GLevelItem.wayPoint[start]);
+            ret.Add(Global.GLevelItem.wayPoint[end]);
+            return ret;
+        }
+
+        foreach (var each in Global.GLevelItem.wayPoint[start].link)
+        {
+            int v = 0;
+            List<int> scan = new List<int>();
+            List<WayPoint> r = FindPath3(each.Key, end, ref v, ref scan);
+            if (v < kMin)
+            {
+                kMin = v;
+                ret = r;
+            }
+        }
+        return ret;
+    }
+
+    List<WayPoint> FindPath3(int start, int end, ref int v, ref List<int> scan)
+    {
+        int kMin = 0;
+        if (scan.Contains(start))
+        {
+            v += 0;
+            return null;
+        }
+        scan.Add(start);
+        List<WayPoint> ret = new List<WayPoint>();
+        if (Global.GLevelItem.wayPoint[start].link.ContainsKey(end))
+        {
+            ret.Add(Global.GLevelItem.wayPoint[start]);
+            ret.Add(Global.GLevelItem.wayPoint[end]);
+            v += 0;
+            return ret;
+        }
+        foreach (var each in Global.GLevelItem.wayPoint[start].link)
+        {
+            int k = 0;
+            List<WayPoint> r = FindPath3(each.Key, end, ref v, ref scan);
+            if (k < kMin)
+            {
+                kMin = k;
+                ret = r;
+            }
+        }
+        v += kMin;
+        return ret;
+    }
+
     List<WayPoint> FindPath2(int start, int end)
     {
         if (looked.Contains(start))
@@ -596,6 +659,11 @@ public class GameBattleEx : MonoBehaviour {
         List<WayPoint> path = new List<WayPoint>();
         if (start == -1 || end == -1)
             return path;
+        if (start == end)
+        {
+            path.Add(Global.GLevelItem.wayPoint[start]);
+            return path;
+        }
         //从开始点，跑到最终点，最短线路？
         if (Global.GLevelItem.wayPoint[start].link.ContainsKey(end))
         {
@@ -612,6 +680,7 @@ public class GameBattleEx : MonoBehaviour {
                 List<WayPoint> p = FindPath2(each.Key, end);
                 if (p != null && p.Count != 0)
                 {
+                    path.Add(Global.GLevelItem.wayPoint[start]);
                     for (int i = 0; i < p.Count; i++)
                         path.Add(p[i]);
                     return path;
@@ -991,6 +1060,11 @@ public class GameBattleEx : MonoBehaviour {
         PushAction(id, StackAction.GUARD, 0, "", time);
     }
 
+    public void PushActionAggress(int id)
+    {
+        PushAction(id, StackAction.Aggress);
+    }
+
     public void PushActionSkill(int id)
     {
         PushAction(id, StackAction.SKILL);
@@ -1060,6 +1134,7 @@ public class GameBattleEx : MonoBehaviour {
                 capsule.isTrigger = true;
                 capsule.radius = Global.GLevelItem.wayPoint[i].size;
                 capsule.height = 200.0f;
+                obj.name = string.Format("WayPoint{0}", Global.GLevelItem.wayPoint[i].index);
             }
         }
     }
@@ -1078,6 +1153,7 @@ public enum StackAction
     Patrol = 9,
     FaceTo = 10,
     Kill = 11,
+    Aggress = 12,
 }
 
 public class ActionConfig
@@ -1105,6 +1181,12 @@ public class ActionConfig
             {
                 MeteorUnit unit = U3D.GetUnit(id);
                 unit.PlaySkill();
+                action.RemoveAt(action.Count - 1);
+            }
+            else if (action[action.Count - 1].type == StackAction.Aggress)
+            {
+                MeteorUnit unit = U3D.GetUnit(id);
+                unit.posMng.ChangeAction(CommonAction.Taunt);
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.CROUCH)
