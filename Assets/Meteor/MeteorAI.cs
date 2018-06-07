@@ -219,6 +219,8 @@ public class MeteorAI {
                 {
                     if (Pos[i] == null)
                         Pos[i] = GameObject.Instantiate(Resources.Load("FreePos"), path[i].pos, Quaternion.identity, null) as GameObject;
+                    if (path[i] == null || Pos[i] == null)
+                        Debug.LogError("error");
                     Pos[i].transform.position = path[i].pos;
                     if (debugPos[i] == null)
                         debugPos[i] = WsGlobal.AddDebugLine(path[i].pos, path[i].pos + Vector3.up * 20, Color.red, string.Format("{0} pos:{1}", owner.name, i));
@@ -706,13 +708,22 @@ public class MeteorAI {
 
         //计算从第一个点到最后一个点的完整路径，放到完整巡逻点钟
         List<int> idx = new List<int>();
-        for (int i = 0; i < PathTmp.Count - 1; i++)
+        //单点巡逻
+        if (PathTmp.Count == 1)
+            idx.Add(PathTmp[0].index);
+        else
         {
-            List<WayPoint> r = GameBattleEx.Instance.FindShortPath(PathTmp[i].index, PathTmp[i + 1].index);
-            for (int j = 0; j < r.Count; j++)
+            //多点巡逻
+            for (int i = 0; i < PathTmp.Count - 1; i++)
             {
-                //if (!idx.Contains(r[j].index))
-                    idx.Add(r[j].index);
+                List<WayPoint> r = GameBattleEx.Instance.FindPath(PathTmp[i].index, PathTmp[i + 1].index);
+                if (r.Count != 0)
+                {
+                    if (idx.Count != 0 && (idx[idx.Count - 1] != r[0].index))
+                        idx.Add(r[0].index);
+                    for (int j = 1; j < r.Count; j++)
+                        idx.Add(r[j].index);
+                }
             }
         }
         for (int i = 0; i < idx.Count; i++)

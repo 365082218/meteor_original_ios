@@ -128,6 +128,10 @@ public class NewSystemWnd : Window<NewSystemWnd>
         toggleShowWayPoint.isOn = false;
         toggleShowWayPoint.onValueChanged.AddListener(OnShowWayPoint);
 
+        Toggle toggleEnableHighPerformance = Control("HighPerformance").GetComponent<Toggle>();
+        toggleEnableHighPerformance.isOn = GameData.gameStatus.TargetFrame == 60;
+        toggleEnableHighPerformance.onValueChanged.AddListener(OnChangePerformance);
+
         Control("ChangeV107").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("1.07"); });
         //Control("Ver108").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer(108); });
         Control("ChangeV907").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("9.07"); });
@@ -193,6 +197,12 @@ public class NewSystemWnd : Window<NewSystemWnd>
     {
         WsGlobal.ShowLevelSelect();
         OnClickClose();
+    }
+
+    void OnChangePerformance(bool on)
+    {
+        GameData.gameStatus.TargetFrame = on ? 60 : 30;
+        Application.targetFrameRate = GameData.gameStatus.TargetFrame;
     }
 
     void OnShowWayPoint(bool on)

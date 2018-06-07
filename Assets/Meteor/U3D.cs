@@ -1148,11 +1148,13 @@ public class U3D : MonoBehaviour {
         MeteorManager.Instance.OnRemoveUnit(unit);
         InsertSystemMsg(message);
     }
+
     public static void UpdateAIAttrib(int id)
     {
         MeteorUnit monster = GetUnit(id);
         monster.Attr.UpdateAttr();
     }
+
     public static int Call(int id, string functionName, params object[] param)
     {
         return 0;

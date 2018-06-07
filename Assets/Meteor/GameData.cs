@@ -77,6 +77,7 @@ public class GameState
     public MyVector2 JoyAnchor;//摇杆坐标.
     public MyVector2 AxisSensitivity;//轴视角转向灵敏度
     public string MeteorVersion;
+    public int TargetFrame;//60-30
 }
 
 public class GameData
@@ -321,6 +322,7 @@ public class GameData
             gameStatus.JoyAnchor = new MyVector2(391,340);
             gameStatus.AxisSensitivity = new MyVector2(0.5f, 0.5f);
             gameStatus.MeteorVersion = "9.07";
+            gameStatus.TargetFrame = 30;
         }
         AppInfo.MeteorVersion = gameStatus.MeteorVersion;
     }
