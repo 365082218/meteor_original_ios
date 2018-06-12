@@ -24,8 +24,7 @@ public enum EAISubStatus
     KillGetTarget,//离角色很近了，可以攻击
     KillGotoTarget,//离角色一定距离，需要先跑过去
     KillOnHurt,//被敌人击中
-    Think,//思考。
-
+    Think,//思考
 }
 
 //每种距离，有无目标的2种情况下的AI设置.
