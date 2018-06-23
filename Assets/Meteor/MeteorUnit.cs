@@ -1661,7 +1661,7 @@ public class MeteorUnit : MonoBehaviour
             {
                 if (Attr.IsPlayer)
                     FightWnd.Instance.UpdatePlayerInfo();
-                else if (MeteorManager.Instance.LocalPlayer.GetLockedTarget() == this)
+                else if (!MeteorManager.Instance.LocalPlayer.SameCamp(this))
                     FightWnd.Instance.UpdateMonsterInfo(this);
             }
             if (Attr.IsPlayer && NGUICameraJoystick.instance)

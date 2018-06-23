@@ -13,7 +13,7 @@ public class MainMenu : Window<MainMenu> {
     }
     void Init()
     {
-        rootMenu = Control("Panel");
+        rootMenu = Control("Content");
         background = Control("Background").GetComponent<Image>();
         Control("Yes").GetComponent<UIButtonExtended>().onClick.AddListener(() => {
             OnEnterLevel();

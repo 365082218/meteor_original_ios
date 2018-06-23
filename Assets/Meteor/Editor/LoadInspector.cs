@@ -214,6 +214,7 @@ public class CharacterLoaderInspector : Editor
 {
     string source = "source idx";
     string frame = "frame idx";
+    string pos = "Pos Id";
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
@@ -224,6 +225,13 @@ public class CharacterLoaderInspector : Editor
         {
             if (!string.IsNullOrEmpty(source) && !string.IsNullOrEmpty(frame))
                 myTarget.ChangeFrame(int.Parse(source), int.Parse(frame));
+        }
+
+        pos = GUILayout.TextField(pos);
+        if (GUILayout.Button("PlayPos"))
+        {
+            if (!string.IsNullOrEmpty(pos))
+                myTarget.posMng.ChangeActionSingle(int.Parse(pos));
         }
     }
 }

@@ -916,6 +916,10 @@ public class U3D : MonoBehaviour {
                 //Debug.LogError("gamebattleex kill");
                 GameBattleEx.Instance.PushActionKill(id, (int)value[1]);
             }
+            else if (act == "idle")
+            {
+                //原地不动.
+            }
         }
     }
     // behavior="wait", "idle", "run", "follow", "patrol", "attacktarget", "kill"

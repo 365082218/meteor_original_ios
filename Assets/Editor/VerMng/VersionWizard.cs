@@ -156,6 +156,11 @@ public class BuildTool
         PlayerPrefs.DeleteAll();
     }
 
+    [MenuItem("MeteorTool/Build/Delete GameSave", false, 3)]
+    static void DeleteSave()
+    {
+        GameData.ResetState();
+    }
     //[MenuItem("MeteorTool/CollectDependence", false, 0)]
     //static void CollectDependence()
     //{

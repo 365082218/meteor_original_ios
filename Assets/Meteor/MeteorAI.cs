@@ -194,11 +194,11 @@ public class MeteorAI {
     int curIndex = 0;
     void MovetoTarget(MeteorUnit target)
     {
-        //开始寻路，找到目标与之最近的路点，从当前点如何到达-目标点
+        //开始寻路，找到目标与之最近的路点(Dijkstra)，从当前点如何到达-目标点
         int freeSlot = -1;
         if (true)
         {
-            List<WayPoint> path = GameBattleEx.Instance.FindPath(owner.mPos, owner, target, out freeSlot, out vecEnd);
+            List<WayPoint> path = PathMng.Instance.FindPath(owner.mPos, owner, target, out freeSlot, out vecEnd);
             if (path.Count == 1)
             {
                 vecStart = vecEnd;
@@ -219,7 +219,7 @@ public class MeteorAI {
                     if (Pos[i] == null)
                         Pos[i] = GameObject.Instantiate(Resources.Load("FreePos"), path[i].pos, Quaternion.identity, null) as GameObject;
                     if (path[i] == null || Pos[i] == null)
-                        Debug.LogError("error");
+                        WSLog.LogError("error");
                     Pos[i].transform.position = path[i].pos;
                     if (debugPos[i] == null)
                         debugPos[i] = WsGlobal.AddDebugLine(path[i].pos, path[i].pos + Vector3.up * 20, Color.red, string.Format("{0} pos:{1}", owner.name, i));
@@ -715,10 +715,10 @@ public class MeteorAI {
             //多点巡逻
             for (int i = 0; i < PathTmp.Count - 1; i++)
             {
-                List<WayPoint> r = GameBattleEx.Instance.FindPath(PathTmp[i].index, PathTmp[i + 1].index);
+                List<WayPoint> r = PathMng.Instance.FindPath(PathTmp[i].index, PathTmp[i + 1].index);
                 if (r.Count != 0)
                 {
-                    if (idx.Count != 0 && (idx[idx.Count - 1] != r[0].index))
+                    if (idx.Count == 0)
                         idx.Add(r[0].index);
                     for (int j = 1; j < r.Count; j++)
                         idx.Add(r[j].index);

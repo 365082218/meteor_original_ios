@@ -1475,6 +1475,23 @@ public class LevelScript_sn02: LevelScriptBase
 
         //NetEvent(0);
     }
+
+    public override void OnStart()
+    {
+        AddNPC("npc02_01");
+    }
+
+    int tag1 = 0;
+    public override int OnUpdate()
+    {
+        if (tag1 == 0)
+        {
+            int c1 = GetChar("皇陵使");
+            ChangeBehavior(c1, "patrol", 1, 2, 3);
+            tag1 = 1;
+        }
+        return 0;
+    }
 }
 
 //一线天
@@ -3540,6 +3557,23 @@ public class LevelScript_sn06: LevelScriptBase
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
+
+    public override void OnStart()
+    {
+        AddNPC("npc02_01");
+    }
+
+    int tag1 = 0;
+    public override int OnUpdate()
+    {
+        if (tag1 == 0)
+        {
+            int c1 = GetChar("皇陵使");
+            ChangeBehavior(c1, "patrol", 1, 2, 3);
+            tag1 = 1;
+        }
+        return 0;
+    }
 }
 //死之阵
 public class LevelScript_sn07: LevelScriptBase
@@ -8144,6 +8178,212 @@ public class LevelScript_sn24 : LevelScriptBase
         InitChairs(g_iNumChairs);
         InitDeskes(g_iNumDeskes);
         InitJugs(g_iNumJugs);
+    }
+}
+
+public class LevelScript_sn25 : LevelScriptBase
+{
+    public override int GetRule() { return Rule; }
+    public override int GetRoundTime() { return RoundTime; }
+    public override int GetPlayerSpawn() { return PlayerSpawn; }
+    public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
+    public override int GetPlayerWeapon() { return PlayerWeapon; }
+    public override int GetPlayerWeapon2() { return PlayerWeapon2; }
+    public override int GetPlayerMaxHp() { return PlayerHP; }
+    int Rule = 4;
+    int RoundTime = 15;
+    int PlayerSpawn = 249;
+    int PlayerSpawnDir = 90;
+    int PlayerWeapon = 24;
+    int PlayerWeapon2 = 14;
+    int PlayerHP = 2000;
+
+    int g_counter = 0;
+    int trg0 = 0;
+    int trg1 = 0;
+    int trg2 = 0;
+    int trg3 = 0;
+    int trg4 = 0;
+    int trg5 = 0;
+    int timer0 = 0;
+    int survivor = -1;
+
+    public override void OnStart()
+    {
+        AddNPC("npc13_02");
+    }
+
+    public override int OnUpdate()
+    {
+        
+        return 1;
+    }
+
+    int g_bBridge01Alive;
+    int g_bBridge02Alive;
+    int g_iBridge01HP;
+    int g_iBridge02HP;
+
+    public override void Scene_OnLoad()
+    {
+        //int i;
+        //string name = "";
+
+        SetSceneItem("D_bridge01", "name", "machine");
+        SetSceneItem("D_bridge01", "attribute", "collision", 1);
+        SetSceneItem("D_bridge01", "attribute", "damagevalue", 300);
+
+        SetSceneItem("D_bridge02", "name", "machine");
+        SetSceneItem("D_bridge02", "attribute", "collision", 1);
+        SetSceneItem("D_bridge02", "attribute", "damagevalue", 300);
+    }
+
+    public override void Scene_OnInit()
+    {
+        //int i;
+        //string name = "";
+
+        g_bBridge01Alive = 1;
+        g_iBridge01HP = g_iLevel13BridgeHP;
+        g_bBridge02Alive = 1;
+        g_iBridge02HP = g_iLevel13BridgeHP;
+
+        SetSceneItem("D_bridge01", "attribute", "active", 1);
+        SetSceneItem("D_bridge01", "attribute", "damage", 0);
+        SetSceneItem("D_bridge01", "pose", 0, 0);
+        SetSceneItem("D_bridge02", "attribute", "active", 1);
+        SetSceneItem("D_bridge02", "attribute", "damage", 0);
+        SetSceneItem("D_bridge02", "pose", 0, 0);
+
+        SetSceneItem("D_itbridge01", "attribute", "active", 0);
+        SetSceneItem("D_itbridge01", "attribute", "interactive", 0);
+        SetSceneItem("D_itbridge02", "attribute", "active", 0);
+        SetSceneItem("D_itbridge02", "attribute", "interactive", 0);
+
+        InitBoxes(g_iNumBoxes);
+        InitBBoxes(g_iNumBBoxes);
+        InitChairs(g_iNumChairs);
+        InitDeskes(g_iNumDeskes);
+        InitJugs(g_iNumJugs);
+
+    }
+
+    public int D_bridge01_OnAttack(int id, int characterid, int damage)
+    {
+        if (g_bBridge01Alive == 1)
+        {
+            g_iBridge01HP = g_iBridge01HP - damage;
+            Output("Bridge 01", g_iBridge01HP);
+            if (g_iBridge01HP <= 0)
+            {
+                int pose = GetSceneItem(id, "pose");
+                if (pose == 2)
+                {
+                    return 0;
+                }
+
+                NetEvent(1);
+                CreateEffect(id, "BridgBRK");
+                SetSceneItem(id, "pose", 2, 0);
+                SetSceneItem(id, "attribute", "damage", 1);
+                SetSceneItem("D_itbridge01", "attribute", "active", 1);
+                SetSceneItem("D_itbridge01", "attribute", "interactive", 1);
+                NetEvent(0);
+            }
+            else
+            {
+                int state = GetSceneItem(id, "state");
+                if (state == 3)
+                {
+                    NetEvent(1);
+                    CreateEffect(id, "BridgHIT");
+                    SetSceneItem(id, "pose", 1, 0);
+                    NetEvent(0);
+                }
+            }
+        }
+        return 1;
+    }
+
+    public int D_bridge01_OnIdle(int id)
+    {
+        if (g_bBridge01Alive == 1)
+        {
+            int pose = GetSceneItem(id, "pose");
+            if (pose != 2)
+            {
+                return 0;
+            }
+            int state = GetSceneItem(id, "state");
+            if (state == 3)
+            {
+                g_bBridge01Alive = 0;
+                NetEvent(1);
+                SetSceneItem(id, "attribute", "damage", 0);
+                SetSceneItem(id, "attribute", "active", 0);
+                NetEvent(0);
+            }
+        }
+        return 1;
+    }
+
+    public int D_bridge02_OnAttack(int id, int characterid, int damage)
+    {
+        if (g_bBridge02Alive == 1)
+        {
+            g_iBridge02HP = g_iBridge02HP - damage;
+            Output("Bridge 02", g_iBridge02HP);
+            if (g_iBridge02HP <= 0)
+            {
+                int pose = GetSceneItem(id, "pose");
+                if (pose == 2)
+                {
+                    return 0;
+                }
+
+                NetEvent(1);
+                CreateEffect(id, "BridgBRK");
+                SetSceneItem(id, "pose", 2, 0);
+                SetSceneItem(id, "attribute", "damage", 1);
+                SetSceneItem("D_itbridge02", "attribute", "active", 1);
+                SetSceneItem("D_itbridge02", "attribute", "interactive", 1);
+                NetEvent(0);
+            }
+            else
+            {
+                int state = GetSceneItem(id, "state");
+                if (state == 3)
+                {
+                    NetEvent(1);
+                    CreateEffect(id, "BridgHIT");
+                    SetSceneItem(id, "pose", 1, 0);
+                    NetEvent(0);
+                }
+            }
+        }
+        return 1;
+    }
+
+    public int D_bridge02_OnIdle(int id)
+    {
+        if (g_bBridge02Alive == 1)
+        {
+            int pose = GetSceneItem(id, "pose");
+            if (pose != 2)
+            {
+                return 0;
+            }
+            int state = GetSceneItem(id, "state");
+            if (state == 3)
+            {
+                g_bBridge02Alive = 0;
+                NetEvent(1);
+                SetSceneItem(id, "attribute", "damage", 0);
+                SetSceneItem(id, "attribute", "active", 0);
+                NetEvent(0);
+            }
+        }
+        return 1;
     }
 }
 

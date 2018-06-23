@@ -26,5 +26,4 @@ end
 
 function OnStart()
 	g_self = GetSelf(g_selfAddr);
-	ChangeBehavior(g_self, "follow", "vip");
 end

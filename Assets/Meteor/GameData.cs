@@ -313,6 +313,9 @@ public class GameData
         {
             gameStatus = new GameState();
             gameStatus.Level = 9;
+#if UNITY_EDITOR
+            gameStatus.Level = 25;
+#endif
             gameStatus.saveSlot = 0;//默认使用0号存档.
             gameStatus.Language = (int)LanguageType.Ch;//默认使用英文.
             gameStatus.MusicVolume = 50;
@@ -343,6 +346,14 @@ public class GameData
         }
     }
 
+    public static void ResetState()
+    {
+        if (File.Exists(Application.persistentDataPath + "/" + "game_state.dat"))
+            File.Delete(Application.persistentDataPath + "/" + "game_state.dat");
+        gameStatus = null;
+        LoadState();
+    }
+    
     //通过配置表得到武器ItemId;//若一个模型被2个武器引用，则返回前者
     public static int GetWeaponCode(string model)
     {
