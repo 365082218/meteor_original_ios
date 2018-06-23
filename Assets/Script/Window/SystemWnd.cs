@@ -125,8 +125,10 @@ public class NewSystemWnd : Window<NewSystemWnd>
         toggleEnableGodMode.onValueChanged.AddListener(OnEnableGodMode);
 
         Toggle toggleShowWayPoint = Control("ShowWayPoint").GetComponent<Toggle>();
-        toggleShowWayPoint.isOn = false;
+        toggleShowWayPoint.isOn = GameData.gameStatus.ShowWayPoint;
         toggleShowWayPoint.onValueChanged.AddListener(OnShowWayPoint);
+        if (GameData.gameStatus.ShowWayPoint)
+            OnShowWayPoint(true);
 
         Toggle toggleEnableHighPerformance = Control("HighPerformance").GetComponent<Toggle>();
         toggleEnableHighPerformance.isOn = GameData.gameStatus.TargetFrame == 60;

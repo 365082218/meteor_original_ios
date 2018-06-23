@@ -980,6 +980,7 @@ public class GameBattleEx : MonoBehaviour {
     }
 
     public List<GameObject> wayPointList = new List<GameObject>();
+    public List<GameObject> wayArrowList = new List<GameObject>();
     public void ShowWayPoint(bool on)
     {
         if (!on)
@@ -988,11 +989,16 @@ public class GameBattleEx : MonoBehaviour {
             {
                  WsGlobal.RemoveLine(wayPointList[i]);
             }
+            for (int i = 0; i < wayArrowList.Count; i++)
+                GameObject.Destroy(wayArrowList[i]);
+            wayArrowList.Clear();
             wayPointList.Clear();
         }
 
         if (on)
         {
+            if (wayArrowList.Count != 0 || wayPointList.Count != 0)
+                return;
             for (int i = 0; i < Global.GLevelItem.wayPoint.Count; i++)
             {
                 GameObject obj = WsGlobal.AddDebugLine(Global.GLevelItem.wayPoint[i].pos - 2 * Vector3.up, Global.GLevelItem.wayPoint[i].pos + 2 * Vector3.up, Color.red, "WayPoint" + i);
@@ -1002,8 +1008,20 @@ public class GameBattleEx : MonoBehaviour {
                 capsule.radius = Global.GLevelItem.wayPoint[i].size;
                 capsule.height = 200.0f;
                 obj.name = string.Format("WayPoint{0}", Global.GLevelItem.wayPoint[i].index);
+
+                foreach (var each in  Global.GLevelItem.wayPoint[i].link)
+                {
+                    GameObject objArrow = GameObject.Instantiate(Resources.Load("PathArrow")) as GameObject;
+                    objArrow.transform.position = Global.GLevelItem.wayPoint[i].pos;
+                    Vector3 vec = Global.GLevelItem.wayPoint[each.Key].pos - Global.GLevelItem.wayPoint[i].pos;
+                    objArrow.transform.forward = vec.normalized;
+                    objArrow.transform.localScale = new Vector3(30, 30, vec.magnitude / 2.0f);
+                    wayArrowList.Add(objArrow);
+                }
             }
         }
+
+        GameData.gameStatus.ShowWayPoint = on;
     }
 }
 

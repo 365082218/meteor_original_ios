@@ -78,6 +78,7 @@ public class GameState
     public MyVector2 AxisSensitivity;//轴视角转向灵敏度
     public string MeteorVersion;
     public int TargetFrame;//60-30
+    public bool ShowWayPoint;//显示路点
 }
 
 public class GameData
@@ -326,6 +327,7 @@ public class GameData
             gameStatus.AxisSensitivity = new MyVector2(0.5f, 0.5f);
             gameStatus.MeteorVersion = "9.07";
             gameStatus.TargetFrame = 30;
+            gameStatus.ShowWayPoint = false;
         }
         AppInfo.MeteorVersion = gameStatus.MeteorVersion;
     }

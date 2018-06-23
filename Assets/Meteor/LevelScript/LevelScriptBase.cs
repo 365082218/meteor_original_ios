@@ -8385,6 +8385,8 @@ public class LevelScript_sn25 : LevelScriptBase
         }
         return 1;
     }
+
+
 }
 
 public abstract class AIScriptBase

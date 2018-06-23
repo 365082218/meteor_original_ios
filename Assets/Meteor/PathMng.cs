@@ -8,13 +8,13 @@ public class PathMng:Singleton<PathMng>
     List<int> looked = new List<int>();
     public List<WayPoint> FindPath(Vector3 now, MeteorUnit user, MeteorUnit target, out int freeSlot, out Vector3 end)
     {
-        int p0 = GetWayIndex(now);
+        int startPathIndex = GetWayIndex(now);
         Vector3 vec = target.GetFreePos(out freeSlot, user);
         end = vec;
-        int p1 = GetWayIndex(vec);
+        int endPathIndex = GetWayIndex(vec);
         looked.Clear();
 
-        List<WayPoint> ret = FindPath2(p0, p1);
+        List<WayPoint> ret = FindPath2(startPathIndex, endPathIndex);
         return ret;
     }
 
