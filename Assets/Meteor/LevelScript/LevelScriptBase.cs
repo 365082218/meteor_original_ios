@@ -8210,7 +8210,7 @@ public class LevelScript_sn25 : LevelScriptBase
 
     public override void OnStart()
     {
-        AddNPC("npc13_02");
+        AddNPC("npc25_0");
     }
 
     public override int OnUpdate()

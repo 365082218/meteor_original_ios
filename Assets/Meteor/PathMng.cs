@@ -14,14 +14,20 @@ public class PathMng:Singleton<PathMng>
         int endPathIndex = GetWayIndex(vec);
         looked.Clear();
 
-        List<WayPoint> ret = FindPath2(startPathIndex, endPathIndex);
+        List<WayPoint> ret = FindPathCore(startPathIndex, endPathIndex);
         return ret;
+    }
+
+    public List<WayPoint> FindPath(MeteorUnit unit, int end)
+    {
+        int startPathIndex = GetWayIndex(unit.mPos);
+        return FindPath(startPathIndex, end);
     }
 
     public List<WayPoint> FindPath(int start, int end)
     {
         looked.Clear();
-        return FindPath2(start, end);
+        return FindPathCore(start, end);
     }
 
     public List<WayPoint> FindShortPath(int start, int end)
@@ -84,7 +90,7 @@ public class PathMng:Singleton<PathMng>
     List<KeyValuePair<WayPoint, float>> S = new List<KeyValuePair<WayPoint, float>>();
     List<KeyValuePair<WayPoint, float>> U = new List<KeyValuePair<WayPoint, float>>();
 
-    List<WayPoint> FindPath2(int start, int end)
+    List<WayPoint> FindPathCore(int start, int end)
     {
         if (looked.Contains(start))
             return null;
@@ -110,7 +116,7 @@ public class PathMng:Singleton<PathMng>
             Dictionary<int, WayLength> ways = Global.GLevelItem.wayPoint[start].link;
             foreach (var each in ways)
             {
-                List<WayPoint> p = FindPath2(each.Key, end);
+                List<WayPoint> p = FindPathCore(each.Key, end);
                 if (p != null && p.Count != 0)
                 {
                     path.Add(Global.GLevelItem.wayPoint[start]);

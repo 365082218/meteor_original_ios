@@ -326,7 +326,7 @@ public class GameData
             gameStatus.JoyAnchor = new MyVector2(391,340);
             gameStatus.AxisSensitivity = new MyVector2(0.5f, 0.5f);
             gameStatus.MeteorVersion = "9.07";
-            gameStatus.TargetFrame = 30;
+            gameStatus.TargetFrame = 60;
             gameStatus.ShowWayPoint = false;
         }
         AppInfo.MeteorVersion = gameStatus.MeteorVersion;

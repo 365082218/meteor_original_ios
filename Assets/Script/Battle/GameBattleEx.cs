@@ -1118,7 +1118,7 @@ public class ActionConfig
                 if (unit != null && unit.robot != null)
                 {
                     unit.robot.SetPatrolPath(action[action.Count - 1].Path);
-                    unit.robot.ChangeState(EAIStatus.Patrol, float.MaxValue);
+                    unit.robot.ChangeState(EAIStatus.GotoPatrol, float.MaxValue);
                 }
                 action.RemoveAt(action.Count - 1);
             }

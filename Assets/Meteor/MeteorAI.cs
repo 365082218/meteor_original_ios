@@ -11,6 +11,7 @@ public enum EAIStatus
     Follow,//跟随
     Aim,//远程武器瞄准
     Think,//没发觉目标时左右观察
+    GotoPatrol,//去巡逻路径的第一个位置.
     Patrol,//巡逻。
     Wait,//脚本：等待
 }
@@ -24,7 +25,6 @@ public enum EAISubStatus
     KillGetTarget,//离角色很近了，可以攻击
     KillGotoTarget,//离角色一定距离，需要先跑过去
     KillOnHurt,//被敌人击中
-    Think,//思考
 }
 
 //每种距离，有无目标的2种情况下的AI设置.
@@ -151,6 +151,9 @@ public class MeteorAI {
             case EAIStatus.Wait:
                 //Debug.LogError("wait");
                 break;
+            case EAIStatus.GotoPatrol:
+                OnGotoPatrol();
+                break;
             case EAIStatus.Patrol:
                 //Debug.LogError("patrol");
                 OnPatrol();
@@ -169,7 +172,7 @@ public class MeteorAI {
                         else
                         {
                             Status = EAIStatus.Idle;
-                            SubStatus = EAISubStatus.Think;
+                            //SubStatus = EAISubStatus.Think;
                         }
                         break;
                     case EAISubStatus.KillGetTarget:
@@ -273,7 +276,7 @@ public class MeteorAI {
             else if (Status == EAIStatus.Follow)
             {
                 Status = EAIStatus.Idle;
-                SubStatus = EAISubStatus.Think;
+                //SubStatus = EAISubStatus.Think;
             }
             return;
         }
@@ -418,12 +421,12 @@ public class MeteorAI {
 
         //}
         int random = Global.Rand.Next(0, 101);
-        switch (SubStatus)
-        {
-            case EAISubStatus.Think://采取一个什么行动,朝目标丢招式,转向目标
+        //switch (SubStatus)
+        //{
+        //    //case EAISubStatus.Think://采取一个什么行动,朝目标丢招式,转向目标
                 
-                break;
-        }
+        //        //break;
+        //}
         //WSLog.LogFrame("随机0-7:得到" + random);
         if (PlayWeaponPoseCorout != null)
         {
@@ -698,6 +701,7 @@ public class MeteorAI {
     bool reverse = false;
     int targetPatrolIndex;
     List<WayPoint> PatrolPath = new List<WayPoint>();
+    List<WayPoint> PatrolPathBegin = new List<WayPoint>();
     public void SetPatrolPath(List<int> path)
     {
         PatrolPath.Clear();
@@ -734,7 +738,9 @@ public class MeteorAI {
         }
         //-1代表在当前角色所在位置
         curPatrolIndex = -1;
+        targetPatrolIndex = -1;
         SubStatus = EAISubStatus.Patrol;
+        PatrolPathBegin = PathMng.Instance.FindPath(owner, idx[0]);
     }
 
     //绕原地
@@ -819,6 +825,120 @@ public class MeteorAI {
     }
 
     int RotateRound;
+    void OnGotoPatrol()
+    {
+        switch (SubStatus)
+        {
+            case EAISubStatus.Patrol:
+                {
+                    //顺序巡逻
+                    if (curPatrolIndex == PatrolPathBegin.Count - 1)
+                    {
+                        Status = EAIStatus.Patrol;
+                        curPatrolIndex = -1;
+                        targetPatrolIndex = -1;
+                        PatrolPathBegin.Clear();
+                        if (StateStack.Count > 0 && StateStack[0].type == EAIStatus.GotoPatrol)
+                            StateStack.RemoveAt(0);
+                        break;
+                    }
+                    else
+                        targetPatrolIndex = (curPatrolIndex + 1) % PatrolPathBegin.Count;
+                    if (targetPatrolIndex != curPatrolIndex)
+                    {
+                        if (PatrolPathBegin.Count <= targetPatrolIndex)
+                        {
+                            //Debug.LogError("PatrolPath->OnIdle");
+                            OnIdle();
+                            return;
+                        }
+
+                        //中断寻路，当距离小于下一帧移动的距离时.
+                        if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPathBegin[targetPatrolIndex].pos.x, 0, PatrolPathBegin[targetPatrolIndex].pos.z)) <= owner.Speed * Time.deltaTime * 0.13f)
+                        {
+                            owner.controller.Input.AIMove(0, 0);
+                            RotateRound = Random.Range(1, 3);
+                            SubStatus = EAISubStatus.PatrolSubRotateInPlace;//到指定地点后旋转
+                            curPatrolIndex = targetPatrolIndex;
+                            //Debug.LogError("进入巡逻子状态-到底指定地点后原地旋转.PatrolSubRotateInPlace");
+                            return;
+                        }
+                        //Debug.LogError("进入巡逻子状态-朝目标旋转");
+                        SubStatus = EAISubStatus.PatrolSubRotateToTarget;//准备先对准目标
+                    }
+                    else
+                    {
+                        RotateRound = Random.Range(1, 3);
+                        SubStatus = EAISubStatus.PatrolSubRotateInPlace;
+                    }
+                }
+                break;
+            case EAISubStatus.PatrolSubRotateInPlace:
+                if (RotateRound > 0)
+                {
+                    if (PatrolRotateCoroutine == null)
+                    {
+                        //Debug.LogError("进入巡逻子状态-到底指定地点后旋转.启动协程");
+                        PatrolRotateCoroutine = owner.StartCoroutine(PatrolRotate());
+                    }
+                }
+                else
+                {
+                    //旋转轮次使用完毕，下一次巡逻
+                    SubStatus = EAISubStatus.Patrol;
+                }
+                break;
+            case EAISubStatus.PatrolSubRotateToTarget:
+                if (PatrolRotateToTargetCoroutine == null)
+                {
+                    //Debug.LogError("进入巡逻子状态-朝目标旋转.启动协程");
+                    switch (Status)
+                    {
+                        case EAIStatus.GotoPatrol:
+                            PatrolRotateToTargetCoroutine = owner.StartCoroutine(PatrolRotateToTarget(PatrolPathBegin[targetPatrolIndex].pos));
+                            break;
+                        case EAIStatus.Patrol:
+                            PatrolRotateToTargetCoroutine = owner.StartCoroutine(PatrolRotateToTarget(PatrolPath[targetPatrolIndex].pos));
+                            break;
+                    }
+                    //PatrolRotateToTargetCoroutine = owner.StartCoroutine(PatrolRotateToTarget(PatrolPath[targetPatrolIndex].pos));
+                }
+                break;
+            case EAISubStatus.PatrolSubGotoTarget:
+                //Debug.LogError("进入巡逻子状态-朝目标输入移动");
+                switch (Status)
+                {
+                    case EAIStatus.Patrol:
+                        if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z)) <= owner.Speed * Time.deltaTime * 0.13f)
+                        {
+                            RotateRound = Random.Range(1, 3);
+                            SubStatus = EAISubStatus.PatrolSubRotateInPlace;//到底指定地点后旋转
+                            curPatrolIndex = targetPatrolIndex;
+                            //Debug.LogError("进入巡逻子状态-到底指定地点后原地旋转.PatrolSubRotateInPlace");
+                            owner.controller.Input.AIMove(0, 0);
+                            return;
+                        }
+                        owner.FaceToTarget(new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z));
+                        owner.controller.Input.AIMove(0, 1);
+                        break;
+                    case EAIStatus.GotoPatrol:
+                        if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPathBegin[targetPatrolIndex].pos.x, 0, PatrolPathBegin[targetPatrolIndex].pos.z)) <= owner.Speed * Time.deltaTime * 0.13f)
+                        {
+                            RotateRound = Random.Range(1, 3);
+                            SubStatus = EAISubStatus.PatrolSubRotateInPlace;//到底指定地点后旋转
+                            curPatrolIndex = targetPatrolIndex;
+                            //Debug.LogError("进入巡逻子状态-到底指定地点后原地旋转.PatrolSubRotateInPlace");
+                            owner.controller.Input.AIMove(0, 0);
+                            return;
+                        }
+                        owner.FaceToTarget(new Vector3(PatrolPathBegin[targetPatrolIndex].pos.x, 0, PatrolPathBegin[targetPatrolIndex].pos.z));
+                        owner.controller.Input.AIMove(0, 1);
+                        break;
+                }
+                break;
+        }
+    }
+
     void OnPatrol()
     {
         switch (SubStatus)
@@ -923,23 +1043,51 @@ public class MeteorAI {
                 if (PatrolRotateToTargetCoroutine == null)
                 {
                     //Debug.LogError("进入巡逻子状态-朝目标旋转.启动协程");
-                    PatrolRotateToTargetCoroutine = owner.StartCoroutine(PatrolRotateToTarget(PatrolPath[targetPatrolIndex].pos));
+                    switch (Status)
+                    {
+                        case EAIStatus.GotoPatrol:
+                            PatrolRotateToTargetCoroutine = owner.StartCoroutine(PatrolRotateToTarget(PatrolPathBegin[targetPatrolIndex].pos));
+                            break;
+                        case EAIStatus.Patrol:
+                            PatrolRotateToTargetCoroutine = owner.StartCoroutine(PatrolRotateToTarget(PatrolPath[targetPatrolIndex].pos));
+                            break;
+                    }
+                    //PatrolRotateToTargetCoroutine = owner.StartCoroutine(PatrolRotateToTarget(PatrolPath[targetPatrolIndex].pos));
                 }
                 break;
             case EAISubStatus.PatrolSubGotoTarget:
                 //Debug.LogError("进入巡逻子状态-朝目标输入移动");
-                if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z)) <= owner.Speed * Time.deltaTime * 0.13f)
+                switch (Status)
                 {
-                    RotateRound = Random.Range(1, 3);
-                    SubStatus = EAISubStatus.PatrolSubRotateInPlace;//到底指定地点后旋转
-                    curPatrolIndex = targetPatrolIndex;
-                    //Debug.LogError("进入巡逻子状态-到底指定地点后原地旋转.PatrolSubRotateInPlace");
-                    owner.controller.Input.AIMove(0, 0);
-                    return;
+                    case EAIStatus.Patrol:
+                        if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z)) <= owner.Speed * Time.deltaTime * 0.13f)
+                        {
+                            RotateRound = Random.Range(1, 3);
+                            SubStatus = EAISubStatus.PatrolSubRotateInPlace;//到底指定地点后旋转
+                            curPatrolIndex = targetPatrolIndex;
+                            //Debug.LogError("进入巡逻子状态-到底指定地点后原地旋转.PatrolSubRotateInPlace");
+                            owner.controller.Input.AIMove(0, 0);
+                            return;
+                        }
+                        owner.FaceToTarget(new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z));
+                        owner.controller.Input.AIMove(0, 1);
+                        break;
+                    case EAIStatus.GotoPatrol:
+                        if (Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(PatrolPathBegin[targetPatrolIndex].pos.x, 0, PatrolPathBegin[targetPatrolIndex].pos.z)) <= owner.Speed * Time.deltaTime * 0.13f)
+                        {
+                            RotateRound = Random.Range(1, 3);
+                            SubStatus = EAISubStatus.PatrolSubRotateInPlace;//到底指定地点后旋转
+                            curPatrolIndex = targetPatrolIndex;
+                            //Debug.LogError("进入巡逻子状态-到底指定地点后原地旋转.PatrolSubRotateInPlace");
+                            owner.controller.Input.AIMove(0, 0);
+                            return;
+                        }
+                        owner.FaceToTarget(new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z));
+                        owner.controller.Input.AIMove(0, 1);
+                        break;
                 }
-                owner.FaceToTarget(new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z));
-                owner.controller.Input.AIMove(0, 1);
                 break;
+                
         }
     }
 }

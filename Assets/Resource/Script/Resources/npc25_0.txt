@@ -1,4 +1,4 @@
-Name = "捕头﹒王强";
+Name = "引路人";
 Model =	9;
 Weapon = 17;
 Weapon2 = 0;
@@ -26,6 +26,5 @@ end
 
 function OnStart()
 	g_self = GetSelf(g_selfAddr);
-	//ChangeBehavior(g_self, "patrol", 70, 179);
-	ChangeBehavior(g_self, "patrol", 2, 3, 1, 26, 111, 110, 112, 18, 152);
+	ChangeBehavior(g_self, "patrol", 70, 179);
 end

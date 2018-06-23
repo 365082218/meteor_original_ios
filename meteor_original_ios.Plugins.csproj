@@ -339,6 +339,7 @@
     <None Include="Assets\Resource\Script\Resources\npc23_02.txt" />
     <None Include="Assets\Resource\Script\Resources\npc23_03.txt" />
     <None Include="Assets\Resource\Script\Resources\npc23_04.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc25_0.txt" />
     <None Include="Assets\Resource\Script\Resources\npcSample.txt" />
     <None Include="Assets\Resource\Script\Resources\npc_1002.txt" />
     <None Include="Assets\Resource\Script\Resources\npc_1003.txt" />
