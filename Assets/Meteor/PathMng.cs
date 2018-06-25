@@ -2,6 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public class PathNode
+{
+    public PathNode parent;
+    public PathNode child;
+    public int wayPointIdx;
+}
+
 public class PathMng:Singleton<PathMng>
 {
     #region 寻路缓存
@@ -87,9 +94,7 @@ public class PathMng:Singleton<PathMng>
         return ret;
     }
 
-    List<KeyValuePair<WayPoint, float>> S = new List<KeyValuePair<WayPoint, float>>();
-    List<KeyValuePair<WayPoint, float>> U = new List<KeyValuePair<WayPoint, float>>();
-
+    SortedDictionary<int, List<PathNode>> PathInfo = new SortedDictionary<int, List<PathNode>>();
     List<WayPoint> FindPathCore(int start, int end)
     {
         if (looked.Contains(start))
@@ -112,21 +117,40 @@ public class PathMng:Singleton<PathMng>
         }
         else
         {
-            //深度优先递归.
+            //深度优先递归.并非最短
+            //Dictionary<int, WayLength> ways = Global.GLevelItem.wayPoint[start].link;
+            //foreach (var each in ways)
+            //{
+            //    List<WayPoint> p = FindPathCore(each.Key, end);
+            //    if (p != null && p.Count != 0)
+            //    {
+            //        path.Add(Global.GLevelItem.wayPoint[start]);
+            //        for (int i = 0; i < p.Count; i++)
+            //            path.Add(p[i]);
+            //        return path;
+            //    }
+            //}
+            //收集路径信息 层次
+            PathInfo.Clear();
+            CollectPathLayer(start, end);
+            //计算最短路径.
             Dictionary<int, WayLength> ways = Global.GLevelItem.wayPoint[start].link;
-            foreach (var each in ways)
-            {
-                List<WayPoint> p = FindPathCore(each.Key, end);
-                if (p != null && p.Count != 0)
-                {
-                    path.Add(Global.GLevelItem.wayPoint[start]);
-                    for (int i = 0; i < p.Count; i++)
-                        path.Add(p[i]);
-                    return path;
-                }
-            }
+
         }
         return path;
+    }
+
+    //收集从起点到终点经过的所有层级路点,一旦遇见最低层级的终点就结束，用于计算最短路径.
+    void CollectPathLayer(int start, int end, int layer = 0)
+    {
+        Dictionary<int, WayLength> ways = Global.GLevelItem.wayPoint[start].link;
+        foreach (var each in ways)
+        {
+            PathNode no = new PathNode();
+            no.wayPointIdx = start;
+            no.parent = null;
+            no.child = null;
+        }
     }
 
     int GetWayIndex(Vector3 now)
