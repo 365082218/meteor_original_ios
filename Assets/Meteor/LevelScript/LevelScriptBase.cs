@@ -8181,6 +8181,7 @@ public class LevelScript_sn24 : LevelScriptBase
     }
 }
 
+//金华城寻路测试.
 public class LevelScript_sn25 : LevelScriptBase
 {
     public override int GetRule() { return Rule; }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class Main : MonoBehaviour {
 	public static Main Ins = null;
@@ -72,31 +73,33 @@ public class Main : MonoBehaviour {
 		if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
         {
             WSLog.LogError("download:" + string.Format(strVFile, strHost, strPort, strProjectUrl, strPlatform, strVFileName));
-            using (WWW vFile = new WWW(string.Format(strVFile, strHost, strPort, strProjectUrl, strPlatform, strVFileName)))
+            UnityWebRequest vFile = new UnityWebRequest();
+            vFile.url = string.Format(strVFile, strHost, strPort, strProjectUrl, strPlatform, strVFileName);
+            vFile.timeout = 2;
+            DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
+            vFile.downloadHandler = dH;
+            yield return vFile.Send();
+            if (vFile.isError)
             {
-                yield return vFile;
-                if (!string.IsNullOrEmpty(vFile.error))
-                {
-                    WSLog.LogError("update version file error:" + vFile.error);
-                    vFile.Dispose();
-                    GameStart();
-                    yield break;
-                }
-                if (vFile.bytes != null && vFile.bytes.Length != 0)
-                {
-                    if (File.Exists(ResMng.GetResPath() + "/" + strVFileName))
-                        File.Delete(ResMng.GetResPath() + "/" + strVFileName);
-                    if (File.Exists(ResMng.GetResPath() + "/" + strVerFile))
-                        File.Delete(ResMng.GetResPath() + "/" + strVerFile);
-                    File.WriteAllBytes(ResMng.GetResPath() + "/" + strVFileName, vFile.bytes);
-                    LZMAHelper.DeCompressFile(ResMng.GetResPath() + "/" + strVFileName, ResMng.GetResPath() + "/" + strVerFile);
-                    vFile.Dispose();
-                }
-                else
-                {
-                    GameStart();
-                    yield break;
-                }
+                WSLog.LogError("update version file error:" + vFile.error);
+                vFile.Dispose();
+                GameStart();
+                yield break;
+            }
+            if (vFile.downloadHandler.data != null && vFile.downloadedBytes != 0)
+            {
+                if (File.Exists(ResMng.GetResPath() + "/" + strVFileName))
+                    File.Delete(ResMng.GetResPath() + "/" + strVFileName);
+                if (File.Exists(ResMng.GetResPath() + "/" + strVerFile))
+                    File.Delete(ResMng.GetResPath() + "/" + strVerFile);
+                File.WriteAllBytes(ResMng.GetResPath() + "/" + strVFileName, vFile.downloadHandler.data);
+                LZMAHelper.DeCompressFile(ResMng.GetResPath() + "/" + strVFileName, ResMng.GetResPath() + "/" + strVerFile);
+                vFile.Dispose();
+            }
+            else
+            {
+                GameStart();
+                yield break;
             }
             List<VersionItem> v = ReadVersionJson(File.ReadAllText(ResMng.GetResPath() + "/" + strVerFile));
             //从版本信息下载指定压缩包

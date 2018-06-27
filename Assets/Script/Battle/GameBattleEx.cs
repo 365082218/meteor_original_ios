@@ -1015,7 +1015,7 @@ public class GameBattleEx : MonoBehaviour {
                     objArrow.transform.position = Global.GLevelItem.wayPoint[i].pos;
                     Vector3 vec = Global.GLevelItem.wayPoint[each.Key].pos - Global.GLevelItem.wayPoint[i].pos;
                     objArrow.transform.forward = vec.normalized;
-                    objArrow.transform.localScale = new Vector3(30, 30, vec.magnitude / 2.0f);
+                    objArrow.transform.localScale = new Vector3(30, 30, vec.magnitude / 2.2f);
                     wayArrowList.Add(objArrow);
                 }
             }
