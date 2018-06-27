@@ -7,7 +7,7 @@ public class LoadingNotice: Window<LoadingNotice>
     public override string PrefabName { get { return "LoadingNotice"; } }
     protected override bool OnOpen()
     {
-        WinStyle = WindowStyle.WS_Ext;
+        WinStyle = WindowStyle.WS_Normal;
         Init();
         return base.OnOpen();
     }

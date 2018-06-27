@@ -215,6 +215,9 @@ public class MainWnd : Window<MainWnd>
         });
         Control("QuitGame").GetComponent<Button>().onClick.AddListener(()=> {
             Application.Quit();
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#endif
         });
         Control("UploadLog").GetComponent<Button>().onClick.AddListener(() => { FtpLog.UploadStart(); });
         Global.timeScale = 1;
