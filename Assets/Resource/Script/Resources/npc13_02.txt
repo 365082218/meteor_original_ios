@@ -26,6 +26,5 @@ end
 
 function OnStart()
 	g_self = GetSelf(g_selfAddr);
-	//ChangeBehavior(g_self, "patrol", 70, 179);
 	ChangeBehavior(g_self, "patrol", 2, 3, 1, 26, 111, 110, 112, 18, 152);
 end

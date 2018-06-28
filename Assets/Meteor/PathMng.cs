@@ -4,9 +4,14 @@ using UnityEngine;
 
 public class PathNode
 {
-    public PathNode parent;//上一个节点
-    public PathNode child;//
+    public int parent;//上一层节点.
     public int wayPointIdx;
+}
+
+public enum WalkType
+{
+    Normal = 0, 
+    Jump = 1,
 }
 
 public class PathMng:Singleton<PathMng>
@@ -25,10 +30,18 @@ public class PathMng:Singleton<PathMng>
         return ret;
     }
 
-    public List<WayPoint> FindPath(MeteorUnit unit, int end)
+    public WalkType GetWalkMethod(int start, int end)
     {
-        int startPathIndex = GetWayIndex(unit.mPos);
-        return FindPath(startPathIndex, end);
+        if (Global.GLevelItem.wayPoint.Count > start && Global.GLevelItem.wayPoint.Count > end)
+        {
+            if (Global.GLevelItem.wayPoint[start].link.ContainsKey(end))
+            {
+                return (WalkType)Global.GLevelItem.wayPoint[start].link[end].mode;
+            }
+            else
+                Debug.LogError(string.Format("{0}-{1} can not link", start, end));
+        }
+        return WalkType.Normal;
     }
 
     public List<WayPoint> FindPath(int start, int end)
@@ -138,7 +151,7 @@ public class PathMng:Singleton<PathMng>
                 PathNode no = new PathNode();
                 no.wayPointIdx = start;
                 PathInfo.Add(0, new List<PathNode>() { no });
-                //CollectPathInfo(start, end);
+                CollectPathInfo(start, end);
 
                 foreach (var each in PathInfo)
                 {
@@ -146,8 +159,33 @@ public class PathMng:Singleton<PathMng>
                     for (int i = 0; i < each.Value.Count; i++)
                         Debug.Log(string.Format("{0}", each.Value[i].wayPointIdx));
                 }
-                //计算最短路径.
-                //Dictionary<int, WayLength> ways = Global.GLevelItem.wayPoint[start].link;
+
+                //计算最短路径.从A-B，路径越少，越短，2边之和大于第3边
+                int target = end;
+                nextfind:
+                while (true)
+                {
+                    foreach (var each in PathInfo)
+                    {
+                        for (int i = 0; i < each.Value.Count; i++)
+                        {
+                            if (each.Value[i].wayPointIdx == target)
+                            {
+                                if (path.Count == 0)
+                                    path.Add(Global.GLevelItem.wayPoint[target]);
+                                else
+                                    path.Insert(0, Global.GLevelItem.wayPoint[target]);
+                                while (each.Value[i].parent != start)
+                                {
+                                    target = each.Value[i].parent;
+                                    goto nextfind;
+                                }
+                                goto exitfind;
+                            }
+                        }
+                    }
+                }
+                exitfind:path.Insert(0, Global.GLevelItem.wayPoint[start]);
             }
         }
         return path;
@@ -167,23 +205,22 @@ public class PathMng:Singleton<PathMng>
         return false;
     }
 
-    bool CollectPathInfo(int start, int end, int layer = 1)
+    void CollectPathInfo(int start, int end, int layer = 1)
     {
-        if (CollectPathLayer(start, end, layer))
-            return true;
-        if (PathInfo.ContainsKey(layer))
+        CollectPathLayer(start, end, layer);
+        while (PathInfo.ContainsKey(layer))
         {
+            int nextLayer = layer + 1;
             for (int i = 0; i < PathInfo[layer].Count; i++)
             {
-                if (CollectPathInfo(PathInfo[layer][i].wayPointIdx, end, layer + 1))
-                    return true;
+                CollectPathLayer(PathInfo[layer][i].wayPointIdx, end, nextLayer);
             }
+            layer = nextLayer;
         }
-        return false;
     }
 
     //收集从起点到终点经过的所有层级路点,一旦遇见最近层级的终点就结束，用于计算最短路径.
-    bool CollectPathLayer(int start, int end, int layer = 1)
+    void CollectPathLayer(int start, int end, int layer = 1)
     {
         Dictionary<int, WayLength> ways = Global.GLevelItem.wayPoint[start].link;
         foreach (var each in ways)
@@ -193,20 +230,16 @@ public class PathMng:Singleton<PathMng>
             {
                 PathNode no = new PathNode();
                 no.wayPointIdx = each.Key;
-                no.parent = null;
-                no.child = null;
+                no.parent = start;
                 if (PathInfo.ContainsKey(layer))
                     PathInfo[layer].Add(no);
                 else
                     PathInfo.Add(layer, new List<PathNode> { no });
-                if (no.wayPointIdx == end)
-                    return true;
             }
         }
-        return false;
     }
 
-    int GetWayIndex(Vector3 now)
+    public int GetWayIndex(Vector3 now)
     {
         int ret = -1;
         float min = 10000.0f;

@@ -136,8 +136,7 @@ public class MeteorInput
         //    mInputVector = Vector2.zero;
         InputCore.Update();
         //主角色，扫描硬件信息
-        if (mOwner.Attr.IsPlayer)
-            UpdateKeyStatus(deltaTime);
+        UpdateKeyStatus(deltaTime);
         UpdateMoveInput(deltaTime);
     }
 
@@ -160,16 +159,19 @@ public class MeteorInput
             // 假设当前用的是鼠标，摇杆，那么摇杆触发的键位会被键盘重置掉。
             //只有使用键盘的时候，键的状态才从与键盘状态同步。
             //return;
-            //发布为PC的时候，才会从硬件扫描
+            //UNITY的时候，会从硬件扫描
 #if UNITY_EDITOR
-            float kValue = Input.GetAxisRaw(keyStatus.AxisName);
-            bool pressed = kValue > 0;
-            if (pressed && keyStatus.Pressed == 0 && !keyStatus.IsAI)
-                OnKeyDown(keyStatus, false);
-            else if (!pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
-                OnKeyUp(keyStatus);
-            else if (pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
-                OnKeyPressing(keyStatus);
+            if (mOwner.Attr.IsPlayer)//主角才读取键盘输入
+            {
+                float kValue = Input.GetAxisRaw(keyStatus.AxisName);
+                bool pressed = kValue > 0;
+                if (pressed && keyStatus.Pressed == 0 && !keyStatus.IsAI)
+                    OnKeyDown(keyStatus, false);
+                else if (!pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
+                    OnKeyUp(keyStatus);
+                else if (pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
+                    OnKeyPressing(keyStatus);
+            }
 #endif
         }
 
