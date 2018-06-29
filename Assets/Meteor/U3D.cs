@@ -920,6 +920,10 @@ public class U3D : MonoBehaviour {
             {
                 //原地不动.
             }
+            else if (act == "attacktarget")
+            {
+                UnityEngine.Debug.LogError(string.Format("attacktarget:{0}, {1}", (int)value[1], (int)value[2]));
+            }
         }
     }
     // behavior="wait", "idle", "run", "follow", "patrol", "attacktarget", "kill"

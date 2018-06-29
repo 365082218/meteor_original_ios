@@ -1071,13 +1071,13 @@ public class MeteorUnit : MonoBehaviour
         IsPlaySkill = false;
 
         //初始化角色周围的占位寻路点
-        //for (int i = 0; i < 15; i++)
-        //{
-        //    SlotInfo.Add(i, null);
-        //    GameObject obj = GameObject.Instantiate(ResMng.LoadPrefab("FreePos"), transform.position + Quaternion.AngleAxis(i * 24, Vector3.up) * (Vector3.forward * 40), Quaternion.identity, null) as GameObject;
-        //    obj.transform.localScale = new Vector3(1, 0.1f, 1);
-        //    SlotFreePos.Add(i, obj);
-        //}
+        for (int i = 0; i < 15; i++)
+        {
+            SlotInfo.Add(i, null);
+            //GameObject obj = GameObject.Instantiate(ResMng.LoadPrefab("FreePos"), transform.position + Quaternion.AngleAxis(i * 24, Vector3.up) * (Vector3.forward * 40), Quaternion.identity, null) as GameObject;
+            //obj.transform.localScale = new Vector3(1, 0.1f, 1);
+            //SlotFreePos.Add(i, obj);
+        }
     }
 
     public bool IsPlaySkill { get; set; }

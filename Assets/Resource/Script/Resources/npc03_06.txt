@@ -26,6 +26,6 @@ end
 
 function OnStart()
 	g_self = GetSelf(g_selfAddr);
-	local m = {"patrol", 20, 28, 101, 69}
-	ChangeBehavior(g_self, m);
+	--local m = {"patrol", 20, 28, 101, 69}
+	ChangeBehavior(g_self, "patrol", 20, 28, 101, 69);
 end
