@@ -25,7 +25,7 @@ FuBenID	Scene	Name	LevelType	goodList	BgmName	BgTexture	Pass	Param
 23	Meteor_23	韩棠-大决战	1	sn23	S11		1	
 24	Meteor_24	运输船	1	sn24	S11		1	
 25	Meteor_13	金华城寻路	1	sn25	S11		1	
-								
+26	Meteor_25	Dc&BatchTest	1	sn24	S11		1
 								
 								
 								

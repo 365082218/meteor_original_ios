@@ -314,6 +314,10 @@ public class SkcFile
     //0-19内的材质是3个，20-27的是单个
     public Material[] Material(int roleIdx, EUnitCamp camp)
     {
+        //return new UnityEngine.Material[0];
+        //if (SkcMatMng.Instance != null)
+        //    return SkcMatMng.Instance.GetPlayerMat(roleIdx, camp);
+        //使用预先设置好的材质球，降低DC和Batch
         Material[] ret = new Material[materials.Length];
         string strTexture = "";
         string strIndex = "";

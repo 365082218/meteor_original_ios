@@ -315,7 +315,7 @@ public class GameData
             gameStatus = new GameState();
             gameStatus.Level = 9;
 #if UNITY_EDITOR
-            gameStatus.Level = 25;
+            gameStatus.Level = LevelMng.Instance.GetAllItem()[LevelMng.Instance.GetAllItem().Length - 1].ID ;
 #endif
             gameStatus.saveSlot = 0;//默认使用0号存档.
             gameStatus.Language = (int)LanguageType.Ch;//默认使用英文.

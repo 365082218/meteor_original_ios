@@ -62,8 +62,9 @@ public class EffectPoolManager : MonoBehaviour
     {
         if (objectPool == null) 
             return null;
-        GameObject effect = objectPool.Spawn(true);
-        effect.GetComponent<EffectTime>().Pool = objectPool;
+        GameObject effect = objectPool.Spawn(true) as GameObject;
+        if (effect != null)
+            effect.GetComponent<EffectTime>().Pool = objectPool;
         return effect;
     }
 }

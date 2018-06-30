@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 public class ObjectPool : MonoBehaviour
 {
-    public GameObject Prefab;
+    public Object Prefab;
     public int InitNum;
     public int PoolNum;
 
-    Stack<GameObject> mInstances = new Stack<GameObject>();
+    Stack<Object> mInstances = new Stack<Object>();
 
     // Use this for initialization
     void Start()
@@ -22,7 +22,7 @@ public class ObjectPool : MonoBehaviour
         }
     }
 
-    public GameObject Spawn(bool create)
+    public Object Spawn(bool create)
     {
         //add by Lindean
         //if (create)
@@ -30,22 +30,21 @@ public class ObjectPool : MonoBehaviour
 
         if (mInstances.Count > 0)
         {
-            GameObject instance = mInstances.Pop();
-            instance.SetActive(true);
+            Object instance = mInstances.Pop();
+            //instance.SetActive(true);
             PoolNum--;
             return instance;
         }
 
         //GOD
         if (create)
-            return GameObject.Instantiate(Prefab) as GameObject;
+            return GameObject.Instantiate(Prefab);
 
         return null;
     }
 
-    public void Recycle(GameObject instance)
+    public void Recycle(Object instance)
     {
-        instance.SetActive(false);
         mInstances.Push(instance);
         PoolNum++;
     }

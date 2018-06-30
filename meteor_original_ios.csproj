@@ -727,6 +727,8 @@
     <Compile Include="Assets\Shaders\PlaneShadowCaster.cs" />
     <Compile Include="Assets\Shaders\ldaDepthMask\ldaSetRenderQueue.cs" />
     <Compile Include="Assets\Shaders\ldaDissolve\BossDeadDissolve01.cs" />
+    <Compile Include="Assets\SkcMatItem.cs" />
+    <Compile Include="Assets\SkcMatMng.cs" />
     <Compile Include="Assets\Slua\LuaObject\Custom\BindCustom.cs" />
     <Compile Include="Assets\Slua\LuaObject\Custom\LuaDelegate_Circle_UpdateDelegate.cs" />
     <Compile Include="Assets\Slua\LuaObject\Custom\LuaDelegate_Deleg_GetBundleInfoDelegate.cs" />
@@ -1486,6 +1488,8 @@
     <Compile Include="Assets\Test\Fan2DTest\SetFan2DAngle_OnlyDrawEdge.cs" />
     <Compile Include="Assets\Test\Gradient.cs" />
     <Compile Include="Assets\Test\HpEffect.cs" />
+    <Compile Include="Assets\Test\ProfileTest\TestUGUI.cs" />
+    <Compile Include="Assets\Test\ProfileTest\UnitTopUITest.cs" />
     <Compile Include="Assets\TestResources.cs" />
     <Compile Include="Assets\ThreadMsgQueue.cs" />
     <Compile Include="Assets\UnitDebugInfo.cs" />
