@@ -20,14 +20,14 @@ public class LoadingNotice: Window<LoadingNotice>
     public void Init()
     {
         Notice = Control("Notice").GetComponent<Text>();
-        Accept = Control("Accept").GetComponent<UIButtonExtended>();
-        Cancel = Control("Cancel").GetComponent<UIButtonExtended>();
+        Accept = Control("Accept").GetComponent<Button>();
+        Cancel = Control("Cancel").GetComponent<Button>();
         LoadingBar = Control("LoadingProgressBar").GetComponent<UILoadingBar>();
         SpeedText = Control("Speed").GetComponent<Text>();
     }
     Text Notice;
-    UIButtonExtended Accept;
-    UIButtonExtended Cancel;
+    Button Accept;
+    Button Cancel;
     UILoadingBar LoadingBar;
     Text SpeedText;
     public void SetNotice(string text, UnityAction onaccept, UnityAction oncancel)

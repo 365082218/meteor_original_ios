@@ -9,16 +9,19 @@ public class MainMenu : Window<MainMenu> {
     protected override bool OnOpen()
     {
         Init();
+        if (MainWnd.Exist)
+            MainWnd.Instance.Close();
         return base.OnOpen();
     }
     void Init()
     {
         rootMenu = Control("Content");
         background = Control("Background").GetComponent<Image>();
-        Control("Yes").GetComponent<UIButtonExtended>().onClick.AddListener(() => {
+        Control("Yes").GetComponent<Button>().onClick.AddListener(() => {
             OnEnterLevel();
         });
-        Control("Cancel").GetComponent<UIButtonExtended>().onClick.AddListener(() => {
+        Control("Cancel").GetComponent<Button>().onClick.AddListener(() => {
+            MainWnd.Instance.Open();
             Close();
         });
 

@@ -1,6 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEditor;
+[CustomEditor(typeof(AudioButton))]
+public class AudioButtonInspector:Editor
+{
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+    }
+}
 
 [CustomEditor(typeof(CobLoader))]
 public class CobInspector:Editor

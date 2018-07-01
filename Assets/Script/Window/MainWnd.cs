@@ -143,10 +143,6 @@ public class NickName : Window<NickName>
         Init();
         return base.OnOpen();
     }
-    protected override bool FullStretch()
-    {
-        return false;
-    }
     protected override bool OnClose()
     {
         return base.OnClose();
@@ -245,7 +241,6 @@ public class MainWnd : Window<MainWnd>
 public class PlayerWnd:Window<PlayerWnd>
 {
     public override string PrefabName  {  get {  return "PlayerWnd"; }  }
-    protected override bool FullStretch(){return false;}
     protected override bool OnOpen()
     {
         Init();
@@ -322,7 +317,6 @@ public class ItemInfoWnd:Window<ItemInfoWnd>
     {
         Item = item;
     }
-    protected override bool FullStretch() { return false; }
     protected override bool OnOpen()
     {
         Init();

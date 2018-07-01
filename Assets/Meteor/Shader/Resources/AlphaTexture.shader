@@ -8,7 +8,7 @@
 // - no lightmap support
 // - no per-material color
 //不要随便改名字了，否则都乱了
-Shader "AlphaTexture" {
+Shader "Custom/AlphaTexture" {
 Properties {
 	_MainTex ("Base (RGB)", 2D) = "white" {}
 	_Alpha("Alpha", float) = 1.0

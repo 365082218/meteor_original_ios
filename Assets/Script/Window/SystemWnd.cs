@@ -52,11 +52,6 @@ public class ModelWnd:Window<ModelWnd>
             GameBattleEx.Instance.StopCoroutine(loadModel);
         return base.OnClose();
     }
-
-    protected override bool FullStretch()
-    {
-        return false;
-    }
 }
 
 public class NewSystemWnd : Window<NewSystemWnd>
@@ -70,10 +65,6 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Init();
         GameBattleEx.Instance.Pause();
         return base.OnOpen();
-    }
-    protected override bool FullStretch()
-    {
-        return false;
     }
 
     public override void OnClick()
@@ -98,7 +89,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Control("EffectSlider").GetComponent<Slider>().onValueChanged.AddListener(OnEffectVolumeChange);
         Control("HSliderBar").GetComponent<Slider>().onValueChanged.AddListener(OnXSensitivityChange);
         Control("VSliderBar").GetComponent<Slider>().onValueChanged.AddListener(OnYSensitivityChange);
-        Control("QuitGame").GetComponent<UIButtonExtended>().onClick.AddListener(OnClickBack);
+        Control("QuitGame").GetComponent<Button>().onClick.AddListener(OnClickBack);
         Control("ResetPosition").GetComponent<Button>().onClick.AddListener(OnResetPosition);
         Control("ReloadTable").GetComponent<Button>().onClick.AddListener(()=> { U3D.ReloadTable(); });
         Control("LoadLevel").GetComponent<Button>().onClick.AddListener(OnLoadLevel);

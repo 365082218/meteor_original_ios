@@ -18,6 +18,9 @@ public enum EAIStatus
 
 public enum EAISubStatus
 {
+    FollowGotoTarget,
+    FollowSubRotateToTarget,
+    FollowSubCheck,//跟随到达目标后,定时检查
     Patrol = EAIStatus.Patrol,
     PatrolSubRotateInPlace,//原地随机旋转.
     PatrolSubRotateToTarget,//原地一定时间内旋转到指定方向
@@ -178,8 +181,9 @@ public class MeteorAI {
                         }
                         break;
                     case EAISubStatus.KillGetTarget:
-                        
-                        OnIdle();
+                        if (killTarget == null || killTarget.Dead)
+                            killTarget = owner.GetLockedTarget();
+                        KillTarget(killTarget);
                         break;
                     case EAISubStatus.KillOnHurt:
                         OnHurt();
@@ -195,59 +199,115 @@ public class MeteorAI {
     //GameObject[] Pos = new GameObject[100];
     //GameObject[] debugPos = new GameObject[100];
     int curIndex = 0;
+    int targetIndex = 0;
     List<WayPoint> FollowPath = new List<WayPoint>();
     //要做一个移动缓存，不必要每次都用最新的位置去寻路.
     void MovetoTarget(MeteorUnit target)
     {
         int freeSlot = -1;
-        if (AIFollowRefresh >= 10.0f)
+        float dis = 0.0f;
+        switch (SubStatus)
         {
-            //先确定是否重新刷新路线.
-            float dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(target.mPos.x, 0, target.mPos.z));
-            if (dis <= 35)//小于35码停止跟随，不需要计算路径
-            {
-                owner.controller.Input.AIMove(0, 0);
-                if (Status == EAIStatus.Kill)
-                    SubStatus = EAISubStatus.KillGetTarget;
-                else if (Status == EAIStatus.Follow)
+            case EAISubStatus.FollowGotoTarget:
+            case EAISubStatus.KillGotoTarget:
+                if (AIFollowRefresh >= 10.0f)
                 {
-                    Status = EAIStatus.Idle;
-                    //SubStatus = EAISubStatus.Think;
-                }
-                AIFollowRefresh = 5.0f;//5秒后再计算是否跟随.
-                return;
-            }
-            else if (dis >= 50)//距离大于50码开始跟随移动
-            {
-                if (SubStatus == EAISubStatus.KillGetTarget)
-                    SubStatus = EAISubStatus.KillGotoTarget;
-                owner.controller.Input.AIMove(0, 1);
-            }
+                    //先确定是否重新刷新路线.
+                    dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(target.mPos.x, 0, target.mPos.z));
+                    if (dis <= 35)//小于35码停止跟随，不需要计算路径
+                    {
+                        //FollowPath.Clear();
+                        owner.controller.Input.AIMove(0, 0);
+                        AIFollowRefresh = 5.0f;//5秒后再计算是否跟随.
+                        return;
+                    }
+                    else if (dis >= 50)//距离大于50码开始跟随移动
+                    {
+                        //if (SubStatus == EAISubStatus.KillGetTarget)
+                        //    SubStatus = EAISubStatus.KillGotoTarget;
+                        owner.controller.Input.AIMove(0, 1);
+                    }
 
-            FollowPath = PathMng.Instance.FindPath(owner.mPos, owner, target, out freeSlot, out vecTarget);
-            curIndex = 0;
-            AIFollowRefresh = 0.0f;
-            //成功找到路径.且占据了目标上的一个位置槽
-            if (freeSlot != -1)
-            {
-                if (SlotCache.ContainsKey(target))
-                    SlotCache[target] = freeSlot;
+                    FollowPath = PathMng.Instance.FindPath(owner.mPos, owner, target, out freeSlot, out vecTarget);
+                    curIndex = -1;
+                    targetIndex = -1;
+                    AIFollowRefresh = 0.0f;
+                    //成功找到路径.且占据了目标上的一个位置槽
+                    if (freeSlot != -1)
+                    {
+                        if (SlotCache.ContainsKey(target))
+                            SlotCache[target] = freeSlot;
+                        else
+                            SlotCache.Add(target, freeSlot);
+                    }
+                }
                 else
-                    SlotCache.Add(target, freeSlot);
-                SubStatus = EAISubStatus.KillGotoTarget;
-            }
+                {
+                    if (curIndex == -1)
+                        targetIndex = 0;
+                    
+                    dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(FollowPath[targetIndex].pos.x, 0, FollowPath[targetIndex].pos.z));
+                    if (dis <= owner.Speed * Time.deltaTime * 0.13f)
+                    {
+                        owner.controller.Input.AIMove(0, 0);
+                        if (targetIndex == FollowPath.Count - 1)
+                        {
+                            //到达终点.
+                            owner.controller.Input.AIMove(0, 0);
+                            AIFollowRefresh = 5.0f;
+                            SubStatus = EAISubStatus.FollowSubCheck;
+                            return;
+                        }
+                        else
+                        {
+                            curIndex = targetIndex;
+                            targetIndex += 1;
+                        }
+                        RotateRound = Random.Range(1, 3);
+                        SubStatus = EAISubStatus.FollowSubRotateToTarget;//到指定地点后旋转
+                        return;
+                    }
+
+                    owner.FaceToTarget(new Vector3(FollowPath[targetIndex].pos.x, 0, FollowPath[targetIndex].pos.z));
+                    owner.controller.Input.AIMove(0, 1);
+                    //模拟跳跃键，移动到下一个位置.还得按住上
+                    if (curIndex != -1)
+                    {
+                        if (PathMng.Instance.GetWalkMethod(FollowPath[curIndex].index, FollowPath[targetIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
+                        {
+                            AIJump();
+                            AIJumpDelay = 0.0f;
+                        }
+                    }
+                }
+                break;
+            case EAISubStatus.FollowSubRotateToTarget:
+                if (FollowRotateToTargetCoroutine == null)
+                {
+                    FollowRotateToTargetCoroutine = owner.StartCoroutine(FollowRotateToTarget(FollowPath[targetIndex].pos));
+                }
+                break;
+            case EAISubStatus.FollowSubCheck:
+                dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(target.mPos.x, 0, target.mPos.z));
+                if (dis >= 50)//距离大于50码开始跟随移动
+                    SubStatus = EAISubStatus.FollowGotoTarget;
+                break;
         }
-        else
-        {
-            owner.FaceToTarget(vecTarget);
-        }
+    }
+
+    //已经距离该角色很近了.开始打架
+    public void KillTarget(MeteorUnit target)
+    {
+
     }
 
     public void FollowTarget(int target)
     {
         followTarget = U3D.GetUnit(target);
         ChangeState(EAIStatus.Follow, 1000.0f);
+        SubStatus = EAISubStatus.FollowGotoTarget;
     }
+
     //防御时遭到攻击，也有防御动作
     void OnDefencePlaying()
     {
@@ -748,11 +808,44 @@ public class MeteorAI {
         return degree;
     }
 
+    Coroutine FollowRotateToTargetCoroutine;
+    IEnumerator FollowRotateToTarget(Vector3 vec)
+    {
+        //WsGlobal.AddDebugLine(vec, vec + Vector3.up * 10, Color.red, "PatrolPoint", 20.0f);
+        Vector3 diff = (vec - owner.mPos);
+        diff.y = 0;
+        float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
+        float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
+        float angle = Mathf.Abs(Mathf.Acos(dot) * Mathf.Rad2Deg);
+        bool rightRotate = dot2 < 0;
+        float offset = 0.0f;
+        float offsetmax = GetAngleBetween(vec);
+        float timeTotal = offsetmax / 150.0f;
+        float timeTick = 0.0f;
+        while (true)
+        {
+            timeTick += Time.deltaTime;
+            float yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            owner.SetOrientation((rightRotate ? -1 : 1) * (yOffset - offset));
+            offset = yOffset;
+            if (timeTick > timeTotal)
+            {
+                owner.FaceToTarget(vec);
+                if (owner.posMng.mActiveAction.Idx == CommonAction.WalkRight || owner.posMng.mActiveAction.Idx == CommonAction.WalkLeft)
+                    owner.posMng.ChangeAction(0, 0.1f);
+                break;
+            }
+            yield return 0;
+        }
+        FollowRotateToTargetCoroutine = null;
+        SubStatus = EAISubStatus.FollowGotoTarget;
+    }
+
     //朝向指定目标，一定时间内
     Coroutine PatrolRotateToTargetCoroutine;
     IEnumerator PatrolRotateToTarget(Vector3 vec)
     {
-        WsGlobal.AddDebugLine(vec, vec + Vector3.up * 10, Color.red, "PatrolPoint", 20.0f);
+        //WsGlobal.AddDebugLine(vec, vec + Vector3.up * 10, Color.red, "PatrolPoint", 20.0f);
         Vector3 diff = (vec - owner.mPos);
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);

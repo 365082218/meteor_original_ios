@@ -315,8 +315,8 @@ public class SkcFile
     public Material[] Material(int roleIdx, EUnitCamp camp)
     {
         //return new UnityEngine.Material[0];
-        //if (SkcMatMng.Instance != null)
-        //    return SkcMatMng.Instance.GetPlayerMat(roleIdx, camp);
+        if (SkcMatMng.Instance != null)
+            return SkcMatMng.Instance.GetPlayerMat(roleIdx, camp);
         //使用预先设置好的材质球，降低DC和Batch
         Material[] ret = new Material[materials.Length];
         string strTexture = "";

@@ -12,10 +12,6 @@ public class FightWnd: Window<FightWnd>
         Init();
         return true;
     }
-    protected override bool FullStretch()
-    {
-        return true;
-    }
     protected override bool OnShow()
     {
         int size = UIMoveControl.mUIMoveControlList.Count;
@@ -41,12 +37,12 @@ public class FightWnd: Window<FightWnd>
     //Image weaponType;
 
     Image hpBar;
-    Image mpBar;
+    //Image mpBar;
     Image angryBar;
     Text hpLabel;
-    Text mpLabel;
+    //Text mpLabel;
     //Text NameLabel;
-    Text LvLabel;
+    //Text LvLabel;
     //UIButtonExtended floatButton;//浮动按钮，同时只有一个.负责触发到传送-平台时，开启对应的功能与否
     Image hpWarning;
     Image angryWarning;
@@ -90,6 +86,7 @@ public class FightWnd: Window<FightWnd>
     Animation actionStatusBarCtrl;
     GameObject FloatOpen;
     GameObject BuffRoot;
+    GameObject Unlock;
     void Init()
     {
         debugPanel = Control("Debug");
@@ -117,7 +114,8 @@ public class FightWnd: Window<FightWnd>
         Global.ldaControlX("Drop", WndObject).GetComponent<Button>().onClick.AddListener(OnClickDrop);
         //Global.ldaControlX("Inventory", WndObject).GetComponentInChildren<Button>().onClick.AddListener(delegate () { U3D.OpenInVentory(); });
         Global.ldaControlX("System", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSystem(); });
-        Global.ldaControlX("Unlock", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnClickChangeLock);
+        Unlock = Global.ldaControlX("Unlock", WndObject);
+        Unlock.GetComponentInChildren<Button>().onClick.AddListener(OnClickChangeLock);
         //floatButton = Global.ldaControlX("FloatButton", WndObject).GetComponent<UIButtonExtended>();
         //floatButton.gameObject.SetActive(false);
         dr = Global.ldaControlX("Dropdown", WndObject).GetComponent<Dropdown>();
@@ -159,12 +157,12 @@ public class FightWnd: Window<FightWnd>
         hpWarning = ldaControl("HPFlashWarning", WndObject).gameObject.GetComponent<Image>();
         angryWarning = ldaControl("AngryWarning", WndObject).gameObject.GetComponent<Image>();
         hpBar = ldaControl("HPBar", WndObject).gameObject.GetComponent<Image>();
-        mpBar = ldaControl("MPBar", WndObject).gameObject.GetComponent<Image>();
+        //mpBar = ldaControl("MPBar", WndObject).gameObject.GetComponent<Image>();
         angryBar = ldaControl("AngryBar", WndObject).gameObject.GetComponent<Image>();
         hpLabel = ldaControl("HPLabel", WndObject).gameObject.GetComponent<Text>();
-        mpLabel = ldaControl("MPLabel", WndObject).gameObject.GetComponent<Text>();
+        //mpLabel = ldaControl("MPLabel", WndObject).gameObject.GetComponent<Text>();
         //NameLabel = ldaControl("NameLabel", WndObject).gameObject.GetComponent<Text>();
-        LvLabel = ldaControl("LVLabel", WndObject).gameObject.GetComponent<Text>();
+        //LvLabel = ldaControl("LVLabel", WndObject).gameObject.GetComponent<Text>();
         //exp = ldaControl("Exp", WndObject).gameObject.GetComponent<Image>();
         if (MeteorManager.Instance.LocalPlayer != null)
         {
@@ -273,7 +271,8 @@ public class FightWnd: Window<FightWnd>
 
     public void OnChangeLock(bool locked)
     {
-        Global.ldaControlX("Unlock", WndObject).GetComponentInChildren<Image>().overrideSprite = locked ? Resources.Load<Sprite>("CameraL") : Resources.Load<Sprite>("CameraU");
+        Unlock.GetComponent<Image>().overrideSprite = locked ? Global.ldaControlX("LockSprite", Unlock).GetComponent<Image>().sprite : Global.ldaControlX("UnlockSprite", Unlock).GetComponent<Image>().sprite;
+        //Global.ldaControlX("Unlock", WndObject).GetComponentInChildren<Image>().overrideSprite = locked ? Resources.Load<Sprite>("CameraL") : Resources.Load<Sprite>("CameraU");
     }
 
     void OnClickChangeLock()

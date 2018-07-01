@@ -33,20 +33,21 @@ public class SceneItemAgent : MonoBehaviour {
     public void OnStart(LevelScriptBase script = null)
     {
         initializeY = transform.position.y;
-        if (curve == null)
-        {
-            Keyframe[] ks = new Keyframe[2];
-            ks[0] = new Keyframe(0, -1);
-            ks[1] = new Keyframe(1, 1);
-            curve = new AnimationCurve(ks);
-            //curve.
-        }
-        curve.postWrapMode = WrapMode.PingPong;
-        curve.preWrapMode = WrapMode.PingPong;
-
         //自转+高度转
         if (!property.names.ContainsKey("machine") && gameObject.activeSelf && !billBoard)
+        {
+            if (curve == null)
+            {
+                Keyframe[] ks = new Keyframe[2];
+                ks[0] = new Keyframe(0, -1);
+                ks[1] = new Keyframe(1, 1);
+                curve = new AnimationCurve(ks);
+            }
+            curve.postWrapMode = WrapMode.PingPong;
+            curve.preWrapMode = WrapMode.PingPong;
             StartCoroutine(yMove());
+        }
+
         if (script != null)
         {
             MethodOnAttack = script.GetType().GetMethod(gameObject.name + "_OnAttack");

@@ -6,10 +6,6 @@ using UnityEngine.UI;
 public class ScriptInputWnd:Window<ScriptInputWnd>
 {
     InputField scriptInput;
-    protected override bool FullStretch()
-    {
-        return false;
-    }
 
     Text result;
     protected override bool OnOpen()

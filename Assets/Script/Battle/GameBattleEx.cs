@@ -871,7 +871,7 @@ public class GameBattleEx : MonoBehaviour {
         SoundManager.Instance.StopAll();
         MeteorManager.Instance.Clear();
         FightWnd.Instance.Close();
-        U3D.GoBack(MainMenu.Instance.Open);
+        U3D.GoBack(()=> { MainMenu.Instance.Open(); });
     }
 
     public void ChangeLockStatus()

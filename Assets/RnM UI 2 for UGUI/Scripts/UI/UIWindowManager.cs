@@ -9,7 +9,7 @@ namespace UnityEngine.UI
 		protected virtual void Update()
 		{
 			// Check for escape key press
-			if (Input.GetKeyUp(KeyCode.Escape))
+			/*if (Input.GetKeyUp(KeyCode.Escape))
 			{
 				bool EligibleForShow = true;
 				
@@ -48,7 +48,7 @@ namespace UnityEngine.UI
 						}
 					}
 				}
-			}
+			}*/
 		}
 	}
 }

@@ -6,4 +6,5 @@ using UnityEngine;
 public class SkcMatItem : MonoBehaviour {
     public Object[] PlayerCamp0;
     public Object[] PlayerCamp1;
+    public Object[] PlayerCamp2;
 }

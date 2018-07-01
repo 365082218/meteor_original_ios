@@ -90,10 +90,7 @@ public abstract class Window<T> :Windows where T : class, new()
     {
         return false;
     }
-    protected virtual bool FullStretch()
-    {
-        return true;
-    }
+
 	public WindowStyle mWindowStyle = WindowStyle.WS_Normal;
 	public WindowStyle WinStyle { get { return mWindowStyle; } set { mWindowStyle = value; }}
 

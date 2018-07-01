@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "meteor_original_android.Plugins", "meteor_original_android.Plugins.csproj", "{19282562-416F-302E-5E5B-F46BCB390390}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "meteor_original_android", "meteor_original_android.csproj", "{C4CFC271-5CDB-33A2-E9CA-1798F4862687}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "meteor_original_android.Editor.Plugins", "meteor_original_android.Editor.Plugins.csproj", "{2B58B22F-05BB-39FE-953A-0FDE48461589}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "meteor_original_android.Editor", "meteor_original_android.Editor.csproj", "{3B663D8E-7D78-BE09-0158-7B189A99E5F0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{19282562-416F-302E-5E5B-F46BCB390390}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19282562-416F-302E-5E5B-F46BCB390390}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19282562-416F-302E-5E5B-F46BCB390390}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19282562-416F-302E-5E5B-F46BCB390390}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4CFC271-5CDB-33A2-E9CA-1798F4862687}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4CFC271-5CDB-33A2-E9CA-1798F4862687}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4CFC271-5CDB-33A2-E9CA-1798F4862687}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4CFC271-5CDB-33A2-E9CA-1798F4862687}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B58B22F-05BB-39FE-953A-0FDE48461589}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B58B22F-05BB-39FE-953A-0FDE48461589}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B58B22F-05BB-39FE-953A-0FDE48461589}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B58B22F-05BB-39FE-953A-0FDE48461589}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B663D8E-7D78-BE09-0158-7B189A99E5F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B663D8E-7D78-BE09-0158-7B189A99E5F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B663D8E-7D78-BE09-0158-7B189A99E5F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B663D8E-7D78-BE09-0158-7B189A99E5F0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
