@@ -482,11 +482,18 @@ public class MeteorUnit : MonoBehaviour
         return t.Camp == Camp;
     }
 
-    public void Guard(int time)
+    public void Guard(bool guard)
     {
         if (robot != null)
-            robot.ChangeState(EAIStatus.Guard, time);
-        //主角只要把输入锁定，就不会再变化了
+        {
+            if (guard)
+                robot.ChangeState(EAIStatus.Guard);
+            else
+            {
+                robot.ResetAIKey();
+                robot.ChangeState(EAIStatus.Idle);
+            }
+        }
     }
 
     //public void PauseAI(int time)
@@ -937,7 +944,7 @@ public class MeteorUnit : MonoBehaviour
     {
         lockTarget = unit;
         if (robot != null)
-            robot.ChangeState(EAIStatus.Kill, 1000.0f);
+            robot.ChangeState(EAIStatus.Kill);
     }
 
     public void FaceToTarget(Vector3 target)

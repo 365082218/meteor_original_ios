@@ -5,7 +5,7 @@ using System.Collections;
 //大状态
 public enum EAIStatus
 {
-    Idle,//空闲->决策下一步，或继续空闲.
+    Idle,//空闲->决策下一步，或继续空闲.一般在敌人进入视野时，状态会自动切换为战斗.
     Kill,//与目标近距离对打
     Guard,//防御
     Follow,//跟随
@@ -58,17 +58,6 @@ public class WeaponAI : AISlot
     }
 }
 
-public class EAIStatusChange
-{
-    public EAIStatus type;
-    public float last;
-    public EAIStatusChange(EAIStatus t, float l)
-    {
-        type = t;
-        last = l;
-    }
-}
-
 public class MeteorAI {
     public MeteorAI(MeteorUnit user)
     {
@@ -84,7 +73,6 @@ public class MeteorAI {
     bool paused = false;
     float pause_tick;
     public Dictionary<int, AISet> AIData;
-    public List<EAIStatusChange> StateStack = new List<EAIStatusChange>();
     //当前目标路径
     int pathIdx = -1;
     Vector3 targetPos = Vector3.zero;
@@ -108,42 +96,24 @@ public class MeteorAI {
 
         AIJumpDelay += Time.deltaTime;
         AIFollowRefresh += Time.deltaTime;
-        //if (true)
-        //{
-        //    if (owner.posMng.mActiveAction.Idx != CommonAction.BreakOut)
-        //    {
-        //        owner.AngryValue = 100;
-        //        owner.DoBreakOut();
-        //    }
-        //    return;
-        //}
-        if (StateStack.Count != 0)
+
+        if (Status == EAIStatus.Wait)
         {
-            StateStack[StateStack.Count - 1].last -= Time.deltaTime;
-            if (StateStack[StateStack.Count - 1].last <= 0.0f)
+            if (owner.GetLockedTarget() != null)
             {
-                StateStack.RemoveAt(StateStack.Count - 1);
-                if (StateStack.Count == 0)
-                {
-                    ResetAIKey();
-                    if (owner.GetLockedTarget() != null)
-                    {
-                        killTarget = owner.GetLockedTarget();
-                        Status = EAIStatus.Kill;
-                        SubStatus = EAISubStatus.KillGotoTarget;
-                    }
-                    else if (PatrolPath.Count != 0)
-                    {
-                        Status = EAIStatus.Patrol;
-                        SubStatus = EAISubStatus.Patrol;
-                    }
-                    else
-                        Status = EAIStatus.Wait;
-                }
+                killTarget = owner.GetLockedTarget();
+                Status = EAIStatus.Kill;
+                SubStatus = EAISubStatus.KillGotoTarget;
             }
-            else
-                Status = StateStack[StateStack.Count - 1].type;
+
         }
+        else if (PatrolPath.Count != 0)
+        {
+            Status = EAIStatus.Patrol;
+            SubStatus = EAISubStatus.Patrol;
+        }
+
+        Status = EAIStatus.Wait;
 
         switch (Status)
         {
@@ -304,7 +274,7 @@ public class MeteorAI {
     public void FollowTarget(int target)
     {
         followTarget = U3D.GetUnit(target);
-        ChangeState(EAIStatus.Follow, 1000.0f);
+        ChangeState(EAIStatus.Follow);
         SubStatus = EAISubStatus.FollowGotoTarget;
     }
 
@@ -629,17 +599,9 @@ public class MeteorAI {
         stoped = !enable;
     }
 
-    public void PushState(EAIStatus type, float t)
+    public void ChangeState(EAIStatus type)
     {
-        EAIStatusChange newState = new EAIStatusChange(type, t);
-        StateStack.Add(newState);
-    }
-
-    public void ChangeState(EAIStatus type, float t)
-    {
-        EAIStatusChange newState = new EAIStatusChange(type, t);
-        StateStack.Clear();
-        StateStack.Add(newState);
+        Status = type;
         if (type == EAIStatus.Kill)
         {
             SubStatus = EAISubStatus.KillGotoTarget;
@@ -648,9 +610,9 @@ public class MeteorAI {
         ResetAIKey();
     }
 
-    void ResetAIKey()
+    public void ResetAIKey()
     {
-        owner.controller.Input.AIMove(0, 0);
+        //owner.controller.Input.AIMove(0, 0);
         owner.controller.Input.OnKeyUp(EKeyList.KL_Defence);
     }
 
@@ -891,8 +853,6 @@ public class MeteorAI {
                         curPatrolIndex = -1;
                         targetPatrolIndex = -1;
                         PatrolPathBegin.Clear();
-                        if (StateStack.Count > 0 && StateStack[0].type == EAIStatus.GotoPatrol)
-                            StateStack.RemoveAt(0);
                         break;
                     }
                     else

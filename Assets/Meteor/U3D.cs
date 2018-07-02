@@ -849,7 +849,7 @@ public class U3D : MonoBehaviour {
             string act = value[0] as string;
             if (act == "wait")
             {
-                GameBattleEx.Instance.PushActionWait(id, 10000);
+                GameBattleEx.Instance.PushActionWait(id);
             }
             else if (act == "follow")
             {

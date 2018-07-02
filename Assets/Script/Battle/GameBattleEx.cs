@@ -924,7 +924,7 @@ public class GameBattleEx : MonoBehaviour {
 
     public void PushActionGuard(int id, int time)
     {
-        PushAction(id, StackAction.GUARD, 0, "", time);
+        PushAction(id, StackAction.GUARD, time, "", 0);
     }
 
     public void PushActionAggress(int id)
@@ -957,9 +957,9 @@ public class GameBattleEx : MonoBehaviour {
         PushAction(id, StackAction.Follow, 0, "", target);
     }
 
-    public void PushActionWait(int id, float wait)
+    public void PushActionWait(int id)
     {
-        PushAction(id, StackAction.Wait, wait);
+        PushAction(id, StackAction.Wait);
     }
 
     public void PushActionFaceTo(int id, int target)
@@ -1094,15 +1094,24 @@ public class ActionConfig
             }
             else if (action[action.Count - 1].type == StackAction.GUARD)
             {
-                MeteorUnit unit = U3D.GetUnit(id);
-                unit.Guard(action[action.Count - 1].param);
-                action.RemoveAt(action.Count - 1);
+                if (action[action.Count - 1].pause_time > 0)
+                {
+                    MeteorUnit unit = U3D.GetUnit(id);
+                    unit.Guard(true);
+                    action[action.Count - 1].pause_time -= time;
+                }
+                else
+                {
+                    MeteorUnit unit = U3D.GetUnit(id);
+                    unit.Guard(false);
+                    action.RemoveAt(action.Count - 1);
+                }
             }
             else if (action[action.Count - 1].type == StackAction.Wait)
             {
                 MeteorUnit unit = U3D.GetUnit(id);
                 if (unit != null && unit.robot != null)
-                    unit.robot.ChangeState(EAIStatus.Wait, action[action.Count - 1].param);
+                    unit.robot.ChangeState(EAIStatus.Wait);
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.Follow)
@@ -1118,7 +1127,7 @@ public class ActionConfig
                 if (unit != null && unit.robot != null)
                 {
                     unit.robot.SetPatrolPath(action[action.Count - 1].Path);
-                    unit.robot.ChangeState(EAIStatus.GotoPatrol, float.MaxValue);
+                    unit.robot.ChangeState(EAIStatus.GotoPatrol);
                 }
                 action.RemoveAt(action.Count - 1);
             }
