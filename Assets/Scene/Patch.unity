@@ -1567,6 +1567,7 @@ GameObject:
   - component: {fileID: 2044160631}
   - component: {fileID: 2044160630}
   - component: {fileID: 2044160628}
+  - component: {fileID: 2044160639}
   m_Layer: 0
   m_Name: Persist
   m_TagString: Untagged
@@ -1836,6 +1837,19 @@ MonoBehaviour:
   TextFont: {fileID: 12800000, guid: a9815cf17fe52274f944f55eb598d58d, type: 3}
   Music: {fileID: 2044160637}
   Sound: {fileID: 2044160636}
+--- !u!114 &2044160639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2044160627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d2ca8320e712324e90a06861523ec0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SkcMng: {fileID: 18378091}
+  EffectMng: {fileID: 107919593}
 --- !u!1 &2071323242
 GameObject:
   m_ObjectHideFlags: 0
