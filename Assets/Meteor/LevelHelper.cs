@@ -116,6 +116,8 @@ public class LevelHelper : MonoBehaviour
             MeteorUnit unitLog = MeteorManager.Instance.UnitInfos[i];
             U3D.InsertSystemMsg(GetCampStr(unitLog));
         }
+
+        Destroy(this);
     }
 
     string GetCampStr(MeteorUnit unit)

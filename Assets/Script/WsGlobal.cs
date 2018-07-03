@@ -133,7 +133,7 @@ public class WsGlobal {
                 mat[x] = Resources.Load<Material>(iden);
                 if (mat[x] == null)
                 {
-                    mat[x] = new Material(ShaderUtil.Find("AlphaTexture"));
+                    mat[x] = new Material(ShaderMng.Find("AlphaTexture"));
                     int del = tex.LastIndexOf('.');
                     if (del != -1)
                         tex = tex.Substring(0, del);
@@ -333,7 +333,7 @@ public class WsGlobal {
                 mat[x] = Resources.Load<Material>(string.Format("{0}_{1:D2}", file, x));
                 if (mat[x] == null)
                 {
-                    mat[x] = new Material(ShaderUtil.Find("AlphaTexture"));
+                    mat[x] = new Material(ShaderMng.Find("AlphaTexture"));
                     int del = tex.LastIndexOf('.');
                     if (del != -1)
                         tex = tex.Substring(0, del);

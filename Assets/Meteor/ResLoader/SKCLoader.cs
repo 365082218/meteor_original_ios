@@ -315,8 +315,8 @@ public class SkcFile
     public Material[] Material(int roleIdx, EUnitCamp camp)
     {
         //return new UnityEngine.Material[0];
-        if (SkcMatMng.Instance != null)
-            return SkcMatMng.Instance.GetPlayerMat(roleIdx, camp);
+        if (Game.Instance.SkcMng != null)
+            return Game.Instance.SkcMng.GetPlayerMat(roleIdx, camp);
         //使用预先设置好的材质球，降低DC和Batch
         Material[] ret = new Material[materials.Length];
         string strTexture = "";
@@ -335,7 +335,7 @@ public class SkcFile
             //if (materials[i].TwoSide)
             //    ret[i] = new Material(Shader.Find("Shader Forge/DoubleSideTexture"));
             //else
-            ret[i] = new Material(ShaderUtil.Find("AlphaTexture"));
+            ret[i] = new Material(ShaderMng.Find("AlphaTexture"));
             //根据阵营决定贴图序号
             if (roleIdx > 19)
                 ret[i].SetTexture("_MainTex", Resources.Load<Texture>(materials[i].Texture));

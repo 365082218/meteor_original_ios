@@ -9,7 +9,7 @@ using LitJson;
 public class BuildWizardAndroid : ScriptableWizard {
     public string NewVersion;
     public string Tip = "版本0.0.0.0为默认初始版本";
-	[MenuItem("MeteorTool/Build/Build Android", false, 0)]
+	[MenuItem("Meteor/Build/Build Android", false, 0)]
 	static void CreateWizard()
 	{
 		ScriptableWizard.DisplayWizard<BuildWizardAndroid>("打包", "打包");
@@ -69,7 +69,7 @@ public class BuildWizardAndroid : ScriptableWizard {
 public class BuildWizardIos : ScriptableWizard
 {
     public string NewVersion;
-    [MenuItem("MeteorTool/Build/Build Ios", false, 1)]
+    [MenuItem("Meteor/Build/Build Ios", false, 1)]
     static void CreateWizard()
     {
         ScriptableWizard.DisplayWizard<BuildWizardAndroid>("打包", "打包");
@@ -113,7 +113,7 @@ public class BuildWizardIos : ScriptableWizard
 
 public class BuildTool
 {
-    [MenuItem("MeteorTool/Build/Clean", false, 2)]
+    [MenuItem("Meteor/Build/Clean", false, 2)]
     static void Clear()
     {
         string[] files = Directory.GetFiles(VerMng.GetPlatformPath(BuildTarget.Android), "*.*", SearchOption.AllDirectories);
@@ -150,13 +150,13 @@ public class BuildTool
     //    File.Copy(VerMng.GetPlatformPath(BuildTarget.Android) + "/" + "0.5.2.0" + "/" + "9.07/characteract.bytes", baseDir.FullName + "/" + "9.07/characteract.bytes");
     //}
 
-    [MenuItem("MeteorTool/Build/Delete PlayerPref", false, 3)]
+    [MenuItem("Meteor/Build/Delete PlayerPref", false, 3)]
     static void DeletePrefs()
     {
         PlayerPrefs.DeleteAll();
     }
 
-    [MenuItem("MeteorTool/Build/Delete GameSave", false, 3)]
+    [MenuItem("Meteor/Build/Delete GameSave", false, 3)]
     static void DeleteSave()
     {
         GameData.ResetState();

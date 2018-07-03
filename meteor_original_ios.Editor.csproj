@@ -209,8 +209,6 @@
     <Compile Include="Assets\Editor\AnimationWizard.cs" />
     <Compile Include="Assets\Editor\BuildLevelBytes.cs" />
     <Compile Include="Assets\Editor\CheckResources.cs" />
-    <Compile Include="Assets\Editor\EngineMenus.cs" />
-    <Compile Include="Assets\Editor\GenVersionInfo.cs" />
     <Compile Include="Assets\Editor\ImageEffects\AntialiasingEditor.cs" />
     <Compile Include="Assets\Editor\ImageEffects\BloomAndFlaresEditor.cs" />
     <Compile Include="Assets\Editor\ImageEffects\BloomEditor.cs" />
@@ -226,8 +224,8 @@
     <Compile Include="Assets\Editor\ImageEffects\TonemappingEditor.cs" />
     <Compile Include="Assets\Editor\ImageEffects\VignetteAndChromaticAberrationEditor.cs" />
     <Compile Include="Assets\Editor\MeshCombinerWizard.cs" />
+    <Compile Include="Assets\Editor\ReferenceFinder.cs" />
     <Compile Include="Assets\Editor\SaveMeshFile.cs" />
-    <Compile Include="Assets\Editor\SearchLanguageInPrefabs.cs" />
     <Compile Include="Assets\Editor\VerMng\CreateCone.cs" />
     <Compile Include="Assets\Editor\VerMng\MakeDependTabel.cs" />
     <Compile Include="Assets\Editor\VerMng\VerMng.cs" />

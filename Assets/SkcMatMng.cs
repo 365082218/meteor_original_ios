@@ -5,11 +5,6 @@ using UnityEngine;
 //取得每个角色-队伍的2个材质
 public class SkcMatMng : MonoBehaviour {
     public SkcMatItem[] Player;
-    public static SkcMatMng Instance;
-    public void Awake()
-    {
-        Instance = this;
-    }
 
     //在关卡模式下,不分阵营.
     public Material[] GetPlayerMat(int id, EUnitCamp camp)

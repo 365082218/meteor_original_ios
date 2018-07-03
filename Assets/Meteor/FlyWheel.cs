@@ -373,7 +373,7 @@ public class FlyWheel : MonoBehaviour {
                     Texture texture = Resources.Load<Texture>(tex);
                     if (texture == null)
                         Debug.LogError("texture miss on load gmb:" + tex + " texture name:" + tex);
-                    mat[x] = new Material(ShaderUtil.Find("AlphaTexture"));
+                    mat[x] = new Material(ShaderMng.Find("AlphaTexture"));
                     mat[x].SetTexture("_MainTex", texture);
                     mat[x].name = weaponIden;
                     //if (!System.IO.Directory.Exists("Assets/Materials/" + "Weapons" + "/resources/"))
@@ -578,7 +578,7 @@ public class FlyWheel : MonoBehaviour {
                     Texture texture = Resources.Load<Texture>(tex);
                     if (texture == null)
                         Debug.LogError("texture miss on load gmb:" + tex + " texture name:" + tex);
-                    mat[x] = new Material(ShaderUtil.Find("AlphaTexture"));
+                    mat[x] = new Material(ShaderMng.Find("AlphaTexture"));
                     mat[x].SetTexture("_MainTex", texture);
                     mat[x].name = weaponIden;
                     //if (!System.IO.Directory.Exists("Assets/Materials/" + "Weapons" + "/resources/"))

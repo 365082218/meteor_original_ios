@@ -13,7 +13,7 @@ public enum EAIStatus
     Think,//没发觉目标时左右观察
     GotoPatrol,//去巡逻路径的第一个位置.
     Patrol,//巡逻。
-    Wait,//脚本：等待
+    Wait,//脚本：等待 - NONE
 }
 
 public enum EAISubStatus

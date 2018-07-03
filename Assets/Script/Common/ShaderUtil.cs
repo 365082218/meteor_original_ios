@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ShaderUtil  {
+public class ShaderMng  {
     public static Shader Find(string shader)
     {
         int nindex = shader.LastIndexOf('/');

@@ -4,40 +4,10 @@ using System.Collections.Generic;
 
 public class EffectPoolManager : MonoBehaviour
 {
-    static EffectPoolManager msInstance;
-    public static EffectPoolManager Instance 
-    {
-        get 
-        {
-            if (msInstance == null)
-            {
-                GameObject effectPool = new GameObject("EffectPool");
-                msInstance = effectPool.AddComponent<EffectPoolManager>();
-            }
-            return msInstance;
-        }
-    }
-
     Dictionary<string, ObjectPool> mEffectPools = new Dictionary<string, ObjectPool>();
-
-    void Start()
-    {
-        msInstance = this;
-    }
-
-    void OnDestroy()
-    {
-        msInstance = null;
-    }
-
-    public GameObject Spawn(string name, Vector3 position, Quaternion rotation)
+    public GameObject Spawn(int idx)
     {
         GameObject effect = Spawn(name);
-        if (effect)
-        {
-            effect.transform.position = position;
-            effect.transform.rotation = rotation;
-        }
         return effect;
     }
 
@@ -63,8 +33,6 @@ public class EffectPoolManager : MonoBehaviour
         if (objectPool == null) 
             return null;
         GameObject effect = objectPool.Spawn(true) as GameObject;
-        if (effect != null)
-            effect.GetComponent<EffectTime>().Pool = objectPool;
         return effect;
     }
 }

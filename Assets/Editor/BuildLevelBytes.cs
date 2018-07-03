@@ -19,7 +19,7 @@ public class BuildLevelBytes
     //    AssetDatabase.Refresh();
     //}
 
-    [MenuItem("MeteorTool/SceDesMng/SaveLevelItem")]
+    [MenuItem("Meteor/SceDesMng/SaveLevelItem")]
     public static void ConvertLevelDataToBytes()
     {
         AssetDatabase.Refresh();
@@ -109,7 +109,7 @@ public class BuildLevelBytes
     }
 
     //加载原流星场景物件des文件
-    [MenuItem("MeteorTool/SceDesMng/LoadMeteorSceneDes")]
+    [MenuItem("Meteor/SceDesMng/LoadMeteorSceneDes")]
     public static void LoadDesFile()
     {
         string strFile = EditorUtility.OpenFilePanel("选择流星关卡描述文件", "D:/Meteor/", "des");
@@ -171,7 +171,7 @@ public class BuildLevelBytes
     }
 
 
-    [MenuItem("MeteorTool/SceDesMng/SaveColliderFile")]
+    [MenuItem("Meteor/SceDesMng/SaveColliderFile")]
     public static void SaveColliderFile()
     {
         if (Selection.activeObject as GameObject == null)
