@@ -1697,6 +1697,7 @@ public class MeteorUnit : MonoBehaviour
             SFXEffectPlay[] play = GetComponents<SFXEffectPlay>();
             for (int i = 0; i < play.Length; i++)
                 play[i].OnPlayAbort();
+            charController.enabled = false;
             return;
         }
         if (lockTarget == deadunit && lockTarget != null)

@@ -125,14 +125,6 @@ MonoBehaviour:
   PositionFollow: {fileID: 0}
   RotateFollow: {fileID: 0}
   texture: 
-  mesh:
-  - {fileID: 0}
-  - {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-  - {fileID: 4300004, guid: 182f3ed070f39c84181730911cc73dca, type: 3}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 4300000, guid: eb4143d7efee4ee4389cd38c3168bc6f, type: 3}
-  - {fileID: 4300000, guid: e8b101f0d12ce50479fbce260b36e6a7, type: 3}
   particle: {fileID: 0}
   iflTexture: {fileID: 0}
   PlayDone: 0

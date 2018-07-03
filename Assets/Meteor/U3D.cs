@@ -922,7 +922,12 @@ public class U3D : MonoBehaviour {
             }
             else if (act == "attacktarget")
             {
-                UnityEngine.Debug.LogError(string.Format("attacktarget:{0}, {1}", (int)value[1], (int)value[2]));
+                if (value.Length == 2)
+                {
+                    UnityEngine.Debug.LogError(string.Format("attacktarget:{0}", (int)value[1]));
+                }
+                else if (value.Length == 3)
+                    UnityEngine.Debug.LogError(string.Format("attacktarget:{0}, {1}", (int)value[1], (int)value[2]));
             }
         }
     }

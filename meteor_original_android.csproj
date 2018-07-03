@@ -305,6 +305,7 @@
     <Compile Include="Assets\Engine\ldaScripts\ldaUIGrid1.cs" />
     <Compile Include="Assets\Engine\ldaScripts\ldaUIGridItem1.cs" />
     <Compile Include="Assets\Engine\ldaScripts\ldaWinShowHideCtrl.cs" />
+    <Compile Include="Assets\Game.cs" />
     <Compile Include="Assets\LevelEditor\AdminDebugPanel.cs" />
     <Compile Include="Assets\LevelEditor\BiMap.cs" />
     <Compile Include="Assets\LevelEditor\MonsterInfoPanel.cs" />
@@ -319,12 +320,14 @@
     <Compile Include="Assets\Lightbeam\Scripts\LightbeamSettings.cs" />
     <Compile Include="Assets\LinkLabel.cs" />
     <Compile Include="Assets\MeshInfo.cs" />
+    <Compile Include="Assets\MeshMng.cs" />
     <Compile Include="Assets\Meteor\AudioAsset.cs" />
     <Compile Include="Assets\Meteor\AudioButton.cs" />
     <Compile Include="Assets\Meteor\CameraFollow.cs" />
     <Compile Include="Assets\Meteor\CameraSnapShot.cs" />
     <Compile Include="Assets\Meteor\ClientProxy.cs" />
     <Compile Include="Assets\Meteor\CoClass.cs" />
+    <Compile Include="Assets\Meteor\CollectionUtils.cs" />
     <Compile Include="Assets\Meteor\Common.cs" />
     <Compile Include="Assets\Meteor\ConnectWnd.cs" />
     <Compile Include="Assets\Meteor\DartLoader.cs" />
@@ -663,9 +666,7 @@
     <Compile Include="Assets\Script\Effects\CFX_LightIntensityFade.cs" />
     <Compile Include="Assets\Script\Effects\CFX_ShurikenThreadFix.cs" />
     <Compile Include="Assets\Script\Effects\CameraShake.cs" />
-    <Compile Include="Assets\Script\Effects\DelayAnimation.cs" />
     <Compile Include="Assets\Script\Effects\EffectPoolManager.cs" />
-    <Compile Include="Assets\Script\Effects\EffectTime.cs" />
     <Compile Include="Assets\Script\Effects\EnvironmentShake.cs" />
     <Compile Include="Assets\Script\Effects\GroundShadow.cs" />
     <Compile Include="Assets\Script\Effects\NetWorkBattle.cs" />

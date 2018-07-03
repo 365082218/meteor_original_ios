@@ -19,7 +19,7 @@ public class SFXUnit : MonoBehaviour
     public Transform PositionFollow;//同步移动
     public Transform RotateFollow;//同步旋转，若没有，则不用跟随旋转
     public string texture;
-    public Mesh[] mesh;
+    //public Mesh[] mesh;
     public ParticleSystem particle;
     public IFLLoader iflTexture;
     Coroutine playCoroutine;
@@ -144,8 +144,6 @@ DRAG*/
         }
         else if (effect.EffectType == "CYLINDER")
         {
-            //InitializeQuat = new Quaternion(0.7170f, 0, 0, -0.7170f);
-            //InitializeQuat = Quaternion.identity;
             meshIndex = 4;
         }
         else if (effect.EffectType == "BILLBOARD")
@@ -158,7 +156,7 @@ DRAG*/
             meshIndex = 6;
         }
         //决定模型
-        if (meshIndex != -1 && meshIndex < mesh.Length)
+        if (meshIndex != -1 && meshIndex < Game.Instance.MeshMng.Meshes.Length)
         {
             if (meshIndex == 4)
                 mFilter.mesh = SfxMeshGenerator.Instance.CreateCylinder(source.origAtt.y, source.origAtt.x, source.origScale.x);
@@ -167,7 +165,7 @@ DRAG*/
             else if (meshIndex == 0)
                 mFilter.mesh = SfxMeshGenerator.Instance.CreatePlane(source.origScale.x, source.origScale.y);
             else
-                mFilter.mesh = mesh[meshIndex];
+                mFilter.mesh = Game.Instance.MeshMng.Meshes[meshIndex];
         }
         if (effect.Texture.ToLower().EndsWith(".bmp") || effect.Texture.ToLower().EndsWith(".jpg") || effect.Texture.ToLower().EndsWith(".tga"))
         {

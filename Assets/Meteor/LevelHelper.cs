@@ -66,6 +66,7 @@ public class LevelHelper : MonoBehaviour
         for (int i = 0; i < 5; i++)
             yield return 0;
         LoadingWnd.Instance.Close();
+        Destroy(this);
     }
 
     LevelScriptBase GetLevelScript(string sn)
@@ -116,8 +117,6 @@ public class LevelHelper : MonoBehaviour
             MeteorUnit unitLog = MeteorManager.Instance.UnitInfos[i];
             U3D.InsertSystemMsg(GetCampStr(unitLog));
         }
-
-        Destroy(this);
     }
 
     string GetCampStr(MeteorUnit unit)

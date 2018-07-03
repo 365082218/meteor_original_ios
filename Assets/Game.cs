@@ -15,5 +15,5 @@ public class Game : MonoBehaviour {
     }
     public SkcMatMng SkcMng = null;
     public EffectPoolManager EffectMng = null;
-    //[SerializeField] private 
+    public MeshMng MeshMng = null;
 }

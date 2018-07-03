@@ -436,6 +436,54 @@ MonoBehaviour:
   - {fileID: 2100000, guid: aabac9de0817153498aea17921b46dd9, type: 2}
   - {fileID: 2100000, guid: aabac9de0817153498aea17921b46dd9, type: 2}
   - {fileID: 2100000, guid: 488a55571824c5542a947ac97a730035, type: 2}
+--- !u!1 &462601100
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 462601102}
+  - component: {fileID: 462601101}
+  m_Layer: 0
+  m_Name: MeshPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &462601101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 462601100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87198fabf15f4dc46ac90ce037928dc4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Meshes:
+  - {fileID: 0}
+  - {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  - {fileID: 4300004, guid: 182f3ed070f39c84181730911cc73dca, type: 3}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 4300000, guid: eb4143d7efee4ee4389cd38c3168bc6f, type: 3}
+  - {fileID: 4300000, guid: e8b101f0d12ce50479fbce260b36e6a7, type: 3}
+--- !u!4 &462601102
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 462601100}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2044160629}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &516662022
 GameObject:
   m_ObjectHideFlags: 0
@@ -1598,6 +1646,7 @@ Transform:
   m_Children:
   - {fileID: 18378090}
   - {fileID: 107919592}
+  - {fileID: 462601102}
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1850,6 +1899,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SkcMng: {fileID: 18378091}
   EffectMng: {fileID: 107919593}
+  MeshMng: {fileID: 462601101}
 --- !u!1 &2071323242
 GameObject:
   m_ObjectHideFlags: 0

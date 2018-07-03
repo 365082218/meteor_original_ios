@@ -86,6 +86,8 @@ public class MeteorManager {
     //某个角色从场景删除
     public void OnRemoveUnit(MeteorUnit unit)
     {
+        MeteorManager.Instance.PhysicalIgnore(unit, true);
+
         for (int i = 0; i < UnitInfos.Count; i++)
             UnitInfos[i].OnUnitDead(unit);
 
@@ -101,8 +103,7 @@ public class MeteorManager {
 
     public void OnUnitDead(MeteorUnit unit)
     {
-        if (!UnitInfos.Contains(unit))
-            Debug.LogError("unit not registered");
+        MeteorManager.Instance.PhysicalIgnore(unit, true);
         unit.OnUnitDead(null);
         UnitInfos.Remove(unit);
         DeadUnits.Add(unit);
