@@ -697,7 +697,7 @@ public class Lua_UnityEngine_GameObject : LuaObject {
 		addMember(l,FindGameObjectWithTag_s);
 		addMember(l,FindWithTag_s);
 		addMember(l,FindGameObjectsWithTag_s);
-		addMember(l,SLua.MyGameObject.Find_s);
+		addMember(l,Find_s);
 		addMember(l,"transform",get_transform,null,true);
 		addMember(l,"layer",get_layer,set_layer,true);
 		addMember(l,"activeSelf",get_activeSelf,null,true);

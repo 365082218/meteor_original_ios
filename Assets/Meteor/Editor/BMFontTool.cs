@@ -1,13 +1,10 @@
 ﻿using UnityEngine;
-using System.Collections;
-using UnityEngine;
 using System.Collections.Generic;
 using UnityEditor;
-using System.IO;
 using System.Xml;
 public class BMFontTool
 {
-    [MenuItem("Tools/Font")]
+    [MenuItem("Meteor/Font")]
     static void Font()
     {
         Material mtr = Resources.Load<Material>("MeteorTimeFont"); //把我们创建的材质球加载进来
@@ -16,7 +13,7 @@ public class BMFontTool
 
         Font font = Resources.Load<Font>("MeteorTimeFont"); //把我们创建的字体加载进来
         XmlDocument xml = new XmlDocument();
-        xml.Load(Application.dataPath + "/Scene/Resources/meteorFont.fnt");//这是在BMFont里得到的那个.fnt文件,因为是xml文件，所以我们就用xml来解析
+        xml.Load(Application.dataPath + "/Resource/Version/Resources/meteorFont.fnt");//这是在BMFont里得到的那个.fnt文件,因为是xml文件，所以我们就用xml来解析
         List<CharacterInfo> chtInfoList = new List<CharacterInfo>();
         XmlNode node = xml.SelectSingleNode("font/chars");
         foreach (XmlNode nd in node.ChildNodes)

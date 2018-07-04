@@ -184,28 +184,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\EasyTouchBundle\EasyTouch\Plugins\Editor\EasyTouchInspector.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouch\Plugins\Editor\EasyTouchMenu.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouch\Plugins\Editor\EasyTouchTriggerInspector.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouch\Plugins\Editor\EasyTouchWelcomeScreen.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouch\Plugins\Editor\EasytouchHierachyCallBack.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouch\Plugins\Editor\HTGuiTools.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouch\Plugins\Editor\QuickDragInspector.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouch\Plugins\Editor\QuickEnterExitInspector.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouch\Plugins\Editor\QuickLongTapInspector.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouch\Plugins\Editor\QuickPinchInspector.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouch\Plugins\Editor\QuickSwipeInspector.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouch\Plugins\Editor\QuickTapInspector.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouch\Plugins\Editor\QuickTouchInspector.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouch\Plugins\Editor\QuickTwistInspector.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCAreaInspector.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCAxisInspector.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCButtonInspector.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCDPadInspector.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCGuiTools.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCJoystickInspector.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCMenu.cs" />
-    <Compile Include="Assets\EasyTouchBundle\EasyTouchControls\Plugins\Editor\ETCTouchPadInspector.cs" />
     <Compile Include="Assets\Editor\AnimationWizard.cs" />
     <Compile Include="Assets\Editor\BuildLevelBytes.cs" />
     <Compile Include="Assets\Editor\CheckResources.cs" />
@@ -317,7 +295,6 @@
     <Compile Include="Assets\RnM UI 2 for UGUI\Scripts\Editor\Miscellaneous\UIAnimatorControllerGenerator.cs" />
     <Compile Include="Assets\RnM UI 2 for UGUI\Scripts\Editor\Raycast Filters\UICircularRaycastFilterEditor.cs" />
     <Compile Include="Assets\RnM UI 2 for UGUI\Scripts\Editor\Raycast Filters\UIRectangularRaycastFilterEditor.cs" />
-    <Compile Include="Assets\RnM UI 2 for UGUI\Scripts\Editor\Tools\NavigationTools.cs" />
     <Compile Include="Assets\RnM UI 2 for UGUI\Scripts\Editor\UI\Icon Slot System\UIEquipSlotEditor.cs" />
     <Compile Include="Assets\RnM UI 2 for UGUI\Scripts\Editor\UI\Icon Slot System\UIItemSlotEditor.cs" />
     <Compile Include="Assets\RnM UI 2 for UGUI\Scripts\Editor\UI\Icon Slot System\UISlotBaseEditor.cs" />
@@ -348,13 +325,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Debug\发布前全部删除.txt" />
-    <None Include="Assets\EasyTouchBundle\EasyTouch\How to migrate from EasyTouch 4.X.txt" />
-    <None Include="Assets\EasyTouchBundle\EasyTouch\RealseNotes.txt" />
-    <None Include="Assets\EasyTouchBundle\EasyTouch\_Documentation\How to migrate from EasyTouch 4.X.txt" />
-    <None Include="Assets\EasyTouchBundle\EasyTouchControls\Documentation\Version 2.0.txt" />
-    <None Include="Assets\EasyTouchBundle\EasyTouchControls\Issues in button behavior (MAC).txt" />
-    <None Include="Assets\EasyTouchBundle\EasyTouchControls\ReleaseNotes.txt" />
-    <None Include="Assets\EasyTouchBundle\Readme.txt" />
     <None Include="Assets\Effect\Shader\Additive_Layer.shader" />
     <None Include="Assets\Effect\Shader\Additive_Layer_UI.shader" />
     <None Include="Assets\Effect\Shader\Additive_Layer_skill.shader" />

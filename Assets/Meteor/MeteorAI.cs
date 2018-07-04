@@ -718,7 +718,6 @@ public class MeteorAI {
         curPatrolIndex = -1;
         targetPatrolIndex = -1;
         SubStatus = EAISubStatus.Patrol;
-        Assert.IsTrue(idx.Count != 0);
         startPathIndex = PathMng.Instance.GetWayIndex(owner.mPos);
         PatrolPathBegin = PathMng.Instance.FindPath(startPathIndex, idx[0]);
     }

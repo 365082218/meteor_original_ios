@@ -394,6 +394,18 @@ public class Lua_U3D : LuaObject {
 	}
 	[SLua.MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	[UnityEngine.Scripting.Preserve]
+	static public int ReStart_s(IntPtr l) {
+		try {
+			U3D.ReStart();
+			pushValue(l,true);
+			return 1;
+		}
+		catch(Exception e) {
+			return error(l,e);
+		}
+	}
+	[SLua.MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	[UnityEngine.Scripting.Preserve]
 	static public int ItemIsEmpty_s(IntPtr l) {
 		try {
 			System.String a1;
@@ -1456,6 +1468,19 @@ public class Lua_U3D : LuaObject {
 	}
 	[SLua.MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	[UnityEngine.Scripting.Preserve]
+	static public int GetMainCamera_s(IntPtr l) {
+		try {
+			var ret=U3D.GetMainCamera();
+			pushValue(l,true);
+			pushValue(l,ret);
+			return 2;
+		}
+		catch(Exception e) {
+			return error(l,e);
+		}
+	}
+	[SLua.MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	[UnityEngine.Scripting.Preserve]
 	static public int get_ins(IntPtr l) {
 		try {
 			pushValue(l,true);
@@ -1561,6 +1586,7 @@ public class Lua_U3D : LuaObject {
 		addMember(l,StartTaskBattle_s);
 		addMember(l,ContainsItem_s);
 		addMember(l,GoBack_s);
+		addMember(l,ReStart_s);
 		addMember(l,ItemIsEmpty_s);
 		addMember(l,SaveClean_s);
 		addMember(l,SaveState_s);
@@ -1619,6 +1645,7 @@ public class Lua_U3D : LuaObject {
 		addMember(l,AddAngry_s);
 		addMember(l,PlaySkill_s);
 		addMember(l,MakeItem_s);
+		addMember(l,GetMainCamera_s);
 		addMember(l,"ins",get_ins,set_ins,false);
 		addMember(l,"save",get_save,set_save,false);
 		addMember(l,"Lang",get_Lang,set_Lang,false);

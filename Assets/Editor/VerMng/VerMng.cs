@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using LitJson;
 using System.Security.Cryptography;
+using Idevgame.Util;
 
 public class VerMng : EditorWindow{
     private const string PathBase = "Assets/.VerMng/";

@@ -176,13 +176,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Debug\发布前全部删除.txt" />
-    <None Include="Assets\EasyTouchBundle\EasyTouch\How to migrate from EasyTouch 4.X.txt" />
-    <None Include="Assets\EasyTouchBundle\EasyTouch\RealseNotes.txt" />
-    <None Include="Assets\EasyTouchBundle\EasyTouch\_Documentation\How to migrate from EasyTouch 4.X.txt" />
-    <None Include="Assets\EasyTouchBundle\EasyTouchControls\Documentation\Version 2.0.txt" />
-    <None Include="Assets\EasyTouchBundle\EasyTouchControls\Issues in button behavior (MAC).txt" />
-    <None Include="Assets\EasyTouchBundle\EasyTouchControls\ReleaseNotes.txt" />
-    <None Include="Assets\EasyTouchBundle\Readme.txt" />
     <None Include="Assets\Effect\Shader\Additive_Layer.shader" />
     <None Include="Assets\Effect\Shader\Additive_Layer_UI.shader" />
     <None Include="Assets\Effect\Shader\Additive_Layer_skill.shader" />

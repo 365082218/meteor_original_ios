@@ -79,13 +79,14 @@ public class Main : MonoBehaviour {
             DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
             vFile.downloadHandler = dH;
             yield return vFile.Send();
-            if (vFile.isError)
+            if (vFile.isError || vFile.responseCode != 200)
             {
-                WSLog.LogError("update version file error:" + vFile.error);
+                WSLog.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
                 vFile.Dispose();
                 GameStart();
                 yield break;
             }
+
             if (vFile.downloadHandler.data != null && vFile.downloadedBytes != 0)
             {
                 if (File.Exists(ResMng.GetResPath() + "/" + strVFileName))

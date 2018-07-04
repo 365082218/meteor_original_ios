@@ -5,6 +5,49 @@ using System.Collections.Generic;
 using System.Xml;
 using System.IO;
 using LitJson;
+using Idevgame.Util;
+
+public static class BuildDefine
+{
+    // Editor
+    public const string DefineEditor = "UNITY_EDITOR";
+    public const string DefineDebugBuild = "DEVEL_BUILD";
+    public const string DefineProdBuild = "PROD_BUILD";
+    public const string DefineStripLogs = "STRIP_LOGS";
+    public const string DefineStripDebugSettings = "STRIP_DBG_SETTINGS";
+    public const string DefineRavenCompiled = "RAVEN_COMPILED";
+    // Testing
+    public const string DefineStripTest = "STRIP_TEST";
+
+    // native simulation
+    public const string DefineNativeSimulationBuild = "NATIVE_SIM";
+
+    // WP8, WSA
+    public const string DefineWindows = "UNITY_WP8";
+
+    // Android
+    public const string DefineAndroid = "UNITY_ANDROID";
+    public const string DefineEveryplayAndroid = "EVERYPLAY_ANDROID";
+    public const string Define360 = "ANDROID_360";
+    public const string DefineAndroidBemobi = "UNITY_BEMOBI";
+    public const string DefineAmazon = "ANDROID_AMAZON";
+
+    // iOS
+    public const string DefineIOS = "UNITY_IPHONE";
+    public const string DefineEveryplayIOS = "EVERYPLAY_IPHONE";
+
+    // build script related
+    public const string ExportPathDefine = "exportPath";
+
+    public static string Combine(params string[] options)
+    {
+        if (options == null || options.Length == 0)
+        {
+            return "";
+        }
+        return StringUtils.CollectionToDelimitedString(options, ";");
+    }
+}
 
 public class BuildWizardAndroid : ScriptableWizard {
     public string NewVersion;

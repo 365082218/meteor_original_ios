@@ -372,20 +372,6 @@ public class Lua_UnityEngine_Component : LuaObject {
 	}
 	[SLua.MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	[UnityEngine.Scripting.Preserve]
-	static public int rectTransform(IntPtr l) {
-		try {
-			UnityEngine.Component self=(UnityEngine.Component)checkSelf(l);
-			var ret=self.rectTransform();
-			pushValue(l,true);
-			pushValue(l,ret);
-			return 2;
-		}
-		catch(Exception e) {
-			return error(l,e);
-		}
-	}
-	[SLua.MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
-	[UnityEngine.Scripting.Preserve]
 	static public int get_transform(IntPtr l) {
 		try {
 			UnityEngine.Component self=(UnityEngine.Component)checkSelf(l);
@@ -451,7 +437,6 @@ public class Lua_UnityEngine_Component : LuaObject {
 		addMember(l,SendMessageUpwards);
 		addMember(l,SendMessage);
 		addMember(l,BroadcastMessage);
-		addMember(l,rectTransform);
 		addMember(l,"transform",get_transform,null,true);
 		addMember(l,"gameObject",get_gameObject,null,true);
 		addMember(l,"tag",get_tag,set_tag,true);

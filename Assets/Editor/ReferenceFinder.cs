@@ -15,6 +15,7 @@
 //   are not searched (to yield more relevant results)
 // - found a bug? Let me know on Unity forums!
 
+using Idevgame.Util;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
