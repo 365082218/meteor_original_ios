@@ -18,6 +18,7 @@ public enum EAIStatus
 
 public enum EAISubStatus
 {
+    SubStatusWait,
     FollowGotoTarget,
     FollowSubRotateToTarget,
     FollowSubCheck,//跟随到达目标后,定时检查
@@ -63,6 +64,7 @@ public class MeteorAI {
     {
         owner = user;
         Status = EAIStatus.Wait;
+        SubStatus = EAISubStatus.SubStatusWait;
     }
     public EAIStatus Status { get; set; }
     public EAISubStatus SubStatus { get; set; }
@@ -107,13 +109,6 @@ public class MeteorAI {
             }
 
         }
-        else if (PatrolPath.Count != 0)
-        {
-            Status = EAIStatus.Patrol;
-            SubStatus = EAISubStatus.Patrol;
-        }
-
-        Status = EAIStatus.Wait;
 
         switch (Status)
         {
@@ -127,10 +122,11 @@ public class MeteorAI {
                 //Debug.LogError("wait");
                 break;
             case EAIStatus.GotoPatrol:
+                Debug.LogError("gotopatrol");
                 OnGotoPatrol();
                 break;
             case EAIStatus.Patrol:
-                //Debug.LogError("patrol");
+                Debug.LogError("patrol");
                 OnPatrol();
                 break;
             case EAIStatus.Follow:
@@ -607,6 +603,10 @@ public class MeteorAI {
             SubStatus = EAISubStatus.KillGotoTarget;
             killTarget = owner.GetLockedTarget();
         }
+        else if (type == EAIStatus.GotoPatrol)
+        {
+            SubStatus = EAISubStatus.Patrol;
+        }
         ResetAIKey();
     }
 
@@ -717,7 +717,7 @@ public class MeteorAI {
         //-1代表在当前角色所在位置
         curPatrolIndex = -1;
         targetPatrolIndex = -1;
-        SubStatus = EAISubStatus.Patrol;
+        //SubStatus = EAISubStatus.Patrol;
         startPathIndex = PathMng.Instance.GetWayIndex(owner.mPos);
         PatrolPathBegin = PathMng.Instance.FindPath(startPathIndex, idx[0]);
     }

@@ -1200,7 +1200,7 @@ public class MeteorInput
                     Vector2 runTrans = direction * mOwner.Speed;
                     float x = runTrans.x * 0.036f, y = runTrans.y * 0.036f;
                     mOwner.SetVelocity(y, x);
-                    Debug.LogError("垂直跳跃中轻微滑动摇杆");
+                    //Debug.LogError("垂直跳跃中轻微滑动摇杆");
                 }
             }
         }

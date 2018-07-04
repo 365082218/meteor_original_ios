@@ -1345,7 +1345,7 @@ public class MeteorUnit : MonoBehaviour
         bool Floating = false;
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene")))
+        if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene")))
         {
             MoveOnGroundEx = hit.distance <= 2.0f;
             Floating = hit.distance >= 16.0f;
@@ -1365,7 +1365,7 @@ public class MeteorUnit : MonoBehaviour
                     posMng.ClimbFallTick += Time.deltaTime;
                     if (posMng.ClimbFallTick > PoseStatus.ClimbFallLimit)
                     {
-                        Debug.LogError("爬墙速度低于最低速度-爬墙落下");
+                        //Debug.LogError("爬墙速度低于最低速度-爬墙落下");
                         posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                         ProcessFall();
                         posMng.ClimbFallTick = 0.0f;
@@ -1373,7 +1373,7 @@ public class MeteorUnit : MonoBehaviour
                 }
                 else if (MoveOnGroundEx)
                 {
-                    Debug.LogError("爬墙碰到地面-落到地面");
+                    //Debug.LogError("爬墙碰到地面-落到地面");
                     posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                 }
                 else
@@ -1438,7 +1438,7 @@ public class MeteorUnit : MonoBehaviour
                                 posMng.CheckClimb)//速度最少要达到多少才能轻功
                             {
                                 //3条射线，-5°面向 5°左边近就调用右爬，中间则上爬，右边近则左爬.
-                                Debug.LogError("轻功开始");
+                                //Debug.LogError("轻功开始");
                                 posMng.CheckClimb = false;//单次爬墙不重复检测
                                 float left = 100;
                                 float middle = 100;
@@ -1472,7 +1472,7 @@ public class MeteorUnit : MonoBehaviour
                             posMng.ClimbFallTick += Time.deltaTime;
                             if (posMng.ClimbFallTick > PoseStatus.ClimbFallLimit)
                             {
-                                Debug.LogError("爬墙速度低于最低速度-爬墙落下");
+                                //Debug.LogError("爬墙速度低于最低速度-爬墙落下");
                                 posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                                 ProcessFall();
                                 posMng.ClimbFallTick = 0.0f;
@@ -1480,7 +1480,7 @@ public class MeteorUnit : MonoBehaviour
                         }
                         else if (MoveOnGroundEx)
                         {
-                            Debug.LogError("爬墙碰到地面-落到地面");
+                            //Debug.LogError("爬墙碰到地面-落到地面");
                             posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                         }
                     }
@@ -1501,7 +1501,7 @@ public class MeteorUnit : MonoBehaviour
                             posMng.mActiveAction.Idx == CommonAction.JumpBackFall ||
                             posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
                         {
-                            Debug.LogError("被墙壁轻微推开，避免悬挂在墙壁上");
+                            //Debug.LogError("被墙壁轻微推开，避免悬挂在墙壁上");
                             ProcessFall();
                         }
                     }
@@ -1514,7 +1514,7 @@ public class MeteorUnit : MonoBehaviour
             else if (Climbing)
             {
                 //爬墙过程中忽然没贴着墙壁了???直接落下
-                Debug.LogError("爬墙没有贴着墙壁-结束爬墙");
+                //Debug.LogError("爬墙没有贴着墙壁-结束爬墙");
                 posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
                 ProcessFall();
             }
@@ -1746,7 +1746,7 @@ public class MeteorUnit : MonoBehaviour
         }
         Vector3 vec = hitUnit.mPos - transform.position;
         vec.y = 0;
-        hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 100);
+        hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 30);
     }
 
     public void WeaponReturned(int poseIdx)
