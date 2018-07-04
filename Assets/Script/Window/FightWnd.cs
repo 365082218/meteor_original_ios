@@ -69,6 +69,14 @@ public class FightWnd: Window<FightWnd>
             DebugWnd.Instance.Open();
     }
 
+    void OnChooseWeapon()
+    {
+        //if (ChooseWeaponWnd.Exist)
+        //    ChooseWeaponWnd.Instance.Close();
+        //else
+        //    ChooseWeaponWnd.Instance.Open();
+    }
+
     void OnPlayerInfo()
     {
         if (PlayerWnd.Exist)
@@ -81,6 +89,7 @@ public class FightWnd: Window<FightWnd>
     {
         debugPanel.SetActive(!debugPanel.activeSelf);
     }
+
     AutoMsgCtrl ctrl;
     Transform LevelTalkRoot;
     Animation actionStatusBarCtrl;
@@ -106,8 +115,7 @@ public class FightWnd: Window<FightWnd>
         Global.ldaControlX("ChangeWeapon", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnChangeWeaponPress);
         Global.ldaControlX("ChangeWeapon", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnChangeWeaponRelease);
         Global.ldaControlX("BreakOut", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnBreakOut);
-        Global.ldaControlX("ChangeDebug", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnChangeDebug);
-        Global.ldaControlX("AddAI", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnDebugAI);
+        Global.ldaControlX("WeaponSelect", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnChooseWeapon);
         Global.ldaControlX("MXH", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnPlayerInfo);
         Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnCrouchPress);
         Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnCrouchRelease);
@@ -180,26 +188,15 @@ public class FightWnd: Window<FightWnd>
             effectDr.onValueChanged.AddListener((int idx) => { SFXLoader.Instance.PlayEffect(effectDr.options[idx].text, MeteorManager.Instance.LocalPlayer.posMng.AnimalCtrlEx); });
             replay.onClick.AddListener(() =>{ if (dr.value != -1)MeteorManager.Instance.LocalPlayer.posMng.ChangeActionSingle(dr.value); });
             currentPos.onClick.AddListener(() => { if (currentPosIdx != -1) MeteorManager.Instance.LocalPlayer.posMng.ChangeActionSingle(currentPosIdx); });
-            effectPlay.onClick.AddListener(() => { if (effectDr.value != -1) SFXLoader.Instance.PlayEffect(effectDr.options[effectDr.value].text, MeteorManager.Instance.LocalPlayer.posMng.AnimalCtrlEx); });
-            //string weaponIcon = "";
-            //switch ((EquipWeaponType)SubType)
-            //{
-            //    case EquipWeaponType.Knife: weaponIcon = "FW05"; break;
-            //    case EquipWeaponType.Sword: weaponIcon = "FW06"; break;
-            //    case EquipWeaponType.Blade: weaponIcon = "FW08"; break;
-            //    case EquipWeaponType.Lance: weaponIcon = "FW07"; break;
-            //    case EquipWeaponType.Gun: weaponIcon = "FW03"; break;
-            //}
-            //weaponType.overrideSprite = Resources.Load<Sprite>(weaponIcon);
+            effectPlay.onClick.AddListener(() => { if (effectDr.value != -1 && effectDr.options.Count > effectDr.value) SFXLoader.Instance.PlayEffect(effectDr.options[effectDr.value].text, MeteorManager.Instance.LocalPlayer.posMng.AnimalCtrlEx); });
             angryBar.fillAmount = 0.0f;
             angryWarning.enabled = false;
             hpWarning.enabled = false;
             UpdatePlayerInfo();
         }
 
-        debugPanel.SetActive(false);
-        Global.ldaControlX("AddAI", WndObject).SetActive(GameData.gameStatus.EnableFunc);
-        Global.ldaControlX("ChangeDebug", WndObject).SetActive(GameData.gameStatus.EnableDebug);
+        debugPanel.SetActive(GameData.gameStatus.EnableDebug);
+        Global.ldaControlX("WeaponSelect", WndObject).SetActive(GameData.gameStatus.EnableWeaponChoose);
 
         if (NGUIJoystick.instance != null)
             NGUIJoystick.instance.SetAnchor(GameData.gameStatus.JoyAnchor);
@@ -259,8 +256,8 @@ public class FightWnd: Window<FightWnd>
 
     public void UpdateUIButton()
     {
-        Global.ldaControlX("AddAI", WndObject).SetActive(GameData.gameStatus.EnableFunc);
-        Global.ldaControlX("ChangeDebug", WndObject).SetActive(GameData.gameStatus.EnableDebug);
+        Global.ldaControlX("WeaponSelect", WndObject).SetActive(GameData.gameStatus.EnableWeaponChoose);
+        debugPanel.SetActive(GameData.gameStatus.EnableDebug);
     }
 
     void OnAttackPress()

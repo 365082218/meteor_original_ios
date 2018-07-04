@@ -57,8 +57,6 @@ public class ModelWnd:Window<ModelWnd>
 public class NewSystemWnd : Window<NewSystemWnd>
 {
     public override string PrefabName { get { return "NewSystemWnd"; } }
-    UITab audioTab;
-    UITab saveTab;
 
     protected override bool OnOpen()
     {
@@ -76,8 +74,6 @@ public class NewSystemWnd : Window<NewSystemWnd>
     void Init()
     {
         Control("Continue").GetComponent<Button>().onClick.AddListener(OnClickClose);
-        audioTab = Control("AudioTab").GetComponent<UITab>();
-        saveTab = Control("SaveTab").GetComponent<UITab>();
         if (Startup.ins != null)
         {
             Control("BGMSlider").GetComponent<Slider>().value = GameData.gameStatus.MusicVolume;
@@ -92,16 +88,16 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Control("QuitGame").GetComponent<Button>().onClick.AddListener(OnClickBack);
         Control("ResetPosition").GetComponent<Button>().onClick.AddListener(OnResetPosition);
         Control("ReloadTable").GetComponent<Button>().onClick.AddListener(()=> { U3D.ReloadTable(); });
-        Control("LoadLevel").GetComponent<Button>().onClick.AddListener(OnLoadLevel);
+        //Control("LoadLevel").GetComponent<Button>().onClick.AddListener(OnLoadLevel);
         Control("SetJoyPosition").GetComponent<Button>().onClick.AddListener(OnSetJoyPosition);
         Control("DoScript").GetComponent<Button>().onClick.AddListener(OnDoScript);
         Toggle toggleDebug = Control("EnableDebug").GetComponent<Toggle>();
         toggleDebug.isOn = GameData.gameStatus.EnableDebug;
         toggleDebug.onValueChanged.AddListener(OnEnableDebug);
 
-        Toggle toggleEnableFunc = Control("EnableFunc").GetComponent<Toggle>();
-        toggleEnableFunc.isOn = GameData.gameStatus.EnableFunc;
-        toggleEnableFunc.onValueChanged.AddListener(OnEnableFunc);
+        Toggle toggleEnableFunc = Control("EnableWeaponChoose").GetComponent<Toggle>();
+        toggleEnableFunc.isOn = GameData.gameStatus.EnableWeaponChoose;
+        toggleEnableFunc.onValueChanged.AddListener(OnEnableWeaponChoose);
 
         Toggle toggleEnableInfiniteAngry = Control("EnableInfiniteAngry").GetComponent<Toggle>();
         toggleEnableInfiniteAngry.isOn = GameData.gameStatus.EnableInfiniteAngry;
@@ -131,7 +127,39 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Control("AppVerText").GetComponent<Text>().text = AppInfo.AppVersion();
         Control("MeteorVerText").GetComponent<Text>().text = AppInfo.MeteorVersion;
         Control("ChangeModel").GetComponent<Button>().onClick.AddListener(() => { ModelWnd.Instance.Open(); });
+
+        InitLevel();
         mWindowStyle = WindowStyle.WS_Modal;
+    }
+
+    void InitLevel()
+    {
+        Transform LevelRoot = Global.ldaControlX("LevelRoot", WndObject).transform;
+        Level[] LevelInfo = LevelMng.Instance.GetAllItem();
+        for (int i = 0; i < LevelInfo.Length; i++)
+        {
+            string strKey = LevelInfo[i].Name;
+            AddGridItem(i, strKey, EnterLevel, LevelRoot);
+        }
+    }
+
+    void AddGridItem(int i, string strTag, UnityEngine.Events.UnityAction<int> call, Transform parent)
+    {
+        GameObject objPrefab = Resources.Load("LevelItem", typeof(GameObject)) as GameObject;
+        GameObject obj = GameObject.Instantiate(objPrefab) as GameObject;
+        obj.transform.SetParent(parent);
+        obj.name = strTag;
+        obj.GetComponent<Button>().onClick.AddListener(() => { call(i); });
+        obj.GetComponentInChildren<Text>().text = strTag;
+        obj.transform.localPosition = Vector3.zero;
+        obj.transform.localScale = Vector3.one;
+    }
+
+    private void EnterLevel(int levelId)
+    {
+        Close();
+        GameBattleEx.Instance.Pause();
+        U3D.LoadLevel(levelId);
     }
 
     void OnChangeVer(string ver)
@@ -157,9 +185,10 @@ public class NewSystemWnd : Window<NewSystemWnd>
         U3D.ReStart();
     }
 
-    void OnEnableFunc(bool on)
+    //允许在战斗UI选择武器.
+    void OnEnableWeaponChoose(bool on)
     {
-        GameData.gameStatus.EnableFunc = on;
+        GameData.gameStatus.EnableWeaponChoose = on;
         if (FightWnd.Exist)
             FightWnd.Instance.UpdateUIButton();
     }
@@ -184,12 +213,6 @@ public class NewSystemWnd : Window<NewSystemWnd>
         GameData.gameStatus.EnableDebug = on;
         if (FightWnd.Exist)
             FightWnd.Instance.UpdateUIButton();
-    }
-
-    void OnLoadLevel()
-    {
-        WsGlobal.ShowLevelSelect();
-        OnClickClose();
     }
 
     void OnChangePerformance(bool on)

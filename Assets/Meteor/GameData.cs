@@ -70,7 +70,7 @@ public class GameState
     public string NickName;
     public bool useJoystickOrKeyBoard;//是否使用外设摇杆
     public bool EnableDebug;//战斗UI调试面板是否显示按钮
-    public bool EnableFunc;//战斗UI控制面板是否显示按钮
+    public bool EnableWeaponChoose;//战斗UI控制面板是否显示按钮
     public bool EnableInfiniteAngry;//无限气.
     public bool EnableItemName;//查看物品名称.
     public bool EnableGodMode;//一击必杀

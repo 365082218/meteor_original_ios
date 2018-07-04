@@ -21,7 +21,7 @@ public class CameraFollow : MonoBehaviour {
     public static CameraFollow Ins { get { return Instance; } }
     static CameraFollow Instance;
     [HideInInspector]
-    public Transform[] m_Targets;//摄像机的各个视角的调试对象.
+    //public Transform[] m_Targets;//摄像机的各个视角的调试对象.
     public float followDistance = 50;//在角色身后多远
     public float followHeight = 0;//离跟随点多高。
     public float followRotationDamping = 5;
@@ -63,15 +63,15 @@ public class CameraFollow : MonoBehaviour {
         m_Camera.fieldOfView = m_MinSize;
         fRadis = Mathf.Sqrt(followDistance * followDistance + followHeight * followHeight);
         lastAngle = Mathf.Atan2(followHeight, followDistance) * Mathf.Rad2Deg;
-        m_Targets = new Transform[3];
-        for (int i = 0; i < 3; i++)
-        {
-            m_Targets[i] = GameObject.CreatePrimitive(PrimitiveType.Sphere).transform;
-            m_Targets[i].GetComponent<Renderer>().material.color = Color.white;
-            m_Targets[i].GetComponent<Collider>().enabled = false;
-            m_Targets[i].gameObject.layer = LayerMask.NameToLayer("Debug");
-            m_Targets[i].localScale = 10 * Vector3.one;
-        }
+        //m_Targets = new Transform[3];
+        //for (int i = 0; i < 3; i++)
+        //{
+        //    m_Targets[i] = GameObject.CreatePrimitive(PrimitiveType.Sphere).transform;
+        //    m_Targets[i].GetComponent<Renderer>().material.color = Color.white;
+        //    m_Targets[i].GetComponent<Collider>().enabled = false;
+        //    m_Targets[i].gameObject.layer = LayerMask.NameToLayer("Debug");
+        //    m_Targets[i].localScale = 10 * Vector3.one;
+        //}
 
         if (MeteorManager.Instance.LocalPlayer != null)
         {
@@ -143,8 +143,8 @@ public class CameraFollow : MonoBehaviour {
             //vecTarget[2] = newViewIndex[(ViewIndex + 2) % 3];
 
             //重新排。当前排第一，顶部排最后，剩下的排第二。这样切换就不会那么频繁.
-            for (int i = 0; i < 3; i++)
-                m_Targets[i].position = newViewIndex[i];
+            //for (int i = 0; i < 3; i++)
+            //    m_Targets[i].position = newViewIndex[i];
             dis = 1000.0f;
             for (int i = 0; i < 2; i++)
             {
@@ -311,7 +311,7 @@ public class CameraFollow : MonoBehaviour {
                 (1 << LayerMask.NameToLayer("Wall")) |
                 (1 << LayerMask.NameToLayer("Water"))))
                 {
-                    m_Targets[2].position = wallHit.point;
+                    //m_Targets[2].position = wallHit.point;
                     //Debug.LogError("?????");
                 }
             }

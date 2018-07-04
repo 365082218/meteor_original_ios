@@ -184,11 +184,6 @@
     <None Include="Assets\Effect\Texture\100_Skill\SkillFanRange.txt" />
     <None Include="Assets\Effect\UVMove\Unlit-Normal.shader" />
     <None Include="Assets\Effect\UVMove\skyboxadd.shader" />
-    <None Include="Assets\Lightbeam\Documentation\Readme.txt" />
-    <None Include="Assets\Lightbeam\Shaders\Lightbeam.shader" />
-    <None Include="Assets\Lightbeam\Shaders\Lightbeam_Detail.shader" />
-    <None Include="Assets\Lightbeam\Shaders\Lightbeam_Detail_Soft.shader" />
-    <None Include="Assets\Lightbeam\Shaders\Lightbeam_Soft.shader" />
     <None Include="Assets\Meteor\Shader\Resources\Alpha-Diffuse.shader" />
     <None Include="Assets\Meteor\Shader\Resources\AlphaTexture.shader" />
     <None Include="Assets\Meteor\Shader\Resources\AlphaTextureDB.shader" />
@@ -225,7 +220,6 @@
     <None Include="Assets\Meteor\Shader\Resources\UnlitUV.shader" />
     <None Include="Assets\Meteor\Shader\Resources\WeaponTextureMask.shader" />
     <None Include="Assets\Meteor\mod\readme.txt" />
-    <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored.shader" />
     <None Include="Assets\Plugins\Android\AndroidManifest.xml" />
     <None Include="Assets\Plugins\Android\res\layout\activity_main2.xml" />
     <None Include="Assets\Plugins\Android\res\layout\activity_main3.xml" />
@@ -355,9 +349,6 @@
     <None Include="Assets\Resource\Table\Resources\WayPoints.txt" />
     <None Include="Assets\Resource\Table\Resources\Weapon.txt" />
     <None Include="Assets\Resource\Version\Resources\meteorFont.fnt" />
-    <None Include="Assets\RnM UI 2 for UGUI\Changelog.txt" />
-    <None Include="Assets\RnM UI 2 for UGUI\Readme.txt" />
-    <None Include="Assets\RnM UI 2 for UGUI\Shaders\Overlay.shader" />
     <None Include="Assets\SceneWater\Tasharen Water.shader" />
     <None Include="Assets\Shaders\CustomFog.shader" />
     <None Include="Assets\Shaders\DoubleSided.shader" />
@@ -459,8 +450,17 @@
     <None Include="Assets\ThirdParty\DOTween\DOTween50.xml" />
     <None Include="Assets\ThirdParty\DOTween\Editor\DOTweenEditor.XML" />
     <None Include="Assets\ThirdParty\DOTween\readme.txt" />
+    <None Include="Assets\ThirdParty\Lightbeam\Documentation\Readme.txt" />
+    <None Include="Assets\ThirdParty\Lightbeam\Shaders\Lightbeam.shader" />
+    <None Include="Assets\ThirdParty\Lightbeam\Shaders\Lightbeam_Detail.shader" />
+    <None Include="Assets\ThirdParty\Lightbeam\Shaders\Lightbeam_Detail_Soft.shader" />
+    <None Include="Assets\ThirdParty\Lightbeam\Shaders\Lightbeam_Soft.shader" />
+    <None Include="Assets\ThirdParty\NGUI\Resources\Shaders\Unlit - Transparent Colored.shader" />
+    <None Include="Assets\ThirdParty\RnM UI 2 for UGUI\Changelog.txt" />
+    <None Include="Assets\ThirdParty\RnM UI 2 for UGUI\Readme.txt" />
+    <None Include="Assets\ThirdParty\RnM UI 2 for UGUI\Shaders\Overlay.shader" />
+    <None Include="Assets\ThirdParty\protobuf-net\Web\TODO.txt" />
     <None Include="Assets\link.xml" />
-    <None Include="Assets\protobuf-net\Web\TODO.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

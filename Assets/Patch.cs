@@ -121,7 +121,7 @@ public class Patch : MonoBehaviour {
         }
         yield return new WaitForEndOfFrame();
         Application.targetFrameRate = AppInfo.GetTargetFrame();
-        Debug.LogError(string.Format("fps:{0}", Application.targetFrameRate));
+        WSLog.LogError(string.Format("fps:{0}", Application.targetFrameRate));
         U3D.PlayMovie("start.mv");
         AppDomain.CurrentDomain.UnhandledException += UncaughtException;
         ResMng.LoadScene("Menu");

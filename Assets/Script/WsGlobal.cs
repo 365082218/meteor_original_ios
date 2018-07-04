@@ -69,21 +69,6 @@ public class WsGlobal {
         DebugLine.Add(obj);
         return obj;
     }
-    public static bool ResponseCmd(string strCmd)
-	{
-		if (strCmd == "admin")
-		{
-			Debug.Log("Open Admin Panel");
-            ShowLevelSelect();
-			return true;
-		}
-		return false;
-	}
-
-	public static void ShowLevelSelect()
-	{
-		WsWindowEx.OpenSinglePanel<AdminDebugPanel>();
-	}
 
     //动态递归改变怪物，英雄所有节点的层
 	public static void SetObjectLayer(GameObject objSelect, int layermask)

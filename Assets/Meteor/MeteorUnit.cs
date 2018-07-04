@@ -2028,20 +2028,20 @@ public class MeteorUnit : MonoBehaviour
         //Debug.LogError("角度:" + degree);
         if (degree <= 45)
         {
-            Debug.LogError("正面");
+            //Debug.LogError("正面");
             return 0;
         }
         if (degree <= 135 && angleLeft > 0)
         {
-            Debug.LogError("左侧");
+            //Debug.LogError("左侧");
             return 2;
         }
         if (degree <= 135 && angleLeft < 0)
         {
-            Debug.LogError("右侧");
+            //Debug.LogError("右侧");
             return 3;
         }
-        Debug.LogError("背面");
+        //Debug.LogError("背面");
         return 1;
     }
 

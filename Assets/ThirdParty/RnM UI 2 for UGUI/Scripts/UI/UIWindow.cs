@@ -245,7 +245,7 @@ namespace UnityEngine.UI
 			UIWindow.OnBeforeFocusWindow(this);
 			
 			// Bring the window forward
-			UIUtility.BringToFront(this.gameObject);
+			//UIUtility.BringToFront(this.gameObject);
 		}
 		
 		/// <summary>
