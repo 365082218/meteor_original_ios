@@ -1001,7 +1001,7 @@ public class GameBattleEx : MonoBehaviour {
                 return;
             for (int i = 0; i < Global.GLevelItem.wayPoint.Count; i++)
             {
-                GameObject obj = WsGlobal.AddDebugLine(Global.GLevelItem.wayPoint[i].pos - 2 * Vector3.up, Global.GLevelItem.wayPoint[i].pos + 2 * Vector3.up, Color.red, "WayPoint" + i);
+                GameObject obj = WsGlobal.AddDebugLine(Global.GLevelItem.wayPoint[i].pos - 2 * Vector3.up, Global.GLevelItem.wayPoint[i].pos + 2 * Vector3.up, Color.red, "WayPoint" + i, float.MaxValue, true);
                 wayPointList.Add(obj);
                 CapsuleCollider capsule = obj.AddComponent<CapsuleCollider>();
                 capsule.isTrigger = true;
@@ -1016,6 +1016,7 @@ public class GameBattleEx : MonoBehaviour {
                     Vector3 vec = Global.GLevelItem.wayPoint[each.Key].pos - Global.GLevelItem.wayPoint[i].pos;
                     objArrow.transform.forward = vec.normalized;
                     objArrow.transform.localScale = new Vector3(30, 30, vec.magnitude / 2.2f);
+                    objArrow.name = string.Format("Way{0}->Way{1}", Global.GLevelItem.wayPoint[each.Key].index, Global.GLevelItem.wayPoint[i].index);
                     wayArrowList.Add(objArrow);
                 }
             }

@@ -69,14 +69,6 @@ public class FightWnd: Window<FightWnd>
             DebugWnd.Instance.Open();
     }
 
-    void OnChooseWeapon()
-    {
-        //if (ChooseWeaponWnd.Exist)
-        //    ChooseWeaponWnd.Instance.Close();
-        //else
-        //    ChooseWeaponWnd.Instance.Open();
-    }
-
     void OnPlayerInfo()
     {
         if (PlayerWnd.Exist)
@@ -115,15 +107,19 @@ public class FightWnd: Window<FightWnd>
         Global.ldaControlX("ChangeWeapon", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnChangeWeaponPress);
         Global.ldaControlX("ChangeWeapon", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnChangeWeaponRelease);
         Global.ldaControlX("BreakOut", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnBreakOut);
-        Global.ldaControlX("WeaponSelect", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnChooseWeapon);
+        Global.ldaControlX("WeaponSelect", WndObject).GetComponentInChildren<Button>().onClick.AddListener(()=> { U3D.OpenWeaponWnd(); });
+
+        Global.ldaControlX("SceneName", WndObject).GetComponent<Button>().onClick.AddListener(()=> { OpenMiniMap(); });
+        Global.ldaControlX("SceneName", WndObject).GetComponentInChildren<Text>().text = Global.GLevelItem.Name;
         Global.ldaControlX("MXH", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnPlayerInfo);
         Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnCrouchPress);
         Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnCrouchRelease);
         Global.ldaControlX("Drop", WndObject).GetComponent<Button>().onClick.AddListener(OnClickDrop);
         //Global.ldaControlX("Inventory", WndObject).GetComponentInChildren<Button>().onClick.AddListener(delegate () { U3D.OpenInVentory(); });
-        Global.ldaControlX("System", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSystem(); });
+        Global.ldaControlX("System", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSystemWnd(); });
         Unlock = Global.ldaControlX("Unlock", WndObject);
         Unlock.GetComponentInChildren<Button>().onClick.AddListener(OnClickChangeLock);
+        Global.ldaControlX("DebugMenu", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenDebugWnd(); });
         //floatButton = Global.ldaControlX("FloatButton", WndObject).GetComponent<UIButtonExtended>();
         //floatButton.gameObject.SetActive(false);
         //dr = Global.ldaControlX("Dropdown", WndObject).GetComponent<Dropdown>();
@@ -196,8 +192,7 @@ public class FightWnd: Window<FightWnd>
         }
 
         //debugPanel.SetActive(GameData.gameStatus.EnableDebug);
-        Global.ldaControlX("WeaponSelect", WndObject).SetActive(GameData.gameStatus.EnableWeaponChoose);
-
+        UpdateUIButton();
         if (NGUIJoystick.instance != null)
             NGUIJoystick.instance.SetAnchor(GameData.gameStatus.JoyAnchor);
         //Control("JoyArrow").SetActive(false);
@@ -254,10 +249,18 @@ public class FightWnd: Window<FightWnd>
         
     }
 
+    bool openMiniMap = false;
+    void OpenMiniMap()
+    {
+        openMiniMap = !openMiniMap;
+        Global.ldaControlX("MiniMapFrame", WndObject).SetActive(openMiniMap);
+    }
+
     public void UpdateUIButton()
     {
         Global.ldaControlX("WeaponSelect", WndObject).SetActive(GameData.gameStatus.EnableWeaponChoose);
-        //debugPanel.SetActive(GameData.gameStatus.EnableDebug);
+        Global.ldaControlX("DebugMenu", WndObject).SetActive(GameData.gameStatus.EnableDebug);
+        Global.ldaControlX("MiniMap", WndObject).SetActive(GameData.gameStatus.EnableMiniMap);
     }
 
     void OnAttackPress()

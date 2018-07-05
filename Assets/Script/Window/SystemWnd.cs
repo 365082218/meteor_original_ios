@@ -88,24 +88,28 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Control("QuitGame").GetComponent<Button>().onClick.AddListener(OnClickBack);
         Control("ResetPosition").GetComponent<Button>().onClick.AddListener(OnResetPosition);
         Control("ReloadTable").GetComponent<Button>().onClick.AddListener(()=> { U3D.ReloadTable(); });
-        //Control("LoadLevel").GetComponent<Button>().onClick.AddListener(OnLoadLevel);
         Control("SetJoyPosition").GetComponent<Button>().onClick.AddListener(OnSetJoyPosition);
         Control("DoScript").GetComponent<Button>().onClick.AddListener(OnDoScript);
+        //显示战斗界面的调试按钮
         Toggle toggleDebug = Control("EnableDebug").GetComponent<Toggle>();
         toggleDebug.isOn = GameData.gameStatus.EnableDebug;
         toggleDebug.onValueChanged.AddListener(OnEnableDebug);
-
+        //战斗内显示角色信息
+        Toggle toggleDebugStatus = Control("EnableDebugStatus").GetComponent<Toggle>();
+        toggleDebugStatus.isOn = GameData.gameStatus.EnableDebugStatus;
+        toggleDebugStatus.onValueChanged.AddListener(OnEnableDebugStatus);
+        //显示武器挑选按钮
         Toggle toggleEnableFunc = Control("EnableWeaponChoose").GetComponent<Toggle>();
         toggleEnableFunc.isOn = GameData.gameStatus.EnableWeaponChoose;
         toggleEnableFunc.onValueChanged.AddListener(OnEnableWeaponChoose);
-
+        //无限气
         Toggle toggleEnableInfiniteAngry = Control("EnableInfiniteAngry").GetComponent<Toggle>();
         toggleEnableInfiniteAngry.isOn = GameData.gameStatus.EnableInfiniteAngry;
         toggleEnableInfiniteAngry.onValueChanged.AddListener(OnEnableInfiniteAngry);
 
-        //Toggle toggleEnableItemName = Control("EnableItemName").GetComponent<Toggle>();
-        //toggleEnableItemName.isOn = GameData.gameStatus.EnableItemName;
-        //toggleEnableItemName.onValueChanged.AddListener(OnEnableItemName);
+        Toggle toggleEnableMiniMap = Control("EnableMiniMap").GetComponent<Toggle>();
+        toggleEnableMiniMap.isOn = GameData.gameStatus.EnableMiniMap;
+        toggleEnableMiniMap.onValueChanged.AddListener(OnEnableMiniMap);
 
         Toggle toggleEnableGodMode = Control("EnableGodMode").GetComponent<Toggle>();
         toggleEnableGodMode.isOn = GameData.gameStatus.EnableGodMode;
@@ -139,7 +143,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
         for (int i = 0; i < LevelInfo.Length; i++)
         {
             string strKey = LevelInfo[i].Name;
-            AddGridItem(i, strKey, EnterLevel, LevelRoot);
+            AddGridItem(LevelInfo[i].ID, strKey, EnterLevel, LevelRoot);
         }
     }
 
@@ -193,6 +197,15 @@ public class NewSystemWnd : Window<NewSystemWnd>
             FightWnd.Instance.UpdateUIButton();
     }
 
+    void OnEnableMiniMap(bool on)
+    {
+        GameData.gameStatus.EnableMiniMap = on;
+        if (FightWnd.Exist)
+        {
+            FightWnd.Instance.UpdateUIButton();
+        }
+    }
+
     void OnEnableGodMode(bool on)
     {
         GameData.gameStatus.EnableGodMode = on;
@@ -203,10 +216,13 @@ public class NewSystemWnd : Window<NewSystemWnd>
         GameData.gameStatus.EnableInfiniteAngry = on;
     }
 
-    //void OnEnableItemName(bool on)
-    //{
-    //    GameData.gameStatus.EnableItemName = on;
-    //}
+    void OnEnableDebugStatus(bool on)
+    {
+        GameData.gameStatus.EnableDebugStatus = on;
+        UnitTopUI[] unitsUI = GameObject.FindObjectsOfType(typeof(UnitTopUI)) as UnitTopUI[];
+        for (int i = 0; i < unitsUI.Length; i++)
+            unitsUI[i].EnableInfo(on);
+    }
 
     void OnEnableDebug(bool on)
     {

@@ -26,6 +26,7 @@ public class UnitTopUI : MonoBehaviour {
         if (owner == MeteorManager.Instance.LocalPlayer)
             return;
         float unitDis = Vector3.Distance(owner.transform.position, MeteorManager.Instance.LocalPlayer.transform.position);
+        UnityEngine.Debug.LogError("增加名字在摄像机背面时不显示的逻辑");
         if ((unitDis <= ViewLimit) && !MonsterName.gameObject.activeSelf)
             MonsterName.gameObject.SetActive(true);
         else
@@ -44,12 +45,18 @@ public class UnitTopUI : MonoBehaviour {
             float scalex = vec.x / Screen.width;
             float scaley = vec.y / Screen.height;
             rect.anchoredPosition3D = new Vector3(1920f * scalex, 1080f * scaley, vec.z);
-            if (GameData.gameStatus.EnableDebug)
+            if (GameData.gameStatus.EnableDebugStatus)
             {
                 if (!Info.gameObject.activeInHierarchy)
                     Info.gameObject.SetActive(true);
             }
          }
+    }
+
+    public void EnableInfo(bool enable)
+    {
+        if (Info != null && MonsterName.gameObject.activeSelf)
+            Info.gameObject.SetActive(enable);
     }
 
     public void Init(MonsterEx attr, Transform attach, EUnitCamp camp)

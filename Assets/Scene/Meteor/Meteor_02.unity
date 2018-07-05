@@ -14923,7 +14923,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1150925060}
   - component: {fileID: 1150925056}
-  - component: {fileID: 1150925059}
   - component: {fileID: 1150925061}
   m_Layer: 0
   m_Name: Camera
@@ -14966,13 +14965,6 @@ Camera:
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
   m_StereoMirrorMode: 0
---- !u!124 &1150925059
-Behaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1150925055}
-  m_Enabled: 1
 --- !u!4 &1150925060
 Transform:
   m_ObjectHideFlags: 0

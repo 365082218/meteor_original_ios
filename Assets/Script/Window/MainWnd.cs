@@ -334,6 +334,93 @@ public class ItemInfoWnd:Window<ItemInfoWnd>
     }
 }
 
+public class WeaponWnd : Window<WeaponWnd>
+{
+    public GameObject FunctionRoot;
+    public GameObject WeaponRoot;
+    //public 
+    public override string PrefabName
+    {
+        get
+        {
+            return "WeaponPanel";
+        }
+    }
+    protected override bool OnOpen()
+    {
+        Init();
+        return base.OnOpen();
+    }
+
+    protected override bool OnClose()
+    {
+        if (load != null && GameBattleEx.Instance)
+            GameBattleEx.Instance.StopCoroutine(load);
+        return base.OnClose();
+    }
+
+    Coroutine load;
+    void Init()
+    {
+        FunctionRoot = Control("FunctionRoot");
+        WeaponRoot = Control("WeaponRoot");
+        Control("Close").GetComponent<Button>().onClick.AddListener(Close);
+        if (load == null)
+            load = GameBattleEx.Instance.StartCoroutine(AddRobotAndWeapon());
+    }
+
+    IEnumerator AddRobotAndWeapon()
+    {
+        for (int i = 0; i < Global.model.Length; i++)
+        {
+            AddSpawnItem(i);
+            yield return 0;
+        }
+        List<ItemBase> we = GameData.itemMng.GetFullRow();
+        for (int i = 0; i < we.Count; i++)
+        {
+            if (we[i].MainType == 1)
+            {
+                AddWeaponItem(we[i]);
+                yield return 0;
+            }
+        }
+    }
+
+    void AddSpawnItem(int Idx)
+    {
+        UIFunCtrl obj = (GameObject.Instantiate(Resources.Load("UIFuncItem")) as GameObject).GetComponent<UIFunCtrl>();
+        obj.SetEvent(SpawnMonster, Idx);
+        obj.SetText(Global.model[Idx]);
+        obj.transform.SetParent(FunctionRoot.transform);
+        obj.gameObject.layer = FunctionRoot.layer;
+        obj.transform.localScale = Vector3.one;
+        obj.transform.localPosition = Vector3.zero;
+        obj.transform.localRotation = Quaternion.identity;
+    }
+
+    void AddWeaponItem(ItemBase it)
+    {
+        UIFunCtrl obj = (GameObject.Instantiate(Resources.Load("UIFuncItem")) as GameObject).GetComponent<UIFunCtrl>();
+        obj.SetEvent(ChangeWeaponCode, it.Idx);
+        obj.SetText(it.Name);
+        obj.transform.SetParent(WeaponRoot.transform);
+        obj.gameObject.layer = WeaponRoot.layer;
+        obj.transform.localScale = Vector3.one;
+        obj.transform.localPosition = Vector3.zero;
+        obj.transform.localRotation = Quaternion.identity;
+    }
+
+    void ChangeWeaponCode(int code)
+    {
+        MeteorManager.Instance.LocalPlayer.ChangeWeaponCode(code);
+    }
+    void SpawnMonster(int code)
+    {
+        U3D.SpawnRobot(code);
+    }
+}
+
 public class DebugWnd:Window<DebugWnd>
 {
     public GameObject FunctionRoot;
@@ -420,6 +507,7 @@ public class DebugWnd:Window<DebugWnd>
         U3D.SpawnRobot(code);
     }
 }
+
 public class BattleResultWnd : Window<BattleResultWnd>
 {
     public override string PrefabName

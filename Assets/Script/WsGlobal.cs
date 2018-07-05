@@ -44,7 +44,7 @@ public class WsGlobal {
 		return obj;
 	}
 
-    public static GameObject AddDebugLine(Vector3 pos, Vector3 pos2, Color co, string strTag = "", float fLastTime = float.MaxValue)
+    public static GameObject AddDebugLine(Vector3 pos, Vector3 pos2, Color co, string strTag = "", float fLastTime = float.MaxValue, bool autoHide = false)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load("DebugLineRender")) as GameObject;
         obj.transform.position = (pos + pos2) / 2;
@@ -56,7 +56,10 @@ public class WsGlobal {
         line.SetPosition(1, pos2);
         UITalkBubble text = obj.GetComponent<UITalkBubble>();
         if (text == null)
+        {
             text = obj.AddComponent<UITalkBubble>();
+            text.AutoHide = autoHide;
+        }
         text.strText = strTag;
         text.showtime = fLastTime;
         text.SetDebugText();

@@ -22,8 +22,8 @@ class SceneMng
         //Loader load = GameObject.FindObjectOfType<Loader>();
         if (Loader.Instance != null)
         {
-            Loader.Instance.LoadFixedScene(lev);
-            Loader.Instance.LoadDynamicTrigger(lev);//可破坏物件暂不处理.
+            //Loader.Instance.LoadFixedScene(lev);
+            //Loader.Instance.LoadDynamicTrigger(lev);
         }
         else
         {

@@ -122,11 +122,11 @@ public class MeteorAI {
                 //Debug.LogError("wait");
                 break;
             case EAIStatus.GotoPatrol:
-                Debug.LogError("gotopatrol");
+                //Debug.LogError("gotopatrol");
                 OnGotoPatrol();
                 break;
             case EAIStatus.Patrol:
-                Debug.LogError("patrol");
+                //Debug.LogError("patrol");
                 OnPatrol();
                 break;
             case EAIStatus.Follow:
@@ -167,7 +167,15 @@ public class MeteorAI {
     int curIndex = 0;
     int targetIndex = 0;
     List<WayPoint> FollowPath = new List<WayPoint>();
-    //要做一个移动缓存，不必要每次都用最新的位置去寻路.
+    //要做一个移动缓存，不必要每次都用最新的位置去寻路.\
+    void RefreshFollowPath(Vector3 now, MeteorUnit user, MeteorUnit target, out int freeSlot, out Vector3 end)
+    {
+        FollowPath = PathMng.Instance.FindPath(owner.mPos, owner, target, out freeSlot, out end);
+        curIndex = -1;
+        targetIndex = -1;
+        AIFollowRefresh = 0.0f;
+    }
+
     void MovetoTarget(MeteorUnit target)
     {
         int freeSlot = -1;
@@ -193,11 +201,7 @@ public class MeteorAI {
                         //    SubStatus = EAISubStatus.KillGotoTarget;
                         owner.controller.Input.AIMove(0, 1);
                     }
-
-                    FollowPath = PathMng.Instance.FindPath(owner.mPos, owner, target, out freeSlot, out vecTarget);
-                    curIndex = -1;
-                    targetIndex = -1;
-                    AIFollowRefresh = 0.0f;
+                    RefreshFollowPath(owner.mPos, owner, target, out freeSlot, out vecTarget);
                     //成功找到路径.且占据了目标上的一个位置槽
                     if (freeSlot != -1)
                     {
@@ -211,7 +215,10 @@ public class MeteorAI {
                 {
                     if (curIndex == -1)
                         targetIndex = 0;
-                    
+
+                    if (targetIndex >= FollowPath.Count)
+
+
                     dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(FollowPath[targetIndex].pos.x, 0, FollowPath[targetIndex].pos.z));
                     if (dis <= owner.Speed * Time.deltaTime * 0.13f)
                     {

@@ -394,7 +394,24 @@ public class U3D : MonoBehaviour {
     {
     }
 
-    public static void OpenSystem()
+    public static void OpenDebugWnd()
+    {
+        if (DebugWnd.Exist)
+            DebugWnd.Instance.Close();
+        else
+            DebugWnd.Instance.Open();
+    }
+
+    //打开武器界面，主角色调试切换主手武器.
+    public static void OpenWeaponWnd()
+    {
+        if (WeaponWnd.Exist)
+            WeaponWnd.Instance.Close();
+        else
+            WeaponWnd.Instance.Open();
+    }
+
+    public static void OpenSystemWnd()
     {
         if (Global.GLevelItem != null)
         {

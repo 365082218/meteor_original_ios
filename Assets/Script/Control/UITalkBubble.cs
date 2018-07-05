@@ -12,6 +12,7 @@ public class UITalkBubble : MonoBehaviour {
 	GameObject bgSprite;
 	Text label;
     RectTransform rect;
+    public bool AutoHide;
     private void Awake()
     {
         rect = GetComponent<RectTransform>();
@@ -21,11 +22,31 @@ public class UITalkBubble : MonoBehaviour {
     void Update () {
 		if (Panel != null)
 			Panel.transform.rotation = TheCamera.transform.rotation;
-		if (Time.time - begintime >= showtime)
-		{
-			GameObject.DestroyImmediate(Panel);
-			GameObject.DestroyImmediate(gameObject);
-		}
+        if (Time.time - begintime >= showtime)
+        {
+            GameObject.DestroyImmediate(Panel);
+            GameObject.DestroyImmediate(gameObject);
+        }
+        else
+        {
+            if (AutoHide)
+            {
+                if (gameObject.activeInHierarchy)
+                {
+                    if (Vector3.Distance(transform.position, MeteorManager.Instance.LocalPlayer.mPos) >= 50.0f)
+                    {
+                        gameObject.SetActive(false);
+                    }
+                }
+                else
+                {
+                    if (Vector3.Distance(transform.position, MeteorManager.Instance.LocalPlayer.mPos) < 50.0f)
+                    {
+                        gameObject.SetActive(true);
+                    }
+                }
+            }
+        }
 	}
 
 	public void SetText()

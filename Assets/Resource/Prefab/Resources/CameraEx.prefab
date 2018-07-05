@@ -20,7 +20,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4000012991364716}
   - component: {fileID: 20000014213172748}
-  - component: {fileID: 124000010539871914}
   - component: {fileID: 114000010012318588}
   - component: {fileID: 114000010732151880}
   m_Layer: 0
@@ -73,7 +72,7 @@ Camera:
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 0
-  m_OcclusionCulling: 1
+  m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
   m_StereoMirrorMode: 0
@@ -124,7 +123,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b3816a170720804a83040ea265133ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Targets: []
   followDistance: 50
   followHeight: 40
   followRotationDamping: 5
@@ -142,10 +140,3 @@ MonoBehaviour:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 0}
---- !u!124 &124000010539871914
-Behaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1000013329279894}
-  m_Enabled: 1

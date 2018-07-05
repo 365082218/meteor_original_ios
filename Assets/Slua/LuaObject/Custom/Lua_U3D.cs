@@ -499,9 +499,33 @@ public class Lua_U3D : LuaObject {
 	}
 	[SLua.MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
 	[UnityEngine.Scripting.Preserve]
-	static public int OpenSystem_s(IntPtr l) {
+	static public int OpenDebugWnd_s(IntPtr l) {
 		try {
-			U3D.OpenSystem();
+			U3D.OpenDebugWnd();
+			pushValue(l,true);
+			return 1;
+		}
+		catch(Exception e) {
+			return error(l,e);
+		}
+	}
+	[SLua.MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	[UnityEngine.Scripting.Preserve]
+	static public int OpenWeaponWnd_s(IntPtr l) {
+		try {
+			U3D.OpenWeaponWnd();
+			pushValue(l,true);
+			return 1;
+		}
+		catch(Exception e) {
+			return error(l,e);
+		}
+	}
+	[SLua.MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	[UnityEngine.Scripting.Preserve]
+	static public int OpenSystemWnd_s(IntPtr l) {
+		try {
+			U3D.OpenSystemWnd();
 			pushValue(l,true);
 			return 1;
 		}
@@ -1594,7 +1618,9 @@ public class Lua_U3D : LuaObject {
 		addMember(l,PlaySound_s);
 		addMember(l,NpcTalkClose_s);
 		addMember(l,Fullup_s);
-		addMember(l,OpenSystem_s);
+		addMember(l,OpenDebugWnd_s);
+		addMember(l,OpenWeaponWnd_s);
+		addMember(l,OpenSystemWnd_s);
 		addMember(l,EnableGate_s);
 		addMember(l,ShowEmploy_s);
 		addMember(l,EnableUIFunc_s);
