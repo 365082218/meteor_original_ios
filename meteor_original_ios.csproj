@@ -136,6 +136,9 @@
     <Compile Include="Assets\Code\Idevgame\Common\Util\StringUtils.cs" />
     <Compile Include="Assets\Code\Idevgame\Common\Util\TimeUtils.cs" />
     <Compile Include="Assets\Debug\CharacterLoaderDebug.cs" />
+    <Compile Include="Assets\Debug\DebugClass.cs" />
+    <Compile Include="Assets\Debug\DebugMethod.cs" />
+    <Compile Include="Assets\Debug\MeteorUnit.debug.cs" />
     <Compile Include="Assets\Debug\MeteorUnitDebug.cs" />
     <Compile Include="Assets\Debug\PoseStatusDebug.cs" />
     <Compile Include="Assets\Debug\WeaponLoaderEx.cs" />

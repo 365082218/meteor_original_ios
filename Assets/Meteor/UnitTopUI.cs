@@ -25,18 +25,27 @@ public class UnitTopUI : MonoBehaviour {
             return;
         if (owner == MeteorManager.Instance.LocalPlayer)
             return;
-        float unitDis = Vector3.Distance(owner.transform.position, MeteorManager.Instance.LocalPlayer.transform.position);
-        UnityEngine.Debug.LogError("增加名字在摄像机背面时不显示的逻辑");
-        if ((unitDis <= ViewLimit) && !MonsterName.gameObject.activeSelf)
-            MonsterName.gameObject.SetActive(true);
-        else
+        bool faceto = MeteorManager.Instance.LocalPlayer.IsFacetoTarget(owner);
+        if (faceto)
         {
-            if ((unitDis > ViewLimit) && MonsterName.gameObject.activeSelf)
+            float unitDis = Vector3.Distance(owner.transform.position, MeteorManager.Instance.LocalPlayer.transform.position);
+            //UnityEngine.Debug.LogError(string.Format("主角面向{0}", owner.name));
+            if ((unitDis <= ViewLimit) && !MonsterName.gameObject.activeSelf)
+                MonsterName.gameObject.SetActive(true);
+            else if ((unitDis > ViewLimit) && MonsterName.gameObject.activeSelf)
             {
                 MonsterName.gameObject.SetActive(false);
                 if (Info.gameObject.activeInHierarchy)
                     Info.gameObject.SetActive(false);
             }
+        }
+        else
+        {
+            //UnityEngine.Debug.LogError(string.Format("主角背向{0}", owner.name));
+            if (MonsterName.gameObject.activeSelf)
+                MonsterName.gameObject.SetActive(false);
+            if (Info.gameObject.activeInHierarchy)
+                Info.gameObject.SetActive(false);
         }
         //1.6f 1.7666f
         if (MonsterName.gameObject.activeSelf)

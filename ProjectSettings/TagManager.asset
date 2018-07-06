@@ -41,7 +41,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - DebugCanvas
   - Debug
   m_SortingLayers:
   - name: Default

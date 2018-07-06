@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using Idevgame.Util;
 
 //大状态
 public enum EAIStatus
 {
-    Idle,//空闲->决策下一步，或继续空闲.一般在敌人进入视野时，状态会自动切换为战斗.
+    Idle,//不动.
     Kill,//与目标近距离对打
     Guard,//防御
     Follow,//跟随
@@ -13,11 +14,12 @@ public enum EAIStatus
     Think,//没发觉目标时左右观察
     GotoPatrol,//去巡逻路径的第一个位置.
     Patrol,//巡逻。
-    Wait,//脚本：等待 - NONE
+    Wait,//四处看
 }
 
 public enum EAISubStatus
 {
+    SubStatusIdle,
     SubStatusWait,
     FollowGotoTarget,
     FollowSubRotateToTarget,
@@ -63,15 +65,15 @@ public class MeteorAI {
     public MeteorAI(MeteorUnit user)
     {
         owner = user;
-        Status = EAIStatus.Wait;
-        SubStatus = EAISubStatus.SubStatusWait;
+        Status = EAIStatus.Idle;
+        SubStatus = EAISubStatus.SubStatusIdle;
     }
     public EAIStatus Status { get; set; }
     public EAISubStatus SubStatus { get; set; }
     MeteorUnit owner;
     MeteorUnit followTarget;
     MeteorUnit killTarget;
-    bool stoped = false;
+    public bool stoped { get; set; }
     bool paused = false;
     float pause_tick;
     public Dictionary<int, AISet> AIData;
@@ -87,7 +89,8 @@ public class MeteorAI {
 
         if (owner.Dead)
             return;
-        //return;
+
+        //这个暂停是部分行为需要停止AI一段指定时间间隔
         if (paused)
         {
             pause_tick -= Time.deltaTime;
@@ -107,7 +110,6 @@ public class MeteorAI {
                 Status = EAIStatus.Kill;
                 SubStatus = EAISubStatus.KillGotoTarget;
             }
-
         }
 
         switch (Status)
@@ -115,11 +117,11 @@ public class MeteorAI {
             case EAIStatus.Idle:
                 OnIdle();
                 break;
+            case EAIStatus.Wait:
+                OnWait();
+                break;
             case EAIStatus.Guard:
                 owner.controller.Input.OnKeyDown(EKeyList.KL_Defence, true);//防御
-                break;
-            case EAIStatus.Wait:
-                //Debug.LogError("wait");
                 break;
             case EAIStatus.GotoPatrol:
                 //Debug.LogError("gotopatrol");
@@ -213,12 +215,13 @@ public class MeteorAI {
                 }
                 else
                 {
+                    if (targetIndex >= FollowPath.Count)
+                        RefreshFollowPath(owner.mPos, owner, target, out freeSlot, out vecTarget);
+
                     if (curIndex == -1)
                         targetIndex = 0;
 
-                    if (targetIndex >= FollowPath.Count)
-
-
+                    Assert.IsTrue(targetIndex < FollowPath.Count);
                     dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(FollowPath[targetIndex].pos.x, 0, FollowPath[targetIndex].pos.z));
                     if (dis <= owner.Speed * Time.deltaTime * 0.13f)
                     {
@@ -333,7 +336,15 @@ public class MeteorAI {
     float tick = 0.0f;
     float waitCrouch;
     float waitDefence;
+
+    //原地不动
     void OnIdle()
+    {
+
+    }
+
+    //不动播放空闲动画 
+    void OnWait()
     {
         tick += Time.deltaTime;
         waitCrouch -= Time.deltaTime;
@@ -617,9 +628,13 @@ public class MeteorAI {
         ResetAIKey();
     }
 
+    public void ResetAIVelocity()
+    {
+        owner.controller.Input.AIMove(0, 0);
+    }
+
     public void ResetAIKey()
     {
-        //owner.controller.Input.AIMove(0, 0);
         owner.controller.Input.OnKeyUp(EKeyList.KL_Defence);
     }
 

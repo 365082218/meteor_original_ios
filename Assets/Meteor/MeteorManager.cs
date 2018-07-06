@@ -123,6 +123,9 @@ public class MeteorManager {
         for (int i = 0; i < UnitInfos.Count; i++)
         {
             UnitInfos[i].OnUnitDead(null);//清除特效。
+#if !STRIP_DBG_SETTING
+            WSDebug.Ins.RemoveDebuggableObject(UnitInfos[i]);
+#endif
             GameObject.Destroy(UnitInfos[i].gameObject);
         }
         for (int i = 0; i < DeadUnits.Count; i++)

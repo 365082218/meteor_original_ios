@@ -2,6 +2,35 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+// 站在原地四處看
+    ChangeBehavior(g_self, "wait");
+
+    // 站在原地不動
+    ChangeBehavior(g_self, "idle");
+
+    // 到處亂跑
+    ChangeBehavior(g_self, "run");
+
+    // 在1、3、5...巡邏點移動
+    ChangeBehavior(g_self, "patrol", 1, 3, 5);
+
+    // 跟在玩家身邊
+    ChangeBehavior(g_self, "follow", "player");
+
+    // 跟在同隊VIP身邊
+    ChangeBehavior(g_self, "follow", "vip");
+
+    // 跟在敵隊VIP身邊
+    ChangeBehavior(g_self, "follow", "enemyvip");
+
+    // 跟在拿標物的人身邊
+    ChangeBehavior(g_self, "follow", "flag");
+
+    // 跟在xxx身邊
+    ChangeBehavior(g_self, "follow", "xxx");
+
+    */
 public class ScriptBase
 {
     public static void NetEvent(int status)

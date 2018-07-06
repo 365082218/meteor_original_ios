@@ -139,24 +139,6 @@ public class IFLInspector : Editor
     }
 }
 
-[CustomEditor(typeof(WSDebug))]
-public class DebugInspector : Editor
-{
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-        WSDebug myTarget = (WSDebug)target;
-        if (GUILayout.Button("Apply"))
-        {
-            myTarget.Apply();
-        }
-        if (GUILayout.Button("LoadAmbTest"))
-        {
-            AmbLoader.Ins.LoadAmb("characteramb");
-        }
-    }
-}
-
 [CustomEditor(typeof(UIMoveControl))]
 public class UIMoveInspector : Editor
 {

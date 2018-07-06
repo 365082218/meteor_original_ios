@@ -470,6 +470,7 @@ public class FightWnd: Window<FightWnd>
 
     //：生命值    112155/ 129373
     Coroutine hideTargetInfo;
+    Dictionary<Buff, GameObject> enemyBuffList = new Dictionary<Buff, GameObject>();
     public void UpdateMonsterInfo(MeteorUnit mon)
     {
         if (!targetInfo.activeInHierarchy)
@@ -479,6 +480,10 @@ public class FightWnd: Window<FightWnd>
         //targetTitleInfo.text = mon.name;
         targetName.text = mon.name;
         //targetBuffInfo.text = "";
+        foreach (var each in enemyBuffList)
+            GameObject.Destroy(each.Value);
+        enemyBuffList.Clear();
+        for (int i = 0; i < BuffMng.Instance.)
         //for (int i = 0; i < mon.allBuffs.Count; i++)
         //    targetBuffInfo.text += mon.allBuffs[i].Info.Name + "-";
         if (hideTargetInfo != null)

@@ -247,7 +247,7 @@ public class Buff
     }
 }
 
-public class MeteorUnit : MonoBehaviour
+public partial class MeteorUnit : MonoBehaviour
 {
     public int UnitId;
     public int InstanceId;
@@ -591,6 +591,9 @@ public class MeteorUnit : MonoBehaviour
     void Awake()
     {
         //单场景启动.
+#if !STRIP_DBG_SETTING
+        WSDebug.Ins.AddDebuggableObject(this);
+#endif
     }
 
     // Use this for initialization
@@ -915,9 +918,15 @@ public class MeteorUnit : MonoBehaviour
         }
     }
 
+    //角色是否面向指定位置.
+    public bool IsFacetoVector3(Vector3 target)
+    {
+        return Vector3.Dot(-transform.forward, (new Vector3(target.x, 0, target.z) - new Vector3(mPos.x, 0, mPos.z)).normalized) > 0;
+    }
+
     public bool IsFacetoTarget(MeteorUnit target)
     {
-        return Vector3.Dot(-transform.forward, (new Vector3(target.mPos.x, 0, target.mPos.z) - new Vector3(mPos.x, 0, mPos.z)).normalized) <= 0;
+        return Vector3.Dot(-transform.forward, (new Vector3(target.mPos.x, 0, target.mPos.z) - new Vector3(mPos.x, 0, mPos.z)).normalized) > 0;
     }
 
     //战斗场景,控制视角相机
@@ -960,6 +969,9 @@ public class MeteorUnit : MonoBehaviour
 
     public void FaceToTarget(MeteorUnit unit)
     {
+        if (unit == this)
+            return;
+        //UnityEngine.Debug.LogError(string.Format("{0} faceto :{1}", name, unit.name));
         FaceToTarget(unit.transform.position);
     }
 
