@@ -415,6 +415,7 @@ public class WeaponWnd : Window<WeaponWnd>
     {
         MeteorManager.Instance.LocalPlayer.ChangeWeaponCode(code);
     }
+
     void SpawnMonster(int code)
     {
         U3D.SpawnRobot(code);

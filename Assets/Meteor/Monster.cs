@@ -281,7 +281,7 @@ int g_self;*/
             if (HpMax == 0)
                 hpCur = HpMax = 1000;
         }
-        View = 50;
+        View = 500;
         AngryValue = 0;
         IsDead = false;
     }

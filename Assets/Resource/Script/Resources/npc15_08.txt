@@ -21,8 +21,8 @@ HP = 9999;
 
 g_selfAddr = 0;
 g_self = 0;
-function OnInit(int this)
-	g_selfAddr = this;
+function OnInit(a)
+	g_selfAddr = a;
 end
 
 function OnStart()

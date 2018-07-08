@@ -50,7 +50,7 @@ public class MainMenu : Window<MainMenu> {
         if (select != null)
         {
             WSLog.LogInfo("u3d.loadlevel");
-            U3D.LoadLevel(select.ID);
+            U3D.LoadLevel(select.ID, LevelMode.Normal);
         }
         else
             WSLog.LogInfo("select == null");

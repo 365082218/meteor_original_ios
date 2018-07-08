@@ -86,7 +86,7 @@ TextureImporter:
     serializedVersion: 2
     sprites: []
     outline: []
-  spritePackingTag: ui_fightwnd
+  spritePackingTag: FightWnd
   userData: 
   assetBundleName: buttonmask.png
   assetBundleVariant: 

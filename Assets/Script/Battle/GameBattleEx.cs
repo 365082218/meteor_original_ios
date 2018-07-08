@@ -17,18 +17,13 @@ public class GameBattleEx : MonoBehaviour {
     // Use this for initialization
     void Awake()
     {
-        if (_Ins == null)
-        {
-            _Ins = this;
-            m_CameraControl = GameObject.Find("CameraEx").GetComponent<CameraFollow>();
-        }   
+        _Ins = this;
     }
 
     private void OnDestroy()
     {
         StopAllCoroutines();
-        if (_Ins == this)
-            _Ins = null;
+        _Ins = null;
     }
 
     //显示失败，或者胜利界面 >=1 = win <= 0 = lose 2 == none

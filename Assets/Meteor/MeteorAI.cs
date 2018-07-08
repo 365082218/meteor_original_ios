@@ -328,7 +328,14 @@ public class MeteorAI {
     {
         tick = updateDelta;//下一次进入空闲立即刷新对象位置和方向。
         if (followTarget == deadunit)
+        {
+            if (Status == EAIStatus.Follow)
+            {
+                Status = EAIStatus.Wait;
+                SubStatus = EAISubStatus.SubStatusWait;
+            }
             followTarget = null;
+        }
     }
 
     //更新路径间隔

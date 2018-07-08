@@ -18,39 +18,39 @@ public class U3D : MonoBehaviour {
         if (ins == null)
             ins = this;
     }
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start() {
         if (ins != this)
             DestroyImmediate(this);
-	}
+    }
 
-	void GameStart (string msg)
-	{
+    void GameStart(string msg)
+    {
         Startup.ins.GameStart();
-	}
+    }
 
 
-	//控制场景上的文本的函数
-	public static void TextAppend(string str)
-	{
-		if (string.IsNullOrEmpty (str))
-			return;
+    //控制场景上的文本的函数
+    public static void TextAppend(string str)
+    {
+        if (string.IsNullOrEmpty(str))
+            return;
         Say(-1, str);
     }
 
-	public static void TextClear()
-	{
-		//if (SceneControl.ins != null)
-		//	SceneControl.ins.TextClear ();
-	}
+    public static void TextClear()
+    {
+        //if (SceneControl.ins != null)
+        //	SceneControl.ins.TextClear ();
+    }
 
     //清除所有在此场景物品实例化的按钮,即场景实物，并不清除实务本身.
     //不清除 Menu
-	public static void ItemsObjClear()
-	{
-		//if (SceneControl.ins != null)
-		//	SceneControl.ins.ItemsClear();
-	}
+    public static void ItemsObjClear()
+    {
+        //if (SceneControl.ins != null)
+        //	SceneControl.ins.ItemsClear();
+    }
 
     public static void ReloadTable()
     {
@@ -81,8 +81,40 @@ public class U3D : MonoBehaviour {
         unit.Init(idx, mon);
         MeteorManager.Instance.OnGenerateUnit(unit);
         unit.SetGround(false);
-        unit.transform.position = Global.GLevelItem.wayPoint.Count != 0 ? Global.GLevelItem.wayPoint[nextSpawnPoint].pos : GameObject.Find("StartPoint").transform.position;
-        unit.transform.rotation = new Quaternion(0, 0, 0, 1);
+
+        if (Global.GLevelMode == LevelMode.Normal)
+        {
+            unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+            unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+        }
+        else if (Global.GLevelMode == LevelMode.MENGZHU)
+        {
+            //16个点
+            unit.transform.position = Global.GLevelSpawn[Global.SpawnIndex];
+            Global.SpawnIndex++;
+            Global.SpawnIndex %= 16;
+            unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+        }
+        else if (Global.GLevelMode == LevelMode.ANSHA || Global.GLevelMode == LevelMode.SIDOU)
+        {
+            //2个队伍8个点.
+            if (unit.Camp == EUnitCamp.EUC_FRIEND)
+            {
+                unit.transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
+                Global.CampASpawnIndex++;
+                Global.CampASpawnIndex %= 8;
+            }
+            else if (unit.Camp == EUnitCamp.EUC_ENEMY)
+            {
+                unit.transform.position = Global.GCampASpawn[Global.CampBSpawnIndex];
+                Global.CampBSpawnIndex++;
+                Global.CampBSpawnIndex %= 8;
+            }
+        }
+
+        InsertSystemMsg(LevelHelper.GetCampStr(unit));
+        //unit.transform.position = Global.GLevelItem.wayPoint.Count != 0 ? Global.GLevelItem.wayPoint[nextSpawnPoint].pos : GameObject.Find("StartPoint").transform.position;
+        //unit.transform.rotation = new Quaternion(0, 0, 0, 1);
     }
 
     public static void ChangePlayerModel(int model)
@@ -91,7 +123,7 @@ public class U3D : MonoBehaviour {
         MeteorManager.Instance.LocalPlayer.controller.InputLocked = true;
 
         MeteorManager.Instance.LocalPlayer.Init(model, MeteorManager.Instance.LocalPlayer.Attr, true);
-        
+
         //MeteorUnit unit = MeteorManager.Instance.LocalPlayer;
         //MonsterEx mon = unit.Attr;
         //GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
@@ -109,7 +141,7 @@ public class U3D : MonoBehaviour {
         //unitClone.transform.position = unit.transform.position;// = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
         //unitClone.transform.eulerAngles = unit.transform.eulerAngles;// = new Vector3(0, mon.SpawnDir, 0);
         //unitClone.gameObject.AddComponent<AudioListener>();
-        
+
         //GameObject.Destroy(unit.gameObject);
         Global.PauseAll = false;
         MeteorManager.Instance.LocalPlayer.controller.InputLocked = false;
@@ -129,10 +161,37 @@ public class U3D : MonoBehaviour {
         //LuaFunction OnStart = ScriptMng.ins.GetFunc("OnStart");
         //onInit.call(unit.InstanceId);
         unit.SetGround(false);
-        unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
-        unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+        if (Global.GLevelMode == LevelMode.Normal)
+        {
+            unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+            unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+        }
+        else if (Global.GLevelMode == LevelMode.MENGZHU)
+        {
+            //16个点
+            unit.transform.position = Global.GLevelSpawn[Global.SpawnIndex];
+            Global.SpawnIndex++;
+            Global.SpawnIndex %= 16;
+            unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+        }
+        else if (Global.GLevelMode == LevelMode.ANSHA || Global.GLevelMode == LevelMode.SIDOU)
+        {
+            //2个队伍8个点.
+            if (unit.Camp == EUnitCamp.EUC_FRIEND)
+            {
+                unit.transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
+                Global.CampASpawnIndex++;
+                Global.CampASpawnIndex %= 8;
+            }
+            else if (unit.Camp == EUnitCamp.EUC_ENEMY)
+            {
+                unit.transform.position = Global.GCampASpawn[Global.CampBSpawnIndex];
+                Global.CampBSpawnIndex++;
+                Global.CampBSpawnIndex %= 8;
+            }
+        }
         //OnStart.call();
-        U3D.InsertSystemMsg(unit.name + " 加入游戏");
+        U3D.InsertSystemMsg(LevelHelper.GetCampStr(unit));
         return unit;
     }
 
@@ -565,12 +624,12 @@ public class U3D : MonoBehaviour {
         //}
     }
 
-    public static void LoadLevel(int id)
+    public static void LoadLevel(int id, LevelMode mode)
     {
-        LoadLevel(id, LoadingWnd.Instance);
+        LoadLevel(id, LoadingWnd.Instance, mode);
     }
 
-    public static void LoadLevel(int id, LoadingUI loading)
+    public static void LoadLevel(int id, LoadingUI loading, LevelMode mode)
     {
         uint profileTotalAllocate = Profiler.GetTotalAllocatedMemory();
         uint profileTotalReserved = Profiler.GetTotalReservedMemory();
@@ -591,6 +650,7 @@ public class U3D : MonoBehaviour {
         WSLog.LogInfo("ClearLevelData");
         Level lev = LevelMng.Instance.GetItem(id);
         Global.GLevelItem = lev;
+        Global.GLevelMode = mode;
         WSLog.LogInfo("Global.GLevelItem = lev;");
         LoadingWnd.Instance.Open();
         WSLog.LogInfo("LoadingWnd.Instance.Open();");

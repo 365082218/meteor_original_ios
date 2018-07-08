@@ -46,4 +46,29 @@ public partial class MeteorUnit: DebugInstance
             robot.EnableAI(robot.stoped);
         }
     }
+
+    [DebugMethod("血量/减少500")]
+    public void ReduceHP5000()
+    {
+        OnDamage(null, 5000);
+    }
+
+    [DebugMethod("血量/减少100")]
+    public void ReduceHP1000()
+    {
+        OnDamage(null, 1000);
+    }
+
+    [DebugMethod("血量/减少50")]
+    public void ReduceHP500()
+    {
+        OnDamage(null, 500);
+    }
+
+    [DebugMethod("血量/减少10")]
+    public void ReduceHP100()
+    {
+        OnDamage(null, 100);
+    }
+
 }

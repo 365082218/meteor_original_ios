@@ -79,9 +79,27 @@ public class LevelHelper : MonoBehaviour
 
     void OnLoadFinishedEx(Level lev)
     {
+        SceneMng.OnLoad();//
+        SoundManager.Instance.Enable(true);
+        //加载场景配置数据
+        SceneMng.OnEnterLevel(lev.ID);//原版功能不加载其他存档数据.
+
         LevelScriptBase script = GetLevelScript(lev.goodList);
         //设置主角属性
-        U3D.InitPlayer(script);;
+        U3D.InitPlayer(script); ;
+
+        //把音频侦听移到角色
+        AudioListener listen = Startup.ins.gameObject.GetComponent<AudioListener>();
+        if (listen != null)
+            DestroyImmediate(listen);
+        MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
+        
+        //这个脚本暂时未调通，先放着
+        //ScriptMng.ins.CallScript(lev.goodList);//负责关卡内物件的属性，及攻击收击逻辑等
+
+        //等脚本设置好物件的状态后，根据状态决定是否生成受击盒，攻击盒等.
+        GameBattleEx.Instance.Init(lev, script);
+
         //先创建一个相机
         GameObject camera = GameObject.Instantiate(Resources.Load("CameraEx")) as GameObject;
         camera.name = "CameraEx";
@@ -89,25 +107,11 @@ public class LevelHelper : MonoBehaviour
         //角色摄像机跟随者着角色.
         CameraFollow followCamera = GameObject.Find("CameraEx").GetComponent<CameraFollow>();
         followCamera.Init();
+        GameBattleEx.Instance.m_CameraControl = followCamera;
         //摄像机完毕后
-        SceneMng.OnLoad();//
-        SoundManager.Instance.Enable(true);
-        //加载场景配置数据
-        SceneMng.OnEnterLevel(lev.ID);//原版功能不加载其他存档数据.
-        //把音频侦听移到角色
-        AudioListener listen = Startup.ins.gameObject.GetComponent<AudioListener>();
-        if (listen != null)
-            DestroyImmediate(listen);
-        MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
         FightWnd.Instance.Open();
         if (!string.IsNullOrEmpty(lev.BgmName))
             SoundManager.Instance.PlayMusic(lev.BgmName);
-        
-        //这个脚本暂时未调通，先放着
-        //ScriptMng.ins.CallScript(lev.goodList);//负责关卡内物件的属性，及攻击收击逻辑等
-
-        //等脚本设置好物件的状态后，根据状态决定是否生成受击盒，攻击盒等.
-        GameBattleEx.Instance.Init(lev, script);
 
         //除了主角的所有角色,开始输出,选择阵营, 进入战场
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
@@ -119,7 +123,7 @@ public class LevelHelper : MonoBehaviour
         }
     }
 
-    string GetCampStr(MeteorUnit unit)
+    public static string GetCampStr(MeteorUnit unit)
     {
         if (unit.Camp == EUnitCamp.EUC_ENEMY)
             return unit.name + " 选择蝴蝶,进入战场";

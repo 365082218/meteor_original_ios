@@ -18,6 +18,15 @@ public class WayPoint
     public Dictionary<int, WayLength> link;
 }
 
+public enum LevelMode
+{
+    Normal,//单机关卡,以路点作为出生点,剧本关卡
+    MENGZHU,//时间限制回合，不分阵营
+    ANSHA,//分为蝴蝶和流星阵营`每一边人数一般都是8个才开始玩，暗杀有队长和队友，队长脚下有个圈圈，流星阵营是蓝的，蝴蝶阵营是红的，
+    //杀死对方队长算胜利，队友死了队长可以复活队友，复活的对友血量只有一半，以地图上的流星蝴蝶阵营的位置为出生点
+    SIDOU,//分为蝴蝶和流星阵营，不分队长和队友，死了不能复活。杀死对方全部敌人才算胜利
+}
+
 [ProtoBuf.ProtoContract(ImplicitFields = ProtoBuf.ImplicitFields.AllFields)]
 public class Level : ITableItem
 {
@@ -55,8 +64,8 @@ public class Level : ITableItem
     public int Key() { return ID; }
     public string BgmName;
     public string BgTexture;
-    public string Param;
-    public int Pass;
+    public string Param;//通过参数
+    public int Pass;//通关条件
 };
 
 public class LevelMng : TableManager<Level, LevelMng>

@@ -163,7 +163,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
     {
         Close();
         GameBattleEx.Instance.Pause();
-        U3D.LoadLevel(levelId);
+        U3D.LoadLevel(levelId, LevelMode.ANSHA);
     }
 
     void OnChangeVer(string ver)

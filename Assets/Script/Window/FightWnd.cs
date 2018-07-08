@@ -87,6 +87,7 @@ public class FightWnd: Window<FightWnd>
     Animation actionStatusBarCtrl;
     GameObject FloatOpen;
     GameObject BuffRoot;
+    GameObject TargetBuffPanel;
     GameObject Unlock;
     void Init()
     {
@@ -96,6 +97,7 @@ public class FightWnd: Window<FightWnd>
         ctrl.SetConfig(1.5f, 1f);
         FloatOpen = Control("FloatOpen");
         BuffRoot = Control("BuffPanel");
+        TargetBuffPanel = Control("TargetBuffPanel");
         FloatOpen.GetComponent<Button>().onClick.AddListener(OnChangeActionBarStatus);
         actionStatusBarCtrl = Control("Slots").GetComponent<Animation>();
         Global.ldaControlX("Attack", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnAttackPress);
@@ -271,8 +273,7 @@ public class FightWnd: Window<FightWnd>
 
     public void OnChangeLock(bool locked)
     {
-        Unlock.GetComponent<Image>().overrideSprite = locked ? Global.ldaControlX("LockSprite", Unlock).GetComponent<Image>().sprite : Global.ldaControlX("UnlockSprite", Unlock).GetComponent<Image>().sprite;
-        //Global.ldaControlX("Unlock", WndObject).GetComponentInChildren<Image>().overrideSprite = locked ? Resources.Load<Sprite>("CameraL") : Resources.Load<Sprite>("CameraU");
+        Unlock.GetComponent<Image>().sprite = locked ? Global.ldaControlX("LockSprite", Unlock).GetComponent<Image>().sprite : Global.ldaControlX("UnlockSprite", Unlock).GetComponent<Image>().sprite;
     }
 
     void OnClickChangeLock()
@@ -463,37 +464,105 @@ public class FightWnd: Window<FightWnd>
             GameBattleEx.Instance.StopCoroutine(angryWarningE);
         if (updateValue != null)
             GameBattleEx.Instance.StopCoroutine(updateValue);
-        if (update != null)
-            GameBattleEx.Instance.StopCoroutine(update);
+        if (updateBuff != null)
+            GameBattleEx.Instance.StopCoroutine(updateBuff);
+        if (updateEnemyBuff != null)
+            GameBattleEx.Instance.StopCoroutine(updateEnemyBuff);
         hpBar.fillAmount = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
     }
 
     //：生命值    112155/ 129373
     Coroutine hideTargetInfo;
     Dictionary<Buff, GameObject> enemyBuffList = new Dictionary<Buff, GameObject>();
+    MeteorUnit currentMonster;
     public void UpdateMonsterInfo(MeteorUnit mon)
     {
         if (!targetInfo.activeInHierarchy)
             targetInfo.SetActive(true);
+
         targetHp.fillAmount = (float)mon.Attr.hpCur / (float)mon.Attr.TotalHp;
         targetHpInfo.text = ((int)(mon.Attr.hpCur / 10.0f)).ToString() + "/" + ((int)(mon.Attr.TotalHp / 10.0f)).ToString();
         //targetTitleInfo.text = mon.name;
         targetName.text = mon.name;
-        //targetBuffInfo.text = "";
+        if (updateEnemyBuff != null)
+        {
+            GameBattleEx.Instance.StopCoroutine(updateEnemyBuff);
+            updateEnemyBuff = null;
+        }
         foreach (var each in enemyBuffList)
             GameObject.Destroy(each.Value);
         enemyBuffList.Clear();
-        for (int i = 0; i < BuffMng.Instance.)
-        //for (int i = 0; i < mon.allBuffs.Count; i++)
-        //    targetBuffInfo.text += mon.allBuffs[i].Info.Name + "-";
+
+        if (!mon.Dead)
+        {
+            foreach (var each in BuffMng.Instance.BufDict)
+            {
+                if (!enemyBuffList.ContainsKey(each.Value))
+                {
+                    GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("BuffItem"));// new GameObject(buf.Iden);
+                    obj.name = each.Value.Iden;
+                    obj.transform.SetParent(TargetBuffPanel.transform);
+                    obj.transform.localScale = Vector3.one;
+                    obj.transform.localPosition = Vector3.zero;
+                    obj.transform.localRotation = Quaternion.identity;
+                    obj.layer = TargetBuffPanel.layer;
+                    enemyBuffList.Add(each.Value, obj);
+
+                    GameObject BuffImg = Control("BuffImg", enemyBuffList[each.Value]);
+                    BuffImg.GetComponent<Image>().fillAmount = each.Value.Units[mon].refresh_tick / (each.Value.last_time / 10);
+                    GameObject BuffLength = Control("BuffLength", enemyBuffList[each.Value]);
+                    BuffLength.GetComponent<Text>().text = string.Format("{0:F1}", each.Value.Units[mon].refresh_tick);
+
+                    GameObject BuffName = Control("BuffName", enemyBuffList[each.Value]);
+                    BuffName.GetComponent<Text>().text = each.Value.Iden;
+                }
+            }
+            if (updateEnemyBuff == null)
+                updateEnemyBuff = GameBattleEx.Instance.StartCoroutine(UpdateEnemyBuff());
+        }
+        currentMonster = mon;
         if (hideTargetInfo != null)
             GameBattleEx.Instance.StopCoroutine(hideTargetInfo);
         hideTargetInfo = GameBattleEx.Instance.StartCoroutine(HideTargetInfo());
     }
 
+    Coroutine updateEnemyBuff;
+    IEnumerator UpdateEnemyBuff()
+    {
+        while (true)
+        {
+            try
+            {
+                foreach (var each in enemyBuffList)
+                {
+                    if (currentMonster != null && each.Key.Units.ContainsKey(currentMonster))
+                    {
+                        GameObject BuffImg = Control("BuffImg", each.Value);
+                        BuffImg.GetComponent<Image>().fillAmount = each.Key.Units[currentMonster].refresh_tick / (each.Key.last_time / 10);
+                        GameObject BuffLength = Control("BuffLength", each.Value);
+                        BuffLength.GetComponent<Text>().text = string.Format("{0:F1}", each.Key.Units[currentMonster].refresh_tick);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                Debug.LogError(exp.Message + exp.StackTrace);
+            }
+            yield return 0;
+        }
+    }
+
     IEnumerator HideTargetInfo()
     {
         yield return new WaitForSeconds(5.0f);
+        if (updateEnemyBuff != null)
+        {
+            GameBattleEx.Instance.StopCoroutine(updateEnemyBuff);
+            updateEnemyBuff = null;
+        }
+        foreach (var each in enemyBuffList)
+            GameObject.Destroy(each.Value);
+        enemyBuffList.Clear();
         targetInfo.SetActive(false);
         hideTargetInfo = null;
     }
@@ -539,11 +608,11 @@ public class FightWnd: Window<FightWnd>
     }
 
     Dictionary<Buff, GameObject> buffList = new Dictionary<Buff, GameObject>();
-    Coroutine update;
+    Coroutine updateBuff;
     public void AddBuff(Buff buf)
     {
-        if (update == null)
-            update = GameBattleEx.Instance.StartCoroutine(UpdateBuff());
+        if (updateBuff == null)
+            updateBuff = GameBattleEx.Instance.StartCoroutine(UpdateBuff());
         if (buffList.ContainsKey(buf))
         {
             GameObject BuffName = Control("BuffName", buffList[buf]);
@@ -580,10 +649,13 @@ public class FightWnd: Window<FightWnd>
             {
                 foreach (var each in buffList)
                 {
-                    GameObject BuffImg = Control("BuffImg", each.Value);
-                    BuffImg.GetComponent<Image>().fillAmount = each.Key.Units[MeteorManager.Instance.LocalPlayer].refresh_tick / (each.Key.last_time / 10);
-                    GameObject BuffLength = Control("BuffLength", each.Value);
-                    BuffLength.GetComponent<Text>().text = string.Format("{0:F1}", each.Key.Units[MeteorManager.Instance.LocalPlayer].refresh_tick);
+                    if (each.Key.Units.ContainsKey(MeteorManager.Instance.LocalPlayer))
+                    {
+                        GameObject BuffImg = Control("BuffImg", each.Value);
+                        BuffImg.GetComponent<Image>().fillAmount = each.Key.Units[MeteorManager.Instance.LocalPlayer].refresh_tick / (each.Key.last_time / 10);
+                        GameObject BuffLength = Control("BuffLength", each.Value);
+                        BuffLength.GetComponent<Text>().text = string.Format("{0:F1}", each.Key.Units[MeteorManager.Instance.LocalPlayer].refresh_tick);
+                    }
                 }
             }
             catch (Exception exp)
@@ -594,12 +666,23 @@ public class FightWnd: Window<FightWnd>
         }
     }
 
-    public void RemoveBuff(Buff buf)
+    public void RemoveBuff(Buff buf, MeteorUnit unit = null)
     {
-        if (buffList.ContainsKey(buf))
+        if (unit == null)
         {
-            GameObject.Destroy(buffList[buf]);
-            buffList.Remove(buf);
+            if (buffList.ContainsKey(buf))
+            {
+                GameObject.Destroy(buffList[buf]);
+                buffList.Remove(buf);
+            }
+        }
+        else
+        {
+            if (enemyBuffList.ContainsKey(buf))
+            {
+                GameObject.Destroy(enemyBuffList[buf]);
+                enemyBuffList.Remove(buf);
+            }
         }
     }
 }

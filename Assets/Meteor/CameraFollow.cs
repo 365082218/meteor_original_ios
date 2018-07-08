@@ -249,6 +249,15 @@ public class CameraFollow : MonoBehaviour {
         }
         else
         {
+            //没有缓动
+            /*
+            cameraLookAt = new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, MeteorManager.Instance.LocalPlayer.transform.position.y + BodyHeight, MeteorManager.Instance.LocalPlayer.mPos.z);//朝向焦点
+            newPos = cameraLookAt + MeteorManager.Instance.LocalPlayer.transform.forward * followDistance + new Vector3(0, followHeight, 0);
+            transform.position = newPos;
+            transform.LookAt(cameraLookAt);
+            return;
+            */
+
             //摄像机缓动功能先不管，否则抖动很厉害。
             float yRotate = 0.0f;
             //Y轴旋转，受到是否可旋转，以及当前是否有锁定对象决定
@@ -301,7 +310,7 @@ public class CameraFollow : MonoBehaviour {
                 (1 << LayerMask.NameToLayer("Water"))))
             {
                 hitWall = true;
-                //Debug.LogError("hitWall" + wallHit.transform.name);
+                Debug.LogError("hitWall" + wallHit.transform.name);
                 //摄像机与角色间有物件遮挡住角色，开始自动计算摄像机位置.
                 //Debug.LogError("camera linecast with:" + wallHit.transform.name);
                 newPos = wallHit.point + Vector3.Normalize(cameraLookAt - wallHit.point) * 5;
@@ -331,6 +340,7 @@ public class CameraFollow : MonoBehaviour {
             {
                 if (xRotate != 0.0f || yRotate != 0.0f)
                 {
+                    Debug.LogError("有x y轴偏移");
                     transform.position = newPos;
                     //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                     //transform.rotation = to;
@@ -342,7 +352,11 @@ public class CameraFollow : MonoBehaviour {
                 {
                     //没被墙壁阻隔，可以缓动Y
                     if (smooth && !hitWall)
+                    {
                         newPos.y = Mathf.Lerp(transform.position.y, newPos.y, smoothIntensity * Time.deltaTime);
+                        Debug.LogError("平滑且无墙壁间隔时");
+                    }
+
                     transform.position = newPos;
                     //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                     //transform.rotation = to;

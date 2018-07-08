@@ -102,7 +102,10 @@ public class Buff
             Units[unit].refresh_round_tick = (refresh_delay == 0 ? 0.1f : refresh_delay);//没有值就每0.1S刷新，否则就以值为刷新
 
         if (unit.Attr.IsPlayer)
+        {
             FightWnd.Instance.AddBuff(this);
+            FightWnd.Instance.UpdatePlayerInfo();
+        }
     }
 
     public void Clear()
@@ -128,6 +131,8 @@ public class Buff
         //战斗UI把BUFF元素清除掉
         if (unit.Attr.IsPlayer)
             FightWnd.Instance.RemoveBuff(this);
+        else
+            FightWnd.Instance.RemoveBuff(this, unit);
         if (unit.Dead)
             return;
         switch (type)
@@ -227,10 +232,6 @@ public class Buff
                     each.Value.refresh_tick -= Time.deltaTime;
                     if (each.Value.refresh_tick <= 0.0f)
                         unitRemoved.Add(each.Key);
-                    if (each.Key.Attr.IsPlayer)
-                        FightWnd.Instance.UpdatePlayerInfo();
-                    else if (each.Key == MeteorManager.Instance.LocalPlayer.GetLockedTarget())
-                        FightWnd.Instance.UpdateMonsterInfo(each.Key);
                 }
                 break;
             case 0://不可能走这里，0代表不是BUFF
@@ -243,6 +244,10 @@ public class Buff
             Units.Remove(unitRemoved[i]);
             if (unitRemoved[i].Attr.Dead)
                 unitRemoved[i].OnDead();
+            if (unitRemoved[i].Attr.IsPlayer)
+                FightWnd.Instance.UpdatePlayerInfo();
+            else if (unitRemoved[i] == MeteorManager.Instance.LocalPlayer.GetLockedTarget())
+                FightWnd.Instance.UpdateMonsterInfo(unitRemoved[i]);
         }
     }
 }
