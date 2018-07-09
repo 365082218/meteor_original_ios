@@ -309,7 +309,7 @@ public class CameraFollow : MonoBehaviour {
                 (1 << LayerMask.NameToLayer("Water"))))
             {
                 hitWall = true;
-                Debug.LogError("hitWall" + wallHit.transform.name);
+                //Debug.LogError("hitWall" + wallHit.transform.name);
                 //摄像机与角色间有物件遮挡住角色，开始自动计算摄像机位置.
                 //Debug.LogError("camera linecast with:" + wallHit.transform.name);
                 newPos = wallHit.point + Vector3.Normalize(cameraLookAt - wallHit.point) * 5;

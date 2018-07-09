@@ -170,9 +170,9 @@ public class MeteorAI {
     int targetIndex = 0;
     List<WayPoint> FollowPath = new List<WayPoint>();
     //要做一个移动缓存，不必要每次都用最新的位置去寻路.\
-    void RefreshFollowPath(Vector3 now, MeteorUnit user, MeteorUnit target, out int freeSlot, out Vector3 end)
+    void RefreshFollowPath(Vector3 now, MeteorUnit user, MeteorUnit target)
     {
-        FollowPath = PathMng.Instance.FindPath(owner.mPos, owner, target, out freeSlot, out end);
+        FollowPath = PathMng.Instance.FindPath(owner.mPos, owner, target);
         curIndex = -1;
         targetIndex = -1;
         AIFollowRefresh = 0.0f;
@@ -203,20 +203,20 @@ public class MeteorAI {
                         //    SubStatus = EAISubStatus.KillGotoTarget;
                         owner.controller.Input.AIMove(0, 1);
                     }
-                    RefreshFollowPath(owner.mPos, owner, target, out freeSlot, out vecTarget);
+                    RefreshFollowPath(owner.mPos, owner, target);
                     //成功找到路径.且占据了目标上的一个位置槽
-                    if (freeSlot != -1)
-                    {
-                        if (SlotCache.ContainsKey(target))
-                            SlotCache[target] = freeSlot;
-                        else
-                            SlotCache.Add(target, freeSlot);
-                    }
+                    //if (freeSlot != -1)
+                    //{
+                    //    if (SlotCache.ContainsKey(target))
+                    //        SlotCache[target] = freeSlot;
+                    //    else
+                    //        SlotCache.Add(target, freeSlot);
+                    //}
                 }
                 else
                 {
                     if (targetIndex >= FollowPath.Count)
-                        RefreshFollowPath(owner.mPos, owner, target, out freeSlot, out vecTarget);
+                        RefreshFollowPath(owner.mPos, owner, target);
 
                     if (curIndex == -1)
                         targetIndex = 0;

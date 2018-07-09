@@ -271,39 +271,39 @@ public partial class MeteorUnit : MonoBehaviour
     [SerializeField]
     public MeteorAI robot;
 
-    //按照角色的坐标围成一圈，每个30度 12个空位，距离40
-    public Dictionary<int, MeteorUnit> SlotInfo = new Dictionary<int, MeteorUnit>();
+    //按照角色的坐标围成一圈，每个30度 12个空位，距离50，其实应该按
+    //public Dictionary<int, MeteorUnit> SlotInfo = new Dictionary<int, MeteorUnit>();
     //public Dictionary<int, GameObject> SlotFreePos = new Dictionary<int, GameObject>(); 
     public Vector3 GetFreePos(out int slot, MeteorUnit user)
     {
         int k = -1;
         //如果已有该使用者，直接返回该使用者占用的位置.
-        for (int i = 0; i < 12; i++)
-        {
-            if (SlotInfo[i] == user)
-            {
-                slot = i;
-                k = slot;
-                Vector3 ret = transform.position + Quaternion.AngleAxis(k * 30, Vector3.up) * (Vector3.forward * 40);
+        //for (int i = 0; i < 12; i++)
+        //{
+        //    if (SlotInfo[i] == user)
+        //    {
+        //        slot = i;
+        //        k = slot;
+        //        Vector3 ret = transform.position + Quaternion.AngleAxis(k * 30, Vector3.up) * (Vector3.forward * 50);
                 //SlotFreePos[slot].GetComponentInChildren<MeshRenderer>().material.color = Color.red;
                 //Debug.LogError(string.Format("{0}的位置{1}已经被{2}占用", name, slot, user.name));
-                return ret;
-            }
-        }
+        //        return ret;
+        //    }
+        //}
         //没有该使用者占用一个空位
-        for (int i = 0; i < 12; i++)
-        {
-            if (SlotInfo[i] != null)
-                continue;
-            k = i;
-            SlotInfo[i] = user;
+        //for (int i = 0; i < 12; i++)
+        //{
+        //    if (SlotInfo[i] != null)
+        //        continue;
+        //    k = i;
+        //    SlotInfo[i] = user;
             
-            break;
-        }
+        //    break;
+        //}
 
         if (k != -1)
         {
-            Vector3 ret = transform.position + Quaternion.AngleAxis(k * 24, Vector3.up) * (Vector3.forward * 40);
+            Vector3 ret = transform.position + Quaternion.AngleAxis(k * 30, Vector3.up) * (Vector3.forward * 50);
             //没计算高度到地面是否有
             slot = k;
             //Debug.LogError(string.Format("{0}的位置{1}被{2}占用", name, slot, user.name));
@@ -1095,13 +1095,13 @@ public partial class MeteorUnit : MonoBehaviour
         IsPlaySkill = false;
 
         //初始化角色周围的占位寻路点
-        for (int i = 0; i < 15; i++)
-        {
-            SlotInfo.Add(i, null);
+        //for (int i = 0; i < 15; i++)
+        //{
+            //SlotInfo.Add(i, null);
             //GameObject obj = GameObject.Instantiate(ResMng.LoadPrefab("FreePos"), transform.position + Quaternion.AngleAxis(i * 24, Vector3.up) * (Vector3.forward * 40), Quaternion.identity, null) as GameObject;
             //obj.transform.localScale = new Vector3(1, 0.1f, 1);
             //SlotFreePos.Add(i, obj);
-        }
+        //}
     }
 
     public bool IsPlaySkill { get; set; }
