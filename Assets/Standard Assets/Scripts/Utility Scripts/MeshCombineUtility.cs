@@ -8,6 +8,7 @@ public class MeshCombineUtility {
 		public Mesh      mesh;
 		public int       subMeshIndex;            
 		public Matrix4x4 transform;
+        public int       childIdx;
 	}
 	
 	public static Mesh Combine (MeshInstance[] combines, bool generateStrips)

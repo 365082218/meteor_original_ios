@@ -497,7 +497,7 @@ public class FightWnd: Window<FightWnd>
         {
             foreach (var each in BuffMng.Instance.BufDict)
             {
-                if (!enemyBuffList.ContainsKey(each.Value))
+                if (!enemyBuffList.ContainsKey(each.Value) && each.Value.Units.ContainsKey(mon))
                 {
                     GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("BuffItem"));// new GameObject(buf.Iden);
                     obj.name = each.Value.Iden;

@@ -54,12 +54,14 @@ public class FMCPose
 public class FMCPlayer : MonoBehaviour {
     public FMCFile frames;
     FMCPose pose;
+    CombineChildren combine;
     public string fmcFile;
     float f = 0;
     // Use this for initialization
     void Start () {
         if (frames != null)
             f = 1.0f / frames.Fps;
+        combine = GetComponent<CombineChildren>();
     }
 
     public void ChangeFrame(int fp)
@@ -107,6 +109,8 @@ public class FMCPlayer : MonoBehaviour {
                 transform.GetChild(i).localRotation = Quaternion.Slerp(each.Value, frames.frame[currentFrame + 1].quat[each.Key], tick / f);
             i++;
         }
+        if (combine != null)
+            combine.UpdateMesh();
     }
 
     int start;
@@ -144,5 +148,40 @@ public class FMCPlayer : MonoBehaviour {
     public int GetStatus()
     {
         return state;
+    }
+
+    GameObject MeshCombined;
+    MeshFilter mf;
+    MeshRenderer mr;
+    List<GameObject> mesh = new List<GameObject>();
+    public void CombineMesh()
+    {
+
+        //合并使用同一个材质球得网格,大部分就是瓶瓶罐罐，木箱子铁箱子.
+        //MeshRenderer[] renderers = transform.GetComponentsInChildren<MeshRenderer>();
+        //for (int i = 0; i < renderers.Length; i++)
+        //{
+        //    if (renderers[i].sharedMaterials.Length == 1)
+        //    {
+
+        //    }
+        //}
+        //MeshCombined = new GameObject();
+        //MeshCombined.name = name;
+        //MeshCombined.transform.SetParent(transform);
+        //MeshCombined.transform.localPosition = Vector3.zero;
+        //MeshCombined.transform.localRotation = Quaternion.identity;
+        //MeshCombined.transform.localScale = Vector3.one;
+        //mr = MeshCombined.AddComponent<MeshRenderer>();
+        //mf = MeshCombined.AddComponent<MeshFilter>();
+    }
+
+    void UpdateCombinedMesh()
+    {
+        //for (int i = 0; i < mesh.Count; i++)
+        //{
+
+        //}
+        //mf.sharedMesh;
     }
 }

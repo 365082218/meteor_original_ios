@@ -13,34 +13,39 @@ public class CombineChildren : MonoBehaviour {
 	/// Usually rendering with triangle strips is faster.
 	/// However when combining objects with very low triangle counts, it can be faster to use triangles.
 	/// Best is to try out which value is faster in practice.
-	public bool generateTriangleStrips = true;
-	
-	/// This option has a far longer preprocessing time at startup but leads to better runtime performance.
-	void Start () {
-		Component[] filters  = GetComponentsInChildren(typeof(MeshFilter));
+	public bool generateTriangleStrips = false;
+
+    /// This option has a far longer preprocessing time at startup but leads to better runtime performance.
+    Component[] filters;
+    MeshCombineUtility.MeshInstance[] instance;
+    Hashtable materialToMesh = new Hashtable();
+    GameObject combinedMesh;
+    void Start () {
+		filters = GetComponentsInChildren(typeof(MeshFilter));
 		Matrix4x4 myTransform = transform.worldToLocalMatrix;
-		Hashtable materialToMesh= new Hashtable();
-		
+
+        instance = new MeshCombineUtility.MeshInstance[filters.Length];
 		for (int i=0;i<filters.Length;i++) {
 			MeshFilter filter = (MeshFilter)filters[i];
 			Renderer curRenderer  = filters[i].GetComponent<Renderer>();
-			MeshCombineUtility.MeshInstance instance = new MeshCombineUtility.MeshInstance ();
-			instance.mesh = filter.sharedMesh;
-			if (curRenderer != null && curRenderer.enabled && instance.mesh != null) {
-				instance.transform = myTransform * filter.transform.localToWorldMatrix;
+			instance[i] = new MeshCombineUtility.MeshInstance ();
+			instance[i].mesh = filter.sharedMesh;
+            instance[i].childIdx = i;
+			if (curRenderer != null && curRenderer.enabled && instance[i].mesh != null) {
+				instance[i].transform = myTransform * filter.transform.localToWorldMatrix;
 				
 				Material[] materials = curRenderer.sharedMaterials;
 				for (int m=0;m<materials.Length;m++) {
-					instance.subMeshIndex = System.Math.Min(m, instance.mesh.subMeshCount - 1);
+					instance[i].subMeshIndex = System.Math.Min(m, instance[i].mesh.subMeshCount - 1);
 	
 					ArrayList objects = (ArrayList)materialToMesh[materials[m]];
 					if (objects != null) {
-						objects.Add(instance);
+						objects.Add(instance[i]);
 					}
 					else
 					{
 						objects = new ArrayList ();
-						objects.Add(instance);
+						objects.Add(instance[i]);
 						materialToMesh.Add(materials[m], objects);
 					}
 				}
@@ -71,17 +76,39 @@ public class CombineChildren : MonoBehaviour {
 			// and parent it to this object
 			else
 			{
-				GameObject go = new GameObject("Combined mesh");
-				go.transform.parent = transform;
-				go.transform.localScale = Vector3.one;
-				go.transform.localRotation = Quaternion.identity;
-				go.transform.localPosition = Vector3.zero;
-				go.AddComponent(typeof(MeshFilter));
-				go.AddComponent<MeshRenderer>();
-				go.GetComponent<Renderer>().material = (Material)de.Key;
-				MeshFilter filter = (MeshFilter)go.GetComponent(typeof(MeshFilter));
+                combinedMesh = new GameObject("Combined mesh");
+                combinedMesh.transform.parent = transform;
+                combinedMesh.transform.localScale = Vector3.one;
+                combinedMesh.transform.localRotation = Quaternion.identity;
+                combinedMesh.transform.localPosition = Vector3.zero;
+                combinedMesh.AddComponent(typeof(MeshFilter));
+                combinedMesh.AddComponent<MeshRenderer>();
+                combinedMesh.GetComponent<Renderer>().material = (Material)de.Key;
+				MeshFilter filter = (MeshFilter)combinedMesh.GetComponent(typeof(MeshFilter));
 				filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips);
 			}
 		}	
-	}	
+	}
+
+    public void UpdateMesh()
+    {
+        foreach (DictionaryEntry de in materialToMesh)
+        {
+            ArrayList elements = (ArrayList)de.Value;
+            MeshCombineUtility.MeshInstance[] instances = (MeshCombineUtility.MeshInstance[])elements.ToArray(typeof(MeshCombineUtility.MeshInstance));
+            for (int i = 0; i < instances.Length; i++)
+                instances[i].transform = transform.worldToLocalMatrix * filters[instances[i].childIdx].transform.localToWorldMatrix;
+            // We have a maximum of one material, so just attach the mesh to our own game object
+            if (materialToMesh.Count == 1)
+            {
+                MeshFilter filter = (MeshFilter)GetComponent(typeof(MeshFilter));
+                filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips);
+            }
+            else
+            {
+                MeshFilter filter = (MeshFilter)combinedMesh.GetComponent(typeof(MeshFilter));
+                filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips);
+            }
+        }
+    }
 }

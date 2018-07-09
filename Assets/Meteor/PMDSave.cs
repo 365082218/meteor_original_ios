@@ -1,4 +1,5 @@
 ﻿using PMD;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -345,10 +346,11 @@ public class PMDSave : MonoBehaviour {
     {
         if (GenMapRoot != null)
         {
-            MeshFilter mf = GenMapRoot.gameObject.AddComponent<MeshFilter>();
-            MeshRenderer mr = GenMapRoot.gameObject.AddComponent<MeshRenderer>();
             MeshFilter[] mfs = GetComponentsInChildren<MeshFilter>();
             MeshRenderer[] mrs = GetComponentsInChildren<MeshRenderer>();
+
+            MeshFilter mf = GenMapRoot.gameObject.AddComponent<MeshFilter>();
+            MeshRenderer mr = GenMapRoot.gameObject.AddComponent<MeshRenderer>();
             //统计材质
             List<Material> mat = new List<Material>();
             for (int i = 0; i < mrs.Length; i++)
@@ -374,9 +376,10 @@ public class PMDSave : MonoBehaviour {
                     continue;
                 //推入顶点
                 int vertexIndex = vertex.Count;//记录推入之前的索引起始
+                if (mfs[i] == null)
+                    Debug.DebugBreak();
                 for (int j = 0; j < mfs[i].sharedMesh.vertexCount; j++)
                     vertex.Add(mfs[i].transform.localToWorldMatrix * mfs[i].sharedMesh.vertices[j]);
-
                 //推入颜色,UV,法线
                 int uv_len = mfs[i].sharedMesh.uv.Length;
                 for (int j = 0; j < uv_len; j++)
@@ -387,8 +390,6 @@ public class PMDSave : MonoBehaviour {
                 int color_len = mfs[i].sharedMesh.colors.Length;
                 for (int j = 0; j < color_len; j++)
                     co.Add(mfs[i].sharedMesh.colors[j]);
-
-                
 
                 for (int j = 0; j < mfs[i].sharedMesh.subMeshCount; j++)
                 {

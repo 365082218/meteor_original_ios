@@ -6654,7 +6654,7 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1044348427}
-  m_LocalRotation: {x: 0.6549768, y: 0.1749938, z: 0.1749938, w: -0.7139747}
+  m_LocalRotation: {x: 0.6549767, y: 0.17499378, z: 0.17499378, w: -0.71397465}
   m_LocalPosition: {x: 1137.583, y: -99.094, z: -946.273}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -10678,6 +10678,7 @@ GameObject:
   - component: {fileID: 1567484134}
   - component: {fileID: 1567484133}
   - component: {fileID: 1567484132}
+  - component: {fileID: 1567484135}
   m_Layer: 10
   m_Name: Map
   m_TagString: Untagged
@@ -10790,6 +10791,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1567484135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1567484131}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31179a6bbd11e2c3d000dc0b8d76c639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  generateTriangleStrips: 0
 --- !u!43 &1579308141
 Mesh:
   m_ObjectHideFlags: 0

@@ -9274,6 +9274,7 @@ GameObject:
   - component: {fileID: 862238284}
   - component: {fileID: 862238285}
   - component: {fileID: 862238286}
+  - component: {fileID: 862238287}
   m_Layer: 10
   m_Name: SceneState
   m_TagString: Untagged
@@ -9426,6 +9427,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelId: 1
   desFile: 
+--- !u!114 &862238287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 862238283}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31179a6bbd11e2c3d000dc0b8d76c639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  generateTriangleStrips: 0
 --- !u!43 &871986014
 Mesh:
   m_ObjectHideFlags: 0
@@ -12753,7 +12766,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b3816a170720804a83040ea265133ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Targets: []
   followDistance: 60
   followHeight: 40
   followRotationDamping: 5

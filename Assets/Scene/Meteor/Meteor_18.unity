@@ -37095,6 +37095,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1587144301}
   - component: {fileID: 1587144300}
+  - component: {fileID: 1587144302}
   m_Layer: 10
   m_Name: sn18
   m_TagString: Untagged
@@ -37357,6 +37358,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1587144302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1587144299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31179a6bbd11e2c3d000dc0b8d76c639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  generateTriangleStrips: 0
 --- !u!43 &1592749665
 Mesh:
   m_ObjectHideFlags: 0

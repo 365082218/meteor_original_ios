@@ -5737,14 +5737,14 @@ public class LevelScript_sn13 : LevelScriptBase
         return 1;
     }
 
-    public int D_bridge01_OnIdle(int id)
+    public void D_bridge01_OnIdle(int id)
     {
         if (g_bBridge01Alive == 1)
         {
             int pose = GetSceneItem(id, "pose");
             if (pose != 2)
             {
-                return 0;
+                return;
             }
             int state = GetSceneItem(id, "state");
             if (state == 3)
@@ -5756,7 +5756,7 @@ public class LevelScript_sn13 : LevelScriptBase
                 NetEvent(0);
             }
         }
-        return 1;
+        return;
     }
 
     public int D_bridge02_OnAttack(int id, int characterid, int damage)
@@ -5796,14 +5796,14 @@ public class LevelScript_sn13 : LevelScriptBase
         return 1;
     }
 
-    public int D_bridge02_OnIdle(int id)
+    public void D_bridge02_OnIdle(int id)
     {
         if (g_bBridge02Alive == 1)
         {
             int pose = GetSceneItem(id, "pose");
             if (pose != 2)
             {
-                return 0;
+                return;
             }
             int state = GetSceneItem(id, "state");
             if (state == 3)
@@ -5815,7 +5815,7 @@ public class LevelScript_sn13 : LevelScriptBase
                 NetEvent(0);
             }
         }
-        return 1;
+        return;
     }
 }
 

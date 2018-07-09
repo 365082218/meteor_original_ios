@@ -4424,6 +4424,7 @@ GameObject:
   - component: {fileID: 2010015462}
   - component: {fileID: 2010015461}
   - component: {fileID: 2010015463}
+  - component: {fileID: 2010015464}
   m_Layer: 10
   m_Name: Map
   m_TagString: Untagged
@@ -4500,6 +4501,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SourceShader: {fileID: 10752, guid: 0000000000000000f000000000000000, type: 0}
   ReplaceShader: {fileID: 4800000, guid: 556d7ded89ee1a149b27e12bd591a2b6, type: 3}
+--- !u!114 &2010015464
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 2010015459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31179a6bbd11e2c3d000dc0b8d76c639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  generateTriangleStrips: 0
 --- !u!21 &2010716179
 Material:
   serializedVersion: 6

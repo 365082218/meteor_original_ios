@@ -26574,6 +26574,7 @@ GameObject:
   - component: {fileID: 1587144300}
   - component: {fileID: 1587144302}
   - component: {fileID: 1587144303}
+  - component: {fileID: 1587144304}
   m_Layer: 10
   m_Name: sn16
   m_TagString: Untagged
@@ -26797,6 +26798,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defFile: 
   LevelId: 0
+--- !u!114 &1587144304
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1587144299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31179a6bbd11e2c3d000dc0b8d76c639, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  generateTriangleStrips: 0
 --- !u!1 &1600921500
 GameObject:
   m_ObjectHideFlags: 0
@@ -35140,8 +35153,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
-  m_Materials:
-  - {fileID: 0}
+  m_Materials: []
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

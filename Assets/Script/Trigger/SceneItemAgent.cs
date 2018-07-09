@@ -361,7 +361,22 @@ public class SceneItemAgent : MonoBehaviour {
             //把子物件的属性刷到一起.
             for (int i = 0; i < fIns.SceneItems.Count; i++)
                 LoadCustom(fIns.SceneItems[i].name, fIns.SceneItems[i].custom);
-            
+
+            if (name.StartsWith("D_Item") || name.StartsWith("D_RJug") || name.StartsWith("D_itRJug") || name.StartsWith("D_BBox") ||
+                name.StartsWith("D_BBBox") || name.StartsWith("D_Box"))
+            {
+                if (root != null)
+                {
+                    CombineChildren combine = root.gameObject.AddComponent<CombineChildren>();
+                    combine.generateTriangleStrips = false;
+                }
+                else
+                {
+                    CombineChildren combine = gameObject.AddComponent<CombineChildren>();
+                    combine.generateTriangleStrips = false;
+                }
+            }
+
             player = GetComponent<FMCPlayer>();
             if (player == null)
                 player = gameObject.AddComponent<FMCPlayer>();
@@ -370,6 +385,11 @@ public class SceneItemAgent : MonoBehaviour {
             {
                 Destroy(player);
                 player = null;
+            }
+            else
+            {
+                //合并FMC子物件动画为顶点动画
+                player.CombineMesh();
             }
         }
     }
@@ -524,6 +544,11 @@ public class SceneItemAgent : MonoBehaviour {
                 if (value == 0)
                     GameBattleEx.Instance.RemoveCollision(this);
                 if (OnIdle != null && value == 0)
+                {
+                    MeteorManager.Instance.OnDestroySceneItem(this);
+                    GameObject.Destroy(gameObject);
+                }
+                else if (MethodOnIdle != null && value == 0)
                 {
                     MeteorManager.Instance.OnDestroySceneItem(this);
                     GameObject.Destroy(gameObject);

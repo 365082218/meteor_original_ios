@@ -250,13 +250,12 @@ public class CameraFollow : MonoBehaviour {
         else
         {
             //没有缓动
-            /*
-            cameraLookAt = new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, MeteorManager.Instance.LocalPlayer.transform.position.y + BodyHeight, MeteorManager.Instance.LocalPlayer.mPos.z);//朝向焦点
-            newPos = cameraLookAt + MeteorManager.Instance.LocalPlayer.transform.forward * followDistance + new Vector3(0, followHeight, 0);
-            transform.position = newPos;
-            transform.LookAt(cameraLookAt);
-            return;
-            */
+            //cameraLookAt = new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, MeteorManager.Instance.LocalPlayer.transform.position.y + BodyHeight, MeteorManager.Instance.LocalPlayer.mPos.z);//朝向焦点
+            //newPos = cameraLookAt + MeteorManager.Instance.LocalPlayer.transform.forward * followDistance + new Vector3(0, followHeight, 0);
+            //transform.position = newPos;
+            //transform.LookAt(cameraLookAt);
+            //return;
+
 
             //摄像机缓动功能先不管，否则抖动很厉害。
             float yRotate = 0.0f;
@@ -340,7 +339,7 @@ public class CameraFollow : MonoBehaviour {
             {
                 if (xRotate != 0.0f || yRotate != 0.0f)
                 {
-                    Debug.LogError("有x y轴偏移");
+                    //Debug.LogError("有x y轴偏移");
                     transform.position = newPos;
                     //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                     //transform.rotation = to;
@@ -354,7 +353,7 @@ public class CameraFollow : MonoBehaviour {
                     if (smooth && !hitWall)
                     {
                         newPos.y = Mathf.Lerp(transform.position.y, newPos.y, smoothIntensity * Time.deltaTime);
-                        Debug.LogError("平滑且无墙壁间隔时");
+                        //Debug.LogError("平滑且无墙壁间隔时");
                     }
 
                     transform.position = newPos;
