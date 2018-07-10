@@ -17,7 +17,9 @@ public class CombineChildren : MonoBehaviour {
 
     /// This option has a far longer preprocessing time at startup but leads to better runtime performance.
     Component[] filters;
+    MeshCombineUtility.MeshElement element = null;
     MeshCombineUtility.MeshInstance[] instance;
+    
     Hashtable materialToMesh = new Hashtable();
     GameObject combinedMesh;
     void Start () {
@@ -68,7 +70,7 @@ public class CombineChildren : MonoBehaviour {
 					gameObject.AddComponent<MeshRenderer>();
 	
 				MeshFilter filter = (MeshFilter)GetComponent(typeof(MeshFilter));
-				filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips);
+				filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips, ref element);
 				GetComponent<Renderer>().material = (Material)de.Key;
 				GetComponent<Renderer>().enabled = true;
 			}
@@ -85,7 +87,7 @@ public class CombineChildren : MonoBehaviour {
                 combinedMesh.AddComponent<MeshRenderer>();
                 combinedMesh.GetComponent<Renderer>().material = (Material)de.Key;
 				MeshFilter filter = (MeshFilter)combinedMesh.GetComponent(typeof(MeshFilter));
-				filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips);
+				filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips, ref element);
 			}
 		}	
 	}
@@ -102,12 +104,12 @@ public class CombineChildren : MonoBehaviour {
             if (materialToMesh.Count == 1)
             {
                 MeshFilter filter = (MeshFilter)GetComponent(typeof(MeshFilter));
-                filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips);
+                filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips, ref element, true);
             }
             else
             {
                 MeshFilter filter = (MeshFilter)combinedMesh.GetComponent(typeof(MeshFilter));
-                filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips);
+                filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips, ref element, true);
             }
         }
     }

@@ -11,7 +11,19 @@ public class MeshCombineUtility {
         public int       childIdx;
 	}
 	
-	public static Mesh Combine (MeshInstance[] combines, bool generateStrips)
+    public class MeshElement
+    {
+        public Vector3[] vertices;
+        public Vector3[] normals;
+        public Vector4[] tangents;
+        public Vector2[] uv;
+        public Vector2[] uv1;
+        public Color[] colors;
+        public int[] triangles;
+        public int[] strip;
+    }
+
+	public static Mesh Combine (MeshInstance[] combines, bool generateStrips, ref MeshElement element, bool save = false)
 	{
 		int vertexCount = 0;
 		int triangleCount = 0;
@@ -56,18 +68,34 @@ public class MeshCombineUtility {
 				}
 			}
 		}
-		
-		Vector3[] vertices = new Vector3[vertexCount] ;
-		Vector3[] normals = new Vector3[vertexCount] ;
-		Vector4[] tangents = new Vector4[vertexCount] ;
-		Vector2[] uv = new Vector2[vertexCount];
-		Vector2[] uv1 = new Vector2[vertexCount];
-		Color[] colors = new Color[vertexCount];
-		
-		int[] triangles = new int[triangleCount];
-		int[] strip = new int[stripCount];
-		
-		int offset;
+
+        if (save)
+        {
+            if (element == null)
+            {
+                element = new MeshElement();
+                element.vertices = new Vector3[vertexCount];
+                element.normals = new Vector3[vertexCount];
+                element.tangents = new Vector4[vertexCount];
+                element.uv = new Vector2[vertexCount];
+                element.uv1 = new Vector2[vertexCount];
+                element.colors = new Color[vertexCount];
+                element.triangles = new int[triangleCount];
+                element.strip = new int[stripCount];
+            }
+        }
+
+        Vector3[] vertices = save ? element.vertices:new Vector3[vertexCount];
+        Vector3[] normals = save ? element.normals : new Vector3[vertexCount];
+        Vector4[] tangents = save ? element.tangents: new Vector4[vertexCount];
+        Vector2[] uv = save ? element.uv :new Vector2[vertexCount];
+        Vector2[] uv1 = save ? element.uv1:new Vector2[vertexCount];
+        Color[] colors = save ? element.colors:new Color[vertexCount];
+        int[] triangles = save ? element.triangles :new int[triangleCount];
+        int[] strip = save ? element.strip :new int[stripCount];
+
+
+        int offset;
 		
 		offset=0;
 		foreach( MeshInstance combine in combines )
@@ -133,22 +161,22 @@ public class MeshCombineUtility {
 					{
 						if ((stripOffset & 1) == 1)
 						{
-							strip[stripOffset+0] = strip[stripOffset-1];
-							strip[stripOffset+1] = inputstrip[0] + vertexOffset;
-							strip[stripOffset+2] = inputstrip[0] + vertexOffset;
+                            strip[stripOffset+0] = strip[stripOffset-1];
+                            strip[stripOffset+1] = inputstrip[0] + vertexOffset;
+                            strip[stripOffset+2] = inputstrip[0] + vertexOffset;
 							stripOffset+=3;
 						}
 						else
 						{
-							strip[stripOffset+0] = strip[stripOffset-1];
-							strip[stripOffset+1] = inputstrip[0] + vertexOffset;
+                            strip[stripOffset+0] = strip[stripOffset-1];
+                            strip[stripOffset+1] = inputstrip[0] + vertexOffset;
 							stripOffset+=2;
 						}
 					}
 					
 					for (int i=0;i<inputstrip.Length;i++)
 					{
-						strip[i+stripOffset] = inputstrip[i] + vertexOffset;
+                        strip[i+stripOffset] = inputstrip[i] + vertexOffset;
 					}
 					stripOffset += inputstrip.Length;
 				}
@@ -157,7 +185,7 @@ public class MeshCombineUtility {
 					int[]  inputtriangles = combine.mesh.GetTriangles(combine.subMeshIndex);
 					for (int i=0;i<inputtriangles.Length;i++)
 					{
-						triangles[i+triangleOffset] = inputtriangles[i] + vertexOffset;
+                        triangles[i+triangleOffset] = inputtriangles[i] + vertexOffset;
 					}
 					triangleOffset += inputtriangles.Length;
 				}
