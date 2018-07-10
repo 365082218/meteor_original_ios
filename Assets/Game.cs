@@ -24,7 +24,7 @@ public class Game : MonoBehaviour {
 #if !STRIP_DBG_SETTING
     void InitDebugSetting()
     {
-        GameObject DebugCanvas = GameObject.Instantiate(Resources.Load<GameObject>("DebugCanvas"));
+        GameObject DebugCanvas = GameObject.Instantiate(ResMng.LoadPrefab("DebugCanvas")) as GameObject;
         DebugCanvas.transform.SetParent(transform);
         DebugCanvas.transform.localScale = Vector3.one;
         DebugCanvas.transform.rotation = Quaternion.identity;

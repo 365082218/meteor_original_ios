@@ -28,7 +28,7 @@ Overlay	该渲染队列是为覆盖物效果服务的。任何最后被渲染的
 	SubShader {
 		Tags{ "RenderType" = "Transparent" "Queue" = "Transparent+10" }
 		LOD 100
-		ZWrite Off
+		ZWrite Off Lighting Off
 		//流星很多特效都是把高光的透明度降低做的
 		Blend SrcAlpha One
 		//Blend One OneMinusSrcColor  //忽略了透明

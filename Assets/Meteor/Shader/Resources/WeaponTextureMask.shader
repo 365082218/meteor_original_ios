@@ -14,7 +14,7 @@ SubShader {
 	Tags {"Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"}
 	//Tags{ "Queue" = "Geometry+50" "RenderType" = "Opaque" }
 	LOD 100
-	cull off
+	cull off Lighting Off
 	//ZWrite Off
 	Blend SrcAlpha OneMinusSrcAlpha 
 	//Blend DstColor SrcColor

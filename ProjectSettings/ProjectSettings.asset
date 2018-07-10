@@ -6,7 +6,7 @@ PlayerSettings:
   serializedVersion: 10
   productGUID: 513fe5372c606124db384f502fe98556
   AndroidProfiler: 0
-  defaultScreenOrientation: 3
+  defaultScreenOrientation: 2
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
@@ -68,7 +68,7 @@ PlayerSettings:
   defaultIsNativeResolution: 1
   runInBackground: 0
   captureSingleScreen: 0
-  muteOtherAudioSources: 0
+  muteOtherAudioSources: 1
   Prepare IOS For Recording: 0
   submitAnalytics: 1
   usePlayerLog: 1
@@ -120,7 +120,7 @@ PlayerSettings:
     16:9: 1
     Others: 1
   bundleIdentifier: com.Idevgame.Meteor
-  bundleVersion: 0.5.2.0
+  bundleVersion: 0.0.7.1
   preloadedAssets: []
   metroInputSource: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -243,7 +243,10 @@ PlayerSettings:
       m_Icon: {fileID: 2800000, guid: 1681a1835196c334a9538d8847322b19, type: 3}
       m_Width: 36
       m_Height: 36
-  m_BuildTargetBatching: []
+  m_BuildTargetBatching:
+  - m_BuildTarget: Android
+    m_StaticBatching: 0
+    m_DynamicBatching: 0
   m_BuildTargetGraphicsAPIs: []
   m_BuildTargetVRSettings:
   - m_BuildTarget: Android
@@ -455,7 +458,7 @@ PlayerSettings:
   psmSplashimage: {fileID: 0}
   splashScreenBackgroundSourceLandscape: {fileID: 0}
   splashScreenBackgroundSourcePortrait: {fileID: 0}
-  spritePackerPolicy: 
+  spritePackerPolicy: TightPackerPolicy
   webGLMemorySize: 256
   webGLExceptionSupport: 1
   webGLDataCaching: 0
@@ -470,7 +473,7 @@ PlayerSettings:
   scriptingDefineSymbols:
     1: BUILD_PC
     4: BUILD_PC
-    7: 
+    7: NOLOG
   platformArchitecture:
     iOS: 2
   scriptingBackend:

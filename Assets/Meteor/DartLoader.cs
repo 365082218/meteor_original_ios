@@ -91,7 +91,7 @@ public class DartLoader : MonoBehaviour {
 
     public static void Init(Vector3 spawn, Vector3 forw, InventoryItem weapon, AttackDes att, MeteorUnit owner)
     {
-        GameObject dartObj = GameObject.Instantiate(Resources.Load("DartLoader"), spawn, Quaternion.identity, null) as GameObject;
+        GameObject dartObj = GameObject.Instantiate(ResMng.LoadPrefab("DartLoader"), spawn, Quaternion.identity, null) as GameObject;
         dartObj.layer = LayerMask.NameToLayer("Flight");
         DartLoader dart = dartObj.GetComponent<DartLoader>();
         dart.LoadAttack(weapon, forw, att, owner);
@@ -151,7 +151,7 @@ public class DartLoader : MonoBehaviour {
 
             if (!string.IsNullOrEmpty(weaponR))
             {
-                GameObject weaponPrefab = Resources.Load<GameObject>(weaponR);
+                GameObject weaponPrefab = ResMng.LoadPrefab(weaponR) as GameObject;
                 if (weaponPrefab == null)
                 {
                     GMCFile fGmcL = GMCLoader.Instance.Load(weaponR);
@@ -242,11 +242,9 @@ public class DartLoader : MonoBehaviour {
             {
                 if (!iflMaterials.ContainsKey(x))
                     iflMaterials.Add(x, tex);//记录x号材质是ifl类型的材质,以后会用到，这个序号的材质并且动态更换这个材质的贴图的
-
             }
             else
             {
-
                 string weaponIden = string.Format("{0}_{1:D2}{2}", matIden, x, textureOverrite);
                 mat[x] = Resources.Load<Material>(weaponIden);
                 if (mat[x] == null)

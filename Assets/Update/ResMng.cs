@@ -120,6 +120,7 @@ public class ResMng {
         ReadReferenceTable();
 	}
 
+
     //得到资源拓展名
     static string GetExt(string name)
     {

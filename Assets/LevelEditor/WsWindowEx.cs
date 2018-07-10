@@ -22,7 +22,7 @@ public abstract class WsWindowEx
     public void Open()
     {
         if (Panel == null)
-            Panel = GameObject.Instantiate(Resources.Load(strPrefab, typeof(GameObject))) as GameObject;
+            Panel = GameObject.Instantiate(ResMng.LoadPrefab(strPrefab)) as GameObject;
         if (_Canvas == null)
             _Canvas = GameObject.Find("Canvas");
         if (_Canvas == null)

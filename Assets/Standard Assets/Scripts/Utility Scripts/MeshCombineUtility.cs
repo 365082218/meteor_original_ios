@@ -21,6 +21,7 @@ public class MeshCombineUtility {
         public Color[] colors;
         public int[] triangles;
         public int[] strip;
+        public Mesh mesh;
     }
 
 	public static Mesh Combine (MeshInstance[] combines, bool generateStrips, ref MeshElement element, bool save = false)
@@ -82,6 +83,7 @@ public class MeshCombineUtility {
                 element.colors = new Color[vertexCount];
                 element.triangles = new int[triangleCount];
                 element.strip = new int[stripCount];
+                element.mesh = new Mesh();
             }
         }
 
@@ -194,8 +196,9 @@ public class MeshCombineUtility {
 			}
 		}
 		
-		Mesh mesh = new Mesh();
-		mesh.name = "Combined Mesh";
+		Mesh mesh = save ? element.mesh : new Mesh();
+        if (!save)
+		    mesh.name = "Combined Mesh";
 		mesh.vertices = vertices;
 		mesh.normals = normals;
 		mesh.colors = colors;
@@ -206,7 +209,6 @@ public class MeshCombineUtility {
 			mesh.SetTriangles(strip, 0);
 		else
 			mesh.triangles = triangles;
-		
 		return mesh;
 	}
 	
@@ -237,16 +239,22 @@ public class MeshCombineUtility {
 			dst[i+offset] = src[i];
 		offset += vertexcount;
 	}
-	
+
+    static Vector3 p;
 	static void CopyTangents (int vertexcount, Vector4[] src, Vector4[] dst, ref int offset, Matrix4x4 transform)
 	{
 		for (int i=0;i<src.Length;i++)
 		{
-			Vector4 p4 = src[i];
-			Vector3 p = new Vector3(p4.x, p4.y, p4.z);
+			//Vector4 p4 = src[i];
+            p.x = src[i].x;
+            p.y = src[i].y;
+            p.z = src[i].z;
 			p = transform.MultiplyVector(p).normalized;
-			dst[i+offset] = new Vector4(p.x, p.y, p.z, p4.w);
-		}
+            dst[i + offset].x = p.x;// = new Vector4(p.x, p.y, p.z, p4.w);
+            dst[i + offset].y = p.y;
+            dst[i + offset].z = p.z;
+            dst[i + offset].w = src[i].w;
+        }
 			
 		offset += vertexcount;
 	}

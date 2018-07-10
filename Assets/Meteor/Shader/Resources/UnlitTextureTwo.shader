@@ -10,7 +10,7 @@ Shader "UnlitTexture2" {
 			SubShader{
 			Tags{ "RenderType" = "Opaque" }
 			LOD 150
-			Cull off
+			Cull off Lighting Off
 			CGPROGRAM
 #pragma surface surf Lambert noforwardadd
 

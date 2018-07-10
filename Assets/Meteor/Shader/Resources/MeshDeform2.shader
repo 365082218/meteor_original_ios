@@ -18,7 +18,7 @@ Shader "Custom/MeshDeform2"
 	{
 		Tags{ "RenderType" = "Opaque" }
 		LOD 200
-		cull off
+		cull off Lighting Off
 		CGPROGRAM
 #pragma surface surf nolight vertex:vert alpha
 

@@ -8,7 +8,7 @@ SubShader {
 	Tags {"Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"}
 	LOD 200
 	Blend One One
-	ZWrite Off
+	ZWrite Off Lighting Off
 CGPROGRAM
 #pragma surface surf Lambert
 
