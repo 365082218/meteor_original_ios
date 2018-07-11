@@ -6,8 +6,8 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: Player0001
-  m_Shader: {fileID: 4800000, guid: ef621c64e7b2bba4ead3fdfbdaf32cde, type: 3}
+  m_Name: Player0001db
+  m_Shader: {fileID: 4800000, guid: 0341fb4e5c8e70f4394216a96ba7c3e9, type: 3}
   m_ShaderKeywords: _EMISSION
   m_LightmapFlags: 1
   m_CustomRenderQueue: -1

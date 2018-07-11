@@ -872,7 +872,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 818040363}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1938432796}
+        m_MethodName: EquipWeapon
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &818040363
@@ -1192,8 +1203,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1236269305}
-  m_LocalRotation: {x: 0.30106953, y: 0, z: 0, w: 0.9536022}
-  m_LocalPosition: {x: 0, y: 46, z: -34}
+  m_LocalRotation: {x: 0.13052623, y: 0, z: 0, w: 0.9914449}
+  m_LocalPosition: {x: 0, y: 27, z: -34}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -2022,6 +2033,12 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 8b3dff0e68b7f564e8c819477c4fcb97, type: 2}
   m_IsPrefabParent: 0
+--- !u!114 &1938432796 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 114143046204615308, guid: 8b3dff0e68b7f564e8c819477c4fcb97,
+    type: 2}
+  m_PrefabInternal: {fileID: 1938432795}
+  m_Script: {fileID: 11500000, guid: 0e44cfb8aa3f7fa48a56824c64cb00f7, type: 3}
 --- !u!1 &1985963367
 GameObject:
   m_ObjectHideFlags: 0

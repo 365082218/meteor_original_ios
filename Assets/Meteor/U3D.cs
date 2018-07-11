@@ -659,9 +659,12 @@ public class U3D : MonoBehaviour {
         if (!string.IsNullOrEmpty(lev.goodList))
         {
             string num = lev.goodList.Substring(2);
-            int number = int.Parse(num);
-            Debug.Log("b" + number);
-            PlayMovie("b" + number);
+            int number = 0;
+            if (int.TryParse(num, out number))
+            {
+                Debug.Log("b" + number);
+                PlayMovie("b" + number);
+            }
         }
         LevelHelper helper = ins.gameObject.AddComponent<LevelHelper>();
         helper.Load(id, loading);

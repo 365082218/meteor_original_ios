@@ -70,9 +70,12 @@ public class GameBattleEx : MonoBehaviour {
         if (!string.IsNullOrEmpty(Global.GLevelItem.goodList))
         {
             string num = Global.GLevelItem.goodList.Substring(2);
-            int number = int.Parse(num);
-            Debug.Log("v" + number);
-            U3D.PlayMovie("v" + number);
+            int number = 0;
+            if (int.TryParse(num, out number))
+            {
+                Debug.Log("v" + number);
+                U3D.PlayMovie("v" + number);
+            }
         }
         
         GotoMenu();

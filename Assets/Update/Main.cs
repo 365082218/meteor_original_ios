@@ -114,6 +114,7 @@ public class Main : MonoBehaviour {
             }
 
             GameStart();
+            yield break;
         }
         else
 		{

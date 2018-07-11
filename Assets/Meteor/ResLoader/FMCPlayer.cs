@@ -73,6 +73,7 @@ public class FMCPlayer : MonoBehaviour {
     float tick;
     // Update is called once per frame
     void Update () {
+        int oldframe = currentFrame;
         if (frames == null || state == 1)
             return;
         tick += Time.deltaTime;
@@ -109,7 +110,7 @@ public class FMCPlayer : MonoBehaviour {
                 transform.GetChild(i).localRotation = Quaternion.Slerp(each.Value, frames.frame[currentFrame + 1].quat[each.Key], tick / f);
             i++;
         }
-        if (combine != null)
+        if (oldframe != currentFrame && combine != null)
             combine.UpdateMesh();
     }
 

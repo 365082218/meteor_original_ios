@@ -18,7 +18,7 @@ public class AppInfo
     {
         string sVersion = PlayerPrefs.GetString(versionKey);
         if (string.IsNullOrEmpty(sVersion))
-            PlayerPrefs.SetString(versionKey, "0.0.7.1");
+            PlayerPrefs.SetString(versionKey, "0.0.7.4");
         return PlayerPrefs.GetString(versionKey);
     }
 
@@ -26,7 +26,7 @@ public class AppInfo
     {
         PlayerPrefs.SetString(versionKey, v);
     }
-    public const int Version = 20180710;
+    public const int Version = 20180711;
     public static string MeteorVersion = "9.07";
     //运行帧速率设置 60 = 12 30 = 6 120 = 24
     public static int GetTargetFrame()

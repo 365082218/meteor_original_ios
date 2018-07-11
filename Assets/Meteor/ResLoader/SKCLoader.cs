@@ -105,6 +105,7 @@ public class SkcFile
         mesh.RecalculateNormals();
     }
 
+    //考虑网格合并，把使用一个材质的子网格，合并到一起
     int ReadEach(string[] line, int start, int idx)
     {
         int end = start;
@@ -315,7 +316,7 @@ public class SkcFile
     public Material[] Material(int roleIdx, EUnitCamp camp)
     {
         //return new UnityEngine.Material[0];
-        if (Game.Instance.SkcMng != null)
+        if (Game.Instance != null && Game.Instance.SkcMng != null)
             return Game.Instance.SkcMng.GetPlayerMat(roleIdx, camp);
         //使用预先设置好的材质球，降低DC和Batch
         Material[] ret = new Material[materials.Length];

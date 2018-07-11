@@ -116,7 +116,7 @@ public class MeteorInput
         //if (!NGUIJoystick.instance.ArrowPressed) mLastInputVector = Vector2.zero;
         if (!mOwner.controller.InputLocked)
         {
-            if (mOwner.Attr.IsPlayer)
+            if (mOwner.Attr.IsPlayer && NGUIJoystick.instance != null)
             {
                 //如果方向键按下了
                 if (NGUIJoystick.instance.mJoyPressed)

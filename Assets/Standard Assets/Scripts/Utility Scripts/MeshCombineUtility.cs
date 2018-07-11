@@ -24,141 +24,139 @@ public class MeshCombineUtility {
         public Mesh mesh;
     }
 
-	public static Mesh Combine (MeshInstance[] combines, bool generateStrips, ref MeshElement element, bool save = false)
+	public static Mesh CombineFirst(MeshInstance[] combines, bool generateStrips, ref MeshElement element)
 	{
 		int vertexCount = 0;
 		int triangleCount = 0;
 		int stripCount = 0;
-		foreach( MeshInstance combine in combines )
-		{
-			if (combine.mesh)
-			{
-				vertexCount += combine.mesh.vertexCount;
-				
-				if (generateStrips)
-				{
-					// SUBOPTIMAL FOR PERFORMANCE
-					int curStripCount = combine.mesh.GetTriangles(combine.subMeshIndex).Length;
-					if (curStripCount != 0)
-					{
-						if( stripCount != 0 )
-						{
-							if ((stripCount & 1) == 1 )
-								stripCount += 3;
-							else
-								stripCount += 2;
-						}
-						stripCount += curStripCount;
-					}
-					else
-					{
-						generateStrips = false;
-					}
-				}
-			}
-		}
-		
-		// Precomputed how many triangles we need instead
-		if (!generateStrips)
-		{
-			foreach( MeshInstance combine in combines )
-			{
-				if (combine.mesh)
-				{
-					triangleCount += combine.mesh.GetTriangles(combine.subMeshIndex).Length;
-				}
-			}
-		}
-
-        if (save)
+        for (int i = 0; i < combines.Length; i++)
         {
-            if (element == null)
+            if (combines[i].mesh != null)
             {
-                element = new MeshElement();
-                element.vertices = new Vector3[vertexCount];
-                element.normals = new Vector3[vertexCount];
-                element.tangents = new Vector4[vertexCount];
-                element.uv = new Vector2[vertexCount];
-                element.uv1 = new Vector2[vertexCount];
-                element.colors = new Color[vertexCount];
-                element.triangles = new int[triangleCount];
-                element.strip = new int[stripCount];
-                element.mesh = new Mesh();
+                vertexCount += combines[i].mesh.vertexCount;
+
+                if (generateStrips)
+                {
+                    // SUBOPTIMAL FOR PERFORMANCE
+                    int curStripCount = combines[i].mesh.GetTriangles(combines[i].subMeshIndex).Length;
+                    if (curStripCount != 0)
+                    {
+                        if (stripCount != 0)
+                        {
+                            if ((stripCount & 1) == 1)
+                                stripCount += 3;
+                            else
+                                stripCount += 2;
+                        }
+                        stripCount += curStripCount;
+                    }
+                    else
+                    {
+                        generateStrips = false;
+                    }
+                }
             }
         }
 
-        Vector3[] vertices = save ? element.vertices:new Vector3[vertexCount];
-        Vector3[] normals = save ? element.normals : new Vector3[vertexCount];
-        Vector4[] tangents = save ? element.tangents: new Vector4[vertexCount];
-        Vector2[] uv = save ? element.uv :new Vector2[vertexCount];
-        Vector2[] uv1 = save ? element.uv1:new Vector2[vertexCount];
-        Color[] colors = save ? element.colors:new Color[vertexCount];
-        int[] triangles = save ? element.triangles :new int[triangleCount];
-        int[] strip = save ? element.strip :new int[stripCount];
+        // Precomputed how many triangles we need instead
+        //在save时，这些数据全部不需要改变，要改变的只有顶点的位置.
+        if (!generateStrips)
+        {
+            for (int i = 0; i < combines.Length; i++)
+            {
+                if (combines[i].mesh != null)
+                {
+                    triangleCount += combines[i].mesh.GetTriangles(combines[i].subMeshIndex).Length;
+                }
+            }
+        }
+
+        if (element == null)
+        {
+            element = new MeshElement();
+            element.vertices = new Vector3[vertexCount];
+            element.normals = new Vector3[vertexCount];
+            element.tangents = new Vector4[vertexCount];
+            element.uv = new Vector2[vertexCount];
+            element.uv1 = new Vector2[vertexCount];
+            element.colors = new Color[vertexCount];
+            element.triangles = new int[triangleCount];
+            element.strip = new int[stripCount];
+            element.mesh = new Mesh();
+        }
+
+        Vector3[] vertices = element.vertices;
+        Vector3[] normals = element.normals;
+        Vector4[] tangents = element.tangents;
+        Vector2[] uv = element.uv;
+        Vector2[] uv1 = element.uv1;
+        Color[] colors = element.colors;
+        int[] triangles = element.triangles;
+        int[] strip = element.strip;
 
 
         int offset;
 		
 		offset=0;
-		foreach( MeshInstance combine in combines )
+		for (int i = 0; i < combines.Length; i++)
 		{
-			if (combine.mesh)
-				Copy(combine.mesh.vertexCount, combine.mesh.vertices, vertices, ref offset, combine.transform);
+            if (combines[i].mesh != null)
+                Copy(combines[i].mesh.vertexCount, combines[i].mesh.vertices, vertices, ref offset, combines[i].transform);
 		}
 
 		offset=0;
-		foreach( MeshInstance combine in combines )
+		for (int i = 0; i < combines.Length; i++)
 		{
-			if (combine.mesh)
+			if (combines[i].mesh != null)
 			{
-				Matrix4x4 invTranspose = combine.transform;
+				Matrix4x4 invTranspose = combines[i].transform;
 				invTranspose = invTranspose.inverse.transpose;
-				CopyNormal(combine.mesh.vertexCount, combine.mesh.normals, normals, ref offset, invTranspose);
+				CopyNormal(combines[i].mesh.vertexCount, combines[i].mesh.normals, normals, ref offset, invTranspose);
 			}
 				
 		}
 		offset=0;
-		foreach( MeshInstance combine in combines )
+		for (int i = 0; i < combines.Length; i++)
 		{
-			if (combine.mesh)
+			if (combines[i].mesh != null)
 			{
-				Matrix4x4 invTranspose = combine.transform;
+				Matrix4x4 invTranspose = combines[i].transform;
 				invTranspose = invTranspose.inverse.transpose;
-				CopyTangents(combine.mesh.vertexCount, combine.mesh.tangents, tangents, ref offset, invTranspose);
+				CopyTangents(combines[i].mesh.vertexCount, combines[i].mesh.tangents, tangents, ref offset, invTranspose);
 			}
 				
 		}
 		offset=0;
-		foreach( MeshInstance combine in combines )
+		for (int i = 0; i < combines.Length; i++)
 		{
-			if (combine.mesh)
-				Copy(combine.mesh.vertexCount, combine.mesh.uv, uv, ref offset);
+			if (combines[i].mesh != null)
+				Copy(combines[i].mesh.vertexCount, combines[i].mesh.uv, uv, ref offset);
 		}
 		
 		offset=0;
-		foreach( MeshInstance combine in combines )
+		for(int i = 0; i < combines.Length; i++)
 		{
-			if (combine.mesh)
-				Copy(combine.mesh.vertexCount, combine.mesh.uv2, uv1, ref offset);
+			if (combines[i].mesh)
+				Copy(combines[i].mesh.vertexCount, combines[i].mesh.uv2, uv1, ref offset);
 		}
 		
 		offset=0;
-		foreach( MeshInstance combine in combines )
+		for (int i = 0; i < combines.Length; i++)
 		{
-			if (combine.mesh)
-				CopyColors(combine.mesh.vertexCount, combine.mesh.colors, colors, ref offset);
+			if (combines[i].mesh)
+				CopyColors(combines[i].mesh.vertexCount, combines[i].mesh.colors, colors, ref offset);
 		}
 		
 		int triangleOffset=0;
 		int stripOffset=0;
 		int vertexOffset=0;
-		foreach( MeshInstance combine in combines )
+		for (int i = 0; i < combines.Length; i++)
 		{
-			if (combine.mesh)
+			if (combines[i].mesh)
 			{
 				if (generateStrips)
 				{
-					int[] inputstrip = combine.mesh.GetTriangles(combine.subMeshIndex);
+					int[] inputstrip = combines[i].mesh.GetTriangles(combines[i].subMeshIndex);
 					if (stripOffset != 0)
 					{
 						if ((stripOffset & 1) == 1)
@@ -176,29 +174,28 @@ public class MeshCombineUtility {
 						}
 					}
 					
-					for (int i=0;i<inputstrip.Length;i++)
+					for (int j=0;j<inputstrip.Length;j++)
 					{
-                        strip[i+stripOffset] = inputstrip[i] + vertexOffset;
+                        strip[j+stripOffset] = inputstrip[j] + vertexOffset;
 					}
 					stripOffset += inputstrip.Length;
 				}
 				else
 				{
-					int[]  inputtriangles = combine.mesh.GetTriangles(combine.subMeshIndex);
-					for (int i=0;i<inputtriangles.Length;i++)
+					int[]  inputtriangles = combines[i].mesh.GetTriangles(combines[i].subMeshIndex);
+					for (int j=0;j<inputtriangles.Length;j++)
 					{
-                        triangles[i+triangleOffset] = inputtriangles[i] + vertexOffset;
+                        triangles[j+triangleOffset] = inputtriangles[j] + vertexOffset;
 					}
 					triangleOffset += inputtriangles.Length;
 				}
 				
-				vertexOffset += combine.mesh.vertexCount;
+				vertexOffset += combines[i].mesh.vertexCount;
 			}
 		}
 		
-		Mesh mesh = save ? element.mesh : new Mesh();
-        if (!save)
-		    mesh.name = "Combined Mesh";
+		Mesh mesh = element.mesh;
+		mesh.name = "Combined Mesh";
 		mesh.vertices = vertices;
 		mesh.normals = normals;
 		mesh.colors = colors;
@@ -211,8 +208,348 @@ public class MeshCombineUtility {
 			mesh.triangles = triangles;
 		return mesh;
 	}
-	
-	static void Copy (int vertexcount, Vector3[] src, Vector3[] dst, ref int offset, Matrix4x4 transform)
+
+    public static Mesh Combine(MeshInstance[] combines, bool generateStrips)
+    {
+        int vertexCount = 0;
+        int triangleCount = 0;
+        int stripCount = 0;
+        for (int i = 0; i < combines.Length; i++)
+        {
+            if (combines[i].mesh != null)
+            {
+                vertexCount += combines[i].mesh.vertexCount;
+
+                if (generateStrips)
+                {
+                    // SUBOPTIMAL FOR PERFORMANCE
+                    int curStripCount = combines[i].mesh.GetTriangles(combines[i].subMeshIndex).Length;
+                    if (curStripCount != 0)
+                    {
+                        if (stripCount != 0)
+                        {
+                            if ((stripCount & 1) == 1)
+                                stripCount += 3;
+                            else
+                                stripCount += 2;
+                        }
+                        stripCount += curStripCount;
+                    }
+                    else
+                    {
+                        generateStrips = false;
+                    }
+                }
+            }
+        }
+
+        // Precomputed how many triangles we need instead
+        //在save时，这些数据全部不需要改变，要改变的只有顶点的位置.
+        if (!generateStrips)
+        {
+            for (int i = 0; i < combines.Length; i++)
+            {
+                if (combines[i].mesh != null)
+                {
+                    triangleCount += combines[i].mesh.GetTriangles(combines[i].subMeshIndex).Length;
+                }
+            }
+        }
+
+        Vector3[] vertices = new Vector3[vertexCount];
+        Vector3[] normals = new Vector3[vertexCount];
+        Vector4[] tangents = new Vector4[vertexCount];
+        Vector2[] uv = new Vector2[vertexCount];
+        Vector2[] uv1 = new Vector2[vertexCount];
+        Color[] colors = new Color[vertexCount];
+        int[] triangles = new int[triangleCount];
+        int[] strip = new int[stripCount];
+
+
+        int offset;
+
+        offset = 0;
+        for (int i = 0; i < combines.Length; i++)
+        {
+            if (combines[i].mesh != null)
+                Copy(combines[i].mesh.vertexCount, combines[i].mesh.vertices, vertices, ref offset, combines[i].transform);
+        }
+
+        offset = 0;
+        for (int i = 0; i < combines.Length; i++)
+        {
+            if (combines[i].mesh != null)
+            {
+                Matrix4x4 invTranspose = combines[i].transform;
+                invTranspose = invTranspose.inverse.transpose;
+                CopyNormal(combines[i].mesh.vertexCount, combines[i].mesh.normals, normals, ref offset, invTranspose);
+            }
+
+        }
+        offset = 0;
+        for (int i = 0; i < combines.Length; i++)
+        {
+            if (combines[i].mesh != null)
+            {
+                Matrix4x4 invTranspose = combines[i].transform;
+                invTranspose = invTranspose.inverse.transpose;
+                CopyTangents(combines[i].mesh.vertexCount, combines[i].mesh.tangents, tangents, ref offset, invTranspose);
+            }
+
+        }
+        offset = 0;
+        for (int i = 0; i < combines.Length; i++)
+        {
+            if (combines[i].mesh != null)
+                Copy(combines[i].mesh.vertexCount, combines[i].mesh.uv, uv, ref offset);
+        }
+
+        offset = 0;
+        for (int i = 0; i < combines.Length; i++)
+        {
+            if (combines[i].mesh)
+                Copy(combines[i].mesh.vertexCount, combines[i].mesh.uv2, uv1, ref offset);
+        }
+
+        offset = 0;
+        for (int i = 0; i < combines.Length; i++)
+        {
+            if (combines[i].mesh)
+                CopyColors(combines[i].mesh.vertexCount, combines[i].mesh.colors, colors, ref offset);
+        }
+
+        int triangleOffset = 0;
+        int stripOffset = 0;
+        int vertexOffset = 0;
+        for (int i = 0; i < combines.Length; i++)
+        {
+            if (combines[i].mesh)
+            {
+                if (generateStrips)
+                {
+                    int[] inputstrip = combines[i].mesh.GetTriangles(combines[i].subMeshIndex);
+                    if (stripOffset != 0)
+                    {
+                        if ((stripOffset & 1) == 1)
+                        {
+                            strip[stripOffset + 0] = strip[stripOffset - 1];
+                            strip[stripOffset + 1] = inputstrip[0] + vertexOffset;
+                            strip[stripOffset + 2] = inputstrip[0] + vertexOffset;
+                            stripOffset += 3;
+                        }
+                        else
+                        {
+                            strip[stripOffset + 0] = strip[stripOffset - 1];
+                            strip[stripOffset + 1] = inputstrip[0] + vertexOffset;
+                            stripOffset += 2;
+                        }
+                    }
+
+                    for (int j = 0; j < inputstrip.Length; j++)
+                    {
+                        strip[j + stripOffset] = inputstrip[j] + vertexOffset;
+                    }
+                    stripOffset += inputstrip.Length;
+                }
+                else
+                {
+                    int[] inputtriangles = combines[i].mesh.GetTriangles(combines[i].subMeshIndex);
+                    for (int j = 0; j < inputtriangles.Length; j++)
+                    {
+                        triangles[j + triangleOffset] = inputtriangles[j] + vertexOffset;
+                    }
+                    triangleOffset += inputtriangles.Length;
+                }
+
+                vertexOffset += combines[i].mesh.vertexCount;
+            }
+        }
+
+        Mesh mesh = new Mesh();
+        mesh.name = "Combined Mesh";
+        mesh.vertices = vertices;
+        mesh.normals = normals;
+        mesh.colors = colors;
+        mesh.uv = uv;
+        mesh.uv2 = uv1;
+        mesh.tangents = tangents;
+        if (generateStrips)
+            mesh.SetTriangles(strip, 0);
+        else
+            mesh.triangles = triangles;
+        return mesh;
+    }
+
+    public static Mesh CombineEx(MeshInstance[] combines, bool generateStrips, ref MeshElement element)
+    {
+        int vertexCount = 0;
+        int triangleCount = 0;
+        int stripCount = 0;
+        for (int i = 0; i < combines.Length; i++)
+        {
+            if (combines[i].mesh != null)
+            {
+                vertexCount += combines[i].mesh.vertexCount;
+
+                if (generateStrips)
+                {
+                    // SUBOPTIMAL FOR PERFORMANCE
+                    int curStripCount = combines[i].mesh.GetTriangles(combines[i].subMeshIndex).Length;
+                    if (curStripCount != 0)
+                    {
+                        if (stripCount != 0)
+                        {
+                            if ((stripCount & 1) == 1)
+                                stripCount += 3;
+                            else
+                                stripCount += 2;
+                        }
+                        stripCount += curStripCount;
+                    }
+                    else
+                    {
+                        generateStrips = false;
+                    }
+                }
+            }
+        }
+
+        // Precomputed how many triangles we need instead
+        //在save时，这些数据全部不需要改变，要改变的只有顶点的位置.
+        if (!generateStrips)
+        {
+            for (int i = 0; i < combines.Length; i++)
+            {
+                if (combines[i].mesh != null)
+                {
+                    triangleCount += combines[i].mesh.GetTriangles(combines[i].subMeshIndex).Length;
+                }
+            }
+        }
+
+        Vector3[] vertices = element.vertices;
+        Vector3[] normals = element.normals;
+        Vector4[] tangents = element.tangents;
+        Vector2[] uv = element.uv;
+        Vector2[] uv1 = element.uv1;
+        Color[] colors = element.colors;
+        int[] triangles = element.triangles;
+        int[] strip = element.strip;
+
+        int offset;
+
+        offset = 0;
+        for (int i = 0; i < combines.Length; i++)
+        {
+            if (combines[i].mesh != null)
+                Copy(combines[i].mesh.vertexCount, combines[i].mesh.vertices, vertices, ref offset, combines[i].transform);
+        }
+
+        //offset = 0;
+        //for (int i = 0; i < combines.Length; i++)
+        //{
+        //    if (combines[i].mesh != null)
+        //    {
+        //        Matrix4x4 invTranspose = combines[i].transform;
+        //        invTranspose = invTranspose.inverse.transpose;
+        //        CopyNormal(combines[i].mesh.vertexCount, combines[i].mesh.normals, normals, ref offset, invTranspose);
+        //    }
+
+        //}
+        //offset = 0;
+        //for (int i = 0; i < combines.Length; i++)
+        //{
+        //    if (combines[i].mesh != null)
+        //    {
+        //        Matrix4x4 invTranspose = combines[i].transform;
+        //        invTranspose = invTranspose.inverse.transpose;
+        //        CopyTangents(combines[i].mesh.vertexCount, combines[i].mesh.tangents, tangents, ref offset, invTranspose);
+        //    }
+
+        //}
+        //offset = 0;
+        //for (int i = 0; i < combines.Length; i++)
+        //{
+        //    if (combines[i].mesh != null)
+        //        Copy(combines[i].mesh.vertexCount, combines[i].mesh.uv, uv, ref offset);
+        //}
+
+        //offset = 0;
+        //for (int i = 0; i < combines.Length; i++)
+        //{
+        //    if (combines[i].mesh)
+        //        Copy(combines[i].mesh.vertexCount, combines[i].mesh.uv2, uv1, ref offset);
+        //}
+
+        //offset = 0;
+        //for (int i = 0; i < combines.Length; i++)
+        //{
+        //    if (combines[i].mesh)
+        //        CopyColors(combines[i].mesh.vertexCount, combines[i].mesh.colors, colors, ref offset);
+        //}
+
+        //int triangleOffset = 0;
+        //int stripOffset = 0;
+        //int vertexOffset = 0;
+        //for (int i = 0; i < combines.Length; i++)
+        //{
+        //    if (combines[i].mesh)
+        //    {
+        //        if (generateStrips)
+        //        {
+        //            int[] inputstrip = combines[i].mesh.GetTriangles(combines[i].subMeshIndex);
+        //            if (stripOffset != 0)
+        //            {
+        //                if ((stripOffset & 1) == 1)
+        //                {
+        //                    strip[stripOffset + 0] = strip[stripOffset - 1];
+        //                    strip[stripOffset + 1] = inputstrip[0] + vertexOffset;
+        //                    strip[stripOffset + 2] = inputstrip[0] + vertexOffset;
+        //                    stripOffset += 3;
+        //                }
+        //                else
+        //                {
+        //                    strip[stripOffset + 0] = strip[stripOffset - 1];
+        //                    strip[stripOffset + 1] = inputstrip[0] + vertexOffset;
+        //                    stripOffset += 2;
+        //                }
+        //            }
+
+        //            for (int j = 0; j < inputstrip.Length; j++)
+        //            {
+        //                strip[j + stripOffset] = inputstrip[j] + vertexOffset;
+        //            }
+        //            stripOffset += inputstrip.Length;
+        //        }
+        //        else
+        //        {
+        //            int[] inputtriangles = combines[i].mesh.GetTriangles(combines[i].subMeshIndex);
+        //            for (int j = 0; j < inputtriangles.Length; j++)
+        //            {
+        //                triangles[j + triangleOffset] = inputtriangles[j] + vertexOffset;
+        //            }
+        //            triangleOffset += inputtriangles.Length;
+        //        }
+
+        //        vertexOffset += combines[i].mesh.vertexCount;
+        //    }
+        //}
+
+        Mesh mesh = element.mesh;
+        mesh.vertices = vertices;
+        //mesh.normals = normals;
+        //mesh.colors = colors;
+        //mesh.uv = uv;
+        //mesh.uv2 = uv1;
+        //mesh.tangents = tangents;
+        //if (generateStrips)
+        //    mesh.SetTriangles(strip, 0);
+        //else
+        //    mesh.triangles = triangles;
+        return mesh;
+    }
+
+    static void Copy (int vertexcount, Vector3[] src, Vector3[] dst, ref int offset, Matrix4x4 transform)
 	{
 		for (int i=0;i<src.Length;i++)
 			dst[i+offset] = transform.MultiplyPoint(src[i]);

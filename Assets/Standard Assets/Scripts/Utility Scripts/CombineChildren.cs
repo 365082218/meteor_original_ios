@@ -19,9 +19,8 @@ public class CombineChildren : MonoBehaviour {
     Component[] filters;
     MeshCombineUtility.MeshElement element = null;
     MeshCombineUtility.MeshInstance[] instance;
-    
+    MeshFilter mf;
     Hashtable materialToMesh = new Hashtable();
-    GameObject combinedMesh;
     void Start () {
 		filters = GetComponentsInChildren(typeof(MeshFilter));
 		Matrix4x4 myTransform = transform.worldToLocalMatrix;
@@ -70,15 +69,16 @@ public class CombineChildren : MonoBehaviour {
 					gameObject.AddComponent<MeshRenderer>();
 	
 				MeshFilter filter = (MeshFilter)GetComponent(typeof(MeshFilter));
-				filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips, ref element);
+				filter.mesh = MeshCombineUtility.CombineFirst(instances, generateTriangleStrips, ref element);
 				GetComponent<Renderer>().material = (Material)de.Key;
 				GetComponent<Renderer>().enabled = true;
-			}
+                mf = filter;
+            }
 			// We have multiple materials to take care of, build one mesh / gameobject for each material
 			// and parent it to this object
 			else
 			{
-                combinedMesh = new GameObject("Combined mesh");
+                GameObject combinedMesh = new GameObject("Combined mesh");
                 combinedMesh.transform.parent = transform;
                 combinedMesh.transform.localScale = Vector3.one;
                 combinedMesh.transform.localRotation = Quaternion.identity;
@@ -87,30 +87,32 @@ public class CombineChildren : MonoBehaviour {
                 combinedMesh.AddComponent<MeshRenderer>();
                 combinedMesh.GetComponent<Renderer>().material = (Material)de.Key;
 				MeshFilter filter = (MeshFilter)combinedMesh.GetComponent(typeof(MeshFilter));
-				filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips, ref element);
+				filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips);
 			}
 		}	
 	}
 
+    //fmc动画，只能合并单材质球的多个对象，不能合并一系列材质球的混合对象.
     public void UpdateMesh()
     {
-        foreach (DictionaryEntry de in materialToMesh)
-        {
-            ArrayList elements = (ArrayList)de.Value;
-            MeshCombineUtility.MeshInstance[] instances = (MeshCombineUtility.MeshInstance[])elements.ToArray(typeof(MeshCombineUtility.MeshInstance));
-            for (int i = 0; i < instances.Length; i++)
-                instances[i].transform = transform.worldToLocalMatrix * filters[instances[i].childIdx].transform.localToWorldMatrix;
+        //return;
+        //foreach (DictionaryEntry de in materialToMesh)
+        //{
+        //    ArrayList elements = (ArrayList)de.Value;
+        //    MeshCombineUtility.MeshInstance[] instances = (MeshCombineUtility.MeshInstance[])elements.ToArray(typeof(MeshCombineUtility.MeshInstance));
+            for (int i = 0; i < instance.Length; i++)
+                instance[i].transform = transform.worldToLocalMatrix * filters[instance[i].childIdx].transform.localToWorldMatrix;
             // We have a maximum of one material, so just attach the mesh to our own game object
             if (materialToMesh.Count == 1)
             {
-                MeshFilter filter = (MeshFilter)GetComponent(typeof(MeshFilter));
-                filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips, ref element, true);
+                mf.mesh = MeshCombineUtility.CombineEx(instance, generateTriangleStrips, ref element);
             }
             else
             {
-                MeshFilter filter = (MeshFilter)combinedMesh.GetComponent(typeof(MeshFilter));
-                filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips, ref element, true);
+                Debug.LogError("FMCPlayer Mesh Can not ");
+                //MeshFilter filter = (MeshFilter)combinedMesh.GetComponent(typeof(MeshFilter));
+                //filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips, ref element, true);
             }
-        }
+        //}
     }
 }

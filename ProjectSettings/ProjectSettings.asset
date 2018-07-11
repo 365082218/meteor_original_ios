@@ -120,7 +120,7 @@ PlayerSettings:
     16:9: 1
     Others: 1
   bundleIdentifier: com.Idevgame.Meteor
-  bundleVersion: 0.0.7.1
+  bundleVersion: 0.0.7.4
   preloadedAssets: []
   metroInputSource: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -199,8 +199,8 @@ PlayerSettings:
   AndroidTargetDevice: 0
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 2800000, guid: 02fccc993207dd547aaa52b069fee0e2, type: 3}
-  AndroidKeystoreName: 
-  AndroidKeyaliasName: 
+  AndroidKeystoreName: F:/github/meteor_original_ios/meteor_android.keystore
+  AndroidKeyaliasName: idevgame.com
   AndroidTVCompatibility: 0
   AndroidIsGame: 1
   androidEnableBanner: 1
@@ -473,7 +473,7 @@ PlayerSettings:
   scriptingDefineSymbols:
     1: BUILD_PC
     4: BUILD_PC
-    7: NOLOG
+    7: NOLOG;STRIP_DBG_SETTING
   platformArchitecture:
     iOS: 2
   scriptingBackend:
