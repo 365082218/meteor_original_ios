@@ -35,4 +35,9 @@ public class ManyHeroTest : MonoBehaviour {
             heroUnit[i].GetComponent<WeaponLoaderEx>().EquipWeapon();
         }
     }
+
+    public void GetOut()
+    {
+        U3D.GoBack();
+    }
 }

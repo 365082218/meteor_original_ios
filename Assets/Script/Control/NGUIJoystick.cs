@@ -140,7 +140,7 @@ public class NGUIJoystick : MonoBehaviour
             isPress = mJoyPressed = pressed;
             if (pressed)
             {
-                Debug.Log("NGUIJoystick OnPress");
+                //Debug.Log("NGUIJoystick OnPress");
                 EnableArrowButton(false);
                 JoyCollider.size = new Vector3(400, 400);
                 background.gameObject.SetActive(true);

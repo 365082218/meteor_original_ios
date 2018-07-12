@@ -36,8 +36,8 @@ public class PathMng:Singleton<PathMng>
             {
                 return (WalkType)Global.GLevelItem.wayPoint[start].link[end].mode;
             }
-            else
-                Debug.LogError(string.Format("{0}-{1} can not link", start, end));
+            //else
+            //    Debug.LogError(string.Format("{0}-{1} can not link", start, end));
         }
         return WalkType.Normal;
     }
@@ -51,6 +51,7 @@ public class PathMng:Singleton<PathMng>
     public List<WayPoint> FindShortPath(int start, int end)
     {
         //全路径搜索，得到最短路径
+        //Debug.Log(string.Format("start:{0}:end:{1}", start, end));
         int kMin = 0;
         List<WayPoint> ret = new List<WayPoint>();
         if (Global.GLevelItem.wayPoint[start].link.ContainsKey(end))
@@ -110,6 +111,7 @@ public class PathMng:Singleton<PathMng>
     {
         if (looked.Contains(start))
             return null;
+        //Debug.Log(string.Format("start:{0}:end:{1}", start, end));
         looked.Add(start);
         List<WayPoint> path = new List<WayPoint>();
         if (start == -1 || end == -1)
@@ -151,12 +153,12 @@ public class PathMng:Singleton<PathMng>
                 PathInfo.Add(0, new List<PathNode>() { no });
                 CollectPathInfo(start, end);
 
-                foreach (var each in PathInfo)
-                {
-                    Debug.Log(string.Format("layer:{0}", each.Key));
-                    for (int i = 0; i < each.Value.Count; i++)
-                        Debug.Log(string.Format("{0}", each.Value[i].wayPointIdx));
-                }
+                //foreach (var each in PathInfo)
+                //{
+                //    Debug.Log(string.Format("layer:{0}", each.Key));
+                //    for (int i = 0; i < each.Value.Count; i++)
+                //        Debug.Log(string.Format("{0}", each.Value[i].wayPointIdx));
+                //}
 
                 //计算最短路径.从A-B，路径越少，越短，2边之和大于第3边
                 int target = end;

@@ -31,6 +31,10 @@ public class MeteorUnitDebug : MonoBehaviour
         Init(UnitId < 0 ? 0:UnitId);
     }
 
+    public void GetOut()
+    {
+        U3D.GoBack();
+    }
 
     // Update is called once per frame
     void Update()

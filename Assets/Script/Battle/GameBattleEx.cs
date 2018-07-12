@@ -5,7 +5,7 @@ using CoClass;
 
 //负责战斗中相机的位置指定之类，主角色目标组作为摄像机 视锥体范围，参考Tank教程里的简单相机控制
 //负责战斗场景内位置间的寻路缓存
-public class GameBattleEx : MonoBehaviour {
+public partial class GameBattleEx : MonoBehaviour {
     [HideInInspector]
     public CameraFollow m_CameraControl;
     int time = 1000;
@@ -17,11 +17,17 @@ public class GameBattleEx : MonoBehaviour {
     // Use this for initialization
     void Awake()
     {
+#if !STRIP_DBG_SETTING
+        WSDebug.Ins.AddDebuggableObject(this);
+#endif
         _Ins = this;
     }
 
     private void OnDestroy()
     {
+#if !STRIP_DBG_SETTING
+        WSDebug.Ins.RemoveDebuggableObject(this);
+#endif
         StopAllCoroutines();
         _Ins = null;
     }
@@ -59,7 +65,7 @@ public class GameBattleEx : MonoBehaviour {
         if (NGUIJoystick.instance)
             NGUIJoystick.instance.Lock(true);
         //如果胜利，且不是最后一关，打开最新关标志.
-        if (result == 1 && GameData.gameStatus.Level < 9 && Global.GLevelItem.ID + 1 > GameData.gameStatus.Level)
+        if (result == 1 && GameData.gameStatus.Level < LevelMng.Instance.GetAllItem().Length - 1 && Global.GLevelItem.ID + 1 > GameData.gameStatus.Level)
             GameData.gameStatus.Level = Global.GLevelItem.ID + 1;
         Global.PauseAll = true;
         Invoke("PlayEndMovie", 5.0f);
