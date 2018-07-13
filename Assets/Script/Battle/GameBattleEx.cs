@@ -26,7 +26,8 @@ public partial class GameBattleEx : MonoBehaviour {
     private void OnDestroy()
     {
 #if !STRIP_DBG_SETTING
-        WSDebug.Ins.RemoveDebuggableObject(this);
+        if (WSDebug.Ins != null)
+            WSDebug.Ins.RemoveDebuggableObject(this);
 #endif
         StopAllCoroutines();
         _Ins = null;

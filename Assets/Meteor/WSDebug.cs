@@ -30,12 +30,26 @@ public class WSDebug : MonoBehaviour {
     public static WSDebug Ins = null;
     bool Opened;
     void Awake() {
-        if (Ins == null)
-            Ins = this;
+        Ins = this;
         Opened = false;
+        HiDebug.SetFontSize(35);
     }
     void OnDestroy() {
         Ins = null;
+    }
+
+    bool logOpend = false;
+    HiDebugView logView = null;
+    public void OpenLogView()
+    {
+        logOpend = !logOpend;
+        HiDebug.EnableOnText(logOpend);
+        HiDebug.EnableOnScreen(logOpend);
+        HiDebug.EnableDebuger(logOpend);
+        if (logView == null)
+            logView = FindObjectOfType<HiDebugView>();
+        if (logView != null)
+            logView.enabled = logOpend;
     }
 
     public void OpenGUIDebug()

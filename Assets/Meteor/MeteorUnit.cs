@@ -1400,7 +1400,7 @@ public partial class MeteorUnit : MonoBehaviour
                     ProcessFall();
                 }
             }
-            else if (OnTouchWall && Floating)//贴墙浮空，被墙壁推开
+            else if (OnTouchWall && Floating && Time.timeSinceLevelLoad - floatTick >= 0.75f)//贴墙浮空，被墙壁推开
             {
                 if (posMng.mActiveAction.Idx == CommonAction.Idle ||
                     posMng.mActiveAction.Idx == CommonAction.WalkLeft ||
@@ -1422,7 +1422,7 @@ public partial class MeteorUnit : MonoBehaviour
                     floatTick = Time.timeSinceLevelLoad;
                 }
             }
-            else if (Floating)
+            else if (Floating && Time.timeSinceLevelLoad - floatTick >= 0.75f)
             {
                 //Debug.LogError("在地面-但是角色底部浮空推开");
                 ProcessFall(0.75f);
@@ -1548,6 +1548,7 @@ public partial class MeteorUnit : MonoBehaviour
                     posMng.mActiveAction.Idx >= CommonAction.DCForw && posMng.mActiveAction.Idx <= CommonAction.DCBack)
                 {
                     //Debug.LogError("浮空-落地");
+                    AddYVelocity(-100);//让他快速一点落地
                     posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
                     //看是否被物件推开
                     ProcessFall();
