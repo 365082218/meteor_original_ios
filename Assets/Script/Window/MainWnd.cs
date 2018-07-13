@@ -19,6 +19,50 @@ public class GunShootUI:Window<GunShootUI>
     }
 }
 
+public class WorldTemplateWnd : Window<WorldTemplateWnd>
+{
+    public override string PrefabName
+    {
+        get
+        {
+            return "WorldTemplate";
+        }
+    }
+
+    protected override bool OnOpen()
+    {
+        Init();
+        return base.OnOpen();
+    }
+
+    void Init()
+    {
+        Control("CreateWorld").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            OnCreateWorld();
+        });
+        //Control("CreateRoom").GetComponent<Button>().onClick.AddListener(() =>
+        //{
+        //    OnCreateRoom();
+        //});
+        //Control("Refresh").GetComponent<Button>().onClick.AddListener(() =>
+        //{
+        //    OnRefresh();
+        //});
+        //Control("Close").GetComponent<Button>().onClick.AddListener(() =>
+        //{
+        //    OnGoback();
+        //});
+        //RoomRoot = Control("RoomRoot");
+        //ClientProxy.Init();
+    }
+
+    void OnCreateWorld()
+    {
+
+    }
+}
+
 public class MainLobby : Window<MainLobby>
 {
     public override string PrefabName { get { return "MainLobby"; } }
@@ -48,6 +92,7 @@ public class MainLobby : Window<MainLobby>
         for (int i = 0; i < cnt; i++)
             InsertRoomItem(rsp.RoomInLobby[i], prefab);
     }
+
     string[] ruleS = new string[3] { "盟主", "死斗", "暗杀" };
     public void InsertRoomItem(RoomInfo room, GameObject prefab)
     {
@@ -122,7 +167,7 @@ public class MainLobby : Window<MainLobby>
 
     void OnCreateRoom()
     {
-
+        WorldTemplateWnd.Instance.Open();
     }
 
     void OnJoinRoom()

@@ -221,6 +221,11 @@ public class MeteorAI {
                     if (curIndex == -1)
                         targetIndex = 0;
 
+                    if (targetIndex >= FollowPath.Count)
+                    {
+                        UnityEngine.Debug.LogError(string.Format("targetIndex:{0}, FollowPath:{1}", targetIndex, FollowPath.Count));
+                        Debug.DebugBreak();
+                    }
                     Assert.IsTrue(targetIndex < FollowPath.Count);
                     dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(FollowPath[targetIndex].pos.x, 0, FollowPath[targetIndex].pos.z));
                     if (dis <= owner.Speed * Time.deltaTime * 0.13f)
