@@ -440,6 +440,7 @@ public class SFXLoader :Singleton<SFXLoader>{
             return PlayEffect(Eff[idx], obj, once);
         return null;
     }
+
     //一些环境特效，例如风之类的音效.
     public SFXEffectPlay PlayEffect(string file, GameObject obj, bool once = false)
     {
@@ -532,9 +533,9 @@ public class SFXLoader :Singleton<SFXLoader>{
         }
     }
 
-    int total = 0;
+    public int TotalSfx = 0;
     public int Miss = 0;
-    string[] Eff;
+    public string[] Eff;
     public void Init()
     {
         TextAsset list = Resources.Load<TextAsset>("effect.lst");
@@ -550,6 +551,6 @@ public class SFXLoader :Singleton<SFXLoader>{
         //{
 
         //}
-        total = Eff.Length;
+        TotalSfx = Eff.Length;
     }
 }

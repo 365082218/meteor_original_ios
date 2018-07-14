@@ -2643,12 +2643,11 @@ public class LevelScript_sn04: LevelScriptBase
 
     public override void Scene_OnLoad()
     {
-
-        //SetScene("snow", 1);
-        //SetScene("snowdensity", 200);
-        //SetScene("winddir", 50, 0, 0);
-        //SetScene("snowspeed", 20, 100);
-        //SetScene("snowsize", 5, 5);
+        //SetScene("snow", 1);//雪粒子
+        //SetScene("snowdensity", 200);//粒子密度
+        //SetScene("winddir", 50, 0, 0);//风方向
+        //SetScene("snowspeed", 20, 100);//雪速度
+        //SetScene("snowsize", 5, 5);//粒子尺寸
 
         string name;
         int i;
