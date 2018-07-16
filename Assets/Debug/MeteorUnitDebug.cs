@@ -2,18 +2,9 @@
 using System.Collections;
 using CoClass;
 using System.Collections.Generic;
-public class MeteorUnitDebug : MonoBehaviour
+public class MeteorUnitDebug : MeteorUnit
 {
-    public int UnitId;
-    public Transform WeaponL;//右手骨骼
-    public Transform WeaponR;
-    public Transform ROOTNull;
-    public Transform RootdBase;
     public Transform CameraTarget;
-    public EUnitCamp Camp = EUnitCamp.EUC_FRIEND;
-    public PoseStatusDebug posMng;
-    CharacterLoaderDebug charLoader;
-    public WeaponLoaderEx weaponLoader;
     //Vector3 mPosition;
     //int mCacheLayerMask;
 
@@ -21,9 +12,13 @@ public class MeteorUnitDebug : MonoBehaviour
     {
     }
 
+    public override bool IsDebugUnit() { return true; }
 
     void Start()
     {
+        Attr = new MonsterEx();
+        Attr.InitPlayer(null);
+        IgnoreGravity = true;
         if (charLoader != null)
             return;
         UnitId %= 20;
@@ -37,8 +32,10 @@ public class MeteorUnitDebug : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    public void Update()
     {
+        charLoader.CharacterUpdate();
+        ProcessGravity();
     }
 
     //计算重力作用下的运动方向以及位移
@@ -49,32 +46,32 @@ public class MeteorUnitDebug : MonoBehaviour
     {
         tag = "meteorUnit";
         UnitId = modelIdx; 
-        charLoader = GetComponent<CharacterLoaderDebug>();
+        charLoader = GetComponent<CharacterLoader>();
         if (charLoader == null)
-            charLoader = gameObject.AddComponent<CharacterLoaderDebug>();
-        posMng = GetComponent<PoseStatusDebug>();
+            charLoader = gameObject.AddComponent<CharacterLoader>();
+        //posMng = GetComponent<PoseStatus>();
         if (posMng == null)
-            posMng = gameObject.AddComponent<PoseStatusDebug>();
+            posMng = new PoseStatus();
 
         charLoader.LoadCharactor(UnitId);
-        posMng.Init();
+        posMng.Init(this);
         WeaponR = Global.ldaControlX("d_wpnR", charLoader.rootBone.gameObject).transform;
         WeaponL = Global.ldaControlX("d_wpnL", charLoader.rootBone.gameObject).transform;
         ROOTNull = Global.ldaControlX("b", gameObject).transform;
         RootdBase = charLoader.rootBone;
         CameraTarget = RootdBase;
-        weaponLoader = gameObject.GetComponent<WeaponLoaderEx>();
+        weaponLoader = gameObject.GetComponent<WeaponLoader>();
         if (weaponLoader == null)
-            weaponLoader = gameObject.AddComponent<WeaponLoaderEx>();
-        weaponLoader.Init();
+            weaponLoader = gameObject.AddComponent<WeaponLoader>();
+        weaponLoader.Init(this);
         posMng.ChangeAction();
         WsGlobal.SetObjectLayer(gameObject, gameObject.layer);
-        //charController = gameObject.AddComponent<CharacterController>();
-        //charController.center = new Vector3(0, 18.0f, 0);
-        //charController.height = 36.0f;
-        //charController.radius = 8.0f;
-        //charController.stepOffset = 8.0f;
-        //mPosition = transform.position;
+        charController = gameObject.AddComponent<CharacterController>();
+        charController.center = new Vector3(0, 17.8f, 0);
+        charController.height = 36.0f;
+        charController.radius = 8.0f;
+        charController.stepOffset = 7.8f;
+        //mPos = transform.position;
         //for (int i = 0; i < 32; i++)
         //{
         //    if (LayerMask.LayerToName(i) == "LocalPlayer")
@@ -86,5 +83,10 @@ public class MeteorUnitDebug : MonoBehaviour
         //    if (!Physics.GetIgnoreLayerCollision(gameObject.layer, i))
         //        mCacheLayerMask |= (1 << i);
         //}
+    }
+
+    public void Jump()
+    {
+        posMng.ChangeAction(CommonAction.Jump);
     }
 }

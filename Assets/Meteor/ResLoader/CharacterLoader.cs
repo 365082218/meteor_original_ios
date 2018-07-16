@@ -79,7 +79,7 @@ public class CharacterLoader : MonoBehaviour
 
     public PoseStatus posMng;
     public MeteorUnit owner;
-    public MeteorUnit mOwner { get { return owner; }}
+    public MeteorUnit mOwner { get { return owner; } }
     void Awake()
     {
 
@@ -128,7 +128,7 @@ public class CharacterLoader : MonoBehaviour
     {
         GameObject meshTrace = new GameObject("Trace");
         string[] bonesBatch = new string[] { "bau_L_Hand", "bau_R_Hand" };//子节点作为AABB盒合并的
-        string[] bonesIgnore = new string[] { "bad_Pelvis", "bau_Neck" , "bau_L_Clavicle", "bau_R_Clavicle" };//忽略的
+        string[] bonesIgnore = new string[] { "bad_Pelvis", "bau_Neck", "bau_L_Clavicle", "bau_R_Clavicle" };//忽略的
         List<Transform> tr = new List<Transform>();
         List<Transform> ig = new List<Transform>();
         for (int i = 0; i < bonesBatch.Length; i++)
@@ -399,6 +399,10 @@ public class CharacterLoader : MonoBehaviour
         }
 
         bool IgnoreActionMoves = IgnoreActionMove(po.Idx);
+        if (owner.IsDebugUnit())
+        {
+            IgnoreActionMoves = false;
+        }
         for (int i = 0; i < dummy.Count; i++)
         {
             if (i == 0)
@@ -597,6 +601,10 @@ public class CharacterLoader : MonoBehaviour
         }
 
         bool IgnoreActionMoves = IgnoreActionMove(po.Idx);
+        if (owner.IsDebugUnit())
+        {
+            IgnoreActionMoves = false;
+        }
         for (int i = 0; i < dummy.Count; i++)
         {
             if (i == 0)

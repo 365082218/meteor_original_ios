@@ -254,6 +254,7 @@ public class Buff
 
 public partial class MeteorUnit : MonoBehaviour
 {
+    public virtual bool IsDebugUnit() { return false; }
     public int UnitId;
     public int InstanceId;
     public int Action { get { return posMng.mActiveAction.Idx; } }
@@ -771,6 +772,12 @@ public partial class MeteorUnit : MonoBehaviour
 
     public void ProcessGravity()
     {
+        if (IsDebugUnit())
+        {
+            //Debug.Log(charLoader.moveDelta);
+            Move(charLoader.moveDelta);
+            return;
+        }
         //计算运动方向
         //角色forward指向人物背面
         //根据角色状态计算重力大小，在墙壁，空中，以及空中水平轴的阻力
@@ -1142,6 +1149,8 @@ public partial class MeteorUnit : MonoBehaviour
 
     public int CalcSpeed()
     {
+        if (weaponLoader == null || weaponLoader.GetCurrentWeapon() == null || weaponLoader.GetCurrentWeapon().Info() == null)
+            return 0;
         return weaponLoader.GetCurrentWeapon().Info().Speed;
     }
 
@@ -1574,12 +1583,12 @@ public partial class MeteorUnit : MonoBehaviour
             if (MoveOnGroundEx || OnGround)
             {
                 //接触地面就切换.
-                if ((posMng.mActiveAction.Idx >= CommonAction.Jump && posMng.mActiveAction.Idx <= CommonAction.JumpBackFall) || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
-                {
-                    posMng.ChangeAction(0, 0.1f);
-                    Debug.LogError("接触地面切换到IDle");
-                }
-                ResetYVelocity();
+                //if ((posMng.mActiveAction.Idx >= CommonAction.Jump && posMng.mActiveAction.Idx <= CommonAction.JumpBackFall) || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
+                //{
+                //    posMng.ChangeAction(0, 0.1f);
+                //    Debug.LogError("接触地面切换到IDle");
+                //}
+                //ResetYVelocity();
             }
         }
 
@@ -1598,7 +1607,10 @@ public partial class MeteorUnit : MonoBehaviour
             CollisionFlags collisionFlags = charController.Move(trans);
             UpdateFlags(collisionFlags);
         }
-
+        else
+        {
+            transform.position += trans;
+        }
         if (FightWnd.Exist)
             FightWnd.Instance.PlayerMoveNotify(transform, Camp, Attr.IsPlayer);
         //if (maxHeight < transform.position.y)

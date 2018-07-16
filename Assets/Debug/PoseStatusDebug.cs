@@ -55,7 +55,7 @@ public class PoseStatusDebug : MonoBehaviour
     public void Init()
     {
         _Self = GetComponent<MeteorUnitDebug>();
-        load = GetComponent<CharacterLoaderDebug>();
+        load = GetComponent<CharacterLoader>();
         UnitId = _Self == null ? 0 : _Self.UnitId;
         CanMove = CanRotate = CanAttack = CanJump = CanDefence = CanSkill = CanChangeWeapon = true;
         if (!PosFile.ContainsKey(UnitId))
@@ -139,8 +139,8 @@ public class PoseStatusDebug : MonoBehaviour
         CanControl = CanSkill = CanRotate = CanMove = CanJump = CanDefence = CanChangeWeapon = false;
     }
     //根据动作号开始动画.
-    public CharacterLoaderDebug AnimalCtrlEx { get { return load; } }
-    CharacterLoaderDebug load;
+    public CharacterLoader AnimalCtrlEx { get { return load; } }
+    CharacterLoader load;
     //动作在地面还是空中
     //动作是移动 防守 还是攻击 受伤 待机 
     public void ChangeAction(int idx = CommonAction.Idle)

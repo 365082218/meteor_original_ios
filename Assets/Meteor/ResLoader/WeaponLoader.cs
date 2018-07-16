@@ -14,6 +14,9 @@ public class WeaponLoader : MonoBehaviour {
     Transform RP;//武器父
     Transform L;//武器
     Transform R;//武器
+    public string StrWeaponR;
+    public string StrWeaponL;
+
     public void Update()
     {
         
@@ -105,6 +108,11 @@ public class WeaponLoader : MonoBehaviour {
             UnEquipWeapon();
             EquipWeapon(curWeapon);
         }
+
+    }
+
+    public void EquipWeapon()
+    {
 
     }
     //把背包里的物品，装备到身上.

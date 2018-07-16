@@ -149,6 +149,7 @@ public class PoseStatus
         }
     }
 
+
     public void Init(MeteorUnit owner)
     {
         _Self = owner;

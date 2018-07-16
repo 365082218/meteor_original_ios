@@ -29,6 +29,7 @@ FuBenID	Scene	Name	LevelType	sceneItems	BgmName	BgTexture	Pass	Param
 27	SingleHero	单角色FPS测试	1	test	S11		1
 28	ManyHero	多角色FPS测试	1	test	S11		1
 29	Meteor_14	炎硫岛	0	sn26	S1	scene1	1	
+30	DebugJump	单角色条约测试	1	test	S11		1
 								
 								
 								
