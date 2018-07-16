@@ -15,15 +15,22 @@ class SceneMng
     }
 
     //指明进入一张地图,地图上所有的道具，建筑，陷阱，传送门，Npc,怪物,障碍物都需要保存下来，以便下次进入场景恢复
-    public static void OnEnterLevel(int level)
+    public static void OnEnterLevel(LevelScriptBase levelscript, int level)
     {
         Level lev = LevelMng.Instance.GetItem(level);
+        string sceneItems = lev.sceneItems;
+        string des = levelscript.GetDesName();//用脚本设定的场景物品列表代替默认场景物品列表
+        if (!string.IsNullOrEmpty(des))
+            sceneItems = des;
+
+        if (string.IsNullOrEmpty(sceneItems))
+            Debug.LogError(string.Format("{0} can not find sceneItems", lev.Name));
         //加载地图上无论如何都固有的环境,类似瀑布水流声，一些配置点，d_user d_team等
         //Loader load = GameObject.FindObjectOfType<Loader>();
         if (Loader.Instance != null)
         {
-            Loader.Instance.LoadFixedScene(lev);
-            Loader.Instance.LoadDynamicTrigger(lev);
+            Loader.Instance.LoadFixedScene(sceneItems);
+            Loader.Instance.LoadDynamicTrigger(sceneItems);
         }
         else
         {

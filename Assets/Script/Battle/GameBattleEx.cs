@@ -74,9 +74,9 @@ public partial class GameBattleEx : MonoBehaviour {
 
     void PlayEndMovie()
     {
-        if (!string.IsNullOrEmpty(Global.GLevelItem.goodList))
+        if (!string.IsNullOrEmpty(Global.GLevelItem.sceneItems))
         {
-            string num = Global.GLevelItem.goodList.Substring(2);
+            string num = Global.GLevelItem.sceneItems.Substring(2);
             int number = 0;
             if (int.TryParse(num, out number))
             {
@@ -1133,7 +1133,10 @@ public class ActionConfig
                 if (unit != null && unit.robot != null)
                 {
                     unit.robot.SetPatrolPath(action[action.Count - 1].Path);
-                    unit.robot.ChangeState(EAIStatus.GotoPatrol);
+                    if (action[action.Count - 1].Path.Count == 1)
+                        unit.robot.ChangeState(EAIStatus.PatrolInPlace);//只有一个巡逻点时，单点巡逻，随机四处张望.
+                    else
+                        unit.robot.ChangeState(EAIStatus.GotoPatrol);
                 }
                 action.RemoveAt(action.Count - 1);
             }

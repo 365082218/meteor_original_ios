@@ -14,7 +14,10 @@ public class WeaponLoader : MonoBehaviour {
     Transform RP;//武器父
     Transform L;//武器
     Transform R;//武器
-
+    public void Update()
+    {
+        
+    }
     //主要是用来隐藏飞轮
     public void HideWeapon()
     {

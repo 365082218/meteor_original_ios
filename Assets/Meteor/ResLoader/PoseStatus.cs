@@ -365,9 +365,14 @@ public class PoseStatus
                     if (mActiveAction.Link != 0)
                     {
                         if (mActiveAction.Next != null)
-                            ChangeAction(mActiveAction.Link, 0.1f);
+                            ChangeAction(mActiveAction.Link, mActiveAction.Next.Time);
                         else
-                            ChangeAction(mActiveAction.Link);
+                        {
+                            if (mActiveAction.Link == CommonAction.JumpFall)
+                                ChangeAction(mActiveAction.Link, 1.0f / 60.0f);
+                            else
+                                ChangeAction(mActiveAction.Link, 0.2f);
+                        }
                     }
                     else
                     {
@@ -610,6 +615,7 @@ public class PoseStatus
                 else if (_Self.robot == null)
                     _Self.FaceToTarget(_Self.GetLockedTarget());
             }
+            Debug.Log(string.Format("play action:{0}", idx));
             load.SetPosData(ActionList[UnitId][idx], time, false, targetFrame);
             mActiveAction = ActionList[UnitId][idx];
             LinkInput.Clear();

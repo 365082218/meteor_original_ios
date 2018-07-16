@@ -485,14 +485,14 @@ shader 1
     public void LoadMap(int level)
     {
         Level lev = LevelMng.Instance.GetItem(level);
-        DesFile des = DesLoader.Instance.Load(lev.goodList);
-        GMBFile gmb = GMBLoader.Instance.Load(lev.goodList);
+        DesFile des = DesLoader.Instance.Load(lev.sceneItems);
+        GMBFile gmb = GMBLoader.Instance.Load(lev.sceneItems);
         if (lev == null || des == null || gmb == null)
         {
             Debug.LogError("can not find");
             return;
         }
-        LoadDesMap(lev.goodList);
+        LoadDesMap(lev.sceneItems);
         return;
         //return;
         bool generateFile = true;

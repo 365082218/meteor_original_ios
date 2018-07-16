@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 /**
+ * 作者：林德安
  * 挂在动作节点上即可
  * 目前只支持max导出的Legacy动画--Animation
  * 通过K帧做出来的Mecanim动画--Animator暂时不行

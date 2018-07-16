@@ -44,7 +44,7 @@ Shader "XDYX/Fan2DTest"
                 v2f vert (appdata v)
                 {
                     v2f o;
-                    o.pos = UnityObjectToClipPos(v.vertex);
+					o.pos = mul(UNITY_MATRIX_MVP, v.vertex);// UnityObjectToClipPos(v.vertex);
                     o.uv = v.texcoord.xy;
                     return o;
                 }

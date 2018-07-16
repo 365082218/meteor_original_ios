@@ -444,6 +444,7 @@ public class SFXLoader :Singleton<SFXLoader>{
     //一些环境特效，例如风之类的音效.
     public SFXEffectPlay PlayEffect(string file, GameObject obj, bool once = false)
     {
+        Debug.Log(string.Format("playEffect:{0}", file));
         if (!EffectList.ContainsKey(file))
         {
             SfxFile f = new SfxFile();
