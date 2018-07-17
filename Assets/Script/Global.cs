@@ -16,7 +16,6 @@ public class Global
     public static int CampASpawnIndex;
     public static int CampBSpawnIndex;
     public static int SpawnIndex;
-    public static LevelScriptBase GScript;
     public static System.Random Rand = new System.Random((int)DateTime.Now.ToFileTime());
 	static bool mPauseAll ;
     public static bool PauseAll

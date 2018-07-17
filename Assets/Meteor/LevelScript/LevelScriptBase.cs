@@ -992,7 +992,6 @@ public class LevelScriptBase:ScriptBase {
     public virtual int GetPlayerMaxHp() { return 1000; }
     public virtual int GetPlayerModel() { return 0; }
     public virtual string GetPlayerName() { return "孟星魂"; }
-    public virtual string GetDesName() { return ""; }
     //负责关卡剧本等
     public virtual void OnStart() { }
     public virtual int OnUpdate() { return 0; }
@@ -8417,68 +8416,6 @@ public class LevelScript_sn25 : LevelScriptBase
     }
 
 
-}
-
-//炎硫岛原点寻路测试.
-public class LevelScript_sn26 : LevelScriptBase
-{
-    public override int GetRule() { return Rule; }
-    public override int GetRoundTime() { return RoundTime; }
-    public override int GetPlayerSpawn() { return PlayerSpawn; }
-    public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
-    public override int GetPlayerWeapon() { return PlayerWeapon; }
-    public override int GetPlayerWeapon2() { return PlayerWeapon2; }
-    public override int GetPlayerMaxHp() { return PlayerHP; }
-    public override string GetDesName()
-    {
-        return "sn14";
-    }
-    int Rule = 10;
-    int RoundTime = 10;
-    int PlayerSpawn = 34;
-    int PlayerSpawnDir = 0;
-    int PlayerWeapon = 6;
-    int PlayerWeapon2 = 0;
-    int PlayerHP = 1000;
-
-    public override void OnStart()
-    {
-        AddNPC("npc14_01");
-    }
-
-    int trg0 = 0;
-    public override int OnUpdate()
-    {
-        int player = GetChar("player");
-        if (player < 0)
-        {
-            return 0;
-        }
-
-        int c;
-        if (trg0 == 0)
-        {
-            c = GetChar("大刀哨兵");
-            if (c >= 0)
-            {
-                ChangeBehavior(c, "patrol", 0);
-                Perform(c, "say", "好呗，开始寻路﹒﹒");
-                trg0 = 1;
-            }
-        }
-        return 1;
-    }
-
-    public override void Scene_OnLoad()
-    {
-
-    }
-
-    public override void Scene_OnInit()
-    {
-
-
-    }
 }
 
 public abstract class AIScriptBase

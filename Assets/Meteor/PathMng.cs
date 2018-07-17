@@ -48,6 +48,64 @@ public class PathMng:Singleton<PathMng>
         return FindPathCore(start, end);
     }
 
+    public List<WayPoint> FindShortPath(int start, int end)
+    {
+        //全路径搜索，得到最短路径
+        //Debug.Log(string.Format("start:{0}:end:{1}", start, end));
+        int kMin = 0;
+        List<WayPoint> ret = new List<WayPoint>();
+        if (Global.GLevelItem.wayPoint[start].link.ContainsKey(end))
+        {
+            ret.Add(Global.GLevelItem.wayPoint[start]);
+            ret.Add(Global.GLevelItem.wayPoint[end]);
+            return ret;
+        }
+
+        foreach (var each in Global.GLevelItem.wayPoint[start].link)
+        {
+            int v = 0;
+            List<int> scan = new List<int>();
+            List<WayPoint> r = FindPath3(each.Key, end, ref v, ref scan);
+            if (v < kMin)
+            {
+                kMin = v;
+                ret = r;
+            }
+        }
+        return ret;
+    }
+
+    List<WayPoint> FindPath3(int start, int end, ref int v, ref List<int> scan)
+    {
+        int kMin = 0;
+        if (scan.Contains(start))
+        {
+            v += 0;
+            return null;
+        }
+        scan.Add(start);
+        List<WayPoint> ret = new List<WayPoint>();
+        if (Global.GLevelItem.wayPoint[start].link.ContainsKey(end))
+        {
+            ret.Add(Global.GLevelItem.wayPoint[start]);
+            ret.Add(Global.GLevelItem.wayPoint[end]);
+            v += 0;
+            return ret;
+        }
+        foreach (var each in Global.GLevelItem.wayPoint[start].link)
+        {
+            int k = 0;
+            List<WayPoint> r = FindPath3(each.Key, end, ref v, ref scan);
+            if (k < kMin)
+            {
+                kMin = k;
+                ret = r;
+            }
+        }
+        v += kMin;
+        return ret;
+    }
+
     SortedDictionary<int, List<PathNode>> PathInfo = new SortedDictionary<int, List<PathNode>>();
     List<WayPoint> FindPathCore(int start, int end)
     {

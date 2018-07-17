@@ -1118,7 +1118,7 @@ public class MeteorInput
     {
         if (mOwner.controller.InputLocked && !KeyStates[(int)key].IsAI)
             return;
-        Debug.Log(string.Format("Character:{0} - OnKeyUp key:{1}", mOwner.name, key));
+        //WSLog.LogInfo("OnKeyUp key:" + key);
         OnKeyUp(KeyStates[(int)key]);
     }
 

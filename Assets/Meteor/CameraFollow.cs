@@ -250,11 +250,11 @@ public class CameraFollow : MonoBehaviour {
         else
         {
             //没有缓动
-            cameraLookAt = new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, MeteorManager.Instance.LocalPlayer.transform.position.y + BodyHeight, MeteorManager.Instance.LocalPlayer.mPos.z);//朝向焦点
-            newPos = cameraLookAt + MeteorManager.Instance.LocalPlayer.transform.forward * followDistance + new Vector3(0, followHeight, 0);
-            transform.position = newPos;
-            transform.LookAt(cameraLookAt);
-            return;
+            //cameraLookAt = new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, MeteorManager.Instance.LocalPlayer.transform.position.y + BodyHeight, MeteorManager.Instance.LocalPlayer.mPos.z);//朝向焦点
+            //newPos = cameraLookAt + MeteorManager.Instance.LocalPlayer.transform.forward * followDistance + new Vector3(0, followHeight, 0);
+            //transform.position = newPos;
+            //transform.LookAt(cameraLookAt);
+            //return;
 
 
             //摄像机缓动功能先不管，否则抖动很厉害。

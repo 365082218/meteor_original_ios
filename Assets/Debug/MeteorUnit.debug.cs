@@ -71,15 +71,4 @@ public partial class MeteorUnit: DebugInstance
         OnDamage(null, 100);
     }
 
-    [DebugMethod("左转30度")]
-    public void TurnLeft30()
-    {
-        SetOrientation(-30);
-    }
-
-    [DebugMethod("右转30度")]
-    public void TurnRight30()
-    {
-        SetOrientation(30);
-    }
 }

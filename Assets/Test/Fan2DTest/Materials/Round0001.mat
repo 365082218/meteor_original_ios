@@ -36,7 +36,7 @@ Material:
     m_Floats:
     - first:
         name: _Progress
-      second: 0
+      second: 0.125
     m_Colors:
     - first:
         name: _Color
