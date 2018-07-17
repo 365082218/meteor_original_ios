@@ -1,5 +1,5 @@
 ﻿关卡编号	地图名称	关卡名称	关卡类型	场景读取原流星des gmb文件初始化地图	背景音乐	预览图	关卡胜利条件	胜利条件参数
-FuBenID	Scene	Name	LevelType	goodList	BgmName	BgTexture	Pass	Param
+FuBenID	Scene	Name	LevelType	sceneItems	BgmName	BgTexture	Pass	Param
 1	Meteor_14	炎硫岛	0	sn14	S1	scene1	1	
 2	Meteor_01	钟乳洞		sn01	S2	scene2	1	
 3	Meteor_03	一线天		sn03	S3	scene3		
@@ -28,12 +28,8 @@ FuBenID	Scene	Name	LevelType	goodList	BgmName	BgTexture	Pass	Param
 26	Meteor_25	Dc&BatchTest	1	sn24	S11		1
 27	SingleHero	单角色FPS测试	1	test	S11		1
 28	ManyHero	多角色FPS测试	1	test	S11		1
-<<<<<<< HEAD
 29	Meteor_14	炎硫岛	0	sn26	S1	scene1	1	
 30	DebugJump	跳跃测试	1	test	S11		1
-=======
->>>>>>> parent of 36701771... ++
-								
 								
 								
 								

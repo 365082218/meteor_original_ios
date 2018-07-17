@@ -74,9 +74,9 @@ public partial class GameBattleEx : MonoBehaviour {
 
     void PlayEndMovie()
     {
-        if (!string.IsNullOrEmpty(Global.GLevelItem.goodList))
+        if (!string.IsNullOrEmpty(Global.GLevelItem.sceneItems))
         {
-            string num = Global.GLevelItem.goodList.Substring(2);
+            string num = Global.GLevelItem.sceneItems.Substring(2);
             int number = 0;
             if (int.TryParse(num, out number))
             {

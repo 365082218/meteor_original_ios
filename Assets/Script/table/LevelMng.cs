@@ -45,15 +45,19 @@ public class Level : ITableItem
     {
         get
         {
-            if (wayPoints == null && !string.IsNullOrEmpty(goodList))
-                wayPoints = WayLoader.Instance.Load(goodList);
+            string items = sceneItems;
+            string items2 = Global.GScript == null ? null : Global.GScript.GetDesName();
+            if (!string.IsNullOrEmpty(items2))
+                items = items2;
+            if (wayPoints == null && !string.IsNullOrEmpty(items))
+                wayPoints = WayLoader.Instance.Load(items);
             else if (WayMng.Instance != null)
                 wayPoints = WayMng.Instance.wayPoints;
             return wayPoints;
         }
     }
 	
-    public string goodList;
+    public string sceneItems;//场景脚本&场景物品列表，当场景脚本想使用新物品列表调试时，重载GetDesName();
     //关卡类型. 
     //1:主线剧情-场景物品会序列化并存储状态 
     //2:副本-反复刷-场景物品每次重新刷 

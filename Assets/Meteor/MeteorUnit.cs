@@ -327,7 +327,7 @@ public partial class MeteorUnit : MonoBehaviour
     public bool Dead = false;
     public bool OnTopGround = false;//顶部顶着了,无法向上继续
     public bool OnGround = false;//控制器是否收到阻隔无法前进.
-    public bool MoveOnGroundEx = false;//移动的瞬间，射线是否与地相聚不到1M。
+    public bool MoveOnGroundEx = false;//移动的瞬间，射线是否与地相聚不到4M。下坡的时候很容易离开地面
     public bool OnTouchWall = false;//贴着墙壁
     //public bool IsShow = true;
     public int Speed { get { return Attr.Speed + CalcSpeed(); } }
@@ -1373,7 +1373,7 @@ public partial class MeteorUnit : MonoBehaviour
 
         if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene")))
         {
-            MoveOnGroundEx = hit.distance <= 2.0f;
+            MoveOnGroundEx = hit.distance <= 4.0f;
             Floating = hit.distance >= 16.0f;
         }
         else
@@ -1571,22 +1571,12 @@ public partial class MeteorUnit : MonoBehaviour
         {
             if (MoveOnGroundEx || OnGround)
             {
-                //接触地面就切换.
-<<<<<<< HEAD
-                //if ((posMng.mActiveAction.Idx >= CommonAction.Jump && posMng.mActiveAction.Idx <= CommonAction.JumpBackFall) || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
-                //{
-                //    posMng.ChangeAction(0, 0.1f);
-                //    Debug.LogError("接触地面切换到IDle");
-                //}
-                //ResetYVelocity();
-=======
                 if ((posMng.mActiveAction.Idx >= CommonAction.Jump && posMng.mActiveAction.Idx <= CommonAction.JumpBackFall) || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
                 {
                     posMng.ChangeAction(0, 0.1f);
                     //Debug.LogError("接触地面切换到IDle");
                 }
                 ResetYVelocity();
->>>>>>> parent of 36701771... ++
             }
         }
 

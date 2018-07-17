@@ -308,6 +308,8 @@ public class SoundManager : Singleton<SoundManager>
         {
             for (int i = 0; i < effectList.Count; i++)
             {
+                if (effectList[i] == null)
+                    continue;
                 effectList[i].GetComponent<AudioSource>().Stop();
             }
         }

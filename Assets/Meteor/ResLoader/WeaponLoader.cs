@@ -14,7 +14,7 @@ public class WeaponLoader : MonoBehaviour {
     Transform RP;//武器父
     Transform L;//武器
     Transform R;//武器
-<<<<<<< HEAD
+
     public string StrWeaponR;
     public string StrWeaponL;
 
@@ -22,9 +22,7 @@ public class WeaponLoader : MonoBehaviour {
     {
         
     }
-=======
 
->>>>>>> parent of 36701771... ++
     //主要是用来隐藏飞轮
     public void HideWeapon()
     {

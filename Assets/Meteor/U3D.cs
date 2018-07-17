@@ -656,9 +656,9 @@ public class U3D : MonoBehaviour {
         WSLog.LogInfo("LoadingWnd.Instance.Open();");
         Resources.UnloadUnusedAssets();
         GC.Collect();
-        if (!string.IsNullOrEmpty(lev.goodList))
+        if (!string.IsNullOrEmpty(lev.sceneItems))
         {
-            string num = lev.goodList.Substring(2);
+            string num = lev.sceneItems.Substring(2);
             int number = 0;
             if (int.TryParse(num, out number))
             {

@@ -195,10 +195,10 @@ public class Loader : MonoBehaviour {
     //}
 
     //静态固有物件。类似声音，位置点
-    public void LoadFixedScene(Level lev)
+    public void LoadFixedScene(string sceneItems)
     {
         //mapObjectList.Clear();
-        DesFile des = DesLoader.Instance.Load(lev.goodList);
+        DesFile des = DesLoader.Instance.Load(sceneItems);
         for (int i = des.ObjectCount; i < des.SceneItems.Count; i++)
         {
             //一些特殊物件不需要加脚本，只相当于环境，也不用保存,只设置位置.
@@ -216,11 +216,11 @@ public class Loader : MonoBehaviour {
         }
     }
 
-    public void LoadDynamicTrigger(Level lev)
+    public void LoadDynamicTrigger(string sceneItems)
     {
         //return;
         //mapObjectList.Clear();
-        DesFile des = DesLoader.Instance.Load(lev.goodList);
+        DesFile des = DesLoader.Instance.Load(sceneItems);
         for (int i = des.ObjectCount; i < des.SceneItems.Count; i++)
         {
             //一些特殊物件不需要加脚本，只相当于环境，也不用保存,只设置位置.

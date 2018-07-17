@@ -82,18 +82,17 @@ public class LevelHelper : MonoBehaviour
         
         SoundManager.Instance.Enable(true);
 
-        LevelScriptBase script = GetLevelScript(lev.goodList);
+        LevelScriptBase script = GetLevelScript(lev.sceneItems);
 
         if (script == null)
         {
             //一些场景是测试场景，不能战斗，不创建角色等.
-            
             return;
         }
-
+        Global.GScript = script;
         SceneMng.OnLoad();//
         //加载场景配置数据
-        SceneMng.OnEnterLevel(lev.ID);//原版功能不加载其他存档数据.
+        SceneMng.OnEnterLevel(script, lev.ID);//原版功能不加载其他存档数据.
 
         //设置主角属性
         U3D.InitPlayer(script); ;
