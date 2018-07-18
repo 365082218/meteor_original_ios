@@ -36,7 +36,7 @@ public partial class MeteorUnit: DebugInstance
     }
 
     [DebugMethod("关闭/打开AI")]
-    public void AIPause()
+    public void AIEnable()
     {
         if (GameBattleEx.Instance != null)
             GameBattleEx.Instance.StopAction(InstanceId);

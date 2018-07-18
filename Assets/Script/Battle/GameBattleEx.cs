@@ -120,6 +120,7 @@ public partial class GameBattleEx : MonoBehaviour {
 
     GameObject SelectTarget;
     float timeDelay = 1;
+    List<int> UnitActKeyDeleted = new List<int>();
 	// Update is called once per frame
 	void Update () {
         if (Global.PauseAll)
@@ -140,15 +141,30 @@ public partial class GameBattleEx : MonoBehaviour {
         for (int i = 0; i < UnitActKey.Count; i++)
         {
             if (UnitActionStack.ContainsKey(UnitActKey[i]))
+            {
+                StackAction act = UnitActionStack[UnitActKey[i]].action[UnitActionStack[UnitActKey[i]].action.Count - 1].type;
                 UnitActionStack[UnitActKey[i]].Update(Time.deltaTime);
+                if (UnitActionStack[UnitActKey[i]].action.Count == 0)
+                {
+                    MeteorUnit unit = U3D.GetUnit(UnitActKey[i]);
+                    Debug.Log(string.Format("{0} action call finished:{1}", unit.name, act));
+                    UnitActKeyDeleted.Add(UnitActKey[i]);
+                }
+            }
         }
 
-        //3S以后开始播放剧本
-        if (lev_script != null)
+        if (UnitActKeyDeleted.Count != 0)
         {
-            lev_script.OnUpdate();
-            //timeDelay = 0.0f;
+            for (int i = 0; i < UnitActKeyDeleted.Count; i++)
+            {
+                UnitActKey.Remove(UnitActKeyDeleted[i]);
+                UnitActionStack.Remove(UnitActKeyDeleted[i]);
+            }
+            UnitActKeyDeleted.Clear();
         }
+
+        if (lev_script != null)
+            lev_script.OnUpdate();
 
         timeDelay += Time.deltaTime;
         if (lev_script != null)
@@ -889,6 +905,12 @@ public partial class GameBattleEx : MonoBehaviour {
     //每个角色拥有的动作堆栈
     Dictionary<int, ActionConfig> UnitActionStack = new Dictionary<int, ActionConfig>();
     List<int> UnitActKey = new List<int>();
+
+    public bool IsPerforming(int unit)
+    {
+        return UnitActionStack.ContainsKey(unit);
+    }
+
     public void PushActionSay(int id, string text)
     {
         PushAction(id, StackAction.SAY, 0, text);
@@ -1057,9 +1079,20 @@ public class ActionConfig
         {
             if (action[action.Count - 1].type == StackAction.PAUSE)
             {
+                if (action[action.Count - 1].first)
+                {
+                    MeteorUnit unit = U3D.GetUnit(id);
+                    unit.AIPause(true, action[action.Count - 1].pause_time);
+                    action[action.Count - 1].first = false;
+                }
                 action[action.Count - 1].pause_time -= time;
+
                 if (action[action.Count - 1].pause_time <= 0.0f)
+                {
+                    MeteorUnit unit = U3D.GetUnit(id);
+                    unit.AIPause(false);
                     action.RemoveAt(action.Count - 1);
+                }
             }
             else if (action[action.Count - 1].type == StackAction.SAY)
             {
@@ -1159,8 +1192,13 @@ public class ActionConfig
 public class ActionItem
 {
     public StackAction type;
+    public bool first;
     public float pause_time;
     public string text;
     public int param;
     public List<int> Path;//for patrol
+    public ActionItem()
+    {
+        first = true;
+    }
 }

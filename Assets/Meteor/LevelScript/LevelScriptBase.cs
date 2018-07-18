@@ -55,9 +55,11 @@ public class ScriptBase
     //返回角色是否存在执行动作序列
     public bool IsPerforming(int player)
     {
-        MeteorUnit unit = U3D.GetUnit(player);
-        return true;
+        if (GameBattleEx.Instance != null)
+            return GameBattleEx.Instance.IsPerforming(player);
+        return false;
     }
+
     public static void RemoveNPC(int id)
     {
         U3D.RemoveNPC(id);
@@ -8438,7 +8440,7 @@ public class LevelScript_sn26 : LevelScriptBase
     int PlayerHP = 1000;
 
     int trg0 = 0;
-
+    int trg1 = 0;
     public override string GetDesName()
     {
         return "sn14";
@@ -8446,7 +8448,7 @@ public class LevelScript_sn26 : LevelScriptBase
 
     public override void OnStart()
     {
-        AddNPC("npc14_0");
+        ScriptMng.ins.CallScript("levelscript_26");
     }
 
     public override int OnUpdate()
@@ -8458,16 +8460,62 @@ public class LevelScript_sn26 : LevelScriptBase
         }
 
         int c;
-        int c2;
 
         if (trg0 == 0)
         {
             c = GetChar("大刀哨兵");
             if (c >= 0)
             {
+                Perform(c, "say", "好呗，开始寻路﹒﹒");
                 ChangeBehavior(c, "patrol", 0);
             }
+            trg0 = 1;
         }
+
+        if (trg0 == 1)
+        {
+            c = GetChar("大刀哨兵");
+            Perform(c, "faceto", player);
+        }
+        if (trg1 == 0)
+        {
+            c = GetChar("大刀哨兵");
+            if (c >= 0 && GetEnemy(c) == player)
+            {
+                StopPerform(c);
+                Perform(c, "say", "好大的胆子竟敢乱闯禁地，没酒喝，火气正大，先拿你来开刀！");
+                trg1 = 1;
+            }
+        }
+        if (trg1 == 1)
+        {
+            c = GetChar("大刀哨兵");
+            if (c >= 0 && GetEnemy(c) != player)
+            {
+                Perform(c, "say", "跑到那儿去了！八成是跌入岩浆中了，哈哈哈哈！");
+                trg1 = 2;
+            }
+        }
+        if (trg1 == 2)
+        {
+            c = GetChar("大刀哨兵");
+            if (c >= 0 && GetEnemy(c) == player)
+            {
+                Perform(c, "say", "好小子，被我发现了吧！这下子你跑不掉了！");
+                trg1 = 3;
+            }
+        }
+        if (trg1 == 3)
+        {
+            c = GetChar("大刀哨兵");
+            if (c >= 0 && GetEnemy(c) != player)
+            {
+                Perform(c, "aggress");
+                Perform(c, "say", "哼，又躲起来了！缩头鸟龟一只！");
+                trg1 = 4;
+            }
+        }
+
         return 1;
     }
 

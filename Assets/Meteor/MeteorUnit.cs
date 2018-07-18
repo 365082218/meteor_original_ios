@@ -269,6 +269,7 @@ public partial class MeteorUnit : MonoBehaviour
     public MeteorController controller;
     public WeaponLoader weaponLoader;
     public int wayIndex;
+    public uint OnGroundTick = 0;
     [SerializeField]
     public MeteorAI robot;
 
@@ -313,6 +314,12 @@ public partial class MeteorUnit : MonoBehaviour
 
         slot = -1;
         return Vector3.zero;
+    }
+
+    public void AIPause(bool pause, float t = 0.0f)
+    {
+        if (robot != null)
+            robot.Pause(pause, t);
     }
     //public MeteorUnit NGUIJoystick_skill_TargetUnit;//技能目标
     //public List<SkillInput> SkillList = new List<SkillInput>();
@@ -983,7 +990,7 @@ public partial class MeteorUnit : MonoBehaviour
     {
         if (unit == this)
             return;
-        //UnityEngine.Debug.LogError(string.Format("{0} faceto :{1}", name, unit.name));
+        UnityEngine.Debug.LogError(string.Format("{0} faceto :{1}", name, unit.name));
         FaceToTarget(unit.transform.position);
     }
 
@@ -1373,7 +1380,8 @@ public partial class MeteorUnit : MonoBehaviour
 
         if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene")))
         {
-            MoveOnGroundEx = hit.distance <= 4.0f;
+            MoveOnGroundEx = hit.distance <= 4.8f;
+            //Debug.Log(string.Format("distance:{0}", hit.distance));
             Floating = hit.distance >= 16.0f;
         }
         else
@@ -1381,6 +1389,7 @@ public partial class MeteorUnit : MonoBehaviour
         
         if (OnGround)
         {
+            OnGroundTick++;
             //检测脚底是否踩住地面了
             //Y轴速度下降到速度超过能爬墙的速度.停止攀爬.被墙壁弹开.
             if (Climbing)
@@ -1440,6 +1449,7 @@ public partial class MeteorUnit : MonoBehaviour
         }
         else
         {
+            OnGroundTick = 0;
             if (OnTouchWall)
             {
                 //碰到墙壁

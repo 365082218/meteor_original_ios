@@ -1210,6 +1210,8 @@ public class U3D : MonoBehaviour {
     public static int StopPerform(int id)
     {
         MeteorUnit u = GetUnit(id);
+        //停止动作的时候，状态为等待，一般遇见敌人时会调用此接口
+        u.robot.ChangeState(EAIStatus.Wait);
         if (u != null)
         {
             //先清除该角色的聊天动作，其他动画动作不处理。
@@ -1217,10 +1219,13 @@ public class U3D : MonoBehaviour {
         }
         return 0;
     }
-    public static int IsPerforming(int id)
+    public static int IsPerforming(int player)
     {
+        if (GameBattleEx.Instance != null)
+            return GameBattleEx.Instance.IsPerforming(player) ? 1: 0;
         return 0;
     }
+
     public static int SetTarget(int idx, string type, params int[] fun)
     {
         return 0;

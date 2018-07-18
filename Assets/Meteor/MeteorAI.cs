@@ -14,6 +14,7 @@ public enum EAIStatus
     Think,//没发觉目标时左右观察
     GotoPatrol,//去巡逻路径的第一个位置.
     Patrol,//巡逻。
+    PatrolInPlace,//单点巡逻
     Wait,//四处看
 }
 
@@ -25,12 +26,14 @@ public enum EAISubStatus
     FollowSubRotateToTarget,
     FollowSubCheck,//跟随到达目标后,定时检查
     Patrol = EAIStatus.Patrol,
+    PatrolSubInPlace,
     PatrolSubRotateInPlace,//原地随机旋转.
     PatrolSubRotateToTarget,//原地一定时间内旋转到指定方向
     PatrolSubGotoTarget,//跑向指定位置
     KillGetTarget,//离角色很近了，可以攻击
     KillGotoTarget,//离角色一定距离，需要先跑过去
     KillOnHurt,//被敌人击中
+
 }
 
 //每种距离，有无目标的2种情况下的AI设置.
@@ -99,6 +102,15 @@ public class MeteorAI {
             return;
         }
 
+        if (GameBattleEx.Instance != null)
+        {
+            if (GameBattleEx.Instance.IsPerforming(owner.InstanceId))
+            {
+                Debug.Log(string.Format("unit:{0} IsPerforming", owner.name));
+                return;
+            }
+        }
+
         AIJumpDelay += Time.deltaTime;
         AIFollowRefresh += Time.deltaTime;
 
@@ -112,52 +124,68 @@ public class MeteorAI {
             }
         }
 
-        switch (Status)
+        if (owner.IsOnGround() && owner.OnGroundTick >= 5)
         {
-            case EAIStatus.Idle:
-                OnIdle();
-                break;
-            case EAIStatus.Wait:
-                OnWait();
-                break;
-            case EAIStatus.Guard:
-                owner.controller.Input.OnKeyDown(EKeyList.KL_Defence, true);//防御
-                break;
-            case EAIStatus.GotoPatrol:
-                //Debug.LogError("gotopatrol");
-                OnGotoPatrol();
-                break;
-            case EAIStatus.Patrol:
-                //Debug.LogError("patrol");
-                OnPatrol();
-                break;
-            case EAIStatus.Follow:
-                MovetoTarget(followTarget);
-                break;
-            case EAIStatus.Kill:
-                switch (SubStatus)
-                {
-                    case EAISubStatus.KillGotoTarget:
-                        if (killTarget == null)
-                            killTarget = owner.GetLockedTarget();
-                        if (killTarget != null)
-                            MovetoTarget(killTarget);
-                        else
-                        {
-                            Status = EAIStatus.Idle;
-                            //SubStatus = EAISubStatus.Think;
-                        }
-                        break;
-                    case EAISubStatus.KillGetTarget:
-                        if (killTarget == null || killTarget.Dead)
-                            killTarget = owner.GetLockedTarget();
-                        KillTarget(killTarget);
-                        break;
-                    case EAISubStatus.KillOnHurt:
-                        OnHurt();
-                        break;
-                }
-                break;
+            switch (Status)
+            {
+                case EAIStatus.Idle:
+                    OnIdle();
+                    break;
+                case EAIStatus.Wait:
+                    OnWait();
+                    break;
+                case EAIStatus.Guard:
+                    owner.controller.Input.OnKeyDown(EKeyList.KL_Defence, true);//防御
+                    break;
+                case EAIStatus.PatrolInPlace:
+                    OnPatrolInPlace();
+                    break;
+                case EAIStatus.GotoPatrol:
+                    //Debug.LogError("gotopatrol");
+                    OnGotoPatrol();
+                    break;
+                case EAIStatus.Patrol:
+                    //Debug.LogError("patrol");
+                    OnPatrol();
+                    break;
+                case EAIStatus.Follow:
+                    MovetoTarget(followTarget);
+                    break;
+                case EAIStatus.Kill:
+                    switch (SubStatus)
+                    {
+                        case EAISubStatus.KillGotoTarget:
+                            if (killTarget == null)
+                                killTarget = owner.GetLockedTarget();
+                            if (killTarget != null)
+                                MovetoTarget(killTarget);
+                            else
+                            {
+                                Status = EAIStatus.Idle;
+                                //SubStatus = EAISubStatus.Think;
+                            }
+                            break;
+                        case EAISubStatus.KillGetTarget:
+                            if (killTarget == null || killTarget.Dead)
+                                killTarget = owner.GetLockedTarget();
+                            KillTarget(killTarget);
+                            break;
+                        case EAISubStatus.KillOnHurt:
+                            OnHurt();
+                            break;
+                    }
+                    break;
+            }
+        }
+        else
+        {
+            switch (Status)
+            {
+                //在空中，有目标时，可能会使用空中技能，例如飞镖，飞轮空中绝招，以及部分武器在空中的招式
+                //也有可能在受击中，使用曝气，或无法处理AI的状态
+                case EAIStatus.Kill:;
+                    break;
+            }
         }
     }
 
@@ -180,7 +208,6 @@ public class MeteorAI {
 
     void MovetoTarget(MeteorUnit target)
     {
-        int freeSlot = -1;
         float dis = 0.0f;
         switch (SubStatus)
         {
@@ -350,13 +377,13 @@ public class MeteorAI {
     float waitDefence;
 
     //原地不动
-    void OnIdle()
+    void OnWait()
     {
 
     }
 
     //不动播放空闲动画 
-    void OnWait()
+    void OnIdle()
     {
         tick += Time.deltaTime;
         waitCrouch -= Time.deltaTime;
@@ -614,10 +641,11 @@ public class MeteorAI {
     }
 
     //受到攻击，处于受击动作或者防御姿态硬直中
-    public void Pause(int pause_time)
+    public void Pause(bool pause, float pause_time)
     {
-        paused = true;
+        paused = pause;
         pause_tick = pause_time;
+        Debug.Log(string.Format("unit:{0} pause:{1}", owner.name, pause_tick));
     }
 
     public void EnableAI(bool enable)
@@ -637,7 +665,33 @@ public class MeteorAI {
         {
             SubStatus = EAISubStatus.Patrol;
         }
+        else if (type == EAIStatus.PatrolInPlace)
+        {
+            SubStatus = EAISubStatus.PatrolSubInPlace;
+        }
+        StopCoroutine();
         ResetAIKey();
+    }
+
+    void StopCoroutine()
+    {
+        if (PatrolRotateCoroutine != null)
+        {
+            owner.StopCoroutine(PatrolRotateCoroutine);
+            PatrolRotateCoroutine = null;
+        }
+
+        if (FollowRotateToTargetCoroutine != null)
+        {
+            owner.StopCoroutine(FollowRotateToTargetCoroutine);
+            FollowRotateToTargetCoroutine = null;
+        }
+
+        if (JumpCoroutine != null)
+        {
+            owner.StopCoroutine(JumpCoroutine);
+            JumpCoroutine = null;
+        }
     }
 
     public void ResetAIVelocity()
@@ -757,37 +811,44 @@ public class MeteorAI {
     }
 
     //绕原地
-    Coroutine PatrolRotateCoroutine;//巡逻到达某个目的点后，会随机旋转1-5次，每次都会
-    IEnumerator PatrolRotate()
+    Coroutine PatrolRotateCoroutine;//巡逻到达某个目的点后，会随机旋转1-5次，每次都会停留不固定的时间
+    IEnumerator PatrolRotate(float angleSpeed = 90.0f)
     {
-        float rotateAngle = Random.Range(30, 180);
+        float rotateAngle1 = Random.Range(-90, -45);
+        float rotateAngle2 = Random.Range(45, 90);
+        bool right = Random.Range(0, 100) >= 50;
+        float rotateAngle = right ? rotateAngle2 : rotateAngle1;
         Quaternion quat = Quaternion.AngleAxis(rotateAngle, Vector3.up);
-        Vector3 target = owner.transform.position + quat  * - owner.transform.forward;
-        Vector3 diff = (target - owner.mPos);
-        diff.y = 0;
-        float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
-        float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
-        float angle = Mathf.Abs(Mathf.Acos(dot) * Mathf.Rad2Deg);
-        bool rightRotate = dot2 < 0;
         float offset = 0.0f;
-        float offsetmax = GetAngleBetween(target);
-        float timeTotal = offsetmax / 150.0f;
+        float timeTotal = Mathf.Abs(rotateAngle / angleSpeed);
         float timeTick = 0.0f;
         while (true)
         {
             timeTick += Time.deltaTime;
-            float yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
-            owner.SetOrientation((rightRotate ? -1 : 1) * (yOffset - offset));
+            float yOffset = Mathf.Lerp(0, rotateAngle, timeTick / timeTotal);
+            float r = yOffset - offset;
+            owner.SetOrientation(r);
             offset = yOffset;
             if (timeTick > timeTotal)
             {
-                owner.FaceToTarget(target);
+                //owner.FaceToTarget(target);
                 if (owner.posMng.mActiveAction.Idx == CommonAction.WalkRight || owner.posMng.mActiveAction.Idx == CommonAction.WalkLeft)
                     owner.posMng.ChangeAction(0, 0.1f);
                 break;
             }
             yield return 0;
         }
+
+        //随机停留0.8-4秒，下一次旋转间隔
+        float wait = Random.Range(0.8f, 3.0f);
+        while (true)
+        {
+            wait -= Time.deltaTime;
+            if (wait <= 0.0f)
+                break;
+            yield return 0;
+        }
+
         RotateRound--;
         PatrolRotateCoroutine = null;
     }
@@ -873,6 +934,22 @@ public class MeteorAI {
     int RotateRound;
     float AIJumpDelay = 0.0f;
     float AIFollowRefresh = 0.0f;
+
+    void OnPatrolInPlace()
+    {
+        switch (SubStatus)
+        {
+            case EAISubStatus.PatrolSubInPlace:
+                if (PatrolRotateCoroutine == null)
+                {
+                    int random = Random.Range(0, 100);
+                    if (random < 100)
+                        PatrolRotateCoroutine = owner.StartCoroutine(PatrolRotate(90.0f));
+                }
+                break;
+        }
+    }
+
     void OnGotoPatrol()
     {
         switch (SubStatus)
@@ -882,7 +959,9 @@ public class MeteorAI {
                     //顺序巡逻
                     if (curPatrolIndex == PatrolPathBegin.Count - 1)
                     {
-                        Status = EAIStatus.Patrol;
+                        Status = PatrolPath.Count == 1 ? EAIStatus.PatrolInPlace : EAIStatus.Patrol;
+                        if (PatrolPath.Count == 1)
+                            SubStatus = EAISubStatus.PatrolSubInPlace;
                         curPatrolIndex = -1;
                         targetPatrolIndex = -1;
                         PatrolPathBegin.Clear();
