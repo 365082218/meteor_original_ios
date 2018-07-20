@@ -31,8 +31,9 @@ public class Global
     public const int LEVELSTART = 1;//初始关卡ID
     public const int LEVELMAX = 99;//角色级别上限
     public const int ANGRYMAX = 100;
+    public const float AttackRange = 90.0f;//近战攻击距离
 
-	public static float timeScale
+    public static float timeScale
 	{
 		get {return Time.timeScale;}
 

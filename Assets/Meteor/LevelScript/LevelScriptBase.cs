@@ -8472,11 +8472,6 @@ public class LevelScript_sn26 : LevelScriptBase
             trg0 = 1;
         }
 
-        if (trg0 == 1)
-        {
-            c = GetChar("大刀哨兵");
-            Perform(c, "faceto", player);
-        }
         if (trg1 == 0)
         {
             c = GetChar("大刀哨兵");

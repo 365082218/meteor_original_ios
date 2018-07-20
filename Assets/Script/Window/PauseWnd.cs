@@ -12,7 +12,6 @@ public class PauseWnd : Window<PauseWnd>
 	float mTime = 3.0f;
 	float mStartTime = 0.0f;
 	private GameObject SoundBtn;
-	public EFightStatus M_FightStatus;
 
     protected override bool OnOpen()
     {
@@ -56,7 +55,7 @@ public class PauseWnd : Window<PauseWnd>
     public void BattleFaile()
     {
         //		return;
-        M_FightStatus = EFightStatus.Fighting;
+
     }
 
 

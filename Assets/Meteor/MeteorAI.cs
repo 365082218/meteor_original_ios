@@ -7,7 +7,8 @@ using Idevgame.Util;
 public enum EAIStatus
 {
     Idle,//不动.
-    Kill,//与目标近距离对打
+    Fight,//包括所有战斗情况
+    Kill,//强制杀死指定敌人，无视距离，一直跟随
     Guard,//防御
     Follow,//跟随
     Aim,//远程武器瞄准
@@ -15,17 +16,46 @@ public enum EAIStatus
     GotoPatrol,//去巡逻路径的第一个位置.
     Patrol,//巡逻。
     PatrolInPlace,//单点巡逻
-    Wait,//四处看
+    Wait,//四处看，类似于Search
 }
+
+/*
+ * Think = 50;
+Attack1 = 55;
+Attack2 = 40;
+Attack3 = 0;
+Guard = 5;
+Dodge = 5;
+Jump = 5;
+Look = 60;
+Burst = 1;
+Aim = 50;
+GetItem = 0;
+ */
 
 public enum EAISubStatus
 {
+    FightInDanger,//血量小于20
+    FightGotoTarget,//在打斗前，必须走到目标范围附近
+    FightSubRotateToTarget,//走到路点后，旋转朝向下一个路点.
+    FightSubLeavetoTarget,//离开、逃跑.
+    FightThink,//远程武器射击，
+    FightAttack1,//普攻
+    FightAttack2,//连击
+    FightAttack3,//绝招
+    FightGuard,//战斗中防御-按概率
+    FightDodge,//躲闪，双击某个方向键
+    FightJump,//跳跃招式-概率
+    FightLook,//战斗中旋转-
+    FightBurst,//战斗中曝气
+    FightAim,//战斗中若使用远程武器，瞄准敌方的几率，否则就随机
+    FightGetItem,//战斗中去捡起物品-镖物-补给-武器-BUFF道具
     SubStatusIdle,
     SubStatusWait,
     FollowGotoTarget,
     FollowSubRotateToTarget,
     FollowSubCheck,//跟随到达目标后,定时检查
-    Patrol = EAIStatus.Patrol,
+    Patrol,
     PatrolSubInPlace,
     PatrolSubRotateInPlace,//原地随机旋转.
     PatrolSubRotateToTarget,//原地一定时间内旋转到指定方向
@@ -73,9 +103,11 @@ public class MeteorAI {
     }
     public EAIStatus Status { get; set; }
     public EAISubStatus SubStatus { get; set; }
-    MeteorUnit owner;
-    MeteorUnit followTarget;
-    MeteorUnit killTarget;
+    MeteorUnit owner;//自己
+    MeteorUnit followTarget;//跟随目标
+    MeteorUnit killTarget;//无视视野
+    MeteorUnit fightTarget;//视野内的，选择目标
+    MeteorUnit lastAttacker;//时间最近攻击自己的人
     public bool stoped { get; set; }
     bool paused = false;
     float pause_tick;
@@ -102,6 +134,7 @@ public class MeteorAI {
             return;
         }
 
+        //如果玩家正在进行一些动作，或者预定义行为，则不运行AI。
         if (GameBattleEx.Instance != null)
         {
             if (GameBattleEx.Instance.IsPerforming(owner.InstanceId))
@@ -114,13 +147,29 @@ public class MeteorAI {
         AIJumpDelay += Time.deltaTime;
         AIFollowRefresh += Time.deltaTime;
 
+        if (Status == EAIStatus.Fight)
+        {
+            //目标可能离开范围.
+            if (owner.GetLockedTarget() == null)
+            {
+                if (lastAttacker != null)
+                {
+                    fightTarget = lastAttacker;
+                }
+                else
+                {
+                    fightTarget = null;
+                    ChangeState(EAIStatus.Wait);
+                }
+            }
+        }
+
         if (Status == EAIStatus.Wait)
         {
             if (owner.GetLockedTarget() != null)
             {
                 killTarget = owner.GetLockedTarget();
-                Status = EAIStatus.Kill;
-                SubStatus = EAISubStatus.KillGotoTarget;
+                Status = EAIStatus.Fight;
             }
         }
 
@@ -128,6 +177,9 @@ public class MeteorAI {
         {
             switch (Status)
             {
+                case EAIStatus.Fight:
+                    FightOnGround();
+                    break;
                 case EAIStatus.Idle:
                     OnIdle();
                     break;
@@ -183,9 +235,240 @@ public class MeteorAI {
             {
                 //在空中，有目标时，可能会使用空中技能，例如飞镖，飞轮空中绝招，以及部分武器在空中的招式
                 //也有可能在受击中，使用曝气，或无法处理AI的状态
+                case EAIStatus.Fight:
+                    FightOnAir();
+                    break;
                 case EAIStatus.Kill:;
                     break;
+               
             }
+        }
+    }
+
+    #region 输入
+    Coroutine InputCorout;//普通的单个键的
+    #endregion
+    //空中.
+    void FightOnAir()
+    {
+        //1 先检查当前是否处于接收输入状态，这种都是连招方式的。
+        if (owner.controller.Input.AcceptInput())
+        {
+            //依次判断
+            //状态 - 残血[捡物品/逃跑(旋转、跑)]、攻击出招、闪躲、跳跃、防御、捡物品、
+            //武器类型 - 近战武器/远程武器
+            //距离 - 近战武器距离是否够近 30-50码以内，不一定必须
+            //面向 - 是否面对角色不至于
+
+            //能输入招式之类的。
+            //1 随机决定是否 攻击（平A）/连招（左右A，上下A之类，多个方向键+攻击）/绝招
+            //根据当前招式可以接哪些招式
+        }
+        else
+        {
+            //无输入状态时.
+            if (InputCorout == null)
+            {
+                //不响应输入.指一个动作正在前摇或后摇，只能响应曝气,曝气只有
+                if (owner.posMng.IsHurtPose())
+                {
+                    //如果可以曝气
+                    if (owner.CanBurst())
+                    {
+                        int burst = Random.Range(0, 100);
+                        //20时，就为20几率，0-19 共20
+                        if (burst >= Mathf.Max(0, 100 - owner.Attr.Burst))
+                            InputCorout = owner.StartCoroutine(VirtualKeyEvent(EKeyList.KL_BreakOut));
+                    }
+                }
+            }
+        }
+    }
+
+    //危机中，尽量离开战斗目标.
+    float leaveTick;
+    Coroutine leaveRotateCorout;
+    float leaveAngle;
+
+    void LeaveReset()
+    {
+        //重新朝一个面向，跑1-2秒
+        leaveTick = 0.0f;
+        leaveAngle = Random.Range(15.0f, 60.0f);
+        Stop();
+    }
+
+    void FightInDanger()
+    {
+        if (leaveTick >= 2.0f)
+        {
+            if (leaveRotateCorout != null)
+            {
+                owner.StopCoroutine(leaveRotateCorout);
+                leaveRotateCorout = null;
+            }
+            LeaveReset();
+        }
+        else
+        {
+            //没有旋转，先旋转到这个角度。
+            if (leaveRotateCorout == null)
+                leaveRotateCorout = owner.StartCoroutine(LeaveRotateAngle(leaveAngle));
+        }
+
+        leaveTick += Time.deltaTime;
+    }
+
+    IEnumerator LeaveRotateAngle(float leaveAngle, float angularspeed = 150.0f)
+    {
+        bool rightRotate = Random.Range(-1, 2) >= 0;
+        float offset = 0.0f;
+        float offsetmax = leaveAngle;
+        float timeTotal = offsetmax / angularspeed;
+        float timeTick = 0.0f;
+        while (true)
+        {
+            timeTick += Time.deltaTime;
+            float yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            owner.SetOrientation(yOffset - offset);
+            offset = yOffset;
+            if (timeTick > timeTotal)
+            {
+                if (owner.posMng.mActiveAction.Idx == CommonAction.WalkRight || owner.posMng.mActiveAction.Idx == CommonAction.WalkLeft)
+                    owner.posMng.ChangeAction(0, 0.1f);
+                break;
+            }
+            yield return 0;
+        }
+
+        while (true)
+        {
+            Move();
+            yield return 0;
+        }
+        leaveRotateCorout = null;
+    }
+
+    public void Move()
+    {
+        owner.controller.Input.AIMove(0, 1);
+    }
+
+    public void Stop()
+    {
+        owner.controller.Input.AIMove(0, 0);
+    }
+
+    void TryAttack()
+    {
+        //已经在攻击招式中.后接招式挑选
+        //把可以使用的招式放到集合里，A类放普攻，B类放搓招， C类放绝招
+        ActionNode act = ActionInterrupt.Instance.GetActions(owner.posMng.mActiveAction.Idx);
+        if (act != null)
+        {
+            ActionNode attack1 = ActionInterrupt.Instance.GetNormalNode(act);
+            List<ActionNode> attack2 = ActionInterrupt.Instance.GetSlashNode(act);
+            ActionNode attack3 = ActionInterrupt.Instance.GetSkillNode(act);
+            int attack = Random.Range(0, 100);
+            if (attack < owner.Attr.Attack1)
+            {
+                //普通攻击
+            }
+            else if (attack < (owner.Attr.Attack1 + owner.Attr.Attack2))
+            {
+                //连招
+            }
+            else if (attack < (owner.Attr.Attack1 + owner.Attr.Attack2 + owner.Attr.Attack3))
+            {
+                //绝招
+            }
+        }
+    }
+    //地面攻击.
+    void FightOnGround()
+    {
+        //1 先检查当前是否处于接收输入状态，这种都是连招方式的。
+        if (owner.controller.Input.AcceptInput())
+        {
+            //依次判断
+            if (owner.posMng.IsAttackPose() && PlayWeaponPoseCorout == null)
+            {
+                int attack = Random.Range(0, 100);
+                if (attack >= 50 )
+                    TryAttack();
+                else
+                {
+                    //啥也不做
+                }
+            }
+            else if (owner.posMng.IsHurtPose())
+            {
+                //无输入状态时.
+                if (InputCorout == null)
+                {
+                    //不响应输入.指一个动作正在前摇或后摇，只能响应曝气,曝气只有
+                    if (owner.posMng.IsHurtPose())
+                    {
+                        //如果可以曝气
+                        if (owner.CanBurst())
+                        {
+                            int burst = Random.Range(0, 100);
+                            //20时，就为20几率，0-19 共20
+                            if (burst >= Mathf.Max(0, 100 - owner.Attr.Burst))
+                                InputCorout = owner.StartCoroutine(VirtualKeyEvent(EKeyList.KL_BreakOut));
+                        }
+                    }
+                }
+            }
+            else
+            {
+                //在一些动作姿势里，走，跑，等.
+                if (owner.InDanger())
+                {
+                    if (SubStatus != EAISubStatus.FightInDanger)
+                    {
+                        LeaveReset();
+                        SubStatus = EAISubStatus.FightInDanger;
+                    }
+
+                    switch (SubStatus)
+                    {
+                        case EAISubStatus.FightInDanger:
+                            //随机朝一个面向。跑大概1-2秒，重复
+                            FightInDanger();
+                            break;
+                    }
+                }
+                else
+                {
+                    //主要逻辑
+                    float dis = Vector3.Distance(owner.mPos, fightTarget.mPos);
+                    //距离战斗目标不同，选择不同方式应对.
+                    if (dis >= Global.AttackRange)
+                    {
+                        //A:切换远程武器战斗
+                        //A.1:监测能否切换远程武器.
+                        //B:跑到近距离战斗
+                    }
+                    else
+                    {
+                        //A:跑到远处切换远程武器战斗
+                        //B:开始随机动作 A 躲避 B 跳跃 C 防御 D 捡去物品 E 普攻 F 搓招 G 绝招 
+                    }
+                }
+            }
+            //状态 - 残血[捡物品/逃跑(旋转、跑)]、攻击出招、闪躲、跳跃、防御、捡物品、
+            //武器类型 - 近战武器/远程武器
+            //距离 - 近战武器距离是否够近
+            //面向 - 是否面对角色不至于
+
+            //能输入招式之类的。
+            //1 随机决定是否 攻击（平A）/连招（左右A，上下A之类，多个方向键+攻击）/绝招
+            //根据当前招式可以接哪些招式
+        }
+        else
+        {
+            //不接受输入，在动作前摇或后摇
         }
     }
 
@@ -220,6 +503,7 @@ public class MeteorAI {
                     if (dis <= 35)//小于35码停止跟随，不需要计算路径
                     {
                         //FollowPath.Clear();
+                        Debug.Log("stop follow until 35 meters");
                         owner.controller.Input.AIMove(0, 0);
                         AIFollowRefresh = 5.0f;//5秒后再计算是否跟随.
                         return;
@@ -272,7 +556,7 @@ public class MeteorAI {
                             targetIndex += 1;
                         }
                         RotateRound = Random.Range(1, 3);
-                        SubStatus = EAISubStatus.FollowSubRotateToTarget;//到指定地点后旋转
+                        SubStatus = EAISubStatus.FollowSubRotateToTarget;//到指定地点后旋转到目标.
                         return;
                     }
 
@@ -336,6 +620,7 @@ public class MeteorAI {
 
     IEnumerator ProcessStruggle()
     {
+        Debug.Log("ProcessStruggle");
         yield return 0;
         while (true)
         {
@@ -675,6 +960,18 @@ public class MeteorAI {
 
     void StopCoroutine()
     {
+        if (PlayWeaponPoseCorout != null)
+        {
+            owner.StopCoroutine(PlayWeaponPoseCorout);
+            PlayWeaponPoseCorout = null;
+        }
+
+        if (leaveRotateCorout != null)
+        {
+            owner.StopCoroutine(leaveRotateCorout);
+            leaveRotateCorout = null;
+        }
+
         if (PatrolRotateCoroutine != null)
         {
             owner.StopCoroutine(PatrolRotateCoroutine);
@@ -692,11 +989,12 @@ public class MeteorAI {
             owner.StopCoroutine(JumpCoroutine);
             JumpCoroutine = null;
         }
-    }
 
-    public void ResetAIVelocity()
-    {
-        owner.controller.Input.AIMove(0, 0);
+        if (InputCorout != null)
+        {
+            owner.StopCoroutine(InputCorout);
+            InputCorout = null;
+        }
     }
 
     public void ResetAIKey()
@@ -728,6 +1026,19 @@ public class MeteorAI {
         PlayWeaponPoseCorout = owner.StartCoroutine(PlayWeaponPose(rand));
     }
 
+    //单键输入.
+    IEnumerator VirtualKeyEvent(EKeyList key)
+    {
+        owner.controller.Input.OnKeyDown(key, true);
+        yield return 0;
+        yield return 0;
+        yield return 0;
+        owner.controller.Input.OnKeyUp(key);
+        yield return 0;
+        yield return 0;
+        yield return 0;
+    }
+
     IEnumerator PlayWeaponPose(int pose)
     {
         int nowpose = owner.posMng.mActiveAction.Idx;
@@ -748,17 +1059,12 @@ public class MeteorAI {
         PlayWeaponPoseCorout = null;
     }
 
-    public void OnDamaged()
+    //如果attacker为空，则代表是非角色伤害了自己
+    public void OnDamaged(MeteorUnit attacker)
     {
-        //模拟出招被其他敌方角色攻击打断
-        if (PlayWeaponPoseCorout != null)
-        {
-            owner.StopCoroutine(PlayWeaponPoseCorout);
-            PlayWeaponPoseCorout = null;
-        }
-
-        Status = EAIStatus.Kill;
-        SubStatus = EAISubStatus.KillOnHurt;
+        //受到非目标的攻击后，记下来，一会找他算账
+        if (lastAttacker != attacker && owner.GetLockedTarget() != attacker && attacker != null)
+            lastAttacker = attacker;
     }
 
     //寻路相关的.
@@ -867,7 +1173,6 @@ public class MeteorAI {
     Coroutine FollowRotateToTargetCoroutine;
     IEnumerator FollowRotateToTarget(Vector3 vec)
     {
-        //WsGlobal.AddDebugLine(vec, vec + Vector3.up * 10, Color.red, "PatrolPoint", 20.0f);
         Vector3 diff = (vec - owner.mPos);
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
@@ -882,11 +1187,11 @@ public class MeteorAI {
         {
             timeTick += Time.deltaTime;
             float yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
-            owner.SetOrientation((rightRotate ? -1 : 1) * (yOffset - offset));
+            owner.SetOrientation(yOffset - offset);
             offset = yOffset;
             if (timeTick > timeTotal)
             {
-                owner.FaceToTarget(vec);
+                //owner.FaceToTarget(vec);
                 if (owner.posMng.mActiveAction.Idx == CommonAction.WalkRight || owner.posMng.mActiveAction.Idx == CommonAction.WalkLeft)
                     owner.posMng.ChangeAction(0, 0.1f);
                 break;
@@ -916,11 +1221,11 @@ public class MeteorAI {
         {
             timeTick += Time.deltaTime;
             float yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
-            owner.SetOrientation((rightRotate ? -1 : 1) * (yOffset - offset));
+            owner.SetOrientation(yOffset - offset);
             offset = yOffset;
             if (timeTick > timeTotal)
             {
-                owner.FaceToTarget(vec);
+                //owner.FaceToTarget(vec);
                 if (owner.posMng.mActiveAction.Idx == CommonAction.WalkRight || owner.posMng.mActiveAction.Idx == CommonAction.WalkLeft)
                     owner.posMng.ChangeAction(0, 0.1f);
                 break;

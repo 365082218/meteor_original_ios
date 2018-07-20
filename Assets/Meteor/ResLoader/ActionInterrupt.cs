@@ -4,16 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-//每一个动作，都有默认的几个中断动作，
-//中断动作，代表当某一条件成立时，可以由当前动作，切换到中断动作,条件一般是，按键输入
-public class ActionChangeDef
-{
-    public VK_Pose ActionIdx;//虚拟状态-一一映射到实际动作.
-    //负责单按键切换状态
-    public int InputKey;//输入键位
-    public int InputType;//输入状态 压下 弹起等
-}
-
 public class ActionNode
 {
     public int ActionIdx;//指明动作号码
@@ -29,68 +19,6 @@ public class ActionNode
         if (!target.Contains(tar))
             target.Add(tar);
     }
-}
-//虚拟招式表
-public enum VK_Pose
-{
-    VK_Idle = 600,//虚拟动作从600开始，实际动作从0开始
-    //双击 上下左右
-    VK_Attack,
-    VK_Defence,
-    VK_Couch,//蹲着
-    VK_Taunt,//嘲讽
-    VK_PlayedDead,//装死
-    VK_Help,//救活同伴
-    VK_Break,//爆气
-    //模仿赵云传 3武器切换，一种轻武器，一种重武器，一种暗器
-    VK_ChangeWeapon1,
-    VK_ChangeWeapon2,
-    //单击
-    VK_Run,//跑步
-    VK_WalkForward,//中毒是走150，不中毒是跑 144
-    VK_WalkLeft,
-    VK_WalkRight,
-    VK_WalkBackward,
-    VK_RunOnDrug,
-    //双击上下左右，根据BUFF状态（毒），武器，使用不同的动作
-    VK_DForw,
-    VK_DBack,
-    VK_DLeft,
-    VK_DRight,
-    //方向+跳
-    VK_JumpForw,
-    VK_JumpBack,
-    VK_JumpLeft,
-    VK_JumpRight,
-    VK_Jump,//原地跳
-    VK_JumpFall,//跳跃转空中落地
-    //爬墙
-    VK_ClimbForw,//往上爬墙
-    VK_ClimeLeft,//往左爬墙
-    VK_ClimeRight,//往右爬墙
-    VK_Fall,//从天空掉落
-    //爬墙蹬，就是爬墙到某个点，按跳跃
-    VK_Rebound,
-    VK_ReboundLeft,
-    VK_ReboundRight,
-    //连招虚拟映射, W S A D, J 
-    VK_WJ,//上手
-    VK_SJ,//下手
-    VK_WWJ,//上上手
-    VK_SSJ,//下下手
-    VK_SWJ,//下上手
-    VK_SWWJ,//下上上手
-    VK_SSWJ,//下下上手
-    VK_AJ,//左A
-    VK_DJ,//右A
-    VK_ADJ,//左右A
-    VK_DAJ,//右左A
-    VK_ADWJ,//左右上A
-    VK_ADSJ,//左右下A
-    VK_WWWJ,//上上上A
-    VK_AAJ,//指虎左打虎切换武器
-    VK_DDJ,//指虎右打虎切换武器
-
 }
 
 public class CommonAction
@@ -225,6 +153,25 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
     public ActionNode Root;
     public Dictionary<int, ActionNode> Whole = new Dictionary<int, ActionNode>();
     public Dictionary<int, List<int>> Lines = new Dictionary<int, List<int>>();//存储行 与 Pose的关系
+    
+    //得到一个招式可连接的普通招式
+    public ActionNode GetNormalNode(ActionNode source)
+    {
+
+    }
+
+    //得到一个招式可连接的非普通招式,不包含大绝招，可以有小绝招
+    public List<ActionNode> GetSlashNode(ActionNode source)
+    {
+
+    }
+
+    //大绝招
+    public ActionNode GetSkillNode(ActionNode source)
+    {
+
+    }
+
     public void Init()
     {
         if (Root != null)
@@ -440,6 +387,17 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
         {
             WSLog.LogInfo("Input:" + first[i].KeyMap + "targetAction = " + first[i].ActionIdx);
         }
+    }
+
+    public ActionNode GetActions(int actionIdx)
+    {
+        Dictionary<int, ActionNode>.Enumerator ienum = Whole.GetEnumerator();
+        while (ienum.MoveNext())
+        {
+            if (ienum.Current.Key == actionIdx)
+                return ienum.Current.Value;
+        }
+        return null;
     }
 
     //只走一层节点,网状结构，可以无限递归

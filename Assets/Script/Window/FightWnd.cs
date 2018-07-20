@@ -457,17 +457,35 @@ public class FightWnd: Window<FightWnd>
     {
         targetInfo.SetActive(false);
         if (hideTargetInfo != null)
+        {
             GameBattleEx.Instance.StopCoroutine(hideTargetInfo);
+            hideTargetInfo = null;
+        }
         if (hpWarningE != null)
+        {
             GameBattleEx.Instance.StopCoroutine(hpWarningE);
+            hpWarningE = null;
+        }
         if (angryWarningE != null)
+        {
             GameBattleEx.Instance.StopCoroutine(angryWarningE);
+            angryWarningE = null;
+        }
         if (updateValue != null)
+        {
             GameBattleEx.Instance.StopCoroutine(updateValue);
+            updateValue = null;
+        }
         if (updateBuff != null)
+        {
             GameBattleEx.Instance.StopCoroutine(updateBuff);
+            updateBuff = null;
+        }
         if (updateEnemyBuff != null)
+        {
             GameBattleEx.Instance.StopCoroutine(updateEnemyBuff);
+            updateEnemyBuff = null;
+        }
         hpBar.fillAmount = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
     }
 
@@ -563,7 +581,8 @@ public class FightWnd: Window<FightWnd>
         foreach (var each in enemyBuffList)
             GameObject.Destroy(each.Value);
         enemyBuffList.Clear();
-        targetInfo.SetActive(false);
+        if (targetInfo != null)
+            targetInfo.SetActive(false);
         hideTargetInfo = null;
     }
 

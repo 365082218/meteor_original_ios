@@ -1009,6 +1009,12 @@ public class U3D : MonoBehaviour {
                 else if (value.Length == 3)
                     UnityEngine.Debug.LogError(string.Format("attacktarget:{0}, {1}", (int)value[1], (int)value[2]));
             }
+            else if (act == "run")
+            {
+                //乱跑.可能是一段时间在主角附近找一个4层路点，然后跑到该路点去，到达之后，重复重复再重复.
+                MeteorUnit un = GetUnit(id);
+                Debug.Log(string.Format("level:{0} player:{1} run", Global.GLevelItem.ID, un.name));
+            }
         }
     }
     // behavior="wait", "idle", "run", "follow", "patrol", "attacktarget", "kill"

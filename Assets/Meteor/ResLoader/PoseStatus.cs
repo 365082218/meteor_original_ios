@@ -202,6 +202,7 @@ public class PoseStatus
     {
         return (mActiveAction.Idx >= CommonAction.HitStart && mActiveAction.Idx <= CommonAction.HitEnd);
     }
+
     //受击或者被击，都无法转变X轴视角，在没有锁定目标状态下才能转变Y视角.
     public bool IsAttackPose()
     {
@@ -225,14 +226,20 @@ public class PoseStatus
         return !(p.Attack == null || p.Attack.Count == 0);
     }
 
+    event Action OnActionFinishedEvt;
+    public void LinkEvent(Action evt)
+    {
+        OnActionFinishedEvt += evt;
+    }
+
     public void LinkAction(int idx)
     {
         //先把虚拟动作转换为实际动作ID
-        if (idx >= (int)VK_Pose.VK_Idle)
+        if (idx >= (int)600)
         {
             switch (idx)
             {
-                case (int)VK_Pose.VK_Idle:idx = 0;break;
+                case (int)600:idx = 0;break;
             }
         }
 
@@ -300,7 +307,9 @@ public class PoseStatus
     {
         if (waitPause)
         {
-            //
+            //死亡后接事件
+            if (OnActionFinishedEvt != null)
+                OnActionFinishedEvt();//关闭碰撞盒
         }
         else
         {
@@ -416,7 +425,6 @@ public class PoseStatus
                                     ChangeAction(CommonAction.Idle, mActiveAction.Next.Time);
                                 else
                                     ChangeAction(CommonAction.Idle, 0.1f);
-                                //ChangeAction(CommonAction.Idle, 0.1f);
                             }
                         }
                         else
@@ -603,10 +611,14 @@ public class PoseStatus
                 //NPC只在处于杀死敌方的状态时会朝角色转向
                 if (_Self.robot != null && _Self.robot.Status == EAIStatus.Kill)
                 {
-                    if (_Self.GetWeaponType() != (int)EquipWeaponType.Guillotines && 
-                        _Self.GetWeaponType() != (int)EquipWeaponType.Gun && 
+                    if (_Self.GetWeaponType() != (int)EquipWeaponType.Guillotines &&
+                        _Self.GetWeaponType() != (int)EquipWeaponType.Gun &&
                         _Self.GetWeaponType() != (int)EquipWeaponType.Dart)
-                    _Self.FaceToTarget(_Self.GetLockedTarget());
+                    {
+                        //Debug.Log(string.Format("face to target when action:{0}", idx));
+                        //怪物不一定要面向角色，因为怪物的走位不是由玩家控制.而是自由的
+                        //_Self.FaceToTarget(_Self.GetLockedTarget());
+                    }
                 }
                 else if (_Self.robot == null)
                     _Self.FaceToTarget(_Self.GetLockedTarget());

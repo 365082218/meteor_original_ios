@@ -866,6 +866,16 @@ public partial class MeteorUnit : MonoBehaviour
         HeadBone.localEulerAngles = new Vector3(HeadBone.localEulerAngles.x, HeadBone.localEulerAngles.y, HeadBone.localEulerAngles.z + 90);
     }
 
+    public bool CanBurst()
+    {
+        return (AngryValue == Global.ANGRYMAX);
+    }
+
+    public bool InDanger()
+    {
+        return Attr.hpCur <= 20;//危险状态.
+    }
+
     //专门用来播放左转，右转动画的，直接面对角色不要调用这个。
     public void SetOrientation(float orient)
     {
@@ -1223,7 +1233,8 @@ public partial class MeteorUnit : MonoBehaviour
         {
             posMng.ChangeAction(CommonAction.BreakOut);
             AngryValue -= Attr.IsPlayer ? (GameData.gameStatus.EnableInfiniteAngry ? 0 : 60) : 60;
-            FightWnd.Instance.UpdateAngryBar();
+            if (Attr.IsPlayer)
+                FightWnd.Instance.UpdateAngryBar();
         }
     }
 
@@ -1736,7 +1747,7 @@ public partial class MeteorUnit : MonoBehaviour
             SFXEffectPlay[] play = GetComponents<SFXEffectPlay>();
             for (int i = 0; i < play.Length; i++)
                 play[i].OnPlayAbort();
-            charController.enabled = false;
+            posMng.LinkEvent(()=> { charController.enabled = false; });
             return;
         }
         if (lockTarget == deadunit && lockTarget != null)
@@ -2099,7 +2110,7 @@ public partial class MeteorUnit : MonoBehaviour
             NGUICameraJoystick.instance.ResetJoystick();//防止受到攻击时还可以移动视角
 
         if (robot != null)
-            robot.OnDamaged();
+            robot.OnDamaged(attacker);
 
         //任意受击，都会让角色退出持枪预备姿势
         SetGunReady(false);
@@ -2281,7 +2292,7 @@ public partial class MeteorUnit : MonoBehaviour
             NGUICameraJoystick.instance.ResetJoystick();//防止受到攻击时还可以移动视角
 
         if (robot != null)
-            robot.OnDamaged();
+            robot.OnDamaged(attacker);
 
         //任意受击，都会让角色退出持枪预备姿势
         SetGunReady(false);
@@ -2329,8 +2340,6 @@ public partial class MeteorUnit : MonoBehaviour
                     if (dam._AttackType == 0)
                     {
                         //在此时间结束前，不许使用输入设备输入.
-                        if (robot != null)
-                            robot.OnDamaged();
                         if (charLoader != null && dam.DefenseValue != 0.0f)
                             charLoader.LockTime(dam.DefenseValue);
                         //Move(-attacker.transform.forward * dam.DefenseMove);
@@ -2346,8 +2355,6 @@ public partial class MeteorUnit : MonoBehaviour
                     }
                     else if (dam._AttackType == 1)
                     {
-                        if (robot != null)
-                            robot.OnDamaged();
                         //这个招式伤害多少?
                         //dam.PoseIdx;算伤害
                         int realDamage = CalcDamage(attacker);
@@ -2421,8 +2428,6 @@ public partial class MeteorUnit : MonoBehaviour
                 }
                 else
                 {
-                    if (robot != null)
-                        robot.OnDamaged();
                     int realDamage = CalcDamage(attacker);
                     //Debug.Log("受到:" + realDamage + " 点伤害");
                     Attr.ReduceHp(realDamage);

@@ -51,7 +51,7 @@ public class MonsterEx
     }
     public string name;
     public bool pause;
-    public bool IsPlayer;//玩家阵营
+    public bool IsPlayer;//主玩家
     bool IsDead = false;
     public string Name{get{return name;}set{name = value;}}
     public int Model;
@@ -66,6 +66,13 @@ public class MonsterEx
     public int Attack1;
     public int Attack2;
     public int Attack3;
+    public int Guard;
+    public int Dodge;
+    public int Jump;
+    public int Look;
+    public int Burst;
+    public int Aim;//远程武器命中.火枪-飞镖
+    public int GetItem;//夺宝几率，各种镖物 武器 道具 等
     public int SpawnPoint;
     public int AngryValue;
     public int BuffDamage;
@@ -105,6 +112,13 @@ public class MonsterEx
         Debug.LogError("Attack1:" + Attack1);
         Attack2 = (int)(double)ScriptMng.ins.GetVariable("Attack2");
         Attack3 = (int)(double)ScriptMng.ins.GetVariable("Attack3");
+
+        Guard = (int)(double)ScriptMng.ins.GetVariable("Guard");
+        Jump = (int)(double)ScriptMng.ins.GetVariable("Jump");
+        Look = (int)(double)ScriptMng.ins.GetVariable("Look");
+        Burst = (int)(double)ScriptMng.ins.GetVariable("Burst");
+        Aim = (int)(double)ScriptMng.ins.GetVariable("Aim");
+        GetItem = (int)(double)ScriptMng.ins.GetVariable("GetItem");
     }
 
     //unit id , 名称, 所在队伍中的下标.
@@ -123,32 +137,14 @@ public class MonsterEx
         HpMax = (int)(double)ScriptMng.ins.GetVariable("HP");
         SpawnPoint = (int)(double)ScriptMng.ins.GetVariable("Spawn");
         Speed = 1000;
-        /*
-         * string Name	= "金枪侍卫﹒丁";
-int Model =	8;
-int Weapon = 25;
-int Weapon2 = 12;
-int Team = 2;
-int View = 400;
-int Think = 70;
-int	Attack1	= 10;
-int Attack2 = 20;
-int Attack3 = 30;
-int	Guard =	40;
-int	Dodge =	15;
-int Jump = 15;
-int Look = 50;
-int Burst = 10;
-int Aim = 70;
-int GetItem = 10;
-int Spawn = 2;
-int HP = 2500;
-	
-
-int g_selfAddr;
-int g_self;*/
-
-
+        object obj = ScriptMng.ins.GetVariable("Guard");
+        Debug.Log(string.Format("obj.type:{0}", obj.GetType()));
+        Guard = (int)(double)ScriptMng.ins.GetVariable("Guard");
+        Jump = (int)(double)ScriptMng.ins.GetVariable("Jump");
+        Look = (int)(double)ScriptMng.ins.GetVariable("Look");
+        Burst = (int)(double)ScriptMng.ins.GetVariable("Burst");
+        Aim = (int)(double)ScriptMng.ins.GetVariable("Aim");
+        GetItem = (int)(double)ScriptMng.ins.GetVariable("GetItem");
         hpCur = HpMax;
         mpCur = MpMax;
         return true;

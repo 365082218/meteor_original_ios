@@ -94,17 +94,6 @@ public enum QualitySprite
     Button10_BaseItem_Quality_04,
 };
 
-/***战斗状态*/
-public enum EFightStatus
-{
-    /***战斗中*/
-    Fighting = 1,
-    /***移动中*/
-    Moving = 2,
-    /***战斗结束*/
-    Finish = 3,
-}
-
 public enum UIFuncType
 {
     Build = 1,
