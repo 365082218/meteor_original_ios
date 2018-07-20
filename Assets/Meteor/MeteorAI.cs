@@ -366,9 +366,9 @@ public class MeteorAI {
         ActionNode act = ActionInterrupt.Instance.GetActions(owner.posMng.mActiveAction.Idx);
         if (act != null)
         {
-            ActionNode attack1 = ActionInterrupt.Instance.GetNormalNode(act);
-            List<ActionNode> attack2 = ActionInterrupt.Instance.GetSlashNode(act);
-            ActionNode attack3 = ActionInterrupt.Instance.GetSkillNode(act);
+            ActionNode attack1 = ActionInterrupt.Instance.GetNormalNode(owner, act);
+            List<ActionNode> attack2 = ActionInterrupt.Instance.GetSlashNode(owner, act);
+            ActionNode attack3 = ActionInterrupt.Instance.GetSkillNode(owner, act);
             int attack = Random.Range(0, 100);
             if (attack < owner.Attr.Attack1)
             {
@@ -422,7 +422,8 @@ public class MeteorAI {
             }
             else
             {
-                //在一些动作姿势里，走，跑，等.
+                //在一些动作姿势里，走，跑，跳 等
+                //在危险中
                 if (owner.InDanger())
                 {
                     if (SubStatus != EAISubStatus.FightInDanger)
@@ -441,6 +442,7 @@ public class MeteorAI {
                 }
                 else
                 {
+                    //根据当前动作，选择对应操作。
                     //主要逻辑
                     float dis = Vector3.Distance(owner.mPos, fightTarget.mPos);
                     //距离战斗目标不同，选择不同方式应对.

@@ -155,21 +155,167 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
     public Dictionary<int, List<int>> Lines = new Dictionary<int, List<int>>();//存储行 与 Pose的关系
     
     //得到一个招式可连接的普通招式
-    public ActionNode GetNormalNode(ActionNode source)
+    public ActionNode GetNormalNode(MeteorUnit owner, ActionNode source)
     {
+        //普通攻击映射输入的行号
+        //"1,5,9,13,25,35,48,61,73,91,95,101,108,123,"    "85,22,32,46,59,107,122,105,"   J 攻击  59较特殊，估计所有重武器的空中A都是338动作
+        int[] GroundKeyMap = new int[] { 1, 5, 9, 13, 25, 35, 48, 61, 73, 91, 95, 101, 108, 123 };
+        int[] AirKeyMap = new int[] { 85, 22, 32, 46, 59, 107, 122, 105 };
 
+        if (owner.IsOnGround())
+        {
+            for (int i = 0; i < source.target.Count; i++)
+            {
+                for (int j = 0; j < GroundKeyMap.Length; j++)
+                {
+                    if (GroundKeyMap[j] == source.target[i].KeyMap)
+                        return source.target[i];
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < source.target.Count; i++)
+            {
+                for (int j = 0; j < AirKeyMap.Length; j++)
+                {
+                    if (AirKeyMap[j] == source.target[i].KeyMap)
+                        return source.target[i];
+                }
+            }
+        }
+
+        return null;
     }
 
     //得到一个招式可连接的非普通招式,不包含大绝招，可以有小绝招
-    public List<ActionNode> GetSlashNode(ActionNode source)
+    void Scan(ref List<ActionNode> dst, ref List<ActionNode> src, ref int [] scan)
     {
+        for (int i = 0; i < src.Count; i++)
+        {
+            for (int j = 0; j < scan.Length; j++)
+            {
+                if (scan[j] == src[i].KeyMap)
+                {
+                    dst.Add(src[i]);
+                }
+            }
+        }
+    }
 
+    Dictionary<int, List<ActionNode>> CacheGround = new Dictionary<int, List<ActionNode>>();
+    Dictionary<int, List<ActionNode>> CacheAir = new Dictionary<int, List<ActionNode>>();
+    public List<ActionNode> GetSlashNode(MeteorUnit owner, ActionNode source)
+    {
+        List<ActionNode> action = new List<ActionNode>();
+        if (owner.IsOnGround())
+        {
+            if (CacheGround.TryGetValue(source.ActionIdx, out action))
+                return action;
+        }
+        else
+        {
+            if (CacheAir.TryGetValue(source.ActionIdx, out action))
+                return action;
+        }
+        //下A: "3,7,11,19,37,84,49,63,75,92,98,113,125,24" "24,33,47,60,72,83,106,109,126,"    SJ 下攻击 所有的基础动作，都不由连招系统负责，而由基本按键识别系统识别
+        //左A: "16,28,38,64,89,100,"       AJ 左攻击 这里面只会缺少86爆气行
+        //右A: "15,29,39,65,93,99,"        DJ 右攻击
+        //上A: "2,6,10,14,26,36,50,62,74,96,124,"  "87,23,"    WJ 上攻击
+        //下下A: "88,40,52,68,78,94,114,140,90," "150,133,"  SSJ 下下攻击
+        //上上A: "20,27,43,54,66,77,97,117,137,160," "130,"  WWJ 上上攻击
+        //左左A: "139,111,"  "132,"  AAJ 左左攻击
+        //右右A: "138,112,"  "131,"  DDJ 右右攻击
+        //下上A: "143,147,145,18,30,41,53,67,76,102,159,116,134,"    "144,146,"  SWJ 下上攻击
+        //上下A: "42,103,118,127,"   "34,"   WSJ 上下攻击
+        //左右A: "17,55,151,69,79,110,142,"      ADJ 左右攻击
+
+        //右左A: "152,51,155,80,"        DAJ 右左攻击
+
+        //左右下A: "71,81,120,128,154,"        ADSJ 左右下攻击
+        //下左右A: "21,"       SADJ 下左右攻击   双刺大招
+
+        //左右上A: "70,115,148,45,57,157,135"      ADWJ 左右上攻击
+        
+        //下下上A: "121,56,104,129,156,82,149"     SSWJ 下下上攻击
+        //下上上A: "158,58,119,4,8,12,31,44,141,"      SWWJ 下上上攻击
+        //上上上A: "153,"      WWWJ 上上上攻击
+        //左右上下A: "136,"      ADWSJ 左右上下攻击
+        int[] slash0Ground = new int[] { 3, 7, 11, 19, 37, 84, 49, 63, 75, 92, 98, 113, 125, 24 };//下A地面
+        int[] slash0Air = new int[] { 24, 33, 47, 60, 72, 83, 106, 109, 126 };//下A空中
+        int[] slash1Ground = new int[] { 16, 28, 38, 64, 89, 100 };//左攻击
+        //int[] slash1Air = new int[] { };//左攻击无空中招式
+        int[] slash2Ground = new int[] { 15, 29, 39, 65, 93, 99 };//右攻击
+        //int[] slash2Air = new int[] { };//右攻击无空中招式
+        int[] slash3Ground = new int[] { 2, 6, 10, 14, 26, 36, 50, 62, 74, 96, 124 };//上攻击
+        int[] slash3Air = new int[] { 87, 23 };//上攻击空中招式
+        int[] slash4Ground = new int[] { 88, 40, 52, 68, 78, 94, 114, 140, 90 };//下下攻击
+        int[] slash4Air = new int[] { 150, 133 };//下下攻击空中
+        int[] slash5Ground = new int[] { 20, 27, 43, 54, 66, 77, 97, 117, 137, 160 };//上上攻击
+        int[] slash5Air = new int[] { 130 };//上上攻击空中
+        int[] slash6Ground = new int[] { 139, 111 };//左左攻击
+        int[] slash6Air = new int[] { 132 };//左左攻击空中
+        int[] slash7Ground = new int[] { 138, 112 };//右右攻击
+        int[] slash7Air = new int[] { 131 };//右右攻击空中
+        int[] slash8Ground = new int[] { 143, 147, 145, 18, 30, 41, 53, 67, 76, 102, 159, 116, 134 };//下上攻击
+        int[] slash8Air = new int[] { 144, 146 };//下上攻击空中
+        int[] slash9Ground = new int[] { 42, 103, 118, 127 };//上下攻击
+        int[] slash9Air = new int[] { 34 };//上下攻击空中
+        int[] slash10Ground = new int[] { 17, 55, 151, 69, 79, 110, 142 };//左右攻击
+        //int[] slash10Air = new int[] {  };//左右攻击空中
+        int[] slash11Ground = new int[] { 152, 51, 155, 80 };//右左攻击
+        //int[] slash11Air = new int[] { };//右左攻击空中
+        int[] slash12Ground = new int[] { 71, 81, 120, 128, 154 };//左右下攻击
+        int[] slash13Ground = new int[] { 21 };//下左右A
+        int[] slash14Ground = new int[] { 70, 115, 148, 45, 57, 157, 135 };//左右上
+        int[] slash15Ground = new int[] { 121, 56, 104, 129, 156, 82, 149 };//下下上
+        int[] slash16Ground = new int[] { 158, 58, 119, 4, 8, 12, 31, 44, 141 };//下上上
+        int[] slash17Ground = new int[] { 153 };//上上上-枪绝招
+        int[] slash18Ground = new int[] { 136 };//左右下上-忍刀绝招
+        
+        if (owner.IsOnGround())
+        {
+            Scan(ref action, ref source.target, ref slash0Ground);
+            Scan(ref action, ref source.target, ref slash1Ground);
+            Scan(ref action, ref source.target, ref slash2Ground);
+            Scan(ref action, ref source.target, ref slash3Ground);
+            Scan(ref action, ref source.target, ref slash4Ground);
+            Scan(ref action, ref source.target, ref slash5Ground);
+            Scan(ref action, ref source.target, ref slash6Ground);
+            Scan(ref action, ref source.target, ref slash7Ground);
+            Scan(ref action, ref source.target, ref slash8Ground);
+            Scan(ref action, ref source.target, ref slash9Ground);
+            Scan(ref action, ref source.target, ref slash10Ground);
+            Scan(ref action, ref source.target, ref slash11Ground);
+            Scan(ref action, ref source.target, ref slash12Ground);
+            Scan(ref action, ref source.target, ref slash13Ground);
+            Scan(ref action, ref source.target, ref slash14Ground);
+            Scan(ref action, ref source.target, ref slash15Ground);
+            Scan(ref action, ref source.target, ref slash16Ground);
+            Scan(ref action, ref source.target, ref slash17Ground);
+            Scan(ref action, ref source.target, ref slash18Ground);
+            CacheGround.Add(source.ActionIdx, action);
+        }
+        else
+        {
+            Scan(ref action, ref source.target, ref slash0Air);
+            Scan(ref action, ref source.target, ref slash3Air);
+            Scan(ref action, ref source.target, ref slash4Air);
+            Scan(ref action, ref source.target, ref slash5Air);
+            Scan(ref action, ref source.target, ref slash6Air);
+            Scan(ref action, ref source.target, ref slash7Air);
+            Scan(ref action, ref source.target, ref slash8Air);
+            Scan(ref action, ref source.target, ref slash9Air);
+            CacheAir.Add(source.ActionIdx, action);
+        }
+        return action;
     }
 
     //大绝招
-    public ActionNode GetSkillNode(ActionNode source)
+    public ActionNode GetSkillNode(MeteorUnit owner, ActionNode source)
     {
-
+        //刀绝，枪绝，剑绝，匕首绝，锤绝，双刺绝，火枪绝，飞镖绝，忍刀绝，飞轮绝，乾坤刀绝，指虎绝
+        return null;
     }
 
     public void Init()
