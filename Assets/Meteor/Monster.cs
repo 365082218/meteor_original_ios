@@ -66,11 +66,11 @@ public class MonsterEx
     public int Attack1;
     public int Attack2;
     public int Attack3;
-    public int Guard;
-    public int Dodge;
-    public int Jump;
-    public int Look;
-    public int Burst;
+    public int Guard;//防御
+    public int Dodge;//逃跑
+    public int Jump;//跳跃
+    public int Look;//四处看
+    public int Burst;//闪避几率
     public int Aim;//远程武器命中.火枪-飞镖
     public int GetItem;//夺宝几率，各种镖物 武器 道具 等
     public int SpawnPoint;

@@ -505,8 +505,7 @@ public partial class MeteorUnit : MonoBehaviour
                 robot.ChangeState(EAIStatus.Guard);
             else
             {
-                robot.ResetAIKey();
-                robot.ChangeState(EAIStatus.Idle);
+                robot.ChangeState(EAIStatus.Wait);
             }
         }
     }

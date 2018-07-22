@@ -16,7 +16,10 @@ public enum EAIStatus
     GotoPatrol,//去巡逻路径的第一个位置.
     Patrol,//巡逻。
     PatrolInPlace,//单点巡逻
-    Wait,//四处看，类似于Search
+    Wait,//，类似于Search
+    Dodge,//逃跑
+    Look,//四处看
+    GetItem,
 }
 
 /*
@@ -146,6 +149,12 @@ public class MeteorAI {
         AIJumpDelay += Time.deltaTime;
         AIFollowRefresh += Time.deltaTime;
 
+        if (Status == EAIStatus.Patrol || Status == EAIStatus.PatrolInPlace || Status == EAIStatus.GotoPatrol)
+        {
+            if (owner.GetLockedTarget() != null)
+                ChangeState(EAIStatus.Wait);
+        }
+
         if (Status == EAIStatus.Fight)
         {
             //目标可能离开范围.
@@ -171,7 +180,8 @@ public class MeteorAI {
         {
             if (owner.GetLockedTarget() != null)
             {
-                killTarget = owner.GetLockedTarget();
+                //killTarget = owner.GetLockedTarget();
+                fightTarget = owner.GetLockedTarget();
                 Status = EAIStatus.Fight;
                 SubStatus = EAISubStatus.FightThink;
             }
@@ -191,7 +201,16 @@ public class MeteorAI {
                     OnWait();
                     break;
                 case EAIStatus.Guard:
-                    owner.controller.Input.OnKeyDown(EKeyList.KL_Defence, true);//防御
+                    OnGuard();
+                    break;
+                case EAIStatus.Look:
+                    OnLook();
+                    break;
+                case EAIStatus.GetItem:
+                    OnGetItem();
+                    break;
+                case EAIStatus.Dodge:
+                    OnDodge();
                     break;
                 case EAIStatus.PatrolInPlace:
                     OnPatrolInPlace();
@@ -247,6 +266,37 @@ public class MeteorAI {
                
             }
         }
+    }
+
+    //逃跑
+    void OnDodge()
+    {
+        ChangeState(EAIStatus.Wait);
+    }
+
+    //捡去场景道具
+    void OnGetItem()
+    {
+        ChangeState(EAIStatus.Wait);
+    }
+
+    void OnGuard()
+    {
+        if (waitDefence <= 0.0f)
+        {
+            int random = Random.Range(0, 100);
+            if (random < owner.Attr.Guard)
+                owner.Guard(false);
+        }
+        waitDefence -= Time.deltaTime;
+        //owner.controller.Input.OnKeyDown(EKeyList.KL_Defence, true);//防御
+    }
+
+    //四处看未实现.
+    void OnLook()
+    {
+        Stop();//停止移动.
+        ChangeState(EAIStatus.Wait);
     }
 
     #region 输入
@@ -479,6 +529,9 @@ public class MeteorAI {
                     //距离战斗目标不同，选择不同方式应对.
                     if (dis >= Global.AttackRange)
                     {
+                        //大部分几率是跑过去，走到跟前对打。
+                        //小部分几率是切换远程武器打目标。
+
                         //1是否拥有远程武器
                         if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
                         {
@@ -502,17 +555,57 @@ public class MeteorAI {
                     }
                     else
                     {
+                        //小部分几率跑到远处使用远程武器，
+                        //大部分几率，走到角色跟前打
                         //A:跑到远处切换远程武器战斗
                         //B:开始随机动作 A 躲避 B 跳跃 C 防御 D 捡去物品 E 普攻 F 搓招 G 绝招 
                     }
 
                     //检查状态是否应该切换为GotoTarget;
-                    int attack = Random.Range(0, 100);
-                    if (attack >= 0)
+                    int attack = Random.Range(0, 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst + owner.Attr.GetItem);
+                    if (attack <= 10)
                         TryAttack();
                     else
                     {
-                        //啥也不做
+                        if (owner.IsOnGround())
+                        {
+                            if (attack > 100 && attack < 100 + owner.Attr.Dodge)
+                            {
+                                //逃跑
+                                ChangeState(EAIStatus.Dodge);
+                            }
+                            else
+                            if (JumpCoroutine == null && attack > 100 + owner.Attr.Dodge && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump)
+                            {
+                                AIJump();
+                            }
+                            else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard)
+                            {
+                                Stop();
+                                owner.Guard(true);
+                            }
+                            else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard  && attack <  100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look)
+                            {
+                                ChangeState(EAIStatus.Look);
+                            }
+                            else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst)
+                            {
+                                //快速移动.
+                                AIBurst((EKeyList.KL_KeyA) + attack % 4);
+                            }
+                            else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst + owner.Attr.GetItem)
+                            {
+                                ChangeState(EAIStatus.GetItem);
+                            }
+                            else
+                            {
+                                //
+                            }
+                        }
+                        else
+                        {
+                            //空中啥也干不了
+                        }
                     }
                     return;
                     //根据当前动作，选择对应操作。
@@ -880,38 +973,7 @@ public class MeteorAI {
         }
     }
 
-    void Defence(float delta)
-    {
-        //检查与目标的距离，检查与目标攻击物件
-        //MeteorUnit u = owner.GetLockedTarget();
-        //if (u == null)
-        //{
-        //    owner.SelectEnemy();
-        //    u = owner.GetLockedTarget();
-        //}
-        //if (u != null)
-        //{
-        //    if (Vector3.Distance(u.transform.position, transform.position) > 85)
-        //    {
-        //        owner.ReleaseDefence();
-        //        Status = EAIStatus.Idle;
-        //    }
-        //    else
-        //    {
-        //        if (owner.posMng.mActiveAction.Idx == CommonAction.Idle)
-        //            owner.Defence();
-        //    }
-        //}
-        int random = Random.Range(0, 2);
-        switch (random)
-        {
-            case 0:
-                owner.ReleaseDefence();
-                break;
-            case 1:
-                break;
-        }
-    }
+
 
     void GotoTarget(Vector3 pos)
     {
@@ -986,10 +1048,14 @@ public class MeteorAI {
     public void ChangeState(EAIStatus type)
     {
         Status = type;
+        StopCoroutine();
+        Stop();
+        ResetAIKey();
         if (type == EAIStatus.Kill)
         {
+            Debug.Log("changestatus:kill");
             SubStatus = EAISubStatus.KillGotoTarget;
-            killTarget = owner.GetLockedTarget();
+            //killTarget = owner.GetLockedTarget();
         }
         else if (type == EAIStatus.GotoPatrol)
         {
@@ -1003,8 +1069,11 @@ public class MeteorAI {
         {
             SubStatus = EAISubStatus.FollowGotoTarget;
         }
-        StopCoroutine();
-        ResetAIKey();
+        else if (type == EAIStatus.Guard)
+        {
+            waitDefence = 2.0f;//2秒后开始判断能否释放防御键
+            owner.controller.Input.OnKeyDown(EKeyList.KL_Defence, true);//防御
+        }
     }
 
     void StopCoroutine()
@@ -1061,6 +1130,30 @@ public class MeteorAI {
         PlayWeaponPoseCorout = owner.StartCoroutine(PlayWeaponPose(KeyMap));
     }
 
+    Coroutine Burst;
+    void AIBurst(EKeyList key)
+    {
+        if (Burst == null)
+            Burst = owner.StartCoroutine(VirtualKeyEvent2(key));
+    }
+
+    IEnumerator VirtualKeyEvent2(EKeyList key)
+    {
+        owner.controller.Input.OnKeyDown(key, true);
+        yield return 0;
+        yield return 0;
+        owner.controller.Input.OnKeyUp(key);
+        yield return 0;
+        yield return 0;
+        owner.controller.Input.OnKeyDown(key, true);
+        yield return 0;
+        yield return 0;
+        owner.controller.Input.OnKeyUp(key);
+        yield return 0;
+        yield return 0;
+        Burst = null;
+    }
+
     //单键输入.
     IEnumerator VirtualKeyEvent(EKeyList key)
     {
@@ -1072,6 +1165,7 @@ public class MeteorAI {
         yield return 0;
         yield return 0;
         yield return 0;
+        InputCorout = null;
     }
 
     IEnumerator PlayWeaponPose(int KeyMap)
