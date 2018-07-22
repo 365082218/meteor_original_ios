@@ -54,7 +54,6 @@ public enum EAISubStatus
     SubStatusWait,
     FollowGotoTarget,
     FollowSubRotateToTarget,
-    FollowSubCheck,//跟随到达目标后,定时检查
     Patrol,
     PatrolSubInPlace,
     PatrolSubRotateInPlace,//原地随机旋转.
@@ -156,6 +155,10 @@ public class MeteorAI {
                 {
                     fightTarget = lastAttacker;
                 }
+                else if (followTarget != null)
+                {
+                    ChangeState(EAIStatus.Follow);
+                }
                 else
                 {
                     fightTarget = null;
@@ -170,6 +173,7 @@ public class MeteorAI {
             {
                 killTarget = owner.GetLockedTarget();
                 Status = EAIStatus.Fight;
+                SubStatus = EAISubStatus.FightThink;
             }
         }
 
@@ -361,40 +365,68 @@ public class MeteorAI {
 
     void TryAttack()
     {
+        Debug.LogError("try attack");
         //已经在攻击招式中.后接招式挑选
         //把可以使用的招式放到集合里，A类放普攻，B类放搓招， C类放绝招
         ActionNode act = ActionInterrupt.Instance.GetActions(owner.posMng.mActiveAction.Idx);
         if (act != null)
         {
-            ActionNode attack1 = ActionInterrupt.Instance.GetNormalNode(owner, act);
-            List<ActionNode> attack2 = ActionInterrupt.Instance.GetSlashNode(owner, act);
-            ActionNode attack3 = ActionInterrupt.Instance.GetSkillNode(owner, act);
             int attack = Random.Range(0, 100);
+            //owner.Attr.Attack1 = 0;
+            //owner.Attr.Attack2 = 0;
+            //owner.Attr.Attack3 = 100;
+            //owner.AngryValue = 100;
             if (attack < owner.Attr.Attack1)
             {
                 //普通攻击
+                Debug.LogError("try attack 1");
+                ActionNode attack1 = ActionInterrupt.Instance.GetNormalNode(owner, act);
+                if (attack1 != null)
+                {
+                    SubStatus = EAISubStatus.FightAttack1;
+                    TryPlayWeaponPose(attack1.KeyMap);
+                }
             }
             else if (attack < (owner.Attr.Attack1 + owner.Attr.Attack2))
             {
+                Debug.LogError("try attack2");
                 //连招
+                List<ActionNode> attack2 = ActionInterrupt.Instance.GetSlashNode(owner, act);
+                if (attack2.Count != 0)
+                {
+                    SubStatus = EAISubStatus.FightAttack2;
+                    TryPlayWeaponPose(attack2[Random.Range(0, attack2.Count)].KeyMap);
+                }
             }
             else if (attack < (owner.Attr.Attack1 + owner.Attr.Attack2 + owner.Attr.Attack3))
             {
                 //绝招
+                Debug.LogError("try attack3");
+                ActionNode attack3 = ActionInterrupt.Instance.GetSkillNode(owner, act);
+                if (attack3 != null)
+                {
+                    SubStatus = EAISubStatus.FightAttack3;
+                    if (attack3.ActionIdx == 310)
+                        Debug.Log("use blade skill");
+                    TryPlayWeaponPose(attack3.KeyMap);
+                }
             }
         }
     }
     //地面攻击.
     void FightOnGround()
     {
+        Debug.LogError("fightonground");
         //1 先检查当前是否处于接收输入状态，这种都是连招方式的。
         if (owner.controller.Input.AcceptInput())
         {
             //依次判断
+            Debug.LogError("accept input");
             if (owner.posMng.IsAttackPose() && PlayWeaponPoseCorout == null)
             {
+                Debug.LogError("attack");
                 int attack = Random.Range(0, 100);
-                if (attack >= 50 )
+                if (attack >= 50)
                     TryAttack();
                 else
                 {
@@ -423,6 +455,7 @@ public class MeteorAI {
             else
             {
                 //在一些动作姿势里，走，跑，跳 等
+                //if ()//在一些特殊姿势里，比如落地，等待飞轮回来，火枪上子弹。
                 //在危险中
                 if (owner.InDanger())
                 {
@@ -442,12 +475,27 @@ public class MeteorAI {
                 }
                 else
                 {
-                    //根据当前动作，选择对应操作。
-                    //主要逻辑
                     float dis = Vector3.Distance(owner.mPos, fightTarget.mPos);
                     //距离战斗目标不同，选择不同方式应对.
                     if (dis >= Global.AttackRange)
                     {
+                        //1是否拥有远程武器
+                        if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
+                        {
+                            //主手是远程武器
+                        }
+                        else if (U3D.IsSpecialWeapon(owner.Attr.Weapon2))
+                        {
+                            //副手是远程武器
+                        }
+                        else
+                        {
+                            //双手全近战武器.
+
+                        }
+                    
+                        //切换武器的几率多大
+                        //
                         //A:切换远程武器战斗
                         //A.1:监测能否切换远程武器.
                         //B:跑到近距离战斗
@@ -457,6 +505,19 @@ public class MeteorAI {
                         //A:跑到远处切换远程武器战斗
                         //B:开始随机动作 A 躲避 B 跳跃 C 防御 D 捡去物品 E 普攻 F 搓招 G 绝招 
                     }
+
+                    //检查状态是否应该切换为GotoTarget;
+                    int attack = Random.Range(0, 100);
+                    if (attack >= 0)
+                        TryAttack();
+                    else
+                    {
+                        //啥也不做
+                    }
+                    return;
+                    //根据当前动作，选择对应操作。
+                    //主要逻辑
+                    
                 }
             }
             //状态 - 残血[捡物品/逃跑(旋转、跑)]、攻击出招、闪躲、跳跃、防御、捡物品、
@@ -502,29 +563,16 @@ public class MeteorAI {
                 {
                     //先确定是否重新刷新路线.
                     dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(target.mPos.x, 0, target.mPos.z));
-                    if (dis <= 35)//小于35码停止跟随，不需要计算路径
+                    if (dis < Global.FollowDistance)//小于50码停止跟随，不需要计算路径
                     {
                         //FollowPath.Clear();
                         Debug.Log("stop follow until 35 meters");
                         owner.controller.Input.AIMove(0, 0);
                         AIFollowRefresh = 5.0f;//5秒后再计算是否跟随.
+                        ChangeState(EAIStatus.Wait);//开始寻找敌人
                         return;
                     }
-                    else if (dis >= 50)//距离大于50码开始跟随移动
-                    {
-                        //if (SubStatus == EAISubStatus.KillGetTarget)
-                        //    SubStatus = EAISubStatus.KillGotoTarget;
-                        owner.controller.Input.AIMove(0, 1);
-                    }
                     RefreshFollowPath(owner.mPos, owner, target);
-                    //成功找到路径.且占据了目标上的一个位置槽
-                    //if (freeSlot != -1)
-                    //{
-                    //    if (SlotCache.ContainsKey(target))
-                    //        SlotCache[target] = freeSlot;
-                    //    else
-                    //        SlotCache.Add(target, freeSlot);
-                    //}
                 }
                 else
                 {
@@ -549,7 +597,7 @@ public class MeteorAI {
                             //到达终点.
                             owner.controller.Input.AIMove(0, 0);
                             AIFollowRefresh = 5.0f;
-                            SubStatus = EAISubStatus.FollowSubCheck;
+                            ChangeState(EAIStatus.Wait);//开始寻找敌人
                             return;
                         }
                         else
@@ -581,11 +629,6 @@ public class MeteorAI {
                     FollowRotateToTargetCoroutine = owner.StartCoroutine(FollowRotateToTarget(FollowPath[targetIndex].pos));
                 }
                 break;
-            case EAISubStatus.FollowSubCheck:
-                dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(target.mPos.x, 0, target.mPos.z));
-                if (dis >= 50)//距离大于50码开始跟随移动
-                    SubStatus = EAISubStatus.FollowGotoTarget;
-                break;
         }
     }
 
@@ -611,13 +654,14 @@ public class MeteorAI {
     Coroutine struggleCoroutine;
     void OnHurt()
     {
+        Debug.LogError("OnHurt");
         owner.controller.Input.ResetInput();
         if (owner.posMng.mActiveAction.Idx == CommonAction.Struggle || owner.posMng.mActiveAction.Idx == CommonAction.Struggle0)
         {
             if (struggleCoroutine == null && !owner.charLoader.InStraight)
                 struggleCoroutine = owner.StartCoroutine(ProcessStruggle());
         }
-        SubStatus = EAISubStatus.KillGotoTarget;
+        //SubStatus = EAISubStatus.KillGotoTarget;
     }
 
     IEnumerator ProcessStruggle()
@@ -795,7 +839,7 @@ public class MeteorAI {
                         owner.PlaySkill();//开大
                     break;
                 case 7:
-                    TryPlayWeaponPose();//使用武器招式.
+                    //TryPlayWeaponPose();//使用武器招式.
                     break;
                 case 8:
                     owner.controller.Input.OnKeyDown(EKeyList.KL_Crouch, true);//蹲下
@@ -833,7 +877,6 @@ public class MeteorAI {
         else if (owner.posMng.IsAttackPose() && owner.controller.Input.AcceptInput())
         {
             //尝试输出下一个连招
-            TryPlayNextWeaponPose();
         }
     }
 
@@ -956,6 +999,10 @@ public class MeteorAI {
         {
             SubStatus = EAISubStatus.PatrolSubInPlace;
         }
+        else if (type == EAIStatus.Follow)
+        {
+            SubStatus = EAISubStatus.FollowGotoTarget;
+        }
         StopCoroutine();
         ResetAIKey();
     }
@@ -1005,27 +1052,13 @@ public class MeteorAI {
     }
 
     Coroutine PlayWeaponPoseCorout;
-    //触发连招（如果有)
-    void TryPlayNextWeaponPose()
-    {
-        if (PlayWeaponPoseCorout != null)
-            return;
-        //得到当前招式的下一招式.
-        List<int> pose = owner.GetNextWeaponPos();
-        if (pose.Count == 0)
-            return;
-        int rand = Global.Rand.Next(0, pose.Count);
-        PlayWeaponPoseCorout = owner.StartCoroutine(PlayWeaponPose(rand));
-    }
 
     //触发首招
-    void TryPlayWeaponPose()
+    void TryPlayWeaponPose(int KeyMap)
     {
         if (PlayWeaponPoseCorout != null)
             return;
-        List<int> pose = owner.GetWeaponPos();
-        int rand = Global.Rand.Next(0, pose.Count);
-        PlayWeaponPoseCorout = owner.StartCoroutine(PlayWeaponPose(rand));
+        PlayWeaponPoseCorout = owner.StartCoroutine(PlayWeaponPose(KeyMap));
     }
 
     //单键输入.
@@ -1041,21 +1074,14 @@ public class MeteorAI {
         yield return 0;
     }
 
-    IEnumerator PlayWeaponPose(int pose)
+    IEnumerator PlayWeaponPose(int KeyMap)
     {
-        int nowpose = owner.posMng.mActiveAction.Idx;
-        List<VirtualInput> skill = VirtualInput.CalcSkillInput(pose);
+        List<VirtualInput> skill = VirtualInput.CalcPoseInput(KeyMap);
         for (int i = 0; i < skill.Count; i++)
         {
-            //受击中断招式
-            if (owner.posMng.mActiveAction.Idx != nowpose)
-                yield break;
-
-            if (skill[i].type == 1)
-                owner.controller.Input.OnKeyDown(skill[i].key, true);
-            else if (skill[i].type == 0)
-                owner.controller.Input.OnKeyUp(skill[i].key);
-
+            owner.controller.Input.OnKeyDown(skill[i].key, true);
+            yield return 0;
+            owner.controller.Input.OnKeyUp(skill[i].key);
             yield return 0;
         }
         PlayWeaponPoseCorout = null;
@@ -1575,20 +1601,13 @@ public class MeteorAI {
 
     IEnumerator AIJumpCorout()
     {
-        //owner.Jump(false, 1.0f);
         List<VirtualInput> jump = VirtualInput.CalcJumpInput();
         for (int i = 0; i < jump.Count; i++)
         {
-            if (jump[i].type == 1)
-                owner.controller.Input.OnKeyDown(jump[i].key, true);
-            else if (jump[i].type == 0)
-                owner.controller.Input.OnKeyUp(jump[i].key);
-            int k = AppInfo.GetTargetFrame() / 3;
-            while (k > 0)
-            {
-                k--;
-                yield return 0;
-            }
+            owner.controller.Input.OnKeyDown(jump[i].key, true);
+            yield return 0;
+            owner.controller.Input.OnKeyUp(jump[i].key);
+            yield return 0;
         }
         JumpCoroutine = null;
     }
@@ -1597,24 +1616,345 @@ public class MeteorAI {
 public class VirtualInput
 {
     public EKeyList key;
-    public int type;//1 down 0 up
-    public static List<VirtualInput> CalcSkillInput(int pose)
+    static bool InGroup(int [] group, int target)
+    {
+        for (int i = 0; i < group.Length; i++)
+        {
+            if (group[i] == target)
+                return true;
+        }
+        return false;
+    }
+
+    public static List<VirtualInput> CalcPoseInput(int KeyMap)
     {
         List<VirtualInput> skill = new List<VirtualInput>();
+        //普通攻击.
+        int[] GroundKeyMap = new int[] { 1, 5, 9, 13, 25, 35, 48, 61, 73, 91, 95, 101, 108, 123 };
+        int[] AirKeyMap = new int[] { 85, 22, 32, 46, 59, 107, 122, 105 };
+        if (InGroup(GroundKeyMap, KeyMap) || InGroup(AirKeyMap, KeyMap))
+        {
+            VirtualInput v = new VirtualInput();
+            v.key = EKeyList.KL_Attack;
+            skill.Add(v);
+            return skill;
+        }
+
+        //其他带方向连招的.
+        int[] slash0Ground = new int[] { 3, 7, 11, 19, 37, 84, 49, 63, 75, 92, 98, 113, 125, 24 };//下A地面
+        int[] slash0Air = new int[] { 24, 33, 47, 60, 72, 83, 106, 109, 126 };//下A空中
+        if (InGroup(slash0Ground, KeyMap) || InGroup(slash0Air, KeyMap))
+        {
+            VirtualInput s = new VirtualInput();
+            s.key = EKeyList.KL_KeyS;
+            skill.Add(s);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j); 
+            return skill;
+        }
+
+        int[] slash1Ground = new int[] { 16, 28, 38, 64, 89, 100 };//左攻击
+        if (InGroup(slash1Ground, KeyMap))
+        {
+            VirtualInput a = new VirtualInput();
+            a.key = EKeyList.KL_KeyA;
+            skill.Add(a);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
+        //int[] slash1Air = new int[] { };//左攻击无空中招式
+        int[] slash2Ground = new int[] { 15, 29, 39, 65, 93, 99 };//右攻击
+        if (InGroup(slash2Ground, KeyMap))
+        {
+            VirtualInput d = new VirtualInput();
+            d.key = EKeyList.KL_KeyD;
+            skill.Add(d);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
+
+        //int[] slash2Air = new int[] { };//右攻击无空中招式
+        int[] slash3Ground = new int[] { 2, 6, 10, 14, 26, 36, 50, 62, 74, 96, 124 };//上攻击
+        int[] slash3Air = new int[] { 87, 23 };//上攻击空中招式
+        if (InGroup(slash3Ground, KeyMap) || InGroup(slash3Air, KeyMap))
+        {
+            VirtualInput w = new VirtualInput();
+            w.key = EKeyList.KL_KeyW;
+            skill.Add(w);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
+        
+        int[] slash4Ground = new int[] { 88, 40, 52, 68, 78, 94, 114, 140, 90 };//下下攻击
+        int[] slash4Air = new int[] { 150, 133 };//下下攻击空中
+        if (InGroup(slash4Ground, KeyMap) || InGroup(slash4Air, KeyMap))
+        {
+            VirtualInput s = new VirtualInput();
+            s.key = EKeyList.KL_KeyS;
+            VirtualInput ss = new VirtualInput();
+            ss.key = EKeyList.KL_KeyS;
+            skill.Add(s);
+            skill.Add(ss);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
+
+        int[] slash5Ground = new int[] { 20, 27, 43, 54, 66, 77, 97, 117, 137, 160 };//上上攻击
+        int[] slash5Air = new int[] { 130 };//上上攻击空中
+        if (InGroup(slash5Ground, KeyMap) || InGroup(slash5Air, KeyMap))
+        {
+            VirtualInput w = new VirtualInput();
+            w.key = EKeyList.KL_KeyW;
+            VirtualInput ww = new VirtualInput();
+            ww.key = EKeyList.KL_KeyW;
+            skill.Add(w);
+            skill.Add(ww);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
+
+        int[] slash6Ground = new int[] { 139, 111 };//左左攻击
+        int[] slash6Air = new int[] { 132 };//左左攻击空中
+        if (InGroup(slash6Ground, KeyMap) || InGroup(slash6Air, KeyMap))
+        {
+            VirtualInput a = new VirtualInput();
+            a.key = EKeyList.KL_KeyA;
+            VirtualInput aa = new VirtualInput();
+            aa.key = EKeyList.KL_KeyA;
+            skill.Add(a);
+            skill.Add(aa);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
+
+        int[] slash7Ground = new int[] { 138, 112 };//右右攻击
+        int[] slash7Air = new int[] { 131 };//右右攻击空中
+        if (InGroup(slash7Ground, KeyMap) || InGroup(slash7Air, KeyMap))
+        {
+            VirtualInput d = new VirtualInput();
+            d.key = EKeyList.KL_KeyD;
+            VirtualInput dd = new VirtualInput();
+            dd.key = EKeyList.KL_KeyD;
+            skill.Add(d);
+            skill.Add(dd);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
+
+        int[] slash8Ground = new int[] { 143, 147, 145, 18, 30, 41, 53, 67, 76, 102, 159, 116, 134 };//下上攻击
+        int[] slash8Air = new int[] { 144, 146 };//下上攻击空中
+        if (InGroup(slash8Ground, KeyMap) || InGroup(slash8Air, KeyMap))
+        {
+            VirtualInput s = new VirtualInput();
+            s.key = EKeyList.KL_KeyS;
+            VirtualInput w = new VirtualInput();
+            w.key = EKeyList.KL_KeyW;
+            skill.Add(s);
+            skill.Add(w);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
+
+        int[] slash9Ground = new int[] { 42, 103, 118, 127 };//上下攻击
+        int[] slash9Air = new int[] { 34 };//上下攻击空中
+        if (InGroup(slash9Ground, KeyMap) || InGroup(slash9Air, KeyMap))
+        {
+            VirtualInput w = new VirtualInput();
+            w.key = EKeyList.KL_KeyW;
+            VirtualInput s = new VirtualInput();
+            s.key = EKeyList.KL_KeyS;
+            skill.Add(w);
+            skill.Add(s);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
+
+        int[] slash10Ground = new int[] { 17, 55, 151, 69, 79, 110, 142 };//左右攻击
+        if (InGroup(slash10Ground, KeyMap))
+        {
+            VirtualInput a = new VirtualInput();
+            a.key = EKeyList.KL_KeyA;
+            VirtualInput d = new VirtualInput();
+            d.key = EKeyList.KL_KeyD;
+            skill.Add(a);
+            skill.Add(d);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
+
+        //int[] slash10Air = new int[] {  };//左右攻击空中
+        int[] slash11Ground = new int[] { 152, 51, 155, 80 };//右左攻击
+        if (InGroup(slash11Ground, KeyMap))
+        {
+            VirtualInput a = new VirtualInput();
+            a.key = EKeyList.KL_KeyA;
+            VirtualInput d = new VirtualInput();
+            d.key = EKeyList.KL_KeyD;
+            skill.Add(d);
+            skill.Add(a);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
+
+        //int[] slash11Air = new int[] { };//右左攻击空中
+        int[] slash12Ground = new int[] { 71, 81, 120, 128, 154 };//左右下攻击
+        if (InGroup(slash12Ground, KeyMap))
+        {
+            VirtualInput a = new VirtualInput();
+            a.key = EKeyList.KL_KeyA;
+            VirtualInput d = new VirtualInput();
+            d.key = EKeyList.KL_KeyD;
+            VirtualInput s = new VirtualInput();
+            s.key = EKeyList.KL_KeyS;
+            skill.Add(a);
+            skill.Add(d);
+            skill.Add(s);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
+
+        int[] slash13Ground = new int[] { 21 };//下左右A
+        if (InGroup(slash13Ground, KeyMap))
+        {
+            VirtualInput s = new VirtualInput();
+            s.key = EKeyList.KL_KeyS;
+            VirtualInput a = new VirtualInput();
+            a.key = EKeyList.KL_KeyA;
+            VirtualInput d = new VirtualInput();
+            d.key = EKeyList.KL_KeyD;
+            skill.Add(s);
+            skill.Add(a);
+            skill.Add(d);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
+
+        int[] slash14Ground = new int[] { 70, 115, 148, 45, 57, 157, 135 };//左右上
+        if (InGroup(slash14Ground, KeyMap))
+        {
+            VirtualInput a = new VirtualInput();
+            a.key = EKeyList.KL_KeyA;
+            VirtualInput d = new VirtualInput();
+            d.key = EKeyList.KL_KeyD;
+            VirtualInput s = new VirtualInput();
+            s.key = EKeyList.KL_KeyW;
+            skill.Add(a);
+            skill.Add(d);
+            skill.Add(s);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
+
+        int[] slash15Ground = new int[] { 121, 56, 104, 129, 156, 82, 149 };//下下上
+        if (InGroup(slash15Ground, KeyMap))
+        {
+            VirtualInput s = new VirtualInput();
+            s.key = EKeyList.KL_KeyS;
+            VirtualInput ss = new VirtualInput();
+            ss.key = EKeyList.KL_KeyS;
+            VirtualInput w = new VirtualInput();
+            w.key = EKeyList.KL_KeyW;
+            skill.Add(s);
+            skill.Add(ss);
+            skill.Add(w);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
+
+        int[] slash16Ground = new int[] { 158, 58, 119, 4, 8, 12, 31, 44, 141 };//下上上
+        if (InGroup(slash16Ground, KeyMap))
+        {
+            VirtualInput s = new VirtualInput();
+            s.key = EKeyList.KL_KeyS;
+            VirtualInput w = new VirtualInput();
+            w.key = EKeyList.KL_KeyW;
+            VirtualInput ww = new VirtualInput();
+            ww.key = EKeyList.KL_KeyW;
+            skill.Add(s);
+            skill.Add(w);
+            skill.Add(ww);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
+        int[] slash17Ground = new int[] { 153 };//上上上-枪绝招
+        if (InGroup(slash17Ground, KeyMap))
+        {
+            VirtualInput w = new VirtualInput();
+            w.key = EKeyList.KL_KeyW;
+            VirtualInput ww = new VirtualInput();
+            ww.key = EKeyList.KL_KeyW;
+            VirtualInput www = new VirtualInput();
+            www.key = EKeyList.KL_KeyW;
+            skill.Add(w);
+            skill.Add(ww);
+            skill.Add(www);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
+        int[] slash18Ground = new int[] { 136 };//左右下上-忍刀绝招
+        if (InGroup(slash18Ground, KeyMap))
+        {
+            VirtualInput a = new VirtualInput();
+            a.key = EKeyList.KL_KeyA;
+            VirtualInput d = new VirtualInput();
+            d.key = EKeyList.KL_KeyD;
+            VirtualInput s = new VirtualInput();
+            s.key = EKeyList.KL_KeyS;
+            VirtualInput w = new VirtualInput();
+            w.key = EKeyList.KL_KeyW;
+            skill.Add(a);
+            skill.Add(d);
+            skill.Add(s);
+            skill.Add(w);
+            VirtualInput j = new VirtualInput();
+            j.key = EKeyList.KL_Attack;
+            skill.Add(j);
+            return skill;
+        }
         return skill;
     }
 
     public static List<VirtualInput> CalcJumpInput()
     {
         List<VirtualInput> jump = new List<VirtualInput>();
-        VirtualInput jumpDown = new VirtualInput();
-        jumpDown.key = EKeyList.KL_Jump;
-        jumpDown.type = 1;
-        jump.Add(jumpDown);
-        VirtualInput jumpUp = new VirtualInput();
-        jumpUp.key = EKeyList.KL_Jump;
-        jumpUp.type = 0;
-        jump.Add(jumpUp);
+        VirtualInput jumpV = new VirtualInput();
+        jumpV.key = EKeyList.KL_Jump;
+        jump.Add(jumpV);
         return jump;
     }
 }

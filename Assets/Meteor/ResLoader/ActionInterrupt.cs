@@ -154,10 +154,272 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
     public Dictionary<int, ActionNode> Whole = new Dictionary<int, ActionNode>();
     public Dictionary<int, List<int>> Lines = new Dictionary<int, List<int>>();//存储行 与 Pose的关系
     
+    bool IsWeaponKey(int weapon, int KeyMap)
+    {
+        bool result = false;
+        switch (weapon)
+        {
+            case (int)EquipWeaponType.Knife:
+                switch (KeyMap)
+                {
+                    case 25://匕首普攻,需要看输入缓冲是否含有其他方向键,或者含有任意方向键的状态
+                    case 32:
+                    case 26://匕首上A,状态,只能按下一次W或者弹起一次W,或者当前W被按下,还要判断反向键的状态
+                    //上上A,前3个按键里面只有找到至少2个按下W按键
+                    case 27:
+                    case 28://左A 370-371
+                    case 29://右A
+                    case 30://下上A(地面)            
+                    case 31://下上上A 阎罗
+                    case 84://下A 空 地都可以 接空中252不能在地面 接地面343不能在空中
+                    case 33:
+                    case 34:
+                    case 88://下下A 地面小绝 下扎
+                    case 150://空中下下A
+                        result = true;
+                        break;
+                }
+                break;
+            //锤子长枪大刀属于重武器，共用输入59编号动作338
+            case (int)EquipWeaponType.Blade:
+                switch (KeyMap)
+                {
+                    case 61:
+                    case 62:
+                    case 63:
+                    case 64:
+                    case 65:
+                    case 66:
+                    case 67:
+                    case 68:
+                    case 69:
+                    case 70:
+                    case 71://大绝招
+                    case 72:
+                    case 155://旋风斩
+                    case 156://雷电斩
+                    case 59://一般空踢
+                        result = true;
+                        break;
+                }
+                break;
+            case (int)EquipWeaponType.Dart:
+                switch (KeyMap)
+                {
+                    case 1:
+                    case 143://地面八方绝
+                    case 85:
+                    case 4://落樱雪
+                    case 2:
+                    case 3:
+                    case 87:
+                    case 144://空中八方绝
+                        result = true;
+                        break;
+                }
+                break;
+            case (int)EquipWeaponType.Gun:
+                switch (KeyMap)
+                {
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8://大绝
+                    case 147://小绝
+                    case 59://一般空踢
+                        result = true;
+                        break;
+                }
+                break;
+            case (int)EquipWeaponType.Guillotines://血滴子
+                switch (KeyMap)
+                {
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                    case 145:
+                    case 146:
+                    case 59://一般空踢
+                        result = true;
+                        break;
+                }
+                break;
+            case (int)EquipWeaponType.Brahchthrust://分水刺
+                switch (KeyMap)
+                {
+                    case 13:
+                    case 14:
+                    case 15:
+                    case 16:
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                    case 148://左右上小绝
+                    case 149://加速BUFF
+                        result = true;
+                        break;
+                }
+                break;
+            case (int)EquipWeaponType.Sword://剑
+                switch (KeyMap)
+                {
+                    case 35:
+                    case 36:
+                    case 37:
+                    case 38:
+                    case 39:
+                    case 40:
+                    case 41:
+                    case 42:
+                    case 43:
+                    case 44:
+                    case 45://大招
+                    case 46:
+                    case 47:
+                    case 151://左右A剑气
+                    case 152://右左A小绝旋转
+                        result = true;
+                        break;
+                }
+                break;
+            case (int)EquipWeaponType.Lance://枪
+                switch (KeyMap)
+                {
+                    case 48:
+                    case 49:
+                    case 50:
+                    case 51:
+                    case 52:
+                    case 53:
+                    case 54:
+                    case 55:
+                    case 56:
+                    case 57:
+                    case 58://大招
+                    case 59:
+                    case 60:
+                    case 153://强攻 前前前A
+                    case 154://左右下A 小绝招
+                        result = true;
+                        break;
+                }
+                break;
+            case (int)EquipWeaponType.Hammer://锤子
+                switch (KeyMap)
+                {
+                    case 73:
+                    case 74:
+                    case 75:
+                    case 76:
+                    case 77:
+                    case 78:
+                    case 79:
+                    case 80:
+                    case 81:
+                    case 82://铜皮
+                    case 83:
+                    case 157://震荡波
+                    case 158://大绝
+                    case 59://一般空踢
+                        result = true;
+                        break;
+                }
+                break;
+            case (int)EquipWeaponType.HeavenLance://乾坤
+                switch (KeyMap)
+                {
+                    //乾坤分3种姿态，也就是3个POSE组
+                    case 89://左A 拔刀切换持枪 430
+                    case 90://下下A 拔刀切换居合 431
+                    case 91://432，433，434
+                    case 92://439
+                    case 93://右A 持枪切换拔刀440
+                    case 94://下下A 持枪切换居合441
+                    case 95://442
+                    case 96://443
+                    case 97://444,拔刀小绝
+                    case 98://445
+                    case 99://右A 居合转换拔刀447
+                    case 100://左A 居合转换持枪 448 
+                    case 101://520,521,522,523
+                    case 102://449-持枪小绝
+                    case 103://450
+                    case 104://451//大绝招
+                    case 105://458
+                    case 106://空中下A 446
+                    case 159:
+                    case 160:
+                        result = true;
+                        break;
+                }
+                break;
+            case (int)EquipWeaponType.Gloves://拳套
+                switch (KeyMap)
+                {
+                    //乾坤分3种姿态，也就是3个POSE组
+                    case 107:
+                    case 108:
+                    case 109:
+                    case 110:
+                    case 111:
+                    case 112:
+                    case 113:
+                    case 114:
+                    case 115:
+                    case 116:
+                    case 117:
+                    case 118:
+                    case 119:
+                    case 120://大绝
+                    case 121://嗜血
+                        result = true;
+                        break;
+                }
+                break;
+            case (int)EquipWeaponType.NinjaSword://忍者刀
+                switch (KeyMap)
+                {
+                    case 122:
+                    case 123:
+                    case 124:
+                    case 125:
+                    case 126:
+                    case 127:
+                    case 128://忍术-隐忍
+                    case 129:
+                    case 130:
+                    case 131:
+                    case 132:
+                    case 133:
+                    case 134:
+                    case 135:
+                    case 136://天地同寿
+                    case 137:
+                    case 138:
+                    case 139:
+                    case 140:
+                    case 141://忍爆弹-忍大招
+                    case 142://左右A 10气
+                        result = true;
+                        break;
+                }
+                break;
+        }
+        
+        return result;
+    }
+
     //得到一个招式可连接的普通招式
     public ActionNode GetNormalNode(MeteorUnit owner, ActionNode source)
     {
         //普通攻击映射输入的行号
+        int weapon = owner.GetWeaponType();
         //"1,5,9,13,25,35,48,61,73,91,95,101,108,123,"    "85,22,32,46,59,107,122,105,"   J 攻击  59较特殊，估计所有重武器的空中A都是338动作
         int[] GroundKeyMap = new int[] { 1, 5, 9, 13, 25, 35, 48, 61, 73, 91, 95, 101, 108, 123 };
         int[] AirKeyMap = new int[] { 85, 22, 32, 46, 59, 107, 122, 105 };
@@ -168,7 +430,7 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
             {
                 for (int j = 0; j < GroundKeyMap.Length; j++)
                 {
-                    if (GroundKeyMap[j] == source.target[i].KeyMap)
+                    if (GroundKeyMap[j] == source.target[i].KeyMap && IsWeaponKey(weapon, source.target[i].KeyMap))
                         return source.target[i];
                 }
             }
@@ -179,7 +441,7 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
             {
                 for (int j = 0; j < AirKeyMap.Length; j++)
                 {
-                    if (AirKeyMap[j] == source.target[i].KeyMap)
+                    if (AirKeyMap[j] == source.target[i].KeyMap && IsWeaponKey(weapon, source.target[i].KeyMap))
                         return source.target[i];
                 }
             }
@@ -188,14 +450,42 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
         return null;
     }
 
-    //得到一个招式可连接的非普通招式,不包含大绝招，可以有小绝招
-    void Scan(ref List<ActionNode> dst, ref List<ActionNode> src, ref int [] scan)
+    /*
+    259 //匕首大
+    203 //标大
+    216 //火枪大
+    244 //双刺
+    293 //长枪大
+    310 //刀大
+    368 //剑大
+    421 //拳套大
+    451 //乾坤刀
+    474 //忍刀
+    325 //锤
+    224 //飞轮
+    */
+
+    int[] skill = new int[] { 259, 203, 216, 244, 293, 310, 368, 421, 451, 474, 325, 224 };
+    bool IsSkill(int action)
     {
+        for (int i = 0; i < skill.Length; i++)
+        {
+            if (action == skill[i])
+                return true;
+        }
+        return false;
+    }
+
+    //得到一个招式可连接的非普通招式,不包含大绝招，可以有小绝招
+    void Scan(int weapon, ref List<ActionNode> dst, ref List<ActionNode> src, ref int [] scan)
+    {
+        if (dst == null || dst.Count == 0 || src == null || src.Count == 0 || scan == null || scan.Length == 0)
+            Debug.DebugBreak();
         for (int i = 0; i < src.Count; i++)
         {
             for (int j = 0; j < scan.Length; j++)
             {
-                if (scan[j] == src[i].KeyMap)
+                if (scan[j] == src[i].KeyMap && !IsSkill(src[i].ActionIdx) && IsWeaponKey(weapon, src[i].KeyMap))
                 {
                     dst.Add(src[i]);
                 }
@@ -208,6 +498,7 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
     public List<ActionNode> GetSlashNode(MeteorUnit owner, ActionNode source)
     {
         List<ActionNode> action = new List<ActionNode>();
+        int weapon = owner.GetWeaponType();
         if (owner.IsOnGround())
         {
             if (CacheGround.TryGetValue(source.ActionIdx, out action))
@@ -218,6 +509,8 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
             if (CacheAir.TryGetValue(source.ActionIdx, out action))
                 return action;
         }
+
+        action = new List<ActionNode>();
         //下A: "3,7,11,19,37,84,49,63,75,92,98,113,125,24" "24,33,47,60,72,83,106,109,126,"    SJ 下攻击 所有的基础动作，都不由连招系统负责，而由基本按键识别系统识别
         //左A: "16,28,38,64,89,100,"       AJ 左攻击 这里面只会缺少86爆气行
         //右A: "15,29,39,65,93,99,"        DJ 右攻击
@@ -275,37 +568,37 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
         
         if (owner.IsOnGround())
         {
-            Scan(ref action, ref source.target, ref slash0Ground);
-            Scan(ref action, ref source.target, ref slash1Ground);
-            Scan(ref action, ref source.target, ref slash2Ground);
-            Scan(ref action, ref source.target, ref slash3Ground);
-            Scan(ref action, ref source.target, ref slash4Ground);
-            Scan(ref action, ref source.target, ref slash5Ground);
-            Scan(ref action, ref source.target, ref slash6Ground);
-            Scan(ref action, ref source.target, ref slash7Ground);
-            Scan(ref action, ref source.target, ref slash8Ground);
-            Scan(ref action, ref source.target, ref slash9Ground);
-            Scan(ref action, ref source.target, ref slash10Ground);
-            Scan(ref action, ref source.target, ref slash11Ground);
-            Scan(ref action, ref source.target, ref slash12Ground);
-            Scan(ref action, ref source.target, ref slash13Ground);
-            Scan(ref action, ref source.target, ref slash14Ground);
-            Scan(ref action, ref source.target, ref slash15Ground);
-            Scan(ref action, ref source.target, ref slash16Ground);
-            Scan(ref action, ref source.target, ref slash17Ground);
-            Scan(ref action, ref source.target, ref slash18Ground);
+            Scan(weapon, ref action, ref source.target, ref slash0Ground);
+            Scan(weapon, ref action, ref source.target, ref slash1Ground);
+            Scan(weapon, ref action, ref source.target, ref slash2Ground);
+            Scan(weapon, ref action, ref source.target, ref slash3Ground);
+            Scan(weapon, ref action, ref source.target, ref slash4Ground);
+            Scan(weapon, ref action, ref source.target, ref slash5Ground);
+            Scan(weapon, ref action, ref source.target, ref slash6Ground);
+            Scan(weapon, ref action, ref source.target, ref slash7Ground);
+            Scan(weapon, ref action, ref source.target, ref slash8Ground);
+            Scan(weapon, ref action, ref source.target, ref slash9Ground);
+            Scan(weapon, ref action, ref source.target, ref slash10Ground);
+            Scan(weapon, ref action, ref source.target, ref slash11Ground);
+            Scan(weapon, ref action, ref source.target, ref slash12Ground);
+            Scan(weapon, ref action, ref source.target, ref slash13Ground);
+            Scan(weapon, ref action, ref source.target, ref slash14Ground);
+            Scan(weapon, ref action, ref source.target, ref slash15Ground);
+            Scan(weapon, ref action, ref source.target, ref slash16Ground);
+            Scan(weapon, ref action, ref source.target, ref slash17Ground);
+            Scan(weapon, ref action, ref source.target, ref slash18Ground);
             CacheGround.Add(source.ActionIdx, action);
         }
         else
         {
-            Scan(ref action, ref source.target, ref slash0Air);
-            Scan(ref action, ref source.target, ref slash3Air);
-            Scan(ref action, ref source.target, ref slash4Air);
-            Scan(ref action, ref source.target, ref slash5Air);
-            Scan(ref action, ref source.target, ref slash6Air);
-            Scan(ref action, ref source.target, ref slash7Air);
-            Scan(ref action, ref source.target, ref slash8Air);
-            Scan(ref action, ref source.target, ref slash9Air);
+            Scan(weapon, ref action, ref source.target, ref slash0Air);
+            Scan(weapon, ref action, ref source.target, ref slash3Air);
+            Scan(weapon, ref action, ref source.target, ref slash4Air);
+            Scan(weapon, ref action, ref source.target, ref slash5Air);
+            Scan(weapon, ref action, ref source.target, ref slash6Air);
+            Scan(weapon, ref action, ref source.target, ref slash7Air);
+            Scan(weapon, ref action, ref source.target, ref slash8Air);
+            Scan(weapon, ref action, ref source.target, ref slash9Air);
             CacheAir.Add(source.ActionIdx, action);
         }
         return action;
@@ -314,7 +607,13 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
     //大绝招
     public ActionNode GetSkillNode(MeteorUnit owner, ActionNode source)
     {
+        int weapon = owner.GetWeaponType();
         //刀绝，枪绝，剑绝，匕首绝，锤绝，双刺绝，火枪绝，飞镖绝，忍刀绝，飞轮绝，乾坤刀绝，指虎绝
+        for (int i = 0; i < source.target.Count; i++)
+        {
+            if (IsSkill(source.target[i].ActionIdx) && IsWeaponKey(weapon, source.target[i].KeyMap))
+                return source.target[i];
+        }
         return null;
     }
 

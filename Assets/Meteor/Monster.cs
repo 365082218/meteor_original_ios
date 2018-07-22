@@ -137,14 +137,15 @@ public class MonsterEx
         HpMax = (int)(double)ScriptMng.ins.GetVariable("HP");
         SpawnPoint = (int)(double)ScriptMng.ins.GetVariable("Spawn");
         Speed = 1000;
-        object obj = ScriptMng.ins.GetVariable("Guard");
-        Debug.Log(string.Format("obj.type:{0}", obj.GetType()));
         Guard = (int)(double)ScriptMng.ins.GetVariable("Guard");
         Jump = (int)(double)ScriptMng.ins.GetVariable("Jump");
         Look = (int)(double)ScriptMng.ins.GetVariable("Look");
         Burst = (int)(double)ScriptMng.ins.GetVariable("Burst");
         Aim = (int)(double)ScriptMng.ins.GetVariable("Aim");
         GetItem = (int)(double)ScriptMng.ins.GetVariable("GetItem");
+        Attack1 = (int)(double)ScriptMng.ins.GetVariable("Attack1");
+        Attack2 = (int)(double)ScriptMng.ins.GetVariable("Attack2");
+        Attack3 = (int)(double)ScriptMng.ins.GetVariable("Attack3");
         hpCur = HpMax;
         mpCur = MpMax;
         return true;

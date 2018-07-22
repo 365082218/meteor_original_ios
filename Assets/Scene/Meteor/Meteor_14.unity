@@ -3421,8 +3421,8 @@ GameObject:
   - component: {fileID: 434272652}
   - component: {fileID: 434272654}
   - component: {fileID: 434272653}
-  - component: {fileID: 434272656}
   - component: {fileID: 434272655}
+  - component: {fileID: 434272656}
   m_Layer: 10
   m_Name: Plane38
   m_TagString: Untagged
@@ -3493,8 +3493,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 0
---- !u!64 &434272656
-MeshCollider:
+--- !u!65 &434272656
+BoxCollider:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
@@ -3503,10 +3503,8 @@ MeshCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Convex: 1
-  m_InflateMesh: 0
-  m_SkinWidth: 0.01
-  m_Mesh: {fileID: 1133284779}
+  m_Size: {x: 4531.9336, y: 41.036034, z: 3442.026}
+  m_Center: {x: 1377.9285, y: -14.202419, z: -649.47485}
 --- !u!1 &477702412
 GameObject:
   m_ObjectHideFlags: 0

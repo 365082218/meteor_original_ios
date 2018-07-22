@@ -257,6 +257,8 @@ public partial class MeteorUnit : MonoBehaviour
     public virtual bool IsDebugUnit() { return false; }
     public int UnitId;
     public int InstanceId;
+    public int Action;
+    public int Frame;
     public Transform WeaponL;//右手骨骼
     public Transform WeaponR;
     public Transform ROOTNull;
@@ -619,6 +621,9 @@ public partial class MeteorUnit : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //死亡姿势播放完毕后，会取消掉角色的碰撞盒，就不要再计算角色的落下之类的了.
+        if (!charController.enabled)
+            return;
         if (Climbing)
             ClimbingTime += Time.deltaTime;
         else
@@ -776,12 +781,6 @@ public partial class MeteorUnit : MonoBehaviour
 
     public void ProcessGravity()
     {
-        if (IsDebugUnit())
-        {
-            //Debug.Log(charLoader.moveDelta);
-            Move(charLoader.moveDelta);
-            return;
-        }
         //计算运动方向
         //角色forward指向人物背面
         //根据角色状态计算重力大小，在墙壁，空中，以及空中水平轴的阻力
@@ -796,7 +795,6 @@ public partial class MeteorUnit : MonoBehaviour
         //}
         //if (OnTopGround)
         //    ImpluseVec.y = 0;
-
 
         if (ImpluseVec.y > 0)
         {
@@ -1007,7 +1005,7 @@ public partial class MeteorUnit : MonoBehaviour
     public CharacterController charController;
     public void Init(int modelIdx, MonsterEx mon = null, bool updateModel = false)
     {
-        wayIndex = mon == null ? 0 : mon.SpawnPoint;
+        //wayIndex = mon == null ? 0 : mon.SpawnPoint;
         WeaponReturned(0);
         Vector3 vec = transform.position;
         Quaternion rotation = transform.rotation;
@@ -2926,19 +2924,5 @@ public partial class MeteorUnit : MonoBehaviour
         }
         else if (Attr.IsPlayer)
             U3D.InsertSystemMsg("怒气不足");
-    }
-
-    //从当前动作，挑选出下一个可接动作
-    public List<int> GetNextWeaponPos()
-    {
-        List<int> ret = new List<int>();
-        return ret;
-    }
-
-    //从当前武器挑选一个起始动作.
-    public List<int> GetWeaponPos()
-    {
-        List<int> ret = new List<int>();
-        return ret;
     }
 }

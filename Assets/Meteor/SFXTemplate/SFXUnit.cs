@@ -258,10 +258,24 @@ DRAG*/
         }
         if (effect.EffectName.StartsWith("Attack"))
         {
-            if (effect.EffectType == "SPHERE")
-                damageBox = gameObject.AddComponent<SphereCollider>();
-            else
-                damageBox = gameObject.AddComponent<BoxCollider>();
+            MeshCollider co = gameObject.AddComponent<MeshCollider>();
+            co.convex = true;
+            co.isTrigger = true;
+            damageBox = co;
+            //if (effect.EffectType == "SPHERE")
+            //{
+            //    SphereCollider sph = gameObject.AddComponent<SphereCollider>();
+            //    damageBox = sph;
+            //    //sph.radius = 1.0f;
+            //    //sph.center = Vector3.zero;
+            //}
+            //else
+            //{
+            //    BoxCollider bo = gameObject.AddComponent<BoxCollider>();
+            //    //bo.center = Vector3.zero;
+            //    //bo.size = Vector3.one;
+            //    damageBox = bo;
+            //}
             damageBox.enabled = false;
         }
 
@@ -323,7 +337,7 @@ DRAG*/
 
             while (playedTime < source.frames[0].startTime)
                 yield return 0;
-
+            ChangeAttackCore();
             float timeRatio2 = (playedTime - source.frames[playedIndex - 1].startTime) / (source.frames[playedIndex].startTime - source.frames[playedIndex - 1].startTime);
             
             string vertexColor = "_TintColor";
@@ -796,31 +810,23 @@ DRAG*/
         mRender.material.SetColor(vertexColor, Color.Lerp(source.frames[playedIndex - 1].colorRGB, source.frames[playedIndex].colorRGB, timeRatio2));
     }
 
+    bool damageEnabled;
     //这个只碰撞瓶罐和建筑。与角色的碰撞由其他地方处理.
     public void ChangeAttack(bool open)
     {
         //播放完毕不允许再开开，否则特效重复攻击
         if (PlayDone && open)
             return;
-        if (damageBox != null)
+        damageEnabled = open;
+        
+    }
+
+    void ChangeAttackCore()
+    {
+        if (damageBox != null && damageBox.enabled != damageEnabled)
         {
-            damageBox.enabled = open;
-            damageBox.isTrigger = open;
+            damageBox.enabled = damageEnabled;
+            damageBox.isTrigger = damageEnabled;
         }
-    }
-
-    public void OnTriggerEnter(Collider other)
-    {
-        //Debug.Log(other.gameObject.name);
-    }
-
-    public void OnTriggerStay(Collider other)
-    {
-        //Debug.Log(other.gameObject.name);
-    }
-
-    public void OnTriggerExit(Collider other)
-    {
-        //Debug.Log(other.gameObject.name);
     }
 }

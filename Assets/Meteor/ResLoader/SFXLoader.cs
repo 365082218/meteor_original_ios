@@ -374,7 +374,7 @@ public class EffectFrame
     public Quaternion quat;
     public Vector3 scale;
     public Color colorRGB;
-    public float[] TailFlags;//9强度
+    public float[] TailFlags;//9透明度
     public EffectFrame()
     {
         pos = Vector3.zero;

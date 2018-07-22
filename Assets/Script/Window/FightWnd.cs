@@ -212,7 +212,11 @@ public class FightWnd: Window<FightWnd>
             currentPosIdx = idx;
             currentPos.GetComponentInChildren<Text>().text = "Pose " + idx + " Frames " + frame;
         }
+
+        MeteorManager.Instance.LocalPlayer.Action = idx;
+        MeteorManager.Instance.LocalPlayer.Frame = frame;
     }
+
     IEnumerator ShowHPWarning()
     {
         while (true)

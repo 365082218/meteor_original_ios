@@ -164,7 +164,13 @@ public partial class GameBattleEx : MonoBehaviour {
         }
 
         if (lev_script != null)
-            lev_script.OnUpdate();
+        {
+            if (timeDelay >= 1.0f)
+            {
+                lev_script.OnUpdate();
+                timeDelay = 0.0f;
+            }
+        }
 
         timeDelay += Time.deltaTime;
         if (lev_script != null)
@@ -263,7 +269,11 @@ public partial class GameBattleEx : MonoBehaviour {
                 if (!ondamaged.hitList[j].enabled)
                     continue;
                 if (colist[i].bounds.Intersects(ondamaged.hitList[j].bounds))
+                {
+                    Debug.Log(string.Format("hitbox:{0}-onhitbox:{1}", colist[i].name, ondamaged.hitList[j].name));
+                    Debug.DebugBreak();
                     return true;
+                }
                 //if (colist[i].bounds.min.x >= ondamaged.hitList[j].bounds.min.x &&
                 //    colist[i].bounds.min.y >= ondamaged.hitList[j].bounds.min.y &&
                 //    colist[i].bounds.min.z >= ondamaged.hitList[j].bounds.min.z &&
@@ -301,7 +311,11 @@ public partial class GameBattleEx : MonoBehaviour {
                 if (!ondamaged[j].enabled)
                     return false;
                 if (colist[i].bounds.Intersects(ondamaged[j].bounds))
+                {
+                    Debug.Log(string.Format("hitbox:{0}-onhitbox:{1}", colist[i].name, ondamaged[j].name));
+                    Debug.DebugBreak();
                     return true;
+                }
                 //if (colist[i].bounds.min.x >= ondamaged[j].bounds.min.x &&
                 //    colist[i].bounds.min.y >= ondamaged[j].bounds.min.y &&
                 //    colist[i].bounds.min.z >= ondamaged[j].bounds.min.z &&

@@ -1380,4 +1380,20 @@ public class U3D : MonoBehaviour {
         GameObject objCamera = GameObject.Find("CameraEx");
         return objCamera == null ? null : objCamera.GetComponent<Camera>();
     }
+
+    //是否是远程武器
+    [DoNotToLua]
+    public static bool IsSpecialWeapon(int itemIdx)
+    {
+        ItemBase it0 = GameData.FindItemByIdx(itemIdx);
+        if (it0 == null)
+            return false;
+        if (it0.SubType == (int)EquipWeaponType.Gun || 
+            it0.SubType == (int)EquipWeaponType.Guillotines || 
+            it0.SubType == (int)EquipWeaponType.Dart)
+        {
+            return true;
+        }
+        return false;
+    }
 }
