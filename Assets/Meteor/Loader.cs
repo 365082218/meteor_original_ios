@@ -265,6 +265,7 @@ public class Loader : MonoBehaviour {
             if (!string.IsNullOrEmpty(model))
             {
                 SceneItemAgent target = obj.AddComponent<SceneItemAgent>();
+                target.tag = "SceneItemAgent";
                 target.Load(model);
                 target.LoadCustom(des.SceneItems[i].name, des.SceneItems[i].custom);//自定义的一些属性，name=damage100
                 target.ApplyPost();

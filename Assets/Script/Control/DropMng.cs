@@ -59,6 +59,7 @@ public class DropMng:Singleton<DropMng>{
         obj.transform.SetParent(Loader.Instance == null ? null : Loader.Instance.transform);
         obj.transform.position = pos.position + Vector3.up * 50 + forward * 35;
         SceneItemAgent agent = obj.AddComponent<SceneItemAgent>();
+        agent.tag = "SceneItemAgent";
         agent.Load(des);
         agent.ApplyPost();
         agent.SetAsDrop();

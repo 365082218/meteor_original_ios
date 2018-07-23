@@ -266,7 +266,7 @@ public class FightWnd: Window<FightWnd>
     {
         Global.ldaControlX("WeaponSelect", WndObject).SetActive(GameData.gameStatus.EnableWeaponChoose);
         Global.ldaControlX("DebugMenu", WndObject).SetActive(GameData.gameStatus.EnableDebug);
-        Global.ldaControlX("MiniMap", WndObject).SetActive(GameData.gameStatus.EnableMiniMap);
+        Global.ldaControlX("MiniMap", WndObject).SetActive(true);
     }
 
     void OnAttackPress()

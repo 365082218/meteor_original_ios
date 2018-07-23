@@ -120,6 +120,7 @@ public class ExplosionObject01 : MonoBehaviour {
     public static void OnComplete(GameObject obj)
     {
         SceneItemAgent agent = obj.GetComponent<SceneItemAgent>();
+        agent.tag = "SceneItemAgent";
         CFX_AutoRotate rotate = obj.GetComponent<CFX_AutoRotate>();
         GameObject.Destroy(rotate);
 

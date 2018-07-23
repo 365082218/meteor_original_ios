@@ -107,10 +107,6 @@ public class NewSystemWnd : Window<NewSystemWnd>
         toggleEnableInfiniteAngry.isOn = GameData.gameStatus.EnableInfiniteAngry;
         toggleEnableInfiniteAngry.onValueChanged.AddListener(OnEnableInfiniteAngry);
 
-        Toggle toggleEnableMiniMap = Control("EnableMiniMap").GetComponent<Toggle>();
-        toggleEnableMiniMap.isOn = GameData.gameStatus.EnableMiniMap;
-        toggleEnableMiniMap.onValueChanged.AddListener(OnEnableMiniMap);
-
         Toggle toggleEnableGodMode = Control("EnableGodMode").GetComponent<Toggle>();
         toggleEnableGodMode.isOn = GameData.gameStatus.EnableGodMode;
         toggleEnableGodMode.onValueChanged.AddListener(OnEnableGodMode);
@@ -195,15 +191,6 @@ public class NewSystemWnd : Window<NewSystemWnd>
         GameData.gameStatus.EnableWeaponChoose = on;
         if (FightWnd.Exist)
             FightWnd.Instance.UpdateUIButton();
-    }
-
-    void OnEnableMiniMap(bool on)
-    {
-        GameData.gameStatus.EnableMiniMap = on;
-        if (FightWnd.Exist)
-        {
-            FightWnd.Instance.UpdateUIButton();
-        }
     }
 
     void OnEnableGodMode(bool on)

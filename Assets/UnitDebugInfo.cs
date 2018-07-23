@@ -28,6 +28,10 @@ public class UnitDebugInfo : MonoBehaviour {
     private Text Status;
     [SerializeField]
     private Text SubStatus;
+    [SerializeField]
+    private Text CurWayPoint;
+    [SerializeField]
+    private Text TargetWayPoint;
     public void SetOwner(MeteorUnit owner)
     {
         target = owner;
@@ -50,10 +54,18 @@ public class UnitDebugInfo : MonoBehaviour {
                 Speed.text = "速度:" + target.Speed;
                 Target.text = "锁定目标:" + (target.GetLockedTarget() != null ? target.GetLockedTarget().name : "-");
                 ActionFrame.text = string.Format("动作源{0:d1}-动作ID{1}-帧:{2}", target.posMng.mActiveAction.SourceIdx, target.posMng.mActiveAction.Idx, target.charLoader.curIndex);
+                
                 if (target.robot != null)
                 {
                     Status.text = string.Format("主状态:{0}", target.robot.Status);
                     SubStatus.text = string.Format("子状态:{0}", target.robot.SubStatus);
+                    if (target.robot.Status == EAIStatus.Patrol)
+                    {
+                        if (target.robot.curPatrolIndex != -1)
+                            CurWayPoint.text = string.Format("当前路点:{0}", target.robot.PatrolPath[target.robot.curPatrolIndex].index);
+                        if (target.robot.targetPatrolIndex != -1)
+                            TargetWayPoint.text = string.Format("下个路点:{0}", target.robot.PatrolPath[target.robot.targetPatrolIndex].index);
+                    }
                 }
             }
             yield return 0;

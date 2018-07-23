@@ -10,6 +10,8 @@ TagManager:
   - closeUp
   - UICamera
   - soldier
+  - WayPoint
+  - SceneItemAgent
   layers:
   - Default
   - TransparentFX
@@ -40,7 +42,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - WayPoint
   - DebugCanvas
   - Debug
   m_SortingLayers:

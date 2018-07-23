@@ -1044,10 +1044,10 @@ public partial class GameBattleEx : MonoBehaviour {
             {
                 GameObject obj = WsGlobal.AddDebugLine(Global.GLevelItem.wayPoint[i].pos - 2 * Vector3.up, Global.GLevelItem.wayPoint[i].pos + 2 * Vector3.up, Color.red, "WayPoint" + i, float.MaxValue, true);
                 wayPointList.Add(obj);
-                CapsuleCollider capsule = obj.AddComponent<CapsuleCollider>();
-                capsule.isTrigger = true;
-                capsule.radius = Global.GLevelItem.wayPoint[i].size;
-                capsule.height = 200.0f;
+                //BoxCollider capsule = obj.AddComponent<BoxCollider>();
+                //capsule.isTrigger = true;
+                //capsule.size = Vector3.one * (Global.GLevelItem.wayPoint[i].size);
+                //capsule.center = Vector3.zero;
                 obj.name = string.Format("WayPoint{0}", Global.GLevelItem.wayPoint[i].index);
 
                 foreach (var each in  Global.GLevelItem.wayPoint[i].link)

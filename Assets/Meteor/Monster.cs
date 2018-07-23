@@ -70,7 +70,7 @@ public class MonsterEx
     public int Dodge;//逃跑
     public int Jump;//跳跃
     public int Look;//四处看
-    public int Burst;//闪避几率
+    public int Burst;//闪避几率-快速移动
     public int Aim;//远程武器命中.火枪-飞镖
     public int GetItem;//夺宝几率，各种镖物 武器 道具 等
     public int SpawnPoint;

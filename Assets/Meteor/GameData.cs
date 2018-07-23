@@ -73,7 +73,6 @@ public class GameState
     public bool EnableDebugStatus;//角色头顶的信息条显示 动作 帧 状态 属性 等信息
     public bool EnableWeaponChoose;//战斗UI控制面板是否显示按钮
     public bool EnableInfiniteAngry;//无限气.
-    public bool EnableMiniMap;//查看地图按钮.
     public bool EnableItemName;//查看掉落武器的名称.-后续分支可能会加入武器装备养成元素.
     public bool EnableGodMode;//一击必杀
     public MyVector2 JoyAnchor;//摇杆坐标.

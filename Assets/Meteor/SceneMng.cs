@@ -64,6 +64,28 @@ class SceneMng
                 Global.GCampBSpawn[i] = Global.ldaControlX(string.Format("D_teamB{0:d2}", i + 1), Loader.Instance.gameObject).transform.position;
             }
         }
+
+        GameObject objWayPoint = new GameObject("wayPoint");
+        objWayPoint.transform.position = Vector3.zero;
+        objWayPoint.transform.rotation = Quaternion.identity;
+        objWayPoint.transform.localScale = Vector3.one;
+        objWayPoint.layer = LayerMask.NameToLayer("WayPoint");
+        for (int i = 0;i < Global.GLevelItem.wayPoint.Count; i++)
+        {
+            GameObject wayPoint = new GameObject(string.Format("WayPoint{0}", i));
+            wayPoint.tag = "WayPoint";
+            wayPoint.transform.SetParent(objWayPoint.transform);
+            wayPoint.transform.position = Global.GLevelItem.wayPoint[i].pos;
+            wayPoint.layer = objWayPoint.layer;
+            wayPoint.transform.rotation = Quaternion.identity;
+            wayPoint.transform.localScale = Vector3.one;
+            BoxCollider box = wayPoint.AddComponent<BoxCollider>();
+            box.isTrigger = true;
+            box.size = Vector3.one * (Global.GLevelItem.wayPoint[i].size);
+            box.center = Vector3.zero;
+            WayPointTrigger trigger = wayPoint.AddComponent<WayPointTrigger>();
+            trigger.WayIndex = i;
+        }
     }
 
     //生成指定怪物

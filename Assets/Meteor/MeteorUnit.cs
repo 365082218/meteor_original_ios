@@ -545,8 +545,6 @@ public partial class MeteorUnit : MonoBehaviour
     public void SelectEnemy()
     {
         float dis = Attr.View;
-        if (dis <= 10)
-            dis = 250.0f;//250码以内视野
         int index = -1;
         //直接遍历算了
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
@@ -710,11 +708,12 @@ public partial class MeteorUnit : MonoBehaviour
             }
         }
     }
+
     public const float Jump2Velocity = 160;//蹬腿反弹速度
     public const float JumpVelocityForward = 180.0f;//向前跳跃速度
     public const float JumpVelocityOther = 100.0f;//其他方向上的速度
     public const float gGravity = 980.0f;//971.4f;//向上0.55秒，向下0.45秒
-    public const float groundFriction = 1000.0f;//地面摩擦力，在地面不是瞬间停止下来的。
+    public const float groundFriction = 2000.0f;//地面摩擦力，在地面不是瞬间停止下来的。
     public const float yLimitMin = -500f;//最大向下速度
     public const float yLimitMax = 500;//最大向上速度
     public const float yClimbLimitMax = 180.0f;
@@ -1950,58 +1949,63 @@ public partial class MeteorUnit : MonoBehaviour
         if (Dead)
             return;
         //Debug.LogError("ontrigger enter:" + other.gameObject.name);
-        SceneItemAgent trigger = other.gameObject.GetComponentInParent<SceneItemAgent>();
-        if (trigger == null)
-            return;
-
-        if (trigger != null)
+        if (other.tag == "SceneItemAgent")
         {
-            //如果是一个攻击道具，陷阱或者机关之类的。
-            if (trigger.HasDamage())
-            {
-                if (attackDelay.ContainsKey(trigger))
-                    return;
-                if (!Attr.Dead)
-                {
-                    OnDamage(null, trigger.DamageValue());
-                    attackDelay[trigger] = 2.0f;
-                }
-            }
-            else
-            {
-                if (trigger.root != null)
-                    trigger.OnPickup(this);
-            }
-        }
-        
-    }
+            SceneItemAgent trigger = other.gameObject.GetComponentInParent<SceneItemAgent>();
+            if (trigger == null)
+                return;
 
-    public void OnTriggerStay(Collider other)
-    {
-        if (Dead)
-            return;
-        SceneItemAgent trigger = other.gameObject.GetComponentInParent<SceneItemAgent>();
-        if (trigger == null)
-            return;
-        if (trigger != null)
-        {
-            if (trigger.HasDamage())
+            if (trigger != null)
             {
-                //受到陷阱攻击应该有无敌间隔.
-                if (!attackDelay.ContainsKey(trigger))
+                //如果是一个攻击道具，陷阱或者机关之类的。
+                if (trigger.HasDamage())
                 {
+                    if (attackDelay.ContainsKey(trigger))
+                        return;
                     if (!Attr.Dead)
                     {
                         OnDamage(null, trigger.DamageValue());
                         attackDelay[trigger] = 2.0f;
                     }
                 }
+                else
+                {
+                    if (trigger.root != null)
+                        trigger.OnPickup(this);
+                }
             }
-            else
+        }
+    }
+
+    public void OnTriggerStay(Collider other)
+    {
+        if (Dead)
+            return;
+        if (other.tag == "SceneItemAgent")
+        {
+            SceneItemAgent trigger = other.gameObject.GetComponentInParent<SceneItemAgent>();
+            if (trigger == null)
+                return;
+            if (trigger != null)
             {
-                //持续血阵，状态
-                if (trigger.root != null)
-                    trigger.OnPickup(this);
+                if (trigger.HasDamage())
+                {
+                    //受到陷阱攻击应该有无敌间隔.
+                    if (!attackDelay.ContainsKey(trigger))
+                    {
+                        if (!Attr.Dead)
+                        {
+                            OnDamage(null, trigger.DamageValue());
+                            attackDelay[trigger] = 2.0f;
+                        }
+                    }
+                }
+                else
+                {
+                    //持续血阵，状态
+                    if (trigger.root != null)
+                        trigger.OnPickup(this);
+                }
             }
         }
     }
