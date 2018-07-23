@@ -467,14 +467,14 @@ public class WeaponWnd : Window<WeaponWnd>
     }
 }
 
-public class DebugWnd:Window<DebugWnd>
+public class SfxWnd: Window<SfxWnd>
 {
     public GameObject SfxRoot;
     public override string PrefabName
     {
         get
         {
-            return "DebugPanel";
+            return "SfxWnd";
         }
     }
     protected override bool OnOpen()

@@ -61,14 +61,6 @@ public class FightWnd: Window<FightWnd>
     Text targetHpInfo;
     //Text targetBuffInfo;
 
-    void OnDebugAI()
-    {
-        if (DebugWnd.Exist)
-            DebugWnd.Instance.Close();
-        else
-            DebugWnd.Instance.Open();
-    }
-
     void OnPlayerInfo()
     {
         if (PlayerWnd.Exist)
@@ -121,7 +113,7 @@ public class FightWnd: Window<FightWnd>
         Global.ldaControlX("System", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSystemWnd(); });
         Unlock = Global.ldaControlX("Unlock", WndObject);
         Unlock.GetComponentInChildren<Button>().onClick.AddListener(OnClickChangeLock);
-        Global.ldaControlX("DebugMenu", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenDebugWnd(); });
+        Global.ldaControlX("SfxMenu", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSfxWnd(); });
         //floatButton = Global.ldaControlX("FloatButton", WndObject).GetComponent<UIButtonExtended>();
         //floatButton.gameObject.SetActive(false);
         //dr = Global.ldaControlX("Dropdown", WndObject).GetComponent<Dropdown>();

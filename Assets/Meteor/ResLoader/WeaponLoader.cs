@@ -15,6 +15,18 @@ public class WeaponLoader : MonoBehaviour {
     Transform L;//武器
     Transform R;//武器
 
+    GameObject d_wpnRS;
+    public GameObject GetGunTrans()
+    {
+        if (d_wpnRS != null)
+            return d_wpnRS;
+        d_wpnRS = Global.ldaControlX("d_wpnRS", R.gameObject);
+        if (d_wpnRS != null)
+            return d_wpnRS;
+        d_wpnRS = Global.ldaControlX("D_wpnRS", R.gameObject);
+        return d_wpnRS;
+    }
+
     public string StrWeaponR;
     public string StrWeaponL;
 

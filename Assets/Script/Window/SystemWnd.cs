@@ -129,6 +129,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Control("ChangeModel").GetComponent<Button>().onClick.AddListener(() => { ModelWnd.Instance.Open(); });
 
         InitLevel();
+        InitRobot();
         mWindowStyle = WindowStyle.WS_Modal;
     }
 
@@ -141,6 +142,13 @@ public class NewSystemWnd : Window<NewSystemWnd>
             string strKey = LevelInfo[i].Name;
             AddGridItem(LevelInfo[i].ID, strKey, EnterLevel, LevelRoot);
         }
+    }
+
+    void InitRobot()
+    {
+        Transform RobotRoot = Global.ldaControlX("RobotRoot", WndObject).transform;
+        for (int i = 0; i < 2 * Global.model.Length; i++)
+            AddGridItem(i, Global.model[i % Global.model.Length], (int a)=> { U3D.SpawnRobot(a); }, RobotRoot.transform);
     }
 
     void AddGridItem(int i, string strTag, UnityEngine.Events.UnityAction<int> call, Transform parent)

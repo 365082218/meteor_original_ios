@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 114505909990024666}
   - component: {fileID: 225552265468872866}
   m_Layer: 5
-  m_Name: DebugPanel
+  m_Name: SfxWnd
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

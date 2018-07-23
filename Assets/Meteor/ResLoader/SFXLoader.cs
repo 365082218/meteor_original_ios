@@ -348,6 +348,20 @@ public class SfxFile
         return true;
     }
 
+    //public SfxEffectPlay Play(Vector3 position, bool once)
+    //{
+    //    if (effectList.Count == 0)
+    //        return null;
+    //    GameObject obj = new GameObject("sfxeffect");
+    //    obj.transform.position = position;
+    //    obj.transform.localScale = Vector3.one;
+    //    obj.transform.rotation = Quaternion.identity;
+    //    obj.layer = 
+    //    SFXEffectPlay effectContainer = obj.AddComponent<SFXEffectPlay>();
+    //    effectContainer.Load(this, once);
+    //    return effectContainer;
+    //}
+
     public SFXEffectPlay Play(GameObject obj, bool once)
     {
         if (effectList.Count == 0)

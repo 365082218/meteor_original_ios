@@ -73,12 +73,16 @@ public class U3D : MonoBehaviour {
         mon.Weapon2 = weaponCode[(weaponIndex + 1) % weaponCode.Length];
         weaponIndex++;
         mon.IsPlayer = false;
-        mon.name = Global.model[idx];
+
+        mon.name = Global.model[idx % Global.model.Length];
         GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
         GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
         MeteorUnit unit = ins.GetComponent<MeteorUnit>();
-        unit.Camp = EUnitCamp.EUC_ENEMY;
-        unit.Init(idx, mon);
+        if (idx > Global.model.Length)
+            unit.Camp = EUnitCamp.EUC_FRIEND;
+        else
+            unit.Camp = EUnitCamp.EUC_ENEMY;
+        unit.Init(idx % Global.model.Length, mon);
         MeteorManager.Instance.OnGenerateUnit(unit);
         unit.SetGround(false);
 
@@ -453,12 +457,12 @@ public class U3D : MonoBehaviour {
     {
     }
 
-    public static void OpenDebugWnd()
+    public static void OpenSfxWnd()
     {
-        if (DebugWnd.Exist)
-            DebugWnd.Instance.Close();
+        if (SfxWnd.Exist)
+            SfxWnd.Instance.Close();
         else
-            DebugWnd.Instance.Open();
+            SfxWnd.Instance.Open();
     }
 
     //打开武器界面，主角色调试切换主手武器.

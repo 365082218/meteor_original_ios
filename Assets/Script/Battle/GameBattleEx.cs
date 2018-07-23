@@ -51,8 +51,8 @@ public partial class GameBattleEx : MonoBehaviour {
         //关闭界面的血条缓动和动画
         if (FightWnd.Exist)
             FightWnd.Instance.OnBattleEnd();
-        if (DebugWnd.Exist)
-            DebugWnd.Instance.Close();
+        if (SfxWnd.Exist)
+            SfxWnd.Instance.Close();
         if (NewSystemWnd.Exist)
             NewSystemWnd.Instance.Close();
         //打开结算面板
@@ -460,22 +460,58 @@ public partial class GameBattleEx : MonoBehaviour {
             return;
         if (unit.GetWeaponType() == (int)EquipWeaponType.Gun)
         {
-            Ray r = CameraFollow.Ins.m_Camera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, DartLoader.MaxDistance));
-            RaycastHit[] allHit = Physics.RaycastAll(r, 3000, 1 << LayerMask.NameToLayer("Bone") | 1 << LayerMask.NameToLayer("Scene") | 1 << LayerMask.NameToLayer("Monster") | 1 << LayerMask.NameToLayer("LocalPlayer"));
-            RaycastHit[] allHitSort = SortRaycastHit(allHit);
-            //先排个序，从近到远
-            for (int i = 0; i < allHitSort.Length; i++)
+            if (unit.Attr.IsPlayer)
             {
-                if (allHitSort[i].transform.gameObject.layer == LayerMask.NameToLayer("Scene"))
-                    break;
-                MeteorUnit unitAttacked = allHitSort[i].transform.gameObject.GetComponentInParent<MeteorUnit>();
-                if (unitAttacked != null)
+                Ray r = CameraFollow.Ins.m_Camera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, DartLoader.MaxDistance));
+                RaycastHit[] allHit = Physics.RaycastAll(r, 3000, 1 << LayerMask.NameToLayer("Bone") | 1 << LayerMask.NameToLayer("Scene") | 1 << LayerMask.NameToLayer("Monster") | 1 << LayerMask.NameToLayer("LocalPlayer"));
+                RaycastHit[] allHitSort = SortRaycastHit(allHit);
+                //先排个序，从近到远
+                for (int i = 0; i < allHitSort.Length; i++)
                 {
-                    if (unit.SameCamp(unitAttacked))
-                        continue;
-                    if (unitAttacked.Dead)
-                        continue;
-                    unitAttacked.OnAttack(unit, attackDef);
+                    if (allHitSort[i].transform.gameObject.layer == LayerMask.NameToLayer("Scene"))
+                        break;
+                    MeteorUnit unitAttacked = allHitSort[i].transform.gameObject.GetComponentInParent<MeteorUnit>();
+                    if (unitAttacked != null)
+                    {
+                        if (unit.SameCamp(unitAttacked))
+                            continue;
+                        if (unitAttacked.Dead)
+                            continue;
+                        unitAttacked.OnAttack(unit, attackDef);
+                    }
+                }
+            }
+            else
+            {
+                //火枪射线应该由，持枪点朝目标处，直接用概率算。
+                GameObject gun = unit.weaponLoader.GetGunTrans();
+                if (gun != null)
+                {
+                    int gunAim = Random.Range(0, 100);//射击命中几率.
+                    if (gunAim < unit.Attr.Aim)
+                    {
+                        Ray r = new Ray(gun.transform.position, -gun.transform.forward);
+                        RaycastHit[] allHit = Physics.RaycastAll(r, 3000, 1 << LayerMask.NameToLayer("Bone") | 1 << LayerMask.NameToLayer("Scene") | 1 << LayerMask.NameToLayer("Monster") | 1 << LayerMask.NameToLayer("LocalPlayer"));
+                        RaycastHit[] allHitSort = SortRaycastHit(allHit);
+                        //先排个序，从近到远
+                        for (int i = 0; i < allHitSort.Length; i++)
+                        {
+                            if (allHitSort[i].transform.gameObject.layer == LayerMask.NameToLayer("Scene"))
+                            {
+                                //SFXLoader.Instance.PlayEffect("gunshot", )
+                                break;
+                            }
+                            MeteorUnit unitAttacked = allHitSort[i].transform.gameObject.GetComponentInParent<MeteorUnit>();
+                            if (unitAttacked != null)
+                            {
+                                if (unit.SameCamp(unitAttacked))
+                                    continue;
+                                if (unitAttacked.Dead)
+                                    continue;
+                                unitAttacked.OnAttack(unit, attackDef);
+                            }
+                        }
+                    }
                 }
             }
         }
