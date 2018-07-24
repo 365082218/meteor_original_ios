@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using Idevgame.Util;
 /*
 // 站在原地四處看
     ChangeBehavior(g_self, "wait");
@@ -108,6 +108,13 @@ public class ScriptBase
     }
     static Dictionary<int, List<int>> randomSeries = new Dictionary<int, List<int>>();
     static Dictionary<int, Vector3> targetDict = new Dictionary<int, Vector3>();
+    static Dictionary<int, TargetTrigger> targetTrigger = new Dictionary<int, TargetTrigger>();
+    public static Vector3 GetTarget(int idx)
+    {
+        if (targetDict.ContainsKey(idx))
+            return targetDict[idx];
+        return Vector3.zero;
+    }
     public static void SetTarget(int idx, string style, int param)
     {
         Vector3 vec = Vector3.zero;
@@ -125,7 +132,39 @@ public class ScriptBase
                     break;
                 }
         }
+
+        if (targetTrigger.ContainsKey(idx))
+        {
+            TargetTrigger t = targetTrigger[idx];
+            GameObject.Destroy(targetTrigger[idx]);
+            targetTrigger.Remove(idx);
+        }
         targetDict[idx] = vec;
+        SpawnTargetTrigger(idx, vec, style, param);
+    }
+
+    static GameObject attackRoot;
+    static void SpawnTargetTrigger(int idx, Vector3 pos, string style, int param)
+    {
+        if (attackRoot == null)
+        {
+            attackRoot = new GameObject("attackRoot");
+            attackRoot.Identity(null);
+            attackRoot.layer = LayerMask.NameToLayer("WayPoint");
+        }
+        GameObject obj = new GameObject(string.Format("attacktarget{0}", idx));
+        obj.layer = attackRoot.layer;
+        obj.Identity(attackRoot.transform);
+        obj.transform.position = pos;
+        BoxCollider bo = obj.AddComponent<BoxCollider>();
+        bo.center = Vector3.zero;
+        bo.size = Vector3.one * 5;
+        bo.isTrigger = true;
+        TargetTrigger t = obj.AddComponent<TargetTrigger>();
+        t.TargetIndex = idx;
+        t.style = style;
+        t.param = param;
+        targetTrigger.Add(idx, t);
     }
 
     public static void PlayerPerform(string action, int param)

@@ -215,7 +215,7 @@ public class FightWnd: Window<FightWnd>
         {
             if (MeteorManager.Instance.LocalPlayer.Dead)
                 break;
-            if (MeteorManager.Instance.LocalPlayer.Attr.HpMax * 0.1f > MeteorManager.Instance.LocalPlayer.Attr.hpCur)
+            if (MeteorManager.Instance.LocalPlayer.Attr.HpMax * 0.3f > MeteorManager.Instance.LocalPlayer.Attr.hpCur)
                 hpWarning.enabled = !hpWarning.enabled;
             yield return new WaitForSeconds(0.5f);//半秒切换一次状态
         }
@@ -244,7 +244,6 @@ public class FightWnd: Window<FightWnd>
             actionBarStatus = !actionBarStatus;
             FloatOpen.transform.rotation = Quaternion.Euler(0, 0, actionBarStatus ? 90 : 270);
         }));
-        
     }
 
     bool openMiniMap = false;
@@ -401,7 +400,7 @@ public class FightWnd: Window<FightWnd>
         if (MeteorManager.Instance.LocalPlayer != null)
         {
             hpBar.fillAmount = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.TotalHp;
-            if ((float)MeteorManager.Instance.LocalPlayer.Attr.TotalHp * 0.1f >= (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur && (float)MeteorManager.Instance.LocalPlayer.Attr.TotalHp * 0.1f < lastHp)
+            if ((float)MeteorManager.Instance.LocalPlayer.Attr.TotalHp * 0.3f >= (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur && (float)MeteorManager.Instance.LocalPlayer.Attr.TotalHp * 0.3f < lastHp)
             {
                 GameBattleEx.Instance.StartCoroutine(ShowHPWarning());
                 lastHp = MeteorManager.Instance.LocalPlayer.Attr.hpCur;

@@ -1009,9 +1009,13 @@ public class U3D : MonoBehaviour {
                 if (value.Length == 2)
                 {
                     UnityEngine.Debug.LogError(string.Format("attacktarget:{0}", (int)value[1]));
+                    GameBattleEx.Instance.PushActionAttackTarget(id, (int)value[1]);
                 }
                 else if (value.Length == 3)
+                {
                     UnityEngine.Debug.LogError(string.Format("attacktarget:{0}, {1}", (int)value[1], (int)value[2]));
+                    GameBattleEx.Instance.PushActionAttackTarget(id, (int)value[1], (int)value[2]);
+                }
             }
             else if (act == "run")
             {
@@ -1221,7 +1225,8 @@ public class U3D : MonoBehaviour {
     {
         MeteorUnit u = GetUnit(id);
         //停止动作的时候，状态为等待，一般遇见敌人时会调用此接口
-        u.robot.ChangeState(EAIStatus.Wait);
+        if (u.robot != null)
+            u.robot.ChangeState(EAIStatus.Wait);
         if (u != null)
         {
             //先清除该角色的聊天动作，其他动画动作不处理。

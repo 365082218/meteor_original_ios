@@ -3101,7 +3101,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: Unlit/Texture
-  m_Shader: {fileID: 4800000, guid: a1d1c302ef4dcfb41a89b64bb72a4528, type: 3}
+  m_Shader: {fileID: 4800000, guid: 77a718fd25e3abf42879f42cdda2b96e, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_CustomRenderQueue: -1
@@ -3121,8 +3121,26 @@ Material:
         m_Texture: {fileID: 2800000, guid: 1872a8931bbc25244ad72e578ab88425, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
-    m_Colors: []
+    - first:
+        name: _MaskTex
+      second:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - first:
+        name: _deformrange
+      second: 1.5
+    - first:
+        name: _deformsize
+      second: 0.1
+    m_Colors:
+    - first:
+        name: _Color
+      second: {r: 1, g: 1, b: 1, a: 1}
+    - first:
+        name: _deformref
+      second: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &311983839
 GameObject:
   m_ObjectHideFlags: 0
@@ -11589,7 +11607,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: Unlit/Texture
-  m_Shader: {fileID: 4800000, guid: a1d1c302ef4dcfb41a89b64bb72a4528, type: 3}
+  m_Shader: {fileID: 4800000, guid: f716b38aa8fa9eb4892f9632015e3e22, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_CustomRenderQueue: -1
@@ -11609,8 +11627,17 @@ Material:
         m_Texture: {fileID: 2800000, guid: 29ce346bb3879654ab04646c080a6bde, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
-    m_Colors: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
+    m_Colors:
+    - first:
+        name: _Color
+      second: {r: 1, g: 1, b: 1, a: 1}
+    - first:
+        name: _ColorKey
+      second: {r: 0.03676468, g: 0.034331724, b: 0.034331724, a: 1}
 --- !u!1 &984314957
 GameObject:
   m_ObjectHideFlags: 0
@@ -12393,7 +12420,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: Unlit/Texture
-  m_Shader: {fileID: 4800000, guid: a1d1c302ef4dcfb41a89b64bb72a4528, type: 3}
+  m_Shader: {fileID: 4800000, guid: f716b38aa8fa9eb4892f9632015e3e22, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_CustomRenderQueue: -1
@@ -12413,11 +12440,23 @@ Material:
         m_Texture: {fileID: 2800000, guid: 37eff9e17323b7c41a1c9fb9d3832086, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors:
     - first:
         name: <noninit>
       second: {r: 0, g: 2.4690577e-32, b: 0, a: 2.469039e-32}
+    - first:
+        name: _Color
+      second: {r: 1, g: 1, b: 1, a: 1}
+    - first:
+        name: _ColorKey
+      second: {r: 0.07352942, g: 0.07352942, b: 0.07352942, a: 1}
+    - first:
+        name: _TintColor
+      second: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1060967551
 GameObject:
   m_ObjectHideFlags: 0

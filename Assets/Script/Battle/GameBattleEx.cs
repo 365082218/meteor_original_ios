@@ -982,6 +982,25 @@ public partial class GameBattleEx : MonoBehaviour {
         UnitActionStack[id].action.Add(it);
     }
 
+    //为了增加，朝指定位置攻击功能加的
+    void PushAction(int id, StackAction type, Vector3 position, int count)
+    {
+        if (!UnitActKey.Contains(id))
+            UnitActKey.Add(id);
+        if (!UnitActionStack.ContainsKey(id))
+        {
+            UnitActionStack.Add(id, new ActionConfig());
+            UnitActionStack[id].id = id;
+        }
+        ActionItem it = new ActionItem();
+        it.text = "";
+        it.pause_time = 0;
+        it.type = type;//say = 1 pause = 2 skill = 3;crouch = 4, block=5
+        it.param = count;
+        it.target = position;
+        UnitActionStack[id].action.Add(it);
+    }
+
     void PushAction(int id, StackAction type, float t = 0.0f, string text = "", int param = 0)
     {
         if (!UnitActKey.Contains(id))
@@ -1048,6 +1067,12 @@ public partial class GameBattleEx : MonoBehaviour {
     {
         PushAction(id, StackAction.Kill, 0, "", target);
     }
+
+    public void PushActionAttackTarget(int id, int targetIndex, int count = 0)
+    {
+        PushAction(id, StackAction.AttackTarget, LevelScriptBase.GetTarget(targetIndex), count);
+    }
+
     public void StopAction(int id)
     {
         if (UnitActKey.Contains(id))
@@ -1117,6 +1142,7 @@ public enum StackAction
     FaceTo = 10,
     Kill = 11,
     Aggress = 12,
+    AttackTarget = 13,
 }
 
 public class ActionConfig
@@ -1233,8 +1259,23 @@ public class ActionConfig
                 MeteorUnit unit = U3D.GetUnit(id);
                 MeteorUnit target = U3D.GetUnit(action[action.Count - 1].param);
                 if (unit != null && target != null)
-                    unit.KillPlayer(target);
+                    unit.KillTarget(target);
                 action.RemoveAt(action.Count - 1);
+            }
+            else if (action[action.Count - 1].type == StackAction.AttackTarget)
+            {
+                MeteorUnit unit = U3D.GetUnit(id);
+                if (unit.robot != null)
+                {
+                    if (unit.robot.Status != EAIStatus.AttackTarget)
+                    {
+                        unit.robot.AttackCount = action[action.Count - 1].param;
+                        unit.robot.AttackTarget = action[action.Count - 1].target;
+                        unit.robot.ChangeState(EAIStatus.AttackTarget);
+                    }
+                    if (unit.robot.AttackCount == 0)
+                        action.RemoveAt(action.Count - 1);
+                }
             }
         }
     }
@@ -1246,6 +1287,7 @@ public class ActionItem
     public float pause_time;
     public string text;
     public int param;
+    public Vector3 target;
     public List<int> Path;//for patrol
     public ActionItem()
     {

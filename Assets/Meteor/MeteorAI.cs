@@ -20,6 +20,7 @@ public enum EAIStatus
     Dodge,//逃跑
     Look,//四处看
     GetItem,
+    AttackTarget,//攻击指定位置.
 }
 
 /*
@@ -65,7 +66,9 @@ public enum EAISubStatus
     KillGetTarget,//离角色很近了，可以攻击
     KillGotoTarget,//离角色一定距离，需要先跑过去
     KillOnHurt,//被敌人击中
-
+    AttackGotoTarget,//攻击指定位置-寻路中.
+    AttackTarget,//攻击指定位置-攻击中
+    AttackTargetSubRotateToTarget,
 }
 
 //每种距离，有无目标的2种情况下的AI设置.
@@ -107,9 +110,11 @@ public class MeteorAI {
     public EAISubStatus SubStatus { get; set; }
     MeteorUnit owner;//自己
     MeteorUnit followTarget;//跟随目标
-    MeteorUnit killTarget;//无视视野
+    public MeteorUnit killTarget;//无视视野
     MeteorUnit fightTarget;//视野内的，选择目标
     MeteorUnit lastAttacker;//时间最近攻击自己的人
+    public Vector3 AttackTarget;//要攻击的位置.
+    public int AttackCount;//要攻击的次数.
     public bool stoped { get; set; }
     bool paused = false;
     float pause_tick;
@@ -191,6 +196,9 @@ public class MeteorAI {
         {
             switch (Status)
             {
+                case EAIStatus.AttackTarget:
+                    OnAttackTarget();
+                    break;
                 case EAIStatus.Fight:
                     FightOnGround();
                     break;
@@ -463,6 +471,76 @@ public class MeteorAI {
             }
         }
     }
+
+    //攻击目标位置
+    void OnAttackTarget()
+    {
+        switch (SubStatus)
+        {
+            case EAISubStatus.AttackGotoTarget:
+                if (curIndex == -1)
+                    targetIndex = 0;
+
+                if (targetIndex >= Path.Count)
+                {
+                    UnityEngine.Debug.LogError(string.Format("targetIndex:{0}, FollowPath:{1}", targetIndex, Path.Count));
+                    Debug.DebugBreak();
+                }
+
+                Assert.IsTrue(targetIndex < Path.Count);
+                float dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(Path[targetIndex].pos.x, 0, Path[targetIndex].pos.z));
+                if (dis <= owner.Speed * Time.deltaTime * 0.13f)
+                {
+                    owner.controller.Input.AIMove(0, 0);
+                    if (targetIndex == Path.Count - 1)
+                    {
+                        //到达终点.
+                        owner.controller.Input.AIMove(0, 0);
+                        SubStatus = EAISubStatus.AttackTarget;
+                        return;
+                    }
+                    else
+                    {
+                        curIndex = targetIndex;
+                        targetIndex += 1;
+                    }
+                    RotateRound = Random.Range(1, 3);
+                    SubStatus = EAISubStatus.AttackTargetSubRotateToTarget;//到指定地点后旋转到目标.
+                    return;
+                }
+
+                owner.FaceToTarget(new Vector3(Path[targetIndex].pos.x, 0, Path[targetIndex].pos.z));
+                owner.controller.Input.AIMove(0, 1);
+                //模拟跳跃键，移动到下一个位置.还得按住上
+                if (curIndex != -1)
+                {
+                    if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
+                    {
+                        AIJump();
+                        AIJumpDelay = 0.0f;
+                    }
+                };
+                break;
+            case EAISubStatus.AttackTarget:
+                if (AttackCount != 0 && AttackTargetCoroutine == null)
+                {
+                    owner.FaceToTarget(AttackTarget);
+                    AttackTargetCoroutine = owner.StartCoroutine(Attack());
+                    AttackCount -= 1;
+                    ChangeState(EAIStatus.Wait);
+                }
+                else
+                {
+                    Debug.Log("wait change status wait");
+                }
+                break;
+            case EAISubStatus.AttackTargetSubRotateToTarget:
+                if (AttackRotateToTargetCoroutine == null)
+                    AttackRotateToTargetCoroutine = owner.StartCoroutine(AttackRotateToTarget(Path[targetIndex].pos));
+                break;
+        }
+    }
+
     //地面攻击.
     void FightOnGround()
     {
@@ -615,6 +693,14 @@ public class MeteorAI {
         }
     }
 
+    List<WayPoint> Path = new List<WayPoint>();//这个是攻击指定位置时的寻路，这个是不会随着角色移动改变位置的.
+    void RefreshPath(Vector3 now, Vector3 target)
+    {
+        Path = PathMng.Instance.FindPath(now, target);
+        curIndex = -1;
+        targetIndex = -1;
+    }
+
     //在其他角色上使用的插槽位置，
     Dictionary<MeteorUnit, int> SlotCache = new Dictionary<MeteorUnit, int>();
     Vector3 vecTarget;
@@ -624,7 +710,7 @@ public class MeteorAI {
     int targetIndex = 0;
     List<WayPoint> FollowPath = new List<WayPoint>();
     //要做一个移动缓存，不必要每次都用最新的位置去寻路.\
-    void RefreshFollowPath(Vector3 now, MeteorUnit user, MeteorUnit target)
+    void RefreshFollowPath(MeteorUnit user, MeteorUnit target)
     {
         FollowPath = PathMng.Instance.FindPath(owner.mPos, owner, target);
         curIndex = -1;
@@ -652,12 +738,12 @@ public class MeteorAI {
                         ChangeState(EAIStatus.Wait);//开始寻找敌人
                         return;
                     }
-                    RefreshFollowPath(owner.mPos, owner, target);
+                    RefreshFollowPath(owner, target);
                 }
                 else
                 {
                     if (targetIndex >= FollowPath.Count)
-                        RefreshFollowPath(owner.mPos, owner, target);
+                        RefreshFollowPath(owner, target);
 
                     if (curIndex == -1)
                         targetIndex = 0;
@@ -784,10 +870,11 @@ public class MeteorAI {
     //更新路径间隔
     const float updateDelta = 1.0f;
     float tick = 0.0f;
+    float attacktick = 0.0f;
     float waitCrouch;
     float waitDefence;
 
-    //原地不动
+    //原地不动-
     void OnWait()
     {
 
@@ -796,6 +883,7 @@ public class MeteorAI {
     //不动播放空闲动画 
     void OnIdle()
     {
+        return;
         tick += Time.deltaTime;
         waitCrouch -= Time.deltaTime;
         waitDefence -= Time.deltaTime;
@@ -1061,6 +1149,11 @@ public class MeteorAI {
             waitDefence = 2.0f;//2秒后开始判断能否释放防御键
             owner.controller.Input.OnKeyDown(EKeyList.KL_Defence, true);//防御
         }
+        else if (type == EAIStatus.AttackTarget)
+        {
+            //朝目标处攻击数次
+            RefreshPath(owner.mPos, AttackTarget);
+        }
     }
 
     void StopCoroutine()
@@ -1099,6 +1192,18 @@ public class MeteorAI {
         {
             owner.StopCoroutine(InputCorout);
             InputCorout = null;
+        }
+
+        if (AttackTargetCoroutine != null)
+        {
+            owner.StopCoroutine(AttackTargetCoroutine);
+            AttackTargetCoroutine = null;
+        }
+
+        if (AttackRotateToTargetCoroutine != null)
+        {
+            owner.StopCoroutine(AttackRotateToTargetCoroutine);
+            AttackRotateToTargetCoroutine = null;
         }
     }
 
@@ -1153,6 +1258,18 @@ public class MeteorAI {
         yield return 0;
         yield return 0;
         InputCorout = null;
+    }
+
+    Coroutine AttackTargetCoroutine;
+    IEnumerator Attack()
+    {
+        owner.controller.Input.OnKeyDown(EKeyList.KL_Attack, true);
+        yield return 0;
+        yield return 0;
+        owner.controller.Input.OnKeyUp(EKeyList.KL_Attack);
+        yield return 0;
+        yield return 0;
+        AttackTargetCoroutine = null;
     }
 
     IEnumerator PlayWeaponPose(int KeyMap)
@@ -1279,6 +1396,38 @@ public class MeteorAI {
         float degree = Mathf.Acos(radian) * Mathf.Rad2Deg;
         //Debug.LogError("夹角:" + degree);
         return degree;
+    }
+
+    Coroutine AttackRotateToTargetCoroutine;
+    IEnumerator AttackRotateToTarget(Vector3 vec)
+    {
+        Vector3 diff = (vec - owner.mPos);
+        diff.y = 0;
+        float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
+        float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
+        float angle = Mathf.Abs(Mathf.Acos(dot) * Mathf.Rad2Deg);
+        bool rightRotate = dot2 < 0;
+        float offset = 0.0f;
+        float offsetmax = GetAngleBetween(vec);
+        float timeTotal = offsetmax / 150.0f;
+        float timeTick = 0.0f;
+        while (true)
+        {
+            timeTick += Time.deltaTime;
+            float yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            owner.SetOrientation(yOffset - offset);
+            offset = yOffset;
+            if (timeTick > timeTotal)
+            {
+                //owner.FaceToTarget(vec);
+                if (owner.posMng.mActiveAction.Idx == CommonAction.WalkRight || owner.posMng.mActiveAction.Idx == CommonAction.WalkLeft)
+                    owner.posMng.ChangeAction(0, 0.1f);
+                break;
+            }
+            yield return 0;
+        }
+        AttackRotateToTargetCoroutine = null;
+        SubStatus = EAISubStatus.AttackGotoTarget;
     }
 
     Coroutine FollowRotateToTargetCoroutine;
@@ -1634,6 +1783,19 @@ public class MeteorAI {
             yield return 0;
         owner.controller.Input.OnKeyUp(EKeyList.KL_Jump);
         JumpCoroutine = null;
+    }
+
+    
+    public void OnGotoTargetPoint(int targetIndex)
+    {
+        if (Status == EAIStatus.AttackTarget)
+        {
+            if (Vector3.Distance(owner.mPos, AttackTarget) <= 5)
+            {
+                Debug.LogError("goto target point");
+                SubStatus = EAISubStatus.AttackTarget;
+            }
+        }
     }
 
     public void OnGotoWayPoint(int wayIndex)

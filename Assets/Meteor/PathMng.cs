@@ -18,10 +18,20 @@ public class PathMng:Singleton<PathMng>
 {
     #region 寻路缓存
     List<int> looked = new List<int>();
+
+    public List<WayPoint> FindPath(Vector3 source, Vector3 target)
+    {
+        int startPathIndex = GetWayIndex(source);
+        int endPathIndex = GetWayIndex(target);
+        looked.Clear();
+        List<WayPoint> ret = FindPathCore(startPathIndex, endPathIndex);
+        return ret;
+    }
+
     public List<WayPoint> FindPath(Vector3 now, MeteorUnit user, MeteorUnit target)
     {
         int startPathIndex = GetWayIndex(now);
-        Vector3 vec = target.mPos - 50 * (user.mPos - target.mPos).normalized;
+        Vector3 vec = target.mPos;
         int endPathIndex = GetWayIndex(vec);
         looked.Clear();
         List<WayPoint> ret = FindPathCore(startPathIndex, endPathIndex);

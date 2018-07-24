@@ -974,11 +974,13 @@ public partial class MeteorUnit : MonoBehaviour
         }
     }
 
-    public void KillPlayer(MeteorUnit unit)
+    public void KillTarget(MeteorUnit unit)
     {
-        lockTarget = unit;
         if (robot != null)
+        {
+            robot.killTarget = unit;
             robot.ChangeState(EAIStatus.Kill);
+        }
     }
 
     public void FaceToTarget(Vector3 target)
