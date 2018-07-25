@@ -256,7 +256,7 @@ public class FightWnd: Window<FightWnd>
     public void UpdateUIButton()
     {
         Global.ldaControlX("WeaponSelect", WndObject).SetActive(GameData.gameStatus.EnableWeaponChoose);
-        Global.ldaControlX("DebugMenu", WndObject).SetActive(GameData.gameStatus.EnableDebug);
+        Global.ldaControlX("SfxMenu", WndObject).SetActive(GameData.gameStatus.EnableDebug);
         Global.ldaControlX("MiniMap", WndObject).SetActive(true);
     }
 

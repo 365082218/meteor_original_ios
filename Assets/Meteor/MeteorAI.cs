@@ -19,7 +19,7 @@ public enum EAIStatus
     Wait,//，类似于Search
     Dodge,//逃跑
     Look,//四处看
-    GetItem,
+    GetItem,//取得场景道具-最近的，可拾取的(未打碎的箱子不算在内)。
     AttackTarget,//攻击指定位置.
 }
 
@@ -53,7 +53,7 @@ public enum EAISubStatus
     FightLook,//战斗中旋转-
     FightBurst,//战斗中曝气
     FightAim,//战斗中若使用远程武器，瞄准敌方的几率，否则就随机
-    FightGetItem,//战斗中去捡起物品-镖物-补给-武器-BUFF道具
+    //FightGetItem,//战斗中去捡起物品-镖物-补给-武器-BUFF道具
     SubStatusIdle,
     SubStatusWait,
     FollowGotoTarget,
@@ -68,7 +68,10 @@ public enum EAISubStatus
     KillOnHurt,//被敌人击中
     AttackGotoTarget,//攻击指定位置-寻路中.
     AttackTarget,//攻击指定位置-攻击中
-    AttackTargetSubRotateToTarget,
+    AttackTargetSubRotateToTarget,//攻击指定位置，到达中间某个寻路点时.
+    GetItemGotoItem,//朝物件走的路线中
+    GetItemSubRotateToItem,//到达中间某个寻路点，朝向下个寻路点
+    GetItemMissItem,//可能目标已无效（被其他NPC拾取、目标发生转换（镖物某NPC死后，落到地面-数秒内归位））
 }
 
 //每种距离，有无目标的2种情况下的AI设置.
@@ -183,6 +186,18 @@ public class MeteorAI {
 
         if (Status == EAIStatus.Wait)
         {
+            //一些事情优先级比较高，先处理
+            //视线内存在可碰触的场景道具
+            if (owner.GetSceneItemTarget() != null)
+            {
+                int getItem = Random.Range(0, 100);
+                if (getItem < owner.Attr.GetItem)
+                {
+                    ChangeState(EAIStatus.GetItem);
+                    return;
+                }
+            }
+
             if (owner.GetLockedTarget() != null)
             {
                 //killTarget = owner.GetLockedTarget();
@@ -196,9 +211,9 @@ public class MeteorAI {
         {
             switch (Status)
             {
-                case EAIStatus.AttackTarget:
-                    OnAttackTarget();
-                    break;
+                //case EAIStatus.AttackTarget:
+                //    OnAttackTarget();
+                //    break;
                 case EAIStatus.Fight:
                     FightOnGround();
                     break;
@@ -282,10 +297,72 @@ public class MeteorAI {
         ChangeState(EAIStatus.Wait);
     }
 
-    //捡去场景道具
+    //捡取场景道具
     void OnGetItem()
     {
-        ChangeState(EAIStatus.Wait);
+        switch (SubStatus)
+        {
+            case EAISubStatus.GetItemMissItem:
+                Assert.IsTrue(owner.GetSceneItemTarget() != null);
+                RefreshPath(owner.mPos, owner.GetSceneItemTarget().transform.position);
+                SubStatus = EAISubStatus.GetItemGotoItem;
+                break;
+            case EAISubStatus.GetItemGotoItem:
+                if (Path.Count == 0 || AIFollowRefresh >= 3.0f)
+                {
+                    if (owner.GetSceneItemTarget() != null)
+                        RefreshPath(owner.mPos, owner.GetSceneItemTarget().transform.position);
+                    AIFollowRefresh = 0.0f;
+                }
+
+                if (curIndex == -1)
+                    targetIndex = 0;
+
+                if (targetIndex >= Path.Count)
+                {
+                    UnityEngine.Debug.LogError(string.Format("targetIndex:{0}, FollowPath:{1}", targetIndex, Path.Count));
+                    Debug.DebugBreak();
+                }
+
+                Assert.IsTrue(targetIndex < Path.Count);
+                float dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(Path[targetIndex].pos.x, 0, Path[targetIndex].pos.z));
+                if (dis <= owner.Speed * Time.deltaTime * 0.13f)
+                {
+                    owner.controller.Input.AIMove(0, 0);
+                    if (targetIndex == Path.Count - 1)
+                    {
+                        //到达终点.
+                        owner.controller.Input.AIMove(0, 0);
+                        ChangeState(EAIStatus.Wait);
+                        return;
+                    }
+                    else
+                    {
+                        curIndex = targetIndex;
+                        targetIndex += 1;
+                    }
+                    RotateRound = Random.Range(1, 3);
+                    SubStatus = EAISubStatus.GetItemSubRotateToItem;//到指定地点后旋转到目标.
+                    return;
+                }
+
+                owner.FaceToTarget(new Vector3(Path[targetIndex].pos.x, 0, Path[targetIndex].pos.z));
+                owner.controller.Input.AIMove(0, 1);
+                //模拟跳跃键，移动到下一个位置.还得按住上
+                if (curIndex != -1)
+                {
+                    if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
+                    {
+                        AIJump();
+                        AIJumpDelay = 0.0f;
+                    }
+                };
+                break;
+            case EAISubStatus.GetItemSubRotateToItem:
+                if (GetItemRotateToTargetCoroutine == null)
+                    GetItemRotateToTargetCoroutine = owner.StartCoroutine(GetItemRotateToTarget(Path[targetIndex].pos));
+                break;
+        }
     }
 
     void OnGuard()
@@ -473,7 +550,7 @@ public class MeteorAI {
     }
 
     //攻击目标位置
-    void OnAttackTarget()
+    public void OnAttackTarget()
     {
         switch (SubStatus)
         {
@@ -527,7 +604,8 @@ public class MeteorAI {
                     owner.FaceToTarget(AttackTarget);
                     AttackTargetCoroutine = owner.StartCoroutine(Attack());
                     AttackCount -= 1;
-                    ChangeState(EAIStatus.Wait);
+                    if (AttackCount == 0)
+                        ChangeState(EAIStatus.Wait);
                 }
                 else
                 {
@@ -662,11 +740,11 @@ public class MeteorAI {
                         {
                             //快速移动.
                             AIBurst((EKeyList.KL_KeyA) + attack % 4);
-                        }
-                        else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst + owner.Attr.GetItem)
-                        {
-                            ChangeState(EAIStatus.GetItem);
-                        }
+                        }//不判断拾取物品，拾取物品发生在物品出现在视野内时
+                        //else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst + owner.Attr.GetItem)
+                        //{
+                        //    ChangeState(EAIStatus.GetItem);
+                        //}
                         else
                         {
                             //
@@ -697,6 +775,10 @@ public class MeteorAI {
     void RefreshPath(Vector3 now, Vector3 target)
     {
         Path = PathMng.Instance.FindPath(now, target);
+        if (Path.Count == 0)
+        {
+            Debug.DebugBreak();
+        }
         curIndex = -1;
         targetIndex = -1;
     }
@@ -1153,6 +1235,11 @@ public class MeteorAI {
         {
             //朝目标处攻击数次
             RefreshPath(owner.mPos, AttackTarget);
+            SubStatus = EAISubStatus.AttackGotoTarget;
+        }
+        else if (type == EAIStatus.GetItem)
+        {
+            SubStatus = EAISubStatus.GetItemMissItem;
         }
     }
 
@@ -1396,6 +1483,37 @@ public class MeteorAI {
         float degree = Mathf.Acos(radian) * Mathf.Rad2Deg;
         //Debug.LogError("夹角:" + degree);
         return degree;
+    }
+
+    Coroutine GetItemRotateToTargetCoroutine;
+    IEnumerator GetItemRotateToTarget(Vector3 vec)
+    {
+        Vector3 diff = (vec - owner.mPos);
+        diff.y = 0;
+        float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
+        float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
+        float angle = Mathf.Abs(Mathf.Acos(dot) * Mathf.Rad2Deg);
+        bool rightRotate = dot2 < 0;
+        float offset = 0.0f;
+        float offsetmax = GetAngleBetween(vec);
+        float timeTotal = offsetmax / 150.0f;
+        float timeTick = 0.0f;
+        while (true)
+        {
+            timeTick += Time.deltaTime;
+            float yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            owner.SetOrientation(yOffset - offset);
+            offset = yOffset;
+            if (timeTick > timeTotal)
+            {
+                if (owner.posMng.mActiveAction.Idx == CommonAction.WalkRight || owner.posMng.mActiveAction.Idx == CommonAction.WalkLeft)
+                    owner.posMng.ChangeAction(0, 0.1f);
+                break;
+            }
+            yield return 0;
+        }
+        GetItemRotateToTargetCoroutine = null;
+        SubStatus = EAISubStatus.GetItemGotoItem;
     }
 
     Coroutine AttackRotateToTargetCoroutine;

@@ -685,6 +685,7 @@ public class U3D : MonoBehaviour {
         //先清理BUF
         BuffMng.Instance.Clear();
         MeteorManager.Instance.Clear();
+        LevelScriptBase.Clear();
     }
 
     //对接原版脚本
@@ -808,6 +809,16 @@ public class U3D : MonoBehaviour {
             agent.SetSceneItem(feature, value);
     }
 
+    public static SceneItemAgent GetSceneFlag()
+    {
+        for (int i = 0; i < MeteorManager.Instance.SceneItems.Count; i++)
+        {
+            if (MeteorManager.Instance.SceneItems[i].ItemInfo != null && MeteorManager.Instance.SceneItems[i].ItemInfo.IsFlag())
+                return MeteorManager.Instance.SceneItems[i];
+        }
+        return null;
+    }
+
     public static SceneItemAgent GetSceneItem(string name)
     {
         for (int i = 0; i < MeteorManager.Instance.SceneItems.Count; i++)
@@ -817,6 +828,7 @@ public class U3D : MonoBehaviour {
         }
         return null;
     }
+
     public static int GetSceneItem(string name, string feature)
     {
         for (int i = 0; i < MeteorManager.Instance.SceneItems.Count; i++)
@@ -969,10 +981,14 @@ public class U3D : MonoBehaviour {
                     }
                     else
                     {
-                        int flag = U3D.GetChar("flag");
+                        int flag = U3D.GetChar("flag");//跟随镖物跑，A，镖物被人取得，B，镖物在地图某处.
                         if (flag >= 0)
                         {
                             GameBattleEx.Instance.PushActionFollow(id, flag);
+                        }
+                        else
+                        {
+                            Debug.LogError(string.Format("follow flag:{0} can not find", flag));
                         }
                     }
                 }
@@ -1037,6 +1053,16 @@ public class U3D : MonoBehaviour {
                 param[i + 1] = value[i];
         }
         ChangeBehavior(id, param);
+    }
+
+    public static MeteorUnit GetFlag()
+    {
+        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        {
+            if (MeteorManager.Instance.UnitInfos[i].GetFlag)
+                return MeteorManager.Instance.UnitInfos[i];
+        }
+        return null;
     }
 
     public static int GetChar(string player)
@@ -1160,7 +1186,7 @@ public class U3D : MonoBehaviour {
                 GameBattleEx.Instance.PushActionAggress(id);
             else if (pose == "attack")
             {
-
+                //攻击。？？
             }
             else if (pose == "use")
             {

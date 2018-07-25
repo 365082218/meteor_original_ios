@@ -106,9 +106,20 @@ public class ScriptBase
         }
         return 0;
     }
+
     static Dictionary<int, List<int>> randomSeries = new Dictionary<int, List<int>>();
     static Dictionary<int, Vector3> targetDict = new Dictionary<int, Vector3>();
     static Dictionary<int, TargetTrigger> targetTrigger = new Dictionary<int, TargetTrigger>();
+
+    public static void Clear()
+    {
+        randomSeries.Clear();
+        targetDict.Clear();
+        foreach (var each in targetTrigger)
+            GameObject.Destroy(each.Value);
+        targetTrigger.Clear();
+    }
+
     public static Vector3 GetTarget(int idx)
     {
         if (targetDict.ContainsKey(idx))
@@ -136,11 +147,14 @@ public class ScriptBase
         if (targetTrigger.ContainsKey(idx))
         {
             TargetTrigger t = targetTrigger[idx];
-            GameObject.Destroy(targetTrigger[idx]);
-            targetTrigger.Remove(idx);
+            t.name = string.Format("attacktarget{0}", idx);
+            t.style = style;
+            t.param = param;
+            t.transform.position = vec;
         }
+        else
+            SpawnTargetTrigger(idx, vec, style, param);
         targetDict[idx] = vec;
-        SpawnTargetTrigger(idx, vec, style, param);
     }
 
     static GameObject attackRoot;
@@ -1655,6 +1669,7 @@ public class LevelScript_sn03 : LevelScriptBase
                 SetTarget(1, "char", player);
                 if (Distance(0, 1) < 400)
                 {
+                    Debug.LogError("distance < 400");
                     ChangeBehavior(c, "follow", "flag");
                     Perform(c, "say", "哈哈哈哈，压成肉酱了吧！！");
                     SetTarget(0, "waypoint", 83);   // stone position

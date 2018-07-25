@@ -84,6 +84,7 @@ public class SceneItemAgent : MonoBehaviour {
     private void Awake()
     {
         root = transform;
+        root.tag = "SceneItemAgent";
         Refresh = false;
     }
 
@@ -248,6 +249,7 @@ public class SceneItemAgent : MonoBehaviour {
         root.localScale = Vector3.one;
         root.localPosition = Vector3.zero;
         root.localRotation = Quaternion.identity;
+        root.tag = "SceneItemAgent";
         if (ItemInfo != null)
         {
             Load(ItemInfo.model);
@@ -273,6 +275,7 @@ public class SceneItemAgent : MonoBehaviour {
             root.localScale = Vector3.one;
             root.localPosition = Vector3.zero;
             root.localRotation = Quaternion.identity;
+            root.tag = "SceneItemAgent";
         }
     }
 
@@ -799,5 +802,16 @@ public class SceneItemAgent : MonoBehaviour {
         GameBattleEx.Instance.RegisterCollision(this);
         Index = int.Parse(name.Substring(name.Length - 2));
         WsGlobal.SetObjectLayer(gameObject, LayerMask.NameToLayer("Trigger"));
+    }
+
+    public bool CanPickup()
+    {
+        if (ItemInfo != null && (ItemInfo.IsItem()))
+            if (root != null && root.gameObject.activeInHierarchy)
+                return true;
+        if (ItemInfo != null && ItemInfo.IsFlag())
+            if (root != null)
+                return true;
+        return false;
     }
 }

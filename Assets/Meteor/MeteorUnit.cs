@@ -456,6 +456,7 @@ public partial class MeteorUnit : MonoBehaviour
         }
         return 0;
     }
+
     //public Dictionary<MeteorUnit, int> hurtRecord = new Dictionary<MeteorUnit, int>();//所有存活着攻击我的伤害记录.死亡的去掉.
     public MeteorUnit GetLockedTarget()
     {
@@ -544,7 +545,7 @@ public partial class MeteorUnit : MonoBehaviour
 
     public void SelectEnemy()
     {
-        float dis = Attr.View;
+        float dis = Attr.View / 2;//视野，可能指的是直径，这里变为半径
         int index = -1;
         //直接遍历算了
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
@@ -563,7 +564,6 @@ public partial class MeteorUnit : MonoBehaviour
                 if (d > 35.0f)
                     continue;
             }
-
 
             if (dis > d)
             {
@@ -681,6 +681,34 @@ public partial class MeteorUnit : MonoBehaviour
     //    }
     //}
 
+    //刷新敌人，视野内的可拾取道具
+    public SceneItemAgent GetSceneItemTarget()
+    {
+        return TargetItem;
+    }
+
+    void SelectSceneItem()
+    {
+        float dis = Attr.View / 2;//视野，可能指的是直径，这里变为半径
+        int index = -1;
+        //直接遍历算了
+        for (int i = 0; i < MeteorManager.Instance.SceneItems.Count; i++)
+        {
+            SceneItemAgent item = MeteorManager.Instance.SceneItems[i];
+            if (!item.CanPickup())
+                continue;
+            float d = Vector3.Distance(transform.position, item.transform.position);
+            if (dis > d)
+            {
+                dis = d;
+                index = i;
+            }
+        }
+        if (index >= 0 && index <= MeteorManager.Instance.SceneItems.Count)
+            TargetItem = MeteorManager.Instance.SceneItems[index];
+    }
+
+    SceneItemAgent TargetItem;
     void RefreshTarget()
     {
         MeteorUnit temp = lockTarget;
@@ -702,9 +730,25 @@ public partial class MeteorUnit : MonoBehaviour
                     lockTarget = null;
                 }
             }
-            else if (d >= (Attr.View + 50))//给一定距离以免不停的切换目标
+            else if (d >= (Attr.View / 2 + 50))//给一定距离以免不停的切换目标
             {
                 lockTarget = null;
+            }
+        }
+
+        if (TargetItem == null)
+            SelectSceneItem();
+        else
+        {
+            if (!TargetItem.CanPickup())
+            {
+                TargetItem = null;
+            }
+            else
+            {
+                float d = Vector3.Distance(TargetItem.transform.position, transform.position);
+                if (d > Attr.View / 2 + 50)
+                    TargetItem = null;
             }
         }
     }
@@ -1951,7 +1995,7 @@ public partial class MeteorUnit : MonoBehaviour
         if (Dead)
             return;
         //Debug.LogError("ontrigger enter:" + other.gameObject.name);
-        if (other.tag == "SceneItemAgent")
+        if (other.tag == "SceneItemAgent" || (other.transform.parent != null && other.transform.parent.tag == "SceneItemAgent"))
         {
             SceneItemAgent trigger = other.gameObject.GetComponentInParent<SceneItemAgent>();
             if (trigger == null)
@@ -1983,7 +2027,7 @@ public partial class MeteorUnit : MonoBehaviour
     {
         if (Dead)
             return;
-        if (other.tag == "SceneItemAgent")
+        if (other.tag == "SceneItemAgent" || (other.transform.parent != null && other.transform.parent.tag == "SceneItemAgent"))
         {
             SceneItemAgent trigger = other.gameObject.GetComponentInParent<SceneItemAgent>();
             if (trigger == null)

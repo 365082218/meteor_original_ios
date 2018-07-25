@@ -1273,6 +1273,8 @@ public class ActionConfig
                         unit.robot.AttackTarget = action[action.Count - 1].target;
                         unit.robot.ChangeState(EAIStatus.AttackTarget);
                     }
+
+                    unit.robot.OnAttackTarget();
                     if (unit.robot.AttackCount == 0)
                         action.RemoveAt(action.Count - 1);
                 }
