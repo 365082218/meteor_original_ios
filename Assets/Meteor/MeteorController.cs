@@ -1308,15 +1308,6 @@ public class MeteorController : MonoBehaviour {
             Input.Update(Time.deltaTime);
     }
 
-    // LateUpdate is called after all Update functions have been called
-    void LateUpdate()
-    {
-        if (Global.PauseAll)
-            return;
-        if (mOwner != null)
-            UpdateCamera(Time.deltaTime);
-    }
-
     //普通功能的状态转换，不涉及
     void CheckActionInput(float deltaTime)
     {
@@ -1352,16 +1343,6 @@ public class MeteorController : MonoBehaviour {
     bool IsBossDeading;
 
     bool BossDead = false;
-    //public CameraController CameraController = null;
-    void UpdateCamera(float deltaTime)
-    {
-        if (CameraTag == null)
-            return;
-    }
-
-    void ChangeCamera()
-    {
-    }
 
     void UpdateFollowBone()
     {

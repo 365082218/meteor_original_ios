@@ -1042,7 +1042,7 @@ public partial class MeteorUnit : MonoBehaviour
     {
         if (unit == this)
             return;
-        UnityEngine.Debug.LogError(string.Format("{0} faceto :{1}", name, unit.name));
+        //UnityEngine.Debug.LogError(string.Format("{0} faceto :{1}", name, unit.name));
         FaceToTarget(unit.transform.position);
     }
 
@@ -2017,7 +2017,11 @@ public partial class MeteorUnit : MonoBehaviour
                 else
                 {
                     if (trigger.root != null)
+                    {
                         trigger.OnPickup(this);
+                        if (TargetItem == trigger)
+                            TargetItem = null;
+                    }
                 }
             }
         }
@@ -2050,7 +2054,11 @@ public partial class MeteorUnit : MonoBehaviour
                 {
                     //持续血阵，状态
                     if (trigger.root != null)
+                    {
                         trigger.OnPickup(this);
+                        if (TargetItem == trigger)
+                            TargetItem = null;
+                    }
                 }
             }
         }
@@ -2400,7 +2408,7 @@ public partial class MeteorUnit : MonoBehaviour
                         //Debug.LogError("targetPos:" + TargetPos);
                         posMng.ChangeAction(TargetPos);
                         charLoader.SetActionScale(dam.DefenseMove);
-                        AngryValue += 5;//防御住伤害。则怒气增加
+                        AngryValue += 3;//防御住伤害。则怒气增加
                     }
                     else if (dam._AttackType == 1)
                     {
@@ -2449,7 +2457,7 @@ public partial class MeteorUnit : MonoBehaviour
                         //}
                         string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                        AngryValue += (int)((realDamage * 5) / 10.0f);
+                        AngryValue += (int)((realDamage * 3) / 10.0f);
                         if (Attr.Dead)
                             OnDead(attacker);
                         else

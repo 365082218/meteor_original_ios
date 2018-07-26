@@ -93,7 +93,7 @@ GameObject:
   - component: {fileID: 222000011265024950}
   - component: {fileID: 114000011562920574}
   m_Layer: 5
-  m_Name: Text
+  m_Name: Task
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -792,8 +792,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114886617950903028}
   m_HandleRect: {fileID: 224850859190826942}
   m_Direction: 0
-  m_Value: 0
-  m_Size: 1
+  m_Value: 1
+  m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -916,7 +916,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114575927590300670}
   m_HandleRect: {fileID: 224877186825591248}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -1327,8 +1327,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 245, y: -136}
-  m_SizeDelta: {x: 189.90002, y: 152.90002}
+  m_AnchoredPosition: {x: 245, y: -131.6}
+  m_SizeDelta: {x: 189.90002, y: 66.82}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224000013863981406
 RectTransform:

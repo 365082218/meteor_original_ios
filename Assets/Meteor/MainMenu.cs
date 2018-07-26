@@ -43,6 +43,7 @@ public class MainMenu : Window<MainMenu> {
         if (loadingTexture != null)
             background.material = loadingTexture;
         select = lev;
+        Control("Task").GetComponent<Text>().text = select.Name;
     }
 
     void OnEnterLevel()

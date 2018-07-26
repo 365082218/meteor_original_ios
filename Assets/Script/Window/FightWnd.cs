@@ -114,6 +114,7 @@ public class FightWnd: Window<FightWnd>
         Unlock = Global.ldaControlX("Unlock", WndObject);
         Unlock.GetComponentInChildren<Button>().onClick.AddListener(OnClickChangeLock);
         Global.ldaControlX("SfxMenu", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSfxWnd(); });
+        Global.ldaControlX("Robot", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenRobotWnd(); });
         //floatButton = Global.ldaControlX("FloatButton", WndObject).GetComponent<UIButtonExtended>();
         //floatButton.gameObject.SetActive(false);
         //dr = Global.ldaControlX("Dropdown", WndObject).GetComponent<Dropdown>();
@@ -215,7 +216,7 @@ public class FightWnd: Window<FightWnd>
         {
             if (MeteorManager.Instance.LocalPlayer.Dead)
                 break;
-            if (MeteorManager.Instance.LocalPlayer.Attr.HpMax * 0.3f > MeteorManager.Instance.LocalPlayer.Attr.hpCur)
+            if ((float)MeteorManager.Instance.LocalPlayer.Attr.HpMax * 0.3f > (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur)
                 hpWarning.enabled = !hpWarning.enabled;
             yield return new WaitForSeconds(0.5f);//半秒切换一次状态
         }
@@ -256,7 +257,8 @@ public class FightWnd: Window<FightWnd>
     public void UpdateUIButton()
     {
         Global.ldaControlX("WeaponSelect", WndObject).SetActive(GameData.gameStatus.EnableWeaponChoose);
-        Global.ldaControlX("SfxMenu", WndObject).SetActive(GameData.gameStatus.EnableDebug);
+        Global.ldaControlX("SfxMenu", WndObject).SetActive(GameData.gameStatus.EnableDebugSFX);
+        Global.ldaControlX("Robot", WndObject).SetActive(GameData.gameStatus.EnableDebugRobot);
         Global.ldaControlX("MiniMap", WndObject).SetActive(true);
     }
 

@@ -91,9 +91,13 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Control("SetJoyPosition").GetComponent<Button>().onClick.AddListener(OnSetJoyPosition);
         Control("DoScript").GetComponent<Button>().onClick.AddListener(OnDoScript);
         //显示战斗界面的调试按钮
-        Toggle toggleDebug = Control("EnableDebug").GetComponent<Toggle>();
-        toggleDebug.isOn = GameData.gameStatus.EnableDebug;
-        toggleDebug.onValueChanged.AddListener(OnEnableDebug);
+        Toggle toggleDebug = Control("EnableSFX").GetComponent<Toggle>();
+        toggleDebug.isOn = GameData.gameStatus.EnableDebugSFX;
+        toggleDebug.onValueChanged.AddListener(OnEnableDebugSFX);
+        //显示战斗界面的调试按钮
+        Toggle toggleRobot = Control("EnableRobot").GetComponent<Toggle>();
+        toggleRobot.isOn = GameData.gameStatus.EnableDebugRobot;
+        toggleRobot.onValueChanged.AddListener(OnEnableDebugRobot);
         //战斗内显示角色信息
         Toggle toggleDebugStatus = Control("EnableDebugStatus").GetComponent<Toggle>();
         toggleDebugStatus.isOn = GameData.gameStatus.EnableDebugStatus;
@@ -129,7 +133,6 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Control("ChangeModel").GetComponent<Button>().onClick.AddListener(() => { ModelWnd.Instance.Open(); });
 
         InitLevel();
-        InitRobot();
         mWindowStyle = WindowStyle.WS_Modal;
     }
 
@@ -142,13 +145,6 @@ public class NewSystemWnd : Window<NewSystemWnd>
             string strKey = LevelInfo[i].Name;
             AddGridItem(LevelInfo[i].ID, strKey, EnterLevel, LevelRoot);
         }
-    }
-
-    void InitRobot()
-    {
-        Transform RobotRoot = Global.ldaControlX("RobotRoot", WndObject).transform;
-        for (int i = 0; i < 2 * Global.model.Length; i++)
-            AddGridItem(i, Global.model[i % Global.model.Length], (int a)=> { U3D.SpawnRobot(a); }, RobotRoot.transform);
     }
 
     void AddGridItem(int i, string strTag, UnityEngine.Events.UnityAction<int> call, Transform parent)
@@ -219,9 +215,16 @@ public class NewSystemWnd : Window<NewSystemWnd>
             unitsUI[i].EnableInfo(on);
     }
 
-    void OnEnableDebug(bool on)
+    void OnEnableDebugRobot(bool on)
     {
-        GameData.gameStatus.EnableDebug = on;
+        GameData.gameStatus.EnableDebugRobot = on;
+        if (FightWnd.Exist)
+            FightWnd.Instance.UpdateUIButton();
+    }
+
+    void OnEnableDebugSFX(bool on)
+    {
+        GameData.gameStatus.EnableDebugSFX = on;
         if (FightWnd.Exist)
             FightWnd.Instance.UpdateUIButton();
     }

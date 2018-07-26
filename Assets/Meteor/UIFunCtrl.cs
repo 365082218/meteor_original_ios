@@ -21,6 +21,7 @@ public class UIFunCtrl : MonoBehaviour {
 
     public void SetEvent(System.Action<int> act, int param)
     {
+        btn.onClick.RemoveAllListeners();
         btn.onClick.AddListener(()=>{ act(param); });
     }
     public void SetText(string text)

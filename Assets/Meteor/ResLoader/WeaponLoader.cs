@@ -54,6 +54,7 @@ public class WeaponLoader : MonoBehaviour {
             trail[i].enabled = false;
         trail.Clear();
     }
+
     public List<BoxCollider> weaponDamage = new List<BoxCollider>();
     public int WeaponType()
     {
@@ -64,6 +65,36 @@ public class WeaponLoader : MonoBehaviour {
     public int WeaponSubType()
     {
         return PoseType; 
+    }
+
+    //无设置父对象时，使用其上设置的2个骨骼挂点作为武器挂载点.
+    [SerializeField] private Transform LParent = null;
+    [SerializeField] private Transform RParent = null;
+    public void Init()
+    {
+        LP = new GameObject().transform;
+        LP.localPosition = Vector3.zero;
+        LP.localScale = Vector3.one;
+        LP.rotation = Quaternion.identity;
+        LP.SetParent(LParent);
+        LP.localPosition = Vector3.zero;
+        LP.localScale = Vector3.one;
+        LP.name = "WeaponL_TPos";
+        RP = new GameObject().transform;
+        RP.localPosition = Vector3.zero;
+        RP.localScale = Vector3.one;
+        RP.rotation = Quaternion.identity;
+        RP.SetParent(RParent);
+        RP.localPosition = Vector3.zero;
+        RP.localScale = Vector3.one;
+        RP.name = "WeaponR_TPos";
+        LP.gameObject.layer = LParent.gameObject.layer;
+        RP.gameObject.layer = RParent.gameObject.layer;
+
+        transform.localPosition = new Vector3(0, 9, 110);
+        transform.localEulerAngles = new Vector3(270, 0, 0);
+        LParent.transform.localPosition = new Vector3(0, 10, 0);
+        RParent.transform.localPosition = new Vector3(0, 10, 0);
     }
 
     public void Init(MeteorUnit unit)
@@ -107,7 +138,7 @@ public class WeaponLoader : MonoBehaviour {
                 R = null;
             }
             Weapon = null;
-            trail.Clear();
+            RemoveTrail();
             weaponDamage.Clear();
         }
     }
@@ -125,12 +156,35 @@ public class WeaponLoader : MonoBehaviour {
 
     }
 
-    public void EquipWeapon()
+    //要判断是双手还是单手的
+    InventoryItem weaponModel;
+    public void EquipWeapon(int unitid)
     {
+        if (weaponModel == null)
+        {
+            weaponModel = GameData.MakeEquip(unitid);
+            WeaponBase weaponProperty = WeaponMng.Instance.GetItem(weaponModel.Info().UnitId);
+            EquipWeapon(weaponModel, true);
+        }
+        else
+        {
+            UnEquipWeapon();
+            weaponModel = GameData.MakeEquip(unitid);
+            WeaponBase weaponProperty = WeaponMng.Instance.GetItem(weaponModel.Info().UnitId);
+            EquipWeapon(weaponModel, true);
+        }
 
+        if (weaponModel.Info().SubType == (int)(EquipWeaponType.Lance))
+            transform.localPosition = new Vector3(0, 9, 130);
+        else
+            transform.localPosition = new Vector3(0, 9, 110);
+
+        WsGlobal.SetObjectLayer(RParent.gameObject, LayerMask.NameToLayer("RenderModel"));
+        WsGlobal.SetObjectLayer(LParent.gameObject, LayerMask.NameToLayer("RenderModel"));
     }
+
     //把背包里的物品，装备到身上.
-    public void EquipWeapon(InventoryItem item)
+    public void EquipWeapon(InventoryItem item, bool ModelLayer = false)
     {
         if (Weapon == null && item != null)
         {
@@ -173,11 +227,11 @@ public class WeaponLoader : MonoBehaviour {
                         DesFile fDesL = DesLoader.Instance.Load(weaponL);
 
                         if (fGmcL != null && fDesL != null)
-                            GenerateWeaponModel(weaponL, fGmcL, fDesL, false, scale, weaponProperty.TextureL);
+                            GenerateWeaponModel(weaponL, fGmcL, fDesL, false, scale, weaponProperty.TextureL, ModelLayer);
                         else if (fGmcL == null && fDesL != null)
                         {
                             GMBFile fGmbL = GMBLoader.Instance.Load(weaponL);
-                            GenerateWeaponModel(weaponL, fGmbL, fDesL, false, scale, weaponProperty.TextureL);
+                            GenerateWeaponModel(weaponL, fGmbL, fDesL, false, scale, weaponProperty.TextureL, ModelLayer);
                         }
                     }
                     else
@@ -185,7 +239,7 @@ public class WeaponLoader : MonoBehaviour {
                         if (L != null)
                             DestroyImmediate(L);
                         GameObject objWeapon = GameObject.Instantiate(weaponPrefab);
-                        objWeapon.layer = LayerMask.NameToLayer("Weapon") ;
+                        objWeapon.layer = ModelLayer ? LayerMask.NameToLayer("RenderModel") : LayerMask.NameToLayer("Weapon") ;
                         L = objWeapon.transform;
                         //L = new GameObject().transform;
                         L.SetParent(LP);
@@ -217,15 +271,23 @@ public class WeaponLoader : MonoBehaviour {
                         if (box != null)
                         {
                             box.enabled = false;
-                            box.gameObject.layer = LayerMask.NameToLayer("Weapon");
+                            box.gameObject.layer = ModelLayer ? LayerMask.NameToLayer("RenderModel") : LayerMask.NameToLayer("Weapon");
                             weaponDamage.Add(box);
                         }
                         else
                         {
                             Debug.LogError("新增武器上找不到碰撞盒[除了暗器火枪飞轮外都应该有碰撞盒]");
                         }
-                        wt.Init(owner);
-                        trail.Add(wt);
+                        if (owner != null)
+                        {
+                            wt.Init(owner);
+                            trail.Add(wt);
+                        }
+                        else
+                        {
+                            GameObject.Destroy(wt);
+                            wt = null;
+                        }
                     }
                 }
                 if (!string.IsNullOrEmpty(weaponR))
@@ -236,11 +298,11 @@ public class WeaponLoader : MonoBehaviour {
                         GMCFile fGmcR = GMCLoader.Instance.Load(weaponR);
                         DesFile fDesR = DesLoader.Instance.Load(weaponR);
                         if (fGmcR != null && fDesR != null)
-                            GenerateWeaponModel(weaponR, fGmcR, fDesR, true, scale, weaponProperty.TextureR);
+                            GenerateWeaponModel(weaponR, fGmcR, fDesR, true, scale, weaponProperty.TextureR, ModelLayer);
                         else if (fGmcR == null && fDesR != null)
                         {
                             GMBFile fGmbR = GMBLoader.Instance.Load(weaponProperty.WeaponR);
-                            GenerateWeaponModel(weaponR, fGmbR, fDesR, true, scale, weaponProperty.TextureR);
+                            GenerateWeaponModel(weaponR, fGmbR, fDesR, true, scale, weaponProperty.TextureR, ModelLayer);
                         }
                     }
                     else
@@ -249,7 +311,7 @@ public class WeaponLoader : MonoBehaviour {
                         if (R != null)
                             DestroyImmediate(R);
                         GameObject objWeapon = GameObject.Instantiate(weaponPrefab);
-                        objWeapon.layer = LayerMask.NameToLayer("Weapon");
+                        objWeapon.layer = ModelLayer ? LayerMask.NameToLayer("RenderModel") : LayerMask.NameToLayer("Weapon");
                         R = objWeapon.transform;
                         R.SetParent(RP);
                         R.localPosition = Vector3.zero;
@@ -270,15 +332,23 @@ public class WeaponLoader : MonoBehaviour {
                         if (box != null)
                         {
                             box.enabled = false;
-                            box.gameObject.layer = LayerMask.NameToLayer("Weapon");
+                            box.gameObject.layer = ModelLayer ? LayerMask.NameToLayer("RenderModel") : LayerMask.NameToLayer("Weapon");
                             weaponDamage.Add(box);
                         }
                         else
                         {
                             Debug.LogError("新增武器上找不到碰撞盒[除了暗器火枪飞轮外都应该有碰撞盒]");
                         }
-                        wt.Init(owner);
-                        trail.Add(wt);
+
+                        if (owner != null)
+                        {
+                            wt.Init(owner);
+                            trail.Add(wt);
+                        }
+                        else
+                        {
+                            GameObject.Destroy(wt);
+                        }
                     }
                 }
 
@@ -291,7 +361,7 @@ public class WeaponLoader : MonoBehaviour {
             Debug.Log("if you want equip you must call unequip first if the weapon exist");
         }
 
-        if (owner.Stealth)
+        if (owner != null && owner.Stealth)
         {
             MeshRenderer[] mrl = LP.gameObject.GetComponentsInChildren<MeshRenderer>();
             for (int i = 0; i < mrl.Length; i++)
@@ -315,7 +385,7 @@ public class WeaponLoader : MonoBehaviour {
 
     //通过描述文件生成实际文件.描述文件类似使用一系列模板一样，指定
     //装备要发武器姿态来。否则不知道预先加载哪个材质，有些装备需要先生成材质后调整的
-    public void GenerateWeaponModel(string DesFile, GMCFile fModel, DesFile fIns, bool rightHand = true, float scale = 1.0f, string textureOverrite = "")
+    public void GenerateWeaponModel(string DesFile, GMCFile fModel, DesFile fIns, bool rightHand = true, float scale = 1.0f, string textureOverrite = "", bool ModelLayer = false)
     {
         if (string.IsNullOrEmpty(DesFile) || fModel == null || fIns == null)
             return;
@@ -326,7 +396,7 @@ public class WeaponLoader : MonoBehaviour {
             if (R != null)
                 DestroyImmediate(R);
             R = new GameObject().transform;
-            R.gameObject.layer = LayerMask.NameToLayer("Weapon");
+            R.gameObject.layer = ModelLayer ? LayerMask.NameToLayer("RenderModel") : LayerMask.NameToLayer("Weapon");
             R.SetParent(RP);
             R.localRotation = Quaternion.identity;
             R.localPosition = Vector3.zero;
@@ -340,7 +410,7 @@ public class WeaponLoader : MonoBehaviour {
                 DestroyImmediate(L);
             L = new GameObject().transform;
             L.SetParent(LP);
-            L.gameObject.layer = LayerMask.NameToLayer("Weapon");
+            L.gameObject.layer = ModelLayer ? LayerMask.NameToLayer("RenderModel") : LayerMask.NameToLayer("Weapon");
             L.localRotation = Quaternion.identity;
             L.localPosition = Vector3.zero;
             L.name = matIden;
@@ -557,12 +627,19 @@ public class WeaponLoader : MonoBehaviour {
             if (ctrlLe != null)
                 wt.AddTransform(ctrlLe.transform);
         }
-        wt.Init(owner);
-        trail.Add(wt);
+        if (owner != null)
+        {
+            wt.Init(owner);
+            trail.Add(wt);
+        }
+        else
+        {
+            GameObject.Destroy(wt);
+        }
     }
 
     //GMB文件合并了网格，应该是不用设置位置和旋转了
-    public void GenerateWeaponModel(string DesFile, GMBFile fModel, DesFile fIns, bool rightHand = true, float scale = 1.0f, string textureOverrite = "")
+    public void GenerateWeaponModel(string DesFile, GMBFile fModel, DesFile fIns, bool rightHand = true, float scale = 1.0f, string textureOverrite = "", bool ModelLayer = false)
     {
         if (string.IsNullOrEmpty(DesFile) || fModel == null || fIns == null)
             return;
@@ -573,7 +650,7 @@ public class WeaponLoader : MonoBehaviour {
             if (R != null)
                 DestroyImmediate(R);
             R = new GameObject().transform;
-            R.gameObject.layer = LayerMask.NameToLayer("Weapon");
+            R.gameObject.layer = ModelLayer ? LayerMask.NameToLayer("RenderModel") : LayerMask.NameToLayer("Weapon");
             R.SetParent(RP);
             R.localRotation = Quaternion.identity;
             R.localPosition = Vector3.zero;
@@ -586,7 +663,7 @@ public class WeaponLoader : MonoBehaviour {
             if (L != null)
                 DestroyImmediate(L);
             L = new GameObject().transform;
-            L.gameObject.layer = LayerMask.NameToLayer("Weapon");
+            L.gameObject.layer = ModelLayer ? LayerMask.NameToLayer("RenderModel") : LayerMask.NameToLayer("Weapon");
             L.SetParent(LP);
             L.localRotation = Quaternion.identity;
             L.localPosition = Vector3.zero;
@@ -802,8 +879,15 @@ public class WeaponLoader : MonoBehaviour {
             if (ctrlLe != null)
                 wt.AddTransform(ctrlLe.transform);
         }
-        wt.Init(owner);
-        trail.Add(wt);
+        if (owner != null)
+        {
+            wt.Init(owner);
+            trail.Add(wt);
+        }
+        else
+        {
+            GameObject.Destroy(wt);
+        }
     }
 
     //是否开启武器触发器，用于打碎瓶子罐子，等场景物件，与部分只响应攻击的

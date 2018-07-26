@@ -27,7 +27,6 @@ public class RestCtrl : MonoBehaviour {
     void OnClose()
     {
         U3D.TextAppend("\n睡了一觉，状态全满了");
-        U3D.Fullup();
         WsWindow.Close(WsWindow.RestCtrl);
     }
 }

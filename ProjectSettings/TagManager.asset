@@ -41,7 +41,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - RenderModel
   - WayPoint
   - DebugCanvas
   - Debug

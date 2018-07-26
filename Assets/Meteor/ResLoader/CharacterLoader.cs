@@ -310,6 +310,11 @@ public class CharacterLoader : MonoBehaviour
         PoseStraight = t;
     }
 
+    public bool IsInStraight()
+    {
+        return CheckStraight && PoseStraight > 0;
+    }
+
     void Start()
     {
     }
@@ -646,7 +651,7 @@ public class CharacterLoader : MonoBehaviour
             {
                 PoseStraight -= Time.deltaTime;
                 //检查僵直是否过期.
-                if (PoseStraight < 0.0f && loop)
+                if (PoseStraight <= 0.0f && loop)
                 {
                     loop = false;
                     curIndex = po.LoopEnd;

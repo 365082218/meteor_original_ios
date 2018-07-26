@@ -66,7 +66,7 @@ public class U3D : MonoBehaviour {
     static int nextSpawnPoint = 0;
     static int[] weaponCode = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 47, 51, 55 };
     static int weaponIndex = 0;
-    public static void SpawnRobot(int idx)
+    public static void SpawnRobot(int idx, EUnitCamp camp)
     {
         MonsterEx mon = new MonsterEx();
         mon.Weapon = weaponCode[weaponIndex % weaponCode.Length];
@@ -78,10 +78,7 @@ public class U3D : MonoBehaviour {
         GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
         GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
         MeteorUnit unit = ins.GetComponent<MeteorUnit>();
-        if (idx > Global.model.Length)
-            unit.Camp = EUnitCamp.EUC_FRIEND;
-        else
-            unit.Camp = EUnitCamp.EUC_ENEMY;
+        unit.Camp = camp;
         unit.Init(idx % Global.model.Length, mon);
         MeteorManager.Instance.OnGenerateUnit(unit);
         unit.SetGround(false);
@@ -117,6 +114,8 @@ public class U3D : MonoBehaviour {
         }
 
         InsertSystemMsg(LevelHelper.GetCampStr(unit));
+        //找寻敌人攻击.因为这个并没有脚本模板
+        unit.robot.ChangeState(EAIStatus.Wait);
         //unit.transform.position = Global.GLevelItem.wayPoint.Count != 0 ? Global.GLevelItem.wayPoint[nextSpawnPoint].pos : GameObject.Find("StartPoint").transform.position;
         //unit.transform.rotation = new Quaternion(0, 0, 0, 1);
     }
@@ -455,6 +454,14 @@ public class U3D : MonoBehaviour {
     //模拟炼铁狱全BUFF
     public static void Fullup()
     {
+    }
+
+    public static void OpenRobotWnd()
+    {
+        if (RobotWnd.Exist)
+            RobotWnd.Instance.Close();
+        else
+            RobotWnd.Instance.Open();
     }
 
     public static void OpenSfxWnd()
@@ -979,6 +986,10 @@ public class U3D : MonoBehaviour {
                                 GameBattleEx.Instance.PushActionFollow(id, t.InstanceId);
                         }
                     }
+                    else if (value[1] as string == "player")
+                    {
+                        GameBattleEx.Instance.PushActionFollow(id, MeteorManager.Instance.LocalPlayer.InstanceId);
+                    }
                     else
                     {
                         int flag = U3D.GetChar("flag");//跟随镖物跑，A，镖物被人取得，B，镖物在地图某处.
@@ -1024,12 +1035,12 @@ public class U3D : MonoBehaviour {
             {
                 if (value.Length == 2)
                 {
-                    UnityEngine.Debug.LogError(string.Format("attacktarget:{0}", (int)value[1]));
+                    //UnityEngine.Debug.LogError(string.Format("attacktarget:{0}", (int)value[1]));
                     GameBattleEx.Instance.PushActionAttackTarget(id, (int)value[1]);
                 }
                 else if (value.Length == 3)
                 {
-                    UnityEngine.Debug.LogError(string.Format("attacktarget:{0}, {1}", (int)value[1], (int)value[2]));
+                    //UnityEngine.Debug.LogError(string.Format("attacktarget:{0}, {1}", (int)value[1], (int)value[2]));
                     GameBattleEx.Instance.PushActionAttackTarget(id, (int)value[1], (int)value[2]);
                 }
             }

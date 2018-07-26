@@ -7,6 +7,7 @@ using System.IO;
 using ProtoBuf;
 using System;
 using protocol;
+using Idevgame.Util;
 
 public class GunShootUI:Window<GunShootUI>
 {
@@ -283,6 +284,8 @@ public class MainWnd : Window<MainWnd>
     }
 }
 
+//角色信息面板去掉.以后再加
+//这种界面，一般是全屏界面。
 public class PlayerWnd:Window<PlayerWnd>
 {
     public override string PrefabName  {  get {  return "PlayerWnd"; }  }
@@ -318,7 +321,7 @@ public class PlayerWnd:Window<PlayerWnd>
         WeaponBase weaponProperty = WeaponMng.Instance.GetItem(MeteorManager.Instance.LocalPlayer.weaponLoader.GetCurrentWeapon().Info().UnitId);
         d.weaponLoader.StrWeaponR = weaponProperty.WeaponR;
         d.weaponLoader.StrWeaponL = weaponProperty.WeaponL;
-        d.weaponLoader.EquipWeapon();
+        //d.weaponLoader.EquipWeapon();
         d.transform.SetParent(obj.transform);
         d.transform.localScale = 8 * Vector3.one;
         d.transform.localPosition = new Vector3(0, 0, -45);
@@ -381,14 +384,15 @@ public class ItemInfoWnd:Window<ItemInfoWnd>
 
 public class WeaponWnd : Window<WeaponWnd>
 {
-    public GameObject FunctionRoot;
+    public GameObject CameraForWeapon;
+    public GameObject WeaponModelParent;
     public GameObject WeaponRoot;
     //public 
     public override string PrefabName
     {
         get
         {
-            return "WeaponPanel";
+            return "WeaponWnd";
         }
     }
     protected override bool OnOpen()
@@ -401,69 +405,233 @@ public class WeaponWnd : Window<WeaponWnd>
     {
         if (load != null && GameBattleEx.Instance)
             GameBattleEx.Instance.StopCoroutine(load);
+        if (CameraForWeapon != null)
+            GameObject.Destroy(CameraForWeapon);
         return base.OnClose();
     }
 
     Coroutine load;
+    EquipWeaponType weaponSubType;
+    WeaponLoader wload;
+    int selectWeapon;
     void Init()
     {
-        FunctionRoot = Control("FunctionRoot");
+        weaponSubType = EquipWeaponType.Sword;
+        if (CameraForWeapon == null)
+        {
+            CameraForWeapon = GameObject.Instantiate(ResMng.LoadPrefab("CameraForWeapon")) as GameObject;
+            CameraForWeapon.Identity(null);
+            WeaponModelParent = Control("WeaponParent", CameraForWeapon);
+            wload = WeaponModelParent.GetComponent<WeaponLoader>();
+            wload.Init();
+        }
         WeaponRoot = Control("WeaponRoot");
+        Control("Equip").GetComponent<Button>().onClick.AddListener(()=> { ChangeWeaponCode(); });
         Control("Close").GetComponent<Button>().onClick.AddListener(Close);
+        for (int i = 0; i < 12; i++)
+        {
+            string control = string.Format("Tab{0}", i);
+            Control(control).GetComponent<UITab>().onValueChanged.AddListener(ChangeWeaponType);
+        }
         if (load == null)
-            load = GameBattleEx.Instance.StartCoroutine(AddRobotAndWeapon());
+            load = GameBattleEx.Instance.StartCoroutine(AddWeapon());
     }
 
-    IEnumerator AddRobotAndWeapon()
+    IEnumerator AddWeapon()
     {
-        for (int i = 0; i < Global.model.Length; i++)
+        List<ItemBase> we = GameData.itemMng.GetFullRow();
+        int offset = 0;
+        for (int i = 0; i < we.Count; i++)
         {
-            AddSpawnItem(i);
-            yield return 0;
+            if (we[i].MainType == 1)
+            {
+                if (we[i].SubType == (int)weaponSubType)
+                {
+                    AddWeaponItem(we[i], offset++);
+                    yield return 0;
+                }
+            }
         }
+        ShowWeapon();
+    }
+
+    List<GameObject> GridWeapon = new List<GameObject>();
+    void AddWeaponItem(ItemBase it, int idx)
+    {
+        if (GridWeapon.Count > idx)
+        {
+            GridWeapon[idx].SetActive(true);
+            UIFunCtrl ctrl = GridWeapon[idx].GetComponent<UIFunCtrl>();
+            ctrl.SetEvent(ShowWeapon, it.Idx);
+            ctrl.SetText(it.Name);
+        }
+        else
+        {
+            GameObject weapon = GameObject.Instantiate(Resources.Load("GridItemBtn")) as GameObject;
+            UIFunCtrl obj = weapon.AddComponent<UIFunCtrl>();
+            obj.SetEvent(ShowWeapon, it.Idx);
+            obj.SetText(it.Name);
+            obj.transform.SetParent(WeaponRoot.transform);
+            obj.gameObject.layer = WeaponRoot.layer;
+            obj.transform.localScale = Vector3.one;
+            obj.transform.localPosition = Vector3.zero;
+            obj.transform.localRotation = Quaternion.identity;
+            GridWeapon.Add(weapon);
+        }
+    }
+
+    void ShowWeapon()
+    {
         List<ItemBase> we = GameData.itemMng.GetFullRow();
         for (int i = 0; i < we.Count; i++)
         {
             if (we[i].MainType == 1)
             {
-                AddWeaponItem(we[i]);
-                yield return 0;
+                if (we[i].SubType == (int)weaponSubType)
+                {
+                    selectWeapon = we[i].Idx;
+                    break;
+                }
             }
+        }
+        ShowWeapon(selectWeapon);
+    }
+
+    void ShowWeapon(int idx)
+    {
+        selectWeapon = idx;
+        wload.EquipWeapon(selectWeapon);
+    }
+
+    void ChangeWeaponCode()
+    {
+        MeteorManager.Instance.LocalPlayer.ChangeWeaponCode(selectWeapon);
+    }
+
+    void ChangeWeaponType(bool change)
+    {
+        if (!change)
+            return;
+        for (int i = 0; i < 12; i++)
+        {
+            string control = string.Format("Tab{0}", i);
+            if (Control(control).GetComponent<UITab>().isOn)
+            {
+                ChangeWeaponType(i);
+                break;
+            }
+        }
+        
+    }
+
+    void ChangeWeaponType(int subType)
+    {
+        weaponSubType = (EquipWeaponType)subType;
+        for (int i = 0; i < GridWeapon.Count; i++)
+            GridWeapon[i].SetActive(false);
+        if (load != null)
+            GameBattleEx.Instance.StopCoroutine(load);
+        load = GameBattleEx.Instance.StartCoroutine(AddWeapon());
+    }
+}
+
+public class RobotWnd : Window<RobotWnd>
+{
+    public GameObject RobotRoot;
+    public override string PrefabName
+    {
+        get
+        {
+            return "RobotWnd";
+        }
+    }
+    protected override bool OnOpen()
+    {
+        Init();
+        return base.OnOpen();
+    }
+
+    protected override bool OnClose()
+    {
+        if (refresh != null && GameBattleEx.Instance)
+            GameBattleEx.Instance.StopCoroutine(refresh);
+        return base.OnClose();
+    }
+
+    int pageIndex = 0;
+    private const int PageCount = 20;
+    int pageMax = 0;
+    int pageMin = 0;
+    void Init()
+    {
+        pageMax = 2;
+        RobotRoot = Control("Page");
+        Control("Close").GetComponent<Button>().onClick.AddListener(Close);
+        Control("PagePrev").GetComponent<Button>().onClick.AddListener(PrevPage);
+        Control("PageNext").GetComponent<Button>().onClick.AddListener(NextPage);
+        NextPage();
+    }
+
+    void NextPage()
+    {
+        if (pageIndex == pageMax)
+            pageIndex = 1;
+        else
+            pageIndex += 1;
+        if (refresh != null)
+            GameBattleEx.Instance.StopCoroutine(refresh);
+        refresh = GameBattleEx.Instance.StartCoroutine(RefreshRobot(pageIndex));
+        Control("PageText").GetComponent<Text>().text = string.Format("{0:d2}/{1:d2}", pageIndex, pageMax);
+    }
+
+    void PrevPage()
+    {
+        if (pageIndex == 1)
+            pageIndex = pageMax;
+        else
+            pageIndex -= 1;
+        if (refresh != null)
+            GameBattleEx.Instance.StopCoroutine(refresh);
+        refresh = GameBattleEx.Instance.StartCoroutine(RefreshRobot(pageIndex));
+        Control("PageText").GetComponent<Text>().text = string.Format("{0:d2}/{1:d2}", pageIndex, pageMax);
+    }
+
+    Coroutine refresh = null;
+    IEnumerator RefreshRobot(int page)
+    {
+        for (int i = 0; i < PageCount; i++)
+        {
+            AddRobot(i, page);
+            yield return 0;
         }
     }
 
-    void AddSpawnItem(int Idx)
+    Dictionary<int, GameObject> RobotList = new Dictionary<int, GameObject>();
+    void AddRobot(int Idx, int pageIdx)
     {
-        UIFunCtrl obj = (GameObject.Instantiate(Resources.Load("UIFuncItem")) as GameObject).GetComponent<UIFunCtrl>();
-        obj.SetEvent(SpawnMonster, Idx);
-        obj.SetText(Global.model[Idx]);
-        obj.transform.SetParent(FunctionRoot.transform);
-        obj.gameObject.layer = FunctionRoot.layer;
-        obj.transform.localScale = Vector3.one;
-        obj.transform.localPosition = Vector3.zero;
-        obj.transform.localRotation = Quaternion.identity;
+        if (RobotList.ContainsKey(Idx))
+        {
+            RobotList[Idx].GetComponent<Button>().onClick.RemoveAllListeners();
+            RobotList[Idx].GetComponent<Button>().onClick.AddListener(() => { SpawnRobot(Idx, pageIdx == 1 ? EUnitCamp.EUC_ENEMY : EUnitCamp.EUC_FRIEND); });
+            RobotList[Idx].GetComponentInChildren<Text>().text = string.Format("{0}{1}", Global.model[Idx], pageIdx == 1 ? "[敌]" : "[友]");
+        }
+        else
+        {
+            GameObject obj = GameObject.Instantiate(Resources.Load("GridItemBtn")) as GameObject;
+            obj.GetComponent<Button>().onClick.AddListener(() => { SpawnRobot(Idx, pageIdx == 1 ? EUnitCamp.EUC_ENEMY : EUnitCamp.EUC_FRIEND); });
+            obj.GetComponentInChildren<Text>().text = string.Format("{0}{1}", Global.model[Idx], pageIdx == 1 ? "[敌]" : "[友]");
+            obj.transform.SetParent(RobotRoot.transform);
+            obj.gameObject.layer = RobotRoot.layer;
+            obj.transform.localScale = Vector3.one;
+            obj.transform.localPosition = Vector3.zero;
+            obj.transform.localRotation = Quaternion.identity;
+            RobotList.Add(Idx, obj);
+        }
     }
 
-    void AddWeaponItem(ItemBase it)
+    void SpawnRobot(int idx, EUnitCamp camp)
     {
-        UIFunCtrl obj = (GameObject.Instantiate(Resources.Load("UIFuncItem")) as GameObject).GetComponent<UIFunCtrl>();
-        obj.SetEvent(ChangeWeaponCode, it.Idx);
-        obj.SetText(it.Name);
-        obj.transform.SetParent(WeaponRoot.transform);
-        obj.gameObject.layer = WeaponRoot.layer;
-        obj.transform.localScale = Vector3.one;
-        obj.transform.localPosition = Vector3.zero;
-        obj.transform.localRotation = Quaternion.identity;
-    }
-
-    void ChangeWeaponCode(int code)
-    {
-        MeteorManager.Instance.LocalPlayer.ChangeWeaponCode(code);
-    }
-
-    void SpawnMonster(int code)
-    {
-        U3D.SpawnRobot(code);
+        U3D.SpawnRobot(idx, camp);
     }
 }
 
@@ -491,61 +659,57 @@ public class SfxWnd: Window<SfxWnd>
     }
 
     Coroutine load;
-    int pageIndex = 32;
+    int pageIndex = 32;//1-max
     private const int PageCount = 20;
     int pageMax = 0;
     int pageMin = 0;
     void Init()
     {
-        pageMax = SFXLoader.Instance.Eff.Length / PageCount;
+        pageMax = (SFXLoader.Instance.Eff.Length / PageCount) + ((SFXLoader.Instance.Eff.Length % PageCount) != 0 ? 1 : 0);
         SfxRoot = Control("Page");
         Control("Close").GetComponent<Button>().onClick.AddListener(Close);
         Control("PagePrev").GetComponent<Button>().onClick.AddListener(PrevPage);
         Control("PageNext").GetComponent<Button>().onClick.AddListener(NextPage);
-        if (load == null)
-            load = GameBattleEx.Instance.StartCoroutine(RefreshSfx(pageIndex));
         NextPage();
-        
     }
 
     void NextPage()
     {
-        int nextpage = (pageIndex + 1) % pageMax;
+        if (pageIndex == pageMax)
+            pageIndex = 1;
+        else
+            pageIndex += 1;
         if (refresh != null)
             GameBattleEx.Instance.StopCoroutine(refresh);
-        refresh = GameBattleEx.Instance.StartCoroutine(RefreshSfx(nextpage));
-        pageIndex = nextpage;
+        refresh = GameBattleEx.Instance.StartCoroutine(RefreshSfx(pageIndex));
         Control("PageText").GetComponent<Text>().text = string.Format("{0:d2}/{1:d2}", pageIndex, pageMax);
     }
 
     void PrevPage()
     {
-        int nextpage = (pageIndex - 1);
-        if (nextpage < 0)
-            nextpage = 0;
+        if (pageIndex == 1)
+            pageIndex = pageMax;
+        else
+            pageIndex -= 1;
         if (refresh != null)
             GameBattleEx.Instance.StopCoroutine(refresh);
-        refresh = GameBattleEx.Instance.StartCoroutine(RefreshSfx(nextpage));
-        pageIndex = nextpage;
+        refresh = GameBattleEx.Instance.StartCoroutine(RefreshSfx(pageIndex));
         Control("PageText").GetComponent<Text>().text = string.Format("{0:d2}/{1:d2}", pageIndex, pageMax);
     }
 
     Coroutine refresh = null;
     IEnumerator RefreshSfx(int page)
     {
-        if (page == pageIndex)
-            yield break;
-
-        for (int i = Mathf.Min(page * PageCount, (page + 1) * PageCount); i < (page + 1) * PageCount; i++)
+        for (int i = Mathf.Min((page - 1) * PageCount, (page) * PageCount); i < (page) * PageCount; i++)
         {
-            int j = i - (page * PageCount);
+            int j = i - (page - 1) * PageCount;
             if (SFXList.Count > j)
                 SFXList[j].SetActive(false);
         }
 
-        for (int i = page * PageCount; i < Mathf.Min((page + 1)* PageCount, SFXLoader.Instance.TotalSfx); i++)
+        for (int i = (page - 1)* PageCount; i < Mathf.Min((page)* PageCount, SFXLoader.Instance.TotalSfx); i++)
         {
-            AddSFX(i, page * PageCount);
+            AddSFX(i, (page - 1) * PageCount);
             yield return 0;
         }
     }

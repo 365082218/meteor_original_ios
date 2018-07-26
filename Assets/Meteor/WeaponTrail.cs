@@ -111,7 +111,10 @@ public class WeaponTrail : MonoBehaviour
 	}
 
 	void Update()
-	{	
+	{
+        if (_transforms == null)
+            return;
+
 		if (_transforms.Length < 2) {
 			return ;
 		}

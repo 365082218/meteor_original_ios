@@ -69,9 +69,10 @@ public class GameState
     public int Level;//当前最远通过的关卡
     public string NickName;
     public bool useJoystickOrKeyBoard;//是否使用外设摇杆
-    public bool EnableDebug;//战斗UI调试面板是否显示按钮
+    public bool EnableDebugSFX;//战斗UI调试特效是否显示
     public bool EnableDebugStatus;//角色头顶的信息条显示 动作 帧 状态 属性 等信息
     public bool EnableWeaponChoose;//战斗UI控制面板是否显示按钮
+    public bool EnableDebugRobot;//调试角色按钮。
     public bool EnableInfiniteAngry;//无限气.
     public bool EnableItemName;//查看掉落武器的名称.-后续分支可能会加入武器装备养成元素.
     public bool EnableGodMode;//一击必杀
