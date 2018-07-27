@@ -37,7 +37,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1151480591242968}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -300}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -81,14 +81,41 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   UnitId: 0
+  InstanceId: 0
+  Action: 0
+  Frame: 0
   WeaponL: {fileID: 0}
   WeaponR: {fileID: 0}
   ROOTNull: {fileID: 0}
   RootdBase: {fileID: 0}
-  CameraTarget: {fileID: 0}
+  UnitTopUI: {fileID: 0}
+  HeadBone: {fileID: 0}
   Camp: 1
-  posMng: {fileID: 0}
+  posMng:
+    FollowBone: {fileID: 0}
+    FollowBoneScale: 1
+    CanMove: 0
+    CanControl: 0
+    CanChangeWeapon: 0
+    Rotateing: 0
+    JumpTick: 0.2
+  charLoader: {fileID: 0}
+  controller: {fileID: 0}
   weaponLoader: {fileID: 0}
+  wayIndex: 0
+  OnGroundTick: 0
+  ClimbingTime: 0
+  Dead: 0
+  OnTopGround: 0
+  OnGround: 0
+  MoveOnGroundEx: 0
+  OnTouchWall: 0
+  IgnoreGravity: 0
+  ImpluseVec: {x: 0, y: 0, z: 0}
+  charController: {fileID: 0}
+  IgnorePhysical: 0
+  hitList: []
+  CameraTarget: {fileID: 0}
 --- !u!114 &114848759012191136
 MonoBehaviour:
   m_ObjectHideFlags: 1

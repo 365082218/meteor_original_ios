@@ -39,6 +39,8 @@ public class InputItem
 
     public bool OnKeyDown(KeyState k)
     {
+        if (KeyInput.Length < state || state < 0)
+            return false;
         if (k.Key == KeyInput[state])
         {
             state++;
@@ -271,7 +273,7 @@ public class InputModule
 {
     MeteorUnit mOwner;
     public List<InputItem> inputs = new List<InputItem>();
-    //SortedList input = new SortedList();
+    //SortedList input = new SortedList();//KeyMap与招式的对应关系.
     public InputModule(MeteorUnit owner)
     {
         if (inputs.Count != 0)
@@ -348,10 +350,11 @@ public class InputModule
                     Debug.Log("line:" + linesAir[j] + " miss");
             }
             inputs.Add(it);
+            //input.Add(i, it.);
         }
         //foreach (DictionaryEntry each in input)
         //{
-        //    //Debug.LogError("line:" + (each.Value));
+        //    Debug.LogError("line:" + (each.Value));
         //}
     }
 

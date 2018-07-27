@@ -693,6 +693,9 @@ public class U3D : MonoBehaviour {
         BuffMng.Instance.Clear();
         MeteorManager.Instance.Clear();
         LevelScriptBase.Clear();
+#if !STRIP_DBG_SETTING
+        WSDebug.Ins.Clear();
+#endif
     }
 
     //对接原版脚本

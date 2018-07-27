@@ -296,6 +296,12 @@ public class WSDebug : MonoBehaviour {
             GlobalDebuggableObjects.Remove(obj);
     }
 
+    public void Clear()
+    {
+        CloseGUIDebug();
+        GlobalDebuggableObjects.Clear();
+    }
+
     public void Repopulate(List<object> debuggableObjects)
     {
         if (debuggableObjects != null)

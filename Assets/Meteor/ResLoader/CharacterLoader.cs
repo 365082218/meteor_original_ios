@@ -381,10 +381,16 @@ public class CharacterLoader : MonoBehaviour
                 return;
             }
 
-            if (TheFirstFrame == curIndex)
+            if (TheFirstFrame <= curIndex && TheFirstFrame != -1)
+            {
                 ActionEvent.HandlerFirstActionFrame(mOwner, po.Idx);
-            if (TheLastFrame == curIndex)
+                TheFirstFrame = -1;
+            }
+            if (TheLastFrame <= curIndex && TheLastFrame != -1)
+            {
                 ActionEvent.HandlerFinalActionFrame(mOwner, po.Idx);
+                TheLastFrame = -1;
+            }
         }
 
         BoneStatus status = null;
@@ -571,10 +577,16 @@ public class CharacterLoader : MonoBehaviour
                     posMng.OnActionFinished();
                 return;
             }
-            if (TheFirstFrame == curIndex)
+            if (TheFirstFrame <= curIndex && TheFirstFrame != -1)
+            {
                 ActionEvent.HandlerFirstActionFrame(mOwner, po.Idx);
-            if (TheLastFrame == curIndex)
+                TheFirstFrame = -1;
+            }
+            if (TheLastFrame <= curIndex && TheLastFrame != -1)
+            {
                 ActionEvent.HandlerFinalActionFrame(mOwner, po.Idx);
+                TheLastFrame = -1;
+            }
         }
 
         //curIndex = targetIndex;
@@ -872,21 +884,25 @@ public class CharacterLoader : MonoBehaviour
     bool loop = false;
     BoneStatus lastFrameStatus;
     //这2个用来实现一些技能
-    int TheFirstFrame;//第一个Action的第一帧，0则无
-    int TheLastFrame;//最后一个Action的最后一帧，0则无
+    int TheFirstFrame = -1;//第一个Action的第一帧，0则无
+    int TheLastFrame = -1;//最后一个Action的最后一帧，0则无
 
     bool effectPlayed = false;
     public bool Pause = false;
     bool single = false;
     public void SetPosData(Pose pos, float BlendTime = 0.0f, bool singlePos = false, int targetFrame = 0)
     {
+        //一些招式，需要把尾部事件执行完才能切换武器.
+        if (TheLastFrame != -1 && po != null)
+        {
+            ActionEvent.HandlerFinalActionFrame(mOwner, po.Idx);
+            TheLastFrame = -1;
+        }
         //一些招式，动作结束会给使用者加上BUFF，另外一些招式，会让受击方得到BUFF
         int lastPosIdx = 0;
         if (po != null && po.Idx != 0)
             lastPosIdx = po.Idx;
 
-        TheLastFrame = 0;
-        TheFirstFrame = 0;
         moveScale = 1.0f;
 
         //重置速度
@@ -919,16 +935,17 @@ public class CharacterLoader : MonoBehaviour
         PosAction act = null;
         if (pos.ActionList.Count != 0)
         {
-            for (int i = pos.ActionList.Count - 1; i >= 0; i--)
-            {
-                if (pos.ActionList[i].Type == "Action")
-                {
-                    if (TheLastFrame == 0)
-                        TheLastFrame = pos.ActionList[i].End;
-                    if (TheFirstFrame == 0 || TheFirstFrame > pos.ActionList[i].Start)
-                        TheFirstFrame = pos.ActionList[i].Start;
-                }
-            }
+            //for (int i = 0; i < pos.ActionList.Count; i++)
+            //{
+            //    if (pos.ActionList[i].Type == "Action")
+            //    {
+            //        if (TheLastFrame == 0)
+            //            TheLastFrame = pos.ActionList[i].End - 1;
+            //        if (TheFirstFrame == 0 || TheFirstFrame > pos.ActionList[i].Start)
+            //            TheFirstFrame = pos.ActionList[i].Start;
+            //        break;
+            //    }
+            //}
             if (isAttackPos)
             {
                 for (int i = 0; i < pos.ActionList.Count; i++)
@@ -943,6 +960,10 @@ public class CharacterLoader : MonoBehaviour
             else
                 act = pos.ActionList[0];
         }
+
+        TheLastFrame = pos.End - 1;
+        TheFirstFrame = pos.Start;
+
         //算第一个融合条件很多，有切换目的帧是否设定，第一个混合帧是否存在，上一个动作是否攻击动作，锤绝325BUG，其他招式接325，还要在地面等，应该不需要在地面等
         //curIndex = targetFrame != 0 ? targetFrame : (act != null ? (act.Type == "Action" ? act.Start: (isAttackPos ? act.End : pos.Start)): pos.Start);
         curIndex = targetFrame != 0 ? targetFrame : (act != null ? (act.Type == "Action" ? (isAttackPos ? act.Start : pos.Start) : (isAttackPos ? act.End : act.Start)) : pos.Start);

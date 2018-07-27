@@ -323,6 +323,8 @@ public partial class MeteorUnit : MonoBehaviour
         if (robot != null)
             robot.Pause(pause, t);
     }
+
+    public System.Action<InventoryItem> OnEquipChanged;
     //public MeteorUnit NGUIJoystick_skill_TargetUnit;//技能目标
     //public List<SkillInput> SkillList = new List<SkillInput>();
     //MeteorUnit wantTarget = null;//绿色目标.只有主角拥有。
@@ -604,7 +606,8 @@ public partial class MeteorUnit : MonoBehaviour
     {
         //单场景启动.
 #if !STRIP_DBG_SETTING
-        WSDebug.Ins.AddDebuggableObject(this);
+        if (!IsDebugUnit())
+            WSDebug.Ins.AddDebuggableObject(this);
 #endif
     }
 
@@ -618,6 +621,8 @@ public partial class MeteorUnit : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (IsDebugUnit())
+            return;
         //死亡姿势播放完毕后，会取消掉角色的碰撞盒，就不要再计算角色的落下之类的了.
         if (!charController.enabled)
             return;
@@ -763,7 +768,7 @@ public partial class MeteorUnit : MonoBehaviour
     public const float yClimbLimitMax = 180.0f;
     public const float yClimbEndLimit = -30.0f;//爬墙时,Y速度到达此速度，开始计时，时间到就从墙壁落下
     //角色跳跃高度74，是以脚趾算最低点，倒过来算出dbase,则需要减去差值。
-    public const float JumpLimit = 74f;//约为65.3f, 73.77f-dbase 与脚趾;//原大跳动作是73.77米高度 向上跳的动作12帧，约为0.4S 0.4S向上走了73.77米，那么冲量可以推算出来
+    public const float JumpLimit = 85f;//约为65.3f, 73.77f-dbase 与脚趾;//原大跳动作是73.77米高度 向上跳的动作12帧，约为0.4S 0.4S向上走了73.77米，那么冲量可以推算出来
     public bool IgnoreGravity = false;
     //物体动量(质量*速度)的改变,等于物体所受外力冲量的总和.这就是动量定理
     public Vector3 ImpluseVec = Vector3.zero;//冲量，ft = mat = mv2 - mv1,冲量在时间内让物体动量由A变化为B
@@ -1133,7 +1138,7 @@ public partial class MeteorUnit : MonoBehaviour
             charController = gameObject.AddComponent<CharacterController>();
         charController.center = new Vector3(0, 17.8f, 0);
         charController.height = Global.GLevelItem.ID == 7 ? 32.0f: 35.0f;//32是跨越皇天城的栅栏的最大高度，超过这个高度就没法过去了。
-        charController.radius = 9.0f;
+        charController.radius = 9.0f;//不这么大碰不到寻路点.
         charController.stepOffset = 7.6f;
 
         posMng.ChangeAction();
@@ -1189,6 +1194,8 @@ public partial class MeteorUnit : MonoBehaviour
         InventoryItem toEquip = IndicatedWeapon;
         if (toEquip != null && weaponLoader != null)
             weaponLoader.EquipWeapon(toEquip);
+        if (OnEquipChanged != null)
+            OnEquipChanged.Invoke(toEquip);
         IndicatedWeapon = null;
         //没有自动目标，攻击目标，不许计算自动/锁定目标，无转向
         if (Attr.IsPlayer && (GetWeaponType() == (int)EquipWeaponType.Gun || GetWeaponType() == (int)EquipWeaponType.Dart))
@@ -1218,10 +1225,16 @@ public partial class MeteorUnit : MonoBehaviour
         return weaponLoader.GetCurrentWeapon().Info().Def;
     }
 
+    public int GetNextWeaponType()
+    {
+        if (Attr != null)
+            return GameData.MakeEquip(Attr.Weapon2).Info().SubType;
+        return -1;
+    }
+
     public void ChangeNextWeapon()
     {
         //Debug.Log("ChangeNextWeapon");
-
         if (Attr.Weapon2 != 0)
         {
             if (weaponLoader != null)

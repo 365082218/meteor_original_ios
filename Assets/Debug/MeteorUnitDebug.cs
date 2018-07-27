@@ -35,21 +35,24 @@ public class MeteorUnitDebug : MeteorUnit
     public void Update()
     {
         charLoader.CharacterUpdate();
-        ProcessGravity();
+        //ProcessGravity();
     }
 
     //计算重力作用下的运动方向以及位移
-    
+
     //public CharacterController charController;
     //Rigidbody rig;
-    public void Init(int modelIdx)
+    
+    public void Init(int modelIdx, int layer)
     {
         tag = "meteorUnit";
-        UnitId = modelIdx; 
+        UnitId = modelIdx;
+        IgnoreGravity = true;
+        if (Attr == null && MeteorManager.Instance != null && MeteorManager.Instance.LocalPlayer != null)
+            Attr = MeteorManager.Instance.LocalPlayer.Attr;
         charLoader = GetComponent<CharacterLoader>();
         if (charLoader == null)
             charLoader = gameObject.AddComponent<CharacterLoader>();
-        //posMng = GetComponent<PoseStatus>();
         if (posMng == null)
             posMng = new PoseStatus();
 
@@ -65,12 +68,19 @@ public class MeteorUnitDebug : MeteorUnit
             weaponLoader = gameObject.AddComponent<WeaponLoader>();
         weaponLoader.Init(this);
         posMng.ChangeAction();
-        WsGlobal.SetObjectLayer(gameObject, gameObject.layer);
-        charController = gameObject.AddComponent<CharacterController>();
-        charController.center = new Vector3(0, 17.8f, 0);
-        charController.height = 36.0f;
-        charController.radius = 8.0f;
-        charController.stepOffset = 7.8f;
+        if (MeteorManager.Instance != null)
+        {
+            if (MeteorManager.Instance.LocalPlayer != null)
+                MeteorManager.Instance.LocalPlayer.OnEquipChanged += EquipChanged;
+            weaponLoader.EquipWeapon(MeteorManager.Instance.LocalPlayer.weaponLoader.GetCurrentWeapon());
+        }
+        WsGlobal.SetObjectLayer(gameObject, layer);
+
+        //charController = gameObject.AddComponent<CharacterController>();
+        //charController.center = new Vector3(0, 17.8f, 0);
+        //charController.height = 36.0f;
+        //charController.radius = 8.0f;
+        //charController.stepOffset = 7.8f;
         //mPos = transform.position;
         //for (int i = 0; i < 32; i++)
         //{
@@ -88,5 +98,11 @@ public class MeteorUnitDebug : MeteorUnit
     public void Jump()
     {
         posMng.ChangeAction(CommonAction.Jump);
+    }
+
+    void EquipChanged(InventoryItem it)
+    {
+        weaponLoader.EquipWeapon(it);
+        WsGlobal.SetObjectLayer(gameObject, LayerMask.NameToLayer("3DUIPlayer"));
     }
 }

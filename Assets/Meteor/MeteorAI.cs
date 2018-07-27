@@ -203,6 +203,13 @@ public class MeteorAI {
                 fightTarget = owner.GetLockedTarget();
                 Status = EAIStatus.Fight;
                 SubStatus = EAISubStatus.FightThink;
+                return;
+            }
+
+            if (followTarget != null)
+            {
+                ChangeState(EAIStatus.Follow);
+                return;
             }
         }
 
@@ -356,6 +363,14 @@ public class MeteorAI {
                 if (curIndex != -1)
                 {
                     if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
+                    {
+                        AIJump();
+                        AIJumpDelay = 0.0f;
+                        return;
+                    }
+                    //尝试几率跳跃，否则可能会被卡住.
+                    int random = Random.Range(0, 100);
+                    if (random < owner.Attr.Jump && AIJumpDelay >= 2.5f)
                     {
                         AIJump();
                         AIJumpDelay = 0.0f;
@@ -632,6 +647,15 @@ public class MeteorAI {
                     {
                         AIJump();
                         AIJumpDelay = 0.0f;
+                        return false;
+                    }
+                    //尝试几率跳跃，否则可能会被卡住.
+                    int random = Random.Range(0, 100);
+                    if (random < owner.Attr.Jump && AIJumpDelay >= 2.5f)
+                    {
+                        AIJump();
+                        AIJumpDelay = 0.0f;
+                        return false;
                     }
                 };
                 break;
@@ -894,6 +918,13 @@ public class MeteorAI {
                     if (curIndex != -1)
                     {
                         if (PathMng.Instance.GetWalkMethod(FollowPath[curIndex].index, FollowPath[targetIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
+                        {
+                            AIJump();
+                            AIJumpDelay = 0.0f;
+                        }
+                        //尝试几率跳跃，否则可能会被卡住.
+                        int random = Random.Range(0, 100);
+                        if (random < owner.Attr.Jump && AIJumpDelay >= 2.5f)
                         {
                             AIJump();
                             AIJumpDelay = 0.0f;
@@ -1569,6 +1600,13 @@ public class MeteorAI {
                                 AIJump();
                                 AIJumpDelay = 0.0f;
                             }
+                            //尝试几率跳跃，否则可能会被卡住.
+                            int random = Random.Range(0, 100);
+                            if (random < owner.Attr.Jump && AIJumpDelay >= 2.5f)
+                            {
+                                AIJump();
+                                AIJumpDelay = 0.0f;
+                            }
                         }
                         //break;
                 //}
@@ -1689,6 +1727,14 @@ public class MeteorAI {
                                 AIJump();
                                 AIJumpDelay = 0.0f;
                             }
+
+                            //尝试几率跳跃，否则可能会被卡住.
+                            int random = Random.Range(0, 100);
+                            if (random < owner.Attr.Jump && AIJumpDelay >= 2.5f)
+                            {
+                                AIJump();
+                                AIJumpDelay = 0.0f;
+                            }
                         }
                         break;
                     //case EAIStatus.GotoPatrol:
@@ -1761,6 +1807,8 @@ public class MeteorAI {
                         }
                     }
 
+                    if (idx == curPatrolIndex)
+                        return;
                     switch (SubStatus)
                     {
                         case EAISubStatus.PatrolSubGotoTarget:
@@ -1790,6 +1838,9 @@ public class MeteorAI {
                             break;
                         }
                     }
+
+                    if (idx == curPatrolIndex)
+                        return;
                     switch (SubStatus)
                     {
                         case EAISubStatus.Patrol:

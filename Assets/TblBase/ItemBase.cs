@@ -56,6 +56,46 @@ public class ActionEvent : Singleton<ActionEvent>
 {
     public static List<int> LastEvents;
     public static List<int> FirstEvents;
+    public static int TryHandlerLastActionFrame(MeteorUnit owner, int Action)
+    {
+        if (LastEvents == null)
+        {
+            LastEvents = new List<int>() { (int)FrameEvent.ChangeWeapon0, (int)FrameEvent.ChangeWeapon1, (int)FrameEvent.ChangeWeaponPos0,
+            (int)FrameEvent.ChangeWeaponPos1, (int)FrameEvent.ChangeWeaponPos5,
+                (int)FrameEvent.ChangeWeaponPose570_0, (int)FrameEvent.ChangeWeaponPose456_0, (int)FrameEvent.ChangeWeaponPose451_0};
+        }
+
+        if (!LastEvents.Contains(Action))
+            return -1;
+
+        switch ((FrameEvent)Action)
+        {
+            //0拔刀1长枪2居合
+            case FrameEvent.ChangeWeaponPos0:
+                return 1;
+            case FrameEvent.ChangeWeaponPos1:
+                return 2;
+            //case FrameEvent.ChangeWeaponPos2:
+            //    owner.ChangeWeaponPos(0);
+            //    break;
+            //case FrameEvent.ChangeWeaponPos3:
+            //    owner.ChangeWeaponPos(2);
+            //    break;
+            case FrameEvent.ChangeWeaponPose456_0:
+                return 2;
+            case FrameEvent.ChangeWeaponPos5:
+                return 1;
+            case FrameEvent.ChangeWeapon0://左打虎
+            case FrameEvent.ChangeWeapon1://右打虎
+                return owner.GetNextWeaponType();//这个连不连的上还不清楚.
+            case FrameEvent.ChangeWeaponPose570_0:
+                return 1;
+            case FrameEvent.ChangeWeaponPose451_0:
+                return 0;
+        }
+        return -1;
+    }
+
     //处理动作第一帧要做的事
     public static void HandlerFirstActionFrame(MeteorUnit owner, int Action)
     {

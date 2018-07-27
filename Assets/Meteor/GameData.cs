@@ -315,10 +315,10 @@ public class GameData
         if (gameStatus == null)
         {
             gameStatus = new GameState();
-#if ReleaseBuild
-            gameStatus.Level = 9;
-#else
+#if DEBUG_DEV
             gameStatus.Level = LevelMng.Instance.GetAllItem()[LevelMng.Instance.GetAllItem().Length - 1].ID;
+#else
+            gameStatus.Level = 1;
 #endif
             gameStatus.saveSlot = 0;//默认使用0号存档.
             gameStatus.Language = (int)LanguageType.Ch;//默认使用英文.

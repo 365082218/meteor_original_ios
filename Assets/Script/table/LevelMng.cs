@@ -74,5 +74,9 @@ public class Level : ITableItem
 
 public class LevelMng : TableManager<Level, LevelMng>
 {
+#if DEBUG_DEV
+    public override string TableName() { return "LevelDebug"; }
+#else
     public override string TableName() { return "Level"; }
+#endif
 }

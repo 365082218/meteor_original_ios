@@ -172,9 +172,16 @@ public class PathMng:Singleton<PathMng>
 
                 //计算最短路径.从A-B，路径越少，越短，2边之和大于第3边
                 int target = end;
+                float tick = Time.timeSinceLevelLoad;
                 nextfind:
                 while (true)
                 {
+                    if (Time.timeSinceLevelLoad - tick > 10.0f)
+                    {
+                        Debug.LogError("find path time up");
+                        Debug.DebugBreak();
+                        break;
+                    }
                     foreach (var each in PathInfo)
                     {
                         for (int i = 0; i < each.Value.Count; i++)

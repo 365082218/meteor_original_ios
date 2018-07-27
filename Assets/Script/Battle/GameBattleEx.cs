@@ -47,6 +47,8 @@ public partial class GameBattleEx : MonoBehaviour {
         //    OnBattleFailed();
         //}
         //关闭声音
+        Global.PauseAll = true;
+        MeteorManager.Instance.LocalPlayer.controller.InputLocked = true;
         SoundManager.Instance.StopAll();
         //关闭界面的血条缓动和动画
         if (FightWnd.Exist)
@@ -67,8 +69,11 @@ public partial class GameBattleEx : MonoBehaviour {
             NGUIJoystick.instance.Lock(true);
         //如果胜利，且不是最后一关，打开最新关标志.
         if (result == 1 && GameData.gameStatus.Level < LevelMng.Instance.GetAllItem().Length - 1 && Global.GLevelItem.ID + 1 > GameData.gameStatus.Level)
+        {
             GameData.gameStatus.Level = Global.GLevelItem.ID + 1;
-        Global.PauseAll = true;
+            GameData.SaveState();
+        }
+        
         Invoke("PlayEndMovie", 5.0f);
     }
 

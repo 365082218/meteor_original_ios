@@ -91,10 +91,12 @@ public class WeaponLoader : MonoBehaviour {
         LP.gameObject.layer = LParent.gameObject.layer;
         RP.gameObject.layer = RParent.gameObject.layer;
 
-        transform.localPosition = new Vector3(0, 9, 110);
-        transform.localEulerAngles = new Vector3(270, 0, 0);
-        LParent.transform.localPosition = new Vector3(0, 10, 0);
-        RParent.transform.localPosition = new Vector3(0, 10, 0);
+        transform.localPosition = new Vector3(0, 0, 110);
+        transform.localEulerAngles = new Vector3(90, 0, 0);
+        transform.localScale = new Vector3(10, 10, 10);
+        GetComponent<RectTransform>().sizeDelta = Vector3.zero;
+        //LParent.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, 0, 20);
+        //RParent.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, 0, 20);
     }
 
     public void Init(MeteorUnit unit)
@@ -143,7 +145,9 @@ public class WeaponLoader : MonoBehaviour {
         }
     }
 
-    public void ChangeWeaponPos(int pose)
+    //后者决定是否真正切换到这个武器对应的POSE里，
+    //乾坤刀部分姿态可切换，在切换未完成时
+    public void ChangeWeaponPos(int pose, bool realChangePose = false)
     {
         InventoryItem curWeapon = Weapon;
         if (Weapon != null)

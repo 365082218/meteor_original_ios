@@ -317,14 +317,14 @@ public class PlayerWnd:Window<PlayerWnd>
         objPlayer.transform.rotation = Quaternion.identity;
         objPlayer.transform.localScale = Vector3.one;
         d.gameObject.layer = obj.gameObject.layer;
-        d.Init(0);
+        d.Init(MeteorManager.Instance.LocalPlayer.UnitId, LayerMask.NameToLayer("3DUIPlayer"));
         WeaponBase weaponProperty = WeaponMng.Instance.GetItem(MeteorManager.Instance.LocalPlayer.weaponLoader.GetCurrentWeapon().Info().UnitId);
         d.weaponLoader.StrWeaponR = weaponProperty.WeaponR;
         d.weaponLoader.StrWeaponL = weaponProperty.WeaponL;
         //d.weaponLoader.EquipWeapon();
         d.transform.SetParent(obj.transform);
         d.transform.localScale = 8 * Vector3.one;
-        d.transform.localPosition = new Vector3(0, 0, -45);
+        d.transform.localPosition = new Vector3(0, 0, -300);
         d.transform.localRotation = Quaternion.identity;
         Global.ldaControlX("Close Button", WndObject).GetComponent<Button>().onClick.AddListener(Close);
 
@@ -774,8 +774,20 @@ public class BattleResultWnd : Window<BattleResultWnd>
 
     public IEnumerator SetResult(int result)
     {
-        yield return new WaitForSeconds(3.0f);
-        
+        yield return new WaitForSeconds(1.0f);
+        if (result == 1)
+        {
+            
+            for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+            {
+                if (MeteorManager.Instance.UnitInfos[i].robot != null)
+                    MeteorManager.Instance.UnitInfos[i].robot.Stop();
+                MeteorManager.Instance.UnitInfos[i].controller.Input.ResetVector();
+                if (MeteorManager.Instance.UnitInfos[i].Camp == EUnitCamp.EUC_FRIEND)
+                    MeteorManager.Instance.UnitInfos[i].posMng.ChangeAction(CommonAction.Taunt);
+            }
+        }
+        yield return new WaitForSeconds(2.0f);
         string mat = "";
         Text txt;
         switch (result)

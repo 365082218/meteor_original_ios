@@ -28,6 +28,8 @@ public class MainMenu : Window<MainMenu> {
         for (int i = 1; i <= GameData.gameStatus.Level; i++)
         {
             Level lev = LevelMng.Instance.GetItem(i);
+            if (lev == null)
+                continue;
             AddGridItem(lev, rootMenu.transform);
             select = lev;
         }

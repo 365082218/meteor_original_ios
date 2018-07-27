@@ -38,9 +38,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4146134723778860}
   - component: {fileID: 20598361655363508}
-  - component: {fileID: 124446787169889368}
-  - component: {fileID: 92847172837903236}
-  - component: {fileID: 81958783660128762}
   - component: {fileID: 114325866382257542}
   m_Layer: 15
   m_Name: Camera
@@ -56,7 +53,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1305075037778194}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -500}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 224033366840023318}
@@ -96,20 +93,6 @@ Camera:
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
   m_StereoMirrorMode: 0
---- !u!81 &81958783660128762
-AudioListener:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1305075037778194}
-  m_Enabled: 1
---- !u!92 &92847172837903236
-Behaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1305075037778194}
-  m_Enabled: 1
 --- !u!114 &114325866382257542
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -183,13 +166,6 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
---- !u!124 &124446787169889368
-Behaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1305075037778194}
-  m_Enabled: 1
 --- !u!223 &223929941422309792
 Canvas:
   m_ObjectHideFlags: 1

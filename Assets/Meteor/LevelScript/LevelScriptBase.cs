@@ -8044,7 +8044,6 @@ public class LevelScript_sn23 : LevelScriptBase
         //蝴蝶阵营获胜
         if (trg1 == 0)
         {
-
             if (GetHP(player) <= 0)
             {
                 c1 = GetChar("屠城");
