@@ -152,7 +152,7 @@ public partial class GameBattleEx : MonoBehaviour {
                 if (UnitActionStack[UnitActKey[i]].action.Count == 0)
                 {
                     MeteorUnit unit = U3D.GetUnit(UnitActKey[i]);
-                    Debug.Log(string.Format("{0} action call finished:{1}", unit.name, act));
+                    //Debug.Log(string.Format("{0} action call finished:{1}", unit.name, act));
                     UnitActKeyDeleted.Add(UnitActKey[i]);
                 }
             }
@@ -275,8 +275,8 @@ public partial class GameBattleEx : MonoBehaviour {
                     continue;
                 if (colist[i].bounds.Intersects(ondamaged.hitList[j].bounds))
                 {
-                    Debug.Log(string.Format("hitbox:{0}-onhitbox:{1}", colist[i].name, ondamaged.hitList[j].name));
-                    Debug.DebugBreak();
+                    //Debug.Log(string.Format("hitbox:{0}-onhitbox:{1}", colist[i].name, ondamaged.hitList[j].name));
+                    //Debug.DebugBreak();
                     return true;
                 }
                 //if (colist[i].bounds.min.x >= ondamaged.hitList[j].bounds.min.x &&

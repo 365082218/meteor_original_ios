@@ -120,7 +120,7 @@ PlayerSettings:
     16:9: 1
     Others: 1
   bundleIdentifier: com.Idevgame.Meteor
-  bundleVersion: 0.0.7.8
+  bundleVersion: 0.0.7.9
   preloadedAssets: []
   metroInputSource: 0
   m_HolographicPauseOnTrackingLoss: 1
