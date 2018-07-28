@@ -2363,7 +2363,7 @@ public partial class MeteorUnit : MonoBehaviour
         if (robot != null)
             robot.OnDamaged(attacker);
 
-        Debug.Log(string.Format("player:{0} attacked by:{1}", name, attacker == null ? "null": attacker.name));
+        //Debug.Log(string.Format("player:{0} attacked by:{1}", name, attacker == null ? "null": attacker.name));
         //任意受击，都会让角色退出持枪预备姿势
         SetGunReady(false);
 
