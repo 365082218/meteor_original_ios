@@ -893,10 +893,17 @@ public class CharacterLoader : MonoBehaviour
     public void SetPosData(Pose pos, float BlendTime = 0.0f, bool singlePos = false, int targetFrame = 0)
     {
         //一些招式，需要把尾部事件执行完才能切换武器.
+        
         if (TheLastFrame != -1 && po != null)
         {
             ActionEvent.HandlerFinalActionFrame(mOwner, po.Idx);
             TheLastFrame = -1;
+        }
+        else
+        {
+            if (po != null && po.Link != 0)
+                //一些动作，默认连接其他动作，类似485,485最后一帧会收刀，收刀会切换武器为2
+                ActionEvent.HandlerPoseAction(mOwner, po.Link);
         }
         //一些招式，动作结束会给使用者加上BUFF，另外一些招式，会让受击方得到BUFF
         int lastPosIdx = 0;

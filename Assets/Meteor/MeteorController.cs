@@ -346,10 +346,7 @@ public class MeteorInput
 
     public bool CheckPos(int KeyMap, int targetAct)
     {
-        if (targetAct == 570)
-            Debug.DebugBreak();
         bool result = false;
-        bool result2 = true;
         //首先要判断是否在可输入范围内,只是限定输入，切换动作在其他地方
         if (!AcceptInput())
             return false;
@@ -950,6 +947,11 @@ public class MeteorInput
                     //再次尝试乾坤刀切换pose后速连
                     int nextPose = ActionEvent.TryHandlerLastActionFrame(mOwner, mOwner.posMng.mActiveAction.Idx);
                     result = TryHeavenLance(nextPose, KeyMap);
+                    //if (nextPose == 2)
+                    //{
+                    //    //104，大招被，正拔刀术阻挡了
+                    //    Debug.LogError(string.Format("KeyMap:{0} result:{1} targetact:{2}", KeyMap, result, targetAct));
+                    //}
                 }
                 break;
             case (int)EquipWeaponType.Gloves://拳套
@@ -1093,7 +1095,7 @@ public class MeteorInput
                 }
                 break;
         }
-        return result && result2;
+        return result;
     }
 
     bool TryHeavenLance(int nextPose, int KeyMap)
@@ -1927,7 +1929,8 @@ public class MeteorInput
     {
         if (mOwner.controller.InputLocked && !isAI)
             return;
-        InputCore.OnKeyDown(keyStatus);
+        if (InputCore.OnKeyDown(keyStatus))
+            InputCore.Reset();
         //任意的按下一个按键，会让重复扫描功能暂停
         EKeyList[] keys = new EKeyList[genFreq.Keys.Count];
         genFreq.Keys.CopyTo(keys, 0);

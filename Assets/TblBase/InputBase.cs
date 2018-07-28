@@ -31,6 +31,13 @@ public class InputItem
     public int Idx;
     public MeteorUnit mOwner;//输入控制者
     EKeyList last;
+    string to;
+    public override string ToString()
+    {
+        if (string.IsNullOrEmpty(to))
+            to = new string(keyInput);
+        return to;
+    }
 
     public InputItem(MeteorUnit owner)
     {
@@ -69,27 +76,6 @@ public class InputItem
 
     public bool OnKeyUp(KeyState k)
     {
-        //if (k.Key == KeyInput[state] && totalState != 1)
-        //{
-        //    state++;
-        //    if (state == totalState)
-        //    {
-        //        int target = -1;
-        //        if (Check(out target))
-        //        {
-        //            PlayPose(target);
-        //            Reset();
-        //        }
-        //        else
-        //        {
-        //            Reset();//有部分情况会影响其他招式输入状态
-        //        }
-        //    }
-        //    else
-        //    {
-        //        frame = InputModel.waitForNextInput;
-        //    }
-        //}
         return false;
     }
 
@@ -376,14 +362,28 @@ public class InputModule
 
     //这里要集中处理，因为招式很有可能会同时满足多个
     //类似 匕首 后前前手，既触发 大绝招 又出发 前前手，这个时候，应该设置一个冲掉机制，让输入长度长的招式 优先与 输入长度短的招式
-    public void OnKeyDown(KeyState keyStatus)
+    public bool OnKeyDown(KeyState keyStatus)
     {
         //从后往前遍历，长的招式冲断短的招式。
+        //测试招式
+        //for (int i = inputs.Count - 1; i >= 0; i--)
+        //{
+        //    if (mOwner.Attr.IsPlayer && keyStatus.Key == EKeyList.KL_Attack)
+        //        Debug.LogError(string.Format("testinput:{0}", inputs[i].ToString()));
+        //}
+
         for (int i = inputs.Count - 1; i >= 0; i--)
         {
+            //if (inputs[i].ToString() == "SSWJ" && keyStatus.Key == EKeyList.KL_Attack && mOwner.Attr.IsPlayer && (mOwner.posMng.mActiveAction.Idx == 431 || mOwner.posMng.mActiveAction.Idx == 485))//乾坤刀绝招?
+            //    Debug.DebugBreak();
             if (inputs[i].OnKeyDown(keyStatus))
-                return;
+            {
+                //if (mOwner.Attr.IsPlayer && keyStatus.Key == EKeyList.KL_Attack)
+                //    Debug.LogError(string.Format("accept testinput:{0}", inputs[i].ToString()));
+                return true;
+            }
         }
+        return false;
     }
 
     public void OnKeyUp(KeyState keyStatus)
@@ -392,7 +392,7 @@ public class InputModule
         for (int i = inputs.Count - 1; i >= 0; i--)
         {
             if (inputs[i].OnKeyUp(keyStatus))
-                return;
+                break;
         }
     }
 

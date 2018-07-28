@@ -18,7 +18,7 @@ public class AppInfo
     {
         string sVersion = PlayerPrefs.GetString(versionKey);
         if (string.IsNullOrEmpty(sVersion))
-            PlayerPrefs.SetString(versionKey, "0.0.7.7");
+            PlayerPrefs.SetString(versionKey, "0.0.7.8");
         return PlayerPrefs.GetString(versionKey);
     }
 
