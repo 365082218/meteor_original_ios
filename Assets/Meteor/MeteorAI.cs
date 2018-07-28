@@ -148,7 +148,7 @@ public class MeteorAI {
         {
             if (GameBattleEx.Instance.IsPerforming(owner.InstanceId))
             {
-                Debug.Log(string.Format("unit:{0} IsPerforming", owner.name));
+                //Debug.Log(string.Format("unit:{0} IsPerforming", owner.name));
                 return;
             }
         }
@@ -1048,7 +1048,7 @@ public class MeteorAI {
     {
         paused = pause;
         pause_tick = pause_time;
-        Debug.Log(string.Format("unit:{0} pause:{1}", owner.name, pause_tick));
+        //Debug.Log(string.Format("unit:{0} pause:{1}", owner.name, pause_tick));
     }
 
     public void EnableAI(bool enable)

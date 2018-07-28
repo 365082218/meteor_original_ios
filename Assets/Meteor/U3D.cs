@@ -673,7 +673,7 @@ public class U3D : MonoBehaviour {
             int number = 0;
             if (int.TryParse(num, out number))
             {
-                Debug.Log("b" + number);
+                //Debug.Log("b" + number);
                 PlayMovie("b" + number);
             }
         }
