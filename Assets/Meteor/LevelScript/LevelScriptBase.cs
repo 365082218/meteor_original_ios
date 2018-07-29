@@ -372,7 +372,7 @@ public class ScriptBase
     // special parameter for each level
     public const int g_iLevel01StoneMaxHP = 500;
 
-    public const int g_iLevel03DoorWaitTime = 7000; // milliseconds
+    public const int g_iLevel03DoorWaitTime = 15000; // milliseconds
     public const int g_iLevel03GiMaMaxHP = 3000;
     public const int g_iLevel03StoneDamage = 300;
     public const int g_iLevel03DoorDamage = 50;

@@ -690,7 +690,7 @@ public class MeteorAI {
                 }
             case EAISubStatus.AttackTargetSubRotateToTarget:
                 if (AttackRotateToTargetCoroutine == null)
-                    AttackRotateToTargetCoroutine = owner.StartCoroutine(AttackRotateToTarget(Path[targetIndex].pos));
+                    AttackRotateToTargetCoroutine = owner.StartCoroutine(AttackRotateToTarget(Path[targetIndex].pos, EAIStatus.Wait, EAISubStatus.AttackGotoTarget, false, true));
                 break;
         }
         return false;
@@ -719,7 +719,7 @@ public class MeteorAI {
         ChangeWeaponLeaveToFight,//跑远，瞄准，开打
         LeaveToFight,//跑远，开打
          */
-        if (SubStatus == EAISubStatus.FightThink)
+        if (SubStatus >= EAISubStatus.FightThink && SubStatus <= EAISubStatus.FightAim)
         {
             //Debug.LogError("fightonground");
             //1 先检查当前是否处于接收输入状态，这种都是连招方式的。
@@ -922,7 +922,35 @@ public class MeteorAI {
                 //不接受输入，在动作前摇或后摇,且无法取消
             }
         }
-        else
+        else if (SubStatus == EAISubStatus.FightWithSpecialWeapon)
+        {
+            //使用当前武器瞄准敌人，然后开始射击
+            //一定时间内，转向攻击目标，然后切换到攻击状态.
+            if (fightTarget == null)
+            {
+                ChangeState(EAIStatus.Wait);
+                return;
+            }
+            if (AttackRotateToTargetCoroutine == null)
+                AttackRotateToTargetCoroutine = owner.StartCoroutine(AttackRotateToTarget(fightTarget.mPos, EAIStatus.Wait, EAISubStatus.FightThink, false, true));
+        }
+        else if (SubStatus == EAISubStatus.ChangeWeaponGotoFight)
+        {
+
+        }
+        else if (SubStatus == EAISubStatus.ChangeWeaponFight)
+        {
+
+        }
+        else if (SubStatus == EAISubStatus.UseWeaponGotoFight)
+        {
+
+        }
+        else if (SubStatus == EAISubStatus.ChangeWeaponLeaveToFight)
+        {
+
+        }
+        else if (SubStatus == EAISubStatus.LeaveToFight)
         {
 
         }
@@ -1480,7 +1508,7 @@ public class MeteorAI {
     }
 
     Coroutine AttackRotateToTargetCoroutine;
-    IEnumerator AttackRotateToTarget(Vector3 vec)
+    IEnumerator AttackRotateToTarget(Vector3 vec, EAIStatus status, EAISubStatus subStatus, bool setStatus, bool setSubStatus)
     {
         Vector3 diff = (vec - owner.mPos);
         diff.y = 0;
@@ -1508,7 +1536,10 @@ public class MeteorAI {
             yield return 0;
         }
         AttackRotateToTargetCoroutine = null;
-        SubStatus = EAISubStatus.AttackGotoTarget;
+        if (setSubStatus)
+            SubStatus = EAISubStatus.AttackGotoTarget;
+        if (setStatus)
+            Status = status;
     }
 
     Coroutine FollowRotateToTargetCoroutine;
