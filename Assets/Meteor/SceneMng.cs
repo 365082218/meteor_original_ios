@@ -17,6 +17,8 @@ class SceneMng
     //指明进入一张地图,地图上所有的道具，建筑，陷阱，传送门，Npc,怪物,障碍物都需要保存下来，以便下次进入场景恢复
     public static void OnEnterLevel(LevelScriptBase levelScript, int level)
     {
+        if (levelScript == null)
+            return;
         Level lev = LevelMng.Instance.GetItem(level);
         string sceneItems = lev.sceneItems;
         string items = levelScript.GetDesName();

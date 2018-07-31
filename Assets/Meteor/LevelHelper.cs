@@ -84,11 +84,12 @@ public class LevelHelper : MonoBehaviour
 
         LevelScriptBase script = GetLevelScript(lev.sceneItems);
 
-        if (script == null)
-        {
-            //一些场景是测试场景，不能战斗，不创建角色等.
-            return;
-        }
+        //if (script == null)
+        //{
+        //    //一些场景是测试场景，不能战斗，不创建角色等.
+        //    Debug.LogError(string.Format("{0} has no script", lev.Name));
+        //    return;
+        //}
         Global.GScript = script;
         SceneMng.OnLoad();//
         //加载场景配置数据

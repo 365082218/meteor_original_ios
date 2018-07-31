@@ -61,13 +61,3 @@ EditorBuildSettings:
     path: Assets/Scene/NewMeteor/Meteor_24.unity
   - enabled: 1
     path: Assets/Scene/NewMeteor/Meteor_25.unity
-  - enabled: 1
-    path: Assets/Scene/LoadWeapon.unity
-  - enabled: 1
-    path: Assets/Scene/Test/SingleHero.unity
-  - enabled: 1
-    path: Assets/Scene/Test/ManyHero.unity
-  - enabled: 1
-    path: Assets/Scene/Test/UITest.unity
-  - enabled: 1
-    path: Assets/Scene/DebugJump.unity
