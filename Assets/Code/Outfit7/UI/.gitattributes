@@ -1,0 +1,7 @@
+Declare files that will always have LF line endings on checkout.
+*.cs text eol=lf
+*.shader text eol=lf
+
+# Denote all files that are truly binary and should not be modified.
+*.dll binary
+*.png binary

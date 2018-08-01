@@ -1,0 +1,54 @@
+fileFormatVersion: 2
+guid: 6b735849838049b468a00dfe0cf54b4f
+timeCreated: 1461660640
+licenseType: Pro
+PluginImporter:
+  serializedVersion: 1
+  iconMap: {}
+  executionOrder: {}
+  isPreloaded: 0
+  platformData:
+    Any:
+      enabled: 0
+      settings: {}
+    Editor:
+      enabled: 0
+      settings:
+        CPU: AnyCPU
+        DefaultValueInitialized: true
+        OS: AnyOS
+    Linux:
+      enabled: 0
+      settings:
+        CPU: x86
+    Linux64:
+      enabled: 0
+      settings:
+        CPU: x86_64
+    OSXIntel:
+      enabled: 0
+      settings:
+        CPU: AnyCPU
+    OSXIntel64:
+      enabled: 0
+      settings:
+        CPU: AnyCPU
+    Win:
+      enabled: 0
+      settings:
+        CPU: AnyCPU
+    Win64:
+      enabled: 0
+      settings:
+        CPU: AnyCPU
+    WindowsStoreApps:
+      enabled: 1
+      settings:
+        CPU: ARM
+        DontProcess: True
+        PlaceholderPath: 
+        SDK: UWP
+        ScriptingBackend: AnyScriptingBackend
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

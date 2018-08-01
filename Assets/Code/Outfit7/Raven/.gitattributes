@@ -1,0 +1,11 @@
+*.c eol=lf
+*.cpp eol=lf
+*.cc eol=lf
+*.h eol=lf
+*.hpp eol=lf
+*.json eol=lf
+*.cs eol=lf
+*.shaderc eol=lf
+*.shader eol=lf
+*.meta eol=lf
+*.lua eol=lf

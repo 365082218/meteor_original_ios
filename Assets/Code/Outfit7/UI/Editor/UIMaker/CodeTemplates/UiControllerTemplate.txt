@@ -1,0 +1,7 @@
+﻿using Outfit7.NamespaceTemplate.Controller;
+
+namespace Outfit7.NamespaceTemplate.Controller.Ui {
+    public class UiControllerTemplate : StateControllerUiBehaviour {
+
+    }
+}

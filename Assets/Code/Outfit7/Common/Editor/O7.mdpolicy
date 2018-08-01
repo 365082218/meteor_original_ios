@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PolicySet name="O7">
+  <TextStylePolicy inheritsSet="VisualStudio" inheritsScope="text/plain" scope="text/plain">
+    <FileWidth>120</FileWidth>
+    <EolMarker>Unix</EolMarker>
+  </TextStylePolicy>
+  <XmlFormattingPolicy inheritsSet="Mono" inheritsScope="application/xml" scope="application/xml" />
+  <CSharpFormattingPolicy inheritsSet="Mono" inheritsScope="text/x-csharp" scope="text/x-csharp">
+    <IndentSwitchBody>True</IndentSwitchBody>
+    <IndentPreprocessorDirectives>False</IndentPreprocessorDirectives>
+    <NamespaceBraceStyle>EndOfLine</NamespaceBraceStyle>
+    <ClassBraceStyle>EndOfLine</ClassBraceStyle>
+    <InterfaceBraceStyle>EndOfLine</InterfaceBraceStyle>
+    <StructBraceStyle>EndOfLine</StructBraceStyle>
+    <EnumBraceStyle>EndOfLine</EnumBraceStyle>
+    <MethodBraceStyle>EndOfLine</MethodBraceStyle>
+    <ConstructorBraceStyle>EndOfLine</ConstructorBraceStyle>
+    <DestructorBraceStyle>EndOfLine</DestructorBraceStyle>
+    <AllowEventAddBlockInline>False</AllowEventAddBlockInline>
+    <AllowEventRemoveBlockInline>False</AllowEventRemoveBlockInline>
+    <EmbeddedStatementPlacement>DoNotCare</EmbeddedStatementPlacement>
+    <ArrayInitializerWrapping>DoNotChange</ArrayInitializerWrapping>
+    <BeforeMethodDeclarationParentheses>False</BeforeMethodDeclarationParentheses>
+    <BeforeMethodCallParentheses>False</BeforeMethodCallParentheses>
+    <BeforeConstructorDeclarationParentheses>False</BeforeConstructorDeclarationParentheses>
+    <NewLineAfterConstructorInitializerColon>SameLine</NewLineAfterConstructorInitializerColon>
+    <BeforeIndexerDeclarationBracket>False</BeforeIndexerDeclarationBracket>
+    <BeforeDelegateDeclarationParentheses>False</BeforeDelegateDeclarationParentheses>
+    <AfterDelegateDeclarationParameterComma>True</AfterDelegateDeclarationParameterComma>
+    <NewParentheses>False</NewParentheses>
+    <SpacesBeforeBrackets>False</SpacesBeforeBrackets>
+    <SpacesAfterTypecast>True</SpacesAfterTypecast>
+    <BlankLinesBeforeUsings>1</BlankLinesBeforeUsings>
+    <AlignToFirstMethodDeclarationParameter>False</AlignToFirstMethodDeclarationParameter>
+    <AlignToFirstIndexerDeclarationParameter>False</AlignToFirstIndexerDeclarationParameter>
+  </CSharpFormattingPolicy>
+  <ChangeLogPolicy inheritsSet="Mono" />
+  <TextStylePolicy inheritsSet="null" scope="application/xml" />
+  <TextStylePolicy inheritsSet="null" scope="text/x-csharp" />
+  <StandardHeader>
+    <Text>
+  Copyright (c) 2017 Outfit7. All rights reserved.
+</Text>
+    <IncludeInNewFiles>True</IncludeInNewFiles>
+  </StandardHeader>
+  <TextStylePolicy inheritsSet="VisualStudio" inheritsScope="text/plain" scope="text/x-fsharp">
+    <FileWidth>120</FileWidth>
+    <EolMarker>Unix</EolMarker>
+  </TextStylePolicy>
+  <FSharpFormattingPolicy scope="text/x-fsharp">
+    <DefaultFormat>
+      <IndentOnTryWith>False</IndentOnTryWith>
+      <ReorderOpenDeclaration>False</ReorderOpenDeclaration>
+      <SpaceAfterComma>True</SpaceAfterComma>
+      <SpaceAfterSemicolon>True</SpaceAfterSemicolon>
+      <SpaceAroundDelimiter>True</SpaceAroundDelimiter>
+      <SpaceBeforeArgument>True</SpaceBeforeArgument>
+      <SpaceBeforeColon>True</SpaceBeforeColon>
+    </DefaultFormat>
+  </FSharpFormattingPolicy>
+</PolicySet>
