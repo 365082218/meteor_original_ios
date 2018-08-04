@@ -379,8 +379,11 @@ public partial class GameBattleEx : MonoBehaviour {
     //SLua.LuaFunction updateFn;
     public LevelScriptBase Script { get { return lev_script; } }
     LevelScriptBase lev_script;
+    System.Reflection.MethodInfo Scene_OnCharacterEvent;
+    int EventDeath = 202;
     public void Init(Level lev, LevelScriptBase script)
     {
+        Scene_OnCharacterEvent = Global.GScriptType.GetMethod("Scene_OnCharacterEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         lev_script = script;
         //updateFn = ScriptMng.ins.GetFunc("OnUpdate");
         if (script != null)
@@ -403,8 +406,18 @@ public partial class GameBattleEx : MonoBehaviour {
             RegisterCollision(sceneObjs[i]);
         }
         U3D.InsertSystemMsg("新回合开始计时");
+        CheckGameMode();
     }
 
+    void CheckGameMode()
+    {
+        if (Global.GGameMode == GameMode.ANSHA)
+        {
+            MeteorUnit uEnemy = U3D.GetTeamLeader(EUnitCamp.EUC_ENEMY);
+            SFXLoader.Instance.PlayEffect("vipblue", MeteorManager.Instance.LocalPlayer.gameObject, false);
+            SFXLoader.Instance.PlayEffect("vipred", MeteorManager.Instance.LocalPlayer.gameObject, false);
+        }
+    }
     //场景物件的受击框
     Dictionary<SceneItemAgent, List<Collider>> Collision = new Dictionary<SceneItemAgent, List<Collider>>();
     //Dictionary<SceneItemAgent, List<Collider>>
@@ -778,7 +791,7 @@ public partial class GameBattleEx : MonoBehaviour {
         if (FightWnd.Exist)
             FightWnd.Instance.OnChangeLock(bLocked);
     }
-
+    
     //敌方角色移动时，不用整个刷新，只需要用当前的自动目标和这个对象对比下角度就OK
     public void RefreshAutoTarget()
     {
@@ -867,6 +880,8 @@ public partial class GameBattleEx : MonoBehaviour {
     public Dictionary<string, BattleResultItem> BattleResult { get { return battleResult; } }
     public void OnUnitDead(MeteorUnit unit, MeteorUnit killer = null)
     {
+        if (Scene_OnCharacterEvent != null)
+            Scene_OnCharacterEvent.Invoke(Global.GScript, new object[] { unit.InstanceId, EventDeath});
         //无阵营的角色,杀死人，不统计信息
         if (killer != null && (killer.Camp == EUnitCamp.EUC_ENEMY || killer.Camp == EUnitCamp.EUC_FRIEND))
         {

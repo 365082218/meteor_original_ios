@@ -33,6 +33,15 @@ using Idevgame.Util;
     */
 public class ScriptBase
 {
+    public static int GameCallBack(string key, int Value)
+    {
+        if (key == "mod")
+            return (int)Global.GGameMode;
+        if (key == "end")
+            GameOver(Value);
+        return Value;
+    }
+
     public static void NetEvent(int status)
     {
 
@@ -63,12 +72,6 @@ public class ScriptBase
     public static void RemoveNPC(int id)
     {
         U3D.RemoveNPC(id);
-    }
-
-    public static void GameCallBack(string fun, int result)
-    {
-        if (fun == "end")
-            GameOver(result);
     }
 
     public static void GameOver(int nCode)
@@ -206,6 +209,20 @@ public class ScriptBase
         }
         return ret;
     }
+
+    public void Misc(string fun, int id, string v)
+    {
+        if (fun == "transfer")
+        {
+            //把某人传送到某位置去
+            MeteorUnit unit = U3D.GetUnit(id);
+            GameObject TargetGo = Global.ldaControlX(v, Loader.Instance.gameObject);
+            if (TargetGo != null)
+                unit.transform.position = TargetGo.transform.position;
+            else
+                Debug.LogError(string.Format("can not find:{0}", v));
+        }
+    }
     //游戏状态等
     public int Misc(string fun, int serices_index = 0, int start = 0, int end = 0)
     {
@@ -283,6 +300,12 @@ public class ScriptBase
     {
 
     }
+
+    public static void Output(string s, int id, string e, int evt)
+    {
+
+    }
+
     public static void Output(int i, int j)
     {
         //Debug.Log(string.Format("{0}{1}", i, j));
@@ -2696,7 +2719,7 @@ public class LevelScript_sn04: LevelScriptBase
     int g_iBPdoorShakePose;
     int g_iBPdoorHP;
 
-    string efname = "GunHit";
+    //string efname = "GunHit";
 
     public override void Scene_OnLoad()
     {
@@ -2706,8 +2729,8 @@ public class LevelScript_sn04: LevelScriptBase
         //SetScene("snowspeed", 20, 100);//雪速度
         //SetScene("snowsize", 5, 5);//粒子尺寸
 
-        string name;
-        int i;
+        //string name;
+        //int i;
 
         g_iPdoorMaxHP = g_iLevel04GiMaMaxHP;
         g_iPdoorState1HP = (g_iPdoorMaxHP * 3) / 4;
@@ -7330,591 +7353,598 @@ public class LevelScript_sn20 : LevelScriptBase
 //    }
 //}
 
-//威震八方
-//public class LevelScript_sn22 : LevelScriptBase
-//{
-//    public override int GetRule() { return Rule; }
-//    public override int GetRoundTime() { return RoundTime; }
-//    public override int GetPlayerSpawn() { return PlayerSpawn; }
-//    public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
-//    public override int GetPlayerWeapon() { return PlayerWeapon; }
-//    public override int GetPlayerWeapon2() { return PlayerWeapon2; }
-//    int DeathMatch = 1;
-//    int TeamDeathMatch = 5;
-//    int GameMod;
-
-//    int EventEnter = 200;
-//    int EventExit = 201;
-//    int EventDeath = 202;
-
-//    int g_CharacterArena[17];
-//    int g_ArenaCharacters[16];
-//    int g_TeamAArenaCharacters[16];
-//    int g_TeamBArenaCharacters[16];
-
-//    public override void Scene_OnInit()
-//    {
-//        InitBoxes(g_iNumBoxes);
-//        InitBBoxes(g_iNumBBoxes);
-//        InitChairs(g_iNumChairs);
-//        InitDeskes(g_iNumDeskes);
-//        InitJugs(g_iNumJugs);
-//        GameMod = GameCallBack("mod", 0);
-//        int i;
-//        string itemname;
-//        for (i = 0; i < 16; i = i + 1)
-//        {
-//            g_CharacterArena[i] = -1;
-//            g_ArenaCharacters[i] = 0;
-//            g_TeamAArenaCharacters[i] = 0;
-//            g_TeamBArenaCharacters[i] = 0;
-
-//            MakeString(itemname, "D_tpEC", i + 1);
-//            SetSceneItem(itemname, "name", "machine");
-//            SetSceneItem(itemname, "attribute", "collision", 0);
-//            SetSceneItem(itemname, "attribute", "interactive", 1);
-
-//            MakeString(itemname, "D_tpEC", i + 17);
-//            SetSceneItem(itemname, "name", "machine");
-//            SetSceneItem(itemname, "attribute", "collision", 0);
-//            SetSceneItem(itemname, "attribute", "interactive", 1);
-//        }
-
-//        for (i = 0; i < 8; i = i + 1)
-//        {
-//            MakeString(itemname, "D_tpAC", i + 1);
-//            SetSceneItem(itemname, "name", "machine");
-//            SetSceneItem(itemname, "attribute", "collision", 0);
-
-//            MakeString(itemname, "D_tpAC", i + 9);
-//            SetSceneItem(itemname, "name", "machine");
-//            SetSceneItem(itemname, "attribute", "collision", 0);
-
-//            MakeString(itemname, "D_tpBC", i + 1);
-//            SetSceneItem(itemname, "name", "machine");
-//            SetSceneItem(itemname, "attribute", "collision", 0);
-
-//            MakeString(itemname, "D_tpBC", i + 9);
-//            SetSceneItem(itemname, "name", "machine");
-//            SetSceneItem(itemname, "attribute", "collision", 0);
-//        }
-//    }
-
-//Scene_OnCharacterEvent(int id, int event)
-//{
-//        int i;
-//        int arena;
-//        int team;
-//        Output("Character:", id, "event:", event);
-
-//	if ( event==EventExit || event==EventDeath )
-
-//    {
-//        if (GameMod == DeathMatch)
-//        {
-//            arena = g_CharacterArena[id];
-//            if (arena != -1)
-//            {
-//                g_ArenaCharacters[arena] = g_ArenaCharacters[arena] - 1;
-//            }
-//            g_CharacterArena[id] = -1;
-//        }
-//        if (GameMod == TeamDeathMatch)
-//        {
-//            arena = g_CharacterArena[id];
-//            team = GetTeam(id);
-//            if (arena != -1)
-//            {
-//                if (team == 1)
-//                {
-//                    g_TeamAArenaCharacters[arena] = g_TeamAArenaCharacters[arena] - 1;
-//                }
-//                if (team == 2)
-//                {
-//                    g_TeamBArenaCharacters[arena] = g_TeamBArenaCharacters[arena] - 1;
-//                }
-//            }
-//            g_CharacterArena[id] = -1;
-//        }
-//    }
-//    }
-
-//TransferToArena(int characterid, int tpid)
-//    {
-//        string arenaname;
-//        int arena = tpid / 2;
-//        Output("arena characters", g_ArenaCharacters[arena]);
-//        if (g_ArenaCharacters[arena] < 2 && g_CharacterArena[characterid] != arena)
-//        {
-//            g_ArenaCharacters[arena] = g_ArenaCharacters[arena] + 1;
-//            g_CharacterArena[characterid] = arena;
-//            MakeString(arenaname, "D_tpED", tpid + 1);
-//            Misc("transfer", characterid, arenaname);
-//            Output("transfer", characterid, "to", tpid);
-//        }
-//    }
-
-//TransferFromArena(int characterid, int tpid)
-//    {
-//        string arenaname;
-//        int arena = tpid / 2;
-
-//        if (g_ArenaCharacters[arena] == 1 && g_CharacterArena[characterid] == arena)
-//        {
-//            g_ArenaCharacters[arena] = g_ArenaCharacters[arena] - 1;
-//            g_CharacterArena[characterid] = -1;
-//            MakeString(arenaname, "D_tpED", tpid + 17);
-//            Misc("transfer", characterid, arenaname);
-//            Output("transfer", characterid, "from", tpid);
-//        }
-//    }
-
-//TeamATransferToArena(int characterid, int arena)
-//    {
-//        string arenaname;
-//        int team;
-//        team = GetTeam(characterid);
-//        if (team == 1 && g_TeamAArenaCharacters[arena] == 0)
-//        {
-//            g_TeamAArenaCharacters[arena] = 1;
-//            g_CharacterArena[characterid] = arena;
-//            MakeString(arenaname, "D_tpAD", arena + 1);
-//            Misc("transfer", characterid, arenaname);
-//            Output("transfer", characterid, "to", arena);
-//        }
-//    }
-
-//TeamATransferFromArena(int characterid, int arena)
-//    {
-//        string arenaname;
-//        int team;
-//        team = GetTeam(characterid);
-//        if (team == 1 && g_TeamAArenaCharacters[arena] == 1 && g_TeamBArenaCharacters[arena] == 0)
-//        {
-//            g_TeamAArenaCharacters[arena] = 0;
-//            g_CharacterArena[characterid] = -1;
-//            MakeString(arenaname, "D_tpAD", arena + 9);
-//            Misc("transfer", characterid, arenaname);
-//            Output("transfer", characterid, "from", arena);
-//        }
-//    }
-
-//TeamBTransferToArena(int characterid, int arena)
-//    {
-//        string arenaname;
-//        int team;
-//        team = GetTeam(characterid);
-//        if (team == 2 && g_TeamBArenaCharacters[arena] == 0)
-//        {
-//            g_TeamBArenaCharacters[arena] = 1;
-//            g_CharacterArena[characterid] = arena;
-//            MakeString(arenaname, "D_tpBD", arena + 1);
-//            Misc("transfer", characterid, arenaname);
-//            Output("transfer", characterid, "to", arena);
-//        }
-//    }
-
-//TeamBTransferFromArena(int characterid, int arena)
-//    {
-//        string arenaname;
-//        int team;
-//        team = GetTeam(characterid);
-//        if (team == 2 && g_TeamBArenaCharacters[arena] == 1 && g_TeamAArenaCharacters[arena] == 0)
-//        {
-//            g_TeamBArenaCharacters[arena] = 0;
-//            g_CharacterArena[characterid] = -1;
-//            MakeString(arenaname, "D_tpBD", arena + 9);
-//            Misc("transfer", characterid, arenaname);
-//            Output("transfer", characterid, "from", arena);
-//        }
-//    }
-
-//D_tpEC01_OnTouch(int id, int characterid)
-//    {
-//        Output("EC01 Touched");
-//        TransferToArena(characterid, 0);
-//    }
-
-//D_tpEC02_OnTouch(int id, int characterid)
-//    {
-//        Output("EC02 Touched");
-//        TransferToArena(characterid, 1);
-//    }
-
-//D_tpEC03_OnTouch(int id, int characterid)
-//    {
-//        Output("EC03 Touched");
-//        TransferToArena(characterid, 2);
-//    }
-
-//D_tpEC04_OnTouch(int id, int characterid)
-//    {
-//        Output("EC04 Touched");
-//        TransferToArena(characterid, 3);
-//    }
-
-//D_tpEC05_OnTouch(int id, int characterid)
-//    {
-//        Output("EC05 Touched");
-//        TransferToArena(characterid, 4);
-//    }
-
-//D_tpEC06_OnTouch(int id, int characterid)
-//    {
-//        Output("EC06 Touched");
-//        TransferToArena(characterid, 5);
-//    }
-
-//D_tpEC07_OnTouch(int id, int characterid)
-//    {
-//        Output("EC07 Touched");
-//        TransferToArena(characterid, 6);
-//    }
-
-//D_tpEC08_OnTouch(int id, int characterid)
-//    {
-//        Output("EC08 Touched");
-//        TransferToArena(characterid, 7);
-//    }
-
-//D_tpEC09_OnTouch(int id, int characterid)
-//    {
-//        Output("EC09 Touched");
-//        TransferToArena(characterid, 8);
-//    }
-
-//D_tpEC10_OnTouch(int id, int characterid)
-//    {
-//        Output("EC10 Touched");
-//        TransferToArena(characterid, 9);
-//    }
-
-//D_tpEC11_OnTouch(int id, int characterid)
-//    {
-//        Output("EC11 Touched");
-//        TransferToArena(characterid, 10);
-//    }
-
-//D_tpEC12_OnTouch(int id, int characterid)
-//    {
-//        Output("EC12 Touched");
-//        TransferToArena(characterid, 11);
-//    }
-
-//D_tpEC13_OnTouch(int id, int characterid)
-//    {
-//        Output("EC13 Touched");
-//        TransferToArena(characterid, 12);
-//    }
-
-//D_tpEC14_OnTouch(int id, int characterid)
-//    {
-//        Output("EC14 Touched");
-//        TransferToArena(characterid, 13);
-//    }
-
-//D_tpEC15_OnTouch(int id, int characterid)
-//    {
-//        Output("EC15 Touched");
-//        TransferToArena(characterid, 14);
-//    }
-
-//D_tpEC16_OnTouch(int id, int characterid)
-//    {
-//        Output("EC16 Touched");
-//        TransferToArena(characterid, 15);
-//    }
-
-//D_tpEC17_OnTouch(int id, int characterid)
-//    {
-//        Output("EC17 Touched");
-//        TransferFromArena(characterid, 0);
-//    }
-
-//D_tpEC18_OnTouch(int id, int characterid)
-//    {
-//        Output("EC18 Touched");
-//        TransferFromArena(characterid, 1);
-//    }
-
-//D_tpEC19_OnTouch(int id, int characterid)
-//    {
-//        Output("EC19 Touched");
-//        TransferFromArena(characterid, 2);
-//    }
-
-//D_tpEC20_OnTouch(int id, int characterid)
-//    {
-//        Output("EC20 Touched");
-//        TransferFromArena(characterid, 3);
-//    }
-
-//D_tpEC21_OnTouch(int id, int characterid)
-//    {
-//        Output("EC21 Touched");
-//        TransferFromArena(characterid, 4);
-//    }
-
-//D_tpEC22_OnTouch(int id, int characterid)
-//    {
-//        Output("EC22 Touched");
-//        TransferFromArena(characterid, 5);
-//    }
-
-//D_tpEC23_OnTouch(int id, int characterid)
-//    {
-//        Output("EC23 Touched");
-//        TransferFromArena(characterid, 6);
-//    }
-
-//D_tpEC24_OnTouch(int id, int characterid)
-//    {
-//        Output("EC24 Touched");
-//        TransferFromArena(characterid, 7);
-//    }
-
-//D_tpEC25_OnTouch(int id, int characterid)
-//    {
-//        Output("EC25 Touched");
-//        TransferFromArena(characterid, 8);
-//    }
-
-//D_tpEC26_OnTouch(int id, int characterid)
-//    {
-//        Output("EC26 Touched");
-//        TransferFromArena(characterid, 9);
-//    }
-
-//D_tpEC27_OnTouch(int id, int characterid)
-//    {
-//        Output("EC27 Touched");
-//        TransferFromArena(characterid, 10);
-//    }
-
-//D_tpEC28_OnTouch(int id, int characterid)
-//    {
-//        Output("EC28 Touched");
-//        TransferFromArena(characterid, 11);
-//    }
-
-//D_tpEC29_OnTouch(int id, int characterid)
-//    {
-//        Output("EC29 Touched");
-//        TransferFromArena(characterid, 12);
-//    }
-
-//D_tpEC30_OnTouch(int id, int characterid)
-//    {
-//        Output("EC30 Touched");
-//        TransferFromArena(characterid, 13);
-//    }
-
-//D_tpEC31_OnTouch(int id, int characterid)
-//    {
-//        Output("EC31 Touched");
-//        TransferFromArena(characterid, 14);
-//    }
-
-//D_tpEC32_OnTouch(int id, int characterid)
-//    {
-//        Output("EC32 Touched");
-//        TransferFromArena(characterid, 15);
-//    }
-
-//D_tpAC01_OnTouch(int id, int characterid)
-//    {
-//        Output("AC01 Touched");
-//        TeamATransferToArena(characterid, 0);
-//    }
-
-//D_tpAC02_OnTouch(int id, int characterid)
-//    {
-//        Output("AC02 Touched");
-//        TeamATransferToArena(characterid, 1);
-//    }
-
-//D_tpAC03_OnTouch(int id, int characterid)
-//    {
-//        Output("AC03 Touched");
-//        TeamATransferToArena(characterid, 2);
-//    }
-
-//D_tpAC04_OnTouch(int id, int characterid)
-//    {
-//        Output("AC04 Touched");
-//        TeamATransferToArena(characterid, 3);
-//    }
-
-//D_tpAC05_OnTouch(int id, int characterid)
-//    {
-//        Output("AC05 Touched");
-//        TeamATransferToArena(characterid, 4);
-//    }
-
-//D_tpAC06_OnTouch(int id, int characterid)
-//    {
-//        Output("AC06 Touched");
-//        TeamATransferToArena(characterid, 5);
-//    }
-
-//D_tpAC07_OnTouch(int id, int characterid)
-//    {
-//        Output("AC07 Touched");
-//        TeamATransferToArena(characterid, 6);
-//    }
-
-//D_tpAC08_OnTouch(int id, int characterid)
-//    {
-//        Output("AC08 Touched");
-//        TeamATransferToArena(characterid, 7);
-//    }
-
-//D_tpAC09_OnTouch(int id, int characterid)
-//    {
-//        Output("AC09 Touched");
-//        TeamATransferFromArena(characterid, 0);
-//    }
-
-//D_tpAC10_OnTouch(int id, int characterid)
-//    {
-//        Output("AC10 Touched");
-//        TeamATransferFromArena(characterid, 1);
-//    }
-
-//D_tpAC11_OnTouch(int id, int characterid)
-//    {
-//        Output("AC11 Touched");
-//        TeamATransferFromArena(characterid, 2);
-//    }
-
-//D_tpAC12_OnTouch(int id, int characterid)
-//    {
-//        Output("AC12 Touched");
-//        TeamATransferFromArena(characterid, 3);
-//    }
-
-//D_tpAC13_OnTouch(int id, int characterid)
-//    {
-//        Output("AC13 Touched");
-//        TeamATransferFromArena(characterid, 4);
-//    }
-
-//D_tpAC14_OnTouch(int id, int characterid)
-//    {
-//        Output("AC14 Touched");
-//        TeamATransferFromArena(characterid, 5);
-//    }
-
-//D_tpAC15_OnTouch(int id, int characterid)
-//    {
-//        Output("AC15 Touched");
-//        TeamATransferFromArena(characterid, 6);
-//    }
-
-//D_tpAC16_OnTouch(int id, int characterid)
-//    {
-//        Output("AC16 Touched");
-//        TeamATransferFromArena(characterid, 7);
-//    }
-
-//D_tpBC01_OnTouch(int id, int characterid)
-//    {
-//        Output("BC01 Touched by", characterid);
-//        TeamBTransferToArena(characterid, 0);
-//    }
-
-//D_tpBC02_OnTouch(int id, int characterid)
-//    {
-//        Output("BC02 Touched by", characterid);
-//        TeamBTransferToArena(characterid, 1);
-//    }
-
-//D_tpBC03_OnTouch(int id, int characterid)
-//    {
-//        Output("BC03 Touched by", characterid);
-//        TeamBTransferToArena(characterid, 2);
-//    }
-
-//D_tpBC04_OnTouch(int id, int characterid)
-//    {
-//        Output("BC04 Touched by", characterid);
-//        TeamBTransferToArena(characterid, 3);
-//    }
-
-//D_tpBC05_OnTouch(int id, int characterid)
-//    {
-//        Output("BC05 Touched by", characterid);
-//        TeamBTransferToArena(characterid, 4);
-//    }
-
-//D_tpBC06_OnTouch(int id, int characterid)
-//    {
-//        Output("BC06 Touched by", characterid);
-//        TeamBTransferToArena(characterid, 5);
-//    }
-
-//D_tpBC07_OnTouch(int id, int characterid)
-//    {
-//        Output("BC07 Touched by", characterid);
-//        TeamBTransferToArena(characterid, 6);
-//    }
-
-//D_tpBC08_OnTouch(int id, int characterid)
-//    {
-//        Output("BC08 Touched by", characterid);
-//        TeamBTransferToArena(characterid, 7);
-//    }
-
-//D_tpBC09_OnTouch(int id, int characterid)
-//    {
-//        Output("BC09 Touched by", characterid);
-//        TeamBTransferFromArena(characterid, 0);
-//    }
-
-//D_tpBC10_OnTouch(int id, int characterid)
-//    {
-//        Output("BC10 Touched by", characterid);
-//        TeamBTransferFromArena(characterid, 1);
-//    }
-
-//D_tpBC11_OnTouch(int id, int characterid)
-//    {
-//        Output("BC11 Touched by", characterid);
-//        TeamBTransferFromArena(characterid, 2);
-//    }
-
-//D_tpBC12_OnTouch(int id, int characterid)
-//    {
-//        Output("BC12 Touched by", characterid);
-//        TeamBTransferFromArena(characterid, 3);
-//    }
-
-//D_tpBC13_OnTouch(int id, int characterid)
-//    {
-//        Output("BC13 Touched by", characterid);
-//        TeamBTransferFromArena(characterid, 4);
-//    }
-
-//D_tpBC14_OnTouch(int id, int characterid)
-//    {
-//        Output("BC14 Touched by", characterid);
-//        TeamBTransferFromArena(characterid, 5);
-//    }
-
-//D_tpBC15_OnTouch(int id, int characterid)
-//    {
-//        Output("BC15 Touched by", characterid);
-//        TeamBTransferFromArena(characterid, 6);
-//    }
-
-//D_tpBC16_OnTouch(int id, int characterid)
-//    {
-//        Output("BC16 Touched by", characterid);
-//        TeamBTransferFromArena(characterid, 7);
-//    }
-//}
-
-//韩棠-大决战
+//22-威震八方
+public class LevelScript_sn22 : LevelScriptBase
+{
+    int Rule = 2;
+    int RoundTime = 30;
+    int PlayerSpawn = 16;
+    int PlayerSpawnDir = 84;
+    int PlayerWeapon = 5;
+    int PlayerWeapon2 = 0;
+    int PlayerModel = 10;
+    int PlayerHP = 8000;
+    public override int GetRule() { return Rule; }
+    public override int GetRoundTime() { return RoundTime; }
+    public override int GetPlayerSpawn() { return PlayerSpawn; }
+    public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
+    public override int GetPlayerWeapon() { return PlayerWeapon; }
+    public override int GetPlayerWeapon2() { return PlayerWeapon2; }
+    int DeathMatch = 1;
+    int TeamDeathMatch = 5;
+    int GameMod;
+
+    int EventEnter = 200;//进入门
+    int EventExit = 201;//离开门
+    int EventDeath = 202;//死亡事件
+
+    int[] g_CharacterArena = new int[17];
+    int[] g_ArenaCharacters = new int[16];
+    int[] g_TeamAArenaCharacters = new int[16];
+    int[] g_TeamBArenaCharacters = new int[16];
+
+    public override void Scene_OnInit()
+    {
+        InitBoxes(g_iNumBoxes);
+        InitBBoxes(g_iNumBBoxes);
+        InitChairs(g_iNumChairs);
+        InitDeskes(g_iNumDeskes);
+        InitJugs(g_iNumJugs);
+        GameMod = GameCallBack("mod", 0);
+        int i;
+        string itemname = "";
+        for (i = 0; i < 16; i = i + 1)
+        {
+            g_CharacterArena[i] = -1;
+            g_ArenaCharacters[i] = 0;
+            g_TeamAArenaCharacters[i] = 0;
+            g_TeamBArenaCharacters[i] = 0;
+
+            MakeString(ref itemname, "D_tpEC", i + 1);
+            SetSceneItem(itemname, "name", "machine");
+            SetSceneItem(itemname, "attribute", "collision", 0);
+            SetSceneItem(itemname, "attribute", "interactive", 1);
+
+            MakeString(ref itemname, "D_tpEC", i + 17);
+            SetSceneItem(itemname, "name", "machine");
+            SetSceneItem(itemname, "attribute", "collision", 0);
+            SetSceneItem(itemname, "attribute", "interactive", 1);
+        }
+
+        for (i = 0; i < 8; i = i + 1)
+        {
+            MakeString(ref itemname, "D_tpAC", i + 1);
+            SetSceneItem(itemname, "name", "machine");
+            SetSceneItem(itemname, "attribute", "collision", 0);
+
+            MakeString(ref itemname, "D_tpAC", i + 9);
+            SetSceneItem(itemname, "name", "machine");
+            SetSceneItem(itemname, "attribute", "collision", 0);
+
+            MakeString(ref itemname, "D_tpBC", i + 1);
+            SetSceneItem(itemname, "name", "machine");
+            SetSceneItem(itemname, "attribute", "collision", 0);
+
+            MakeString(ref itemname, "D_tpBC", i + 9);
+            SetSceneItem(itemname, "name", "machine");
+            SetSceneItem(itemname, "attribute", "collision", 0);
+        }
+    }
+
+    void Scene_OnCharacterEvent(int id, int evt)
+    {
+        int i;
+        int arena;
+        int team;
+        Output("Character:", id, "event:", evt);
+
+	    if (evt == EventExit || evt== EventDeath)
+        {
+            if (GameMod == DeathMatch)//模式为盟主时
+            {
+                arena = g_CharacterArena[id];
+                if (arena != -1)
+                {
+                    g_ArenaCharacters[arena] = g_ArenaCharacters[arena] - 1;
+                }
+                g_CharacterArena[id] = -1;
+            }
+            if (GameMod == TeamDeathMatch)//死斗
+            {
+                arena = g_CharacterArena[id];
+                team = GetTeam(id);
+                if (arena != -1)
+                {
+                    if (team == 1)
+                    {
+                        g_TeamAArenaCharacters[arena] = g_TeamAArenaCharacters[arena] - 1;
+                    }
+                    if (team == 2)
+                    {
+                        g_TeamBArenaCharacters[arena] = g_TeamBArenaCharacters[arena] - 1;
+                    }
+                }
+                g_CharacterArena[id] = -1;
+            }
+        }
+    }
+
+    void TransferToArena(int characterid, int tpid)
+    {
+        string arenaname = "";
+        int arena = tpid / 2;
+        Output("arena characters", g_ArenaCharacters[arena]);
+        if (g_ArenaCharacters[arena] < 2 && g_CharacterArena[characterid] != arena)
+        {
+            g_ArenaCharacters[arena] = g_ArenaCharacters[arena] + 1;
+            g_CharacterArena[characterid] = arena;
+            MakeString(ref arenaname, "D_tpED", tpid + 1);
+            Misc("transfer", characterid, arenaname);
+            Output("transfer", characterid, "to", tpid);
+        }
+    }
+
+    void TransferFromArena(int characterid, int tpid)
+    {
+        string arenaname = "";
+        int arena = tpid / 2;
+
+        if (g_ArenaCharacters[arena] == 1 && g_CharacterArena[characterid] == arena)
+        {
+            g_ArenaCharacters[arena] = g_ArenaCharacters[arena] - 1;
+            g_CharacterArena[characterid] = -1;
+            MakeString(ref arenaname, "D_tpED", tpid + 17);
+            Misc("transfer", characterid, arenaname);
+            Output("transfer", characterid, "from", tpid);
+        }
+    }
+
+    void TeamATransferToArena(int characterid, int arena)
+    {
+        string arenaname = "";
+        int team;
+        team = GetTeam(characterid);
+        if (team == 1 && g_TeamAArenaCharacters[arena] == 0)
+        {
+            g_TeamAArenaCharacters[arena] = 1;
+            g_CharacterArena[characterid] = arena;
+            MakeString(ref arenaname, "D_tpAD", arena + 1);
+            Misc("transfer", characterid, arenaname);
+            Output("transfer", characterid, "to", arena);
+        }
+    }
+
+    void TeamATransferFromArena(int characterid, int arena)
+    {
+        string arenaname = "";
+        int team;
+        team = GetTeam(characterid);
+        if (team == 1 && g_TeamAArenaCharacters[arena] == 1 && g_TeamBArenaCharacters[arena] == 0)
+        {
+            g_TeamAArenaCharacters[arena] = 0;
+            g_CharacterArena[characterid] = -1;
+            MakeString(ref arenaname, "D_tpAD", arena + 9);
+            Misc("transfer", characterid, arenaname);
+            Output("transfer", characterid, "from", arena);
+        }
+    }
+
+    void TeamBTransferToArena(int characterid, int arena)
+    {
+        string arenaname = "";
+        int team;
+        team = GetTeam(characterid);
+        if (team == 2 && g_TeamBArenaCharacters[arena] == 0)
+        {
+            g_TeamBArenaCharacters[arena] = 1;
+            g_CharacterArena[characterid] = arena;
+            MakeString(ref arenaname, "D_tpBD", arena + 1);
+            Misc("transfer", characterid, arenaname);
+            Output("transfer", characterid, "to", arena);
+        }
+    }
+
+    void TeamBTransferFromArena(int characterid, int arena)
+    {
+        string arenaname = "";
+        int team;
+        team = GetTeam(characterid);
+        if (team == 2 && g_TeamBArenaCharacters[arena] == 1 && g_TeamAArenaCharacters[arena] == 0)
+        {
+            g_TeamBArenaCharacters[arena] = 0;
+            g_CharacterArena[characterid] = -1;
+            MakeString(ref arenaname, "D_tpBD", arena + 9);
+            Misc("transfer", characterid, arenaname);
+            Output("transfer", characterid, "from", arena);
+        }
+    }
+
+    void D_tpEC01_OnTouch(int id, int characterid)
+    {
+        Output("EC01 Touched");
+        TransferToArena(characterid, 0);
+    }
+
+    void D_tpEC02_OnTouch(int id, int characterid)
+    {
+        Output("EC02 Touched");
+        TransferToArena(characterid, 1);
+    }
+
+    void D_tpEC03_OnTouch(int id, int characterid)
+    {
+        Output("EC03 Touched");
+        TransferToArena(characterid, 2);
+    }
+
+    void D_tpEC04_OnTouch(int id, int characterid)
+    {
+        Output("EC04 Touched");
+        TransferToArena(characterid, 3);
+    }
+
+    void D_tpEC05_OnTouch(int id, int characterid)
+    {
+        Output("EC05 Touched");
+        TransferToArena(characterid, 4);
+    }
+
+    void D_tpEC06_OnTouch(int id, int characterid)
+    {
+        Output("EC06 Touched");
+        TransferToArena(characterid, 5);
+    }
+
+    void D_tpEC07_OnTouch(int id, int characterid)
+    {
+        Output("EC07 Touched");
+        TransferToArena(characterid, 6);
+    }
+
+    void D_tpEC08_OnTouch(int id, int characterid)
+    {
+        Output("EC08 Touched");
+        TransferToArena(characterid, 7);
+    }
+
+    void D_tpEC09_OnTouch(int id, int characterid)
+    {
+        Output("EC09 Touched");
+        TransferToArena(characterid, 8);
+    }
+
+    void D_tpEC10_OnTouch(int id, int characterid)
+    {
+        Output("EC10 Touched");
+        TransferToArena(characterid, 9);
+    }
+
+    void D_tpEC11_OnTouch(int id, int characterid)
+    {
+        Output("EC11 Touched");
+        TransferToArena(characterid, 10);
+    }
+
+    void D_tpEC12_OnTouch(int id, int characterid)
+    {
+        Output("EC12 Touched");
+        TransferToArena(characterid, 11);
+    }
+
+    void D_tpEC13_OnTouch(int id, int characterid)
+    {
+        Output("EC13 Touched");
+        TransferToArena(characterid, 12);
+    }
+
+    void D_tpEC14_OnTouch(int id, int characterid)
+    {
+        Output("EC14 Touched");
+        TransferToArena(characterid, 13);
+    }
+
+    void D_tpEC15_OnTouch(int id, int characterid)
+    {
+        Output("EC15 Touched");
+        TransferToArena(characterid, 14);
+    }
+
+    void D_tpEC16_OnTouch(int id, int characterid)
+    {
+        Output("EC16 Touched");
+        TransferToArena(characterid, 15);
+    }
+
+    void D_tpEC17_OnTouch(int id, int characterid)
+    {
+        Output("EC17 Touched");
+        TransferFromArena(characterid, 0);
+    }
+
+    void D_tpEC18_OnTouch(int id, int characterid)
+    {
+        Output("EC18 Touched");
+        TransferFromArena(characterid, 1);
+    }
+
+    void D_tpEC19_OnTouch(int id, int characterid)
+    {
+        Output("EC19 Touched");
+        TransferFromArena(characterid, 2);
+    }
+
+    void D_tpEC20_OnTouch(int id, int characterid)
+    {
+        Output("EC20 Touched");
+        TransferFromArena(characterid, 3);
+    }
+
+    void D_tpEC21_OnTouch(int id, int characterid)
+    {
+        Output("EC21 Touched");
+        TransferFromArena(characterid, 4);
+    }
+
+    void D_tpEC22_OnTouch(int id, int characterid)
+    {
+        Output("EC22 Touched");
+        TransferFromArena(characterid, 5);
+    }
+
+    void D_tpEC23_OnTouch(int id, int characterid)
+    {
+        Output("EC23 Touched");
+        TransferFromArena(characterid, 6);
+    }
+
+    void D_tpEC24_OnTouch(int id, int characterid)
+    {
+        Output("EC24 Touched");
+        TransferFromArena(characterid, 7);
+    }
+
+    void D_tpEC25_OnTouch(int id, int characterid)
+    {
+        Output("EC25 Touched");
+        TransferFromArena(characterid, 8);
+    }
+
+    void D_tpEC26_OnTouch(int id, int characterid)
+    {
+        Output("EC26 Touched");
+        TransferFromArena(characterid, 9);
+    }
+
+    void D_tpEC27_OnTouch(int id, int characterid)
+    {
+        Output("EC27 Touched");
+        TransferFromArena(characterid, 10);
+    }
+
+    void D_tpEC28_OnTouch(int id, int characterid)
+    {
+        Output("EC28 Touched");
+        TransferFromArena(characterid, 11);
+    }
+
+    void D_tpEC29_OnTouch(int id, int characterid)
+    {
+        Output("EC29 Touched");
+        TransferFromArena(characterid, 12);
+    }
+
+    void D_tpEC30_OnTouch(int id, int characterid)
+    {
+        Output("EC30 Touched");
+        TransferFromArena(characterid, 13);
+    }
+
+    void D_tpEC31_OnTouch(int id, int characterid)
+    {
+        Output("EC31 Touched");
+        TransferFromArena(characterid, 14);
+    }
+
+    void D_tpEC32_OnTouch(int id, int characterid)
+    {
+        Output("EC32 Touched");
+        TransferFromArena(characterid, 15);
+    }
+
+    void D_tpAC01_OnTouch(int id, int characterid)
+    {
+        Output("AC01 Touched");
+        TeamATransferToArena(characterid, 0);
+    }
+
+    void D_tpAC02_OnTouch(int id, int characterid)
+    {
+        Output("AC02 Touched");
+        TeamATransferToArena(characterid, 1);
+    }
+
+    void D_tpAC03_OnTouch(int id, int characterid)
+    {
+        Output("AC03 Touched");
+        TeamATransferToArena(characterid, 2);
+    }
+
+    void D_tpAC04_OnTouch(int id, int characterid)
+    {
+        Output("AC04 Touched");
+        TeamATransferToArena(characterid, 3);
+    }
+
+    void D_tpAC05_OnTouch(int id, int characterid)
+    {
+        Output("AC05 Touched");
+        TeamATransferToArena(characterid, 4);
+    }
+
+    void D_tpAC06_OnTouch(int id, int characterid)
+    {
+        Output("AC06 Touched");
+        TeamATransferToArena(characterid, 5);
+    }
+
+    void D_tpAC07_OnTouch(int id, int characterid)
+    {
+        Output("AC07 Touched");
+        TeamATransferToArena(characterid, 6);
+    }
+
+    void D_tpAC08_OnTouch(int id, int characterid)
+    {
+        Output("AC08 Touched");
+        TeamATransferToArena(characterid, 7);
+    }
+
+    void D_tpAC09_OnTouch(int id, int characterid)
+    {
+        Output("AC09 Touched");
+        TeamATransferFromArena(characterid, 0);
+    }
+
+    void D_tpAC10_OnTouch(int id, int characterid)
+    {
+        Output("AC10 Touched");
+        TeamATransferFromArena(characterid, 1);
+    }
+
+    void D_tpAC11_OnTouch(int id, int characterid)
+    {
+        Output("AC11 Touched");
+        TeamATransferFromArena(characterid, 2);
+    }
+
+    void D_tpAC12_OnTouch(int id, int characterid)
+    {
+        Output("AC12 Touched");
+        TeamATransferFromArena(characterid, 3);
+    }
+
+    void D_tpAC13_OnTouch(int id, int characterid)
+    {
+        Output("AC13 Touched");
+        TeamATransferFromArena(characterid, 4);
+    }
+
+    void D_tpAC14_OnTouch(int id, int characterid)
+    {
+        Output("AC14 Touched");
+        TeamATransferFromArena(characterid, 5);
+    }
+
+    void D_tpAC15_OnTouch(int id, int characterid)
+    {
+        Output("AC15 Touched");
+        TeamATransferFromArena(characterid, 6);
+    }
+
+    void D_tpAC16_OnTouch(int id, int characterid)
+    {
+        Output("AC16 Touched");
+        TeamATransferFromArena(characterid, 7);
+    }
+
+    void D_tpBC01_OnTouch(int id, int characterid)
+    {
+        Output("BC01 Touched by", characterid);
+        TeamBTransferToArena(characterid, 0);
+    }
+
+    void D_tpBC02_OnTouch(int id, int characterid)
+    {
+        Output("BC02 Touched by", characterid);
+        TeamBTransferToArena(characterid, 1);
+    }
+
+    void D_tpBC03_OnTouch(int id, int characterid)
+    {
+        Output("BC03 Touched by", characterid);
+        TeamBTransferToArena(characterid, 2);
+    }
+
+    void D_tpBC04_OnTouch(int id, int characterid)
+    {
+        Output("BC04 Touched by", characterid);
+        TeamBTransferToArena(characterid, 3);
+    }
+
+    void D_tpBC05_OnTouch(int id, int characterid)
+    {
+        Output("BC05 Touched by", characterid);
+        TeamBTransferToArena(characterid, 4);
+    }
+
+    void D_tpBC06_OnTouch(int id, int characterid)
+    {
+        Output("BC06 Touched by", characterid);
+        TeamBTransferToArena(characterid, 5);
+    }
+
+    void D_tpBC07_OnTouch(int id, int characterid)
+    {
+        Output("BC07 Touched by", characterid);
+        TeamBTransferToArena(characterid, 6);
+    }
+
+    void D_tpBC08_OnTouch(int id, int characterid)
+    {
+        Output("BC08 Touched by", characterid);
+        TeamBTransferToArena(characterid, 7);
+    }
+
+    void D_tpBC09_OnTouch(int id, int characterid)
+    {
+        Output("BC09 Touched by", characterid);
+        TeamBTransferFromArena(characterid, 0);
+    }
+
+    void D_tpBC10_OnTouch(int id, int characterid)
+    {
+        Output("BC10 Touched by", characterid);
+        TeamBTransferFromArena(characterid, 1);
+    }
+
+    void D_tpBC11_OnTouch(int id, int characterid)
+    {
+        Output("BC11 Touched by", characterid);
+        TeamBTransferFromArena(characterid, 2);
+    }
+
+    void D_tpBC12_OnTouch(int id, int characterid)
+    {
+        Output("BC12 Touched by", characterid);
+        TeamBTransferFromArena(characterid, 3);
+    }
+
+    void D_tpBC13_OnTouch(int id, int characterid)
+    {
+        Output("BC13 Touched by", characterid);
+        TeamBTransferFromArena(characterid, 4);
+    }
+
+    void D_tpBC14_OnTouch(int id, int characterid)
+    {
+        Output("BC14 Touched by", characterid);
+        TeamBTransferFromArena(characterid, 5);
+    }
+
+    void D_tpBC15_OnTouch(int id, int characterid)
+    {
+        Output("BC15 Touched by", characterid);
+        TeamBTransferFromArena(characterid, 6);
+    }
+
+    void D_tpBC16_OnTouch(int id, int characterid)
+    {
+        Output("BC16 Touched by", characterid);
+        TeamBTransferFromArena(characterid, 7);
+    }
+}
+
+//23韩棠-大决战
 public class LevelScript_sn23 : LevelScriptBase
 {
     int Rule = 2;

@@ -9,7 +9,8 @@ public class Global
     public static string[] model = new string[] { "孟星魂", "冷燕", "铁胡子", "夜猫子", "破空", "冯浩", "孙剑", "萧安", "子興", "王强", "无名", "叶翔", "小何", "凤凤", "石群", "屠城", "范旋", "高老大", "孙玉伯", "律香川"};
     public static MeteorInput GMeteorInput = null;
 	public static Level GLevelItem = null;
-    public static LevelMode GLevelMode;
+    public static LevelMode GLevelMode;//建立房间时选择的类型，从主界面进，都是Normal
+    public static GameMode GGameMode;//游戏玩法类型
     public static Vector3[] GLevelSpawn;
     public static Vector3[] GCampASpawn;
     public static Vector3[] GCampBSpawn;
@@ -17,6 +18,7 @@ public class Global
     public static int CampBSpawnIndex;
     public static int SpawnIndex;
     public static LevelScriptBase GScript;
+    public static Type GScriptType;
     public static System.Random Rand = new System.Random((int)DateTime.Now.ToFileTime());
 	static bool mPauseAll ;
     public static bool PauseAll

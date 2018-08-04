@@ -262,8 +262,8 @@ public class WsGlobal {
                                 if (co != null)
                                 {
                                     co.enabled = false;
-                                    //co.convex = true;
-                                    //co.isTrigger = true;
+                                    co.convex = false;
+                                    co.isTrigger = false;
                                 }
                             }
                         }
@@ -480,8 +480,8 @@ public class WsGlobal {
                                     if (mec != null)
                                     {
                                         mec.enabled = false;
-                                        //mec.convex = true;
-                                        //mec.isTrigger = true;
+                                        mec.convex = false;//unity bug
+                                        mec.isTrigger = false;
                                     }
                                 }
                             }

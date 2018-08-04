@@ -118,33 +118,41 @@ class SceneMng
         LuaFunction OnStart = ScriptMng.ins.GetFunc("OnStart");
         onInit.call(unit.InstanceId);
         unit.SetGround(false);
-        if (Global.GLevelMode == LevelMode.Normal)
+        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
             unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
             unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
         }
-        else if (Global.GLevelMode == LevelMode.MENGZHU)
+        else if (Global.GLevelMode == LevelMode.MultiplyPlayer)
         {
-            //16个点
-            unit.transform.position = Global.GLevelSpawn[Global.SpawnIndex];
-            Global.SpawnIndex++;
-            Global.SpawnIndex %= 16;
-            unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
-        }
-        else if (Global.GLevelMode == LevelMode.ANSHA || Global.GLevelMode == LevelMode.SIDOU)
-        {
-            //2个队伍8个点.
-            if (unit.Camp == EUnitCamp.EUC_FRIEND)
+            if (Global.GGameMode == GameMode.Normal)
             {
-                unit.transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
-                Global.CampASpawnIndex++;
-                Global.CampASpawnIndex %= 8;
+                unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
             }
-            else if (unit.Camp == EUnitCamp.EUC_ENEMY)
+            else if (Global.GGameMode == GameMode.MENGZHU)
             {
-                unit.transform.position = Global.GCampASpawn[Global.CampBSpawnIndex];
-                Global.CampBSpawnIndex++;
-                Global.CampBSpawnIndex %= 8;
+                //16个点
+                unit.transform.position = Global.GLevelSpawn[Global.SpawnIndex];
+                Global.SpawnIndex++;
+                Global.SpawnIndex %= 16;
+                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+            }
+            else if (Global.GGameMode == GameMode.ANSHA || Global.GGameMode == GameMode.SIDOU)
+            {
+                //2个队伍8个点.
+                if (unit.Camp == EUnitCamp.EUC_FRIEND)
+                {
+                    unit.transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
+                    Global.CampASpawnIndex++;
+                    Global.CampASpawnIndex %= 8;
+                }
+                else if (unit.Camp == EUnitCamp.EUC_ENEMY)
+                {
+                    unit.transform.position = Global.GCampASpawn[Global.CampBSpawnIndex];
+                    Global.CampBSpawnIndex++;
+                    Global.CampBSpawnIndex %= 8;
+                }
             }
         }
         

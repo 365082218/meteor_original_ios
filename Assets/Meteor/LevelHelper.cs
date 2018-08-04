@@ -74,6 +74,7 @@ public class LevelHelper : MonoBehaviour
         Type type = Type.GetType("LevelScript_" + sn);
         if (type == null)
             return null;
+        Global.GScriptType = type;
         return System.Activator.CreateInstance(type) as LevelScriptBase;
     }
 

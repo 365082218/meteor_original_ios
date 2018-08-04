@@ -83,33 +83,41 @@ public class U3D : MonoBehaviour {
         MeteorManager.Instance.OnGenerateUnit(unit);
         unit.SetGround(false);
 
-        if (Global.GLevelMode == LevelMode.Normal)
+        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
             unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
             unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
         }
-        else if (Global.GLevelMode == LevelMode.MENGZHU)
+        else if (Global.GLevelMode == LevelMode.MultiplyPlayer)
         {
-            //16个点
-            unit.transform.position = Global.GLevelSpawn[Global.SpawnIndex];
-            Global.SpawnIndex++;
-            Global.SpawnIndex %= 16;
-            unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
-        }
-        else if (Global.GLevelMode == LevelMode.ANSHA || Global.GLevelMode == LevelMode.SIDOU)
-        {
-            //2个队伍8个点.
-            if (unit.Camp == EUnitCamp.EUC_FRIEND)
+            if (Global.GGameMode == GameMode.Normal)
             {
-                unit.transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
-                Global.CampASpawnIndex++;
-                Global.CampASpawnIndex %= 8;
+                unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
             }
-            else if (unit.Camp == EUnitCamp.EUC_ENEMY)
+            else if (Global.GGameMode == GameMode.MENGZHU)
             {
-                unit.transform.position = Global.GCampASpawn[Global.CampBSpawnIndex];
-                Global.CampBSpawnIndex++;
-                Global.CampBSpawnIndex %= 8;
+                //16个点
+                unit.transform.position = Global.GLevelSpawn[Global.SpawnIndex];
+                Global.SpawnIndex++;
+                Global.SpawnIndex %= 16;
+                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+            }
+            else if (Global.GGameMode == GameMode.ANSHA || Global.GGameMode == GameMode.SIDOU)
+            {
+                //2个队伍8个点.
+                if (unit.Camp == EUnitCamp.EUC_FRIEND)
+                {
+                    unit.transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
+                    Global.CampASpawnIndex++;
+                    Global.CampASpawnIndex %= 8;
+                }
+                else if (unit.Camp == EUnitCamp.EUC_ENEMY)
+                {
+                    unit.transform.position = Global.GCampASpawn[Global.CampBSpawnIndex];
+                    Global.CampBSpawnIndex++;
+                    Global.CampBSpawnIndex %= 8;
+                }
             }
         }
 
@@ -164,33 +172,41 @@ public class U3D : MonoBehaviour {
         //LuaFunction OnStart = ScriptMng.ins.GetFunc("OnStart");
         //onInit.call(unit.InstanceId);
         unit.SetGround(false);
-        if (Global.GLevelMode == LevelMode.Normal)
+        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
             unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
             unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
         }
-        else if (Global.GLevelMode == LevelMode.MENGZHU)
+        else if (Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
-            //16个点
-            unit.transform.position = Global.GLevelSpawn[Global.SpawnIndex];
-            Global.SpawnIndex++;
-            Global.SpawnIndex %= 16;
-            unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
-        }
-        else if (Global.GLevelMode == LevelMode.ANSHA || Global.GLevelMode == LevelMode.SIDOU)
-        {
-            //2个队伍8个点.
-            if (unit.Camp == EUnitCamp.EUC_FRIEND)
+            if (Global.GGameMode == GameMode.Normal)
             {
-                unit.transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
-                Global.CampASpawnIndex++;
-                Global.CampASpawnIndex %= 8;
+                unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
             }
-            else if (unit.Camp == EUnitCamp.EUC_ENEMY)
+            else if (Global.GGameMode == GameMode.MENGZHU)
             {
-                unit.transform.position = Global.GCampASpawn[Global.CampBSpawnIndex];
-                Global.CampBSpawnIndex++;
-                Global.CampBSpawnIndex %= 8;
+                //16个点
+                unit.transform.position = Global.GLevelSpawn[Global.SpawnIndex];
+                Global.SpawnIndex++;
+                Global.SpawnIndex %= 16;
+                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+            }
+            else if (Global.GGameMode == GameMode.ANSHA || Global.GGameMode == GameMode.SIDOU)
+            {
+                //2个队伍8个点.
+                if (unit.Camp == EUnitCamp.EUC_FRIEND)
+                {
+                    unit.transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
+                    Global.CampASpawnIndex++;
+                    Global.CampASpawnIndex %= 8;
+                }
+                else if (unit.Camp == EUnitCamp.EUC_ENEMY)
+                {
+                    unit.transform.position = Global.GCampASpawn[Global.CampBSpawnIndex];
+                    Global.CampBSpawnIndex++;
+                    Global.CampBSpawnIndex %= 8;
+                }
             }
         }
         //OnStart.call();
@@ -635,12 +651,12 @@ public class U3D : MonoBehaviour {
         //}
     }
 
-    public static void LoadLevel(int id, LevelMode mode)
+    public static void LoadLevel(int id, LevelMode levelmode, GameMode gamemode)
     {
-        LoadLevel(id, LoadingWnd.Instance, mode);
+        LoadLevel(id, LoadingWnd.Instance, levelmode, gamemode);
     }
 
-    public static void LoadLevel(int id, LoadingUI loading, LevelMode mode)
+    public static void LoadLevel(int id, LoadingUI loading, LevelMode levelmode, GameMode gamemode)
     {
         uint profileTotalAllocate = Profiler.GetTotalAllocatedMemory();
         uint profileTotalReserved = Profiler.GetTotalReservedMemory();
@@ -661,7 +677,8 @@ public class U3D : MonoBehaviour {
         WSLog.LogInfo("ClearLevelData");
         Level lev = LevelMng.Instance.GetItem(id);
         Global.GLevelItem = lev;
-        Global.GLevelMode = mode;
+        Global.GLevelMode = levelmode;
+        Global.GGameMode = gamemode;
         WSLog.LogInfo("Global.GLevelItem = lev;");
         LoadingWnd.Instance.Open();
         WSLog.LogInfo("LoadingWnd.Instance.Open();");
@@ -919,31 +936,43 @@ public class U3D : MonoBehaviour {
 
     }
 
-    static MeteorUnit GetTeamLeader(EUnitCamp camp)
+    public static MeteorUnit GetTeamLeader(EUnitCamp camp)
     {
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        if (camp == EUnitCamp.EUC_FRIEND)
+            return MeteorManager.Instance.LocalPlayer;
+        else if (camp == EUnitCamp.EUC_ENEMY)
         {
-            if (MeteorManager.Instance.UnitInfos[i].Camp == camp)
-                return MeteorManager.Instance.UnitInfos[i];
+            int hpMax = 0;
+            MeteorUnit ret = null;
+            for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+            {
+                if (MeteorManager.Instance.UnitInfos[i].Camp == camp)
+                {
+                    if (ret != null)
+                    {
+                        if (hpMax < MeteorManager.Instance.UnitInfos[i].Attr.HpMax)
+                        {
+                            hpMax = MeteorManager.Instance.UnitInfos[i].Attr.HpMax;
+                            ret = MeteorManager.Instance.UnitInfos[i];
+                        }
+                    }
+                    return ret;
+                }
+            }
+        }
+        else
+        {
+            Debug.LogError("other camp has no vip");
         }
         return null;
     }
 
-    
-    static bool IsEnemyCamp(EUnitCamp camp1, EUnitCamp camp2)
-    {
-        if (camp1 == EUnitCamp.EUC_ENEMY && camp2 == EUnitCamp.EUC_FRIEND)
-            return true;
-        return false;
-    }
-
     static MeteorUnit GetEnemyTeamLeader(EUnitCamp camp)
     {
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
-        {
-            if (IsEnemyCamp(MeteorManager.Instance.UnitInfos[i].Camp, camp))
-                return MeteorManager.Instance.UnitInfos[i];
-        }
+        if (camp == EUnitCamp.EUC_ENEMY)
+            return GetTeamLeader(EUnitCamp.EUC_FRIEND);
+        else if (camp == EUnitCamp.EUC_FRIEND)
+            return GetTeamLeader(EUnitCamp.EUC_ENEMY);
         return null;
     }
 
@@ -1444,5 +1473,11 @@ public class U3D : MonoBehaviour {
             return true;
         }
         return false;
+    }
+
+    public static void UnlockLevel()
+    {
+        Level[] level = LevelMng.Instance.GetAllItem();
+        GameData.gameStatus.Level = level[level.Length - 1].ID;
     }
 }

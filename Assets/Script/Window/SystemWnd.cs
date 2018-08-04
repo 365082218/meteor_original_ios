@@ -125,15 +125,42 @@ public class NewSystemWnd : Window<NewSystemWnd>
         toggleEnableHighPerformance.isOn = GameData.gameStatus.TargetFrame == 60;
         toggleEnableHighPerformance.onValueChanged.AddListener(OnChangePerformance);
 
+        Toggle toggleEnableLog = Control("ShowLog").GetComponent<Toggle>();
+        toggleEnableLog.isOn = GameData.gameStatus.EnableLog;
+        toggleEnableLog.onValueChanged.AddListener(OnEnableLog);
+        OnEnableLog(toggleEnableLog.isOn);
+
+        Toggle toggleLevelDebug = Control("ShowLevelDebugButton").GetComponent<Toggle>();
+        toggleLevelDebug.isOn = GameData.gameStatus.LevelDebug;
+        toggleLevelDebug.onValueChanged.AddListener(OnLevelDebug);
+        OnLevelDebug(toggleLevelDebug.isOn);
+
         Control("ChangeV107").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("1.07"); });
         //Control("Ver108").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer(108); });
         Control("ChangeV907").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("9.07"); });
         Control("AppVerText").GetComponent<Text>().text = AppInfo.AppVersion();
         Control("MeteorVerText").GetComponent<Text>().text = AppInfo.MeteorVersion;
         Control("ChangeModel").GetComponent<Button>().onClick.AddListener(() => { ModelWnd.Instance.Open(); });
-
+        Control("UnlockAll").GetComponent<Button>().onClick.AddListener(() => { U3D.UnlockLevel(); });
+        
         InitLevel();
         mWindowStyle = WindowStyle.WS_Modal;
+    }
+
+    void OnEnableLog(bool toggle)
+    {
+        if (toggle)
+            WSDebug.Ins.OpenLogView();
+        else
+            WSDebug.Ins.CloseLogView();
+    }
+
+    void OnLevelDebug(bool toggle)
+    {
+        if (toggle)
+            Game.Instance.ShowDbg();
+        else
+            Game.Instance.CloseDbg();
     }
 
     void InitLevel()
@@ -163,7 +190,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
     {
         Close();
         GameBattleEx.Instance.Pause();
-        U3D.LoadLevel(levelId, LevelMode.ANSHA);
+        U3D.LoadLevel(levelId, LevelMode.MultiplyPlayer, GameMode.SIDOU);
     }
 
     void OnChangeVer(string ver)

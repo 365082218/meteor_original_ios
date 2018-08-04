@@ -246,7 +246,7 @@ public class Loader : MonoBehaviour {
                 //剧情模式出现
                 string[] subtype = type.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                 for (int t = 0; t < subtype.Length; t++)
-                    if (int.Parse(subtype[t]) == 6)
+                    if (int.Parse(subtype[t]) == (int)Global.GGameMode)
                     {
                         active = true;
                         break;

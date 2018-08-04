@@ -21,14 +21,27 @@ public class Game : MonoBehaviour {
     public EffectPoolManager EffectMng = null;
     public MeshMng MeshMng = null;
 
+
 #if !STRIP_DBG_SETTING
+    private GameObject DebugCanvas;
     void InitDebugSetting()
     {
-        GameObject DebugCanvas = GameObject.Instantiate(ResMng.LoadPrefab("DebugCanvas")) as GameObject;
+        DebugCanvas = GameObject.Instantiate(ResMng.LoadPrefab("DebugCanvas")) as GameObject;
         DebugCanvas.transform.SetParent(transform);
         DebugCanvas.transform.localScale = Vector3.one;
         DebugCanvas.transform.rotation = Quaternion.identity;
         DebugCanvas.transform.position = Vector3.zero;
+        DebugCanvas.SetActive(false);
+    }
+
+    public void ShowDbg()
+    {
+        DebugCanvas.SetActive(true);
+    }
+
+    public void CloseDbg()
+    {
+        DebugCanvas.SetActive(false);
     }
 #endif
 }

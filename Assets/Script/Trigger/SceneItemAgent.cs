@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 //using DG.Tweening;
 //damage为物件是否可以伤害玩家角色,需要des文件里带伤害值
 //damagevalue为物件是否可以被玩家伤害,并且每次伤害值是多少.
@@ -27,6 +28,8 @@ public class SceneItemAgent : MonoBehaviour {
     System.Reflection.MethodInfo MethodOnIdle;
     System.Func<int, int, int, int> OnAttackCallBack;
     System.Action<int, int> OnIdle;
+    System.Reflection.MethodInfo OnTouch;
+    bool syncTouched = false;
     float initializeY;
     bool billBoard = false;
     //场景初始化调用，或者爆出物品，待物品落地时调用
@@ -116,7 +119,7 @@ public class SceneItemAgent : MonoBehaviour {
         //场景上的模型物件捡取
         if (unit.Dead)
             return;
-        if (ItemInfo != null && root != null)
+        if (ItemInfo != null && ItemInfo.Type != 0 && root != null)
         {
             if (ItemInfo.IsWeapon())
             {
@@ -235,6 +238,21 @@ public class SceneItemAgent : MonoBehaviour {
                 if (asDrop)
                     GameObject.Destroy(gameObject);
             }
+        }
+        else
+        {
+            if (syncTouched)
+            {
+                
+            }
+            else
+            {
+                OnTouch = Global.GScriptType.GetMethod(name + "_OnTouch", BindingFlags.Instance | BindingFlags.NonPublic);
+                syncTouched = true;
+            }
+
+            if (OnTouch != null)
+                OnTouch.Invoke(Global.GScript, new object[] { 0, unit.InstanceId });
         }
     }
 
@@ -440,7 +458,12 @@ public class SceneItemAgent : MonoBehaviour {
                     {
                         MeshCollider c = co[q] as MeshCollider;
                         if (c != null)
+                        {
+                            bool enable = c.enabled;
                             c.convex = vv == 1;
+                            c.enabled = !enable;//重置碰撞体和角色碰撞的bug
+                            c.enabled = enable;
+                        }
                         co[q].isTrigger = vv == 0;
                         //co[q].enabled = vv == 1;
                     }
@@ -448,7 +471,21 @@ public class SceneItemAgent : MonoBehaviour {
                 }
                 else if (k == "blockplayer")
                 {
-
+                    GameObject obj = Global.ldaControlX(na, root.gameObject);
+                    if (v == "no")
+                    {
+                        Collider[] co = obj.GetComponentsInChildren<Collider>(true);
+                        for (int c = 0; c < co.Length; c++)
+                        {
+                            MeshCollider m = co[c] as MeshCollider;
+                            if (m != null)
+                            {
+                                m.convex = false;
+                                m.isTrigger = false;
+                            }
+                            co[c].enabled = false;
+                        }
+                    }
                 }
                 else if (k == "billboard")
                 {

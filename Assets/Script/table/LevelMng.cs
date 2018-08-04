@@ -18,13 +18,23 @@ public class WayPoint
     public Dictionary<int, WayLength> link;
 }
 
+//决定了入口是从单机任务来，还是开房间，进房间
 public enum LevelMode
 {
-    Normal,//单机关卡,以路点作为出生点,剧本关卡
-    MENGZHU,//时间限制回合，不分阵营
-    ANSHA,//分为蝴蝶和流星阵营`每一边人数一般都是8个才开始玩，暗杀有队长和队友，队长脚下有个圈圈，流星阵营是蓝的，蝴蝶阵营是红的，
+    SinglePlayerTask,//剧情任务
+    MultiplyPlayer,//联机-看GameMode
+}
+
+public enum GameMode
+{
+    None,//还未进入关卡.
+    MENGZHU = 1,//时间限制回合，不分阵营
+    Rob = 2,//劫镖
+    Defence = 3,//护城
+    ANSHA = 4,//分为蝴蝶和流星阵营`每一边人数一般都是8个才开始玩，暗杀有队长和队友，队长脚下有个圈圈，流星阵营是蓝的，蝴蝶阵营是红的，
     //杀死对方队长算胜利，队友死了队长可以复活队友，复活的对友血量只有一半，以地图上的流星蝴蝶阵营的位置为出生点
-    SIDOU,//分为蝴蝶和流星阵营，不分队长和队友，死了不能复活。杀死对方全部敌人才算胜利
+    SIDOU = 5,//分为蝴蝶和流星阵营，不分队长和队友，死了不能复活。杀死对方全部敌人才算胜利
+    Normal = 6,//单机关卡,以路点作为出生点,剧本关卡
 }
 
 [ProtoBuf.ProtoContract(ImplicitFields = ProtoBuf.ImplicitFields.AllFields)]
@@ -65,6 +75,7 @@ public class Level : ITableItem
     //4:死斗-胜利获得 失败失去 大量金钱 装备另外算
     //5:限制时长，游戏关卡
     //6:无尽
+    public int LevelType;
     public int Key() { return ID; }
     public string BgmName;
     public string BgTexture;

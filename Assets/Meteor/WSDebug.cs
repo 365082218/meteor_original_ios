@@ -52,8 +52,21 @@ public class WSDebug : MonoBehaviour {
             logView.enabled = logOpend;
     }
 
+    public void CloseLogView()
+    {
+        logOpend = false;
+        HiDebug.EnableOnText(logOpend);
+        HiDebug.EnableOnScreen(logOpend);
+        HiDebug.EnableDebuger(logOpend);
+        if (logView == null)
+            logView = FindObjectOfType<HiDebugView>();
+        if (logView != null)
+            logView.enabled = logOpend;
+    }
+
     public void OpenGUIDebug()
     {
+        gameObject.SetActive(true);
         if (GlobalDebuggableObjects.Count == 0)
         {
 #if !STRIP_LOGS
@@ -91,7 +104,7 @@ public class WSDebug : MonoBehaviour {
         return className;
     }
 
-    void CloseGUIDebug()
+    public void CloseGUIDebug()
     {
         ClearAllButtons(true, true);
         Opened = false;

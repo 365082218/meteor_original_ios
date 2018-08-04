@@ -81,6 +81,8 @@ public class GameState
     public string MeteorVersion;
     public int TargetFrame;//60-30
     public bool ShowWayPoint;//显示路点
+    public bool EnableLog;//HIDEBUG日志
+    public bool LevelDebug;//关卡内功能
 }
 
 public class GameData
