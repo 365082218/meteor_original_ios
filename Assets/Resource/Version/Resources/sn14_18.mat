@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: sn14_18
-  m_Shader: {fileID: 4800000, guid: 558817f5bfe6c61478e4fcc49cc61705, type: 3}
+  m_Shader: {fileID: 4800000, guid: 4385c525dac49c8488d2928d68ee97b4, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_CustomRenderQueue: -1
@@ -34,6 +34,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
+    - first:
+        name: _AlphaTimes
+      second: 1
+    - first:
+        name: _Reverse
+      second: 0
     - first:
         name: _deformrange
       second: 1.5

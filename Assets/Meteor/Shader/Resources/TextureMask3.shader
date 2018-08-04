@@ -3,19 +3,19 @@
 // - no lightmap support
 // - no per-material color
 
-Shader "TextureMask" {
+Shader "TextureMask3" {
 Properties {
 	_MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
 	_MaskTex("Alpha (RGB) Trans (A)", 2D) = "white" {}
 	_Color("Color", Color) = (1,1,1,1)
 		//变形动画部分
-	_deformsize("deformsize", Range(0, 10)) = 0.1//决定偏移的限度
-	_deformrange("deformrange", Range(0, 4)) = 1.5//波函数范围限定 1.5代表 PI为一个周期,X轴从0到这个值，对应的Y值，一起构成函数
-	_deformref("deformref", Vector) = (0,0,0,0)//决定哪些轴做变形动画
+	//_deformsize("deformsize", Range(0, 10)) = 0.1//决定偏移的限度
+	//_deformrange("deformrange", Range(0, 4)) = 1.5//波函数范围限定 1.5代表 PI为一个周期,X轴从0到这个值，对应的Y值，一起构成函数
+	//_deformref("deformref", Vector) = (0,0,0,0)//决定哪些轴做变形动画
 }
 
 SubShader {
-	Tags {"Queue"="AlphaTest" "IgnoreProjector"="True" "RenderType"="Transparent"}
+	Tags {"Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"}
 	//Tags{ "Queue" = "Geometry+50" "RenderType" = "Opaque" }
 	LOD 100
 	cull off Lighting Off
@@ -50,14 +50,14 @@ SubShader {
 			sampler2D _MaskTex;
 			float4 _MainTex_ST;
 			fixed4 _Color;
-			float _deformsize;
-			float _deformrange;
-			float4 _deformref;
+			//float _deformsize;
+			//float _deformrange;
+			//float4 _deformref;
 			v2f vert (appdata_t v)
 			{
 				v2f o;
 				//o.vertex = UnityObjectToClipPos(v.vertex);
-				v.vertex.xyz = mul((float3x3)unity_WorldToObject, v.vertex.xyz + _deformsize * _deformref * float3(sin(_deformrange * 3.14 * ((1 - v.texcoord.y) - 0.5f)) * _SinTime.w, sin(_deformrange * 3.14 * (1 - v.texcoord.y)) * _SinTime.w, sin(_deformrange * 3.14 * (1 - v.texcoord.y)) * _SinTime.w));
+				//v.vertex.xyz = mul((float3x3)unity_WorldToObject, v.vertex.xyz + _deformsize * _deformref * float3(sin(_deformrange * 3.14 * ((1 - v.texcoord.y) - 0.5f)) * _SinTime.w, sin(_deformrange * 3.14 * (1 - v.texcoord.y)) * _SinTime.w, sin(_deformrange * 3.14 * (1 - v.texcoord.y)) * _SinTime.w));
 				//v.normal = normalize(float3(v.normal.x + waveValueA, v.normal.y, v.normal.z));
 				o.vertex = UnityObjectToClipPos(v.vertex);
 				o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);

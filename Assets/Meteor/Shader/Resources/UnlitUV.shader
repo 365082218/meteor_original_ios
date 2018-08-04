@@ -12,7 +12,7 @@ Properties {
 }
 
 SubShader {
-	Tags { "Queue" = "Transparent-5" "IgnoreProjector"="True" "RenderType"="Transparent"}
+	Tags { "Queue" = "Transparent+5" "IgnoreProjector"="True" "RenderType"="Transparent"}
 	LOD 100
 	Cull Off Lighting Off
 		CGPROGRAM

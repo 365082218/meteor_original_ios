@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: sn14_15
-  m_Shader: {fileID: 4800000, guid: 556d7ded89ee1a149b27e12bd591a2b6, type: 3}
+  m_Shader: {fileID: 4800000, guid: ef621c64e7b2bba4ead3fdfbdaf32cde, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_CustomRenderQueue: -1
@@ -27,5 +27,41 @@ Material:
         m_Texture: {fileID: 2800000, guid: 0974475a783ab2d419a334e9048587af, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
-    m_Colors: []
+    - first:
+        name: _MaskTex
+      second:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
+    - first:
+        name: _AlphaTimes
+      second: 1
+    - first:
+        name: _Reverse
+      second: 0
+    - first:
+        name: _deformrange
+      second: 1.5
+    - first:
+        name: _deformsize
+      second: 0.1
+    - first:
+        name: _u
+      second: 0
+    - first:
+        name: _v
+      second: 0
+    m_Colors:
+    - first:
+        name: _Color
+      second: {r: 1, g: 1, b: 1, a: 1}
+    - first:
+        name: _TintColor
+      second: {r: 0.3897059, g: 0.3897059, b: 0.3897059, a: 1}
+    - first:
+        name: _deformref
+      second: {r: 0, g: 0, b: 0, a: 0}

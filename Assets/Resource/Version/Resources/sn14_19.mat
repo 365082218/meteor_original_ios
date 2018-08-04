@@ -46,7 +46,7 @@ Material:
     m_Colors:
     - first:
         name: _Color
-      second: {r: 0.7764706, g: 0.6509804, b: 0.6509804, a: 1}
+      second: {r: 1, g: 1, b: 1, a: 1}
     - first:
         name: _deformref
       second: {r: 0, g: 0, b: 0, a: 0}
