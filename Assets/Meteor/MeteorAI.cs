@@ -71,6 +71,7 @@ public enum EAISubStatus
     PatrolSubRotateInPlace,//原地随机旋转.
     PatrolSubRotateToTarget,//原地一定时间内旋转到指定方向
     PatrolSubGotoTarget,//跑向指定位置
+    KillThink,//思考是走近还是切换状态
     KillGetTarget,//离角色很近了，可以攻击
     KillGotoTarget,//离角色一定距离，需要先跑过去
     KillOnHurt,//被敌人击中
@@ -176,6 +177,9 @@ public class MeteorAI {
             //目标可能离开范围.
             if (owner.GetLockedTarget() == null)
             {
+                if (killTarget != null)
+                    fightTarget = killTarget;
+                else
                 if (lastAttacker != null)
                 {
                     fightTarget = lastAttacker;
@@ -204,6 +208,12 @@ public class MeteorAI {
                     ChangeState(EAIStatus.GetItem);
                     return;
                 }
+            }
+
+            if (killTarget != null)
+            {
+                ChangeState(EAIStatus.Kill);
+                return;
             }
 
             if (owner.GetLockedTarget() != null)
@@ -267,7 +277,11 @@ public class MeteorAI {
                 case EAIStatus.Kill:
                     switch (SubStatus)
                     {
+                        case EAISubStatus.KillThink:
+                            OnKillThink();
+                            break;
                         case EAISubStatus.KillGotoTarget:
+                        case EAISubStatus.FollowGotoTarget:
                             if (killTarget == null)
                                 killTarget = owner.GetLockedTarget();
                             if (killTarget != null)
@@ -285,6 +299,12 @@ public class MeteorAI {
                             break;
                         case EAISubStatus.KillOnHurt:
                             OnHurt();
+                            break;
+                        case EAISubStatus.FollowSubRotateToTarget:
+                            if (FollowRotateToTargetCoroutine == null)
+                            {
+                                FollowRotateToTargetCoroutine = owner.StartCoroutine(FollowRotateToTarget(FollowPath[targetIndex].pos));
+                            }
                             break;
                     }
                     break;
@@ -743,9 +763,9 @@ public class MeteorAI {
                             //如果可以曝气
                             if (owner.CanBurst())
                             {
-                                int burst = Random.Range(0, 100);
+                                int breakOut = Random.Range(0, 100);
                                 //20时，就为20几率，0-19 共20
-                                if (burst >= Mathf.Max(0, 100 - owner.Attr.Burst))
+                                if (breakOut <= Global.BreakChange)
                                     InputCorout = owner.StartCoroutine(VirtualKeyEvent(EKeyList.KL_BreakOut));
                             }
                         }
@@ -985,6 +1005,27 @@ public class MeteorAI {
         AIFollowRefresh = 0.0f;
     }
 
+    void OnKillThink()
+    {
+        if (killTarget == null || killTarget.Dead)
+        {
+            ChangeState(EAIStatus.Wait);
+            return;
+        }
+
+        Vector3 vec = killTarget.mPos;
+        vec.y = 0;
+        Vector3 vec2 = owner.mPos;
+        vec2.y = 0;
+        if (Vector3.Distance(killTarget.mPos, owner.mPos) >= Global.AttackRange)
+        {
+            SubStatus = EAISubStatus.KillGotoTarget;
+            return;
+        }
+
+        SubStatus = EAISubStatus.KillGetTarget;
+    }
+
     void MovetoTarget(MeteorUnit target)
     {
         float dis = 0.0f;
@@ -1075,7 +1116,10 @@ public class MeteorAI {
     //已经距离该角色很近了.开始打架
     public void KillTarget(MeteorUnit target)
     {
-
+        owner.SetLockedTarget(target);
+        fightTarget = target;
+        ChangeState(EAIStatus.Fight);
+        SubStatus = EAISubStatus.FightThink;
     }
 
     public void FollowTarget(int target)
@@ -1195,8 +1239,8 @@ public class MeteorAI {
         ResetAIKey();
         if (type == EAIStatus.Kill)
         {
-            Debug.Log("changestatus:kill");
-            SubStatus = EAISubStatus.KillGotoTarget;
+            //Debug.Log("changestatus:kill");
+            SubStatus = EAISubStatus.KillThink;
             //killTarget = owner.GetLockedTarget();
         }
         else if (type == EAIStatus.GotoPatrol)

@@ -458,6 +458,8 @@ public class SFXLoader :Singleton<SFXLoader>{
     //一些环境特效，例如风之类的音效.
     public SFXEffectPlay PlayEffect(string file, GameObject obj, bool once = false)
     {
+        if (file.ToLower() == "fronthit" || file.ToLower() == "fronthit.ef")
+            Debug.DebugBreak();
         if (!EffectList.ContainsKey(file))
         {
             SfxFile f = new SfxFile();

@@ -177,7 +177,7 @@ public class U3D : MonoBehaviour {
             unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
             unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
         }
-        else if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+        else if (Global.GLevelMode == LevelMode.MultiplyPlayer)
         {
             if (Global.GGameMode == GameMode.Normal)
             {
@@ -1276,7 +1276,7 @@ public class U3D : MonoBehaviour {
             if (target != null)
                 MeteorManager.Instance.LocalPlayer.FaceToTarget(target);
         }
-        Debug.Log("PlayerPerform(string act, int param):" + "act:" + act + " param:" + param);
+        //Debug.Log("PlayerPerform(string act, int param):" + "act:" + act + " param:" + param);
         return 0;
     }
     public static int PlayerPerform(string act, string content)

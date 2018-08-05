@@ -83,6 +83,7 @@ public class CameraFollow : MonoBehaviour {
         }
     }
 
+    public bool Smooth = true;
     public void ForceUpdate()
     {
         LateUpdate();
@@ -91,7 +92,7 @@ public class CameraFollow : MonoBehaviour {
     void LateUpdate()
     {
         if (MeteorManager.Instance.LocalPlayer != null && !Global.PauseAll)
-            CameraSmoothFollow();
+            CameraSmoothFollow(Smooth);
     }
 
     //为真则下一帧摄像机要看向目标.
@@ -239,11 +240,13 @@ public class CameraFollow : MonoBehaviour {
             {
                 Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                 transform.rotation = Quaternion.Slerp(transform.rotation, to, RotateIntensity * Time.deltaTime);
+                transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
             }
             else
             {
                 Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                 transform.rotation = to;//看向b骨骼顶部25码处
+                transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
             }
 
         }
@@ -332,6 +335,7 @@ public class CameraFollow : MonoBehaviour {
                 //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                 //transform.rotation = to;
                 transform.LookAt(cameraLookAt);
+                transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
                 Unlocked = false;
                 return;
             }
@@ -344,6 +348,7 @@ public class CameraFollow : MonoBehaviour {
                     //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                     //transform.rotation = to;
                     transform.LookAt(cameraLookAt);
+                    transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
                     Unlocked = false;
                     return;
                 }
@@ -360,6 +365,7 @@ public class CameraFollow : MonoBehaviour {
                     //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                     //transform.rotation = to;
                     transform.LookAt(cameraLookAt);
+                    transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
                     return;
                 }
             }

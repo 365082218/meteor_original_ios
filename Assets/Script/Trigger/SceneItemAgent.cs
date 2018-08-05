@@ -383,18 +383,22 @@ public class SceneItemAgent : MonoBehaviour {
             for (int i = 0; i < fIns.SceneItems.Count; i++)
                 LoadCustom(fIns.SceneItems[i].name, fIns.SceneItems[i].custom);
 
-            if (name.StartsWith("D_Item") || name.StartsWith("D_RJug") || name.StartsWith("D_itRJug") || name.StartsWith("D_BBox") ||
-                name.StartsWith("D_BBBox") || name.StartsWith("D_Box"))
+            //雪人不能合并材质，不然没法动画
+            if (Global.GLevelItem.Scene != "Meteor_21")
             {
-                if (root != null)
+                if (name.StartsWith("D_Item") || name.StartsWith("D_RJug") || name.StartsWith("D_itRJug") || name.StartsWith("D_BBox") ||
+                    name.StartsWith("D_BBBox") || name.StartsWith("D_Box"))
                 {
-                    CombineChildren combine = root.gameObject.AddComponent<CombineChildren>();
-                    combine.generateTriangleStrips = false;
-                }
-                else
-                {
-                    CombineChildren combine = gameObject.AddComponent<CombineChildren>();
-                    combine.generateTriangleStrips = false;
+                    if (root != null)
+                    {
+                        CombineChildren combine = root.gameObject.AddComponent<CombineChildren>();
+                        combine.generateTriangleStrips = false;
+                    }
+                    else
+                    {
+                        CombineChildren combine = gameObject.AddComponent<CombineChildren>();
+                        combine.generateTriangleStrips = false;
+                    }
                 }
             }
 
@@ -406,11 +410,6 @@ public class SceneItemAgent : MonoBehaviour {
             {
                 Destroy(player);
                 player = null;
-            }
-            else
-            {
-                //合并FMC子物件动画为顶点动画
-                player.CombineMesh();
             }
         }
     }
@@ -709,13 +708,15 @@ public class SceneItemAgent : MonoBehaviour {
     }
 
     //场景物件按照0点防御来算.
-    int CalcDamage(MeteorUnit attacker)
+    int CalcDamage(MeteorUnit attacker, AttackDes attack = null)
     {
         //(((武器攻击力 + buff攻击力) x 招式攻击力） / 100) - （敌方武器防御力 + 敌方buff防御力） / 10
         //你的攻击力，和我的防御力之间的计算
         //attacker.damage.PoseIdx;
         int DefTmp = 0;
         AttackDes atk = attacker.CurrentDamage;
+        if (atk == null)
+            atk = attack;
         int WeaponDamage = attacker.CalcDamage();
         int PoseDamage = MenuResLoader.Instance.FindOpt(atk.PoseIdx, 3).second[0].flag[6];
         int BuffDamage = attacker.Attr.CalcBuffDamage();
@@ -723,9 +724,9 @@ public class SceneItemAgent : MonoBehaviour {
         return realDamage;
     }
 
-    public void OnDamage(MeteorUnit attacker)
+    public void OnDamage(MeteorUnit attacker, AttackDes attck = null)
     {
-        int realDamage = CalcDamage(attacker);
+        int realDamage = CalcDamage(attacker, attck);
         //非铁箱子， 木箱子，酒坛， 桌子 椅子的受击处理
         if (MethodOnAttack != null)
             MethodOnAttack.Invoke(GameBattleEx.Instance.Script, new object[] { InstanceId, attacker.InstanceId, realDamage });

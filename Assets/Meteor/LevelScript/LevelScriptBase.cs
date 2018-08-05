@@ -7066,292 +7066,293 @@ public class LevelScript_sn20 : LevelScriptBase
 }
 
 //圣诞夜
-//public class LevelScript_sn21 : LevelScriptBase
-//{
-//    int Rule = 2;
-//    int RoundTime = 30;
-//    int PlayerSpawn = 5;
-//    int PlayerSpawnDir = 90;
-//    int PlayerWeapon = 5;
-//    int PlayerWeapon2 = 0;
-//    public override int GetRule() { return Rule; }
-//    public override int GetRoundTime() { return RoundTime; }
-//    public override int GetPlayerSpawn() { return PlayerSpawn; }
-//    public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
-//    public override int GetPlayerWeapon() { return PlayerWeapon; }
-//    public override int GetPlayerWeapon2() { return PlayerWeapon2; }
-//    public override void Scene_OnInit()
-//    {
-//        InitBoxes(g_iNumBoxes);
-//        InitBBoxes(g_iNumBBoxes);
-//        InitChairs(g_iNumChairs);
-//        InitDeskes(g_iNumDeskes);
-//        InitJugs(g_iNumJugs);
-//        SetSceneItem("D_sn21st01", "name", "machine");
-//        SetSceneItem("D_sn21st01", "pose", 0, 0);
-//        SetSceneItem("D_sn21st01", "attribute", "collision", 0);
-//        SetSceneItem("D_sn21st01", "attribute", "interactive", 1);
-//        int i;
-//        string name = "";
-//        for (i = 5; i <= 103; i++)
-//        {
-//            MakeString(ref name, "D_Item", i);
-//            SetSceneItem(name, "attribute", "active", 0);
-//            SetSceneItem(name, "attribute", "interactive", 0);
-//        }
+public class LevelScript_sn21 : LevelScriptBase
+{
+    int Rule = 2;
+    int RoundTime = 30;
+    int PlayerSpawn = 5;
+    int PlayerSpawnDir = 90;
+    int PlayerWeapon = 5;
+    int PlayerWeapon2 = 0;
+    public override int GetRule() { return Rule; }
+    public override int GetRoundTime() { return RoundTime; }
+    public override int GetPlayerSpawn() { return PlayerSpawn; }
+    public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
+    public override int GetPlayerWeapon() { return PlayerWeapon; }
+    public override int GetPlayerWeapon2() { return PlayerWeapon2; }
+    public override void Scene_OnInit()
+    {
+        InitBoxes(g_iNumBoxes);
+        InitBBoxes(g_iNumBBoxes);
+        InitChairs(g_iNumChairs);
+        InitDeskes(g_iNumDeskes);
+        InitJugs(g_iNumJugs);
+        SetSceneItem("D_sn21st01", "name", "machine");
+        SetSceneItem("D_sn21st01", "pose", 0, 0);
+        SetSceneItem("D_sn21st01", "attribute", "collision", 0);
+        SetSceneItem("D_sn21st01", "attribute", "interactive", 1);
+        SetSceneItem("D_sn21st01", D_sn21st01_OnAttack, null);
+        int i;
+        string name = "";
+        for (i = 5; i <= 103; i++)
+        {
+            MakeString(ref name, "D_Item", i);
+            SetSceneItem(name, "attribute", "active", 0);
+            SetSceneItem(name, "attribute", "interactive", 0);
+        }
 
-//        SetScene("snow", 1);
-//        SetScene("snowdensity", 1000);
-//        SetScene("winddir", 50, 0, 0);
-//        SetScene("snowspeed", 20, 100);
-//        SetScene("snowsize", 5, 5);
+        SetScene("snow", 1);
+        SetScene("snowdensity", 1000);
+        SetScene("winddir", 50, 0, 0);
+        SetScene("snowspeed", 20, 100);
+        SetScene("snowsize", 5, 5);
 
-//        for (i = 1; i <= 136; i++)
-//        {
-//            MakeString(ref name, "D_start", i);
-//            SetSceneItem(name, "name", "machine");
-//        }
-//    }
+        for (i = 1; i <= 136; i++)
+        {
+            MakeString(ref name, "D_start", i);
+            SetSceneItem(name, "name", "machine");
+        }
+    }
 
-//    //public override void Scene_OnClose()
-//    //{
-//    //    //SetScene("snow", 0);
-//    //}
+    //public override void Scene_OnClose()
+    //{
+    //    //SetScene("snow", 0);
+    //}
 
-//    public int D_sn21st01_OnAttack(int id, int characterid, int damage)
-//    {
-//        int state = GetSceneItem(id, "state");
-//        if (state != 3)
-//        {
-//            return 0;
-//        }
-//        Output("rotate.....");
+    public int D_sn21st01_OnAttack(int id, int characterid, int damage)
+    {
+        int state = GetSceneItem(id, "state");
+        if (state != 3)
+        {
+            return 0;
+        }
+        Output("rotate.....");
 
-//        NetEvent(1);
-//        CreateEffect(id, "XStar");
-//        SetSceneItem(id, "pose", 1, 0);
-//        int i;
-//        string name = "";
-//        for (i = 5; i <= 103; i++)
-//        {
-//            MakeString(ref name, "D_Item", i);
-//            SetSceneItem(name, "attribute", "active", 1);
-//            SetSceneItem(name, "attribute", "interactive", 1);
-//        }
-//        NetEvent(0);
-//        return 1;
-//    }
-//    /*
-//	PScript file for box Items of all scenes
-//		by Peter Pon 2002/09/26
+        NetEvent(1);
+        CreateEffect(id, "XStar");
+        SetSceneItem(id, "pose", 1, 0);
+        int i;
+        string name = "";
+        for (i = 5; i <= 103; i++)
+        {
+            MakeString(ref name, "D_Item", i);
+            SetSceneItem(name, "attribute", "active", 1);
+            SetSceneItem(name, "attribute", "interactive", 1);
+        }
+        NetEvent(0);
+        return 1;
+    }
+    /*
+	PScript file for box Items of all scenes
+		by Peter Pon 2002/09/26
 
-//	message handle for 60 Boxes &
-//	message handle for 60 BBoxes
-//*/
+	message handle for 60 Boxes &
+	message handle for 60 BBoxes
+*/
 
-//    //int g_iNumBoxes = 65;
-//    int []g_iBoxHP;
-//    int []g_bBoxAlive;
+    //int g_iNumBoxes = 65;
+    int[] g_iBoxHP;
+    int[] g_bBoxAlive;
 
-//    //int g_iNumBBoxes = 60;
-//    int []g_iBBoxHP;
-//    int []g_bBBoxAlive;
+    //int g_iNumBBoxes = 60;
+    int[] g_iBBoxHP;
+    int[] g_bBBoxAlive;
 
-//    public override void InitBoxes(int num)
-//    {
-//        int i;
-//        string name = "";
-//        g_bBoxAlive = new int[g_iNumBoxes];
-//        g_iBoxHP = new int[g_iNumBoxes];
-//        for (i = 1; i <= num; i++)
-//        {
-//            g_bBoxAlive[i - 1] = 1;
-//            g_iBoxHP[i - 1] = g_iBoxMaxHP;
+    public override void InitBoxes(int num)
+    {
+        int i;
+        string name = "";
+        g_bBoxAlive = new int[g_iNumBoxes];
+        g_iBoxHP = new int[g_iNumBoxes];
+        for (i = 1; i <= num; i++)
+        {
+            g_bBoxAlive[i - 1] = 1;
+            g_iBoxHP[i - 1] = g_iBoxMaxHP;
 
-//            MakeString(ref name, "D_BBox", i);
-//            int id = GetSceneItem(name, "index");
-//            SetSceneItem(id, "name", "machine");
-//            SetSceneItem(id, "attribute", "collision", 1);
-//            SetSceneItem(id, "pose", 0, 0);
+            MakeString(ref name, "D_BBox", i);
+            int id = GetSceneItem(name, "index");
+            SetSceneItem(id, "name", "machine");
+            SetSceneItem(id, "attribute", "collision", 1);
+            SetSceneItem(id, "pose", 0, 0);
+            SetSceneItem(id, BoxOnAttack, BoxOnIdle);
+            MakeString(ref name, "D_itBBox", i);
+            SetSceneItem(name, "attribute", "active", 0);
+            SetSceneItem(name, "attribute", "interactive", 0);
 
-//            MakeString(ref name, "D_itBBox", i);
-//            SetSceneItem(name, "attribute", "active", 0);
-//            SetSceneItem(name, "attribute", "interactive", 0);
+            MakeString(ref name, "D_wpBBox", i);
+            SetSceneItem(name, "attribute", "active", 0);
+            SetSceneItem(name, "attribute", "interactive", 0);
+        }
+    }
 
-//            MakeString(ref name, "D_wpBBox", i);
-//            SetSceneItem(name, "attribute", "active", 0);
-//            SetSceneItem(name, "attribute", "interactive", 0);
-//        }
-//    }
+    public int BoxOnAttack(int id, int index, int damage)
+    {
+        g_iBoxHP[index - 1] = g_iBoxHP[index - 1] - damage;
+        if (g_iBoxHP[index - 1] > 0)
+        {
+            NetEvent(1);
+            //Output("effect:", id, "BoxHit");
+            SetSceneItem(id, "pose", 2, 0);
+            CreateEffect(id, "BoxHIT");
+            NetEvent(0);
+            return 0;
+        }
 
-//    public int BoxOnAttack(int id, int index, int damage)
-//    {
-//        g_iBoxHP[index - 1] = g_iBoxHP[index - 1] - damage;
-//        if (g_iBoxHP[index - 1] > 0)
-//        {
-//            NetEvent(1);
-//            //Output("effect:", id, "BoxHit");
-//            SetSceneItem(id, "pose", 2, 0);
-//            CreateEffect(id, "BoxHIT");
-//            NetEvent(0);
-//            return 0;
-//        }
+        string itemname = "";
+        string weaponname = "";
+        MakeString(ref itemname, "D_itBBox", index);
+        MakeString(ref weaponname, "D_wpBBox", index);
 
-//        string itemname = "";
-//        string weaponname = "";
-//        MakeString(ref itemname, "D_itBBox", index);
-//        MakeString(ref weaponname, "D_wpBBox", index);
+        NetEvent(1);
 
-//        NetEvent(1);
+        if (index < 5)
+        {
+            CreateEffect(id, "XSnowMan");
+        }
+        else
+        {
+            CreateEffect(id, "BoxBRK");
+        }
 
-//        if (index < 5)
-//        {
-//            CreateEffect(id, "XSnowMan");
-//        }
-//        else
-//        {
-//            CreateEffect(id, "BoxBRK");
-//        }
+        SetSceneItem(id, "pose", 1, 0);
+        SetSceneItem(id, "attribute", "interactive", 0);
+        SetSceneItem(id, "attribute", "collision", 0);
+        SetSceneItem(itemname, "attribute", "active", 1);
+        SetSceneItem(itemname, "attribute", "interactive", 1);
+        SetSceneItem(weaponname, "attribute", "active", 1);
+        SetSceneItem(weaponname, "attribute", "interactive", 1);
+        NetEvent(0);
 
-//        SetSceneItem(id, "pose", 1, 0);
-//        SetSceneItem(id, "attribute", "interactive", 0);
-//        SetSceneItem(id, "attribute", "collision", 0);
-//        SetSceneItem(itemname, "attribute", "active", 1);
-//        SetSceneItem(itemname, "attribute", "interactive", 1);
-//        SetSceneItem(weaponname, "attribute", "active", 1);
-//        SetSceneItem(weaponname, "attribute", "interactive", 1);
-//        NetEvent(0);
+        return 1;
+    }
 
-//        return 1;
-//    }
+    public int RemoveBox(int id)
+    {
+        int state;
+        int pose;
 
-//    public int RemoveBox(int id)
-//    {
-//        int state;
-//        int pose;
+        pose = GetSceneItem(id, "pose");
+        if (pose == 0 || pose == 2)
+        {
+            return 0;
+        }
 
-//        pose = GetSceneItem(id, "pose");
-//        if (pose == 0 || pose == 2)
-//        {
-//            return 0;
-//        }
+        state = GetSceneItem(id, "state");
+        if (state != 3)
+        {
+            return 0;
+        }
 
-//        state = GetSceneItem(id, "state");
-//        if (state != 3)
-//        {
-//            return 0;
-//        }
+        NetEvent(1);
+        SetSceneItem(id, "attribute", "active", 0);
+        NetEvent(0);
+        Output("remove item", id);
+        return 1;
+    }
 
-//        NetEvent(1);
-//        SetSceneItem(id, "attribute", "active", 0);
-//        NetEvent(0);
-//        Output("remove item", id);
-//        return 1;
-//    }
+    public void BoxOnIdle(int id, int index)
+    {
+        if (g_bBoxAlive[index - 1] == 1)
+        {
+            if (RemoveBox(id) == 1)
+            {
+                g_bBoxAlive[index - 1] = 0;
+            }
+        }
+    }
 
-//    public void BoxOnIdle(int id, int index)
-//    {
-//        if (g_bBoxAlive[index - 1] == 1)
-//        {
-//            if (RemoveBox(id) == 1)
-//            {
-//                g_bBoxAlive[index - 1] = 0;
-//            }
-//        }
-//    }
+    public override void InitBBoxes(int num)
+    {
+        int i;
+        string name = "";
+        g_bBBoxAlive = new int[g_iNumBBoxes];
+        g_iBBoxHP = new int[g_iNumBBoxes];
+        for (i = 1; i <= num; i++)
+        {
+            g_bBBoxAlive[i - 1] = 1;
+            g_iBBoxHP[i - 1] = g_iBBoxMaxHP;
 
-//    public override void InitBBoxes(int num)
-//    {
-//        int i;
-//        string name = "";
-//        g_bBBoxAlive = new int[g_iNumBBoxes];
-//        g_iBBoxHP = new int[g_iNumBBoxes];
-//        for (i = 1; i <= num; i++)
-//        {
-//            g_bBBoxAlive[i - 1] = 1;
-//            g_iBBoxHP[i - 1] = g_iBBoxMaxHP;
+            MakeString(ref name, "D_BBBox", i);
+            int id = GetSceneItem(name, "index");
+            SetSceneItem(id, "name", "machine");
+            SetSceneItem(id, "attribute", "collision", 1);
+            SetSceneItem(id, "pose", 0, 0);
 
-//            MakeString(ref name, "D_BBBox", i);
-//            int id = GetSceneItem(name, "index");
-//            SetSceneItem(id, "name", "machine");
-//            SetSceneItem(id, "attribute", "collision", 1);
-//            SetSceneItem(id, "pose", 0, 0);
+            MakeString(ref name, "D_itBBBox", i);
+            SetSceneItem(name, "attribute", "active", 0);
+            SetSceneItem(name, "attribute", "interactive", 0);
 
-//            MakeString(ref name, "D_itBBBox", i);
-//            SetSceneItem(name, "attribute", "active", 0);
-//            SetSceneItem(name, "attribute", "interactive", 0);
+            MakeString(ref name, "D_wpBBBox", i);
+            SetSceneItem(name, "attribute", "active", 0);
+            SetSceneItem(name, "attribute", "interactive", 0);
+        }
+    }
 
-//            MakeString(ref name, "D_wpBBBox", i);
-//            SetSceneItem(name, "attribute", "active", 0);
-//            SetSceneItem(name, "attribute", "interactive", 0);
-//        }
-//    }
+    public override int BBoxOnAttack(int id, int index, int damage)
+    {
+        g_iBBoxHP[index - 1] = g_iBBoxHP[index - 1] - damage;
+        if (g_iBBoxHP[index - 1] > 0)
+        {
+            NetEvent(1);
+            CreateEffect(id, "BoxHIT");
+            NetEvent(0);
+            return 0;
+        }
 
-//    public override int BBoxOnAttack(int id, int index, int damage)
-//    {
-//        g_iBBoxHP[index - 1] = g_iBBoxHP[index - 1] - damage;
-//        if (g_iBBoxHP[index - 1] > 0)
-//        {
-//            NetEvent(1);
-//            CreateEffect(id, "BoxHIT");
-//            NetEvent(0);
-//            return 0;
-//        }
+        string itemname = "";
+        string weaponname = "";
+        MakeString(ref itemname, "D_itBBBox", index);
+        MakeString(ref weaponname, "D_wpBBBox", index);
 
-//        string itemname = "";
-//        string weaponname = "";
-//        MakeString(ref itemname, "D_itBBBox", index);
-//        MakeString(ref weaponname, "D_wpBBBox", index);
+        NetEvent(1);
+        CreateEffect(id, "BoxBRK");
+        SetSceneItem(id, "pose", 1, 0);
+        SetSceneItem(id, "attribute", "interactive", 0);
+        SetSceneItem(id, "attribute", "collision", 0);
+        SetSceneItem(itemname, "attribute", "active", 1);
+        SetSceneItem(itemname, "attribute", "interactive", 1);
+        SetSceneItem(weaponname, "attribute", "active", 1);
+        SetSceneItem(weaponname, "attribute", "interactive", 1);
+        NetEvent(0);
 
-//        NetEvent(1);
-//        CreateEffect(id, "BoxBRK");
-//        SetSceneItem(id, "pose", 1, 0);
-//        SetSceneItem(id, "attribute", "interactive", 0);
-//        SetSceneItem(id, "attribute", "collision", 0);
-//        SetSceneItem(itemname, "attribute", "active", 1);
-//        SetSceneItem(itemname, "attribute", "interactive", 1);
-//        SetSceneItem(weaponname, "attribute", "active", 1);
-//        SetSceneItem(weaponname, "attribute", "interactive", 1);
-//        NetEvent(0);
+        return 1;
+    }
 
-//        return 1;
-//    }
+    public override int RemoveBBox(int id)
+    {
+        int state;
+        int pose;
 
-//    public override int RemoveBBox(int id)
-//    {
-//        int state;
-//        int pose;
+        pose = GetSceneItem(id, "pose");
+        if (pose == 0)
+        {
+            return 0;
+        }
 
-//        pose = GetSceneItem(id, "pose");
-//        if (pose == 0)
-//        {
-//            return 0;
-//        }
+        state = GetSceneItem(id, "state");
+        if (state != 3)
+        {
+            return 0;
+        }
 
-//        state = GetSceneItem(id, "state");
-//        if (state != 3)
-//        {
-//            return 0;
-//        }
+        NetEvent(1);
+        SetSceneItem(id, "attribute", "active", 0);
+        NetEvent(0);
+        Output("remove item", id);
+        return 1;
+    }
 
-//        NetEvent(1);
-//        SetSceneItem(id, "attribute", "active", 0);
-//        NetEvent(0);
-//        Output("remove item", id);
-//        return 1;
-//    }
-
-//    public override void BBoxOnIdle(int id, int index)
-//    {
-//        if (g_bBBoxAlive[index - 1] == 1)
-//        {
-//            if (RemoveBBox(id) == 1)
-//            {
-//                g_bBBoxAlive[index - 1] = 0;
-//            }
-//        }
-//    }
-//}
+    public override void BBoxOnIdle(int id, int index)
+    {
+        if (g_bBBoxAlive[index - 1] == 1)
+        {
+            if (RemoveBBox(id) == 1)
+            {
+                g_bBBoxAlive[index - 1] = 0;
+            }
+        }
+    }
+}
 
 //22-威震八方
 public class LevelScript_sn22 : LevelScriptBase
@@ -8031,11 +8032,11 @@ public class LevelScript_sn23 : LevelScriptBase
                 Perform(c1, "pause", 4);
                 Perform(c1, "block", 0);
                 Perform(c1, "say", "屠城屠大鹏");
-                Perform(c1, "pause", 2);
+                Perform(c1, "pause", 5);
                 Perform(c1, "aggress");
                 Perform(c1, "say", "你怎么知道那五人全是幌子，我才是真正来杀你的？");
-                Perform(c1, "pause", 3);
-                Perform(c1, "guard", 10);
+                Perform(c1, "pause", 2);
+                Perform(c1, "guard", 6);
                 Perform(c1, "block", 1);
 
                 //主角对白
@@ -8044,7 +8045,7 @@ public class LevelScript_sn23 : LevelScriptBase
                 PlayerPerform("say", "你们都是‘十二飞鹏帮’的人?");
                 PlayerPerform("pause", 4);
                 PlayerPerform("faceto", c1);
-                PlayerPerform("guard", 10);
+                PlayerPerform("guard", 6);
                 PlayerPerform("block", 1);
                 //罗江
                 Perform(c2, "block", 0);
@@ -8186,7 +8187,7 @@ public class LevelScript_sn23 : LevelScriptBase
                             Perform(c1, "pause", 1);
                             talked = 1;
                             if (skillgroup == 20)
-                                Perform(c1, "say", "没人能在我们的合力一击之下坚持那么久，看好了");
+                                Perform(c1, "say", "没人能在我们合力之下坚持那么久");
                             else
                                 Perform(c1, "say", "接招，合力一击");
                             delay += 1;
@@ -8198,7 +8199,7 @@ public class LevelScript_sn23 : LevelScriptBase
                             if (talked == 0)
                             {
                                 if (skillgroup == 20)
-                                    Perform(c2, "say", "没人能在我们的合力一击之下坚持那么久，看好了");
+                                    Perform(c2, "say", "没人能在我们合力之下坚持那么久");
                                 else
                                     Perform(c2, "say", "合力一击");
                                 talked = 1;
@@ -8213,7 +8214,7 @@ public class LevelScript_sn23 : LevelScriptBase
                             if (talked == 0)
                             {
                                 if (skillgroup == 20)
-                                    Perform(c3, "say", "没人能在我们的合力一击之下坚持那么久，看好了");
+                                    Perform(c3, "say", "没人能在我们合力之下坚持那么久");
                                 else
                                     Perform(c3, "say", "合力一击");
                                 talked = 1;
@@ -8228,7 +8229,7 @@ public class LevelScript_sn23 : LevelScriptBase
                             if (talked == 0)
                             {
                                 if (skillgroup == 20)
-                                    Perform(c4, "say", "没人能在我们的合力一击之下坚持那么久，看好了");
+                                    Perform(c4, "say", "没人能在我们合力之下坚持那么久");
                                 else
                                     Perform(c4, "say", "合力一击");
                                 talked = 1;

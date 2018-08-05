@@ -289,8 +289,8 @@ public partial class MeteorUnit : MonoBehaviour
         //        slot = i;
         //        k = slot;
         //        Vector3 ret = transform.position + Quaternion.AngleAxis(k * 30, Vector3.up) * (Vector3.forward * 50);
-                //SlotFreePos[slot].GetComponentInChildren<MeshRenderer>().material.color = Color.red;
-                //Debug.LogError(string.Format("{0}的位置{1}已经被{2}占用", name, slot, user.name));
+        //SlotFreePos[slot].GetComponentInChildren<MeshRenderer>().material.color = Color.red;
+        //Debug.LogError(string.Format("{0}的位置{1}已经被{2}占用", name, slot, user.name));
         //        return ret;
         //    }
         //}
@@ -301,7 +301,7 @@ public partial class MeteorUnit : MonoBehaviour
         //        continue;
         //    k = i;
         //    SlotInfo[i] = user;
-            
+
         //    break;
         //}
 
@@ -357,7 +357,7 @@ public partial class MeteorUnit : MonoBehaviour
     }
     //当前武器
     public int GetWeaponSubType() { return weaponLoader == null ? 0 : weaponLoader.WeaponSubType(); }
-    public int GetWeaponType(){ return weaponLoader == null ? -1 : weaponLoader.WeaponType();}
+    public int GetWeaponType() { return weaponLoader == null ? -1 : weaponLoader.WeaponType(); }
     public int GetGuardPose(int direction)
     {
         switch ((EquipWeaponType)GetWeaponType())
@@ -371,7 +371,7 @@ public partial class MeteorUnit : MonoBehaviour
                     return 58;
                 else if (direction == 3)
                     return 59;
-            break;
+                break;
             case EquipWeaponType.Sword:
                 if (direction == 0)
                     return 60;
@@ -381,7 +381,7 @@ public partial class MeteorUnit : MonoBehaviour
                     return 62;
                 else if (direction == 3)
                     return 63;
-            break;
+                break;
             case EquipWeaponType.Blade:
                 if (direction == 0)
                     return 68;
@@ -391,7 +391,7 @@ public partial class MeteorUnit : MonoBehaviour
                     return 70;
                 else if (direction == 3)
                     return 71;
-            break;
+                break;
             case EquipWeaponType.Lance:
                 if (direction == 0)
                     return 64;
@@ -401,7 +401,7 @@ public partial class MeteorUnit : MonoBehaviour
                     return 66;
                 else if (direction == 3)
                     return 67;
-            break;
+                break;
             case EquipWeaponType.Brahchthrust:
                 if (direction == 0)
                     return 52;
@@ -580,7 +580,7 @@ public partial class MeteorUnit : MonoBehaviour
     public bool HasBuff(int id)
     {
         return BuffMng.Instance.HasBuff(id, this);
-        
+
     }
     //查看角色是否拥有某个类型的BUF
     public bool HasBuff(EBUFF_Type type)
@@ -617,7 +617,7 @@ public partial class MeteorUnit : MonoBehaviour
         //rig.velocity;
     }
 
-    
+
     // Update is called once per frame
     void Update()
     {
@@ -825,6 +825,7 @@ public partial class MeteorUnit : MonoBehaviour
             }
         }
     }
+
 
     public void ProcessGravity()
     {

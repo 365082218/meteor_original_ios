@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: Item13_00
-  m_Shader: {fileID: 4800000, guid: 2323b97ae197d1d4db8e715c40aed57d, type: 3}
+  m_Shader: {fileID: 4800000, guid: 0e66a38520fa5384b9e38bdb27ba0753, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_CustomRenderQueue: -1
@@ -17,6 +17,12 @@ Material:
     m_TexEnvs:
     - first:
         name: _MainTex
+      second:
+        m_Texture: {fileID: 2800000, guid: c2fb80db08959824f9cddf80ec5fb825, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - first:
+        name: _MaskTex
       second:
         m_Texture: {fileID: 2800000, guid: 9532551b94db02d489635958066d1976, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -35,6 +41,9 @@ Material:
         name: _v
       second: 0
     m_Colors:
+    - first:
+        name: _Color
+      second: {r: 1, g: 1, b: 1, a: 1}
     - first:
         name: _TintColor
       second: {r: 1, g: 1, b: 1, a: 1}

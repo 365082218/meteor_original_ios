@@ -12,37 +12,37 @@ public class DamageRecord
 //飞镖飞行实现-Flight层
 public class DartLoader : MonoBehaviour {
     InventoryItem weapon;
-    public const float MaxDistance = 500.0f;
-    List<DamageRecord> rec = new List<DamageRecord>();
+    public const float MaxDistance = 5000;
+    //List<DamageRecord> rec = new List<DamageRecord>();
     // Use this for initialization
     private void Awake()
     {
         rig = GetComponent<Rigidbody>();
     }
-    void Start () {
+ //   void Start () {
 		
-	}
+	//}
 
     // Update is called once per frame
-    void Update()
-    {
-        for (int i = 0; i < rec.Count && i >= 0; i++)
-        {
-            rec[i].tick -= Time.deltaTime;
-            if (rec[i].tick <= 0.0f)
-            {
-                rec.RemoveAt(i);
-                i--;
-            }
-        }
-    }
+    //void Update()
+    //{
+        //for (int i = 0; i < rec.Count && i >= 0; i++)
+        //{
+        //    rec[i].tick -= Time.deltaTime;
+        //    if (rec[i].tick <= 0.0f)
+        //    {
+        //        rec.RemoveAt(i);
+        //        i--;
+        //    }
+        //}
+    //}
     
     AttackDes _attack;
     Vector3 _direction;
-    float _speed = 300.0f;//普通速度.
+    float _speed = 300.0f;//初始速度.
     float gspeed = 100.0f;//加速度.
     float maxLength = 800;//跑多远开始开启重力.
-    float maxDistance = 1500;//最远射程
+    float maxDistance = 5000;//最远射程
     Rigidbody rig;
     Coroutine fly;
 
@@ -101,6 +101,12 @@ public class DartLoader : MonoBehaviour {
     {
         if (other.transform.root.gameObject.layer == LayerMask.NameToLayer("Scene"))
         {
+            SceneItemAgent it = other.GetComponentInParent<SceneItemAgent>();
+            if (it != null)
+            {
+                Debug.Log("dart attack sceneitemagent");
+                it.OnDamage(owner, _attack);
+            }
             GameObject.Destroy(gameObject);
         }
         else
@@ -108,19 +114,17 @@ public class DartLoader : MonoBehaviour {
             MeteorUnit unit = other.GetComponentInParent<MeteorUnit>();
             if (unit == null)
                 return;
-            if (unit.Dead)
-                return;
             //同队忽略攻击
             if (unit.SameCamp(owner))
                 return;
-            if (rec.Find(m => m.target.Equals(unit)) != null)
-                return;
+            //if (rec.Find(m => m.target.Equals(unit)) != null)
+            //    return;
             //Debug.LogError("dart attack start");
             unit.OnAttack(owner, _attack);
-            DamageRecord record = new DamageRecord();
-            record.target = unit;
-            record.tick = 0.2f;
-            rec.Add(record);
+            //DamageRecord record = new DamageRecord();
+            //record.target = unit;
+            //record.tick = 0.2f;
+            //rec.Add(record);
             GameObject.Destroy(gameObject);
             //Debug.LogError("dart attack end");
         }

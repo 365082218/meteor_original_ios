@@ -9,7 +9,7 @@ public class WayMng : MonoBehaviour {
     {
         _Instance = this;
         wayPoints.Clear();
-        WayPoints [] points = GetComponentsInChildren<WayPoints>();
+        WayPoints [] points = GetComponentsInChildren<WayPoints>(true);
         for (int i = 0; i < points.Length; i++)
         {
             WayPoint wp = new WayPoint();

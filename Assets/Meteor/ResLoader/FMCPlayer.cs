@@ -151,12 +151,12 @@ public class FMCPlayer : MonoBehaviour {
         return state;
     }
 
-    GameObject MeshCombined;
-    MeshFilter mf;
-    MeshRenderer mr;
-    List<GameObject> mesh = new List<GameObject>();
-    public void CombineMesh()
-    {
+    //GameObject MeshCombined;
+    //MeshFilter mf;
+    //MeshRenderer mr;
+    //List<GameObject> mesh = new List<GameObject>();
+    //public void CombineMesh()
+    //{
 
         //合并使用同一个材质球得网格,大部分就是瓶瓶罐罐，木箱子铁箱子.
         //MeshRenderer[] renderers = transform.GetComponentsInChildren<MeshRenderer>();
@@ -175,14 +175,14 @@ public class FMCPlayer : MonoBehaviour {
         //MeshCombined.transform.localScale = Vector3.one;
         //mr = MeshCombined.AddComponent<MeshRenderer>();
         //mf = MeshCombined.AddComponent<MeshFilter>();
-    }
+    //}
 
-    void UpdateCombinedMesh()
-    {
+    //void UpdateCombinedMesh()
+    //{
         //for (int i = 0; i < mesh.Count; i++)
         //{
 
         //}
         //mf.sharedMesh;
-    }
+    //}
 }

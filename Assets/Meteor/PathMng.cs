@@ -173,7 +173,7 @@ public class PathMng:Singleton<PathMng>
                 //计算最短路径.从A-B，路径越少，越短，2边之和大于第3边
                 int target = end;
                 float tick = Time.timeSinceLevelLoad;
-                nextfind:
+                bool goOut = false;
                 while (true)
                 {
                     if (Time.timeSinceLevelLoad - tick > 10.0f)
@@ -182,12 +182,15 @@ public class PathMng:Singleton<PathMng>
                         Debug.DebugBreak();
                         break;
                     }
+
+                    bool find = false;
                     foreach (var each in PathInfo)
                     {
                         for (int i = 0; i < each.Value.Count; i++)
                         {
                             if (each.Value[i].wayPointIdx == target)
                             {
+                                find = true;
                                 if (path.Count == 0)
                                     path.Add(Global.GLevelItem.wayPoint[target]);
                                 else
@@ -195,14 +198,28 @@ public class PathMng:Singleton<PathMng>
                                 while (each.Value[i].parent != start)
                                 {
                                     target = each.Value[i].parent;
-                                    goto nextfind;
+                                    break;
                                 }
-                                goto exitfind;
+                                goOut = true;
+                                break;
                             }
                         }
                     }
+
+                    if (!find)
+                    {
+                        Debug.LogError(string.Format("孤立的寻路点:{0},没有点可以走向他", target));
+                        if (path.Count == 0)
+                            path.Add(Global.GLevelItem.wayPoint[target]);
+                        else
+                            path.Insert(0, Global.GLevelItem.wayPoint[target]);
+                        break;
+                    }
+
+                    if (goOut)
+                        break;
                 }
-                exitfind:path.Insert(0, Global.GLevelItem.wayPoint[start]);
+                path.Insert(0, Global.GLevelItem.wayPoint[start]);
             }
         }
         return path;
