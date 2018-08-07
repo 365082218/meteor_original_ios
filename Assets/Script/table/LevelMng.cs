@@ -81,6 +81,7 @@ public class Level : ITableItem
     public string BgTexture;
     public string Param;//通过参数
     public int Pass;//通关条件
+    public int DisableFindWay;//禁止寻路
 };
 
 public class LevelMng : TableManager<Level, LevelMng>

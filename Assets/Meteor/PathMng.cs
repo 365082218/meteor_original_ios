@@ -131,6 +131,15 @@ public class PathMng:Singleton<PathMng>
             path.Add(Global.GLevelItem.wayPoint[start]);
             return path;
         }
+
+        if (Global.GLevelItem.DisableFindWay == 1)
+        {
+            List<WayPoint> direct = new List<WayPoint>();
+            path.Add(Global.GLevelItem.wayPoint[start]);
+            path.Add(Global.GLevelItem.wayPoint[end]);
+            return path;
+        }
+
         //从开始点，跑到最终点，最短线路？
         if (Global.GLevelItem.wayPoint[start].link.ContainsKey(end))
         {
