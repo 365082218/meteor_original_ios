@@ -1,0 +1,22 @@
+
+newmtl sn15_28_sn1526.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn1526.JPG
+
+
+
+newmtl sn15_29_sn1527.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn1527.JPG
+
+

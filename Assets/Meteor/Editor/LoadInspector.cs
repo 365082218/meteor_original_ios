@@ -123,6 +123,11 @@ public class FixedTriggerInspector: Editor
         {
             myTarget.ChangePose(int.Parse(pos), 0);
         }
+
+        if (GUILayout.Button("LoadFile"))
+        {
+            myTarget.Init(myTarget.fmcFile);
+        }
     }
 }
 [CustomEditor(typeof(IFLLoader))]

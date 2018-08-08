@@ -1,0 +1,44 @@
+
+newmtl sn19_48_sn1928.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn1928.JPG
+
+
+
+newmtl sn19_39_sn1917.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn1917.JPG
+
+
+
+newmtl sn19_02_sn1908.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn1908.JPG
+
+
+
+newmtl sn19_01_sn1904.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn1904.JPG
+
+

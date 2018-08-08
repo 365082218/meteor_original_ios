@@ -1,0 +1,77 @@
+
+newmtl sn19_01_sn1904.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn1904.JPG
+
+
+
+newmtl sn19_39_sn1917.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn1917.JPG
+
+
+
+newmtl sn19_27_sn1903.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn1903.JPG
+
+
+
+newmtl sn19_02_sn1908.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn1908.JPG
+
+
+
+newmtl sn19_40_sn1916.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn1916.JPG
+
+
+
+newmtl sn19_42_sn1918.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn1918.JPG
+
+
+
+newmtl sn19_41_sn1919.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn1919.JPG
+
+

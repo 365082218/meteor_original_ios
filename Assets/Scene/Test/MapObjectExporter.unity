@@ -131,4 +131,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b51cc7bd12aaf04799a62ca6c863186, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MeteorPath: 
+  saveSceneModel: 0

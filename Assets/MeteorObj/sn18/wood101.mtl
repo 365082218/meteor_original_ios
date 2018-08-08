@@ -1,0 +1,33 @@
+
+newmtl sn18_37_hev7sousid.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd hev7sousid.jpg
+
+
+
+newmtl sn18_36_HEV7WOOD.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd HEV7WOOD.JPG
+
+
+
+newmtl sn18_38_HEV7WY.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd HEV7WY.JPG
+
+

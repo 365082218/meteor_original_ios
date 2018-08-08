@@ -1,0 +1,55 @@
+
+newmtl sn16_27_sn16g29.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn16g29.jpg
+
+
+
+newmtl sn16_26_sn16g28.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn16g28.jpg
+
+
+
+newmtl sn16_25_sn16g27.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn16g27.jpg
+
+
+
+newmtl sn16_28_sn16g30.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn16g30.jpg
+
+
+
+newmtl sn16_29_sn16g31.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn16g31.jpg
+
+

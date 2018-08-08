@@ -325,14 +325,13 @@ the appropriate menu item from "Custom->Export". Exported models are put in a fo
 "ExportedObj" in the root of your Unity-project. Textures should also be copied and placed in the
 same folder. */
 
-
-struct ObjMaterial
+internal struct ObjMaterial
 {
     public string name;
     public string textureName;
 }
 
-public class WorldtoLocalParam
+internal class WorldtoLocalParam
 {
     public Vector3 vec;
     public Quaternion rotation;
@@ -506,7 +505,7 @@ public class EditorObjExporter : ScriptableObject
         }
     }
 
-    private static void MeshToFile(MeshFilter mf, string folder, string filename)
+    public static void MeshToFile(MeshFilter mf, string folder, string filename)
     {
         Dictionary<string, ObjMaterial> materialList = PrepareFileWrite();
 
@@ -631,37 +630,7 @@ public class EditorObjExporter : ScriptableObject
             if (stripIndex >= 0)
                 filename = filename.Substring(stripIndex + 1).Trim();
 
-            //右手坐标系，需要先转换为左手坐标系
-            /* sn22.des.bytes
-             * Object P59
-                {
-                  Position: -1614.165 1240.299  3.027  (x, z, y) 这个是自身坐标系变换到世界坐标系，反过来就还原到自身坐标系(-x, -z, -y)
-                  Quaternion: -0.982 0.000 0.000 -0.191 ([0]作为u3d的w, -[1]作为x, -[3]作为y, [-2]作为z) 然后再取Quaternion.Inverse就可以由世界坐标系变换到自身坐标系
-                  TextureAnimation: 0 0.000 0.000
-                  Custom:
-                  {
-                  }
-                }
-
-            Object ian1633
-{
-  Position: -894.278 -2506.653 51.167
-  Quaternion: 0.000 0.000 0.000 1.000
-  TextureAnimation: 0 0.000 0.000
-  Custom:
-  {
-  }
-}
-             */
-            //Vector3 vecLocalToWorld = new Vector3(-894.278f, -2506.653f, 51.167f);
-            //Quaternion quatToWorld = new Quaternion(0f, 0f, 0f, 1f);
-
-            //Vector3 vecWorldToLocal = new Vector3(-vecLocalToWorld.x, -vecLocalToWorld.z, -vecLocalToWorld.y);
-            //Quaternion quat = new Quaternion(-quatToWorld.y, -quatToWorld.w, -quatToWorld.z, quatToWorld.x);
-            ////vecWorldToLocal, Quaternion.Inverse(quat)
-            //WorldtoLocalParam par = new WorldtoLocalParam();
-            //par.vec = vecWorldToLocal;
-            //par.rotation = Quaternion.Inverse(quat);
+            
             MeshesToFile(mf, targetFolder, filename);
 
 

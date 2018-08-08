@@ -23,6 +23,7 @@ FuBenID	Scene	Name	LevelType	sceneItems	BgmName	BgTexture	Pass	Param
 21	Meteor_06	四方阵	5	sn06	S5			
 22	Meteor_02	秦皇陵	5	sn02	S2			
 23	Meteor_23	韩棠-大决战	6	sn23	S11		1	
+25	Meteor_25	大往生	5	sn25	S11		1	
 								
 								
 								

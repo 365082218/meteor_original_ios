@@ -52,10 +52,11 @@ public class WayLoader:Singleton<WayLoader> {
                     wpeach.link.Add(int.Parse(eachline[0]), wayl);
                 }
             }
-            if (!wp.Contains(wpeach))
+            if (!wp.Contains(wpeach) && wayCount != 0)
                 wp.Add(wpeach);
         }
-        data.Add(key, wp);
+        if (wp.Count != 0)
+            data.Add(key, wp);
         return wp;
     }
 }

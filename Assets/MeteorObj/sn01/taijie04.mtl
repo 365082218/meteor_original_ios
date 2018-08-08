@@ -1,0 +1,33 @@
+
+newmtl sn01_08_sn01T-03.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn01T-03.jpg
+
+
+
+newmtl sn01_04_sn01wall.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn01wall.jpg
+
+
+
+newmtl sn01_00_sn01T-05.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn01T-05.jpg
+
+

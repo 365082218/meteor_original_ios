@@ -1,0 +1,22 @@
+
+newmtl sn07_09_sn07Z2.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn07Z2.jpg
+
+
+
+newmtl sn07_10_sn07qi.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn07qi.jpg
+
+

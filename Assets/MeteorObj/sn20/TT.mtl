@@ -1,0 +1,88 @@
+
+newmtl sn20_26_n20y07.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd n20y07.JPG
+
+
+
+newmtl sn20_27_n20y05.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd n20y05.JPG
+
+
+
+newmtl sn20_28_n20y06.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd n20y06.JPG
+
+
+
+newmtl sn20_29_n20y08.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd n20y08.JPG
+
+
+
+newmtl sn20_30_n20y01.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd n20y01.JPG
+
+
+
+newmtl sn20_31_n20y02.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd n20y02.JPG
+
+
+
+newmtl sn20_32_n20y03.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd n20y03.JPG
+
+
+
+newmtl sn20_33_n20y04.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd n20y04.JPG
+
+

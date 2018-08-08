@@ -1,0 +1,44 @@
+
+newmtl Stove01_00_sn12f05.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn12f05.JPG
+
+
+
+newmtl Stove01_02_SN12Q3.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd SN12Q3.jpg
+
+
+
+newmtl Stove01_03_SN12Q2.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd SN12Q2.jpg
+
+
+
+newmtl Stove01_01_sh12.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sh12.JPG
+
+

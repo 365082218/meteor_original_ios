@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using System.Collections;
 using CoClass;
 
+public enum SceneEvent
+{
+    EventEnter = 200,//进入传送门
+    EventExit = 201,//离开传送门
+    EventDeath = 202,//死亡事件
+}
+
 //负责战斗中相机的位置指定之类，主角色目标组作为摄像机 视锥体范围，参考Tank教程里的简单相机控制
 //负责战斗场景内位置间的寻路缓存
 public partial class GameBattleEx : MonoBehaviour {
@@ -380,10 +387,12 @@ public partial class GameBattleEx : MonoBehaviour {
     public LevelScriptBase Script { get { return lev_script; } }
     LevelScriptBase lev_script;
     System.Reflection.MethodInfo Scene_OnCharacterEvent;
+    System.Reflection.MethodInfo Scene_OnEvent;
     int EventDeath = 202;
     public void Init(Level lev, LevelScriptBase script)
     {
         Scene_OnCharacterEvent = Global.GScriptType.GetMethod("Scene_OnCharacterEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        Scene_OnEvent = Global.GScriptType.GetMethod("Scene_OnEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         lev_script = script;
         //updateFn = ScriptMng.ins.GetFunc("OnUpdate");
         if (script != null)
@@ -1145,6 +1154,12 @@ public partial class GameBattleEx : MonoBehaviour {
         }
 
         GameData.gameStatus.ShowWayPoint = on;
+    }
+
+    public void OnSceneEvent(SceneEvent evt, int unit, GameObject trigger)
+    {
+        if (Scene_OnEvent != null)
+            Scene_OnEvent.Invoke(Global.GScript, new object[] { trigger, unit, (int)evt});
     }
 }
 

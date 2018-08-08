@@ -1,0 +1,33 @@
+
+newmtl sn17_19_s17gsc68.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd s17gsc68.JPG
+
+
+
+newmtl sn17_21_s17gsc70.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd s17gsc70.JPG
+
+
+
+newmtl sn17_18_s17gsc71.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd s17gsc71.JPG
+
+

@@ -1,0 +1,22 @@
+
+newmtl sn12_01_sn12f.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn12f.jpg
+
+
+
+newmtl sn12_02_sn12f2.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn12f2.jpg
+
+

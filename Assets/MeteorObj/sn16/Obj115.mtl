@@ -1,0 +1,22 @@
+
+newmtl sn16_44_sn16g43.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn16g43.jpg
+
+
+
+newmtl sn16_45_sn16g42.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn16g42.jpg
+
+

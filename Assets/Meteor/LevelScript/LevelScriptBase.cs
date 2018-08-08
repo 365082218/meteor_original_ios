@@ -2,35 +2,36 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Idevgame.Util;
+using System.Linq;
 /*
 // 站在原地四處看
-    ChangeBehavior(g_self, "wait");
+ChangeBehavior(g_self, "wait");
 
-    // 站在原地不動
-    ChangeBehavior(g_self, "idle");
+// 站在原地不動
+ChangeBehavior(g_self, "idle");
 
-    // 到處亂跑
-    ChangeBehavior(g_self, "run");
+// 到處亂跑
+ChangeBehavior(g_self, "run");
 
-    // 在1、3、5...巡邏點移動
-    ChangeBehavior(g_self, "patrol", 1, 3, 5);
+// 在1、3、5...巡邏點移動
+ChangeBehavior(g_self, "patrol", 1, 3, 5);
 
-    // 跟在玩家身邊
-    ChangeBehavior(g_self, "follow", "player");
+// 跟在玩家身邊
+ChangeBehavior(g_self, "follow", "player");
 
-    // 跟在同隊VIP身邊
-    ChangeBehavior(g_self, "follow", "vip");
+// 跟在同隊VIP身邊
+ChangeBehavior(g_self, "follow", "vip");
 
-    // 跟在敵隊VIP身邊
-    ChangeBehavior(g_self, "follow", "enemyvip");
+// 跟在敵隊VIP身邊
+ChangeBehavior(g_self, "follow", "enemyvip");
 
-    // 跟在拿標物的人身邊
-    ChangeBehavior(g_self, "follow", "flag");
+// 跟在拿標物的人身邊
+ChangeBehavior(g_self, "follow", "flag");
 
-    // 跟在xxx身邊
-    ChangeBehavior(g_self, "follow", "xxx");
+// 跟在xxx身邊
+ChangeBehavior(g_self, "follow", "xxx");
 
-    */
+*/
 public class ScriptBase
 {
     public static int GameCallBack(string key, int Value)
@@ -8296,7 +8297,7 @@ public class LevelScript_sn24 : LevelScriptBase
     }
 }
 
-//金华城寻路测试.
+//往生幻境.
 public class LevelScript_sn25 : LevelScriptBase
 {
     public override int GetRule() { return Rule; }
@@ -8306,9 +8307,9 @@ public class LevelScript_sn25 : LevelScriptBase
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
-    int Rule = 4;
-    int RoundTime = 15;
-    int PlayerSpawn = 249;
+    int Rule = 5;
+    int RoundTime = 20;
+    int PlayerSpawn = 0;
     int PlayerSpawnDir = 90;
     int PlayerWeapon = 24;
     int PlayerWeapon2 = 14;
@@ -8323,10 +8324,14 @@ public class LevelScript_sn25 : LevelScriptBase
     int trg5 = 0;
     int timer0 = 0;
     int survivor = -1;
-
+    Dictionary<int, float> Trigger = new Dictionary<int, float>();
+    Dictionary<int, FixedPlatformCtrl> Platform = new Dictionary<int, FixedPlatformCtrl>();
+    const float fallTime = 3.0f;
     public override void OnStart()
     {
-        AddNPC("npc25_0");
+        //AddNPC("npc25_0");
+        //AddNPC("npc25_1");
+        //AddNPC("npc25_2");
     }
 
     public override int OnUpdate()
@@ -8342,167 +8347,50 @@ public class LevelScript_sn25 : LevelScriptBase
 
     public override void Scene_OnLoad()
     {
-        //int i;
-        //string name = "";
 
-        SetSceneItem("D_bridge01", "name", "machine");
-        SetSceneItem("D_bridge01", "attribute", "collision", 1);
-        SetSceneItem("D_bridge01", "attribute", "damagevalue", 300);
-
-        SetSceneItem("D_bridge02", "name", "machine");
-        SetSceneItem("D_bridge02", "attribute", "collision", 1);
-        SetSceneItem("D_bridge02", "attribute", "damagevalue", 300);
     }
 
     public override void Scene_OnInit()
     {
-        //int i;
-        //string name = "";
-
-        g_bBridge01Alive = 1;
-        g_iBridge01HP = g_iLevel13BridgeHP;
-        g_bBridge02Alive = 1;
-        g_iBridge02HP = g_iLevel13BridgeHP;
-
-        SetSceneItem("D_bridge01", "attribute", "active", 1);
-        SetSceneItem("D_bridge01", "attribute", "damage", 0);
-        SetSceneItem("D_bridge01", "pose", 0, 0);
-        SetSceneItem("D_bridge02", "attribute", "active", 1);
-        SetSceneItem("D_bridge02", "attribute", "damage", 0);
-        SetSceneItem("D_bridge02", "pose", 0, 0);
-
-        SetSceneItem("D_itbridge01", "attribute", "active", 0);
-        SetSceneItem("D_itbridge01", "attribute", "interactive", 0);
-        SetSceneItem("D_itbridge02", "attribute", "active", 0);
-        SetSceneItem("D_itbridge02", "attribute", "interactive", 0);
-
-        InitBoxes(g_iNumBoxes);
-        InitBBoxes(g_iNumBBoxes);
-        InitChairs(g_iNumChairs);
-        InitDeskes(g_iNumDeskes);
-        InitJugs(g_iNumJugs);
 
     }
 
-    public int D_bridge01_OnAttack(int id, int characterid, int damage)
+    List<int> k = new List<int>();
+    List<int> r = new List<int>();
+    public override int Scene_OnIdle()
     {
-        if (g_bBridge01Alive == 1)
+        k = Trigger.Keys.ToList();
+        for (int i = 0; i < k.Count; i++)
         {
-            g_iBridge01HP = g_iBridge01HP - damage;
-            Output("Bridge 01", g_iBridge01HP);
-            if (g_iBridge01HP <= 0)
-            {
-                int pose = GetSceneItem(id, "pose");
-                if (pose == 2)
-                {
-                    return 0;
-                }
-
-                NetEvent(1);
-                CreateEffect(id, "BridgBRK");
-                SetSceneItem(id, "pose", 2, 0);
-                SetSceneItem(id, "attribute", "damage", 1);
-                SetSceneItem("D_itbridge01", "attribute", "active", 1);
-                SetSceneItem("D_itbridge01", "attribute", "interactive", 1);
-                NetEvent(0);
-            }
-            else
-            {
-                int state = GetSceneItem(id, "state");
-                if (state == 3)
-                {
-                    NetEvent(1);
-                    CreateEffect(id, "BridgHIT");
-                    SetSceneItem(id, "pose", 1, 0);
-                    NetEvent(0);
-                }
-            }
+            Trigger[k[i]] -= Time.deltaTime;
+            if (Trigger[k[i]] < 0.0f)
+                r.Add(k[i]);
         }
+
+        for (int i = 0; i < r.Count; i++)
+        {
+            if (Platform[r[i]].fmcPlayer != null && Platform[r[i]].fmcPlayer.state == 3)
+                Platform[r[i]].fmcPlayer.ChangePose(2, 0);
+            Platform.Remove(r[i]);
+            Trigger.Remove(r[i]);
+        }
+
         return 1;
     }
 
-    public int D_bridge01_OnIdle(int id)
+    void Scene_OnEvent(GameObject trigger, int unit, int evt)
     {
-        if (g_bBridge01Alive == 1)
+        FixedPlatformCtrl tri = trigger.GetComponent<FixedPlatformCtrl>();
+        FMCPlayer p = tri.GetComponent<FMCPlayer>();
+        if (p.state == 0)
         {
-            int pose = GetSceneItem(id, "pose");
-            if (pose != 2)
-            {
-                return 0;
-            }
-            int state = GetSceneItem(id, "state");
-            if (state == 3)
-            {
-                g_bBridge01Alive = 0;
-                NetEvent(1);
-                SetSceneItem(id, "attribute", "damage", 0);
-                SetSceneItem(id, "attribute", "active", 0);
-                NetEvent(0);
-            }
+            p.ChangePose(1, 1);
+            if (!Trigger.ContainsKey(tri.Trigger))
+                Trigger.Add(tri.Trigger, fallTime);
+            if (!Platform.ContainsKey(tri.Trigger))
+                Platform.Add(tri.Trigger, tri);
         }
-        return 1;
     }
-
-    public int D_bridge02_OnAttack(int id, int characterid, int damage)
-    {
-        if (g_bBridge02Alive == 1)
-        {
-            g_iBridge02HP = g_iBridge02HP - damage;
-            Output("Bridge 02", g_iBridge02HP);
-            if (g_iBridge02HP <= 0)
-            {
-                int pose = GetSceneItem(id, "pose");
-                if (pose == 2)
-                {
-                    return 0;
-                }
-
-                NetEvent(1);
-                CreateEffect(id, "BridgBRK");
-                SetSceneItem(id, "pose", 2, 0);
-                SetSceneItem(id, "attribute", "damage", 1);
-                SetSceneItem("D_itbridge02", "attribute", "active", 1);
-                SetSceneItem("D_itbridge02", "attribute", "interactive", 1);
-                NetEvent(0);
-            }
-            else
-            {
-                int state = GetSceneItem(id, "state");
-                if (state == 3)
-                {
-                    NetEvent(1);
-                    CreateEffect(id, "BridgHIT");
-                    SetSceneItem(id, "pose", 1, 0);
-                    NetEvent(0);
-                }
-            }
-        }
-        return 1;
-    }
-
-    public int D_bridge02_OnIdle(int id)
-    {
-        if (g_bBridge02Alive == 1)
-        {
-            int pose = GetSceneItem(id, "pose");
-            if (pose != 2)
-            {
-                return 0;
-            }
-            int state = GetSceneItem(id, "state");
-            if (state == 3)
-            {
-                g_bBridge02Alive = 0;
-                NetEvent(1);
-                SetSceneItem(id, "attribute", "damage", 0);
-                SetSceneItem(id, "attribute", "active", 0);
-                NetEvent(0);
-            }
-        }
-        return 1;
-    }
-
-
 }
 
 public class LevelScript_sn26 : LevelScriptBase

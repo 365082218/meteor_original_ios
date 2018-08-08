@@ -39,8 +39,8 @@ ModelImporter:
     meshCompression: 0
     addColliders: 1
     importBlendShapes: 1
-    swapUVChannels: 0
-    generateSecondaryUV: 0
+    swapUVChannels: 1
+    generateSecondaryUV: 1
     useFileUnits: 1
     optimizeMeshForGPU: 1
     keepQuads: 0

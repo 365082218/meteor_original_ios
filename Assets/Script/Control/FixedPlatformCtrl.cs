@@ -3,28 +3,41 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 
+public enum PlatformType
+{
+
+    SN25WayNode,
+    SN25NpcPlatform,
+}
+
 public class FixedPlatformCtrl : MonoBehaviour {
-	public int PlatformIdx = 0;
-	private AnimationCurve curve;
-    List<MeteorUnit> unit = new List<MeteorUnit>();
-    Vector3 lastpos;
+	public int Trigger = 0;
+    [SerializeField] PlatformType Type;
+    [SerializeField] bool AllowShake = true;
+    [HideInInspector] private AnimationCurve curve = null;
+    public FMCPlayer fmcPlayer;
     private void Awake()
     {
-        
+        fmcPlayer = GetComponent<FMCPlayer>();
+        if (fmcPlayer != null && Type == PlatformType.SN25WayNode)
+        {
+            fmcPlayer.Init("sn09f01");
+            fmcPlayer.ChangePose(0, 0);
+        }
     }
 
-    private void Start()
+    public void Start()
     {
         hScale = 50;
-        if (curve == null)
+        if (AllowShake)
         {
             Keyframe[] ks = new Keyframe[2];
             ks[0] = new Keyframe(0, 0);
             ks[1] = new Keyframe(4, 2);
             curve = new AnimationCurve(ks);
+            curve.postWrapMode = WrapMode.PingPong;
+            curve.preWrapMode = WrapMode.PingPong;
         }
-        curve.postWrapMode = WrapMode.PingPong;
-        curve.preWrapMode = WrapMode.PingPong;
         initializeY = transform.position.y;
     }
 
@@ -38,13 +51,11 @@ public class FixedPlatformCtrl : MonoBehaviour {
 
     private void LateUpdate()
     {
-        float y = curve.Evaluate(Time.time);
-        lastpos = transform.position;
-        transform.position = new Vector3(transform.position.x, initializeY + hScale * y, transform.position.z);
-        Vector3 vdiff = transform.position - lastpos;
-        for (int i = 0; i < unit.Count; i++)
-            unit[i].charController.Move(vdiff);
-        lastpos = transform.position;
+        if (AllowShake)
+        {
+            float y = curve.Evaluate(Time.time);
+            transform.position = new Vector3(transform.position.x, initializeY + hScale * y, transform.position.z);
+        }
     }
 
     public void OnTriggerEnter(Collider other)
@@ -52,24 +63,10 @@ public class FixedPlatformCtrl : MonoBehaviour {
         MeteorUnit u = other.gameObject.GetComponent<MeteorUnit>();
         if (u != null)
         {
-            if (!unit.Contains(u))
-            {
-                if (u.Attr.IsPlayer)
-                    CameraFollow.Ins.Smooth = false;
-                unit.Add(u);
-            }
+            Debug.LogError("OnTrigger:" + Trigger);
+            if (GameBattleEx.Instance != null)
+                GameBattleEx.Instance.OnSceneEvent(SceneEvent.EventEnter, u.InstanceId, gameObject);
+            this.enabled = false;
         }
     }
-
-    public void OnTriggerExit(Collider other)
-    {
-        MeteorUnit target = other.gameObject.GetComponent<MeteorUnit>();
-        if (target != null && unit.Contains(target))
-        {
-            if (target.Attr.IsPlayer)
-                CameraFollow.Ins.Smooth = true;
-            unit.Remove(target);
-        }
-    }
-
 }

@@ -1,0 +1,33 @@
+
+newmtl sn19_71_sn1945.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn1945.jpg
+
+
+
+newmtl sn19_69_SN19SKY.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd SN19SKY.jpg
+
+
+
+newmtl sn19_70_SN19SKY2.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd SN19SKY2.jpg
+
+

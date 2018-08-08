@@ -1,0 +1,44 @@
+
+newmtl sn12_04_sn1205b.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn1205b.jpg
+
+
+
+newmtl sn12_06_Sn12NZ1.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd Sn12NZ1.jpg
+
+
+
+newmtl sn12_03_sn12w05a.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn12w05a.jpg
+
+
+
+newmtl sn12_07_SN12Z2.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd SN12Z2.jpg
+
+

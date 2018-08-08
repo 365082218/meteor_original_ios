@@ -1,0 +1,33 @@
+
+newmtl sn06_10_sn06zf.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn06zf.jpg
+
+
+
+newmtl sn06_11_sn06zhu3.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn06zhu3.jpg
+
+
+
+newmtl sn06_04_sn06zhu.jpg
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd sn06zhu.jpg
+
+

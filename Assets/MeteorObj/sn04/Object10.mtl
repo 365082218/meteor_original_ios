@@ -1,0 +1,22 @@
+
+newmtl sn04_39_lho01.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd lho01.JPG
+
+
+
+newmtl sn04_40_B1gsc08.JPG
+Ka  0.6 0.6 0.6
+Kd  0.6 0.6 0.6
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.0
+illum 2
+map_Kd B1gsc08.JPG
+
+
