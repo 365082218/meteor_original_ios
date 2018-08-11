@@ -17,6 +17,7 @@ public class MapObjectExporter : MonoBehaviour {
     //List<string> ModelInModel = new List<string>();
     private void Awake()
     {
+        return;//这段代码开开会生成所有地图的模型，并保存到项目（SavePath 、ItemSavePath ）内
         Level[] allLevel = LevelMng.Instance.GetAllItem();
         for (int i = 0; i < allLevel.Length; i++)
         {

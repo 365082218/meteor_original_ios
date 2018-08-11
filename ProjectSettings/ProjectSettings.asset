@@ -474,9 +474,20 @@ PlayerSettings:
   webGLUseWasm: 0
   webGLCompressionFormat: 1
   scriptingDefineSymbols:
-    1: BUILD_PC
+    1: BUILD_PC;RAVEN_COMPILED
     4: NOLOG
-    7: 
+    7: RAVEN_COMPILED
+    13: RAVEN_COMPILED
+    14: RAVEN_COMPILED
+    17: RAVEN_COMPILED
+    18: RAVEN_COMPILED
+    19: RAVEN_COMPILED
+    20: RAVEN_COMPILED
+    21: RAVEN_COMPILED
+    22: RAVEN_COMPILED
+    23: RAVEN_COMPILED
+    24: RAVEN_COMPILED
+    25: RAVEN_COMPILED
   platformArchitecture:
     iOS: 2
   scriptingBackend:

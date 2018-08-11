@@ -132,6 +132,15 @@ public class FMCPlayer : MonoBehaviour {
         }
     }
 
+    public void Init(TextAsset asset)
+    {
+        int i = asset.name.IndexOf('.');
+        fmcFile = asset.name.Substring(0, i);
+        frames = FMCLoader.Instance.Load(asset);
+        pose = FMCPose.LoadPose(fmcFile);
+        state = 1;
+    }
+
     public void Init(string file)
     {
         fmcFile = file;

@@ -15,7 +15,7 @@ Look = 60;
 Burst = 30;
 Aim = 90;
 GetItem = 0;
-Spawn = 1;
+Spawn = 3;
 HP = 1000;
 
 g_selfAddr = 0;

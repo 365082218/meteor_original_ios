@@ -1445,7 +1445,7 @@ public partial class MeteorUnit : MonoBehaviour
         bool Floating = false;
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene")))
+        if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene") | 1 << LayerMask.NameToLayer("Trigger")))
         {
             MoveOnGroundEx = hit.distance <= 4.8f;
             //Debug.Log(string.Format("distance:{0}", hit.distance));

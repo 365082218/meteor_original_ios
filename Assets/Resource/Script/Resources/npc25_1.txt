@@ -1,6 +1,6 @@
 Name = "幻象*王强";
 Model =	9;
-Weapon = 20;
+Weapon = 30;
 Weapon2 = 10;
 Team = 2;
 View = 10000;
@@ -15,7 +15,7 @@ Look = 60;
 Burst = 30;
 Aim = 90;
 GetItem = 0;
-Spawn = 1;
+Spawn = 2;
 HP = 1000;
 
 g_selfAddr = 0;

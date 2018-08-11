@@ -4,15 +4,19 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using DG.Tweening;
 
+//任意怪物控制器，地形组合+载入Npc攻击
 public class RandMonsterCtrl : MonoBehaviour {
-    public Text nameText;
-    public Image progressBar;
-    public Image progressMpBar;
-    public Text hpText;
-    public Text mpText;
-    public Image hp;
     List<MonsterEx> group = null;
+    public List<HitBox> hitGroup;
+    public List<FixedPlatformCtrl> platformGroup;
+    public int Hp;//血值和相关属性.
+    public int Pose;//当死亡时，所有子物体播放动画
     // Use this for initialization
+    private void Awake()
+    {
+        
+    }
+
     void Start () {
 	
 	}
@@ -22,13 +26,50 @@ public class RandMonsterCtrl : MonoBehaviour {
 	
 	}
 
+    int CalcDamage(MeteorUnit attacker, AttackDes attack = null)
+    {
+        //(((武器攻击力 + buff攻击力) x 招式攻击力） / 100) - （敌方武器防御力 + 敌方buff防御力） / 10
+        //你的攻击力，和我的防御力之间的计算
+        //attacker.damage.PoseIdx;
+        int DefTmp = 0;
+        AttackDes atk = attacker.CurrentDamage;
+        if (atk == null)
+            atk = attack;
+        int WeaponDamage = attacker.CalcDamage();
+        int PoseDamage = MenuResLoader.Instance.FindOpt(atk.PoseIdx, 3).second[0].flag[6];
+        int BuffDamage = attacker.Attr.CalcBuffDamage();
+        int realDamage = Mathf.FloorToInt((((WeaponDamage + BuffDamage) * PoseDamage) / 100.0f - (DefTmp)));
+        return realDamage;
+    }
+
+    public void OnDamage(MeteorUnit attacker, AttackDes attck = null)
+    {
+        
+    }
+
+    public void OnDamagedByUnit(MeteorUnit u, AttackDes des)
+    {
+        int realDamage = CalcDamage(u, des);
+        Hp -= realDamage;
+        if (Hp <= 0)
+        {
+            for (int i = 0; i < hitGroup.Count; i++)
+            {
+                hitGroup[i].enabled = false;
+            }
+
+            for (int i = 0; i < platformGroup.Count; i++)
+                platformGroup[i].GetComponent<FMCPlayer>().ChangePose(Pose, 0);
+
+            GameObject.Destroy(gameObject, 5);
+        }
+    }
+
     public void Attach(List<MonsterEx> monGroup)
     {
         group = monGroup;
         if (group.Count != 0)
         {
-            nameText.text = group[0].Name;
-            progressBar.fillAmount = 1.0f;
             UpdateUI();
         }
         else
@@ -51,27 +92,11 @@ public class RandMonsterCtrl : MonoBehaviour {
             mpMax += group[i].MpMax;
         }
         float target = (float)hpNow / (float)hpMax;
-        hp.DOFillAmount(target, 0.5f);
-        hpText.DOText(hpNow.ToString() + "/" + hpMax.ToString(), 0.5f);
-        if (mpText != null)
-            mpText.DOText(mpNow.ToString() + "/" + mpMax.ToString(), 0.5f);
-        if (progressMpBar != null)
-            progressMpBar.DOFillAmount((float)mpNow / (float)mpMax, 0.5f);
     }
 
     public void OnClick()
     {
-        //弹出一个对话框，有3个按钮，一个查看敌方信息，一个战斗，一个离开
-        //if (group[0].RandBattleTalk != null && group[0].RandBattleTalk.Count != 0)
-        {
 
-            //string[] talk = group[0].RandBattleTalk.Split(new char[] { '#' });
-            //if (talk.Length > 1)
-            //    U3D.Dialogue(group[0].Name, talk[Random.Range(0, talk.Length - 1)]);
-            //U3D.AddDiaMenu("敌方信息", OnViewGroupInfo);
-            //U3D.AddDiaMenu("战斗", OnBattle);
-            //U3D.AddDiaMenu("离开", OnLeave);
-        }
     }
 
     public void OnViewGroupInfo()

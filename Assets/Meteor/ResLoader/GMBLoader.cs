@@ -18,6 +18,17 @@ public class GMBLoader : Singleton<GMBLoader> {
         return gmbOK;
     }
 
+    public GMBFile Load(TextAsset asset)
+    {
+        if (GmbFile.ContainsKey(asset.name))
+            return GmbFile[asset.name];
+        GMBFile gmb = new GMBFile();
+        GMBFile gmbOK = gmb.Load(asset);
+        if (gmbOK != null)
+            GmbFile.Add(asset.name, gmbOK);
+        return gmbOK;
+    }
+
     public void Refresh()
     {
         GmbFile = new Dictionary<string, GMBFile>();
@@ -160,6 +171,13 @@ public class GMBFile
         TextAsset asset = Resources.Load<TextAsset>(file);
         if (asset == null || asset.bytes == null)
             return null;
+        MemoryStream ms = new MemoryStream(asset.bytes);
+        Analyse(ms);
+        return this;
+    }
+
+    public GMBFile Load(TextAsset asset)
+    {
         MemoryStream ms = new MemoryStream(asset.bytes);
         Analyse(ms);
         return this;

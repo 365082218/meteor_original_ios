@@ -14,8 +14,8 @@ Jump = 20;
 Look = 60;
 Burst = 30;
 Aim = 90;
-GetItem = 0;
-Spawn = 1;
+GetItem = 10;
+Spawn = 5;
 HP = 1000;
 
 g_selfAddr = 0;

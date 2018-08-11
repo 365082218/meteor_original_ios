@@ -17,6 +17,17 @@ public class FMCLoader : Singleton<FMCLoader> {
         return ret;
     }
 
+    public FMCFile Load(TextAsset asset)
+    {
+        if (FmcFile.ContainsKey(asset.name))
+            return FmcFile[asset.name];
+        FMCFile fi = new FMCFile();
+        FMCFile ret = fi.LoadFile(asset);
+        if (ret != null)
+            FmcFile.Add(asset.name, ret);
+        return ret;
+    }
+
     public void Refresh()
     {
         FmcFile.Clear();
@@ -37,11 +48,9 @@ public class FMCFile
     public int ScemeObjCount;
     public int DummyObjCount;
     public Dictionary<int, FMCFrame> frame = new Dictionary<int, FMCFrame>();
-    public FMCFile LoadFile(string file)
+
+    public FMCFile LoadFile(TextAsset asset)
     {
-        TextAsset asset = Resources.Load<TextAsset>(file);
-        if (asset == null)
-            return null;
         MemoryStream ms = new MemoryStream(asset.bytes);
         StreamReader text = new StreamReader(ms);
         FMCFrame f = null;
@@ -89,5 +98,12 @@ public class FMCFile
             }
         }
         return this;
+    }
+    public FMCFile LoadFile(string file)
+    {
+        TextAsset asset = Resources.Load<TextAsset>(file);
+        if (asset == null)
+            return null;
+        return LoadFile(asset);
     }
 }

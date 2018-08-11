@@ -8324,14 +8324,15 @@ public class LevelScript_sn25 : LevelScriptBase
     int trg5 = 0;
     int timer0 = 0;
     int survivor = -1;
-    Dictionary<int, float> Trigger = new Dictionary<int, float>();
     Dictionary<int, FixedPlatformCtrl> Platform = new Dictionary<int, FixedPlatformCtrl>();
     const float fallTime = 3.0f;
     public override void OnStart()
     {
-        //AddNPC("npc25_0");
-        //AddNPC("npc25_1");
-        //AddNPC("npc25_2");
+        AddNPC("npc25_0");
+        AddNPC("npc25_1");
+        AddNPC("npc25_2");
+        AddNPC("npc25_3");
+        AddNPC("npc25_4");
     }
 
     public override int OnUpdate()
@@ -8355,26 +8356,22 @@ public class LevelScript_sn25 : LevelScriptBase
 
     }
 
-    List<int> k = new List<int>();
-    List<int> r = new List<int>();
     public override int Scene_OnIdle()
     {
-        k = Trigger.Keys.ToList();
-        for (int i = 0; i < k.Count; i++)
+        List<int> removed = new List<int>();
+        foreach (var each in Platform)
         {
-            Trigger[k[i]] -= Time.deltaTime;
-            if (Trigger[k[i]] < 0.0f)
-                r.Add(k[i]);
+            if (each.Value == null)
+                continue;
+            if (each.Value.GetComponent<FMCPlayer>().state == 3)
+            {
+                GameObject.Destroy(each.Value.gameObject);
+                removed.Add(each.Key);
+            }
         }
 
-        for (int i = 0; i < r.Count; i++)
-        {
-            if (Platform[r[i]].fmcPlayer != null && Platform[r[i]].fmcPlayer.state == 3)
-                Platform[r[i]].fmcPlayer.ChangePose(2, 0);
-            Platform.Remove(r[i]);
-            Trigger.Remove(r[i]);
-        }
-
+        for (int i = 0; i < removed.Count; i++)
+            Platform.Remove(i);
         return 1;
     }
 
@@ -8382,11 +8379,9 @@ public class LevelScript_sn25 : LevelScriptBase
     {
         FixedPlatformCtrl tri = trigger.GetComponent<FixedPlatformCtrl>();
         FMCPlayer p = tri.GetComponent<FMCPlayer>();
-        if (p.state == 0)
+        if (p.state == 1)
         {
-            p.ChangePose(1, 1);
-            if (!Trigger.ContainsKey(tri.Trigger))
-                Trigger.Add(tri.Trigger, fallTime);
+            p.ChangePose(1, 0);
             if (!Platform.ContainsKey(tri.Trigger))
                 Platform.Add(tri.Trigger, tri);
         }

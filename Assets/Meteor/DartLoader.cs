@@ -37,7 +37,7 @@ public class DartLoader : MonoBehaviour {
         //}
     //}
     
-    AttackDes _attack;
+    public AttackDes _attack;
     Vector3 _direction;
     float _speed = 300.0f;//初始速度.
     float gspeed = 100.0f;//加速度.
@@ -132,6 +132,7 @@ public class DartLoader : MonoBehaviour {
 
     InventoryItem Weapon;
     public InventoryItem GetCurrentWeapon() { return Weapon; }
+    public MeteorUnit Owner() { return owner; }
     MeteorUnit owner;
     Transform WeaponRoot;//武器父-除非角色整个换了，否则不会删除。武器挂载点
     Transform R;//武器

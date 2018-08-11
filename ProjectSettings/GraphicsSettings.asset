@@ -39,7 +39,7 @@ GraphicsSettings:
   - {fileID: 10703, guid: 0000000000000000f000000000000000, type: 0}
   - {fileID: 10752, guid: 0000000000000000f000000000000000, type: 0}
   - {fileID: 10750, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 0}
+  - {fileID: 4800000, guid: 27bcb5bfc8d604448b8d7e766fdc07de, type: 3}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}

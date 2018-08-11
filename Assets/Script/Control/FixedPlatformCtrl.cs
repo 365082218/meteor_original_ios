@@ -3,26 +3,28 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 
-public enum PlatformType
-{
-
-    SN25WayNode,
-    SN25NpcPlatform,
-}
-
 public class FixedPlatformCtrl : MonoBehaviour {
 	public int Trigger = 0;
-    [SerializeField] PlatformType Type;
     [SerializeField] bool AllowShake = true;
     [HideInInspector] private AnimationCurve curve = null;
-    public FMCPlayer fmcPlayer;
+    [SerializeField] private FMCPlayer fmcPlayer = null;
+    [SerializeField] private GMBLoader modelLoader = null;
+    [SerializeField] private TextAsset model = null;
+    [SerializeField] private TextAsset ani = null;
+    [Header("Pose")]
+    [SerializeField] private bool InitializePose = false;
+    [SerializeField] private bool LoopPose = false;
+    [SerializeField] private int StartPose;
     private void Awake()
     {
-        fmcPlayer = GetComponent<FMCPlayer>();
-        if (fmcPlayer != null && Type == PlatformType.SN25WayNode)
+        if (modelLoader != null)
+            modelLoader.Load(model);
+        if (fmcPlayer != null)
         {
-            fmcPlayer.Init("sn09f01");
-            fmcPlayer.ChangePose(0, 0);
+            fmcPlayer.Init(ani);
+            //fmcPlayer.ChangePose(0, 0);
+            if (InitializePose)
+                fmcPlayer.ChangePose(StartPose, LoopPose ? 1 : 0);
         }
     }
 
