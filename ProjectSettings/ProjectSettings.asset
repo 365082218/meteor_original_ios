@@ -475,7 +475,7 @@ PlayerSettings:
   webGLCompressionFormat: 1
   scriptingDefineSymbols:
     1: BUILD_PC;RAVEN_COMPILED
-    4: NOLOG
+    4: NOLOG;RAVEN_COMPILED
     7: RAVEN_COMPILED
     13: RAVEN_COMPILED
     14: RAVEN_COMPILED

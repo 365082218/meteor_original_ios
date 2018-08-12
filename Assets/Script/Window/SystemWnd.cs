@@ -111,6 +111,11 @@ public class NewSystemWnd : Window<NewSystemWnd>
         toggleEnableInfiniteAngry.isOn = GameData.gameStatus.EnableInfiniteAngry;
         toggleEnableInfiniteAngry.onValueChanged.AddListener(OnEnableInfiniteAngry);
 
+        //无锁定
+        Toggle toggleDisableLock = Control("CameraLock").GetComponent<Toggle>();
+        toggleDisableLock.isOn = GameData.gameStatus.DisableLock;
+        toggleDisableLock.onValueChanged.AddListener(OnDisableLock);
+
         Toggle toggleEnableGodMode = Control("EnableGodMode").GetComponent<Toggle>();
         toggleEnableGodMode.isOn = GameData.gameStatus.EnableGodMode;
         toggleEnableGodMode.onValueChanged.AddListener(OnEnableGodMode);
@@ -222,6 +227,42 @@ public class NewSystemWnd : Window<NewSystemWnd>
         GameData.gameStatus.EnableWeaponChoose = on;
         if (FightWnd.Exist)
             FightWnd.Instance.UpdateUIButton();
+    }
+
+    void OnDisableLock(bool on)
+    {
+        GameData.gameStatus.DisableLock = on;
+        if (CameraFollow.Ins != null)
+        {
+            if (on)
+                CameraFollow.Ins.DisableLock();
+            else
+                CameraFollow.Ins.EnableLock();
+        }
+
+        if (GameBattleEx.Instance != null)
+        {
+            if (on)
+            {
+                GameBattleEx.Instance.Unlock();
+                GameBattleEx.Instance.DisableLock();
+            }
+            else
+            {
+                GameBattleEx.Instance.EnableLock();
+            }
+        }
+
+        if (on)
+        {
+            if (FightWnd.Exist)
+                FightWnd.Instance.HideCameraBtn();
+        }
+        else
+        {
+            if (FightWnd.Exist)
+                FightWnd.Instance.ShowCameraBtn();
+        }
     }
 
     void OnEnableGodMode(bool on)

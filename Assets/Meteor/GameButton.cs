@@ -14,10 +14,24 @@ public class GameButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     {
         isPointDown = false;
     }
+    [SerializeField] private bool ChangeColor = false;
     private bool isPointDown = false;
     private float lastInvokeTime;
     public bool repeatScan = false;
     // Use this for initialization
+    Image Img;
+    Color hilight;
+    Color normal;
+    private void Awake()
+    {
+        if (ChangeColor)
+        {
+            Img = GetComponent<Image>();
+            hilight = Color.white;
+            normal = Img.color;
+        }
+    }
+
     void Start()
     {
     }
@@ -26,14 +40,30 @@ public class GameButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     void Update()
     {
         if (isPointDown && repeatScan)
+        {
             if (OnPress != null)
+            {
+                if (ChangeColor)
+                    Img.color = hilight;
                 OnPress.Invoke();
+            }
+        }
+        else
+        {
+            if (ChangeColor)
+                Img.color = normal;
+        }
+             
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
         if (OnPress != null)
+        {
+            if (ChangeColor)
+                Img.color = hilight;
             OnPress.Invoke();
+        }
         UIButtonScale sc = gameObject.GetComponent<UIButtonScale>();
         if (sc != null)
             sc.OnPress(true);
@@ -45,7 +75,11 @@ public class GameButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     {
         isPointDown = false;
         if (OnRelease != null)
+        {
+            if (ChangeColor)
+                Img.color = normal;
             OnRelease.Invoke();
+        }
         UIButtonScale sc = gameObject.GetComponent<UIButtonScale>();
         if (sc != null)
             sc.OnPress(false);

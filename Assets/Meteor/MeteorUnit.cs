@@ -103,7 +103,7 @@ public class Buff
 
         if (unit.Attr.IsPlayer)
         {
-            FightWnd.Instance.AddBuff(this);
+            //FightWnd.Instance.AddBuff(this);
             FightWnd.Instance.UpdatePlayerInfo();
         }
     }
@@ -129,10 +129,10 @@ public class Buff
             Units[unit].effect = null;
         }
         //战斗UI把BUFF元素清除掉
-        if (unit.Attr.IsPlayer)
-            FightWnd.Instance.RemoveBuff(this);
-        else
-            FightWnd.Instance.RemoveBuff(this, unit);
+        //if (unit.Attr.IsPlayer)
+        //    FightWnd.Instance.RemoveBuff(this);
+        //else
+        //    FightWnd.Instance.RemoveBuff(this, unit);
         if (unit.Dead)
             return;
         switch (type)
@@ -222,8 +222,8 @@ public class Buff
                     }
                     if (each.Key.Attr.IsPlayer)
                         FightWnd.Instance.UpdatePlayerInfo();
-                    else if (each.Key == MeteorManager.Instance.LocalPlayer.GetLockedTarget())
-                        FightWnd.Instance.UpdateMonsterInfo(each.Key);
+                    //else if (each.Key == MeteorManager.Instance.LocalPlayer.GetLockedTarget())
+                    //    FightWnd.Instance.UpdateMonsterInfo(each.Key);
                 }
                 break;
             case -1://状态，持续时间到了取消状态，且删除对象
@@ -244,10 +244,10 @@ public class Buff
             Units.Remove(unitRemoved[i]);
             if (unitRemoved[i].Attr.Dead)
                 unitRemoved[i].OnDead();
-            if (unitRemoved[i].Attr.IsPlayer)
-                FightWnd.Instance.UpdatePlayerInfo();
-            else if (unitRemoved[i] == MeteorManager.Instance.LocalPlayer.GetLockedTarget())
-                FightWnd.Instance.UpdateMonsterInfo(unitRemoved[i]);
+            //if (unitRemoved[i].Attr.IsPlayer)
+            //    FightWnd.Instance.UpdatePlayerInfo();
+            //else if (unitRemoved[i] == MeteorManager.Instance.LocalPlayer.GetLockedTarget())
+            //    FightWnd.Instance.UpdateMonsterInfo(unitRemoved[i]);
         }
     }
 }
@@ -1775,8 +1775,8 @@ public partial class MeteorUnit : MonoBehaviour
             {
                 if (Attr.IsPlayer)
                     FightWnd.Instance.UpdatePlayerInfo();
-                else if (!MeteorManager.Instance.LocalPlayer.SameCamp(this))
-                    FightWnd.Instance.UpdateMonsterInfo(this);
+                //else if (!MeteorManager.Instance.LocalPlayer.SameCamp(this))
+                //    FightWnd.Instance.UpdateMonsterInfo(this);
             }
             if (Attr.IsPlayer && NGUICameraJoystick.instance)
                 NGUICameraJoystick.instance.ResetJoystick();
@@ -2229,7 +2229,7 @@ public partial class MeteorUnit : MonoBehaviour
                         //Debug.LogError("targetPos:" + TargetPos);
                         posMng.ChangeAction(TargetPos);
                         charLoader.SetActionScale(dam.DefenseMove);
-                        AngryValue += 5;//防御住伤害。则怒气增加
+                        AngryValue += 2;//防御住伤害。则怒气增加
                     }
                     else if (dam._AttackType == 1)
                     {
@@ -2264,7 +2264,7 @@ public partial class MeteorUnit : MonoBehaviour
 
                         string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                        AngryValue += (int)((realDamage * 5) / 10.0f);
+                        AngryValue += (int)((realDamage * 5) / 50.0f);
                         if (Attr.Dead)
                             OnDead(attacker);
                         else
@@ -2318,7 +2318,7 @@ public partial class MeteorUnit : MonoBehaviour
 
                     if (charLoader != null && dam.TargetValue != 0.0f)
                         charLoader.LockTime(dam.TargetValue);
-                    AngryValue += (int)((realDamage * 3) / 10.0f);
+                    AngryValue += (int)((realDamage * 5) / 50.0f);
                     string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                     SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
                     if (Attr.Dead)
@@ -2347,11 +2347,10 @@ public partial class MeteorUnit : MonoBehaviour
 
         if (FightWnd.Exist)
         {
-            //先飘血。
             if (Attr.IsPlayer)
                 FightWnd.Instance.UpdatePlayerInfo();
-            else if (attacker != null && attacker.Camp == EUnitCamp.EUC_FRIEND)
-                FightWnd.Instance.UpdateMonsterInfo(this);//设置当前受到伤害的是谁并显示其信息
+            //else if (attacker != null && attacker.Camp == EUnitCamp.EUC_FRIEND)
+            //    FightWnd.Instance.UpdateMonsterInfo(this);//设置当前受到伤害的是谁并显示其信息
         }
     }
 
@@ -2422,7 +2421,7 @@ public partial class MeteorUnit : MonoBehaviour
                         //Debug.LogError("targetPos:" + TargetPos);
                         posMng.ChangeAction(TargetPos);
                         charLoader.SetActionScale(dam.DefenseMove);
-                        AngryValue += 3;//防御住伤害。则怒气增加
+                        AngryValue += 2;//防御住伤害。则怒气增加
                     }
                     else if (dam._AttackType == 1)
                     {
@@ -2471,7 +2470,7 @@ public partial class MeteorUnit : MonoBehaviour
                         //}
                         string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                        AngryValue += (int)((realDamage * 3) / 10.0f);
+                        AngryValue += (int)((realDamage * 5) / 50.0f);
                         if (Attr.Dead)
                             OnDead(attacker);
                         else
@@ -2525,7 +2524,7 @@ public partial class MeteorUnit : MonoBehaviour
 
                     if (charLoader != null && dam.TargetValue != 0.0f)
                         charLoader.LockTime(dam.TargetValue);
-                    AngryValue += (int)((realDamage * 3) / 10.0f);
+                    AngryValue += (int)((realDamage * 5) / 50.0f);
                     //EquipWeaponCode idx = EquipWeaponCode.Blade;
                     //switch ((EquipWeaponType)attacker.GetWeaponType())
                     //{
@@ -2572,8 +2571,8 @@ public partial class MeteorUnit : MonoBehaviour
             //先飘血。
             if (Attr.IsPlayer)
                 FightWnd.Instance.UpdatePlayerInfo();
-            else if (attacker != null && attacker.Camp == EUnitCamp.EUC_FRIEND)
-                FightWnd.Instance.UpdateMonsterInfo(this);//设置当前受到伤害的是谁并显示其信息
+            //else if (attacker != null && attacker.Camp == EUnitCamp.EUC_FRIEND)
+            //    FightWnd.Instance.UpdateMonsterInfo(this);//设置当前受到伤害的是谁并显示其信息
         }
     }
 
@@ -2901,8 +2900,8 @@ public partial class MeteorUnit : MonoBehaviour
                 if (FightWnd.Exist)
                     FightWnd.Instance.UpdatePlayerInfo();
             }
-            else if (MeteorManager.Instance.LocalPlayer.GetLockedTarget() == this)
-                FightWnd.Instance.UpdateMonsterInfo(this);
+            //else if (MeteorManager.Instance.LocalPlayer.GetLockedTarget() == this)
+            //    FightWnd.Instance.UpdateMonsterInfo(this);
         }
         else
             OnChangeWeaponType(ItemInfo.first[3].flag[1]);

@@ -6,6 +6,6 @@ public class AlphaFilter : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        GetComponent<Image>().alphaHitTestMinimumThreshold = 0.3f;
+        GetComponent<Image>().alphaHitTestMinimumThreshold = 0.1f;
 	}
 }

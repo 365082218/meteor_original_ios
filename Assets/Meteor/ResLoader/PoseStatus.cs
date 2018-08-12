@@ -620,7 +620,7 @@ public class PoseStatus
                         //_Self.FaceToTarget(_Self.GetLockedTarget());
                     }
                 }
-                else if (_Self.robot == null)
+                else if (_Self.robot == null && !GameData.gameStatus.DisableLock)
                     _Self.FaceToTarget(_Self.GetLockedTarget());
             }
             load.SetPosData(ActionList[UnitId][idx], time, false, targetFrame);

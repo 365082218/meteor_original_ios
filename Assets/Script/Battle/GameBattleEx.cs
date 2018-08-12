@@ -43,17 +43,6 @@ public partial class GameBattleEx : MonoBehaviour {
     //显示失败，或者胜利界面 >=1 = win <= 0 = lose 2 == none
     public void GameOver(int result)
     {
-        //锁定键盘鼠标摇杆按键。显示一个战斗结束面板，看是平局还是负，然后开个定时器，跳转到主场景
-        //if (result > 0)
-        //{
-        //    //战斗胜利
-        //    OnBattleWinWnd();
-        //}
-        //else if (result < 0)
-        //{
-        //    OnBattleFailed();
-        //}
-        //关闭声音
         Global.PauseAll = true;
         MeteorManager.Instance.LocalPlayer.controller.InputLocked = true;
         SoundManager.Instance.StopAll();
@@ -96,7 +85,7 @@ public partial class GameBattleEx : MonoBehaviour {
                 U3D.PlayMovie("v" + number);
             }
         }
-        
+
         GotoMenu();
     }
 
@@ -394,6 +383,7 @@ public partial class GameBattleEx : MonoBehaviour {
         Scene_OnCharacterEvent = Global.GScriptType.GetMethod("Scene_OnCharacterEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         Scene_OnEvent = Global.GScriptType.GetMethod("Scene_OnEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         lev_script = script;
+        DisableCameraLock = GameData.gameStatus.DisableLock;
         //updateFn = ScriptMng.ins.GetFunc("OnUpdate");
         if (script != null)
             time = script.GetRoundTime() * 60;
@@ -475,7 +465,7 @@ public partial class GameBattleEx : MonoBehaviour {
                 hit[slot] = ray;
             }
             index++;
-            if (index == hit.Length)
+            if (index >= hit.Length)//火枪BUG修复
                 break;
         }
         return hit;
@@ -779,6 +769,17 @@ public partial class GameBattleEx : MonoBehaviour {
         }
     }
 
+    bool DisableCameraLock;
+    public void DisableLock()
+    {
+        DisableCameraLock = true;
+    }
+
+    public void EnableLock()
+    {
+        DisableCameraLock = false;
+    }
+
     public void Unlock()
     {
         if (lockedEffect != null)
@@ -926,7 +927,7 @@ public partial class GameBattleEx : MonoBehaviour {
 
         if (unit == MeteorManager.Instance.LocalPlayer)
         {
-            GameBattleEx.Instance.GameOver(0);
+            GameOver(0);
             DropMng.Instance.Drop(unit);
             Unlock();
         }
@@ -967,8 +968,6 @@ public partial class GameBattleEx : MonoBehaviour {
 
     void GotoMenu()
     {
-        Pause();
-        SoundManager.Instance.StopAll();
         MeteorManager.Instance.Clear();
         FightWnd.Instance.Close();
         U3D.GoBack(()=> { MainMenu.Instance.Open(); });

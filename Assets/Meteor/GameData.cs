@@ -83,6 +83,7 @@ public class GameState
     public bool ShowWayPoint;//显示路点
     public bool EnableLog;//HIDEBUG日志
     public bool LevelDebug;//关卡内功能
+    public bool DisableLock;//无锁定
 }
 
 public class GameData

@@ -777,14 +777,13 @@ public class BattleResultWnd : Window<BattleResultWnd>
         yield return new WaitForSeconds(1.0f);
         if (result == 1)
         {
-            
             for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
             {
                 if (MeteorManager.Instance.UnitInfos[i].robot != null)
                     MeteorManager.Instance.UnitInfos[i].robot.Stop();
                 MeteorManager.Instance.UnitInfos[i].controller.Input.ResetVector();
-                if (MeteorManager.Instance.UnitInfos[i].Camp == EUnitCamp.EUC_FRIEND)
-                    MeteorManager.Instance.UnitInfos[i].posMng.ChangeAction(CommonAction.Taunt);
+                if (MeteorManager.Instance.UnitInfos[i].Camp == EUnitCamp.EUC_FRIEND && !MeteorManager.Instance.UnitInfos[i].Dead)
+                    MeteorManager.Instance.UnitInfos[i].posMng.LinkAction(CommonAction.Taunt);
             }
         }
         yield return new WaitForSeconds(2.0f);

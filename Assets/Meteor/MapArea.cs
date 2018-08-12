@@ -45,7 +45,6 @@ public class MapArea : MonoBehaviour {
                 if (unit != null && !unit.Dead)
                 {
                     unit.OnDead();
-                    UpdateUI(unit);
                 }
                 break;
             case MapAreaType.Fire:
@@ -53,20 +52,8 @@ public class MapArea : MonoBehaviour {
                 if (unit != null && !unit.Dead)
                 {
                     unit.GetItem(11);
-                    UpdateUI(unit);
                 }
                 break;
-        }
-    }
-
-    void UpdateUI(MeteorUnit unit)
-    {
-        if (FightWnd.Exist)
-        {
-            if (unit.Attr.IsPlayer)
-                FightWnd.Instance.UpdatePlayerInfo();
-            else if (unit == MeteorManager.Instance.LocalPlayer.GetLockedTarget())
-                FightWnd.Instance.UpdateMonsterInfo(unit);
         }
     }
 
@@ -90,7 +77,6 @@ public class MapArea : MonoBehaviour {
                 if (unit != null && !unit.Dead)
                 {
                     unit.OnDead();
-                    UpdateUI(unit);
                 }
                 break;
             case MapAreaType.Fire:
@@ -98,7 +84,6 @@ public class MapArea : MonoBehaviour {
                 if (unit != null && !unit.Dead)
                 {
                     unit.GetItem(11);
-                    UpdateUI(unit);
                 }
                 break;
             case MapAreaType.FlagBox:
@@ -152,7 +137,6 @@ public class MapArea : MonoBehaviour {
                 if (unit != null && !unit.Dead)
                 {
                     unit.OnDead();
-                    UpdateUI(unit);
                 }
                 break;
             case MapAreaType.Fire:

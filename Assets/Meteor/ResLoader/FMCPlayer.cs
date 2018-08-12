@@ -94,6 +94,11 @@ public class FMCPlayer : MonoBehaviour {
         int i = 0;
         foreach (var each in frames.frame[currentFrame].pos)
         {
+            if (transform.childCount <= i)
+            {
+                //Debug.LogError(gameObject.name + " fmcplayer error");
+                continue;
+            }
             if (currentFrame == end)
                 transform.GetChild(i).localPosition = each.Value;
             else
@@ -104,6 +109,11 @@ public class FMCPlayer : MonoBehaviour {
         i = 0;
         foreach (var each in frames.frame[currentFrame].quat)
         {
+            if (transform.childCount <= i)
+            {
+                //Debug.LogError(gameObject.name + " fmcplayer error");
+                continue;
+            }
             if (currentFrame == end)
                 transform.GetChild(i).localRotation = each.Value;
             else

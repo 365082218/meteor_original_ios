@@ -27,6 +27,7 @@ public class CameraFollow : MonoBehaviour {
     public float followRotationDamping = 5;
     public float followHeightDamping = 5;
     public float m_MinSize = 55;//fov最小55
+
     //Vector3 m_DesiredPosition;
     //Vector3 m_MoveVelocity;
     //float m_DampTime;
@@ -49,8 +50,20 @@ public class CameraFollow : MonoBehaviour {
         Instance = null;
     }
 
+    bool DisableLockTarget;
+
+    public void DisableLock()
+    {
+        DisableLockTarget = true;
+    }
+    public void EnableLock()
+    {
+        DisableLockTarget = false;
+    }
+
     public void Init()
     {
+        DisableLockTarget = GameData.gameStatus.DisableLock;
         smoothIntensity = 15.0f;//移动平滑倍数
         RotateIntensity = 8.0f;
         Unlocked = false;
@@ -120,7 +133,7 @@ public class CameraFollow : MonoBehaviour {
         Vector3 newPos = Vector3.zero;
         Vector3 vecTarget = Vector3.zero;
         Vector3 wallHitPos = Vector3.zero;//撞到墙壁的位置
-        if (MeteorManager.Instance.LocalPlayer.GetLockedTarget() != null)
+        if (MeteorManager.Instance.LocalPlayer.GetLockedTarget() != null && !DisableLockTarget)
         {
             cameraLookAt = (MeteorManager.Instance.LocalPlayer.mPos + MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + new Vector3(0, 25, 0);
             CameraRadis = Vector3.Distance(MeteorManager.Instance.LocalPlayer.mPos, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + 55;

@@ -116,18 +116,26 @@ public class MonsterEx
 
     public void UpdateAttr()
     {
-        //ScriptMng.ins.DoScript(NpcTemplate);
+        //主角属性无法更改
+        if (IsPlayer)
+            return;
+        if (!string.IsNullOrEmpty(NpcTemplate))
+            ScriptMng.ins.DoScript(NpcTemplate);
+        else
+            return;
+        //非主角属性，从脚本重新加载
         Attack1 = (int)(double)ScriptMng.ins.GetVariable("Attack1");
         Debug.LogError("Attack1:" + Attack1);
         Attack2 = (int)(double)ScriptMng.ins.GetVariable("Attack2");
         Attack3 = (int)(double)ScriptMng.ins.GetVariable("Attack3");
-
+        Think = (int)(double)ScriptMng.ins.GetVariable("Think");
         Guard = (int)(double)ScriptMng.ins.GetVariable("Guard");
         Jump = (int)(double)ScriptMng.ins.GetVariable("Jump");
         Look = (int)(double)ScriptMng.ins.GetVariable("Look");
         Burst = (int)(double)ScriptMng.ins.GetVariable("Burst");
         Aim = (int)(double)ScriptMng.ins.GetVariable("Aim");
         GetItem = (int)(double)ScriptMng.ins.GetVariable("GetItem");
+        View = (int)(double)ScriptMng.ins.GetVariable("View");
     }
 
     //unit id , 名称, 所在队伍中的下标.
@@ -142,7 +150,7 @@ public class MonsterEx
         Weapon2 = (int)(double)ScriptMng.ins.GetVariable("Weapon2");
         Team = (int)(double)ScriptMng.ins.GetVariable("Team");
         View = (int)(double)ScriptMng.ins.GetVariable("View");
-        //Think = (int)ScriptMng.ins.GetVariable("Think");
+        Think = (int)(double)ScriptMng.ins.GetVariable("Think");
         HpMax = (int)(double)ScriptMng.ins.GetVariable("HP");
         SpawnPoint = (int)(double)ScriptMng.ins.GetVariable("Spawn");
         Speed = 1000;

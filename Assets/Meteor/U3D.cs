@@ -60,6 +60,8 @@ public class U3D : MonoBehaviour {
         LoadingTipsManager.Instance.ReLoad();
         UnitMng.Instance.ReLoad();
         WeaponMng.Instance.ReLoad();
+        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+            MeteorManager.Instance.UnitInfos[i].Attr.UpdateAttr();
     }
 
     //当前场景立即产生一个npc
@@ -362,6 +364,7 @@ public class U3D : MonoBehaviour {
         return false;
     }
     static AsyncOperation backOp;
+    static AsyncOperation loadMainOp;
     static Coroutine loadMain;
     //返回到主目录
     public static void GoBack(Action t = null)
@@ -369,7 +372,7 @@ public class U3D : MonoBehaviour {
         Global.GLevelItem = null;
         if (loadMain != null)
         {
-            Startup.ins.StopCoroutine(loadMain);
+            ins.StopCoroutine(loadMain);
             loadMain = null;
         }
         loadMain = ins.StartCoroutine(ins.LoadMainWnd(t));
@@ -381,7 +384,7 @@ public class U3D : MonoBehaviour {
         Global.GLevelItem = null;
         if (loadMain != null)
         {
-            Startup.ins.StopCoroutine(loadMain);
+            ins.StopCoroutine(loadMain);
             loadMain = null;
         }
         loadMain = ins.StartCoroutine(ins.LoadStartup());
@@ -396,14 +399,16 @@ public class U3D : MonoBehaviour {
 
     IEnumerator LoadMainWnd(Action t)
     {
+        Debug.LogError("LoadScenes Menu");
         ResMng.LoadScene("Menu");
-        backOp = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Menu", UnityEngine.SceneManagement.LoadSceneMode.Single);//.LoadSceneAsync_s (1);
-        yield return backOp;
+        loadMainOp = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Menu", UnityEngine.SceneManagement.LoadSceneMode.Single);//.LoadSceneAsync_s (1);
+        yield return loadMainOp;
         OnLoadMainFinished(t);
     }
 
     void OnLoadMainFinished(Action t)
     {
+        Debug.LogError("OnLoadMainFinished");
         AudioListener listen = Startup.ins.gameObject.GetComponent<AudioListener>();
         if (listen == null)
             Startup.ins.gameObject.AddComponent<AudioListener>();
