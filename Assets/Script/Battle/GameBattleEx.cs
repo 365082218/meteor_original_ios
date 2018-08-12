@@ -543,12 +543,16 @@ public partial class GameBattleEx : MonoBehaviour {
                 {
                     //飞镖.
                     Transform bulletBone = unit.charLoader.sfxEffect.FindEffectByName("Sphere_3");//出生点，
-                    Vector3 vecSpawn = bulletBone.position + 10 * Vector3.up;
+                    Vector3 vecSpawn = bulletBone.position;
                     Vector3 forw = Vector3.zero;
                     if (unit.Attr.IsPlayer)
                     {
                         Vector3 vec = CameraFollow.Ins.m_Camera.ScreenToWorldPoint(new Vector3(Screen.width / 2, (Screen.height) / 2 + 75, DartLoader.MaxDistance));
-                        forw = (vec - vecSpawn).normalized;
+                        float dis = Vector3.Distance(vec, forw);
+                        float vt = Mathf.Sqrt(2 * DartLoader.gspeed * dis + (DartLoader.InitializeSpeed * DartLoader.InitializeSpeed));
+                        float t = (vt - DartLoader.InitializeSpeed) /DartLoader.gspeed;
+                        float h = t * t * 0.5f * Mathf.Abs(Physics.gravity.y);
+                        forw = (vec + Vector3.up * h - vecSpawn).normalized;
                     }
                     else
                     {

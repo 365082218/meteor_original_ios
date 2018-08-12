@@ -38,6 +38,24 @@ public enum GameMode
 }
 
 [ProtoBuf.ProtoContract(ImplicitFields = ProtoBuf.ImplicitFields.AllFields)]
+public class ModelInfo:ITableItem
+{
+    public int Key() { return ID; }
+    public SmartInt ID
+    {
+        get { return ModelId; }
+    }
+    public int ModelId;
+    public float Height;
+    public float Pivot;
+}
+
+public class ModelMng : TableManager<ModelInfo, ModelMng>
+{
+    public override string TableName() { return "ModelInfo"; }
+}
+
+[ProtoBuf.ProtoContract(ImplicitFields = ProtoBuf.ImplicitFields.AllFields)]
 public class Level : ITableItem
 {
 	public SmartInt ID

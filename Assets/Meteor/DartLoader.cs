@@ -18,6 +18,7 @@ public class DartLoader : MonoBehaviour {
     private void Awake()
     {
         rig = GetComponent<Rigidbody>();
+        rig.useGravity = true;
     }
  //   void Start () {
 		
@@ -39,9 +40,10 @@ public class DartLoader : MonoBehaviour {
     
     public AttackDes _attack;
     Vector3 _direction;
+    public static float InitializeSpeed = 400.0f;
     float _speed = 300.0f;//初始速度.
-    float gspeed = 100.0f;//加速度.
-    float maxLength = 800;//跑多远开始开启重力.
+    public static float gspeed = 140.0f;//加速度.
+    //float maxLength = 800;//跑多远开始开启重力.
     float maxDistance = 5000;//最远射程
     Rigidbody rig;
     Coroutine fly;
@@ -69,6 +71,8 @@ public class DartLoader : MonoBehaviour {
         }
         if (fly != null)
             StopCoroutine(fly);
+        rig.AddForce(forward * InitializeSpeed, ForceMode.Impulse);
+        rig.AddForce(forward * gspeed, ForceMode.Acceleration);
         fly = StartCoroutine(Fly());
     }
 
@@ -78,11 +82,11 @@ public class DartLoader : MonoBehaviour {
         {
             _speed += gspeed * Time.deltaTime;
             float dis = Time.deltaTime * _speed;
-            transform.Translate(transform.forward * dis, Space.World);
-            maxLength -= dis;
+            //transform.Translate(transform.forward * dis, Space.World);
+            //maxLength -= dis;
             maxDistance -= dis;
-            if (maxLength <= 0.0f && !rig.useGravity)
-                rig.useGravity = true;
+            //if (maxLength <= 0.0f && !rig.useGravity)
+            //    rig.useGravity = true;
             if (maxDistance <= 0.0f)
                 DestroyObject(gameObject);
             yield return 0;

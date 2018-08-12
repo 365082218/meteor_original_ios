@@ -30,8 +30,8 @@ public class PoseStatus
             //如果被锁定
             if (_Self.controller.InputLocked)
                 return false;
-            //如果有锁定目标，不许转向
-            if (_Self.GetLockedTarget() != null)
+            //如果有锁定目标，不许转向(在有锁系统下)
+            if (_Self.GetLockedTarget() != null && !GameData.gameStatus.DisableLock)
                 return false;
             //攻击动作播放时不许摇杆控制角色转向
             if (IsAttackPose())
@@ -389,7 +389,7 @@ public class PoseStatus
                                 _Self.Defence();
                             }
                             else
-                            if (_Self.GetLockedTarget() != null)
+                            if (_Self.GetLockedTarget() != null && !GameData.gameStatus.DisableLock)
                             {
                                 int ReadyAction = 0;
                                 switch ((EquipWeaponType)_Self.GetWeaponType())

@@ -1062,6 +1062,8 @@ public partial class MeteorUnit : MonoBehaviour
 
         tag = "meteorUnit";
         UnitId = modelIdx;
+
+        ModelInfo Info = ModelMng.Instance.GetItem(UnitId + 1);
         Attr = mon;
         IgnoreGravity = true;
         IgnorePhysical = false;
@@ -1137,8 +1139,8 @@ public partial class MeteorUnit : MonoBehaviour
         charController = gameObject.GetComponent<CharacterController>();
         if (charController == null)
             charController = gameObject.AddComponent<CharacterController>();
-        charController.center = new Vector3(0, 17.8f, 0);
-        charController.height = Global.GLevelItem.ID == 7 ? 32.0f: 35.0f;//32是跨越皇天城的栅栏的最大高度，超过这个高度就没法过去了。
+        charController.center = new Vector3(0, Info.Pivot, 0);
+        charController.height = Global.GLevelItem.ID == 7 ? 32.0f: Info.Height;//32是跨越皇天城的栅栏的最大高度，超过这个高度就没法过去了。
         charController.radius = 9.0f;//不这么大碰不到寻路点.
         charController.stepOffset = 7.6f;
 
