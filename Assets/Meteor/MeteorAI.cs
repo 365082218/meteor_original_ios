@@ -974,6 +974,10 @@ public class MeteorAI {
         {
 
         }
+        else if (SubStatus == EAISubStatus.AttackGotoTarget)
+        {
+
+        }
     }
 
     List<WayPoint> Path = new List<WayPoint>();//这个是攻击指定位置时的寻路，这个是不会随着角色移动改变位置的.

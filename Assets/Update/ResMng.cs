@@ -63,7 +63,7 @@ public class ResMng {
 	{
         if (!File.Exists(GetResPath() + "/" + RefTable))
         {
-            Debug.LogError(string.Format("Can not Load RefTable", GetResPath() + "/" + RefTable));
+            //Debug.LogError(string.Format("Can not Load RefTable", GetResPath() + "/" + RefTable));
             return;
         }
 		ReferenceNode.Reset();

@@ -32,6 +32,8 @@ public class UnitDebugInfo : MonoBehaviour {
     private Text CurWayPoint;
     [SerializeField]
     private Text TargetWayPoint;
+    [SerializeField]
+    private Text Straight;
     public void SetOwner(MeteorUnit owner)
     {
         target = owner;
@@ -54,7 +56,7 @@ public class UnitDebugInfo : MonoBehaviour {
                 Speed.text = "速度:" + target.Speed;
                 Target.text = "锁定目标:" + (target.GetLockedTarget() != null ? target.GetLockedTarget().name : "-");
                 ActionFrame.text = string.Format("动作源{0:d1}-动作ID{1}-帧:{2}", target.posMng.mActiveAction.SourceIdx, target.posMng.mActiveAction.Idx, target.charLoader.curIndex);
-                
+                Straight.text = string.Format("硬直{0}", target.charLoader.PoseStraight);
                 if (target.robot != null)
                 {
                     Status.text = string.Format("主状态:{0}", target.robot.Status);

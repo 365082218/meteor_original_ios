@@ -171,7 +171,7 @@ public class MeteorInput
             //只有使用键盘的时候，键的状态才从与键盘状态同步。
             //return;
             //UNITY的时候，会从硬件扫描
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !STRIP_KEYBOARD
             if (mOwner.Attr.IsPlayer)//主角才读取键盘输入
             {
                 float kValue = Input.GetAxisRaw(keyStatus.AxisName);

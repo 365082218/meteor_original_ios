@@ -377,7 +377,7 @@ public class FightWnd: Window<FightWnd>
     //按爆气.
     public void OnBreakOut()
     {
-        Debug.Log("OnBreakOut");
+        //Debug.Log("OnBreakOut");
         if (Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll)
         {
             //Debug.Log("Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll");

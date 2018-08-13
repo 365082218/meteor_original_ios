@@ -83,8 +83,10 @@ public class NGUICameraJoystick : MonoBehaviour
 
     public void OnDrag(Vector2 delta)
     {
+#if !STRIP_KEYBOARD
         if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
             return;
+#endif
         if (MeteorManager.Instance.LocalPlayer.Dead)
             return;
 		if (isPress && enabled && gameObject.activeSelf)

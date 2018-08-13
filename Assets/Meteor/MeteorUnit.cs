@@ -2395,6 +2395,9 @@ public partial class MeteorUnit : MonoBehaviour
                 case 3: directionAct = dam.TargetPoseRight; break;
             }
 
+            //if (directionAct == dam.TargetPoseFront)
+            //    SFXLoader.Instance.PlayEffect("FrontHIT.ef", charLoader);
+
             if (attacker.Attr.IsPlayer && GameData.gameStatus.EnableGodMode)
             {
                 //一击必杀

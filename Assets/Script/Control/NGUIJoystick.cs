@@ -30,7 +30,7 @@ public class NGUIJoystick : MonoBehaviour
             return (Time.timeScale != 0) ? mDelta.normalized : Vector2.zero;
         }
     }
-    public BoxCollider JoyCollider;
+    public SphereCollider JoyCollider;
 	static Vector2 mSlipDelta = Vector2.zero;
 	static public Vector2 SlipDelta {get {return mSlipDelta;} set {mSlipDelta = value;} }
 
@@ -142,7 +142,7 @@ public class NGUIJoystick : MonoBehaviour
             {
                 //Debug.Log("NGUIJoystick OnPress");
                 EnableArrowButton(false);
-                JoyCollider.size = new Vector3(400, 400);
+                JoyCollider.radius = 200;
                 background.gameObject.SetActive(true);
 
                 Vector2 curPos = UICamera.currentTouch.pos;
@@ -400,7 +400,7 @@ public class NGUIJoystick : MonoBehaviour
 
     public void ResetJoystick()
     {
-        JoyCollider.size = new Vector3(160, 160);
+        JoyCollider.radius = 120;
         target.localPosition = Vector3.zero;
         background.gameObject.SetActive(false);
         if (Global.GMeteorInput != null)

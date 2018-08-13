@@ -363,9 +363,9 @@ public class CharacterLoader : MonoBehaviour
                 if (curIndex > po.LoopStart)
                 {
                     PlayPosEvent();
-                    curIndex = po.LoopStart;
                     if (loop)
-                        return;
+                        curIndex = po.LoopStart;
+                    return;
                 }
                 curIndex = po.LoopStart;
             }
@@ -555,21 +555,21 @@ public class CharacterLoader : MonoBehaviour
         //超过末尾了.
         if (loop)
         {
-            if (curIndex >= po.LoopEnd)
+            if (curIndex > po.LoopEnd)
             {
-                if (curIndex >= po.LoopStart && po.LoopStart == po.LoopEnd)
+                if (curIndex > po.LoopStart)
                 {
                     PlayPosEvent();
-                    curIndex = po.LoopStart;
                     if (loop)
-                        return;
+                        curIndex = po.LoopStart;
+                    return;
                 }
                 curIndex = po.LoopStart;
             }
         }
         else
         {
-            if (curIndex >= po.End)
+            if (curIndex > po.End)
             {
                 if (single)
                     Pause = true;
@@ -760,8 +760,7 @@ public class CharacterLoader : MonoBehaviour
         return act.IgnoreMove == 1;
     }
 
-    //这部分的代码估计流星是写死的,换武器事件，会在loopStart这一帧调用
-    float PoseStraight = 0.0f;
+    public float PoseStraight = 0.0f;
     void PlayPosEvent()
     {
         if (po.Idx == CommonAction.ChangeWeapon)

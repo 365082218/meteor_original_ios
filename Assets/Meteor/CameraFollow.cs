@@ -278,18 +278,20 @@ public class CameraFollow : MonoBehaviour {
             //Y轴旋转，受到是否可旋转，以及当前是否有锁定对象决定
             if (MeteorManager.Instance.LocalPlayer.posMng.CanRotateY)
             {
-                if (Application.isMobilePlatform)
-                    yRotate = NGUICameraJoystick.instance.deltaLast.x * GameData.gameStatus.AxisSensitivity.x;
-                else
-                    yRotate = 2 * Input.GetAxis("Mouse X");
+#if STRIP_KEYBOARD
+                yRotate = NGUICameraJoystick.instance.deltaLast.x * GameData.gameStatus.AxisSensitivity.x;
+#else
+                yRotate = 2 * Input.GetAxis("Mouse X");
+#endif
                 if (yRotate != 0)
                     MeteorManager.Instance.LocalPlayer.SetOrientation(yRotate);
             }
             float xRotate = 0;
-            if (Application.isMobilePlatform)
-                xRotate = NGUICameraJoystick.instance.deltaLast.y * GameData.gameStatus.AxisSensitivity.y;
-            else
-                xRotate = 2 * Input.GetAxis("Mouse Y");
+#if STRIP_KEYBOARD
+            xRotate = NGUICameraJoystick.instance.deltaLast.y * GameData.gameStatus.AxisSensitivity.y;
+#else
+            xRotate = 2 * Input.GetAxis("Mouse Y");
+#endif
             if (xRotate != 0.0f)
             {
                 //根据参数调整高度，和距离.

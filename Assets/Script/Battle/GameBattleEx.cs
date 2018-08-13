@@ -547,8 +547,8 @@ public partial class GameBattleEx : MonoBehaviour {
                     Vector3 forw = Vector3.zero;
                     if (unit.Attr.IsPlayer)
                     {
-                        Vector3 vec = CameraFollow.Ins.m_Camera.ScreenToWorldPoint(new Vector3(Screen.width / 2, (Screen.height) / 2 + 75, DartLoader.MaxDistance));
-                        float dis = Vector3.Distance(vec, forw);
+                        Vector3 vec = CameraFollow.Ins.m_Camera.ScreenToWorldPoint(new Vector3(Screen.width / 2, (Screen.height) / 2, DartLoader.MaxDistance));
+                        float dis = Vector3.Distance(vec, vecSpawn);
                         float vt = Mathf.Sqrt(2 * DartLoader.gspeed * dis + (DartLoader.InitializeSpeed * DartLoader.InitializeSpeed));
                         float t = (vt - DartLoader.InitializeSpeed) /DartLoader.gspeed;
                         float h = t * t * 0.5f * Mathf.Abs(Physics.gravity.y);
@@ -556,10 +556,11 @@ public partial class GameBattleEx : MonoBehaviour {
                     }
                     else
                     {
-                        //敌人在未发现敌人时随便发飞镖?
+                        //AI在未发现敌人时随便发飞镖?
                         if (unit.GetLockedTarget() == null)
                         {
-                            forw = (-unit.transform.forward + new Vector3(Random.Range(1, 10), Random.Range(1, 10), Random.Range(1, 10))).normalized;//角色的面向
+                            //角色的面向 + 一定随机
+                            forw = (Quaternion.AngleAxis(Random.Range(-25, 25), Vector3.up)  * Quaternion.AngleAxis(Random.Range(-5, 5), Vector3.right)  * - unit.transform.forward).normalized;
                         }
                         else
                         {
@@ -572,9 +573,16 @@ public partial class GameBattleEx : MonoBehaviour {
                             }
 
                             if (u == null)
-                                forw = (-unit.transform.forward + new Vector3(Random.Range(1, 10), Random.Range(1, 10), Random.Range(1, 10))).normalized;//角色的面向
+                                forw = (Quaternion.AngleAxis(Random.Range(-25, 25), Vector3.up) * Quaternion.AngleAxis(Random.Range(-5, 5), Vector3.right) * -unit.transform.forward).normalized;//角色的面向
                             else
-                                forw = (unit.GetLockedTarget().mPos - new Vector3(unit.mPos.x + Random.Range(1, 10), unit.mPos.y + Random.Range(1, 20), unit.mPos.z + Random.Range(1, 10))).normalized;
+                            {
+                                Vector3 vec = unit.GetLockedTarget().mPos + new Vector3(Random.Range(-10, 10), Random.Range(-18, 18), Random.Range(-10, 10));
+                                float dis = Vector3.Distance(vec, vecSpawn);
+                                float vt = Mathf.Sqrt(2 * DartLoader.gspeed * dis + (DartLoader.InitializeSpeed * DartLoader.InitializeSpeed));
+                                float t = (vt - DartLoader.InitializeSpeed) / DartLoader.gspeed;
+                                float h = t * t * 0.5f * Mathf.Abs(Physics.gravity.y);
+                                forw = (vec + Vector3.up * h - vecSpawn).normalized;
+                            }
                             //要加一点随机，否则每次都打一个位置不正常
                         }
                     }
@@ -822,7 +830,9 @@ public partial class GameBattleEx : MonoBehaviour {
         MeteorUnit player = MeteorManager.Instance.LocalPlayer;
         float angleMax = Mathf.Cos(75 * Mathf.Deg2Rad);//cos值越大，角度越小
         float autoAngle = 0.0f;//自动目标与主角的夹角
-        MeteorUnit want = null;
+        float autoDis = 180.0f;//自动目标与主角的距离，距离近，优先
+        MeteorUnit wantRotation = null;//夹角最小的
+        MeteorUnit wantDis = null;//距离最近的
         Vector3 vecPlayer = -player.transform.forward;
         vecPlayer.y = 0;
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
@@ -842,28 +852,37 @@ public partial class GameBattleEx : MonoBehaviour {
             if (Mathf.Abs(vec.y) >= 75 && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
                 continue;
             vec.y = 0;
+            float d = Vector3.Magnitude(vec);
+            if (d < autoDis)
+            {
+                autoDis = d;
+                wantDis = MeteorManager.Instance.UnitInfos[i];
+            }
             vec = Vector3.Normalize(vec);
             float angle = Vector3.Dot(vecPlayer, vec);
             //角度小于75则可以成为自动对象.
             if (angle > angleMax)
             {
                 angleMax = angle;
-                want = MeteorManager.Instance.UnitInfos[i];
+                wantRotation = MeteorManager.Instance.UnitInfos[i];
             }
             //保存自动对象 与主角的角度
             if (autoTarget == MeteorManager.Instance.UnitInfos[i])
                 autoAngle = angle;
         }
 
+        //如果更近距离有与角色正方向夹角较大的其他敌方，优先选择近距离的敌人。
+        if (wantDis != null && wantDis != wantRotation)
+            wantRotation = wantDis;
         //与角色的夹角不能大于75度,否则主角脑袋骨骼可能注视不到自动目标.
-        if (want != null && want != autoTarget)
+        if (wantRotation != null && wantRotation != autoTarget)
         {
             if (autoEffect != null)
             {
                 autoEffect.OnPlayAbort();
                 autoEffect = null;
             }
-            autoTarget = want;
+            autoTarget = wantRotation;
             autoEffect = SFXLoader.Instance.PlayEffect("Track.ef", autoTarget.gameObject);
             return;
         }

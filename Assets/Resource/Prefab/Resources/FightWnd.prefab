@@ -485,7 +485,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224889760339134792}
   - component: {fileID: 114000014208458340}
-  - component: {fileID: 65944742051492912}
+  - component: {fileID: 135610106643556528}
   m_Layer: 5
   m_Name: LeftJoystick
   m_TagString: Untagged
@@ -640,6 +640,10 @@ GameObject:
   - component: {fileID: 222000012736945924}
   - component: {fileID: 114000010202289936}
   - component: {fileID: 65000011063723772}
+  - component: {fileID: 65013454780982474}
+  - component: {fileID: 65045022826611250}
+  - component: {fileID: 65240371948643692}
+  - component: {fileID: 65893923989850616}
   m_Layer: 5
   m_Name: Direction
   m_TagString: Untagged
@@ -2215,20 +2219,56 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 990.5, y: 564.9, z: 1}
-  m_Center: {x: -685.2, y: 669.2, z: 0}
---- !u!65 &65944742051492912
+  m_Size: {x: 1455.5, y: 821, z: 1}
+  m_Center: {x: -864.4, y: 802, z: 0}
+--- !u!65 &65013454780982474
 BoxCollider:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1000012376171898}
+  m_GameObject: {fileID: 1000012851204426}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 150, y: 150, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 536, y: 526.7, z: 1}
+  m_Center: {x: -1873, y: 804, z: 0}
+--- !u!65 &65045022826611250
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000012851204426}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 172, y: 512.9, z: 1}
+  m_Center: {x: -2052.7, y: 270.5, z: 0}
+--- !u!65 &65240371948643692
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000012851204426}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1000, y: 385, z: 1}
+  m_Center: {x: -1063, y: 197.4, z: 0}
+--- !u!65 &65893923989850616
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000012851204426}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 405, y: 133.5, z: 1}
+  m_Center: {x: -1768.2, y: 75.7, z: 0}
 --- !u!111 &111328502585779896
 Animation:
   m_ObjectHideFlags: 1
@@ -3483,7 +3523,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114000013917275236}
   m_HandleRect: {fileID: 224000013581843684}
   m_Direction: 0
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -3969,7 +4009,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mJoyPressed: 0
-  JoyCollider: {fileID: 65944742051492912}
+  JoyCollider: {fileID: 135610106643556528}
   background: {fileID: 224000011972379468}
   target: {fileID: 224000012301664104}
   direction: 40
@@ -4250,7 +4290,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Sprite: {fileID: 21300000, guid: b047c843d5b63aa499f4b1ed8463d398, type: 3}
   m_Type: 0
-  m_PreserveAspect: 1
+  m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -4480,7 +4520,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Sprite: {fileID: 21300000, guid: b047c843d5b63aa499f4b1ed8463d398, type: 3}
   m_Type: 0
-  m_PreserveAspect: 1
+  m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -5836,7 +5876,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Sprite: {fileID: 21300000, guid: b047c843d5b63aa499f4b1ed8463d398, type: 3}
   m_Type: 0
-  m_PreserveAspect: 1
+  m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -6134,7 +6174,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Sprite: {fileID: 21300000, guid: b047c843d5b63aa499f4b1ed8463d398, type: 3}
   m_Type: 0
-  m_PreserveAspect: 1
+  m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -7058,6 +7098,18 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!135 &135610106643556528
+SphereCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000012376171898}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 120
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!222 &222000010119296746
 CanvasRenderer:
   m_ObjectHideFlags: 1
@@ -8026,8 +8078,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 3.5, y: -26.5}
-  m_SizeDelta: {x: 250, y: 103.8}
+  m_AnchoredPosition: {x: -1.5999999, y: -27.699997}
+  m_SizeDelta: {x: 250, y: 107}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!224 &224000010945866268
 RectTransform:
@@ -8448,8 +8500,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: -26.8, y: -6.8}
-  m_SizeDelta: {x: 250, y: 100}
+  m_AnchoredPosition: {x: -34, y: -0.5}
+  m_SizeDelta: {x: 250, y: 108}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!224 &224000012816376064
 RectTransform:
@@ -8580,8 +8632,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 24.5, y: 3.5}
-  m_SizeDelta: {x: 250, y: 100}
+  m_AnchoredPosition: {x: 31.399994, y: 0.50001}
+  m_SizeDelta: {x: 250, y: 108}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!224 &224000013436346108
 RectTransform:
@@ -9618,8 +9670,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -5.5, y: 22.7}
-  m_SizeDelta: {x: 250, y: 100}
+  m_AnchoredPosition: {x: -1.5999999, y: 26.979996}
+  m_SizeDelta: {x: 259.73, y: 102}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!224 &224556381573317296
 RectTransform:
