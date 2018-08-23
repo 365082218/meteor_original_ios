@@ -34,6 +34,29 @@ ChangeBehavior(g_self, "follow", "xxx");
 */
 public class ScriptBase
 {
+    //非经典关卡时，从主角脚本读取.
+    public static int Weapon0 = -1;
+    public static int Weapon1 = -1;
+    public static int MaxHP = -1;
+    public static int Model = -1;
+    public static string _PlayerName = "";
+
+    public static void InitPlayerVariable()
+    {
+        ScriptMng.ins.CallScript("localPlayer");
+        Model = (int)(double)ScriptMng.ins.GetVariable("Model");
+        _PlayerName = (string)ScriptMng.ins.GetVariable("Name");
+        Weapon0 = (int)(double)ScriptMng.ins.GetVariable("Weapon");
+        Weapon1 = (int)(double)ScriptMng.ins.GetVariable("Weapon2");
+        MaxHP = (int)(double)ScriptMng.ins.GetVariable("HP");
+    }
+
+    public static int _GetPlayerWeapon() { InitPlayerVariable(); return Weapon0; }
+    public static int _GetPlayerWeapon2() { InitPlayerVariable(); return Weapon1; }
+    public static int _GetPlayerMaxHp() { InitPlayerVariable(); return MaxHP; }
+    public static int _GetPlayerModel() { InitPlayerVariable(); return Model; }
+    public static string _GetPlayerName() { InitPlayerVariable(); return _PlayerName; }
+
     public static int GameCallBack(string key, int Value)
     {
         if (key == "mod")
@@ -1061,8 +1084,6 @@ public class ScriptBase
 
 
 public class LevelScriptBase:ScriptBase {
-
-    public virtual int GetRule() { return 0; }
     public virtual int GetRoundTime() { return 0; }
     public virtual int GetPlayerSpawn() { return 0; }
     public virtual int GetPlayerSpawnDir() { return 0; }
@@ -1072,8 +1093,18 @@ public class LevelScriptBase:ScriptBase {
     public virtual int GetPlayerModel() { return 0; }
     public virtual string GetPlayerName() { return "孟星魂"; }
     public virtual string GetDesName() { return ""; }
+
     //负责关卡剧本等
-    public virtual void OnStart() { }
+    //额外呼叫怪物脚本
+    public virtual void OnStart()
+    {
+        if (Global.GLevelItem != null && (!string.IsNullOrEmpty(Global.GLevelItem.StartScript)))
+        {
+            if (ScriptMng.ins != null)
+                ScriptMng.ins.CallScript(Global.GLevelItem.StartScript);
+        }
+    }
+
     public virtual int OnUpdate() { return 0; }
     //负责场景初始化，物件等设置
     public virtual void Scene_OnLoad() { }
@@ -1085,8 +1116,8 @@ public class LevelScriptBase:ScriptBase {
         InitDeskes(g_iNumDeskes);
         InitJugs(g_iNumJugs);
     }
-    public virtual int Scene_OnIdle() { return 0; }
 
+    public virtual int Scene_OnIdle() { return 0; }
 }
 
 //钟乳洞
@@ -1224,15 +1255,12 @@ public class LevelScript_sn01:LevelScriptBase
         }
     }
 
-    int Rule = 10;
     int RoundTime = 10;
     int PlayerSpawn = 9;
     int PlayerSpawnDir = 90;
     int PlayerWeapon = 5;
     int PlayerWeapon2 = 1;
     int PlayerHP = 1500;
-
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -1253,6 +1281,7 @@ public class LevelScript_sn01:LevelScriptBase
         AddNPC("npc01_01");
         AddNPC("npc01_02");
         AddNPC("npc01_03");
+        base.OnStart();
     }
 
     public int GotoLeader(int c)
@@ -1502,14 +1531,12 @@ public class LevelScript_sn01:LevelScriptBase
 //秦皇陵
 public class LevelScript_sn02: LevelScriptBase
 {
-    int Rule = 5;
     int RoundTime = 30;
     int PlayerSpawn = 5;
     int PlayerSpawnDir = 90;
     int PlayerWeapon = 5;
     int PlayerWeapon2 = 0;
     int PlayerHP = 3000;
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -1588,6 +1615,7 @@ public class LevelScript_sn02: LevelScriptBase
     public override void OnStart()
     {
         AddNPC("npc02_01");
+        base.OnStart();
     }
 
     int tag1 = 0;
@@ -1607,7 +1635,6 @@ public class LevelScript_sn02: LevelScriptBase
 public class LevelScript_sn03 : LevelScriptBase
 {
     // 一线天
-    int Rule = 2;
     int RoundTime = 15;
     int PlayerSpawn = 53;
     int PlayerSpawnDir = 180;
@@ -1638,6 +1665,7 @@ public class LevelScript_sn03 : LevelScriptBase
         AddNPC("npc03_04");
         AddNPC("npc03_05");
         AddNPC("npc03_06");
+        base.OnStart();
     }
 
     int FindEnemy(int c, int p)
@@ -1920,7 +1948,6 @@ public class LevelScript_sn03 : LevelScriptBase
         return 0;
     }
 
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -2420,15 +2447,12 @@ public class LevelScript_sn03 : LevelScriptBase
 // 炽雪城
 public class LevelScript_sn04: LevelScriptBase
 {
-    
-    int Rule = 3;
     int RoundTime = 20;
     int PlayerSpawn = 15;
     int PlayerSpawnDir = 250;
     int PlayerWeapon = 16;
     int PlayerWeapon2 = 13;
     int PlayerHP = 2000;
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -2453,6 +2477,7 @@ public class LevelScript_sn04: LevelScriptBase
         AddNPC("npc04_05");
         AddNPC("npc04_06");
         AddNPC("npc04_07");
+        base.OnStart();
     }
 
     public override int OnUpdate()
@@ -2956,14 +2981,12 @@ public class LevelScript_sn05: LevelScriptBase
         SetSceneItem("D_Door03", "attribute", "collision", 1);
     }
 
-    int Rule = 5;
     int RoundTime = 30;
     int PlayerSpawn = 83;
     int PlayerSpawnDir = 135;
     int PlayerWeapon = 24;
     int PlayerWeapon2 = 21;
     int PlayerHP = 2500;
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -3000,6 +3023,7 @@ public class LevelScript_sn05: LevelScriptBase
         AddNPC("npc05_07");
         AddNPC("npc05_08");
         AddNPC("npc05_09");
+        base.OnStart();
     }
 
     public int CallFriend(int c, int c2, int p)
@@ -3654,13 +3678,11 @@ public class LevelScript_sn05: LevelScriptBase
 //四方阵，无脚本
 public class LevelScript_sn06: LevelScriptBase
 {
-    int Rule = 5;
     int RoundTime = 15;
     int PlayerSpawn = 5;
     int PlayerSpawnDir = 90;
     int PlayerWeapon = 5;
     int PlayerWeapon2 = 0;
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -3670,6 +3692,7 @@ public class LevelScript_sn06: LevelScriptBase
     public override void OnStart()
     {
         AddNPC("npc02_01");
+        base.OnStart();
     }
 
     int tag1 = 0;
@@ -3899,13 +3922,13 @@ public class LevelScript_sn07: LevelScriptBase
             NetEvent(0);
         }
     }
-    int Rule = 5;
+
     int RoundTime = 15;
     int PlayerSpawn = 5;
     int PlayerSpawnDir = 90;
     int PlayerWeapon = 5;
     int PlayerWeapon2 = 0;
-    public override int GetRule() { return Rule; }
+
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -3915,14 +3938,12 @@ public class LevelScript_sn07: LevelScriptBase
 //毒牙阵-非剧本关卡,需要房主把房间信息发来.
 public class LevelScript_sn08: LevelScriptBase
 {
-    int Rule = 5;
     int RoundTime = 15;
     int PlayerSpawn = 5;
     int PlayerSpawnDir = 90;
     int PlayerWeapon = 5;
     int PlayerWeapon2 = 0;
 
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -3931,6 +3952,7 @@ public class LevelScript_sn08: LevelScriptBase
 
     public override void OnStart()
     {
+        base.OnStart();
     }
 
     public override int OnUpdate()
@@ -3965,14 +3987,12 @@ public class LevelScript_sn08: LevelScriptBase
 //决死阵
 public class LevelScript_sn09 : LevelScriptBase
 {
-    int Rule = 1;
     int RoundTime = 5;
     int PlayerSpawn = 20;
     int PlayerSpawnDir = 90;
     int PlayerWeapon = 5;
     int PlayerWeapon2 = 1;
     int PlayerHP = 3000;
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -3989,6 +4009,7 @@ public class LevelScript_sn09 : LevelScriptBase
     {
         AddNPC("npc09_01");
         AddNPC("npc09_02");
+        base.OnStart();
     }
 
     public override int OnUpdate()
@@ -4307,14 +4328,12 @@ public class LevelScript_sn09 : LevelScriptBase
 public class LevelScript_sn10: LevelScriptBase
 {
     // 炼铁狱
-    int Rule = 4;
     int RoundTime = 30;
     int PlayerSpawn = 38;
     int PlayerSpawnDir = 100;
     int PlayerWeapon = 31;
     int PlayerWeapon2 = 33;
     int PlayerHP = 3000;
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -4337,6 +4356,7 @@ public class LevelScript_sn10: LevelScriptBase
     public override void OnStart()
     {
         AddNPC("npc10_01");
+        base.OnStart();
     }
 
     public override int OnUpdate()
@@ -4820,13 +4840,11 @@ public class LevelScript_sn10: LevelScriptBase
 //毒牙阵
 public class LevelScript_sn11 : LevelScriptBase
 {
-    int Rule = 4;
     int RoundTime = 30;
     int PlayerSpawn = 5;
     int PlayerSpawnDir = 90;
     int PlayerWeapon = 5;
     int PlayerWeapon2 = 0;
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -5146,13 +5164,11 @@ public class LevelScript_sn11 : LevelScriptBase
 //五爪峰
 public class LevelScript_sn12 : LevelScriptBase
 {
-    int Rule = 4;
     int RoundTime = 30;
     int PlayerSpawn = 5;
     int PlayerSpawnDir = 90;
     int PlayerWeapon = 5;
     int PlayerWeapon2 = 0;
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -5289,14 +5305,12 @@ public class LevelScript_sn12 : LevelScriptBase
 //金华城
 public class LevelScript_sn13 : LevelScriptBase
 {
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
-    int Rule = 4;
     int RoundTime = 15;
     int PlayerSpawn = 249;
     int PlayerSpawnDir = 90;
@@ -5324,6 +5338,7 @@ public class LevelScript_sn13 : LevelScriptBase
         AddNPC("npc13_06");
         AddNPC("npc13_07");
         AddNPC("npc13_08");
+        base.OnStart();
     }
 
     public override int OnUpdate()
@@ -5902,15 +5917,12 @@ public class LevelScript_sn13 : LevelScriptBase
 //炎硫岛
 public class LevelScript_sn14 : LevelScriptBase
 {
-    int Rule = 10;
     int RoundTime = 10;
     int PlayerSpawn = 34;
     int PlayerSpawnDir = 0;
     int PlayerWeapon = 6;
     int PlayerWeapon2 = 0;
     int PlayerHP = 1000;
-
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -5921,6 +5933,7 @@ public class LevelScript_sn14 : LevelScriptBase
     {
 	    AddNPC("npc14_01");
 	    AddNPC("npc14_02");
+        base.OnStart();
     }
 
     int trg0 = 0;
@@ -6138,7 +6151,6 @@ public class LevelScript_sn14 : LevelScriptBase
 /// </summary>
 public class LevelScript_sn15 : LevelScriptBase
 {
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -6146,7 +6158,6 @@ public class LevelScript_sn15 : LevelScriptBase
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
 
-    int Rule = 4;
     int RoundTime = 25;
     int PlayerSpawn = 30;
     int PlayerSpawnDir = 80;
@@ -6180,6 +6191,7 @@ public class LevelScript_sn15 : LevelScriptBase
         AddNPC("npc15_05");
         AddNPC("npc15_06");
         AddNPC("npc15_07");
+        base.OnStart();
     }
 
     public int Report(int c)
@@ -6986,13 +6998,11 @@ public class LevelScript_sn15 : LevelScriptBase
 //五雷塔
 public class LevelScript_sn16 : LevelScriptBase
 {
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
-    int Rule = 2;
     int RoundTime = 30;
     int PlayerSpawn = 5;
     int PlayerSpawnDir = 90;
@@ -7003,13 +7013,11 @@ public class LevelScript_sn16 : LevelScriptBase
 //伏虎山
 public class LevelScript_sn17 : LevelScriptBase
 {
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
-    int Rule = 5;
     int RoundTime = 30;
     int PlayerSpawn = 5;
     int PlayerSpawnDir = 90;
@@ -7019,13 +7027,11 @@ public class LevelScript_sn17 : LevelScriptBase
 //圆满楼
 public class LevelScript_sn18 : LevelScriptBase
 {
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
-    int Rule = 4;
     int RoundTime = 30;
     int PlayerSpawn = 5;
     int PlayerSpawnDir = 90;
@@ -7036,13 +7042,11 @@ public class LevelScript_sn18 : LevelScriptBase
 //洛阳城
 public class LevelScript_sn19 : LevelScriptBase
 {
-    int Rule = 5;
     int RoundTime = 30;
     int PlayerSpawn = 5;
     int PlayerSpawnDir = 90;
     int PlayerWeapon = 5;
     int PlayerWeapon2 = 0;
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -7052,13 +7056,11 @@ public class LevelScript_sn19 : LevelScriptBase
 //卧龙窟
 public class LevelScript_sn20 : LevelScriptBase
 {
-    int Rule = 2;
     int RoundTime = 30;
     int PlayerSpawn = 5;
     int PlayerSpawnDir = 90;
     int PlayerWeapon = 5;
     int PlayerWeapon2 = 0;
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -7069,13 +7071,11 @@ public class LevelScript_sn20 : LevelScriptBase
 //圣诞夜
 public class LevelScript_sn21 : LevelScriptBase
 {
-    int Rule = 2;
     int RoundTime = 30;
     int PlayerSpawn = 5;
     int PlayerSpawnDir = 90;
     int PlayerWeapon = 5;
     int PlayerWeapon2 = 0;
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -7358,7 +7358,6 @@ public class LevelScript_sn21 : LevelScriptBase
 //22-威震八方
 public class LevelScript_sn22 : LevelScriptBase
 {
-    int Rule = 2;
     int RoundTime = 30;
     int PlayerSpawn = 16;
     int PlayerSpawnDir = 84;
@@ -7366,7 +7365,6 @@ public class LevelScript_sn22 : LevelScriptBase
     int PlayerWeapon2 = 0;
     int PlayerModel = 10;
     int PlayerHP = 8000;
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -7949,7 +7947,6 @@ public class LevelScript_sn22 : LevelScriptBase
 //23韩棠-大决战
 public class LevelScript_sn23 : LevelScriptBase
 {
-    int Rule = 2;
     int RoundTime = 30;
     int PlayerSpawn = 16;
     int PlayerSpawnDir = 84;
@@ -7958,7 +7955,6 @@ public class LevelScript_sn23 : LevelScriptBase
     int PlayerModel = 10;
     int PlayerHP = 8000;
     string PlayerName = "韩棠";
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -7973,6 +7969,7 @@ public class LevelScript_sn23 : LevelScriptBase
         AddNPC("npc23_02");//罗金鹏  
         AddNPC("npc23_03");//萧银鹏
         AddNPC("npc23_04");//原怒鹏
+        base.OnStart();
     }
 
     int trg0 = 0;//一起说话
@@ -8259,7 +8256,6 @@ public class LevelScript_sn23 : LevelScriptBase
 //CF-运输船
 public class LevelScript_sn24 : LevelScriptBase
 {
-    int Rule = 2;
     int RoundTime = 30;
     int PlayerSpawn = 7;
     int PlayerSpawnDir = 84;
@@ -8268,7 +8264,6 @@ public class LevelScript_sn24 : LevelScriptBase
     int PlayerModel = 10;
     int PlayerHP = 8000;
     string PlayerName = "X战警";
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -8279,7 +8274,7 @@ public class LevelScript_sn24 : LevelScriptBase
     public override int GetPlayerMaxHp() { return PlayerHP; }
     public override void OnStart()
     {
-
+        base.OnStart();
     }
 
 
@@ -8300,14 +8295,12 @@ public class LevelScript_sn24 : LevelScriptBase
 //往生幻境.
 public class LevelScript_sn25 : LevelScriptBase
 {
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
-    int Rule = 5;
     int RoundTime = 20;
     int PlayerSpawn = 0;
     int PlayerSpawnDir = 90;
@@ -8333,6 +8326,7 @@ public class LevelScript_sn25 : LevelScriptBase
         AddNPC("npc25_2");
         AddNPC("npc25_3");
         AddNPC("npc25_4");
+        base.OnStart();
     }
 
     public override int OnUpdate()
@@ -8390,7 +8384,6 @@ public class LevelScript_sn25 : LevelScriptBase
 
 public class LevelScript_sn26 : LevelScriptBase
 {
-    public override int GetRule() { return Rule; }
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
@@ -8398,7 +8391,6 @@ public class LevelScript_sn26 : LevelScriptBase
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
 
-    int Rule = 10;
     int RoundTime = 10;
     int PlayerSpawn = 34;
     int PlayerSpawnDir = 0;
@@ -8416,6 +8408,7 @@ public class LevelScript_sn26 : LevelScriptBase
     public override void OnStart()
     {
         ScriptMng.ins.CallScript("levelscript_26");
+        base.OnStart();
     }
 
     public override int OnUpdate()
@@ -8491,12 +8484,22 @@ public class LevelScript_sn26 : LevelScriptBase
 
 
     }
-
-    
 }
 
-
-public abstract class AIScriptBase
+//所有的新关卡，不读取
+public class LevelScript_sn1000 : LevelScriptBase
 {
-
+    public override int GetRoundTime() {  return 100; }
+    public override int GetPlayerSpawn() { return 0; }
+    public override int GetPlayerSpawnDir() { return 0; }
+    public override int GetPlayerWeapon() { return _GetPlayerWeapon(); }
+    public override int GetPlayerWeapon2() { return _GetPlayerWeapon2(); }
+    public override int GetPlayerMaxHp() { return _GetPlayerMaxHp(); }
+    public override int GetPlayerModel() { return _GetPlayerModel(); }
+    public override string GetPlayerName() { return _GetPlayerName(); }
+    public override string GetDesName() { return ""; }
+    public override void OnStart()
+    {
+        base.OnStart();
+    }
 }

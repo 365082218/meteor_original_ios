@@ -281,7 +281,7 @@ public class MonsterEx
             
             Weapon = 51;
             Weapon2 = 47;
-            HpMax = hpCur = 1000;
+            HpMax = hpCur = 10000;
         }
         else
         {
@@ -294,7 +294,7 @@ public class MonsterEx
             HpMax = hpCur = (int)(double)script.GetPlayerMaxHp();
             if (HpMax == 0)
                 hpCur = HpMax = 1000;
-        }
+        } 
         View = 500;
         AngryValue = 0;
         IsDead = false;

@@ -43,10 +43,7 @@ public enum EAISubStatus
     FightSubRotateToTarget,//走到路点后，旋转朝向下一个路点.
     FightSubLeavetoTarget,//离开、逃跑.
 
-    FightThink,//远程武器射击，
-    FightAttack1,//普攻
-    FightAttack2,//连击
-    FightAttack3,//绝招
+    Fight,//实际出招/向其他状态切换，
     FightGuard,//战斗中防御-按概率
     FightDodge,//躲闪，双击某个方向键
     FightJump,//跳跃招式-概率
@@ -83,33 +80,6 @@ public enum EAISubStatus
     GetItemMissItem,//可能目标已无效（被其他NPC拾取、目标发生转换（镖物某NPC死后，落到地面-数秒内归位））
 }
 
-//每种距离，有无目标的2种情况下的AI设置.
-public class AISet
-{
-    public List<AISlot> Target;
-    public List<AISlot> NoneTarget;
-}
-
-public class AISlot
-{
-    public int Distance;
-    public int Ratio;//
-    public virtual int Pose() { return 0; }//动作->武器，或者技能ID
-    public virtual bool CheckCondition() { return false; }
-}
-
-//各种AI下保存各种状态检查函数
-public class WeaponAI : AISlot
-{
-    public override int Pose()
-    {
-        return 0;
-    }
-    public override bool CheckCondition()
-    {
-        return base.CheckCondition();
-    }
-}
 
 public class MeteorAI {
     public MeteorAI(MeteorUnit user)
@@ -120,6 +90,8 @@ public class MeteorAI {
     }
     public EAIStatus Status { get; set; }
     public EAISubStatus SubStatus { get; set; }
+    bool weaponChanged;
+    bool callChangeWeapon;
     MeteorUnit owner;//自己
     MeteorUnit followTarget;//跟随目标
     public MeteorUnit killTarget;//无视视野
@@ -130,7 +102,7 @@ public class MeteorAI {
     public bool stoped { get; set; }
     bool paused = false;
     float pause_tick;
-    public Dictionary<int, AISet> AIData;
+    //public Dictionary<int, AISet> AIData;
     //当前目标路径
     int pathIdx = -1;
     Vector3 targetPos = Vector3.zero;
@@ -165,7 +137,7 @@ public class MeteorAI {
 
         AIJumpDelay += Time.deltaTime;
         AIFollowRefresh += Time.deltaTime;
-        SpecialCheckTick += Time.deltaTime;
+        ThinkCheckTick -= Time.deltaTime;
         if (Status == EAIStatus.Patrol || Status == EAIStatus.PatrolInPlace || Status == EAIStatus.GotoPatrol)
         {
             if (owner.GetLockedTarget() != null)
@@ -221,7 +193,7 @@ public class MeteorAI {
                 //killTarget = owner.GetLockedTarget();
                 fightTarget = owner.GetLockedTarget();
                 Status = EAIStatus.Fight;
-                SubStatus = EAISubStatus.FightThink;
+                SubStatus = EAISubStatus.Fight;
                 return;
             }
 
@@ -330,6 +302,11 @@ public class MeteorAI {
     void OnDodge()
     {
         FightInDanger();
+    }
+
+    public void OnChangeWeapon()
+    {
+        weaponChanged = true;
     }
 
     //捡取场景道具
@@ -459,7 +436,7 @@ public class MeteorAI {
             yield return 0;
         }
         LookRotateToTargetCoroutine = null;
-        ChangeState(EAIStatus.Wait);
+        ChangeState(EAIStatus.Idle);
     }
 
     #region 输入
@@ -494,7 +471,7 @@ public class MeteorAI {
                     {
                         int burst = Random.Range(0, 100);
                         //20时，就为20几率，0-19 共20
-                        if (burst >= Mathf.Max(0, 100 - owner.Attr.Burst))
+                        if (burst <= Global.BreakChange)
                             InputCorout = owner.StartCoroutine(VirtualKeyEvent(EKeyList.KL_BreakOut));
                     }
                 }
@@ -581,7 +558,6 @@ public class MeteorAI {
 
     void TryAttack()
     {
-        //Debug.LogError("try attack");
         //已经在攻击招式中.后接招式挑选
         //把可以使用的招式放到集合里，A类放普攻，B类放搓招， C类放绝招
         ActionNode act = ActionInterrupt.Instance.GetActions(owner.posMng.mActiveAction.Idx);
@@ -599,7 +575,6 @@ public class MeteorAI {
                 ActionNode attack1 = ActionInterrupt.Instance.GetNormalNode(owner, act);
                 if (attack1 != null)
                 {
-                    SubStatus = EAISubStatus.FightAttack1;
                     TryPlayWeaponPose(attack1.KeyMap);
                 }
             }
@@ -610,7 +585,6 @@ public class MeteorAI {
                 List<ActionNode> attack2 = ActionInterrupt.Instance.GetSlashNode(owner, act);
                 if (attack2.Count != 0)
                 {
-                    SubStatus = EAISubStatus.FightAttack2;
                     TryPlayWeaponPose(attack2[Random.Range(0, attack2.Count)].KeyMap);
                 }
             }
@@ -621,9 +595,6 @@ public class MeteorAI {
                 ActionNode attack3 = ActionInterrupt.Instance.GetSkillNode(owner, act);
                 if (attack3 != null)
                 {
-                    SubStatus = EAISubStatus.FightAttack3;
-                    //if (attack3.ActionIdx == 310)
-                    //    Debug.Log("use blade skill");
                     TryPlayWeaponPose(attack3.KeyMap);
                 }
             }
@@ -717,267 +688,226 @@ public class MeteorAI {
     }
 
     //地面攻击.
-    float SpecialCheckTick = 0.0f;
+    float ThinkCheckTick = 0.0f;
     void FightOnGround()
     {
-        /*
-        FightThink,//远程武器射击，
-        FightAttack1,//普攻
-        FightAttack2,//连击
-        FightAttack3,//绝招
-        FightGuard,//战斗中防御-按概率
-        FightDodge,//躲闪，双击某个方向键
-        FightJump,//跳跃招式-概率
-        FightLook,//战斗中旋转-
-        FightBurst,//战斗中曝气
-        FightAim,//战斗中若使用远程武器，瞄准敌方的几率，否则就随机
-
-        FightWithSpecialWeapon,//使用当前的远程武器瞄准敌人射击
-        ChangeWeaponGotoFight,//切换武器，跑近，瞄准，切换到战斗
-        ChangeWeaponFight,// 切换武器，瞄准，开打
-        UseWeaponGotoFight,//跑近，瞄准，开打
-        ChangeWeaponLeaveToFight,//跑远，瞄准，开打
-        LeaveToFight,//跑远，开打
-         */
-        if (SubStatus >= EAISubStatus.FightThink && SubStatus <= EAISubStatus.FightAim)
+        switch (SubStatus)
         {
-            //Debug.LogError("fightonground");
-            //1 先检查当前是否处于接收输入状态，这种都是连招方式的。
-            if (owner.controller.Input.AcceptInput())
+            case EAISubStatus.Fight:
+                OnFightThink();
+                break;
+            case EAISubStatus.FightAim:
+                OnFightAim();//当前状态是瞄准.
+                break;
+        }
+    }
+
+    void OnFightThink()
+    {
+        if (owner.controller.Input.AcceptInput())
+        {
+            if (owner.posMng.IsAttackPose() && PlayWeaponPoseCorout == null)
             {
-                //依次判断
-                //Debug.LogError("accept input");
-                if (owner.posMng.IsAttackPose() && PlayWeaponPoseCorout == null)
+                TryAttack();
+            }
+            else if (owner.posMng.IsHurtPose())
+            {
+                //无输入状态时.
+                if (InputCorout == null)
                 {
-                    //Debug.LogError("attack");
-                    TryAttack();
-                }
-                else if (owner.posMng.IsHurtPose())
-                {
-                    //无输入状态时.
-                    if (InputCorout == null)
+                    //不响应输入.指一个动作正在前摇或后摇，只能响应曝气,曝气只有
+                    //如果可以曝气
+                    if (owner.CanBurst())
                     {
-                        //不响应输入.指一个动作正在前摇或后摇，只能响应曝气,曝气只有
-                        if (owner.posMng.IsHurtPose())
-                        {
-                            //如果可以曝气
-                            if (owner.CanBurst())
-                            {
-                                int breakOut = Random.Range(0, 100);
-                                //20时，就为20几率，0-19 共20
-                                if (breakOut <= Global.BreakChange)
-                                    InputCorout = owner.StartCoroutine(VirtualKeyEvent(EKeyList.KL_BreakOut));
-                            }
-                        }
+                        int breakOut = Random.Range(0, 100);
+                        //20时，就为20几率，0-19 共20
+                        if (breakOut <= Global.BreakChange)
+                            InputCorout = owner.StartCoroutine(VirtualKeyEvent(EKeyList.KL_BreakOut));
                     }
                 }
-                else
-                {
-                    //在一些动作姿势里，走，跑，跳 等
-                    //if ()//在一些特殊姿势里，比如落地，等待飞轮回来，火枪上子弹。
-
-                    //特殊应对，对距离的监测，
-                    //触发近战状态下  跑到远处去使用远程武器打架
-                    //或者远程状态下，使用近战武器跑近身打架
-                    //或者远程状态下, 切换远程武器打架
-                    //使用计时器，如果未到下一个不判断
-                    if (SpecialCheckTick < Time.timeSinceLevelLoad)
-                    {
-                        float dis = Vector3.Distance(owner.mPos, fightTarget.mPos);
-                        //距离战斗目标不同，选择不同方式应对.
-                        if (dis >= Global.AttackRange)
-                        {
-                            //大部分几率是跑过去，走到跟前对打。
-                            //小部分几率是切换远程武器打目标。
-
-                            //1是否拥有远程武器
-                            if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
-                            {
-                                //主手是远程武器-.直接攻击,不处理，后续会处理到底是打还是啥.
-                                if (owner.Attr.Weapon2 == 0 || U3D.IsSpecialWeapon(owner.Attr.Weapon2))
-                                {
-                                    //站撸，因为只有一把远程武器？这个状态可能是丢掉武器发生的，应该算一个错误状态
-                                    SubStatus = EAISubStatus.FightWithSpecialWeapon;
-                                    return;
-                                }
-
-                                int random = Random.Range(0, 100);
-                                if (random > 10)
-                                {
-                                    //直接使用当前武器开打，需要瞄准.
-                                    SubStatus = EAISubStatus.FightWithSpecialWeapon;//使用当前
-                                    return;
-                                }
-                                else
-                                {
-                                    //切换武器，跑过去，开打,换到武器2
-                                    SubStatus = EAISubStatus.ChangeWeaponGotoFight;
-                                    return;
-                                }
-                            }
-                            else if (U3D.IsSpecialWeapon(owner.Attr.Weapon2))
-                            {
-                                //副手是远程武器-.一定几率切换武器，再攻击.
-                                int random = Random.Range(0, 100);
-                                if (random > 10)
-                                {
-                                    //切换武器，开打(不跑过去),换到武器2
-                                    SubStatus = EAISubStatus.ChangeWeaponFight;//使用当前
-                                    return;
-                                }
-                                else
-                                {
-                                    //直接使用当前武器开打，跑过去，需要面对.
-                                    SubStatus = EAISubStatus.UseWeaponGotoFight;
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                //双手全近战武器.在视野内 攻击距离外则跑近到攻击距离
-                                SubStatus = (EAISubStatus.UseWeaponGotoFight);
-                                return;
-                            }
-
-                        }
-                        else//在攻击范围内.
-                        {
-                            //检查有没有远程武器.
-                            //是否跑远使用远程武器.
-                            bool useSpecialWeapon = false;
-                            bool changeWeapon = false;
-                            if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
-                            {
-                                useSpecialWeapon = true;
-                                changeWeapon = false;
-                            }
-                            else if (U3D.IsSpecialWeapon(owner.Attr.Weapon2))
-                            {
-                                useSpecialWeapon = true;
-                                changeWeapon = true;
-                            }
-                            else
-                            {
-                                //全近战武器，不使用远程武器，也不需要跑远，也不需要切换武器
-                            }
-
-                            if (useSpecialWeapon)
-                            {
-                                int random = Random.Range(0, 100);
-                                if (random < 10)
-                                {
-                                    if (changeWeapon)
-                                        SubStatus = (EAISubStatus.ChangeWeaponLeaveToFight);
-                                    else
-                                        SubStatus = (EAISubStatus.LeaveToFight);
-                                }
-                            }
-                        }
-
-                        SpecialCheckTick = Time.timeSinceLevelLoad + 5;
-                    }
-
-                    //检查状态是否应该切换为GotoTarget;
-                    int attack = Random.Range(0, 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst + owner.Attr.GetItem);
-                    if (attack <= owner.Attr.Attack1 + owner.Attr.Attack2 + owner.Attr.Attack3)
-                        TryAttack();
-                    else
-                    {
-                        if (attack > 100 && attack < 100 + owner.Attr.Dodge)
-                        {
-                            //逃跑，在危险状态下
-                            if (owner.InDanger())
-                            {
-                                LeaveReset();
-                                ChangeState(EAIStatus.Dodge);
-                            }
-                        }
-                        else
-                        if (JumpCoroutine == null && attack > 100 + owner.Attr.Dodge && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump)
-                        {
-                            //最好不要带方向跳跃，否则可能跳到障碍物外被场景卡住
-                            Stop();
-                            AIJump();
-                        }
-                        else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard)
-                        {
-                            Stop();
-                            owner.Guard(true);
-                        }
-                        else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look)
-                        {
-                            ChangeState(EAIStatus.Look);
-                        }
-                        else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst)
-                        {
-                            //快速移动.
-                            AIBurst((EKeyList.KL_KeyA) + attack % 4);
-                        }//不判断拾取物品，拾取物品发生在物品出现在视野内时
-                        else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst + owner.Attr.GetItem)
-                        {
-                            //去捡包子.
-                            if (owner.GetSceneItemTarget() != null && owner.GetSceneItemTarget().CanPickup())
-                                ChangeState(EAIStatus.GetItem);
-                        }
-                        else
-                        {
-                            //一定几率面向角色
-                            if (owner.GetLockedTarget() != null)
-                                owner.FaceToTarget(owner.GetLockedTarget());
-                        }
-                    }
-                    return;
-                }
-                //状态 - 残血[捡物品/逃跑(旋转、跑)]、攻击出招、闪躲、跳跃、防御、捡物品、
-                //武器类型 - 近战武器/远程武器
-                //距离 - 近战武器距离是否够近
-                //面向 - 是否面对角色不至于
-
-                //能输入招式之类的。
-                //1 随机决定是否 攻击（平A）/连招（左右A，上下A之类，多个方向键+攻击）/绝招
-                //根据当前招式可以接哪些招式
             }
             else
             {
-                //不接受输入，在动作前摇或后摇,且无法取消
-            }
-        }
-        else if (SubStatus == EAISubStatus.FightWithSpecialWeapon)
-        {
-            //使用当前武器瞄准敌人，然后开始射击
-            //一定时间内，转向攻击目标，然后切换到攻击状态.
-            if (fightTarget == null)
-            {
-                ChangeState(EAIStatus.Wait);
+                //这些动作能不能切换到目标姿势.???
+
+                //在一些动作姿势里，走，跑，跳 等
+                //if ()//在一些特殊姿势里，比如落地，等待飞轮回来，火枪上子弹。
+                //特殊应对，对距离的监测，
+                //触发近战状态下  跑到远处去使用远程武器打架
+                //或者远程状态下，使用近战武器跑近身打架
+                //或者远程状态下, 切换远程武器打架
+                //使用计时器，如果未到下一个不判断
+                if (ThinkCheckTick < 0)
+                {
+                    //更新状态.
+                    ThinkCheckTick = owner.Attr.Think / 10.0f;
+                    float dis = Vector3.Distance(owner.mPos, fightTarget.mPos);
+                    //距离战斗目标不同，选择不同方式应对.
+                    if (dis >= Global.AttackRange)
+                    {
+                        //大部分几率是跑过去，走到跟前对打。
+                        //小部分几率是切换远程武器打目标。
+
+                        //1是否拥有远程武器
+                        if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
+                        {
+                            //主手是远程武器-.直接攻击,不处理，后续会处理到底是打还是啥.
+                            if (owner.Attr.Weapon2 == 0 || U3D.IsSpecialWeapon(owner.Attr.Weapon2))
+                            {
+                                //站撸，因为只有一把远程武器？这个状态可能是丢掉武器发生的，应该算一个错误状态
+                                SubStatus = EAISubStatus.FightWithSpecialWeapon;
+                                return;
+                            }
+
+                            int random = Random.Range(0, 100);
+                            if (random > 10)
+                            {
+                                //直接使用当前武器开打，需要瞄准.
+                                SubStatus = EAISubStatus.FightWithSpecialWeapon;//使用当前远程武器
+                                return;
+                            }
+                            else
+                            {
+                                //切换武器，跑过去，开打,换到武器2
+                                SubStatus = EAISubStatus.ChangeWeaponGotoFight;
+                                return;
+                            }
+                        }
+                        else if (U3D.IsSpecialWeapon(owner.Attr.Weapon2))
+                        {
+                            //副手是远程武器-.一定几率切换武器，再攻击.
+                            int random = Random.Range(0, 100);
+                            if (random > 10)
+                            {
+                                //切换武器，开打(不跑过去),换到武器2
+                                SubStatus = EAISubStatus.ChangeWeaponFight;
+                                weaponChanged = false;
+                                callChangeWeapon = false;
+                                return;
+                            }
+                            else
+                            {
+                                //直接使用当前武器开打，跑过去，需要面对.
+                                SubStatus = EAISubStatus.UseWeaponGotoFight;
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            //双手全近战武器.在视野内 攻击距离外则跑近到攻击距离
+                            SubStatus = (EAISubStatus.UseWeaponGotoFight);
+                            return;
+                        }
+
+                    }
+                    else//在攻击范围内.
+                    {
+                        //检查有没有远程武器.
+                        //是否跑远使用远程武器.
+                        bool useSpecialWeapon = false;
+                        bool changeWeapon = false;
+                        if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
+                        {
+                            useSpecialWeapon = true;
+                            changeWeapon = false;
+                        }
+                        else if (U3D.IsSpecialWeapon(owner.Attr.Weapon2))
+                        {
+                            useSpecialWeapon = true;
+                            changeWeapon = true;
+                        }
+                        else
+                        {
+                            //全近战武器，不使用远程武器，也不需要跑远，也不需要切换武器
+                        }
+
+                        if (useSpecialWeapon)
+                        {
+                            int random = Random.Range(0, 100);
+                            if (random < 10)
+                            {
+                                if (changeWeapon)
+                                {
+                                    SubStatus = (EAISubStatus.ChangeWeaponLeaveToFight);
+                                    return;
+                                }
+                                else
+                                {
+                                    SubStatus = (EAISubStatus.LeaveToFight);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //检查状态是否应该切换为GotoTarget;
+                int attack = Random.Range(0, 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst + owner.Attr.GetItem);
+                if (attack <= owner.Attr.Attack1 + owner.Attr.Attack2 + owner.Attr.Attack3)
+                    TryAttack();
+                else
+                {
+                    if (attack > 100 && attack < 100 + owner.Attr.Dodge)
+                    {
+                        //逃跑，在危险状态下
+                        if (owner.InDanger())
+                        {
+                            LeaveReset();
+                            ChangeState(EAIStatus.Dodge);
+                        }
+                    }
+                    else
+                    if (JumpCoroutine == null && attack > 100 + owner.Attr.Dodge && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump)
+                    {
+                        //最好不要带方向跳跃，否则可能跳到障碍物外被场景卡住
+                        Stop();
+                        AIJump();
+                    }
+                    else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard)
+                    {
+                        Stop();
+                        owner.Guard(true);
+                    }
+                    else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look)
+                    {
+                        ChangeState(EAIStatus.Look);
+                    }
+                    else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst)
+                    {
+                        //快速移动.
+                        AIBurst((EKeyList.KL_KeyA) + attack % 4);
+                    }//不判断拾取物品，拾取物品发生在物品出现在视野内时
+                    else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst + owner.Attr.GetItem)
+                    {
+                        //去捡包子.
+                        if (owner.GetSceneItemTarget() != null && owner.GetSceneItemTarget().CanPickup())
+                            ChangeState(EAIStatus.GetItem);
+                    }
+                    else
+                    {
+
+                    }
+                }
                 return;
             }
-            if (AttackRotateToTargetCoroutine == null)
-                AttackRotateToTargetCoroutine = owner.StartCoroutine(AttackRotateToTarget(fightTarget.mPos, EAIStatus.Wait, EAISubStatus.FightThink, false, true));
-        }
-        else if (SubStatus == EAISubStatus.ChangeWeaponGotoFight)
-        {
+            //状态 - 残血[捡物品/逃跑(旋转、跑)]、攻击出招、闪躲、跳跃、防御、捡物品、
+            //武器类型 - 近战武器/远程武器
+            //距离 - 近战武器距离是否够近
+            //面向 - 是否面对角色不至于
 
+            //能输入招式之类的。
+            //1 随机决定是否 攻击（平A）/连招（左右A，上下A之类，多个方向键+攻击）/绝招
+            //根据当前招式可以接哪些招式
         }
-        else if (SubStatus == EAISubStatus.ChangeWeaponFight)
+        else
         {
-
+            //不接受输入，在动作前摇或后摇,且无法取消
         }
-        else if (SubStatus == EAISubStatus.UseWeaponGotoFight)
-        {
+    }
 
-        }
-        else if (SubStatus == EAISubStatus.ChangeWeaponLeaveToFight)
-        {
+    void OnFightAim()
+    {
 
-        }
-        else if (SubStatus == EAISubStatus.LeaveToFight)
-        {
-
-        }
-        else if (SubStatus == EAISubStatus.AttackGotoTarget)
-        {
-
-        }
     }
 
     List<WayPoint> Path = new List<WayPoint>();//这个是攻击指定位置时的寻路，这个是不会随着角色移动改变位置的.
@@ -1123,7 +1053,7 @@ public class MeteorAI {
         owner.SetLockedTarget(target);
         fightTarget = target;
         ChangeState(EAIStatus.Fight);
-        SubStatus = EAISubStatus.FightThink;
+        SubStatus = EAISubStatus.Fight;
     }
 
     public void FollowTarget(int target)
@@ -1193,6 +1123,7 @@ public class MeteorAI {
     const float updateDelta = 1.0f;
     float tick = 0.0f;
     float attacktick = 0.0f;
+    float idleTick = 0.0f;
     float waitCrouch;
     float waitDefence;
 
@@ -1202,10 +1133,16 @@ public class MeteorAI {
 
     }
 
-    //不动播放空闲动画 
+    //空闲动画
     void OnIdle()
     {
-        return;
+        if (idleTick >= 0.2f)
+        {
+            ChangeState(EAIStatus.Wait);
+            idleTick = 0.0f;
+            return;
+        }
+        idleTick += Time.deltaTime;
     }
 
     //倒在地面上。判断是否在地面多躺一会，第二，哪个方向起身，第三，是否跳跃起身.第四，是否带方向速度.
@@ -1585,7 +1522,7 @@ public class MeteorAI {
         }
         AttackRotateToTargetCoroutine = null;
         if (setSubStatus)
-            SubStatus = EAISubStatus.AttackGotoTarget;
+            SubStatus = subStatus;
         if (setStatus)
             Status = status;
     }

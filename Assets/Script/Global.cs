@@ -20,7 +20,9 @@ public class Global
     public static LevelScriptBase GScript;
     public static Type GScriptType;
     public static System.Random Rand = new System.Random((int)DateTime.Now.ToFileTime());
-	static bool mPauseAll ;
+    public static bool Result = false;//战斗已经有结果，之后任意的触发战斗结束（比如所有NPC全部死，结算时有5秒，这之间主角死，会重复进入）
+
+    static bool mPauseAll ;
     public static bool PauseAll
     {
         get { return mPauseAll; }

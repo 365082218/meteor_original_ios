@@ -1,0 +1,3 @@
+function main()
+U3D.AddNPC("npc1000_1")
+end

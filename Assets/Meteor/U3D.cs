@@ -85,6 +85,17 @@ public class U3D : MonoBehaviour {
         MeteorManager.Instance.OnGenerateUnit(unit);
         unit.SetGround(false);
 
+        //新模式，只有出生点.
+        if (Global.GLevelItem.SceneMode == 1)
+        {
+            unit.transform.position = GameObject.Find("StartPoint").transform.position;
+            unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+            InsertSystemMsg(LevelHelper.GetCampStr(unit));
+            //找寻敌人攻击.因为这个并没有脚本模板
+            unit.robot.ChangeState(EAIStatus.Wait);
+            return;
+        }
+
         if (Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
             unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
@@ -399,7 +410,7 @@ public class U3D : MonoBehaviour {
 
     IEnumerator LoadMainWnd(Action t)
     {
-        Debug.LogError("LoadScenes Menu");
+        //Debug.LogError("LoadScenes Menu");
         ResMng.LoadScene("Menu");
         loadMainOp = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Menu", UnityEngine.SceneManagement.LoadSceneMode.Single);//.LoadSceneAsync_s (1);
         yield return loadMainOp;
@@ -408,7 +419,7 @@ public class U3D : MonoBehaviour {
 
     void OnLoadMainFinished(Action t)
     {
-        Debug.LogError("OnLoadMainFinished");
+        //Debug.LogError("OnLoadMainFinished");
         AudioListener listen = Startup.ins.gameObject.GetComponent<AudioListener>();
         if (listen == null)
             Startup.ins.gameObject.AddComponent<AudioListener>();

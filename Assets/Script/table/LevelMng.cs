@@ -66,6 +66,7 @@ public class Level : ITableItem
 	public SmartInt FuBenID;
 	public string Scene;
     public string SceneDebug;
+    
     public string Name;
     List<WayPoint> wayPoints;
     //23关卡前使用旧版本的WP文件，23关卡后使用场景里设置的出生点.
@@ -93,6 +94,8 @@ public class Level : ITableItem
     //4:死斗-胜利获得 失败失去 大量金钱 装备另外算
     //5:限制时长，游戏关卡
     //6:无尽
+    public string LevelScript;//对应的关卡副本
+    public string StartScript;//对应的开始脚本，用来加载额外的怪物，一般新场景模式才使用这种.旧场景模式会叠加怪物，但是不会处理这些怪物的剧情
     public int LevelType;
     public int Key() { return ID; }
     public string BgmName;
@@ -101,14 +104,11 @@ public class Level : ITableItem
     public int Pass;//通关条件
     public string Des;
     public string Chapter;
+    public int SceneMode;
     public int DisableFindWay;//禁止寻路
 };
 
 public class LevelMng : TableManager<Level, LevelMng>
 {
-#if DEBUG_DEV
-    public override string TableName() { return "LevelDebug"; }
-#else
     public override string TableName() { return "Level"; }
-#endif
 }

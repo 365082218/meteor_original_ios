@@ -197,7 +197,6 @@ public class Loader : MonoBehaviour {
     //静态固有物件。类似声音，位置点
     public void LoadFixedScene(string sceneItems)
     {
-        //mapObjectList.Clear();
         DesFile des = DesLoader.Instance.Load(sceneItems);
         for (int i = des.ObjectCount; i < des.SceneItems.Count; i++)
         {

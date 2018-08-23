@@ -1,8 +1,8 @@
 模型ID	模型名称	身高	重心高度								注释
-ModelId	Scene	Height	Pivot
+ModelId	Name	Height	Pivot
 1	孟星魂	35	17.8
 2	冷燕	35	17.8
-3	铁胡子	37	19
+3	铁胡子	37	17.2
 4	夜猫子	37	18.5
 5	破空	37	19.2
 6	冯浩	35	18.2

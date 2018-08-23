@@ -43,6 +43,9 @@ public partial class GameBattleEx : MonoBehaviour {
     //显示失败，或者胜利界面 >=1 = win <= 0 = lose 2 == none
     public void GameOver(int result)
     {
+        if (Global.Result)
+            return;
+        Global.Result = true;
         Global.PauseAll = true;
         MeteorManager.Instance.LocalPlayer.controller.InputLocked = true;
         SoundManager.Instance.StopAll();
@@ -75,17 +78,16 @@ public partial class GameBattleEx : MonoBehaviour {
 
     void PlayEndMovie()
     {
-        if (!string.IsNullOrEmpty(Global.GLevelItem.sceneItems))
-        {
-            string num = Global.GLevelItem.sceneItems.Substring(2);
-            int number = 0;
-            if (int.TryParse(num, out number))
-            {
-                Debug.Log("v" + number);
-                U3D.PlayMovie("v" + number);
-            }
-        }
-
+        //if (!string.IsNullOrEmpty(Global.GLevelItem.sceneItems))
+        //{
+        //    string num = Global.GLevelItem.sceneItems.Substring(2);
+        //    int number = 0;
+        //    if (int.TryParse(num, out number))
+        //    {
+        //        Debug.Log("v" + number);
+        //        U3D.PlayMovie("v" + number);
+        //    }
+        //}
         GotoMenu();
     }
 
@@ -414,9 +416,10 @@ public partial class GameBattleEx : MonoBehaviour {
         {
             MeteorUnit uEnemy = U3D.GetTeamLeader(EUnitCamp.EUC_ENEMY);
             SFXLoader.Instance.PlayEffect("vipblue", MeteorManager.Instance.LocalPlayer.gameObject, false);
-            SFXLoader.Instance.PlayEffect("vipred", MeteorManager.Instance.LocalPlayer.gameObject, false);
+            SFXLoader.Instance.PlayEffect("vipred", uEnemy.gameObject, false);
         }
     }
+
     //场景物件的受击框
     Dictionary<SceneItemAgent, List<Collider>> Collision = new Dictionary<SceneItemAgent, List<Collider>>();
     //Dictionary<SceneItemAgent, List<Collider>>
@@ -1321,6 +1324,7 @@ public class ActionConfig
             }
             else if (action[action.Count - 1].type == StackAction.AttackTarget)
             {
+                //攻击指定位置
                 MeteorUnit unit = U3D.GetUnit(id);
                 if (unit.robot != null)
                 {

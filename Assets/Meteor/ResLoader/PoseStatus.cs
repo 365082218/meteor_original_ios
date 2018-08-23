@@ -520,6 +520,10 @@ public class PoseStatus
 
     public void ChangeAction(int idx = CommonAction.Idle, float time = 0.0f, int targetFrame = 0)
     {
+        if (idx == CommonAction.Idle && mActiveAction != null && (mActiveAction.Idx == CommonAction.WalkLeft || mActiveAction.Idx == CommonAction.WalkRight))
+        {
+            Debug.DebugBreak();
+        }
         _Self.IgnoreGravitys(PoseStatus.IgnoreGravity(idx));//设置招式重力
         bool ignorePhy = IgnorePhysical(idx);
         if (ignorePhy != _Self.IgnorePhysical)

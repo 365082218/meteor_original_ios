@@ -15,6 +15,11 @@ public class ScriptInputWnd:Window<ScriptInputWnd>
         Control("DoScript").GetComponent<Button>().onClick.AddListener(() => {
             try
             {
+                if (scriptInput.text == "666")
+                {
+                    GameObject obj = GameObject.Instantiate(Resources.Load("Bullet")) as GameObject;
+                    result.text = "成功召唤滑稽王";
+                }
                 ScriptMng.ins.CallString(scriptInput.text);
                 result.text = "脚本成功执行";
             }

@@ -38,7 +38,6 @@ public class LevelHelper : MonoBehaviour
         while (mAsync.progress < 0.9f)
         {
             toProgress = (int)mAsync.progress * 100;
-            //WSLog.LogInfo("while (mAsync.progress < 0.9f)");
             while (displayProgress < toProgress)
             {
                 ++displayProgress;
@@ -46,7 +45,6 @@ public class LevelHelper : MonoBehaviour
                     loading.UpdateProgress(displayProgress / 100.0f);
                 yield return 0;
             }
-            //WSLog.LogInfo("while (displayProgress < toProgress) end");
             yield return 0;
         }
         toProgress = 100;
@@ -80,34 +78,29 @@ public class LevelHelper : MonoBehaviour
 
     void OnLoadFinishedEx(Level lev)
     {
-        
         SoundManager.Instance.Enable(true);
+        LevelScriptBase script = GetLevelScript(lev.LevelScript);
+        if (script == null)
+        {
+            UnityEngine.Debug.LogError(string.Format("level script is null levId:{0}, levScript:{1}", lev.FuBenID, lev.LevelScript));
+            return;
+        }
 
-        LevelScriptBase script = GetLevelScript(lev.sceneItems);
-
-        //if (script == null)
-        //{
-        //    //一些场景是测试场景，不能战斗，不创建角色等.
-        //    Debug.LogError(string.Format("{0} has no script", lev.Name));
-        //    return;
-        //}
+        Global.Result = false;
         Global.GScript = script;
         SceneMng.OnLoad();//
         //加载场景配置数据
         SceneMng.OnEnterLevel(script, lev.ID);//原版功能不加载其他存档数据.
 
         //设置主角属性
-        U3D.InitPlayer(script); ;
+        U3D.InitPlayer(script);
 
         //把音频侦听移到角色
         AudioListener listen = Startup.ins.gameObject.GetComponent<AudioListener>();
         if (listen != null)
             DestroyImmediate(listen);
         MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
-        
-        //这个脚本暂时未调通，先放着
-        //ScriptMng.ins.CallScript(lev.goodList);//负责关卡内物件的属性，及攻击收击逻辑等
-
+       
         //等脚本设置好物件的状态后，根据状态决定是否生成受击盒，攻击盒等.
         GameBattleEx.Instance.Init(lev, script);
 

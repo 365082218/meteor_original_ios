@@ -929,7 +929,11 @@ public partial class MeteorUnit : MonoBehaviour
         Quaternion quat = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y + orient, transform.eulerAngles.z);
         transform.rotation = quat;
         if (controller.Input.OnInputMoving())
+        {
+            if (!Attr.IsPlayer)
+                Debug.Log("SetOrientation returned");
             return;
+        }
         OnCameraRotateStart();
         if (GetWeaponType() == (int)EquipWeaponType.Gun)
         {
@@ -1256,6 +1260,8 @@ public partial class MeteorUnit : MonoBehaviour
              GetWeaponType() == (int)EquipWeaponType.Dart || 
              GetWeaponType() == (int)EquipWeaponType.Guillotines))
             GameBattleEx.Instance.Unlock();
+        if (robot != null)
+            robot.OnChangeWeapon();
     }
 
 
@@ -2752,7 +2758,7 @@ public partial class MeteorUnit : MonoBehaviour
             checkRotateTick -= Time.deltaTime;
             if (checkRotateTick < 0.0f)
             {
-                posMng.Rotateing = false;
+                posMng. Rotateing = false;
                 CheckRotate = null;
                 yield break;
             }
