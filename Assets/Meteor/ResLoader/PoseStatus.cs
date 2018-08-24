@@ -206,15 +206,6 @@ public class PoseStatus
     //受击或者被击，都无法转变X轴视角，在没有锁定目标状态下才能转变Y视角.
     public bool IsAttackPose()
     {
-        //if (mActiveAction.Idx >= CommonAction.ZhihuReady && mActiveAction.Idx <= CommonAction.RendaoReady)
-        //    return false;
-
-        //if (mActiveAction.Idx >= 490 && mActiveAction.Idx <= 500)//指虎乾坤防御
-        //    return false;
-        //if (mActiveAction.Idx >= 513 && mActiveAction.Idx <= 519)//忍刀防御
-        //    return false;
-
-        //return mActiveAction.Idx >= CommonAction.AttackActStart;
         return !(mActiveAction.Attack == null || mActiveAction.Attack.Count == 0);
     }
 

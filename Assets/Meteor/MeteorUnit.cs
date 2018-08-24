@@ -274,7 +274,7 @@ public partial class MeteorUnit : MonoBehaviour
     public uint OnGroundTick = 0;
     [SerializeField]
     public MeteorAI robot;
-
+    public float idleRushTick = 0.0f;
     //按照角色的坐标围成一圈，每个30度 12个空位，距离50，其实应该按
     //public Dictionary<int, MeteorUnit> SlotInfo = new Dictionary<int, MeteorUnit>();
     //public Dictionary<int, GameObject> SlotFreePos = new Dictionary<int, GameObject>(); 
@@ -1000,12 +1000,12 @@ public partial class MeteorUnit : MonoBehaviour
     //角色是否面向指定位置.
     public bool IsFacetoVector3(Vector3 target)
     {
-        return Vector3.Dot(-transform.forward, (new Vector3(target.x, 0, target.z) - new Vector3(mPos.x, 0, mPos.z)).normalized) > 0;
+        return Vector3.Dot(-transform.forward, (new Vector3(target.x, 0, target.z) - new Vector3(mPos.x, 0, mPos.z)).normalized) >= 0;
     }
 
     public bool IsFacetoTarget(MeteorUnit target)
     {
-        return Vector3.Dot(-transform.forward, (new Vector3(target.mPos.x, 0, target.mPos.z) - new Vector3(mPos.x, 0, mPos.z)).normalized) > 0;
+        return Vector3.Dot(-transform.forward, (new Vector3(target.mPos.x, 0, target.mPos.z) - new Vector3(mPos.x, 0, mPos.z)).normalized) >= 0;
     }
 
     //战斗场景,控制视角相机

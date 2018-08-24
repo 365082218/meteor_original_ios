@@ -3,3 +3,5 @@ Model = 2;
 Weapon = 8;
 Weapon2 = 2;
 HP = 99999999;
+function main()
+end

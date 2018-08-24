@@ -300,29 +300,8 @@ public class MeteorInput
 256 鬼弹 上下A（空） 
 558 暗犽 下下A
 559 降神 下下A（空）
- */
-//从缓冲区的前多少,取得某个键的按下次数
-//int GetDownCount(EKeyList key)
-//{
-//    int cnt = 0;
-//    for (int i = 0; i < KeyLink.Count; i++)
-//    {
-//        if (KeyLink[i].Key == key && KeyLink[i].ActiveType == ActiveTp.ActivePress)
-//            cnt++;
-//    }
-//    return cnt;
-//}
 
-//int GetUpCount(EKeyList key)
-//{
-//    int cnt = 0;
-//    for (int i = 0; i < KeyLink.Count; i++)
-//    {
-//        if (KeyLink[i].Key == key && KeyLink[i].ActiveType == ActiveTp.ActiveRelease)
-//            cnt++;
-//    }
-//    return cnt;
-//}
+    */
 
     //返回当前动作是否在可接受输入帧内
     public bool AcceptInput()
@@ -1982,7 +1961,8 @@ public class MeteorInput
             {
                 direction.Normalize();
                 //跑的速度 1000 = 145M/S 按原来游戏计算
-                Vector2 runTrans = direction * mOwner.Speed * (mOwner.Crouching ? 0.25f : 1);//蹲下是跑步的4/1
+                float normal = mOwner.HasBuff((int)EBUFF_ID.DrugEx) ? 0.5f : 1f;
+                Vector2 runTrans = direction * mOwner.Speed * (mOwner.Crouching ? 0.25f : normal);//蹲下是跑步的4/1,中毒是一半速度
                 float x = runTrans.x * (mOwner.Crouching ? 0.065f : 0.036f), y = runTrans.y * (mOwner.Crouching ? 0.065f : (runTrans.y >= 0 ? 0.100f: 0.036f));//前走速度145 后走速度36,左右走速度是36 模型Z轴与角色面朝相反
                 mOwner.SetVelocity(y, x);
             }

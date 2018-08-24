@@ -45,6 +45,7 @@ public partial class GameBattleEx : MonoBehaviour {
     {
         if (Global.Result)
             return;
+        Resume();
         Global.Result = true;
         Global.PauseAll = true;
         MeteorManager.Instance.LocalPlayer.controller.InputLocked = true;
@@ -579,7 +580,8 @@ public partial class GameBattleEx : MonoBehaviour {
                                 forw = (Quaternion.AngleAxis(Random.Range(-25, 25), Vector3.up) * Quaternion.AngleAxis(Random.Range(-5, 5), Vector3.right) * -unit.transform.forward).normalized;//角色的面向
                             else
                             {
-                                Vector3 vec = unit.GetLockedTarget().mPos + new Vector3(Random.Range(-10, 10), Random.Range(-18, 18), Random.Range(-10, 10));
+                                float aim = (100 - unit.Attr.Aim) / 10.0f;
+                                Vector3 vec = unit.GetLockedTarget().mPos + new Vector3(Random.Range(-aim, aim), Random.Range(10, 38), Random.Range(-aim, aim));
                                 float dis = Vector3.Distance(vec, vecSpawn);
                                 float vt = Mathf.Sqrt(2 * DartLoader.gspeed * dis + (DartLoader.InitializeSpeed * DartLoader.InitializeSpeed));
                                 float t = (vt - DartLoader.InitializeSpeed) / DartLoader.gspeed;

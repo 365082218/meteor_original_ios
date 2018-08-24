@@ -52,7 +52,10 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
         if (moveVec.y != 0)
         {
             if (Owner.HasBuff((int)EBUFF_ID.DrugEx))
-                Owner.posMng.ChangeAction(CommonAction.RunOnDrug, 0.1f);
+            {
+                if (Owner.posMng.mActiveAction.Idx != CommonAction.RunOnDrug)
+                    Owner.posMng.ChangeAction(CommonAction.RunOnDrug, 0.1f);
+            }
             else
             {
                 if (moveVec.y > 0 && Owner.posMng.mActiveAction.Idx != CommonAction.Run)
@@ -65,7 +68,10 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
         if (moveVec.x != 0)
         {
             if (Owner.HasBuff((int)EBUFF_ID.DrugEx))
-                Owner.posMng.ChangeAction(CommonAction.RunOnDrug);
+            {
+                if (Owner.posMng.mActiveAction.Idx != CommonAction.RunOnDrug)
+                    Owner.posMng.ChangeAction(CommonAction.RunOnDrug);
+            }
             else
             {
                 if (moveVec.x > 0 && Owner.posMng.mActiveAction.Idx != CommonAction.WalkRight)
@@ -104,6 +110,7 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
             Owner.Jump(Short, ShortsScale);
     }
 
+    public const float RushLimit = 0.5f;
     public void ProcessBehaviour(MeteorUnit target)
     {
         PoseStatus posMng = target.posMng;
@@ -134,28 +141,32 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
                 Jump(Owner, Input.mInputVector);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 //这里要判断武器
                 Owner.IdleRush();
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 //这里要判断武器
                 Owner.IdleRush(1);
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 //这里要判断武器
                 Owner.IdleRush(2);
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 //这里要判断武器
                 Owner.IdleRush(3);
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else
             if (Input.mInputVector != Vector2.zero)
@@ -221,34 +232,38 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
                     posMng.ChangeAction(CommonAction.Crouch);
             }
         }
-        else if (posMng.mActiveAction.Idx == CommonAction.Run)
+        else if (posMng.mActiveAction.Idx == CommonAction.Run || posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
         {
             if (Input.HasInput((int)EKeyList.KL_Crouch, (int)EInputType.EIT_Pressing, Time.deltaTime))
             {
                 Owner.OnCrouch();
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 Owner.IdleRush();
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 //这里要判断武器
                 Owner.IdleRush(1);
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 //这里要判断武器
                 Owner.IdleRush(2);
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 //这里要判断武器
                 Owner.IdleRush(3);
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else
             if (Input.mInputVector == Vector2.zero)
@@ -287,27 +302,31 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
                 Jump(Owner, Input.mInputVector);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 Owner.IdleRush();
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 //这里要判断武器
                 Owner.IdleRush(1);
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 //这里要判断武器
                 Owner.IdleRush(2);
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 //这里要判断武器
                 Owner.IdleRush(3);
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else if (!posMng.Rotateing && Input.mInputVector == Vector2.zero)
                 posMng.ChangeAction(CommonAction.Idle, 0.1f);
@@ -335,27 +354,31 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
                 Jump(Owner, Input.mInputVector);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 Owner.IdleRush();
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 //这里要判断武器
                 Owner.IdleRush(1);
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 //这里要判断武器
                 Owner.IdleRush(2);
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 //这里要判断武器
                 Owner.IdleRush(3);
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else if (!posMng.Rotateing && Input.mInputVector == Vector2.zero)
                 posMng.ChangeAction(CommonAction.Idle, 0.1f);
@@ -384,27 +407,31 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
                 Jump(Owner, Input.mInputVector);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 Owner.IdleRush();
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 //这里要判断武器
                 Owner.IdleRush(1);
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 //这里要判断武器
                 Owner.IdleRush(2);
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime) && Time.realtimeSinceStartup - Owner.idleRushTick >= RushLimit)
             {
                 //这里要判断武器
                 Owner.IdleRush(3);
+                Owner.idleRushTick = Time.realtimeSinceStartup;
             }
             else if (!posMng.Rotateing && Input.mInputVector == Vector2.zero)
                 posMng.ChangeAction(CommonAction.Idle, 0.1f);

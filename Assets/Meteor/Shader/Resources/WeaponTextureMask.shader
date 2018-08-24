@@ -8,6 +8,7 @@ Properties {
 	_MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
 	_MaskTex("Alpha (RGB) Trans (A)", 2D) = "white" {}
 	_Color("Color", Color) = (1,1,1,1)
+	_Alpha("Alpha", float) = 1.0
 }
 
 SubShader {
@@ -45,6 +46,7 @@ SubShader {
 			sampler2D _MainTex;
 			sampler2D _MaskTex;
 			float4 _MainTex_ST;
+			float _Alpha;
 			fixed4 _Color;
 			v2f vert (appdata_t v)
 			{
@@ -73,7 +75,7 @@ SubShader {
 				//	col.rgb *= mas.rgb * o.color;
 				//else
 				col.rgb *= mas.rgb * o.color;
-				col.a = mas.a;
+				col.a = mas.a * _Alpha;
 				//UNITY_APPLY_FOG(i.fogCoord, col);
 				return col;
 			}

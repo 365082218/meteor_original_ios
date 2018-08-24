@@ -11,7 +11,6 @@ public enum EAIStatus
     Kill,//强制杀死指定敌人，无视距离，一直跟随
     Guard,//防御
     Follow,//跟随
-    Aim,//远程武器瞄准
     Think,//没发觉目标时左右观察
     GotoPatrol,//去巡逻路径的第一个位置.
     Patrol,//巡逻。
@@ -39,7 +38,8 @@ GetItem = 0;
 
 public enum EAISubStatus
 {
-    FightGotoTarget,//在打斗前，必须走到目标范围附近
+    FightGotoTarget,//在打斗前，必须走到目标范围附近,就是朝目标移动
+    FightGotoPosition,//朝目的地移动，需要寻路.
     FightSubRotateToTarget,//走到路点后，旋转朝向下一个路点.
     FightSubLeavetoTarget,//离开、逃跑.
 
@@ -47,18 +47,15 @@ public enum EAISubStatus
     FightGuard,//战斗中防御-按概率
     FightDodge,//躲闪，双击某个方向键
     FightJump,//跳跃招式-概率
-    FightLook,//战斗中旋转-
+    FightLookAt,//战斗中旋转-朝向敌人
     FightBurst,//战斗中曝气
+
     FightAim,//战斗中若使用远程武器，瞄准敌方的几率，否则就随机
 
-    FightWithSpecialWeapon,//使用当前的远程武器瞄准敌人射击
-    ChangeWeaponGotoFight,//切换武器，跑近，瞄准，切换到战斗
-    ChangeWeaponFight,// 切换武器，瞄准，开打
-    UseWeaponGotoFight,//跑近，瞄准，开打
-    ChangeWeaponLeaveToFight,//跑远，瞄准，开打
-    LeaveToFight,//跑远，开打
+    //FightChangeWeapon,//战斗中切换武器->可能会跑近（使用近战武器），或跑远（使用远程武器）
 
-    //FightGetItem,//战斗中去捡起物品-镖物-补给-武器-BUFF道具
+    FightLeave,//跑远
+    FightGetItem,//战斗中去捡起物品-镖物-补给-武器-BUFF道具
     SubStatusIdle,
     SubStatusWait,
     FollowGotoTarget,
@@ -90,8 +87,6 @@ public class MeteorAI {
     }
     public EAIStatus Status { get; set; }
     public EAISubStatus SubStatus { get; set; }
-    bool weaponChanged;
-    bool callChangeWeapon;
     MeteorUnit owner;//自己
     MeteorUnit followTarget;//跟随目标
     public MeteorUnit killTarget;//无视视野
@@ -105,7 +100,7 @@ public class MeteorAI {
     //public Dictionary<int, AISet> AIData;
     //当前目标路径
     int pathIdx = -1;
-    Vector3 targetPos = Vector3.zero;
+    Vector3 TargetPos = Vector3.zero;
     List<WayPoint> targetPath = new List<WayPoint>();//固定点位置.当只有单点的时候，表示可以直接走过去.也就是
     // Update is called once per frame
     public void Update () {
@@ -193,7 +188,7 @@ public class MeteorAI {
                 //killTarget = owner.GetLockedTarget();
                 fightTarget = owner.GetLockedTarget();
                 Status = EAIStatus.Fight;
-                SubStatus = EAISubStatus.Fight;
+                SubStatus = EAISubStatus.FightAim;
                 return;
             }
 
@@ -275,7 +270,7 @@ public class MeteorAI {
                         case EAISubStatus.FollowSubRotateToTarget:
                             if (FollowRotateToTargetCoroutine == null)
                             {
-                                FollowRotateToTargetCoroutine = owner.StartCoroutine(FollowRotateToTarget(FollowPath[targetIndex].pos));
+                                FollowRotateToTargetCoroutine = owner.StartCoroutine(FollowRotateToTarget(FollowPath[targetIndex].pos, EAISubStatus.FollowGotoTarget));
                             }
                             break;
                     }
@@ -306,7 +301,7 @@ public class MeteorAI {
 
     public void OnChangeWeapon()
     {
-        weaponChanged = true;
+        
     }
 
     //捡取场景道具
@@ -321,14 +316,14 @@ public class MeteorAI {
                     ChangeState(EAIStatus.Wait);
                     return;
                 }
-                RefreshPath(owner.mPos, owner.GetSceneItemTarget().transform.position);
+                Path = RefreshPath(owner.mPos, owner.GetSceneItemTarget().transform.position);
                 SubStatus = EAISubStatus.GetItemGotoItem;
                 break;
             case EAISubStatus.GetItemGotoItem:
                 if (Path.Count == 0 || AIFollowRefresh >= 3.0f)
                 {
                     if (owner.GetSceneItemTarget() != null)
-                        RefreshPath(owner.mPos, owner.GetSceneItemTarget().transform.position);
+                        Path = RefreshPath(owner.mPos, owner.GetSceneItemTarget().transform.position);
                     AIFollowRefresh = 0.0f;
                 }
 
@@ -408,8 +403,9 @@ public class MeteorAI {
     {
         if (LookRotateToTargetCoroutine == null && owner.GetLockedTarget() != null)
         {
+            float angle = Random.Range(-60, 60);
             Stop();//停止移动.
-            float angle = Random.Range(30, 60);
+            owner.posMng.ChangeAction();
             LookRotateToTargetCoroutine = owner.StartCoroutine(LookRotateToTarget(angle));
         }
     }
@@ -436,7 +432,8 @@ public class MeteorAI {
             yield return 0;
         }
         LookRotateToTargetCoroutine = null;
-        ChangeState(EAIStatus.Idle);
+        Status = EAIStatus.Fight;
+        SubStatus = EAISubStatus.Fight;
     }
 
     #region 输入
@@ -694,21 +691,115 @@ public class MeteorAI {
         switch (SubStatus)
         {
             case EAISubStatus.Fight:
-                OnFightThink();
+                OnFight();
                 break;
             case EAISubStatus.FightAim:
                 OnFightAim();//当前状态是瞄准.
                 break;
+            case EAISubStatus.FightLeave:
+                OnFightLeave();
+                break;
+            case EAISubStatus.FightGotoTarget:
+                OnFightGotoTarget();
+                break;
+            case EAISubStatus.FightGotoPosition:
+                OnFightGotoPosition();
+                break;
+            case EAISubStatus.FightSubRotateToTarget:
+                OnFightSubRotateToTarget();
+                break;
         }
     }
 
-    void OnFightThink()
+    void OnFightSubRotateToTarget()
     {
+        if (FollowRotateToTargetCoroutine == null && FollowPath.Count > targetIndex)
+        {
+            FollowRotateToTargetCoroutine = owner.StartCoroutine(FollowRotateToTarget(FollowPath[targetIndex].pos, EAISubStatus.FightGotoPosition));
+        }
+    }
+
+    float gotoPositionTick = 0.0f;
+    void OnFightGotoPosition()
+    {
+        if (gotoPositionTick <= 0.0f)
+        {
+            gotoPositionTick = 3.0f;
+            FollowPath = RefreshPath(owner.mPos, TargetPos);
+        }
+
+        if (curIndex == -1)
+            targetIndex = 0;
+
+        if (targetIndex >= FollowPath.Count)
+        {
+            UnityEngine.Debug.LogError(string.Format("targetIndex:{0}, FollowPath:{1}", targetIndex, FollowPath.Count));
+            Debug.DebugBreak();
+        }
+        Assert.IsTrue(targetIndex < FollowPath.Count);
+        float dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(FollowPath[targetIndex].pos.x, 0, FollowPath[targetIndex].pos.z));
+        if (dis <= owner.Speed * Time.deltaTime * 0.13f)
+        {
+            owner.controller.Input.AIMove(0, 0);
+            if (targetIndex == FollowPath.Count - 1)
+            {
+                //到达终点.
+                owner.controller.Input.AIMove(0, 0);
+                SubStatus = EAISubStatus.Fight;
+                return;
+            }
+            else
+            {
+                curIndex = targetIndex;
+                targetIndex += 1;
+            }
+            RotateRound = Random.Range(1, 3);
+            SubStatus = EAISubStatus.FightSubRotateToTarget;//到指定地点后旋转到目标.
+            return;
+        }
+
+        owner.FaceToTarget(new Vector3(FollowPath[targetIndex].pos.x, 0, FollowPath[targetIndex].pos.z));
+        owner.controller.Input.AIMove(0, 1);
+        //模拟跳跃键，移动到下一个位置.还得按住上
+        if (curIndex != -1)
+        {
+            if (PathMng.Instance.GetWalkMethod(FollowPath[curIndex].index, FollowPath[targetIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
+            {
+                AIJump();
+                AIJumpDelay = 0.0f;
+            }
+            //尝试几率跳跃，否则可能会被卡住.
+            int random = Random.Range(0, 100);
+            if (random < owner.Attr.Jump && AIJumpDelay >= 2.5f)
+            {
+                AIJump();
+                AIJumpDelay = 0.0f;
+            }
+        }
+    }
+
+    void OnFightGotoTarget()
+    {
+
+    }
+
+    void OnFight()
+    {
+        //有任意输入时，不要进入攻击状态，否则状态切换可能过快.
+        if (PlayWeaponPoseCorout != null || InputCorout != null)
+            return;
+
         if (owner.controller.Input.AcceptInput())
         {
-            if (owner.posMng.IsAttackPose() && PlayWeaponPoseCorout == null)
+            if (owner.posMng.IsAttackPose())
             {
-                TryAttack();
+                //在攻击姿势内可连击，不许转动方向
+                if (PlayWeaponPoseCorout == null)
+                    TryAttack();
+                else
+                {
+                    //输出中不许切换状态.
+                }
             }
             else if (owner.posMng.IsHurtPose())
             {
@@ -728,6 +819,10 @@ public class MeteorAI {
             }
             else
             {
+                //打印当前动作是啥，在多少帧-帧之间，是否能正常过渡到攻击动作.
+                if (!owner.Attr.IsPlayer)
+                    Debug.LogError(string.Format("pos:{0} frame:{1}", owner.posMng.mActiveAction.Idx, owner.charLoader.GetCurrentFrameIndex()));
+
                 //这些动作能不能切换到目标姿势.???
 
                 //在一些动作姿势里，走，跑，跳 等
@@ -747,15 +842,14 @@ public class MeteorAI {
                     {
                         //大部分几率是跑过去，走到跟前对打。
                         //小部分几率是切换远程武器打目标。
-
                         //1是否拥有远程武器
                         if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
                         {
                             //主手是远程武器-.直接攻击,不处理，后续会处理到底是打还是啥.
                             if (owner.Attr.Weapon2 == 0 || U3D.IsSpecialWeapon(owner.Attr.Weapon2))
                             {
-                                //站撸，因为只有一把远程武器？这个状态可能是丢掉武器发生的，应该算一个错误状态
-                                SubStatus = EAISubStatus.FightWithSpecialWeapon;
+                                //站撸，因为只有远程武器？这个状态可能是丢掉武器发生的，应该算一个错误状态
+                                SubStatus = EAISubStatus.FightAim;
                                 return;
                             }
 
@@ -763,13 +857,13 @@ public class MeteorAI {
                             if (random > 10)
                             {
                                 //直接使用当前武器开打，需要瞄准.
-                                SubStatus = EAISubStatus.FightWithSpecialWeapon;//使用当前远程武器
+                                SubStatus = EAISubStatus.FightAim;//监测
                                 return;
                             }
                             else
                             {
                                 //切换武器，跑过去，开打,换到武器2
-                                SubStatus = EAISubStatus.ChangeWeaponGotoFight;
+                                owner.ChangeWeapon();
                                 return;
                             }
                         }
@@ -780,22 +874,21 @@ public class MeteorAI {
                             if (random > 10)
                             {
                                 //切换武器，开打(不跑过去),换到武器2
-                                SubStatus = EAISubStatus.ChangeWeaponFight;
-                                weaponChanged = false;
-                                callChangeWeapon = false;
+                                //SubStatus = EAISubStatus.FightChangeWeapon;
+                                owner.ChangeWeapon();
                                 return;
                             }
                             else
                             {
                                 //直接使用当前武器开打，跑过去，需要面对.
-                                SubStatus = EAISubStatus.UseWeaponGotoFight;
+                                SubStatus = EAISubStatus.FightGotoTarget;
                                 return;
                             }
                         }
                         else
                         {
                             //双手全近战武器.在视野内 攻击距离外则跑近到攻击距离
-                            SubStatus = (EAISubStatus.UseWeaponGotoFight);
+                            SubStatus = (EAISubStatus.FightGotoTarget);
                             return;
                         }
 
@@ -821,30 +914,39 @@ public class MeteorAI {
                             //全近战武器，不使用远程武器，也不需要跑远，也不需要切换武器
                         }
 
-                        if (useSpecialWeapon)
+                        int random = Random.Range(0, 100);
+                        int limit = (int)(Global.AttackRange - dis);
+                        if (random < limit)
                         {
-                            int random = Random.Range(0, 100);
-                            if (random < 10)
+                            SubStatus = (EAISubStatus.FightLeave);
+                            return;
+                        }
+                        else if (useSpecialWeapon)
+                        {
+                            if (changeWeapon)
                             {
-                                if (changeWeapon)
-                                {
-                                    SubStatus = (EAISubStatus.ChangeWeaponLeaveToFight);
-                                    return;
-                                }
-                                else
-                                {
-                                    SubStatus = (EAISubStatus.LeaveToFight);
-                                    return;
-                                }
+                                //SubStatus = (EAISubStatus.FightChangeWeapon);
+                                owner.ChangeWeapon();
+                                return;
                             }
                         }
                     }
                 }
 
-                //检查状态是否应该切换为GotoTarget;
+                //使用近战武器，一定在攻击范围内。
                 int attack = Random.Range(0, 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst + owner.Attr.GetItem);
                 if (attack <= owner.Attr.Attack1 + owner.Attr.Attack2 + owner.Attr.Attack3)
+                {
+                    //先判断是否面朝目标，不是则先转动方向朝向目标
+                    if (GetAngleBetween(fightTarget.mPos) >= 30)
+                    {
+                        Status = EAIStatus.Fight;
+                        SubStatus = EAISubStatus.FightAim;
+                        return;
+                    }
+                    
                     TryAttack();
+                }
                 else
                 {
                     if (attack > 100 && attack < 100 + owner.Attr.Dodge)
@@ -868,8 +970,9 @@ public class MeteorAI {
                         Stop();
                         owner.Guard(true);
                     }
-                    else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look)
+                    else if (Time.realtimeSinceStartup - lookTick >= 5.0f && (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look))
                     {
+                        lookTick = Time.realtimeSinceStartup;//5秒内最多能进行一次四处看.
                         ChangeState(EAIStatus.Look);
                     }
                     else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst)
@@ -907,19 +1010,75 @@ public class MeteorAI {
 
     void OnFightAim()
     {
+        //看是否面向目标，在夹角大于30度时，触发旋转面向目标
+        if (fightTarget == null)
+        {
+            Status = EAIStatus.Wait;
+            SubStatus = EAISubStatus.SubStatusWait;
+            return;
+        }
 
+        if (GetAngleBetween(fightTarget.mPos) >= 30.0f)
+        {
+            if (AttackRotateToTargetCoroutine == null)
+            {
+                owner.posMng.ChangeAction(0);
+                AttackRotateToTargetCoroutine = owner.StartCoroutine(AttackRotateToTarget(fightTarget.mPos, EAIStatus.Fight, EAISubStatus.Fight, false, true));
+            }
+        }
+        else
+        {
+            if (AttackRotateToTargetCoroutine == null)
+            {
+                Status = EAIStatus.Fight;
+                SubStatus = EAISubStatus.Fight;
+            }
+        }
+    }
+
+    //离开战斗目标。可能是拿的远程武器，也可能是状态不好要逃跑.
+    void OnFightLeave()
+    {
+        if (fightTarget == null)
+        {
+            Status = EAIStatus.Wait;
+            SubStatus = EAISubStatus.SubStatusWait;
+            return;
+        }
+
+        float dis = Vector3.Distance(owner.mPos, fightTarget.mPos);
+        if (dis >= 75.0f)
+        {
+            Status = EAIStatus.Fight;
+            SubStatus = EAISubStatus.Fight;
+            return;
+        }
+
+        //离开攻击目标（）
+        Vector3 vec = owner.mPos - fightTarget.mPos;
+        if ((int)vec.x == 0 && (int)vec.z == 0)
+        {
+            vec = fightTarget.transform.forward;
+        }
+
+        if (AttackRotateToTargetCoroutine == null)
+        {
+            TargetPos = fightTarget.mPos + vec * 75.0f;
+            AttackRotateToTargetCoroutine = owner.StartCoroutine(AttackRotateToTarget(TargetPos, EAIStatus.Fight, EAISubStatus.FightGotoPosition, false, true));
+        }
     }
 
     List<WayPoint> Path = new List<WayPoint>();//这个是攻击指定位置时的寻路，这个是不会随着角色移动改变位置的.
-    void RefreshPath(Vector3 now, Vector3 target)
+    List<WayPoint> RefreshPath(Vector3 now, Vector3 target)
     {
-        Path = PathMng.Instance.FindPath(now, target);
+        List<WayPoint> ret = PathMng.Instance.FindPath(now, target);
         if (Path.Count == 0)
         {
             Debug.DebugBreak();
         }
         curIndex = -1;
         targetIndex = -1;
+        return ret;
     }
 
     //在其他角色上使用的插槽位置，
@@ -1041,7 +1200,7 @@ public class MeteorAI {
             case EAISubStatus.FollowSubRotateToTarget:
                 if (FollowRotateToTargetCoroutine == null)
                 {
-                    FollowRotateToTargetCoroutine = owner.StartCoroutine(FollowRotateToTarget(FollowPath[targetIndex].pos));
+                    FollowRotateToTargetCoroutine = owner.StartCoroutine(FollowRotateToTarget(FollowPath[targetIndex].pos, EAISubStatus.FollowGotoTarget));
                 }
                 break;
         }
@@ -1126,6 +1285,7 @@ public class MeteorAI {
     float idleTick = 0.0f;
     float waitCrouch;
     float waitDefence;
+    float lookTick = 0.0f;
 
     //原地不动-
     void OnWait()
@@ -1204,7 +1364,7 @@ public class MeteorAI {
         else if (type == EAIStatus.AttackTarget)
         {
             //朝目标处攻击数次
-            RefreshPath(owner.mPos, AttackTarget);
+            Path = RefreshPath(owner.mPos, AttackTarget);
             SubStatus = EAISubStatus.AttackGotoTarget;
         }
         else if (type == EAIStatus.GetItem)
@@ -1245,12 +1405,14 @@ public class MeteorAI {
             JumpCoroutine = null;
         }
 
+        //普通控制输入.
         if (InputCorout != null)
         {
             owner.StopCoroutine(InputCorout);
             InputCorout = null;
         }
 
+        //攻击招式输入.
         if (AttackTargetCoroutine != null)
         {
             owner.StopCoroutine(AttackTargetCoroutine);
@@ -1528,7 +1690,7 @@ public class MeteorAI {
     }
 
     Coroutine FollowRotateToTargetCoroutine;
-    IEnumerator FollowRotateToTarget(Vector3 vec)
+    IEnumerator FollowRotateToTarget(Vector3 vec, EAISubStatus onFinishSubStatus)
     {
         Vector3 diff = (vec - owner.mPos);
         diff.y = 0;
@@ -1556,7 +1718,8 @@ public class MeteorAI {
             yield return 0;
         }
         FollowRotateToTargetCoroutine = null;
-        SubStatus = EAISubStatus.FollowGotoTarget;
+        SubStatus = onFinishSubStatus;
+        //SubStatus = EAISubStatus.FollowGotoTarget;
     }
 
     //朝向指定目标，一定时间内
@@ -1898,6 +2061,7 @@ public class MeteorAI {
     }
 
     
+    //指定角色攻击某个位置，例如一线天山顶的大石头.
     public void OnGotoTargetPoint(int targetIndex)
     {
         if (Status == EAIStatus.AttackTarget)
