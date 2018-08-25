@@ -132,7 +132,6 @@ public class MeteorAI {
 
         AIJumpDelay += Time.deltaTime;
         AIFollowRefresh += Time.deltaTime;
-        ThinkCheckTick -= Time.deltaTime;
         if (Status == EAIStatus.Patrol || Status == EAIStatus.PatrolInPlace || Status == EAIStatus.GotoPatrol)
         {
             if (owner.GetLockedTarget() != null)
@@ -419,8 +418,12 @@ public class MeteorAI {
         float timeTick = 0.0f;
         while (true)
         {
+            float yOffset = 0.0f;
             timeTick += Time.deltaTime;
-            float yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            if (rightRotate)
+                yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            else
+                yOffset = -Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
             owner.SetOrientation(yOffset - offset);
             offset = yOffset;
             if (timeTick > timeTotal)
@@ -523,8 +526,12 @@ public class MeteorAI {
         float timeTick = 0.0f;
         while (true)
         {
+            float yOffset = 0.0f;
             timeTick += Time.deltaTime;
-            float yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            if (rightRotate)
+                yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            else
+                yOffset = -Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
             owner.SetOrientation(yOffset - offset);
             offset = yOffset;
             if (timeTick > timeTotal)
@@ -553,14 +560,16 @@ public class MeteorAI {
         owner.controller.Input.AIMove(0, 0);
     }
 
-    void TryAttack()
+    void TryAttack(int attack = 0)
     {
+        if (attack == 0)
+            attack = Random.Range(0, 100);
         //已经在攻击招式中.后接招式挑选
         //把可以使用的招式放到集合里，A类放普攻，B类放搓招， C类放绝招
         ActionNode act = ActionInterrupt.Instance.GetActions(owner.posMng.mActiveAction.Idx);
         if (act != null)
         {
-            int attack = Random.Range(0, 100);
+            //int attack = Random.Range(0, 100);
             //owner.Attr.Attack1 = 0;
             //owner.Attr.Attack2 = 0;
             //owner.Attr.Attack3 = 100;
@@ -722,9 +731,9 @@ public class MeteorAI {
     float gotoPositionTick = 0.0f;
     void OnFightGotoPosition()
     {
-        if (gotoPositionTick <= 0.0f)
+        if (Time.realtimeSinceStartup > gotoPositionTick)
         {
-            gotoPositionTick = 3.0f;
+            gotoPositionTick = Time.realtimeSinceStartup + 3.0f;
             FollowPath = RefreshPath(owner.mPos, TargetPos);
         }
 
@@ -736,9 +745,11 @@ public class MeteorAI {
             UnityEngine.Debug.LogError(string.Format("targetIndex:{0}, FollowPath:{1}", targetIndex, FollowPath.Count));
             Debug.DebugBreak();
         }
+
         Assert.IsTrue(targetIndex < FollowPath.Count);
         float dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(FollowPath[targetIndex].pos.x, 0, FollowPath[targetIndex].pos.z));
-        if (dis <= owner.Speed * Time.deltaTime * 0.13f)
+        float disMin = owner.Speed * Time.deltaTime * 0.13f;
+        if (dis <= disMin)
         {
             owner.controller.Input.AIMove(0, 0);
             if (targetIndex == FollowPath.Count - 1)
@@ -795,7 +806,27 @@ public class MeteorAI {
             {
                 //在攻击姿势内可连击，不许转动方向
                 if (PlayWeaponPoseCorout == null)
-                    TryAttack();
+                {
+                    //检查几率，0.5几率连招
+                    //如果是远程武器，先检查角度是否相差过大.过大先调整角度
+                    if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
+                    {
+                        if (GetAngleBetween(fightTarget.mPos) >= 30)
+                        {
+                            //停止连击，方向需要调整
+                            return;
+                        }
+                        
+                    }
+
+                    float chance = Random.Range(1, 100);
+                    if (chance > 50)
+                        TryAttack();
+                    else
+                    {
+                        //不攻击做什么呢.
+                    }
+                }
                 else
                 {
                     //输出中不许切换状态.
@@ -820,8 +851,7 @@ public class MeteorAI {
             else
             {
                 //打印当前动作是啥，在多少帧-帧之间，是否能正常过渡到攻击动作.
-                if (!owner.Attr.IsPlayer)
-                    Debug.LogError(string.Format("pos:{0} frame:{1}", owner.posMng.mActiveAction.Idx, owner.charLoader.GetCurrentFrameIndex()));
+                //Debug.LogError(string.Format("pos:{0} frame:{1}", owner.posMng.mActiveAction.Idx, owner.charLoader.GetCurrentFrameIndex()));
 
                 //这些动作能不能切换到目标姿势.???
 
@@ -832,10 +862,10 @@ public class MeteorAI {
                 //或者远程状态下，使用近战武器跑近身打架
                 //或者远程状态下, 切换远程武器打架
                 //使用计时器，如果未到下一个不判断
-                if (ThinkCheckTick < 0)
+                if (Time.realtimeSinceStartup > ThinkCheckTick)
                 {
                     //更新状态.
-                    ThinkCheckTick = owner.Attr.Think / 10.0f;
+                    ThinkCheckTick = Time.realtimeSinceStartup + owner.Attr.Think / 100.0f;
                     float dis = Vector3.Distance(owner.mPos, fightTarget.mPos);
                     //距离战斗目标不同，选择不同方式应对.
                     if (dis >= Global.AttackRange)
@@ -914,15 +944,15 @@ public class MeteorAI {
                             //全近战武器，不使用远程武器，也不需要跑远，也不需要切换武器
                         }
 
-                        int random = Random.Range(0, 100);
-                        int limit = (int)(Global.AttackRange - dis);
-                        if (random < limit)
+                        if (useSpecialWeapon)
                         {
-                            SubStatus = (EAISubStatus.FightLeave);
-                            return;
-                        }
-                        else if (useSpecialWeapon)
-                        {
+                            int random = Random.Range(0, 100);
+                            int limit = (int)(Global.AttackRange - (dis - 18));
+                            if (random < limit)
+                            {
+                                SubStatus = (EAISubStatus.FightLeave);
+                                return;
+                            }
                             if (changeWeapon)
                             {
                                 //SubStatus = (EAISubStatus.FightChangeWeapon);
@@ -938,14 +968,16 @@ public class MeteorAI {
                 if (attack <= owner.Attr.Attack1 + owner.Attr.Attack2 + owner.Attr.Attack3)
                 {
                     //先判断是否面朝目标，不是则先转动方向朝向目标
-                    if (GetAngleBetween(fightTarget.mPos) >= 30)
+                    if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
                     {
-                        Status = EAIStatus.Fight;
-                        SubStatus = EAISubStatus.FightAim;
-                        return;
+                        if (GetAngleBetween(fightTarget.mPos) >= 30)
+                        {
+                            Status = EAIStatus.Fight;
+                            SubStatus = EAISubStatus.FightAim;
+                            return;
+                        }
                     }
-                    
-                    TryAttack();
+                    TryAttack(attack);
                 }
                 else
                 {
@@ -965,15 +997,11 @@ public class MeteorAI {
                         Stop();
                         AIJump();
                     }
-                    else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard)
+                    else if (!U3D.IsSpecialWeapon(owner.Attr.Weapon) && (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard))
                     {
+                        //远程武器无法防御.
                         Stop();
                         owner.Guard(true);
-                    }
-                    else if (Time.realtimeSinceStartup - lookTick >= 5.0f && (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look))
-                    {
-                        lookTick = Time.realtimeSinceStartup;//5秒内最多能进行一次四处看.
-                        ChangeState(EAIStatus.Look);
                     }
                     else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look && attack < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst)
                     {
@@ -1008,6 +1036,7 @@ public class MeteorAI {
         }
     }
 
+    //进入这个状态前，需要检查当前能否旋转.
     void OnFightAim()
     {
         //看是否面向目标，在夹角大于30度时，触发旋转面向目标
@@ -1054,16 +1083,17 @@ public class MeteorAI {
             return;
         }
 
-        //离开攻击目标（）
+        //离开攻击目标
         Vector3 vec = owner.mPos - fightTarget.mPos;
         if ((int)vec.x == 0 && (int)vec.z == 0)
-        {
             vec = fightTarget.transform.forward;
-        }
-
+        vec.y = 0;
         if (AttackRotateToTargetCoroutine == null)
         {
-            TargetPos = fightTarget.mPos + vec * 75.0f;
+            TargetPos = fightTarget.mPos + vec.normalized * 75.0f;
+            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.transform.localScale = Vector3.one * 10;
+            go.transform.position = TargetPos;
             AttackRotateToTargetCoroutine = owner.StartCoroutine(AttackRotateToTarget(TargetPos, EAIStatus.Fight, EAISubStatus.FightGotoPosition, false, true));
         }
     }
@@ -1290,7 +1320,12 @@ public class MeteorAI {
     //原地不动-
     void OnWait()
     {
-
+        int lookChance = Random.Range(0, 100);
+        if (Time.realtimeSinceStartup - lookTick >= 5.0f && (lookChance > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard && lookChance < 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look))
+        {
+            lookTick = Time.realtimeSinceStartup;//5秒内最多能进行一次四处看.
+            ChangeState(EAIStatus.Look);
+        }
     }
 
     //空闲动画
@@ -1631,15 +1666,19 @@ public class MeteorAI {
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
         float angle = Mathf.Abs(Mathf.Acos(dot) * Mathf.Rad2Deg);
-        bool rightRotate = dot2 < 0;
+        bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
         float timeTotal = offsetmax / 150.0f;
         float timeTick = 0.0f;
         while (true)
         {
+            float yOffset = 0.0f;
             timeTick += Time.deltaTime;
-            float yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            if (rightRotate)
+                yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            else
+                yOffset = -Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
             owner.SetOrientation(yOffset - offset);
             offset = yOffset;
             if (timeTick > timeTotal)
@@ -1662,15 +1701,19 @@ public class MeteorAI {
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
         float angle = Mathf.Abs(Mathf.Acos(dot) * Mathf.Rad2Deg);
-        bool rightRotate = dot2 < 0;
+        bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
         float timeTotal = offsetmax / 150.0f;
         float timeTick = 0.0f;
         while (true)
         {
+            float yOffset = 0.0f;
             timeTick += Time.deltaTime;
-            float yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            if (rightRotate)
+                yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            else
+                yOffset = -Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
             owner.SetOrientation(yOffset - offset);
             offset = yOffset;
             if (timeTick > timeTotal)
@@ -1697,15 +1740,19 @@ public class MeteorAI {
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
         float angle = Mathf.Abs(Mathf.Acos(dot) * Mathf.Rad2Deg);
-        bool rightRotate = dot2 < 0;
+        bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
         float timeTotal = offsetmax / 150.0f;
         float timeTick = 0.0f;
         while (true)
         {
+            float yOffset = 0.0f;
             timeTick += Time.deltaTime;
-            float yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            if (rightRotate)
+                yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            else
+                yOffset = -Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
             owner.SetOrientation(yOffset - offset);
             offset = yOffset;
             if (timeTick > timeTotal)
@@ -1732,15 +1779,19 @@ public class MeteorAI {
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
         float angle = Mathf.Abs(Mathf.Acos(dot) * Mathf.Rad2Deg);
-        bool rightRotate = dot2 < 0;
+        bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
         float timeTotal = offsetmax / 150.0f;
         float timeTick = 0.0f;
         while (true)
         {
+            float yOffset = 0.0f;
             timeTick += Time.deltaTime;
-            float yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            if (rightRotate)
+                yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            else
+                yOffset = -Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
             owner.SetOrientation(yOffset - offset);
             offset = yOffset;
             if (timeTick > timeTotal)

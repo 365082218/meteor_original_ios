@@ -925,7 +925,6 @@ public partial class MeteorUnit : MonoBehaviour
     //专门用来播放左转，右转动画的，直接面对角色不要调用这个。
     public void SetOrientation(float orient)
     {
-        float abs = Mathf.Abs(orient);
         Quaternion quat = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y + orient, transform.eulerAngles.z);
         transform.rotation = quat;
         if (controller.Input.OnInputMoving())

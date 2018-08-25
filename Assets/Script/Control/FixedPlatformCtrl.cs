@@ -65,7 +65,7 @@ public class FixedPlatformCtrl : MonoBehaviour {
         MeteorUnit u = other.gameObject.GetComponent<MeteorUnit>();
         if (u != null)
         {
-            Debug.LogError("OnTrigger:" + Trigger);
+            //Debug.LogError("OnTrigger:" + Trigger);
             if (GameBattleEx.Instance != null)
                 GameBattleEx.Instance.OnSceneEvent(SceneEvent.EventEnter, u.InstanceId, gameObject);
             this.enabled = false;
