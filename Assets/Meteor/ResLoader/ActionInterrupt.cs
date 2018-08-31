@@ -49,11 +49,13 @@ public class CommonAction
     public const int BeHurted111 = 111;//打的地面上翻滚
     public const int BeHurted114 = 114;//躺在地面继续受击。
     public const int BeHurted115 = 115;//趴在地面继续受击。
-    public const int Struggle0 = 112;
-    public const int Struggle = 113;
+    public const int Struggle0 = 112;//卧倒地面
+    public const int Struggle = 113;//趴倒地面
 
     public const int DefAttack116 = 116;//防御打击
     public const int Dead = 117;
+    public const int IdleFront = 119;//卧倒起身
+    public const int IdleBack = 120;//趴倒起身
     public const int WalkForward = 140;//走路 前
     public const int WalkRight = 141;//走路 右
     public const int WalkLeft = 142;//走路 左
@@ -114,9 +116,7 @@ public class CommonAction
     public const int FallOnGround = 180;//落到地面时,跳回落动画还未播放完毕则播放撞击效果的落地.
     public const int Defence = 1000;//虚拟动作，因为与武器有关联
     public const int Attack = 1001;//虚拟动作，因为与武器类型有关联，攻击类的不需要自己控制，读character.act，
-    //只有攀爬，
-    public const int SwordAttack = 0;//剑A
-    public const int BladeAttack = 0;//刀A
+    //只有攀爬
     public const int BreakOut = 367;
     public const int ChangeWeapon = 24;
     public const int Taunt = 32;//嘲讽.挑衅

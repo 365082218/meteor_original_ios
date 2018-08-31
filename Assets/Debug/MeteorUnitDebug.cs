@@ -23,7 +23,7 @@ public class MeteorUnitDebug : MeteorUnit
             return;
         UnitId %= 20;
         
-        Init(UnitId < 0 ? 0:UnitId);
+        Init(UnitId < 0 ? 0:UnitId, LayerMask.NameToLayer("3DUIPlayer"));
     }
 
     public void GetOut()
@@ -72,7 +72,7 @@ public class MeteorUnitDebug : MeteorUnit
         {
             if (MeteorManager.Instance.LocalPlayer != null)
                 MeteorManager.Instance.LocalPlayer.OnEquipChanged += EquipChanged;
-            weaponLoader.EquipWeapon(MeteorManager.Instance.LocalPlayer.weaponLoader.GetCurrentWeapon());
+            //weaponLoader.EquipWeapon(MeteorManager.Instance.LocalPlayer.weaponLoader.GetCurrentWeapon());
         }
         WsGlobal.SetObjectLayer(gameObject, layer);
 

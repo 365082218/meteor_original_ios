@@ -929,8 +929,8 @@ public partial class MeteorUnit : MonoBehaviour
         transform.rotation = quat;
         if (controller.Input.OnInputMoving())
         {
-            if (!Attr.IsPlayer)
-                Debug.Log("SetOrientation returned");
+            //if (!Attr.IsPlayer)
+            //    Debug.Log("SetOrientation returned");
             return;
         }
         OnCameraRotateStart();
@@ -2185,7 +2185,7 @@ public partial class MeteorUnit : MonoBehaviour
         if (NGUICameraJoystick.instance != null && Attr.IsPlayer)
             NGUICameraJoystick.instance.ResetJoystick();//防止受到攻击时还可以移动视角
 
-        Debug.Log(string.Format("player:{0} attacked by:{1}", name, attacker == null ? "null" : attacker.name));
+        //Debug.Log(string.Format("player:{0} attacked by:{1}", name, attacker == null ? "null" : attacker.name));
         if (robot != null)
             robot.OnDamaged(attacker);
 

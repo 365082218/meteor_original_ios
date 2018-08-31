@@ -1,7 +1,7 @@
 Name = "独孤无敌";
 Model = 2;
 Weapon = 8;
-Weapon2 = 2;
+Weapon2 = 5;
 HP = 99999999;
 function main()
 end

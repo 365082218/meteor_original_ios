@@ -304,6 +304,9 @@ public class PoseStatus
         }
         else
         {
+            if (mActiveAction.Idx == CommonAction.Struggle0 || mActiveAction.Idx == CommonAction.Struggle)
+                return;
+
             //使用火枪，状态机与普通状态机不一致
             if (_Self.GetWeaponType() == (int)EquipWeaponType.Gun)
             {
@@ -511,7 +514,7 @@ public class PoseStatus
 
     public void ChangeAction(int idx = CommonAction.Idle, float time = 0.0f, int targetFrame = 0)
     {
-        if (idx == CommonAction.Idle && mActiveAction != null && (mActiveAction.Idx == CommonAction.WalkLeft || mActiveAction.Idx == CommonAction.WalkRight))
+        if (idx == CommonAction.Idle && !_Self.Attr.IsPlayer &&  mActiveAction != null && (mActiveAction.Idx == CommonAction.Struggle || mActiveAction.Idx == CommonAction.Struggle0))
         {
             Debug.DebugBreak();
         }
@@ -604,19 +607,23 @@ public class PoseStatus
             if (_Self.GetLockedTarget() != null && !onDefence && !onhurt)
             {
                 //NPC只在处于杀死敌方的状态时会朝角色转向
-                if (_Self.robot != null && _Self.robot.Status == EAIStatus.Kill)
+                if (_Self.robot != null && _Self.robot.Status == EAIStatus.Fight && _Self.robot.SubStatus == EAISubStatus.Fight)
                 {
+                    //远程武器无需转向.
                     if (_Self.GetWeaponType() != (int)EquipWeaponType.Guillotines &&
                         _Self.GetWeaponType() != (int)EquipWeaponType.Gun &&
                         _Self.GetWeaponType() != (int)EquipWeaponType.Dart)
                     {
-                        //Debug.Log(string.Format("face to target when action:{0}", idx));
-                        //怪物不一定要面向角色，因为怪物的走位不是由玩家控制.而是自由的
-                        //_Self.FaceToTarget(_Self.GetLockedTarget());
+                        _Self.FaceToTarget(_Self.GetLockedTarget());
                     }
                 }
                 else if (_Self.robot == null && !GameData.gameStatus.DisableLock)
-                    _Self.FaceToTarget(_Self.GetLockedTarget());
+                {
+                    if (_Self.GetWeaponType() != (int)EquipWeaponType.Guillotines &&
+                        _Self.GetWeaponType() != (int)EquipWeaponType.Gun &&
+                        _Self.GetWeaponType() != (int)EquipWeaponType.Dart)
+                        _Self.FaceToTarget(_Self.GetLockedTarget());
+                }
             }
             load.SetPosData(ActionList[UnitId][idx], time, false, targetFrame);
             mActiveAction = ActionList[UnitId][idx];

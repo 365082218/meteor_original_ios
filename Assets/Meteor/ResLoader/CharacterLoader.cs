@@ -469,15 +469,15 @@ public class CharacterLoader : MonoBehaviour
     {
         if (!effectPlayed)
         {
-            //try
-            //{
+            try
+            {
                 PlayEffect();
-            //}
-            //catch (System.Exception exp)
-            //{
-            //    Debug.LogError("Effect: [" + po.EffectID + " ] Contains Error" + exp.StackTrace);
-            //    effectPlayed = true;
-            //}
+            }
+            catch (System.Exception exp)
+            {
+                Debug.LogError("Effect: [" + po.EffectID + " ] Contains Error" + exp.StackTrace);
+                effectPlayed = true;
+            }
             effectPlayed = true;
         }
     }

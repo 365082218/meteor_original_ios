@@ -604,149 +604,146 @@ public class WSDebug : MonoBehaviour {
     //}
 
     //有此脚本，即可在任何关卡开启游戏
-    //public void Start()
-    //{
-    //    if (Ins == this)
-    //    {
-    //        for (int i = 0; i < 20; i++)
-    //            AmbLoader.Ins.LoadCharacterAmb(i);
-    //        AmbLoader.Ins.LoadCharacterAmb();
-    //        ActionInterrupt.Instance.Init();
-    //        MenuResLoader.Instance.Init();
-    //level = 1;
-    //DontDestroyOnLoad(gameObject);
-    //DontDestroyOnLoad(canvas);
-    //Dictionary<string, List<string>> kv = new Dictionary<string, List<string>>();
-    //for (int i = 0; i < 45; i++)
-    //{
-    //    if (i == 41)
-    //        continue;
-    //    Level lev = LevelMng.Instance.GetItem(i);
-    //    if (lev == null)
-    //        continue;
-    //    DesFile des = DesLoader.Instance.Load(lev.goodList);
-    //    GMBFile gmb = GMBLoader.Instance.Load(lev.goodList);
-    //    if (gmb == null)
-    //        continue;
-    //    //for (int j = 0; j < gmb.TexturesNames.Count; j++)
-    //    //{
-    //        if (!kv.ContainsKey(lev.goodList))
-    //            kv.Add(lev.goodList, gmb.TexturesNames);
-    //    //}
-    //}
+    public void Start()
+    {
 
-    ////System.IO.StreamWriter wr = System.IO.File.CreateText("Assets/debug.txt");
-    //foreach (var each in kv)
-    //{
-    //    //wr.WriteLine(each.Key);
-    //    for (int i = 0; i < each.Value.Count; i++)
-    //    {
-    //        string []file = each.Value[i].Split(new char[] { '.' }, System.StringSplitOptions.RemoveEmptyEntries);
-    //        Texture tex = Resources.Load<Texture>(file[0]);
-    //        if (tex != null)
-    //        {
-    //            string path = AssetDatabase.GetAssetPath(tex);
-    //            tex = null;
-    //            string[] filenames = path.Split(new char[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries);
-    //            string filename = filenames[filenames.Length - 1];
-    //            string error = AssetDatabase.ValidateMoveAsset(path, "Assets/Meteor/" + each.Key + "/resources/" + filename);
-    //            if ("" == AssetDatabase.ValidateMoveAsset(path, "Assets/Meteor/" + each.Key + "/resources/" + filename))
-    //            {
-    //                AssetDatabase.MoveAsset(path, "Assets/Meteor/" + each.Key + "/resources/" + filename);
-    //                AssetDatabase.Refresh();
-    //            }
-    //            else
-    //                Debug.LogError(error);
-    //        }
-    //    }
-    //        //wr.WriteLine(each.Value[i]);
-    //}
-    //wr.Flush();
-    //wr.Close();
-    //ProcessItemTexture();
-    //    }
+        for (int i = 0; i < 20; i++)
+            AmbLoader.Ins.LoadCharacterAmb(i);
+        AmbLoader.Ins.LoadCharacterAmb();
+        ActionInterrupt.Instance.Init();
+        MenuResLoader.Instance.Init();
+            //level = 1;
+        DontDestroyOnLoad(gameObject);
+            //DontDestroyOnLoad(canvas);
+            //Dictionary<string, List<string>> kv = new Dictionary<string, List<string>>();
+            //for (int i = 0; i < 45; i++)
+            //{
+            //    if (i == 41)
+            //        continue;
+            //    Level lev = LevelMng.Instance.GetItem(i);
+            //    if (lev == null)
+            //        continue;
+                //DesFile des = DesLoader.Instance.Load(lev.goodList);
+                //GMBFile gmb = GMBLoader.Instance.Load(lev.goodList);
+                //if (gmb == null)
+                //    continue;
+                ////for (int j = 0; j < gmb.TexturesNames.Count; j++)
+                ////{
+                //if (!kv.ContainsKey(lev.goodList))
+                //    kv.Add(lev.goodList, gmb.TexturesNames);
+                //}
+            //}
 
+            //System.IO.StreamWriter wr = System.IO.File.CreateText("Assets/debug.txt");
+            //foreach (var each in kv)
+            //{
+            //    //wr.WriteLine(each.Key);
+            //    for (int i = 0; i < each.Value.Count; i++)
+            //    {
+            //        string[] file = each.Value[i].Split(new char[] { '.' }, System.StringSplitOptions.RemoveEmptyEntries);
+            //        Texture tex = Resources.Load<Texture>(file[0]);
+            //        if (tex != null)
+            //        {
+            //            string path = AssetDatabase.GetAssetPath(tex);
+            //            tex = null;
+            //            string[] filenames = path.Split(new char[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries);
+            //            string filename = filenames[filenames.Length - 1];
+            //            string error = AssetDatabase.ValidateMoveAsset(path, "Assets/Meteor/" + each.Key + "/resources/" + filename);
+            //            if ("" == AssetDatabase.ValidateMoveAsset(path, "Assets/Meteor/" + each.Key + "/resources/" + filename))
+            //            {
+            //                AssetDatabase.MoveAsset(path, "Assets/Meteor/" + each.Key + "/resources/" + filename);
+            //                AssetDatabase.Refresh();
+            //            }
+            //            else
+            //                Debug.LogError(error);
+            //        }
+            //    }
+            //    //wr.WriteLine(each.Value[i]);
+            //}
+            //wr.Flush();
+            //wr.Close();
+            //ProcessItemTexture();
 
-    //}
+    }
 
-    //public System.Collections.Generic.List<string> ltemTexture = new System.Collections.Generic.List<string>();
+    public System.Collections.Generic.List<string> ltemTexture = new System.Collections.Generic.List<string>();
     //public void ProcessItemTexture()
     //{
-    //Level lev = LevelMng.Instance.GetItem(level);
-    //if (lev == null)
-    //    return;
-    //if (!System.IO.Directory.Exists("Assets/Meteor/Item"  + "/resources/"))
-    //{
-    //    System.IO.Directory.CreateDirectory("Assets/Meteor/Item" + "/resources/");
-    //    AssetDatabase.Refresh();
-    //    //generateFile = true;
-    //}
-
-    //MeshRenderer[] mr = FindObjectsOfType<MeshRenderer>();
-    //for (int i = 0; i < mr.Length; i++)
-    //{
-    //    for (int j = 0; j < mr[i].materials.Length; j++)
+    //    Level lev = LevelMng.Instance.GetItem(level);
+    //    if (lev == null)
+    //        return;
+    //    if (!System.IO.Directory.Exists("Assets/Meteor/Item" + "/resources/"))
     //    {
-    //        if (mr[i].materials[j] != null)
-    //        {
+    //        System.IO.Directory.CreateDirectory("Assets/Meteor/Item" + "/resources/");
+    //        AssetDatabase.Refresh();
+    //        //generateFile = true;
+    //    }
 
-    //            if (mr[i].materials[j].shader.name == "TextureMask")
+    //    MeshRenderer[] mr = FindObjectsOfType<MeshRenderer>();
+    //    for (int i = 0; i < mr.Length; i++)
+    //    {
+    //        for (int j = 0; j < mr[i].materials.Length; j++)
+    //        {
+    //            if (mr[i].materials[j] != null)
     //            {
-    //                //2张图
-    //                Texture tex = mr[i].materials[j].mainTexture;
-    //                Texture texMask = mr[i].materials[j].GetTexture("_MaskTex");
-    //                if (tex != null)
+
+    //                if (mr[i].materials[j].shader.name == "TextureMask")
     //                {
-    //                    string path = AssetDatabase.GetAssetPath(tex);
-    //                    string[] filenames = path.Split(new char[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries);
-    //                    string filename = filenames[filenames.Length - 1];
-    //                    string error = AssetDatabase.ValidateMoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename);
-    //                    if ("" == AssetDatabase.ValidateMoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename))
+    //                    //2张图
+    //                    Texture tex = mr[i].materials[j].mainTexture;
+    //                    Texture texMask = mr[i].materials[j].GetTexture("_MaskTex");
+    //                    if (tex != null)
     //                    {
-    //                        AssetDatabase.MoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename);
-    //                        AssetDatabase.Refresh();
+    //                        string path = AssetDatabase.GetAssetPath(tex);
+    //                        string[] filenames = path.Split(new char[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries);
+    //                        string filename = filenames[filenames.Length - 1];
+    //                        string error = AssetDatabase.ValidateMoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename);
+    //                        if ("" == AssetDatabase.ValidateMoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename))
+    //                        {
+    //                            AssetDatabase.MoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename);
+    //                            AssetDatabase.Refresh();
+    //                        }
+    //                        else
+    //                            Debug.LogError(error);
     //                    }
-    //                    else
-    //                        Debug.LogError(error);
+    //                    if (texMask != null)
+    //                    {
+    //                        string path = AssetDatabase.GetAssetPath(texMask);
+    //                        string[] filenames = path.Split(new char[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries);
+    //                        string filename = filenames[filenames.Length - 1];
+    //                        string error = AssetDatabase.ValidateMoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename);
+    //                        if ("" == AssetDatabase.ValidateMoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename))
+    //                        {
+    //                            AssetDatabase.MoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename);
+    //                            AssetDatabase.Refresh();
+    //                        }
+    //                        else
+    //                            Debug.LogError(error);
+    //                    }
     //                }
-    //                if (texMask != null)
+    //                else
     //                {
-    //                    string path = AssetDatabase.GetAssetPath(texMask);
-    //                    string[] filenames = path.Split(new char[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries);
-    //                    string filename = filenames[filenames.Length - 1];
-    //                    string error = AssetDatabase.ValidateMoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename);
-    //                    if ("" == AssetDatabase.ValidateMoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename))
+    //                    if (mr[i].materials[j].mainTexture != null)
     //                    {
-    //                        AssetDatabase.MoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename);
-    //                        AssetDatabase.Refresh();
+    //                        string path = AssetDatabase.GetAssetPath(mr[i].materials[j].mainTexture);
+    //                        string[] filenames = path.Split(new char[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries);
+    //                        string filename = filenames[filenames.Length - 1];
+    //                        string error = AssetDatabase.ValidateMoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename);
+    //                        if ("" == AssetDatabase.ValidateMoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename))
+    //                        {
+    //                            AssetDatabase.MoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename);
+    //                            AssetDatabase.Refresh();
+    //                        }
+    //                        else
+    //                            Debug.LogError(error);
     //                    }
-    //                    else
-    //                        Debug.LogError(error);
-    //                }
-    //            }
-    //            else
-    //            {
-    //                if (mr[i].materials[j].mainTexture != null)
-    //                {
-    //                    string path = AssetDatabase.GetAssetPath(mr[i].materials[j].mainTexture);
-    //                    string[] filenames = path.Split(new char[] { '/' }, System.StringSplitOptions.RemoveEmptyEntries);
-    //                    string filename = filenames[filenames.Length - 1];
-    //                    string error = AssetDatabase.ValidateMoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename);
-    //                    if ("" == AssetDatabase.ValidateMoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename))
-    //                    {
-    //                        AssetDatabase.MoveAsset(path, "Assets/Meteor/Item" + "/resources/" + filename);
-    //                        AssetDatabase.Refresh();
-    //                    }
-    //                    else
-    //                        Debug.LogError(error);
     //                }
     //            }
     //        }
     //    }
-    //}
-    //Debug.LogError("ProcessItemTexture done");
-    //level++;
-    //AssetDatabase.MoveAsset();
+    //    Debug.LogError("ProcessItemTexture done");
+    //    level++;
+    //    AssetDatabase.MoveAsset();
     //}
 
     //public void GenerateAll()

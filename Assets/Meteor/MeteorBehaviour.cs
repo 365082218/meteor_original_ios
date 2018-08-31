@@ -455,29 +455,39 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
         }
         else if (posMng.mActiveAction.Idx == CommonAction.Struggle || posMng.mActiveAction.Idx == CommonAction.Struggle0)//地面挣扎.僵直中无法输入.
         {
-            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_Release, Time.deltaTime))
+            if (Owner.IsOnGround())
             {
-                posMng.ChangeAction(CommonAction.DCForw);
-            }
-            else if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_Release, Time.deltaTime))
-            {
-                posMng.ChangeAction(CommonAction.DCBack);
-            }
-            else if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_Release, Time.deltaTime))
-            {
-                posMng.ChangeAction(CommonAction.DCLeft);
-            }
-            else if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_Release, Time.deltaTime))
-            {
-                posMng.ChangeAction(CommonAction.DCRight);
-            }
-            else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress, Time.deltaTime))
-            {
-                Jump(Owner, Input.mInputVector);
-            }
-            else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease, Time.deltaTime))
-            {
-                Jump(Owner, Input.mInputVector, Input.KeyStates[(int)EKeyList.KL_Jump].PressedTime / MeteorInput.ShortPressTime);
+                if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_Release, Time.deltaTime))
+                {
+                    posMng.ChangeAction(CommonAction.DCForw);
+                }
+                else if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_Release, Time.deltaTime))
+                {
+                    posMng.ChangeAction(CommonAction.DCBack);
+                }
+                else if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_Release, Time.deltaTime))
+                {
+                    posMng.ChangeAction(CommonAction.DCLeft);
+                }
+                else if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_Release, Time.deltaTime))
+                {
+                    posMng.ChangeAction(CommonAction.DCRight);
+                }
+                else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress, Time.deltaTime))
+                {
+                    Jump(Owner, Input.mInputVector);
+                }
+                else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease, Time.deltaTime))
+                {
+                    Jump(Owner, Input.mInputVector, Input.KeyStates[(int)EKeyList.KL_Jump].PressedTime / MeteorInput.ShortPressTime);
+                }
+                else if (Input.HasInput((int)EKeyList.KL_Defence, (int)EInputType.EIT_Click, Time.deltaTime))
+                {
+                    if (posMng.mActiveAction.Idx == CommonAction.Struggle)
+                        Owner.posMng.ChangeAction(CommonAction.IdleBack, 0.1f);
+                    else if (posMng.mActiveAction.Idx == CommonAction.Struggle0)
+                        Owner.posMng.ChangeAction(CommonAction.IdleFront, 0.1f);
+                }
             }
         }
         else if (Owner.Climbing)
