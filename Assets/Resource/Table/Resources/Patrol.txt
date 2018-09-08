@@ -1,3 +1,0 @@
-﻿序号	引用副本	巡逻点列表以|间隔	巡逻类型	巡逻到达目标后停留
-Idx	LevelIdx	Patrol	PatrolType	PatrolDelay
-1	1		0	3

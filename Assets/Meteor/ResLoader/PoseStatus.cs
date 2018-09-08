@@ -514,10 +514,10 @@ public class PoseStatus
 
     public void ChangeAction(int idx = CommonAction.Idle, float time = 0.0f, int targetFrame = 0)
     {
-        if (idx == CommonAction.Idle && !_Self.Attr.IsPlayer &&  mActiveAction != null && (mActiveAction.Idx == CommonAction.Struggle || mActiveAction.Idx == CommonAction.Struggle0))
-        {
-            Debug.DebugBreak();
-        }
+        //if (idx == CommonAction.Idle && !_Self.Attr.IsPlayer &&  mActiveAction != null && (mActiveAction.Idx == CommonAction.Struggle || mActiveAction.Idx == CommonAction.Struggle0))
+        //{
+        //    Debug.DebugBreak();
+        //}
         _Self.IgnoreGravitys(PoseStatus.IgnoreGravity(idx));//设置招式重力
         bool ignorePhy = IgnorePhysical(idx);
         if (ignorePhy != _Self.IgnorePhysical)
@@ -630,7 +630,10 @@ public class PoseStatus
             LinkInput.Clear();
             //是倒地姿势，都僵直一秒
             if (idx == CommonAction.Struggle || idx == CommonAction.Struggle0)
+            {
+                Debug.LogError("僵直1秒");
                 _Self.charLoader.LockTime(1.0f);
+            }
         }
     }
 

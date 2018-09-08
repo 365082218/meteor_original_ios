@@ -851,7 +851,7 @@ public class MeteorAI {
             {
                 //到达终点.
                 owner.controller.Input.AIMove(0, 0);
-                SubStatus = EAISubStatus.FightNearTarget;
+                SubStatus = EAISubStatus.FightNearTarget;//要先转向面向攻击目标.
                 return;
             }
             else
@@ -1184,8 +1184,9 @@ public class MeteorAI {
         vec.y = 0;
         if (AttackRotateToTargetCoroutine == null)
         {
+            Debug.LogError("fight leave");
             Stop();
-            TargetPos = fightTarget.mPos + vec.normalized * 75.0f;
+            TargetPos = fightTarget.mPos + vec.normalized * 125.0f;
             GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
             go.transform.localScale = Vector3.one * 10;
             go.transform.position = TargetPos;
@@ -1357,15 +1358,18 @@ public class MeteorAI {
     Coroutine struggleCoroutine;
     void OnHurt()
     {
-        //Debug.LogError("OnHurt");
+        if (owner.charLoader.InStraight)
+            return;
         owner.controller.Input.ResetInput();
+
         if (owner.posMng.mActiveAction.Idx == CommonAction.Struggle || owner.posMng.mActiveAction.Idx == CommonAction.Struggle0)
         {
             if (struggleCoroutine == null && !owner.charLoader.InStraight)
                 struggleCoroutine = owner.StartCoroutine(ProcessStruggle());
         }
-        else
+        else if (Time.realtimeSinceStartup - onHurtTick >= 1.5f)
         {
+            Debug.LogError("not struggle action");
             SubStatus = EAISubStatus.Fight;
         }
     }
@@ -1387,12 +1391,6 @@ public class MeteorAI {
         }
         struggleCoroutine = null;
         SubStatus = EAISubStatus.Fight;
-    }
-
-    //受伤僵直完毕后，切换为Idle
-    void OnHurtDone()
-    {
-        owner.posMng.ChangeAction(CommonAction.Idle);
     }
 
     public void OnUnitDead(MeteorUnit deadunit)
@@ -1566,6 +1564,12 @@ public class MeteorAI {
             owner.StopCoroutine(LookRotateToTargetCoroutine);
             LookRotateToTargetCoroutine = null;
         }
+
+        if (struggleCoroutine != null)
+        {
+            owner.StopCoroutine(struggleCoroutine);
+            struggleCoroutine = null;
+        }
     }
 
     public void ResetAIKey()
@@ -1647,6 +1651,7 @@ public class MeteorAI {
     }
 
     //如果attacker为空，则代表是非角色伤害了自己
+    float onHurtTick;
     public void OnDamaged(MeteorUnit attacker)
     {
         //受到非目标的攻击后，记下来，一会找他算账
@@ -1657,6 +1662,8 @@ public class MeteorAI {
         StopCoroutine();
         Status = EAIStatus.Fight;
         SubStatus = EAISubStatus.FightOnHurt;
+        //在此状态下开始检查，超过2秒后，如果没有切换到倒地姿势，则切换回状态.
+        onHurtTick = Time.realtimeSinceStartup;
     }
 
     //寻路相关的.
