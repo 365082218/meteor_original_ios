@@ -198,10 +198,10 @@ public class FightWnd: Window<FightWnd>
             UpdatePlayerInfo();
         }
 
-        //debugPanel.SetActive(GameData.gameStatus.EnableDebug);
+        //debugPanel.SetActive(GameData.Instance.gameStatus.EnableDebug);
         UpdateUIButton();
         if (NGUIJoystick.instance != null)
-            NGUIJoystick.instance.SetAnchor(GameData.gameStatus.JoyAnchor);
+            NGUIJoystick.instance.SetAnchor(GameData.Instance.gameStatus.JoyAnchor);
         //Control("JoyArrow").SetActive(false);
         //Control("Unlock").SetActive(false);
         //Control("ClickPanel").SetActive(false);
@@ -268,9 +268,9 @@ public class FightWnd: Window<FightWnd>
 
     public void UpdateUIButton()
     {
-        Global.ldaControlX("WeaponSelect", WndObject).SetActive(GameData.gameStatus.EnableWeaponChoose);
-        Global.ldaControlX("SfxMenu", WndObject).SetActive(GameData.gameStatus.EnableDebugSFX);
-        Global.ldaControlX("Robot", WndObject).SetActive(GameData.gameStatus.EnableDebugRobot);
+        Global.ldaControlX("WeaponSelect", WndObject).SetActive(GameData.Instance.gameStatus.EnableWeaponChoose);
+        Global.ldaControlX("SfxMenu", WndObject).SetActive(GameData.Instance.gameStatus.EnableDebugSFX);
+        Global.ldaControlX("Robot", WndObject).SetActive(GameData.Instance.gameStatus.EnableDebugRobot);
         Global.ldaControlX("MiniMap", WndObject).SetActive(true);
     }
 
@@ -383,7 +383,7 @@ public class FightWnd: Window<FightWnd>
             //Debug.Log("Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll");
             return;
         }
-        if (MeteorManager.Instance.LocalPlayer.AngryValue >= 60 || GameData.gameStatus.EnableInfiniteAngry)
+        if (MeteorManager.Instance.LocalPlayer.AngryValue >= 60 || GameData.Instance.gameStatus.EnableInfiniteAngry)
         {
             Global.GMeteorInput.OnKeyDown(EKeyList.KL_BreakOut, false);
             //Debug.Log("OnKeyDown");

@@ -2131,6 +2131,7 @@ MonoBehaviour:
   TextFont: {fileID: 12800000, guid: a9815cf17fe52274f944f55eb598d58d, type: 3}
   Music: {fileID: 2044160637}
   Sound: {fileID: 2044160636}
+  listener: {fileID: 2044160635}
 --- !u!114 &2044160639
 MonoBehaviour:
   m_ObjectHideFlags: 0

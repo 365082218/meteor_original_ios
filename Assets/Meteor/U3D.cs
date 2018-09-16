@@ -84,7 +84,6 @@ public class U3D : MonoBehaviour {
         unit.Init(idx % Global.model.Length, mon);
         MeteorManager.Instance.OnGenerateUnit(unit);
         unit.SetGround(false);
-
         //新模式，只有出生点.
         if (Global.GLevelItem.SceneMode == 1)
         {
@@ -326,7 +325,7 @@ public class U3D : MonoBehaviour {
     public static void PopupTip(int strIden)
     {
         PopupTip tip = WsWindow.OpenMul<PopupTip>(WsWindow.PopupTip);
-        LangBase langIt = GameData.langMng.GetRowByIdx((int)strIden) as LangBase;
+        LangBase langIt = GameData.Instance.langMng.GetRowByIdx((int)strIden) as LangBase;
         string str = "";
         if (Lang == (int)LanguageType.Ch && langIt != null)
         str = langIt.Ch;
@@ -419,10 +418,6 @@ public class U3D : MonoBehaviour {
 
     void OnLoadMainFinished(Action t)
     {
-        //Debug.LogError("OnLoadMainFinished");
-        AudioListener listen = Startup.ins.gameObject.GetComponent<AudioListener>();
-        if (listen == null)
-            Startup.ins.gameObject.AddComponent<AudioListener>();
         MainWnd.Instance.Open();
         if (t != null)
             t.Invoke();
@@ -448,15 +443,17 @@ public class U3D : MonoBehaviour {
     {
         if (save == null)
         {
-            if (!Directory.Exists(Application.persistentDataPath + "/" + GameData.gameStatus.saveSlot))
-                Directory.CreateDirectory(Application.persistentDataPath + "/" + GameData.gameStatus.saveSlot);
-            save = File.Open(Application.persistentDataPath + "/" + GameData.gameStatus.saveSlot + "/script_status.txt", FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
+            string path = string.Format("{0}/{1}", Application.persistentDataPath, GameData.Instance.gameStatus.saveSlot);
+            string script_path = string.Format("{0}/script_status.txt", path);
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+            save = File.Open(script_path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
             save.SetLength(0);
         }
         byte[] line = new byte[2] { (byte)'\r', (byte)'\n' };
         if (save != null)
         {
-            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(str + "=" + val);
+            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(string.Format("{0}={1}", str, val));
             save.Write(buffer, 0, buffer.Length);
             save.Write(line, 0, 2);
             save.Flush();
@@ -637,7 +634,7 @@ public class U3D : MonoBehaviour {
     //允许用一些物品合成一件物品.
     public static void EnableMakeItem(int idx)
     {
-        ItemBase it = GameData.FindItemByIdx(idx);
+        ItemBase it = GameData.Instance.FindItemByIdx(idx);
         if (it != null)
         {
             //if (!GameData.MainRole.EnableMakeList.Contains(idx))
@@ -677,27 +674,27 @@ public class U3D : MonoBehaviour {
         uint profileTotalAllocate = Profiler.GetTotalAllocatedMemory();
         uint profileTotalReserved = Profiler.GetTotalReservedMemory();
         long gcTotal = System.GC.GetTotalMemory(false);
-        WSLog.LogInfo("profile totalAllocate:" + profileTotalAllocate + " profile TotalReserved:" + profileTotalReserved + " gc totalAllocate:" + gcTotal);
-        WSLog.LogInfo("start load level:" + id);
+        Log.Write("profile totalAllocate:" + profileTotalAllocate + " profile TotalReserved:" + profileTotalReserved + " gc totalAllocate:" + gcTotal);
+        Log.Write("start load level:" + id);
         if (FightWnd.Exist)
             FightWnd.Instance.Close();
         //if (StateWnd.Exist)
         //    StateWnd.Instance.Close();
         WindowMng.CloseAll();
-        WSLog.LogInfo("WindowMng.CloseAll();");
+        Log.Write("WindowMng.CloseAll();");
         //暂时不允许使用声音管理器，在切换场景时不允许播放
         SoundManager.Instance.StopAll();
         SoundManager.Instance.Enable(false);
         SaveLastLevelData();
         ClearLevelData();
-        WSLog.LogInfo("ClearLevelData");
+        Log.Write("ClearLevelData");
         Level lev = LevelMng.Instance.GetItem(id);
         Global.GLevelItem = lev;
         Global.GLevelMode = levelmode;
         Global.GGameMode = gamemode;
-        WSLog.LogInfo("Global.GLevelItem = lev;");
+        Log.Write("Global.GLevelItem = lev;");
         LoadingWnd.Instance.Open();
-        WSLog.LogInfo("LoadingWnd.Instance.Open();");
+        Log.Write("LoadingWnd.Instance.Open();");
         Resources.UnloadUnusedAssets();
         GC.Collect();
         if (!string.IsNullOrEmpty(lev.sceneItems))
@@ -712,7 +709,7 @@ public class U3D : MonoBehaviour {
         }
         LevelHelper helper = ins.gameObject.AddComponent<LevelHelper>();
         helper.Load(id, loading);
-        WSLog.LogInfo("helper.load end");
+        Log.Write("helper.load end");
     }
 
     static void ClearLevelData()
@@ -1442,7 +1439,7 @@ public class U3D : MonoBehaviour {
     //仍物品到前方地面上
     public static void MakeItem(int itemIdx)
     {
-        ItemBase it = GameData.FindItemByIdx(itemIdx);
+        ItemBase it = GameData.Instance.FindItemByIdx(itemIdx);
         if (it.MainType == 1)
             DropMng.Instance.DropWeapon2(it.UnitId);
         else if (it.MainType == 2)
@@ -1455,17 +1452,17 @@ public class U3D : MonoBehaviour {
     {
         get
         {
-            if (GameData.gameStatus == null)
+            if (GameData.Instance.gameStatus == null)
                 return (int)LanguageType.En;
             else
-                return GameData.gameStatus.Language;
+                return GameData.Instance.gameStatus.Language;
         }
         set
         {
-            if (GameData.gameStatus == null)
+            if (GameData.Instance.gameStatus == null)
                 return;
             else
-                GameData.gameStatus.Language = value;
+                GameData.Instance.gameStatus.Language = value;
         }
     }
 
@@ -1479,7 +1476,7 @@ public class U3D : MonoBehaviour {
     [DoNotToLua]
     public static bool IsSpecialWeapon(int itemIdx)
     {
-        ItemBase it0 = GameData.FindItemByIdx(itemIdx);
+        ItemBase it0 = GameData.Instance.FindItemByIdx(itemIdx);
         if (it0 == null)
             return false;
         if (it0.SubType == (int)EquipWeaponType.Gun || 
@@ -1494,6 +1491,6 @@ public class U3D : MonoBehaviour {
     public static void UnlockLevel()
     {
         Level[] level = LevelMng.Instance.GetAllItem();
-        GameData.gameStatus.Level = level[level.Length - 1].ID;
+        GameData.Instance.gameStatus.Level = level[level.Length - 1].ID;
     }
 }

@@ -58,7 +58,7 @@ public class GmbLoader : MonoBehaviour {
                 {
                     Texture texture = Resources.Load<Texture>(tex);
                     if (texture == null)
-                        Debug.LogError("texture miss on load gmb:" + tex + " texture name:" + tex);
+                        Debug.LogError(string.Format("texture miss on load gmb:{0} texture name:{1}", tex, tex));
                     mat[x] = new Material(Resources.Load<Shader>("Mobile-Diffuse"));
                     mat[x].SetTexture("_MainTex", texture);
                     mat[x].name = Model;

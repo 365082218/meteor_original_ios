@@ -10,23 +10,10 @@ public class JoyAdjust : MonoBehaviour {
     Vector2 mClickPos = Vector2.zero;
     void Awake()
     {
-        Target.anchoredPosition = GameData.gameStatus.JoyAnchor;
-        posLabel.text = GameData.gameStatus.JoyAnchor.x.ToString() + " " + GameData.gameStatus.JoyAnchor.y.ToString();
+        Target.anchoredPosition = GameData.Instance.gameStatus.JoyAnchor;
+        posLabel.text = string.Format("{0} {1}", GameData.Instance.gameStatus.JoyAnchor.x, GameData.Instance.gameStatus.JoyAnchor.y);
     }
 
-    void OnDestroy()
-    {
-
-    }
-
-    void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
     Vector2 mFingerDownPos;
     int mLastFingerId = -2;
     bool isPress = false;
@@ -89,10 +76,10 @@ public class JoyAdjust : MonoBehaviour {
             {
                 //Vector2 touchPos = UICamera.currentTouch.pos - mFingerDownPos;
                 Target.anchoredPosition = new Vector3(UICamera.currentTouch.pos.x, UICamera.currentTouch.pos.y) * UIHelper.WorldToScreenModify;
-                GameData.gameStatus.JoyAnchor = new Vector2(Target.anchoredPosition.x, Target.anchoredPosition.y);
-                posLabel.text = GameData.gameStatus.JoyAnchor.x.ToString() + " " + GameData.gameStatus.JoyAnchor.y.ToString();
+                GameData.Instance.gameStatus.JoyAnchor = new Vector2(Target.anchoredPosition.x, Target.anchoredPosition.y);
+                posLabel.text = string.Format("{0} {1}", GameData.Instance.gameStatus.JoyAnchor.x, GameData.Instance.gameStatus.JoyAnchor.y);
                 if (NGUIJoystick.instance)
-                    NGUIJoystick.instance.SetAnchor(GameData.gameStatus.JoyAnchor);
+                    NGUIJoystick.instance.SetAnchor(GameData.Instance.gameStatus.JoyAnchor);
             }
         }
     }

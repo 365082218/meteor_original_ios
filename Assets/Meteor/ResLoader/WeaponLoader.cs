@@ -166,14 +166,14 @@ public class WeaponLoader : MonoBehaviour {
     {
         if (weaponModel == null)
         {
-            weaponModel = GameData.MakeEquip(unitid);
+            weaponModel = GameData.Instance.MakeEquip(unitid);
             WeaponBase weaponProperty = WeaponMng.Instance.GetItem(weaponModel.Info().UnitId);
             EquipWeapon(weaponModel, true);
         }
         else
         {
             UnEquipWeapon();
-            weaponModel = GameData.MakeEquip(unitid);
+            weaponModel = GameData.Instance.MakeEquip(unitid);
             WeaponBase weaponProperty = WeaponMng.Instance.GetItem(weaponModel.Info().UnitId);
             EquipWeapon(weaponModel, true);
         }

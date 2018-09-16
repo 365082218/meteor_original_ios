@@ -270,7 +270,7 @@ public class Common
             }
             catch (Exception exp)
             {
-                WSLog.LogError(exp.Message);
+                Log.WriteError(exp.Message);
             }
         }
     }
@@ -295,7 +295,7 @@ public class Common
             }
             catch (Exception exp)
             {
-                WSLog.LogError(exp.Message);
+                Log.WriteError(exp.Message);
             }
         }
     }
@@ -326,7 +326,7 @@ public class Common
     {
         JoinRoomReq req = new JoinRoomReq();
         req.roomId = (uint)roomId;
-        req.userNick = GameData.gameStatus.NickName;
+        req.userNick = GameData.Instance.gameStatus.NickName;
         Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.JoinRoomReq, req);
     }
 

@@ -63,7 +63,7 @@ public class CameraFollow : MonoBehaviour {
 
     public void Init()
     {
-        DisableLockTarget = GameData.gameStatus.DisableLock;
+        DisableLockTarget = GameData.Instance.gameStatus.DisableLock;
         smoothIntensity = 15.0f;//移动平滑倍数
         RotateIntensity = 8.0f;
         Unlocked = false;
@@ -279,7 +279,7 @@ public class CameraFollow : MonoBehaviour {
             if (MeteorManager.Instance.LocalPlayer.posMng.CanRotateY)
             {
 #if STRIP_KEYBOARD
-                yRotate = NGUICameraJoystick.instance.deltaLast.x * GameData.gameStatus.AxisSensitivity.x;
+                yRotate = NGUICameraJoystick.instance.deltaLast.x * GameData.Instance.gameStatus.AxisSensitivity.x;
 #else
                 yRotate = 2 * Input.GetAxis("Mouse X");
 #endif
@@ -288,7 +288,7 @@ public class CameraFollow : MonoBehaviour {
             }
             float xRotate = 0;
 #if STRIP_KEYBOARD
-            xRotate = NGUICameraJoystick.instance.deltaLast.y * GameData.gameStatus.AxisSensitivity.y;
+            xRotate = NGUICameraJoystick.instance.deltaLast.y * GameData.Instance.gameStatus.AxisSensitivity.y;
 #else
             xRotate = 2 * Input.GetAxis("Mouse Y");
 #endif

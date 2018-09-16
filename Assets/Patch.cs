@@ -17,8 +17,8 @@ public class Patch : MonoBehaviour {
 #elif UNITY_IOS
         //IosWrapper.Init();
 #endif
-        GameData.LoadState();
-        GameData.InitTable();
+        GameData.Instance.LoadState();
+        GameData.Instance.InitTable();
         //清理数据
         ResMng.Reload();
         StartCoroutine(LoadData());
@@ -33,11 +33,11 @@ public class Patch : MonoBehaviour {
     public void OnApplicationQuit()
     {
         ClientProxy.Exit();
-        WSLog.Uninit();
+        Log.Uninit();
         FtpLog.Uninit();
-        GameData.SaveState();
+        GameData.Instance.SaveState();
         //保存升级的临时数据.
-        GlobalUpdate.SaveCache();
+        GlobalUpdate.Instance.SaveCache();
     }
 
     //IEnumerator DownLoad()
@@ -83,7 +83,7 @@ public class Patch : MonoBehaviour {
         {
             displayProgress++;
             progress.fillAmount = (float)displayProgress / 100.0f;
-            percent.text = displayProgress + "%";
+            percent.text = string.Format("{0}%", displayProgress);
             yield return new WaitForEndOfFrame();
         }
         MenuResLoader.Instance.Init();
@@ -93,7 +93,7 @@ public class Patch : MonoBehaviour {
         {
             displayProgress++;
             progress.fillAmount = (float)displayProgress / 100.0f;
-            percent.text = displayProgress + "%";
+            percent.text = string.Format("{0}%", displayProgress);
             yield return new WaitForEndOfFrame();
         }
         //for (int i = 0; i < 20; i++)
@@ -116,12 +116,12 @@ public class Patch : MonoBehaviour {
         {
             displayProgress++;
             progress.fillAmount = (float)displayProgress / 100.0f;
-            percent.text = displayProgress + "%";
+            percent.text = string.Format("{0}%", displayProgress);
             yield return new WaitForEndOfFrame();
         }
         yield return new WaitForEndOfFrame();
-        Application.targetFrameRate = AppInfo.GetTargetFrame();
-        WSLog.LogError(string.Format("fps:{0}", Application.targetFrameRate));
+        Application.targetFrameRate = AppInfo.Instance.GetTargetFrame();
+        Log.Write(string.Format("fps:{0}", Application.targetFrameRate));
         U3D.PlayMovie("start.mv");
         AppDomain.CurrentDomain.UnhandledException += UncaughtException;
         ResMng.LoadScene("Menu");
@@ -130,6 +130,6 @@ public class Patch : MonoBehaviour {
 
     void UncaughtException(object sender, UnhandledExceptionEventArgs e)
     { 
-        WSLog.LogInfo("UnCaughtException:" + e.ExceptionObject.ToString());
+        Log.WriteError("UnCaughtException:" + e.ExceptionObject.ToString());
     }
 }

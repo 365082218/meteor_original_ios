@@ -25,7 +25,7 @@ public class MainMenu : Window<MainMenu> {
             Close();
         });
 
-        for (int i = 1; i <= GameData.gameStatus.Level; i++)
+        for (int i = 1; i <= GameData.Instance.gameStatus.Level; i++)
         {
             Level lev = LevelMng.Instance.GetItem(i);
             if (lev == null)
@@ -52,11 +52,11 @@ public class MainMenu : Window<MainMenu> {
     {
         if (select != null)
         {
-            WSLog.LogInfo("u3d.loadlevel");
+            //Log.LogInfo("u3d.loadlevel");
             U3D.LoadLevel(select.ID, LevelMode.SinglePlayerTask, GameMode.Normal);
         }
         else
-            WSLog.LogInfo("select == null");
+            Log.WriteError("select == null");
     }
 
     void AddGridItem(Level lev, Transform parent)

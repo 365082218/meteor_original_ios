@@ -28,10 +28,10 @@ public class LevelHelper : MonoBehaviour
     {
         int displayProgress = 0;
         int toProgress = 0;
-        WSLog.LogInfo("LoadLevelAsync");
+        //WSLog.LogInfo("LoadLevelAsync");
         yield return 0;
         Level lev = LevelMng.Instance.GetItem(levelId);
-        WSLog.LogInfo("Load Scene Async:" + lev.Scene);
+        //WSLog.LogInfo("Load Scene Async:" + lev.Scene);
         ResMng.LoadScene(lev.Scene);
         mAsync = SceneManager.LoadSceneAsync(lev.Scene);
         mAsync.allowSceneActivation = false;
@@ -48,7 +48,7 @@ public class LevelHelper : MonoBehaviour
             yield return 0;
         }
         toProgress = 100;
-        WSLog.LogInfo("displayProgress < toProgress");
+        //WSLog.LogInfo("displayProgress < toProgress");
         while (displayProgress < toProgress)
         {
             ++displayProgress;
@@ -56,10 +56,10 @@ public class LevelHelper : MonoBehaviour
                 loading.UpdateProgress(displayProgress / 100.0f);
             yield return 0;
         }
-        WSLog.LogInfo("displayProgress < toProgress");
+        //WSLog.LogInfo("displayProgress < toProgress");
         mAsync.allowSceneActivation = true;
         yield return 0;
-        WSLog.LogInfo("OnLoadFinishedEx");
+        //WSLog.LogInfo("OnLoadFinishedEx");
         OnLoadFinishedEx(lev);
         for (int i = 0; i < 5; i++)
             yield return 0;
@@ -69,7 +69,7 @@ public class LevelHelper : MonoBehaviour
 
     LevelScriptBase GetLevelScript(string sn)
     {
-        Type type = Type.GetType("LevelScript_" + sn);
+        Type type = Type.GetType(string.Format("LevelScript_{0}", sn));
         if (type == null)
             return null;
         Global.GScriptType = type;
@@ -96,10 +96,8 @@ public class LevelHelper : MonoBehaviour
         U3D.InitPlayer(script);
 
         //把音频侦听移到角色
-        AudioListener listen = Startup.ins.gameObject.GetComponent<AudioListener>();
-        if (listen != null)
-            DestroyImmediate(listen);
-        MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
+        Startup.ins.listener.enabled = false;
+        Startup.ins.playerListener = MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
        
         //等脚本设置好物件的状态后，根据状态决定是否生成受击盒，攻击盒等.
         GameBattleEx.Instance.Init(lev, script);
@@ -130,9 +128,9 @@ public class LevelHelper : MonoBehaviour
     public static string GetCampStr(MeteorUnit unit)
     {
         if (unit.Camp == EUnitCamp.EUC_ENEMY)
-            return unit.name + " 选择蝴蝶,进入战场";
+            return string.Format("{0} 选择蝴蝶, 进入战场", unit.name);
         if (unit.Camp == EUnitCamp.EUC_FRIEND)
-            return unit.name + " 选择流星,进入战场";
-        return unit.name + " 进入战场";
+            return string.Format("{0} 选择流星,进入战场", unit.name);
+        return string.Format("{0} 进入战场", unit.name);
     }
 }

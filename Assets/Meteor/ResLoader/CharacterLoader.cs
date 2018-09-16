@@ -754,7 +754,7 @@ public class CharacterLoader : MonoBehaviour
 
     bool IgnoreActionMove(int idx)
     {
-        ActionBase act = GameData.actionMng.GetRowByIdx(idx) as ActionBase;
+        ActionBase act = GameData.Instance.actionMng.GetRowByIdx(idx) as ActionBase;
         if (act == null)
             return false;
         return act.IgnoreMove == 1;

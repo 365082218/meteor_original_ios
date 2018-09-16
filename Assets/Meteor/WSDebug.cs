@@ -69,9 +69,9 @@ public class WSDebug : MonoBehaviour {
         gameObject.SetActive(true);
         if (GlobalDebuggableObjects.Count == 0)
         {
-#if !STRIP_LOGS
-            WSLog.Print("no debug data");
-#endif
+//#if !STRIP_LOGS
+//            WSLog.Print("no debug data");
+//#endif
             return;
         }
         ClearAllButtons(true, true);

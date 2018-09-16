@@ -167,7 +167,7 @@ public class HttpClient{
                 }
                 else
                 {
-                    WSLog.LogError("application quit normal return");
+                    Log.WriteError("application quit normal return");
                     return;
                 }
             }
@@ -301,7 +301,7 @@ public class HttpClient{
                             connectDone.WaitOne(2000, false);
                             if (!sClient.Connected)
                             {
-                                WSLog.LogError("connect time out");
+                                Log.WriteError("connect time out");
                                 req.Status = TaskStatus.Error;
                                 continue;
                             }
@@ -324,7 +324,7 @@ public class HttpClient{
                         }
 
                         string strSend = string.Format(strHttpVer, strRelativePath, strHost, strPort, req.cbstart);
-                        WSLog.LogError("send packet:" + strSend);
+                        Log.WriteError("send packet:" + strSend);
                         byte[] bySend = System.Text.Encoding.UTF8.GetBytes(string.Format(strHttpVer, strRelativePath, strHost, strPort, req.cbstart));
                         sClient.Send(bySend);
                         int nByteRecved = 0;
@@ -364,7 +364,7 @@ public class HttpClient{
                         }
                         nByteRecved = 0;
                         string strHead = System.Text.Encoding.UTF8.GetString(ms.GetBuffer());
-                        WSLog.LogError("http recv:" + strHead);
+                        Log.WriteError("http recv:" + strHead);
                         string strHeadLower = strHead.ToLower();
                         //check http1.1 return code
                         int nReturnCode = 0;
@@ -378,7 +378,7 @@ public class HttpClient{
                             {
                                 string strStatus = strResponse[i];
                                 nReturnCode = System.Convert.ToInt32(strStatus.Substring(9, 3));
-                                WSLog.LogError("http result:" + nReturnCode.ToString());
+                                Log.WriteError("http result:" + nReturnCode.ToString());
                             }
                             else if (strResponse[i].Contains("content-length:"))
                             {
@@ -394,7 +394,7 @@ public class HttpClient{
                             }
 							else if (strResponse[i].Contains("tranfer-encoding:chunked"))
 							{
-								WSLog.LogError("error !!! can not read chunked data");
+                                Log.WriteError("error !!! can not read chunked data");
                                 req.error = "can not read chunked data";
                                 req.Status = TaskStatus.Error;
 							}
@@ -481,7 +481,7 @@ public class HttpClient{
             }
             if (close != null)
             {
-                WSLog.LogError("thread quit signal open");
+                Log.WriteError("thread quit signal open");
                 close.Set();
                 close = null;
             }
@@ -532,7 +532,7 @@ public class HttpClient{
 	{
 		if (string.IsNullOrEmpty(file) || string.IsNullOrEmpty(localpath))
 		{
-			WSLog.LogError("AddRequest Error Invalid Param");
+            Log.WriteError("AddRequest Error Invalid Param");
 			return;
 		}
 		localpath = localpath.Replace("\\", "/");

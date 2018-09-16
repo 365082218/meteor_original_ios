@@ -305,11 +305,11 @@ public class ScriptBase
     }
     public static void CreateEffect(int target, string effect)
     {
-        U3D.CreateEffect(target, effect);
+        U3D.CreateEffect(target, string.Format("{0}.ef", effect));
     }
     public static void CreateEffect(string target, string effect, bool loop)
     {
-        U3D.CreateEffect(target, effect, loop);
+        U3D.CreateEffect(target, string.Format("{0}.ef", effect), loop);
     }
     public static void CreateEffect(string target, string effect)
     {
@@ -337,11 +337,11 @@ public class ScriptBase
 
     public static void Output(int i)
     {
-        Debug.Log(i);
+        //Debug.Log(i);
     }
     public static void Output(string s, int i = 0)
     {
-        Debug.Log(s + i);
+        //Debug.Log(s + i);
     }
 
     public static void AddNPC(string npc)

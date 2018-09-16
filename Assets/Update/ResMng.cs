@@ -113,7 +113,7 @@ public class ResMng {
 
 	static void Load()
 	{
-        WSLog.LogError("ResInit");
+        Log.WriteError("ResInit");
 		Res.Clear();
         Bundle.Clear();
         ReferenceNode.referenceDict.Clear();
@@ -319,7 +319,7 @@ public class ResMng {
 		}
 		catch (System.Exception exp)
 		{
-			WSLog.LogError(exp.Message + "|" + exp.StackTrace);
+            Log.WriteError(exp.Message + "|" + exp.StackTrace);
 			return;
 		}
 	}

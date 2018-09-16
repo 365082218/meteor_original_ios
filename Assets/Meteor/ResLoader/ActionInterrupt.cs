@@ -622,7 +622,7 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
         if (Root != null)
             return;
 
-        TextAsset act = Resources.Load<TextAsset>(AppInfo.MeteorVersion + "/characteract");
+        TextAsset act = Resources.Load<TextAsset>(string.Format("{0}/characteract", AppInfo.Instance.MeteorVersion));
         MemoryStream ms = new MemoryStream(act.bytes);
         StreamReader text = new StreamReader(ms);
 
@@ -830,7 +830,7 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
         List<ActionNode> first = Whole.Values.ToList();
         for (int i = 0; i < first.Count; i++)
         {
-            WSLog.LogInfo("Input:" + first[i].KeyMap + "targetAction = " + first[i].ActionIdx);
+            Log.Write(string.Format("Input:{0} targetAction ={1}", first[i].KeyMap, first[i].ActionIdx));
         }
     }
 

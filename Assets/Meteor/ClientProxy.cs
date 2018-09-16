@@ -47,7 +47,7 @@ class ClientProxy
         }
         catch (Exception exp)
         {
-            WSLog.LogInfo(exp.Message);
+            Log.Write(exp.Message);
             result.Message = (int)LocalMsgType.Connect;
             result.Result = 0;
             ProtoHandler.PostMessage(result);
@@ -142,9 +142,9 @@ class ClientProxy
     {
         if (server == null)
         {
-            IPAddress[] addr = Dns.GetHostAddresses(AppInfo.Domain);
+            IPAddress[] addr = Dns.GetHostAddresses(AppInfo.Instance.Domain);
             if (addr.Length != 0)
-                server = new IPEndPoint(addr[0], AppInfo.GatePort);
+                server = new IPEndPoint(addr[0], AppInfo.Instance.GatePort);
         }
     }
 

@@ -92,17 +92,17 @@ public static class FtpLog
         try
         {
             sw = ftp.GetRequestStream();
-			contentLen = fs.Read(buff, 0, buffLength); 
-			while (contentLen != 0) 
-			{
-				sw.Write(buff, 0, contentLen); 
-				contentLen = fs.Read(buff, 0, buffLength); 
-			}
-			sw.Close();
-        } 
-		catch (Exception e) 
-		{
-            WSLog.LogError("upload log file exception:" + e.Message);
+            contentLen = fs.Read(buff, 0, buffLength);
+            while (contentLen != 0)
+            {
+                sw.Write(buff, 0, contentLen);
+                contentLen = fs.Read(buff, 0, buffLength);
+            }
+            sw.Close();
+        }
+        catch (Exception e)
+        {
+            Log.WriteError(string.Format("upload log file exception:{0}", e.Message));
 		}
 		finally
 		{

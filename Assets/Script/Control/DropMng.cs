@@ -9,7 +9,7 @@ public class DropMng:Singleton<DropMng>{
         int mainWeapon = player.Attr.Weapon2;
         if (mainWeapon == 0)
             return;
-        ItemBase ib = GameData.itemMng.GetRowByIdx(mainWeapon) as ItemBase;
+        ItemBase ib = GameData.Instance.itemMng.GetRowByIdx(mainWeapon) as ItemBase;
         WeaponBase wb = WeaponMng.Instance.GetItem(ib.UnitId);
         GameObject trigget = CreateObj(wb.WeaponR, player.transform, -player.transform.forward);
         //obj.Add(trigget);
@@ -33,7 +33,7 @@ public class DropMng:Singleton<DropMng>{
         //List<GameObject> obj = new List<GameObject>();
         //一定爆出角色主武器，有Flag爆出Flag,并且这个Flag，会持续一定时间，若无人拾取，则会重置Flag归位.
         int mainWeapon = player.Attr.Weapon;
-        ItemBase ib = GameData.itemMng.GetRowByIdx(mainWeapon) as ItemBase;
+        ItemBase ib = GameData.Instance.itemMng.GetRowByIdx(mainWeapon) as ItemBase;
         WeaponBase wb = WeaponMng.Instance.GetItem(ib.UnitId);
         GameObject trigget = CreateObj(wb.WeaponR, player.transform, -player.transform.forward);
         //obj.Add(trigget);

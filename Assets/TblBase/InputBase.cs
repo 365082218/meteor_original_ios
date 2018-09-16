@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-public class InputRecord
-{
-    public EKeyList key;
-    public bool pressed;//抬起还是按下
-}
+//public class InputRecord
+//{
+//    public EKeyList key;
+//    public bool pressed;//抬起还是按下
+//}
 
 public class InputBase : TblBase
 {
@@ -68,7 +68,7 @@ public class InputItem
             }
             else
             {
-                frame = AppInfo.GetWaitForNextInput();
+                frame = AppInfo.Instance.GetWaitForNextInput();
             }
         }
         return false;
@@ -100,7 +100,7 @@ public class InputItem
             }
             else
             {
-                frame = AppInfo.GetWaitForNextInput();
+                frame = AppInfo.Instance.GetWaitForNextInput();
             }
         }
         return false;
@@ -140,7 +140,7 @@ public class InputItem
 
                 if (!ActionInterrupt.Instance.Whole.ContainsKey(targetIdx))
                 {
-                    Debug.LogError("not contains:" + targetIdx);
+                    //Debug.LogError(string.Format("not contains:{0}", targetIdx));
                     targetPose = -1;
                     return false;
                 }
@@ -205,28 +205,10 @@ public class InputItem
         return false;
     }
 
-    //bool CheckPose(int pose)
-    //{
-    //    return Global.GMeteorInput.HasMapInput(,pose);
-    //    switch (pose)
-    //    {
-    //        case 259:
-    //            if (MeteorManager.Instance.LocalPlayer.AngryValue < 100)
-    //                return false;
-    //        break;
-    //        case 88:
-    //        case 150:
-    //            if (MeteorManager.Instance.LocalPlayer.AngryValue < 60)
-    //                return false;
-    //            return true;
-    //    }
-    //    return false;
-    //}
-
     public void Reset()
     {
         state = 0;
-        frame = AppInfo.GetWaitForNextInput();
+        frame = AppInfo.Instance.GetWaitForNextInput();
     }
 
     public bool Wait()
@@ -265,7 +247,7 @@ public class InputModule
         if (inputs.Count != 0)
             return;
         mOwner = owner;
-        List<InputBase> ipts = GameData.inputMng.GetFullRow();
+        List<InputBase> ipts = GameData.Instance.inputMng.GetFullRow();
         for (int i = 0; i < ipts.Count; i++)
         {
             InputItem it = new InputItem(owner);
@@ -274,19 +256,19 @@ public class InputModule
             it.KeyInput = new EKeyList[it.keyInput.Length];
             for (int j = 0; j < it.keyInput.Length; j++)
             {
-                if (it.keyInput[j] == 'W')
+                if (it.keyInput[j].Equals('W'))
                     it.KeyInput[j] = EKeyList.KL_KeyW;
                 else
-                if (it.keyInput[j] == 'S')
+                if (it.keyInput[j].Equals('S'))
                     it.KeyInput[j] = EKeyList.KL_KeyS;
                 else
-                if (it.keyInput[j] == 'A')
+                if (it.keyInput[j].Equals('A'))
                     it.KeyInput[j] = EKeyList.KL_KeyA;
                 else
-                if (it.keyInput[j] == 'D')
+                if (it.keyInput[j].Equals('D'))
                     it.KeyInput[j] = EKeyList.KL_KeyD;
                 else
-                if (it.keyInput[j] == 'J')
+                if (it.keyInput[j].Equals('J'))
                     it.KeyInput[j] = EKeyList.KL_Attack;
                 //else
                 //if (it.keyInput[j] == 'K')
@@ -303,7 +285,7 @@ public class InputModule
             {
                 it.linesAir.Add(int.Parse(str[j]), new List<int>());
             }
-            it.frame = AppInfo.GetWaitForNextInput();
+            it.frame = AppInfo.Instance.GetWaitForNextInput();
             it.state = 0;
             it.totalState = it.keyInput.Length;
             int[] lines = new int[it.lines.Keys.Count];
@@ -321,7 +303,7 @@ public class InputModule
                     }
                 }
                 else
-                    Debug.Log("line:" + lines[j] + " miss");
+                    Debug.Log(string.Format("line:{0} miss", lines[j]));
             }
             for (int j = 0; j < linesAir.Length; j++)
             {
@@ -333,7 +315,7 @@ public class InputModule
                     }
                 }
                 else
-                    Debug.Log("line:" + linesAir[j] + " miss");
+                    Debug.Log(string.Format("line:{0} miss", linesAir[j]));
             }
             inputs.Add(it);
             //input.Add(i, it.);

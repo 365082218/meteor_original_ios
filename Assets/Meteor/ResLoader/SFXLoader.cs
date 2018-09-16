@@ -122,32 +122,23 @@ public class SfxFile
     public bool ParseFile(string file)
     {
         strfile = file;
-        TextAsset asset = Resources.Load<TextAsset>(file);
-        if (asset == null)
-            asset = Resources.Load<TextAsset>(file + ".ef");
+        TextAsset asset = Resources.Load<TextAsset>(string.Format("{0}", file));
         if (asset == null)
         {
             SFXLoader.Instance.Miss++;
-            Debug.LogError("sfx:" + file + " missed");
+            Debug.LogError(string.Format("sfx:{0} missed", file));
             return false;
         }
         int offset = 0;
         if (asset != null && asset.bytes == null)
         {
-            Debug.LogError("asset or it content is null file is " + file);
+            Debug.LogError(string.Format("asset or it content is null file is {0}", file));
             return false;
         }
         MemoryStream ms = new MemoryStream(asset.bytes);
         BinaryReader reader = new BinaryReader(ms);
         string ver = new string(reader.ReadChars(11));
-        //System.Text.Encoding.UTF8.GetString(asset.bytes, offset, 11);
-        //offset += 11;
         int effectNum = reader.ReadInt32();
-        //int effectNum = System.BitConverter.ToInt32(asset.bytes, offset);
-        //offset += 4;
-        //只读一个特效的。
-        //if (effectNum != 1)
-        //    return false;
         for (int i = 0; i < effectNum; i++)
         {
             SfxEffect sfx = new SfxEffect();
@@ -222,21 +213,21 @@ public class SfxFile
                 }
 
                 int TailSectionLength = reader.ReadInt32();
-                if (sfx.EffectType == "AUDIO")
+                if (sfx.EffectType.Equals("AUDIO"))
                 {
                     int regionCnt = reader.ReadInt32();
                     string sBone = readNextString(reader, regionCnt);
                     sfx.audioLoop = reader.ReadInt32();
                     sfx.Tails[0] = sBone;
                 }
-                else if (sfx.EffectType == "BILLBOARD" || sfx.EffectType == "PLANE")
+                else if (sfx.EffectType.Equals("BILLBOARD") || sfx.EffectType.Equals("PLANE"))
                 {
                     sfx.origScale.x = reader.ReadSingle();
                     offset += 4;
                     sfx.origScale.y = reader.ReadSingle();
                     offset += 4;
                 }
-                else if (sfx.EffectType == "CYLINDER")
+                else if (sfx.EffectType.Equals("CYLINDER"))
                 {
                     sfx.origAtt.x = reader.ReadSingle();//底部半径
                     offset += 4;
@@ -250,7 +241,7 @@ public class SfxFile
                     offset += 4;
                     //sfx.TailLength = 24;
                 }
-                else if (sfx.EffectType == "BOX")
+                else if (sfx.EffectType.Equals("BOX"))
                 {
                     sfx.origScale.x = reader.ReadSingle();//System.BitConverter.ToSingle(asset.bytes, offset);//可能是int可能是float
                     offset += 4;
@@ -260,7 +251,7 @@ public class SfxFile
                     offset += 4;
                     //sfx.TailLength = 16;
                 }
-                else if (sfx.EffectType == "PARTICLE")
+                else if (sfx.EffectType.Equals("PARTICLE"))
                 {
                     //reader.BaseStream.Seek(4, SeekOrigin.Current);
                     //读4个字节长度，读100个字节，在读这个长度 最后面就是3个变长串
@@ -293,12 +284,12 @@ public class SfxFile
                     offset += regionCnt;
                     //sfx.TailLength += regionCnt;
                 }
-                else if (sfx.EffectType == "DONUT")
+                else if (sfx.EffectType.Equals("DONUT"))
                 {
                     reader.BaseStream.Seek(24, SeekOrigin.Current);
                     //sfx.TailLength = 28;
                 }
-                else if (sfx.EffectType == "DRAG")
+                else if (sfx.EffectType.Equals("DRAG"))
                 {
                     //sfx.TailLength += 8;
                     offset += 8;
@@ -306,7 +297,7 @@ public class SfxFile
                     int len4 = reader.ReadInt32();// (asset.bytes, offset);
                     offset += 4;
                     //sfx.TailLength += 4;
-                    sfx.Tails[0] =  readNextString(reader, len4);// (asset.bytes, offset, len4);
+                    sfx.Tails[0] = readNextString(reader, len4);// (asset.bytes, offset, len4);
                     //sfx.TailLength += len4;
                     offset += len4;
                     len4 = reader.ReadInt32();// System.BitConverter.ToInt32(asset.bytes, offset);
@@ -316,7 +307,7 @@ public class SfxFile
                     //sfx.TailLength += len4;
                     offset += len4;
                 }
-                else if (sfx.EffectType == "MODEL")
+                else if (sfx.EffectType.Equals("MODEL"))
                 {
                     //4 + 4 + 长度
                     //sfx.TailLength += 4;
@@ -327,7 +318,7 @@ public class SfxFile
                     sfx.Tails[0] = readNextString(reader, len4);// System.Text.Encoding.UTF8.GetString(asset.bytes, offset, len4);
                     //sfx.TailLength += len4;
                 }
-                else if (sfx.EffectType == "SPHERE")
+                else if (sfx.EffectType.Equals("SPHERE"))
                 {
                     sfx.SphereScale = reader.ReadSingle();
                     sfx.sphereAttr.x = reader.ReadSingle();
@@ -338,7 +329,7 @@ public class SfxFile
                 }
                 else
                 {
-                    Debug.LogError(sfx.EffectType + " can not parse: file " + file);
+                    Debug.LogError(string.Format("{0} can not parse: file {1}",  sfx.EffectType, file));
                 }
                 effectList.Add(sfx);
             }
@@ -347,20 +338,6 @@ public class SfxFile
         reader.Close();
         return true;
     }
-
-    //public SfxEffectPlay Play(Vector3 position, bool once)
-    //{
-    //    if (effectList.Count == 0)
-    //        return null;
-    //    GameObject obj = new GameObject("sfxeffect");
-    //    obj.transform.position = position;
-    //    obj.transform.localScale = Vector3.one;
-    //    obj.transform.rotation = Quaternion.identity;
-    //    obj.layer = 
-    //    SFXEffectPlay effectContainer = obj.AddComponent<SFXEffectPlay>();
-    //    effectContainer.Load(this, once);
-    //    return effectContainer;
-    //}
 
     public SFXEffectPlay Play(GameObject obj, bool once)
     {
@@ -432,22 +409,6 @@ public class SFXLoader :Singleton<SFXLoader>{
     bool initList = false;
     List<string> key;
     int effIndex = 0;
-    public void PlayNextEffect()
-    {
-        if (!initList)
-        {
-            key = EffectList.Keys.ToList();
-            for (int i = 0; i < key.Count; i++)
-            {
-                if (key[i] == "GetItem.ef")
-                    effIndex = i + 1;
-            }
-            initList = true;
-        }
-        PlayEffect(key[effIndex], MeteorManager.Instance.LocalPlayer.GetComponent<CharacterLoader>());
-        effIndex++;
-    }
-
     public SFXEffectPlay PlayEffect(int idx, GameObject obj, bool once = true)
     {
         if (Eff.Length > idx)
@@ -458,8 +419,6 @@ public class SFXLoader :Singleton<SFXLoader>{
     //一些环境特效，例如风之类的音效.
     public SFXEffectPlay PlayEffect(string file, GameObject obj, bool once = false)
     {
-        if (file.ToLower() == "fronthit" || file.ToLower() == "fronthit.ef")
-            Debug.DebugBreak();
         if (!EffectList.ContainsKey(file))
         {
             SfxFile f = new SfxFile();
@@ -468,15 +427,14 @@ public class SFXLoader :Singleton<SFXLoader>{
                 if (f.ParseFile(file))
                 {
                     EffectList.Add(file, f);
-                    //Debug.LogError("effect file:" + file);
                     return f.Play(obj, once);
                 }
                 else
-                    Debug.LogError(file + " parse error445");
+                    Debug.LogError(string.Format("{0} parse error", file));
             }
             catch
             {
-                Debug.LogError(file + " parse error449");
+                Debug.LogError(string.Format("{0}  parse error", file));
             }
 
         }
@@ -505,7 +463,7 @@ public class SFXLoader :Singleton<SFXLoader>{
             }
             catch
             {
-                Debug.LogError(file + " parse error");
+                Debug.LogError(string.Format("{0}  parse error", file));
             }
 
         }
@@ -517,38 +475,6 @@ public class SFXLoader :Singleton<SFXLoader>{
         return null;
     }
 
-    public void LoadEffect(string file)
-    {
-        if (!EffectList.ContainsKey(file))
-        {
-            SfxFile f = new SfxFile();
-            try
-            {
-                if (f.ParseFile(file))
-                {
-                    //过滤掉声音的
-                    //bool add = false;
-                    //for (int i = 0; i < f.effectList.Count; i++)
-                    //{
-                    //    if (f.effectList[i].EffectType != "AUDIO")
-                    //    {
-                    //        add = true;
-                    //        break;
-                    //    }
-                    //}
-                    //if (add)
-                        EffectList.Add(file, f);
-                }
-            }
-            catch (Exception exp)
-            {
-                Debug.LogError(file + " parse error" + exp.StackTrace);
-                throw new Exception("effect load failed");
-            }
-            
-        }
-    }
-
     public int TotalSfx = 0;
     public int Miss = 0;
     public string[] Eff;
@@ -556,17 +482,6 @@ public class SFXLoader :Singleton<SFXLoader>{
     {
         TextAsset list = Resources.Load<TextAsset>("effect.lst");
         Eff = list.text.Split(new char[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
-        //try
-        //{
-        //    for (int i = 0; i < Eff.Length; i++)
-        //    {
-        //        LoadEffect(Eff[i]);
-        //    }
-        //}
-        //catch
-        //{
-
-        //}
         TotalSfx = Eff.Length;
     }
 }

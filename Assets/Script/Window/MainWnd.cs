@@ -108,7 +108,7 @@ public class MainLobby : Window<MainLobby>
         Control("Password", roomObj).GetComponent<Text>().text = "无";
         Control("Rule", roomObj).GetComponent<Text>().text = ruleS[(int)room.rule - 1];//盟主，死斗，暗杀
         Control("LevelName", roomObj).GetComponent<Text>().text = LevelMng.Instance.GetItem((int)room.levelIdx).Name;
-        Control("Version", roomObj).GetComponent<Text>().text = AppInfo.MeteorVersion;
+        Control("Version", roomObj).GetComponent<Text>().text = AppInfo.Instance.MeteorVersion;
         Control("Ping", roomObj).GetComponent<Text>().text = "???";
         Control("Group1", roomObj).GetComponent<Text>().text = room.Group1.ToString();
         Control("Group2", roomObj).GetComponent<Text>().text = room.Group2.ToString();
@@ -203,17 +203,17 @@ public class NickName : Window<NickName>
             OnCancel();
         });
         Nick = Control("Nick").GetComponent<InputField>();
-        if (string.IsNullOrEmpty(GameData.gameStatus.NickName))
+        if (string.IsNullOrEmpty(GameData.Instance.gameStatus.NickName))
             Nick.text = "流星杀手";
         else
-            Nick.text = GameData.gameStatus.NickName;
+            Nick.text = GameData.Instance.gameStatus.NickName;
     }
 
     void OnApply()
     {
         if (!string.IsNullOrEmpty(Nick.text))
         {
-            GameData.gameStatus.NickName = Nick.text;
+            GameData.Instance.gameStatus.NickName = Nick.text;
             Close();
         }
         else
@@ -245,7 +245,7 @@ public class MainWnd : Window<MainWnd>
 
 	void Init()
 	{
-        Control("Version").GetComponent<Text>().text = AppInfo.MeteorVersion;
+        Control("Version").GetComponent<Text>().text = AppInfo.Instance.MeteorVersion;
         Control("SinglePlayer").GetComponent<Button>().onClick.AddListener(()=> {
             OnSinglePlayer();
         });
@@ -439,7 +439,7 @@ public class WeaponWnd : Window<WeaponWnd>
 
     IEnumerator AddWeapon()
     {
-        List<ItemBase> we = GameData.itemMng.GetFullRow();
+        List<ItemBase> we = GameData.Instance.itemMng.GetFullRow();
         int offset = 0;
         for (int i = 0; i < we.Count; i++)
         {
@@ -482,7 +482,7 @@ public class WeaponWnd : Window<WeaponWnd>
 
     void ShowWeapon()
     {
-        List<ItemBase> we = GameData.itemMng.GetFullRow();
+        List<ItemBase> we = GameData.Instance.itemMng.GetFullRow();
         for (int i = 0; i < we.Count; i++)
         {
             if (we[i].MainType == 1)

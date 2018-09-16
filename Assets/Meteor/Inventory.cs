@@ -7,34 +7,34 @@ using System.Text;
 
     public static class InventoryItemHelper
     {
-        public static bool IsEquip(this InventoryItem item)
-        {
-            return (GameData.FindItemByIdx(item.Idx)).MainType == (int)UnitType.Equip;
-        }
+    public static bool IsEquip(this InventoryItem item)
+    {
+        return (GameData.Instance.FindItemByIdx(item.Idx)).MainType == (int)UnitType.Equip;
+    }
 
-        public static int type(this InventoryItem item)
+    public static int type(this InventoryItem item)
         {
-            return (GameData.FindItemByIdx(item.Idx)).MainType;
+            return (GameData.Instance.FindItemByIdx(item.Idx)).MainType;
         }
 
         public static bool IsSpecail(this InventoryItem item)
         {
-            return (GameData.FindItemByIdx(item.Idx)).MainType == (int)UnitType.Special;
+            return (GameData.Instance.FindItemByIdx(item.Idx)).MainType == (int)UnitType.Special;
         }
 
         public static bool IsMaterial(this InventoryItem item)
         {
-            return (GameData.FindItemByIdx(item.Idx).MainType == (int)UnitType.Material);
+            return (GameData.Instance.FindItemByIdx(item.Idx).MainType == (int)UnitType.Material);
         }
 
         public static string Name(this InventoryItem item)
         {
-            return StringTbl.unitPrefix + (GameData.FindItemByIdx(item.Idx)).Name + StringTbl.unitSuffix;
+            return StringTbl.unitPrefix + (GameData.Instance.FindItemByIdx(item.Idx)).Name + StringTbl.unitSuffix;
         }
 
         public static ItemBase Info(this InventoryItem item)
         {
-            return (GameData.FindItemByIdx(item.Idx));
+            return (GameData.Instance.FindItemByIdx(item.Idx));
         }
     }
 
@@ -117,7 +117,7 @@ using System.Text;
                 return false;
             for (int i = 0; i < items.Count; i++)
             {
-                ItemBase it = GameData.FindItemByIdx(items[i].Idx);
+                ItemBase it = GameData.Instance.FindItemByIdx(items[i].Idx);
                 if (items[i].Idx == injoin.Idx && items[i].Count + injoin.Count <= it.Stack)
                 {
                     items[i].Count += injoin.Count;

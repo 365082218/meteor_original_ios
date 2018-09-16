@@ -22,7 +22,6 @@ public class SfxMeshGenerator:Singleton<SfxMeshGenerator>
     //默认左手坐标系
     public Mesh CreateCylinder(float raidstop, float radisbottom, float height)
     {
-        //GameObject newCone = new GameObject("Cone");
         radiusTop = raidstop;
         radiusBottom = radisbottom;
         length = height;

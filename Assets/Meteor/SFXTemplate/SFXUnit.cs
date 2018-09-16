@@ -66,15 +66,15 @@ DRAG*/
             //一个是跟随移动，一个是跟随旋转
         mOwner = parent.GetComponent<MeteorUnit>();
         source = effect;
-        if (effect.EffectType == "PARTICLE")
+        if (effect.EffectType.Equals("PARTICLE"))
             particle = Instantiate(Resources.Load<GameObject>("SFXParticles"), Vector3.zero, Quaternion.identity, transform).GetComponent<ParticleSystem>();
 
         if (string.IsNullOrEmpty(effect.Bone0))
             PositionFollow = mOwner == null ? parentSfx.transform : mOwner.transform;
         else
-        if (effect.Bone0 == "ROOT")
+        if (effect.Bone0.Equals("ROOT"))
             PositionFollow = mOwner == null ? parent.transform : mOwner.ROOTNull;
-        else if (effect.Bone0 == "Character")//根骨骼上一级，角色，就是不随着b骨骼走，但是随着d_base走
+        else if (effect.Bone0.Equals("Character"))//根骨骼上一级，角色，就是不随着b骨骼走，但是随着d_base走
             PositionFollow = mOwner == null ? parent.transform: mOwner.RootdBase;
         else
             PositionFollow = FindFollowed(effect.Bone0);
@@ -82,9 +82,9 @@ DRAG*/
         if (string.IsNullOrEmpty(effect.Bone1))
             RotateFollow = mOwner == null ? parent.transform : mOwner.transform;
         else
-        if (effect.Bone1 == "ROOT")
+        if (effect.Bone1.Equals("ROOT"))
             RotateFollow = mOwner == null ? parent.transform : mOwner.ROOTNull;
-        else if (effect.Bone1 == "Character")
+        else if (effect.Bone1.Equals("Character"))
             RotateFollow = mOwner == null ? parent.transform : mOwner.RootdBase;
         else
             RotateFollow = FindFollowed(effect.Bone1);
@@ -96,25 +96,25 @@ DRAG*/
         mFilter = gameObject.GetComponent<MeshFilter>();
         int meshIndex = -1;
 
-        if (effect.EffectType == "DONUT")
+        if (effect.EffectType.Equals("DONUT"))
         {
             //Debug.LogError("find Donut Effect");
         }
         //部分模型是要绕X旋转270的，这样他的缩放，和移动，都只能靠自己
-        if (effect.EffectType == "PLANE")
+        if (effect.EffectType.Equals("PLANE"))
         {
             meshIndex = 0;
         }
-        else if (effect.EffectType == "BOX")
+        else if (effect.EffectType.Equals("BOX"))
         {
             meshIndex = 1;
         }
-        else if (effect.EffectType == "DONUT")
+        else if (effect.EffectType.Equals("DONUT"))
         {
             transform.localScale = effect.frames[0].scale;
             meshIndex = 2;
         }
-        else if (effect.EffectType == "MODEL")//自行加载模型
+        else if (effect.EffectType.Equals("MODEL"))//自行加载模型
         {
             transform.localScale = effect.frames[0].scale;
             transform.rotation = RotateFollow.rotation * effect.frames[0].quat;
@@ -128,11 +128,11 @@ DRAG*/
             //这个时候,不要用自带的meshfilter了,让他自己处理显示问题,只要告诉他在哪个地方显示
             meshIndex = 100;
         }
-        else if (effect.EffectType == "SPHERE")
+        else if (effect.EffectType.Equals("SPHERE"))
         {
             meshIndex = 3;
         }
-        else if (effect.EffectType == "PARTICLE")
+        else if (effect.EffectType.Equals("PARTICLE"))
         {
             if (!string.IsNullOrEmpty(effect.Tails[0]))
                 PositionFollow = FindFollowed(effect.Tails[0]);
@@ -142,16 +142,16 @@ DRAG*/
                 transform.position = PositionFollow.transform.position;
             meshIndex = 101;
         }
-        else if (effect.EffectType == "CYLINDER")
+        else if (effect.EffectType.Equals("CYLINDER"))
         {
             meshIndex = 4;
         }
-        else if (effect.EffectType == "BILLBOARD")
+        else if (effect.EffectType.Equals("BILLBOARD"))
         {
             LookAtC = true;
             meshIndex = 5;
         }
-        else if (effect.EffectType == "DRAG")
+        else if (effect.EffectType.Equals("DRAG"))
         {
             meshIndex = 6;
         }
@@ -176,7 +176,7 @@ DRAG*/
         {
             iflTexture = gameObject.AddComponent<IFLLoader>();
             iflTexture.IFLFile = Resources.Load<TextAsset>(effect.Texture);
-            if (effect.EffectType == "PARTICLE")
+            if (effect.EffectType.Equals("PARTICLE"))
                 iflTexture.SetTargetMeshRenderer(particle.GetComponent<ParticleSystemRenderer>());
             iflTexture.LoadIFL();//传递false表示由特效控制每一帧的切换时间.
             tex = iflTexture.GetTexture(0);
@@ -185,7 +185,7 @@ DRAG*/
         //    print("effect contains other prefix:" + effect.Texture == null ? " texture is null" : effect.Texture);
         if (tex != null)
         {
-            if (effect.EffectType == "PARTICLE")
+            if (effect.EffectType.Equals("PARTICLE"))
             {
                 ParticleSystemRenderer render = particle.GetComponent<ParticleSystemRenderer>();
                 if (effect.BlendType == 0)
@@ -344,7 +344,7 @@ DRAG*/
             if (source.BlendType == 2)
                 vertexColor = "_InvColor";
 
-            if (source.EffectType == "BOX")
+            if (source.EffectType.Equals("BOX"))
             {
                 if (source.frames[playedIndex].startTime <= playedTime)
                 {
@@ -357,7 +357,7 @@ DRAG*/
                     transform.localScale = Vector3.Lerp(new Vector3(source.origScale.x * source.frames[playedIndex - 1].scale.x, source.origScale.y * source.frames[playedIndex - 1].scale.y, source.origScale.z * source.frames[playedIndex - 1].scale.z), new Vector3(source.origScale.x * source.frames[playedIndex].scale.x, source.origScale.y * source.frames[playedIndex].scale.y, source.origScale.z * source.frames[playedIndex].scale.z), timeRatio2);
                 }
             }
-            else if (source.EffectType == "CYLINDER")
+            else if (source.EffectType.Equals("CYLINDER"))
             {
                 if (source.frames[playedIndex].startTime <= playedTime)
                 {
@@ -401,7 +401,7 @@ DRAG*/
                 //    mRender.material.SetColor(vertexColor, Color.Lerp(source.frames[playedIndex - 1].colorRGB, source.frames[playedIndex].colorRGB, timeRatio2));
                 //}
             }
-            else if (source.EffectType == "PLANE")
+            else if (source.EffectType.Equals("PLANE"))
             {
                 if (source.frames[playedIndex].startTime <= playedTime)
                 {
@@ -446,7 +446,7 @@ DRAG*/
                 //    mRender.material.SetColor(vertexColor, Color.Lerp(source.frames[playedIndex - 1].colorRGB, source.frames[playedIndex].colorRGB, timeRatio2));
                 //}
             }
-            else if (source.EffectType == "SPHERE")
+            else if (source.EffectType.Equals("SPHERE"))
             {
                 if (source.frames[playedIndex].startTime <= playedTime)
                 {
@@ -530,7 +530,7 @@ DRAG*/
                 //    mRender.material.SetColor(vertexColor, Color.Lerp(source.frames[playedIndex - 1].colorRGB, source.frames[playedIndex].colorRGB, timeRatio2));
                 //}
             }
-            else if (source.EffectType == "BILLBOARD")
+            else if (source.EffectType.Equals("BILLBOARD"))
             {
                 if (source.frames[playedIndex].startTime <= playedTime)
                 {
@@ -615,7 +615,7 @@ DRAG*/
 
                 //}
             }
-            else if (source.EffectType == "MODEL")
+            else if (source.EffectType.Equals("MODEL"))
             {
                 //第一帧开始时间为-1.表示无限时播放
                 if (source.frames[playedIndex].startTime <= playedTime)
@@ -629,7 +629,7 @@ DRAG*/
                     transform.localScale = Vector3.Slerp(source.frames[playedIndex - 1].scale, source.frames[playedIndex].scale, timeRatio2);
                 }
             }
-            else if (source.EffectType == "PARTICLE")
+            else if (source.EffectType.Equals("PARTICLE"))
             {
                 if (source.frames[playedIndex].startTime <= playedTime)
                 {
@@ -655,7 +655,7 @@ DRAG*/
                     //render.material.SetFloat("_Intensity", source.frames[playedIndex].TailFlags[9]);
                 }
             }
-            else if (source.EffectType == "DONUT")
+            else if (source.EffectType.Equals("DONUT"))
             {
                 if (source.frames[playedIndex].startTime <= playedTime)
                 {
@@ -692,7 +692,7 @@ DRAG*/
                 //    mRender.material.SetColor(vertexColor, Color.Lerp(source.frames[playedIndex - 1].colorRGB, source.frames[playedIndex].colorRGB, timeRatio2));
                 //}
             }
-            else if (source.EffectType == "DRAG")
+            else if (source.EffectType.Equals("DRAG"))
             {
                 if (source.frames[playedIndex].startTime <= playedTime)
                 {

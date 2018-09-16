@@ -276,7 +276,7 @@ public class MeteorUnitInspector : Editor
 public class CameraSnapShotInspector : Editor
 {
     string pos = "Weapon Id";
-    string ModelId = "Model Id";
+    //string ModelId = "Model Id";
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();

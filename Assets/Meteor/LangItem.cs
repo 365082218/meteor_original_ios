@@ -28,10 +28,10 @@ public class LangItem : MonoBehaviour {
 
     public string GetLangStr()
     {
-        LangBase langIt = GameData.langMng.GetRowByIdx((int)LangIdx) as LangBase;
-        if (GameData.gameStatus.Language == (int)LanguageType.Ch && langIt != null)
+        LangBase langIt = GameData.Instance.langMng.GetRowByIdx((int)LangIdx) as LangBase;
+        if (GameData.Instance.gameStatus.Language == (int)LanguageType.Ch && langIt != null)
             return langIt.Ch;
-        if (GameData.gameStatus.Language == (int)LanguageType.En && langIt != null)
+        if (GameData.Instance.gameStatus.Language == (int)LanguageType.En && langIt != null)
             return langIt.En;
         return null;
     }
@@ -44,7 +44,7 @@ public class LangItem : MonoBehaviour {
 
     public static string GetLangString(StringIden strIden)
     {
-        LangBase langIt = GameData.langMng.GetRowByIdx((int)strIden) as LangBase;
+        LangBase langIt = GameData.Instance.langMng.GetRowByIdx((int)strIden) as LangBase;
         if (U3D.Lang == (int)LanguageType.Ch && langIt != null)
             return langIt.Ch;
         if (U3D.Lang == (int)LanguageType.En && langIt != null)

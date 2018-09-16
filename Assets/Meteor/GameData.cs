@@ -86,23 +86,23 @@ public class GameState
     public bool DisableLock;//无锁定
 }
 
-public class GameData
+public class GameData:Singleton<GameData>
 {
-    public static TblMng<LangBase> langMng = TblMng<LangBase>.Instance.GetTable();
-    public static TblMng<ItemBase> itemMng = TblMng<ItemBase>.Instance.GetTable();
-    public static TblMng<ActionBase> actionMng = TblMng<ActionBase>.Instance.GetTable();
-    public static TblMng<InputBase> inputMng = TblMng<InputBase>.Instance.GetTable();
+    public TblMng<LangBase> langMng = TblMng<LangBase>.Instance.GetTable();
+    public TblMng<ItemBase> itemMng = TblMng<ItemBase>.Instance.GetTable();
+    public TblMng<ActionBase> actionMng = TblMng<ActionBase>.Instance.GetTable();
+    public TblMng<InputBase> inputMng = TblMng<InputBase>.Instance.GetTable();
 
-    public static ClientVersion clientVersion;
-    public static GameState gameStatus;
+    public ClientVersion clientVersion;
+    public GameState gameStatus;
 
     //必须放在这里，因为其成员会初始化表格类数据
-    public static void InitTable()
+    public void InitTable()
     {
         TblCore.Instance.Init();
     }
 
-    public static InventoryItem MakeEquip(int unitIdx)
+    public InventoryItem MakeEquip(int unitIdx)
     {
         ItemBase info = FindItemByIdx(unitIdx);
         if (info == null)
@@ -115,7 +115,7 @@ public class GameData
         return item;
     }
 
-    public static List<InventoryItem> MakeItems(int unit, uint count)
+    public List<InventoryItem> MakeItems(int unit, uint count)
     {
         ItemBase info = FindItemByIdx(unit);
         if (info == null)
@@ -170,7 +170,7 @@ public class GameData
 
 
     //创建初始物品
-    public static List<uint> MakeDefaultItems()
+    public List<uint> MakeDefaultItems()
     {
         //初始物品包含,300金币,装备直接填到表里即可.
         List<uint> items = new List<uint>();
@@ -190,7 +190,7 @@ public class GameData
 
 
     //暂停所有与游戏有关的定时器，以及
-    public static void Pause()
+    public void Pause()
     {
         pause = true;
         if (MeteorManager.Instance.LocalPlayer != null)
@@ -199,7 +199,7 @@ public class GameData
             NGUIJoystick.instance.Lock(true);
     }
 
-    public static void Resume()
+    public void Resume()
     {
         pause = false;
         if (MeteorManager.Instance.LocalPlayer != null)
@@ -209,9 +209,9 @@ public class GameData
     }
 
     static bool pause = false;
-    public static bool IsPause { get { return pause; } }
+    public bool IsPause { get { return pause; } }
 
-    public static bool anotherLogined = false;
+    public bool anotherLogined = false;
     //其他客户端登录相同账号.
     //public static void OnAnotherLogined(RBase rsp)
     //{
@@ -273,7 +273,7 @@ public class GameData
     }
     */
     //1两黄金=10两白银=10贯铜钱=10000文铜钱
-    public static string GetMoneyStr(long count)
+    public string GetMoneyStr(long count)
     {
         long gold = count / 10000;
         long sliver = (count - (gold * 10000))/ 1000;
@@ -286,17 +286,28 @@ public class GameData
 
 
     
-    public static ItemBase FindItemByIdx(int itemid)
+    public ItemBase FindItemByIdx(int itemid)
     {
         return itemMng.GetRowByIdx(itemid) as ItemBase ;
     }
 
-    public static void LoadState()
+    string state_path_;
+    public string state_path
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(state_path_))
+                state_path_ = string.Format("{0}/game_state.dat", Application.persistentDataPath);
+            return state_path_;
+        }
+    }
+
+    public void LoadState()
     {
         FileStream save = null;
         try
         {
-            save = File.Open(Application.persistentDataPath + "/" + "game_state.dat", FileMode.Open, FileAccess.Read, FileShare.Read);
+            save = File.Open(state_path, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
         catch
         {
@@ -333,14 +344,14 @@ public class GameData
             gameStatus.MeteorVersion = "9.07";
             gameStatus.TargetFrame = 60;
         }
-        AppInfo.MeteorVersion = gameStatus.MeteorVersion;
+        AppInfo.Instance.MeteorVersion = gameStatus.MeteorVersion;
     }
 
-    public static void SaveState()
+    public void SaveState()
     {
         try
         {
-            FileStream save = File.Open(Application.persistentDataPath + "/" + "game_state.dat", FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
+            FileStream save = File.Open(state_path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
             save.SetLength(0);
             Serializer.Serialize(save, gameStatus);
             save.Close();
@@ -348,11 +359,11 @@ public class GameData
         }
         catch (System.Exception exp)
         {
-            WSLog.LogError(exp.Message);
+            Log.WriteError(exp.Message);
         }
     }
 
-    public static void ResetState()
+    public void ResetState()
     {
         if (File.Exists(Application.persistentDataPath + "/" + "game_state.dat"))
             File.Delete(Application.persistentDataPath + "/" + "game_state.dat");
@@ -361,7 +372,7 @@ public class GameData
     }
     
     //通过配置表得到武器ItemId;//若一个模型被2个武器引用，则返回前者
-    public static int GetWeaponCode(string model)
+    public int GetWeaponCode(string model)
     {
         int unitId = -1;
         WeaponBase[] wItems = WeaponMng.Instance.GetAllItem();
@@ -384,10 +395,10 @@ public class GameData
 }
 
 //处理版本更新相关
-public class GlobalUpdate
+public class GlobalUpdate:Singleton<GlobalUpdate>
 {
-    public static UpdateVersion updateVersion;
-    public static void LoadCache()
+    public UpdateVersion updateVersion;
+    public void LoadCache()
     {
         FileStream save = null;
         try
@@ -406,7 +417,7 @@ public class GlobalUpdate
         }
     }
 
-    public static void SaveCache()
+    public void SaveCache()
     {
         if (updateVersion != null)
         {
@@ -430,7 +441,7 @@ public class GlobalUpdate
     }
 
     //应用一个版本
-    public static void ApplyVersion(VersionItem ver, Main loader)
+    public void ApplyVersion(VersionItem ver, Main loader)
     {
         ConnectWnd.Instance.Close();
         LoadingNotice.Instance.Open();
@@ -475,7 +486,7 @@ public class GlobalUpdate
         
     }
 
-    public static void DownLoadVersion(VersionItem ver, Main loader)
+    public void DownLoadVersion(VersionItem ver, Main loader)
     {
         updateVersion = new UpdateVersion();
         updateVersion.Version = ver.strVersion;
@@ -492,7 +503,7 @@ public class GlobalUpdate
         loader.StartDownLoad(updateVersion);
     }
 
-    public static void CleanVersion()
+    public void CleanVersion()
     {
         if (updateVersion != null && updateVersion.File != null)
         {

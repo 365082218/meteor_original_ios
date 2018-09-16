@@ -31,7 +31,7 @@ public class PoseStatus
             if (_Self.controller.InputLocked)
                 return false;
             //如果有锁定目标，不许转向(在有锁系统下)
-            if (_Self.GetLockedTarget() != null && !GameData.gameStatus.DisableLock)
+            if (_Self.GetLockedTarget() != null && !GameData.Instance.gameStatus.DisableLock)
                 return false;
             //攻击动作播放时不许摇杆控制角色转向
             if (IsAttackPose())
@@ -162,7 +162,7 @@ public class PoseStatus
         if (!PosFile.ContainsKey(UnitId))
         {
             int TargetIdx = UnitId >= 20 ? 0 : UnitId;
-            PosFile.Add(UnitId, Resources.Load<TextAsset>(AppInfo.MeteorVersion + "/P" + TargetIdx + ".pos"));
+            PosFile.Add(UnitId, Resources.Load<TextAsset>(string.Format("{0}/P{1}.pos", AppInfo.Instance.MeteorVersion, TargetIdx)));
             ActionList.Add(UnitId, new List<Pose>());
             ReadPose();
         }
@@ -178,21 +178,21 @@ public class PoseStatus
 
     public static bool IgnoreVelocityXZ(int idx)
     {
-        ActionBase act = GameData.actionMng.GetRowByIdx(idx) as ActionBase;
+        ActionBase act = GameData.Instance.actionMng.GetRowByIdx(idx) as ActionBase;
         if (act == null)
             return false;
         return act.IgnoreXZVelocity == 1;
     }
     public static bool IgnorePhysical(int idx)
     {
-        ActionBase act = GameData.actionMng.GetRowByIdx(idx) as ActionBase;
+        ActionBase act = GameData.Instance.actionMng.GetRowByIdx(idx) as ActionBase;
         if (act == null)
             return false;
         return act.IgnoreCollision == 1;
     }
     public static bool IgnoreGravity(int idx)
     {
-        ActionBase act = GameData.actionMng.GetRowByIdx(idx) as ActionBase;
+        ActionBase act = GameData.Instance.actionMng.GetRowByIdx(idx) as ActionBase;
         if (act == null)
             return false;
         return act.IgnoreGravity == 1;
@@ -383,7 +383,7 @@ public class PoseStatus
                                 _Self.Defence();
                             }
                             else
-                            if (_Self.GetLockedTarget() != null && !GameData.gameStatus.DisableLock)
+                            if (_Self.GetLockedTarget() != null && !GameData.Instance.gameStatus.DisableLock)
                             {
                                 int ReadyAction = 0;
                                 switch ((EquipWeaponType)_Self.GetWeaponType())
@@ -617,7 +617,7 @@ public class PoseStatus
                         _Self.FaceToTarget(_Self.GetLockedTarget());
                     }
                 }
-                else if (_Self.robot == null && !GameData.gameStatus.DisableLock)
+                else if (_Self.robot == null && !GameData.Instance.gameStatus.DisableLock && idx != CommonAction.Idle)
                 {
                     if (_Self.GetWeaponType() != (int)EquipWeaponType.Guillotines &&
                         _Self.GetWeaponType() != (int)EquipWeaponType.Gun &&
@@ -631,7 +631,7 @@ public class PoseStatus
             //是倒地姿势，都僵直一秒
             if (idx == CommonAction.Struggle || idx == CommonAction.Struggle0)
             {
-                Debug.LogError("僵直1秒");
+                //Debug.LogError("僵直1秒");
                 _Self.charLoader.LockTime(1.0f);
             }
         }

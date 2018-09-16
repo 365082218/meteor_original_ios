@@ -54,7 +54,7 @@ public class UnitTopUI : MonoBehaviour {
             float scalex = vec.x / Screen.width;
             float scaley = vec.y / Screen.height;
             rect.anchoredPosition3D = new Vector3(1920f * scalex, 1080f * scaley, vec.z);
-            if (GameData.gameStatus.EnableDebugStatus)
+            if (GameData.Instance.gameStatus.EnableDebugStatus)
             {
                 if (!Info.gameObject.activeInHierarchy)
                     Info.gameObject.SetActive(true);

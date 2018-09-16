@@ -545,21 +545,29 @@ public partial class MeteorUnit : MonoBehaviour
 
     }
 
+    //选择一个敌方目标
     public void SelectEnemy()
     {
         float dis = Attr.View / 2;//视野，可能指的是直径，这里变为半径
+        if (U3D.IsSpecialWeapon(Attr.Weapon))
+            dis = 10000;
         int index = -1;
+        MeteorUnit tar = null;
+        Collider[] other = Physics.OverlapSphere(transform.position, dis, 1 << LayerMask.NameToLayer("Monster") | 1 << LayerMask.NameToLayer("LocalPlayer"));
+
         //直接遍历算了
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        for (int i = 0; i < other.Length; i++)
         {
-            MeteorUnit unit = MeteorManager.Instance.UnitInfos[i];
+            MeteorUnit unit = other[i].GetComponent<MeteorUnit>();
+            if (unit == null)
+                continue;
             if (unit == this)
                 continue;
             if (SameCamp(unit))
                 continue;
             if (unit.Dead)
                 continue;
-            float d = Vector3.Distance(transform.position, MeteorManager.Instance.UnitInfos[i].transform.position);
+            float d = Vector3.Distance(transform.position, unit.transform.position);
             //隐身只能在10M内发现目标
             if (HasBuff(EBUFF_Type.HIDE))
             {
@@ -571,10 +579,11 @@ public partial class MeteorUnit : MonoBehaviour
             {
                 dis = d;
                 index = i;
+                tar = unit;
             }
         }
-        if (index >= 0 && index <= MeteorManager.Instance.UnitInfos.Count)
-            lockTarget = MeteorManager.Instance.UnitInfos[index];
+        if (index >= 0 && index < other.Length && tar != null)
+            lockTarget = tar;
     }
 
     public bool HasBuff(int id)
@@ -695,11 +704,15 @@ public partial class MeteorUnit : MonoBehaviour
     void SelectSceneItem()
     {
         float dis = Attr.View / 2;//视野，可能指的是直径，这里变为半径
+        Collider[] other = Physics.OverlapSphere(transform.position, dis, LayerMask.NameToLayer("Trigger"));
         int index = -1;
+        SceneItemAgent tar = null;
         //直接遍历算了
-        for (int i = 0; i < MeteorManager.Instance.SceneItems.Count; i++)
+        for (int i = 0; i < other.Length; i++)
         {
-            SceneItemAgent item = MeteorManager.Instance.SceneItems[i];
+            SceneItemAgent item = other[i].gameObject.GetComponent<SceneItemAgent>();
+            if (item == null)
+                continue;
             if (!item.CanPickup())
                 continue;
             float d = Vector3.Distance(transform.position, item.transform.position);
@@ -707,10 +720,11 @@ public partial class MeteorUnit : MonoBehaviour
             {
                 dis = d;
                 index = i;
+                tar = item;
             }
         }
-        if (index >= 0 && index <= MeteorManager.Instance.SceneItems.Count)
-            TargetItem = MeteorManager.Instance.SceneItems[index];
+        if (index >= 0 && index < other.Length && tar != null)
+            TargetItem = tar;
     }
 
     SceneItemAgent TargetItem;
@@ -1154,7 +1168,7 @@ public partial class MeteorUnit : MonoBehaviour
         UnitTopUI = (GameObject.Instantiate(Resources.Load("UnitTopUI")) as GameObject).GetComponentInChildren<UnitTopUI>();
         UnitTopUI.Init(Attr, transform, Camp);
 
-        InventoryItem itWeapon = GameData.MakeEquip(Attr.Weapon);
+        InventoryItem itWeapon = GameData.Instance.MakeEquip(Attr.Weapon);
         weaponLoader.EquipWeapon(itWeapon);
 
         //换主角模型用
@@ -1195,7 +1209,7 @@ public partial class MeteorUnit : MonoBehaviour
             weaponLoader.UnEquipWeapon();
 
         Attr.Weapon = weaponCode;
-        IndicatedWeapon = GameData.MakeEquip(Attr.Weapon);
+        IndicatedWeapon = GameData.Instance.MakeEquip(Attr.Weapon);
 
         InventoryItem toEquip = IndicatedWeapon;
         if (toEquip != null && weaponLoader != null)
@@ -1234,7 +1248,7 @@ public partial class MeteorUnit : MonoBehaviour
     public int GetNextWeaponType()
     {
         if (Attr != null)
-            return GameData.MakeEquip(Attr.Weapon2).Info().SubType;
+            return GameData.Instance.MakeEquip(Attr.Weapon2).Info().SubType;
         return -1;
     }
 
@@ -1248,7 +1262,7 @@ public partial class MeteorUnit : MonoBehaviour
             int weapon = Attr.Weapon;
             Attr.Weapon = Attr.Weapon2;
             Attr.Weapon2 = weapon;
-            IndicatedWeapon = GameData.MakeEquip(Attr.Weapon);
+            IndicatedWeapon = GameData.Instance.MakeEquip(Attr.Weapon);
         }
         if (IndicatedWeapon != null && weaponLoader != null)
             weaponLoader.EquipWeapon(IndicatedWeapon);
@@ -1292,10 +1306,10 @@ public partial class MeteorUnit : MonoBehaviour
 
     public void DoBreakOut()
     {
-        if (AngryValue >= 60 || (Attr.IsPlayer && GameData.gameStatus.EnableInfiniteAngry))
+        if (AngryValue >= 60 || (Attr.IsPlayer && GameData.Instance.gameStatus.EnableInfiniteAngry))
         {
             posMng.ChangeAction(CommonAction.BreakOut);
-            AngryValue -= Attr.IsPlayer ? (GameData.gameStatus.EnableInfiniteAngry ? 0 : 60) : 60;
+            AngryValue -= Attr.IsPlayer ? (GameData.Instance.gameStatus.EnableInfiniteAngry ? 0 : 60) : 60;
             if (Attr.IsPlayer)
                 FightWnd.Instance.UpdateAngryBar();
         }
@@ -1833,12 +1847,15 @@ public partial class MeteorUnit : MonoBehaviour
     Vector3 hitNormal;//碰撞面法线
     public void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        MeteorUnit hitUnit = hit.gameObject.transform.root.GetComponent<MeteorUnit>();
-        if (hitUnit == null)
+        if (hit.gameObject.transform.root.tag.Equals("meteorUnit"))
         {
-            //撞到墙壁/其他物体
-            hitPoint = hit.point;
-            hitNormal = hit.normal;
+            MeteorUnit hitUnit = hit.gameObject.transform.root.GetComponent<MeteorUnit>();
+            Vector3 vec = hitUnit.mPos - transform.position;
+            vec.y = 0;
+            hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 30);
+        }
+        else if (hit.gameObject.transform.root.tag.Equals("SceneItemAgent"))
+        {
             SceneItemAgent agent = hit.gameObject.GetComponentInParent<SceneItemAgent>();
             if (agent != null && agent.HasDamage() && (!attackDelay.ContainsKey(agent)))
             {
@@ -1848,18 +1865,12 @@ public partial class MeteorUnit : MonoBehaviour
                     attackDelay[agent] = 2.0f;
                 }
             }
-
-            //DartLoader dart = hit.gameObject.GetComponentInParent<DartLoader>();
-            //if (dart != null)
-            //{
-            //    Debug.LogError("dart attack unit");
-            //    dart.AttackTarget(this);
-            //}
-            return;
         }
-        Vector3 vec = hitUnit.mPos - transform.position;
-        vec.y = 0;
-        hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 30);
+        else
+        {
+            hitPoint = hit.point;
+            hitNormal = hit.normal;
+        }
     }
 
     public void WeaponReturned(int poseIdx)
@@ -1867,7 +1878,7 @@ public partial class MeteorUnit : MonoBehaviour
         //219等待回收武器.
         if (charLoader != null)
         {
-            if (AppInfo.MeteorVersion == "1.07")
+            if (AppInfo.Instance.MeteorVersion.Equals("1.07"))
             {
                 if (posMng.mActiveAction.Idx == (poseIdx + 1))
                 {
@@ -1878,7 +1889,7 @@ public partial class MeteorUnit : MonoBehaviour
                     charLoader.LinkEvent(poseIdx + 1, PoseEvt.WeaponIsReturned);
                 }
             }
-            else if (AppInfo.MeteorVersion == "9.07")
+            else if (AppInfo.Instance.MeteorVersion.Equals("9.07"))
             {
                 if (posMng.mActiveAction.Idx == 219)
                     charLoader.SetLoop(false);
@@ -2208,7 +2219,7 @@ public partial class MeteorUnit : MonoBehaviour
                 case 2: directionAct = dam.TargetPoseLeft; break;
                 case 3: directionAct = dam.TargetPoseRight; break;
             }
-            if (attacker.Attr.IsPlayer && GameData.gameStatus.EnableGodMode)
+            if (attacker.Attr.IsPlayer && GameData.Instance.gameStatus.EnableGodMode)
             {
                 //一击必杀
                 string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
@@ -2403,7 +2414,7 @@ public partial class MeteorUnit : MonoBehaviour
             //if (directionAct == dam.TargetPoseFront)
             //    SFXLoader.Instance.PlayEffect("FrontHIT.ef", charLoader);
 
-            if (attacker.Attr.IsPlayer && GameData.gameStatus.EnableGodMode)
+            if (attacker.Attr.IsPlayer && GameData.Instance.gameStatus.EnableGodMode)
             {
                 //一击必杀
                 string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
@@ -2996,11 +3007,11 @@ public partial class MeteorUnit : MonoBehaviour
     //0大绝，其他的就是pose号
     public void PlaySkill(int skill = 0)
     {
-        if (AngryValue >= 100 || (GameData.gameStatus.EnableInfiniteAngry && Attr.IsPlayer))
+        if (AngryValue >= 100 || (GameData.Instance.gameStatus.EnableInfiniteAngry && Attr.IsPlayer))
         {
             //得到武器的大绝pose号码。
             int pose = GetSkillPose();
-            AngryValue -= Attr.IsPlayer ? (GameData.gameStatus.EnableInfiniteAngry ? 0 : 100): 100;
+            AngryValue -= Attr.IsPlayer ? (GameData.Instance.gameStatus.EnableInfiniteAngry ? 0 : 100): 100;
             //Debug.LogError("使用技能后:怒气值:" + AngryValue);
             posMng.ChangeAction(pose);
         }

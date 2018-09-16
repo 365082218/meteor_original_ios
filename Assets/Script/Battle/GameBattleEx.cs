@@ -49,6 +49,9 @@ public partial class GameBattleEx : MonoBehaviour {
         Global.Result = true;
         Global.PauseAll = true;
         MeteorManager.Instance.LocalPlayer.controller.InputLocked = true;
+        GameObject.Destroy(Startup.ins.playerListener);
+        Startup.ins.playerListener = null;
+        Startup.ins.listener.enabled = true;
         SoundManager.Instance.StopAll();
         //关闭界面的血条缓动和动画
         if (FightWnd.Exist)
@@ -68,10 +71,10 @@ public partial class GameBattleEx : MonoBehaviour {
         if (NGUIJoystick.instance)
             NGUIJoystick.instance.Lock(true);
         //如果胜利，且不是最后一关，打开最新关标志.
-        if (result == 1 && GameData.gameStatus.Level < LevelMng.Instance.GetAllItem().Length - 1 && Global.GLevelItem.ID + 1 > GameData.gameStatus.Level)
+        if (result == 1 && GameData.Instance.gameStatus.Level < LevelMng.Instance.GetAllItem().Length - 1 && Global.GLevelItem.ID + 1 > GameData.Instance.gameStatus.Level)
         {
-            GameData.gameStatus.Level = Global.GLevelItem.ID + 1;
-            GameData.SaveState();
+            GameData.Instance.gameStatus.Level = Global.GLevelItem.ID + 1;
+            GameData.Instance.SaveState();
         }
         
         Invoke("PlayEndMovie", 5.0f);
@@ -316,8 +319,8 @@ public partial class GameBattleEx : MonoBehaviour {
                     return false;
                 if (colist[i].bounds.Intersects(ondamaged[j].bounds))
                 {
-                    Debug.Log(string.Format("hitbox:{0}-onhitbox:{1}", colist[i].name, ondamaged[j].name));
-                    Debug.DebugBreak();
+                    //Debug.Log(string.Format("hitbox:{0}-onhitbox:{1}", colist[i].name, ondamaged[j].name));
+                    //Debug.DebugBreak();
                     return true;
                 }
                 //if (colist[i].bounds.min.x >= ondamaged[j].bounds.min.x &&
@@ -386,7 +389,7 @@ public partial class GameBattleEx : MonoBehaviour {
         Scene_OnCharacterEvent = Global.GScriptType.GetMethod("Scene_OnCharacterEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         Scene_OnEvent = Global.GScriptType.GetMethod("Scene_OnEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         lev_script = script;
-        DisableCameraLock = GameData.gameStatus.DisableLock;
+        DisableCameraLock = GameData.Instance.gameStatus.DisableLock;
         //updateFn = ScriptMng.ins.GetFunc("OnUpdate");
         if (script != null)
             time = script.GetRoundTime() * 60;
@@ -1180,7 +1183,7 @@ public partial class GameBattleEx : MonoBehaviour {
             }
         }
 
-        GameData.gameStatus.ShowWayPoint = on;
+        GameData.Instance.gameStatus.ShowWayPoint = on;
     }
 
     public void OnSceneEvent(SceneEvent evt, int unit, GameObject trigger)

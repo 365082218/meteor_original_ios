@@ -9,11 +9,12 @@ using System.Collections;
 public class Startup : MonoBehaviour {
     public static Startup ins;
     public Font TextFont;
-    public GameState state { get { return GameData.gameStatus; } }
+    public GameState state { get { return GameData.Instance.gameStatus; } }
     //public InputField cheat;
     public AudioSource Music;
     public AudioSource Sound;
-    
+    public AudioListener listener;
+    public AudioListener playerListener;
     //public int ServerIdx;
     //public string GameServerIP;
     //public string ServerName;
@@ -24,6 +25,7 @@ public class Startup : MonoBehaviour {
     {
         ins = this;
         DontDestroyOnLoad(gameObject);
+        Log.Write("GameStart");
     }
 
     // Use this for initialization
@@ -41,7 +43,6 @@ public class Startup : MonoBehaviour {
         //    ins.GameStart();
         //    return;
         //}
-        //WSLog.LogInfo("GameStart");
         Random.InitState(System.Guid.NewGuid().GetHashCode());
     }
 
@@ -113,10 +114,10 @@ public class Startup : MonoBehaviour {
     public void OnApplicationQuit()
     {
         ClientProxy.Exit();
-        WSLog.Uninit();
+        Log.Uninit();
         FtpLog.Uninit();
-        GameData.SaveState();
-        GlobalUpdate.SaveCache();
+        GameData.Instance.SaveState();
+        GlobalUpdate.Instance.SaveCache();
     }
 
     //游戏接口
@@ -263,27 +264,11 @@ public class Startup : MonoBehaviour {
 
     public void OnInventoryClose()
     {
-        GameData.Resume();
+        GameData.Instance.Resume();
     }
 
     public void SelectTarget()
     {
         WsWindow.Close(WsWindow.SelectTarget);
-        //SelectTarget ctrl = WsWindow.Open<SelectTarget>(WsWindow.SelectTarget);
-    }
-
-    //测试代码
-    public void PlayEffect()
-    {
-        StartCoroutine("PlayEf");
-    }
-
-    IEnumerator PlayEf()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(1);
-            SFXLoader.Instance.PlayNextEffect();
-        }
     }
 }

@@ -76,10 +76,10 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Control("Continue").GetComponent<Button>().onClick.AddListener(OnClickClose);
         if (Startup.ins != null)
         {
-            Control("BGMSlider").GetComponent<Slider>().value = GameData.gameStatus.MusicVolume;
-            Control("EffectSlider").GetComponent<Slider>().value = GameData.gameStatus.SoundVolume;
-            Control("HSliderBar").GetComponent<Slider>().value = GameData.gameStatus.AxisSensitivity.x;
-            Control("VSliderBar").GetComponent<Slider>().value = GameData.gameStatus.AxisSensitivity.y;
+            Control("BGMSlider").GetComponent<Slider>().value = GameData.Instance.gameStatus.MusicVolume;
+            Control("EffectSlider").GetComponent<Slider>().value = GameData.Instance.gameStatus.SoundVolume;
+            Control("HSliderBar").GetComponent<Slider>().value = GameData.Instance.gameStatus.AxisSensitivity.x;
+            Control("VSliderBar").GetComponent<Slider>().value = GameData.Instance.gameStatus.AxisSensitivity.y;
         }
         Control("BGMSlider").GetComponent<Slider>().onValueChanged.AddListener(OnMusicVolumeChange);
         Control("EffectSlider").GetComponent<Slider>().onValueChanged.AddListener(OnEffectVolumeChange);
@@ -92,59 +92,59 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Control("DoScript").GetComponent<Button>().onClick.AddListener(OnDoScript);
         //显示战斗界面的调试按钮
         Toggle toggleDebug = Control("EnableSFX").GetComponent<Toggle>();
-        toggleDebug.isOn = GameData.gameStatus.EnableDebugSFX;
+        toggleDebug.isOn = GameData.Instance.gameStatus.EnableDebugSFX;
         toggleDebug.onValueChanged.AddListener(OnEnableDebugSFX);
         //显示战斗界面的调试按钮
         Toggle toggleRobot = Control("EnableRobot").GetComponent<Toggle>();
-        toggleRobot.isOn = GameData.gameStatus.EnableDebugRobot;
+        toggleRobot.isOn = GameData.Instance.gameStatus.EnableDebugRobot;
         toggleRobot.onValueChanged.AddListener(OnEnableDebugRobot);
         //战斗内显示角色信息
         Toggle toggleDebugStatus = Control("EnableDebugStatus").GetComponent<Toggle>();
-        toggleDebugStatus.isOn = GameData.gameStatus.EnableDebugStatus;
+        toggleDebugStatus.isOn = GameData.Instance.gameStatus.EnableDebugStatus;
         toggleDebugStatus.onValueChanged.AddListener(OnEnableDebugStatus);
         //显示武器挑选按钮
         Toggle toggleEnableFunc = Control("EnableWeaponChoose").GetComponent<Toggle>();
-        toggleEnableFunc.isOn = GameData.gameStatus.EnableWeaponChoose;
+        toggleEnableFunc.isOn = GameData.Instance.gameStatus.EnableWeaponChoose;
         toggleEnableFunc.onValueChanged.AddListener(OnEnableWeaponChoose);
         //无限气
         Toggle toggleEnableInfiniteAngry = Control("EnableInfiniteAngry").GetComponent<Toggle>();
-        toggleEnableInfiniteAngry.isOn = GameData.gameStatus.EnableInfiniteAngry;
+        toggleEnableInfiniteAngry.isOn = GameData.Instance.gameStatus.EnableInfiniteAngry;
         toggleEnableInfiniteAngry.onValueChanged.AddListener(OnEnableInfiniteAngry);
 
         //无锁定
         Toggle toggleDisableLock = Control("CameraLock").GetComponent<Toggle>();
-        toggleDisableLock.isOn = GameData.gameStatus.DisableLock;
+        toggleDisableLock.isOn = GameData.Instance.gameStatus.DisableLock;
         toggleDisableLock.onValueChanged.AddListener(OnDisableLock);
 
         Toggle toggleEnableGodMode = Control("EnableGodMode").GetComponent<Toggle>();
-        toggleEnableGodMode.isOn = GameData.gameStatus.EnableGodMode;
+        toggleEnableGodMode.isOn = GameData.Instance.gameStatus.EnableGodMode;
         toggleEnableGodMode.onValueChanged.AddListener(OnEnableGodMode);
 
         Toggle toggleShowWayPoint = Control("ShowWayPoint").GetComponent<Toggle>();
-        toggleShowWayPoint.isOn = GameData.gameStatus.ShowWayPoint;
+        toggleShowWayPoint.isOn = GameData.Instance.gameStatus.ShowWayPoint;
         toggleShowWayPoint.onValueChanged.AddListener(OnShowWayPoint);
-        if (GameData.gameStatus.ShowWayPoint)
+        if (GameData.Instance.gameStatus.ShowWayPoint)
             OnShowWayPoint(true);
 
         Toggle toggleEnableHighPerformance = Control("HighPerformance").GetComponent<Toggle>();
-        toggleEnableHighPerformance.isOn = GameData.gameStatus.TargetFrame == 60;
+        toggleEnableHighPerformance.isOn = GameData.Instance.gameStatus.TargetFrame == 60;
         toggleEnableHighPerformance.onValueChanged.AddListener(OnChangePerformance);
 
         Toggle toggleEnableLog = Control("ShowLog").GetComponent<Toggle>();
-        toggleEnableLog.isOn = GameData.gameStatus.EnableLog;
+        toggleEnableLog.isOn = GameData.Instance.gameStatus.EnableLog;
         toggleEnableLog.onValueChanged.AddListener(OnEnableLog);
         OnEnableLog(toggleEnableLog.isOn);
 
         Toggle toggleLevelDebug = Control("ShowLevelDebugButton").GetComponent<Toggle>();
-        toggleLevelDebug.isOn = GameData.gameStatus.LevelDebug;
+        toggleLevelDebug.isOn = GameData.Instance.gameStatus.LevelDebug;
         toggleLevelDebug.onValueChanged.AddListener(OnLevelDebug);
         OnLevelDebug(toggleLevelDebug.isOn);
 
         Control("ChangeV107").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("1.07"); });
         //Control("Ver108").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer(108); });
         Control("ChangeV907").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("9.07"); });
-        Control("AppVerText").GetComponent<Text>().text = AppInfo.AppVersion();
-        Control("MeteorVerText").GetComponent<Text>().text = AppInfo.MeteorVersion;
+        Control("AppVerText").GetComponent<Text>().text = AppInfo.Instance.AppVersion();
+        Control("MeteorVerText").GetComponent<Text>().text = AppInfo.Instance.MeteorVersion;
         Control("ChangeModel").GetComponent<Button>().onClick.AddListener(() => { ModelWnd.Instance.Open(); });
         Control("UnlockAll").GetComponent<Button>().onClick.AddListener(() => { U3D.UnlockLevel(); });
         
@@ -200,14 +200,14 @@ public class NewSystemWnd : Window<NewSystemWnd>
 
     void OnChangeVer(string ver)
     {
-        if (AppInfo.MeteorVersion == ver)
+        if (AppInfo.Instance.MeteorVersion == ver)
         {
             U3D.PopupTip(string.Format("当前流星版本已为{0}", ver));
             return;
         }
-        AppInfo.MeteorVersion = ver;
-        GameData.gameStatus.MeteorVersion = AppInfo.MeteorVersion;
-        GameData.SaveState();
+        AppInfo.Instance.MeteorVersion = ver;
+        GameData.Instance.gameStatus.MeteorVersion = AppInfo.Instance.MeteorVersion;
+        GameData.Instance.SaveState();
         //提示返回到主场景，然后重新加载数据
         GameBattleEx.Instance.Pause();
         GameBattleEx.Instance.StopAllCoroutines();
@@ -224,14 +224,14 @@ public class NewSystemWnd : Window<NewSystemWnd>
     //允许在战斗UI选择武器.
     void OnEnableWeaponChoose(bool on)
     {
-        GameData.gameStatus.EnableWeaponChoose = on;
+        GameData.Instance.gameStatus.EnableWeaponChoose = on;
         if (FightWnd.Exist)
             FightWnd.Instance.UpdateUIButton();
     }
 
     void OnDisableLock(bool on)
     {
-        GameData.gameStatus.DisableLock = on;
+        GameData.Instance.gameStatus.DisableLock = on;
         if (CameraFollow.Ins != null)
         {
             if (on)
@@ -267,17 +267,17 @@ public class NewSystemWnd : Window<NewSystemWnd>
 
     void OnEnableGodMode(bool on)
     {
-        GameData.gameStatus.EnableGodMode = on;
+        GameData.Instance.gameStatus.EnableGodMode = on;
     }
 
     void OnEnableInfiniteAngry(bool on)
     {
-        GameData.gameStatus.EnableInfiniteAngry = on;
+        GameData.Instance.gameStatus.EnableInfiniteAngry = on;
     }
 
     void OnEnableDebugStatus(bool on)
     {
-        GameData.gameStatus.EnableDebugStatus = on;
+        GameData.Instance.gameStatus.EnableDebugStatus = on;
         UnitTopUI[] unitsUI = GameObject.FindObjectsOfType(typeof(UnitTopUI)) as UnitTopUI[];
         for (int i = 0; i < unitsUI.Length; i++)
             unitsUI[i].EnableInfo(on);
@@ -285,22 +285,22 @@ public class NewSystemWnd : Window<NewSystemWnd>
 
     void OnEnableDebugRobot(bool on)
     {
-        GameData.gameStatus.EnableDebugRobot = on;
+        GameData.Instance.gameStatus.EnableDebugRobot = on;
         if (FightWnd.Exist)
             FightWnd.Instance.UpdateUIButton();
     }
 
     void OnEnableDebugSFX(bool on)
     {
-        GameData.gameStatus.EnableDebugSFX = on;
+        GameData.Instance.gameStatus.EnableDebugSFX = on;
         if (FightWnd.Exist)
             FightWnd.Instance.UpdateUIButton();
     }
 
     void OnChangePerformance(bool on)
     {
-        GameData.gameStatus.TargetFrame = on ? 60 : 30;
-        Application.targetFrameRate = GameData.gameStatus.TargetFrame;
+        GameData.Instance.gameStatus.TargetFrame = on ? 60 : 30;
+        Application.targetFrameRate = GameData.Instance.gameStatus.TargetFrame;
     }
 
     void OnShowWayPoint(bool on)
@@ -335,23 +335,23 @@ public class NewSystemWnd : Window<NewSystemWnd>
     {
         SoundManager.Instance.SetMusicVolume(vo);
         if (Startup.ins != null)
-            GameData.gameStatus.MusicVolume = vo;
+            GameData.Instance.gameStatus.MusicVolume = vo;
     }
 
     void OnXSensitivityChange(float v)
     {
-        GameData.gameStatus.AxisSensitivity.x = v;
+        GameData.Instance.gameStatus.AxisSensitivity.x = v;
     }
 
     void OnYSensitivityChange(float v)
     {
-        GameData.gameStatus.AxisSensitivity.y = v;
+        GameData.Instance.gameStatus.AxisSensitivity.y = v;
     }
 
     void OnEffectVolumeChange(float vo)
     {
         SoundManager.Instance.SetSoundVolume(vo);
-        GameData.gameStatus.SoundVolume = vo;
+        GameData.Instance.gameStatus.SoundVolume = vo;
     }
 
     void OnClickBack()

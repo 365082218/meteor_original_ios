@@ -30,7 +30,7 @@ public class TblCore:Singleton<TblCore>
         }
         catch
         {
-            Debug.LogError("table Init Failed:" + t);
+            Debug.LogError(string.Format("table Init Failed:{0}", t));
         }
         Init();
     }
@@ -47,7 +47,7 @@ public class TblCore:Singleton<TblCore>
         }
         catch
         {
-            Debug.LogError("table Init Failed:" + t);
+            Debug.LogError(string.Format("table Init Failed:{0}", t));
         }
     }
 }
@@ -75,7 +75,7 @@ public class TblMng<T> : Singleton<TblMng<T>>, TblRoot where T: TblBase
         }
         catch
         {
-            Debug.LogError(objRet.TableName + " parse error line:" + row + " col:" + col);
+            Debug.LogError(string.Format("{0} parse error line: {1} col :{2}", objRet.TableName, row, col));
             throw new System.Exception("error");
         }
         return this;
@@ -125,7 +125,7 @@ public class TblMng<T> : Singleton<TblMng<T>>, TblRoot where T: TblBase
             {
                 col = j + 1;
                 System.Reflection.FieldInfo field = typeof(T).GetField(fieldIdenity[j]);
-                if (j == 0 && fieldIdenity[0] == "Idx")
+                if (j == 0 && fieldIdenity[0].Equals("Idx"))
                 {
                     if (eachline[j] == "")
                     {
@@ -145,7 +145,7 @@ public class TblMng<T> : Singleton<TblMng<T>>, TblRoot where T: TblBase
                     else if (field.FieldType == typeof(string))
                     {
                         field.SetValue(obj, eachline[j]);
-                        if (findName && field.Name == "Name")
+                        if (findName && field.Name.Equals("Name"))
                             Name = eachline[j];
                     }
                     else if (field.FieldType == typeof(Vector3))

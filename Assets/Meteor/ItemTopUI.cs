@@ -40,7 +40,7 @@ public class ItemTopUI : MonoBehaviour {
         //rect.anchoredPosition3D = new Vector3(1920f * scalex, 1080f * scaley, vec.z);
         Vector3 vec = new Vector3(target.position.x, target.position.y + 40.0f, target.position.z);
         transform.position = vec;
-        if (GameData.gameStatus.EnableItemName)
+        if (GameData.Instance.gameStatus.EnableItemName)
         {
             if (!Panel.gameObject.activeInHierarchy)
                 Panel.gameObject.SetActive(true);

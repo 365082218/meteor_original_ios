@@ -40,18 +40,18 @@ public class Main : MonoBehaviour {
         //主线程阻塞到下载线程结束.
         HttpManager.Instance.Quit();
         //释放日志占用
-        WSLog.Uninit();
+        Log.Uninit();
         //保存下载进度
-        GlobalUpdate.SaveCache();
+        GlobalUpdate.Instance.SaveCache();
     }
 
     private void Awake()
     {
         Ins = this;
-        WSLog.LogError("Awake");
-        GlobalUpdate.LoadCache();
-        GameData.LoadState();
-        GameData.InitTable();
+        Log.WriteError("Awake");
+        GlobalUpdate.Instance.LoadCache();
+        GameData.Instance.LoadState();
+        GameData.Instance.InitTable();
         ResMng.Reload();
     }
 
@@ -63,7 +63,7 @@ public class Main : MonoBehaviour {
 
 	public void GameStart()
 	{
-        GlobalUpdate.SaveCache();
+        GlobalUpdate.Instance.SaveCache();
         UnityEngine.SceneManagement.SceneManager.LoadScene("Startup");
     }
 	
@@ -72,7 +72,7 @@ public class Main : MonoBehaviour {
         //仅在WIFI下可用
 		if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
         {
-            WSLog.LogError("download:" + string.Format(strVFile, strHost, strPort, strProjectUrl, strPlatform, strVFileName));
+            Log.WriteError("download:" + string.Format(strVFile, strHost, strPort, strProjectUrl, strPlatform, strVFileName));
             UnityWebRequest vFile = new UnityWebRequest();
             vFile.url = string.Format(strVFile, strHost, strPort, strProjectUrl, strPlatform, strVFileName);
             vFile.timeout = 2;
@@ -81,7 +81,7 @@ public class Main : MonoBehaviour {
             yield return vFile.Send();
             if (vFile.isError || vFile.responseCode != 200)
             {
-                WSLog.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
+                Log.WriteError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
                 vFile.Dispose();
                 GameStart();
                 yield break;
@@ -106,9 +106,9 @@ public class Main : MonoBehaviour {
             //从版本信息下载指定压缩包
             for (int i = 0; i < v.Count; i++)
             {
-                if (v[i].strVersion == AppInfo.AppVersion() && v[i].strVersionMax != v[i].strVersion)
+                if (v[i].strVersion == AppInfo.Instance.AppVersion() && v[i].strVersionMax != v[i].strVersion)
                 {
-                    GlobalUpdate.ApplyVersion(v[i], this);
+                    GlobalUpdate.Instance.ApplyVersion(v[i], this);
                     yield break;
                 }
             }
@@ -118,7 +118,7 @@ public class Main : MonoBehaviour {
         }
         else
 		{
-            WSLog.LogError("Application.internetReachability != NetworkReachability.ReachableViaLocalAreaNetwork");
+            Log.WriteError("Application.internetReachability != NetworkReachability.ReachableViaLocalAreaNetwork");
             GameStart();
             yield break;
 		}
@@ -269,7 +269,7 @@ public class Main : MonoBehaviour {
 
     void ExtractUPK(UpdateVersion zipInfo)
     {
-        WSLog.LogError("ExtractUPK Start");
+        Log.WriteError("ExtractUPK Start");
         try
         {
             string localPak = ResMng.GetUpdateTmpPath() + "/" + Guid.NewGuid().ToString() + ".pak";
@@ -277,14 +277,14 @@ public class Main : MonoBehaviour {
                 File.Delete(localPak);
             LZMAHelper.DeCompressFile(zipInfo.File.strLocalPath, localPak);
             UPKExtra.ExtraUPK(localPak, ResMng.GetResPath());
-            AppInfo.SetAppVersion(zipInfo.VersionMax);
-            GlobalUpdate.CleanVersion();
+            AppInfo.Instance.SetAppVersion(zipInfo.VersionMax);
+            GlobalUpdate.Instance.CleanVersion();
             GameStart();
         }
         catch (Exception exp)
         {
-            WSLog.LogError(exp.Message + "|" + exp.StackTrace);
+            Log.WriteError(exp.Message + "|" + exp.StackTrace);
         }
-        WSLog.LogError("ExtractUPK End");
+        Log.WriteError("ExtractUPK End");
     }
 }

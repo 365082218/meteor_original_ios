@@ -183,7 +183,7 @@ public class VerMng : EditorWindow{
                 if (!strResItem.Contains(strMenu))
                     strResItem.Add(strMenu);
                 else
-                    WSLog.LogError("already exist:" + strMenu);
+                    Log.WriteError("already exist:" + strMenu);
             }
         }
 
@@ -215,7 +215,7 @@ public class VerMng : EditorWindow{
             int resFirstIndex = each.Key.IndexOf("/Resources/");
             int resLastIndex = each.Key.LastIndexOf("/Resources/");
             if (resLastIndex != resFirstIndex)
-                WSLog.LogError(string.Format("嵌套的Resources路径是不允许的,{0}", each.Key));
+                Log.WriteError(string.Format("嵌套的Resources路径是不允许的,{0}", each.Key));
             else
             {
                 if (resFirstIndex != -1)
@@ -224,7 +224,7 @@ public class VerMng : EditorWindow{
                     string res = each.Key.Substring(resFirstIndex + 11);
                     //文件存在后缀
                     if (bundle.ContainsValue(res))
-                        WSLog.LogError(string.Format("file:{0} allready exist at {1}", res, each.Key));
+                        Log.WriteError(string.Format("file:{0} allready exist at {1}", res, each.Key));
                     else
                         bundle.Add(each.Key, res);
                 }
@@ -237,14 +237,14 @@ public class VerMng : EditorWindow{
                         string file = each.Key.Substring(index + 1);
                         //文件存在后缀.
                         if (bundle.ContainsValue(file))
-                            WSLog.LogError(string.Format("file:{0} allready exist at {1}", file, each.Key));
+                            Log.WriteError(string.Format("file:{0} allready exist at {1}", file, each.Key));
                         else
                             bundle.Add(each.Key, file);
                     }
                 }
             }
         }
-        WSLog.Log(string.Format("file {0}", bundle.Count));
+        Log.Write(string.Format("file {0}", bundle.Count));
         //当有重复产生时，不允许打包，文件重复意味着某个文件名+后缀在不同路径出现多次
         Assert.IsTrue(bundle.Count == ReferenceNode.referenceDict.Count);
 
@@ -258,7 +258,7 @@ public class VerMng : EditorWindow{
             if (!referenceTable.Contains(ReferenceNode.referenceDict[each.Key]))
                 referenceTable.Add(ReferenceNode.referenceDict[each.Key]);
             else
-                WSLog.LogError(string.Format("node all ready exist:{1}", each.Key));
+                Log.WriteError(string.Format("node all ready exist:{1}", each.Key));
         }
 
         FileStream fs = File.Open(SavePath + ResMng.RefTable, FileMode.OpenOrCreate);
@@ -331,7 +331,7 @@ public class VerMng : EditorWindow{
                     }
                     catch
                     {
-                        WSLog.LogError(string.Format("file:{0} cannot deleted", OldVersion[i].zip.fileName));
+                        Log.WriteError(string.Format("file:{0} cannot deleted", OldVersion[i].zip.fileName));
                     }
                 }
             }

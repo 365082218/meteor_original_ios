@@ -18,7 +18,7 @@ public partial class MeteorUnit: DebugInstance
             i %= MeteorManager.Instance.UnitInfos.Count;
         }
         FaceToTarget(MeteorManager.Instance.UnitInfos[i]);
-        WSLog.Print(string.Format("朝向:{0}", MeteorManager.Instance.UnitInfos[i].name));
+        //WSLog.Print(string.Format("朝向:{0}", MeteorManager.Instance.UnitInfos[i].name));
         i++;
     }
 

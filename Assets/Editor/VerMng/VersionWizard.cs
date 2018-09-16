@@ -202,7 +202,7 @@ public class BuildTool
     [MenuItem("Meteor/Build/Delete GameSave", false, 3)]
     static void DeleteSave()
     {
-        GameData.ResetState();
+        GameData.Instance.ResetState();
     }
     //[MenuItem("MeteorTool/CollectDependence", false, 0)]
     //static void CollectDependence()

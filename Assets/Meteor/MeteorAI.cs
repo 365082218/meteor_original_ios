@@ -153,6 +153,7 @@ public class MeteorAI {
                 {
                     fightTarget = null;
                     ChangeState(EAIStatus.Wait);
+                    SubStatus = EAISubStatus.SubStatusWait;
                 }
             }
         }
@@ -784,7 +785,7 @@ public class MeteorAI {
 
         if (dis <= disMin)
         {
-            Debug.Log(string.Format("dis:{0} dis min:{1}", dis, disMin));
+            //Debug.Log(string.Format("dis:{0} dis min:{1}", dis, disMin));
             owner.controller.Input.AIMove(0, 0);
             if (targetIndex == FollowPath.Count - 1)
             {
@@ -961,6 +962,8 @@ public class MeteorAI {
                 {
                     //更新状态.
                     ThinkCheckTick = Time.realtimeSinceStartup + owner.Attr.Think / 100.0f;
+                    if (fightTarget == null)
+                        Debug.LogError("fightTarget == null");
                     float dis = Vector3.Distance(owner.mPos, fightTarget.mPos);
                     //距离战斗目标不同，选择不同方式应对.
                     if (dis >= Global.AttackRange)
@@ -1063,6 +1066,8 @@ public class MeteorAI {
                 if (attack <= owner.Attr.Attack1 + owner.Attr.Attack2 + owner.Attr.Attack3)
                 {
                     //先判断是否面朝目标，不是则先转动方向朝向目标
+                    if (fightTarget == null)
+                        Debug.LogError("fightTarget == null");
                     if (GetAngleBetween(fightTarget.mPos) >= 30)
                     {
                         Stop();
@@ -1184,7 +1189,7 @@ public class MeteorAI {
         vec.y = 0;
         if (AttackRotateToTargetCoroutine == null)
         {
-            Debug.LogError("fight leave");
+            //Debug.LogError("fight leave");
             Stop();
             TargetPos = fightTarget.mPos + vec.normalized * 125.0f;
             GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -1260,7 +1265,7 @@ public class MeteorAI {
                     if (dis < Global.FollowDistance)//小于50码停止跟随，不需要计算路径
                     {
                         //FollowPath.Clear();
-                        Debug.Log("stop follow until 35 meters");
+                        //Debug.Log("stop follow until 35 meters");
                         owner.controller.Input.AIMove(0, 0);
                         AIFollowRefresh = 5.0f;//5秒后再计算是否跟随.
                         ChangeState(EAIStatus.Wait);//开始寻找敌人
@@ -1369,14 +1374,14 @@ public class MeteorAI {
         }
         else if (Time.realtimeSinceStartup - onHurtTick >= 1.5f)
         {
-            Debug.LogError("not struggle action");
+            //Debug.LogError("not struggle action");
             SubStatus = EAISubStatus.Fight;
         }
     }
 
     IEnumerator ProcessStruggle()
     {
-        Debug.Log("ProcessStruggle");
+        //Debug.Log("ProcessStruggle");
         //或者按方向滚动或者跳跃（大小）。或者按防御起身。
         yield return 0;
         while (true)
@@ -2073,8 +2078,13 @@ public class MeteorAI {
         switch (SubStatus)
         {
             case EAISubStatus.Patrol:
-                //Debug.LogError("进入巡逻子状态-EAISubStatus.Patrol");
                 {
+                    if (PatrolPath.Count == 0)
+                    {
+                        ChangeState(EAIStatus.Wait);
+                        SubStatus = EAISubStatus.SubStatusWait;
+                        return;
+                    }
                     //逆序巡逻
                     if (reverse)
                     {

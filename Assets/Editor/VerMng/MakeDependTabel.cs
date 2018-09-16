@@ -23,12 +23,12 @@ public class MakeDependTabel : ScriptableWizard
         UnityEngine.Object objCurrent = AssetDatabase.LoadMainAssetAtPath(current.strResources);
         if (objCurrent == null)
         {
-            WSLog.LogError("objCurrent is null:" + current.strResources);
+            Log.WriteError("objCurrent is null:" + current.strResources);
             return;
         }
         if (objCurrent.name == "")
         {
-            WSLog.LogError("objCurrent.name is empty:" + current.strResources);
+            Log.WriteError("objCurrent.name is empty:" + current.strResources);
             return;
         }
         objCurrent = null;
@@ -48,7 +48,7 @@ public class MakeDependTabel : ScriptableWizard
                 continue;
             if (strson == "")
             {
-                WSLog.LogError("依赖项为空?:" + current.strResources);
+                Log.WriteError("依赖项为空?:" + current.strResources);
                 continue;
             }
             ReferenceNode sonNode = ReferenceNode.Alloc(strson);

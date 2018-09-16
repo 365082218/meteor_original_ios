@@ -46,7 +46,7 @@ public class ReferenceNode
     public void AddDependencyNode(ReferenceNode childnode)
     {
         if (childnode == null)
-            WSLog.LogError("childnode == null");
+            Log.WriteError("childnode == null");
         if (child == null)
             child = new List<ReferenceNode>();
         foreach (ReferenceNode node in child)
@@ -62,7 +62,7 @@ public class ReferenceNode
     public void AddDependencyByNode(ReferenceNode parentnode)
     {
         if (parentnode == null)
-            WSLog.LogError("parentnode == null");
+            Log.WriteError("parentnode == null");
         if (parent == null)
             parent = new List<ReferenceNode>();
         foreach (ReferenceNode node in parent)
@@ -111,7 +111,7 @@ public class ReferenceNode
                 }
                 catch (System.Exception exp)
                 {
-                    WSLog.LogError(exp.Message + "|" + exp.StackTrace);
+                    Log.WriteError(exp.Message + "|" + exp.StackTrace);
                 }
             }
 

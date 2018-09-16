@@ -127,30 +127,30 @@ public class SceneItemAgent : MonoBehaviour {
                 if (unit.Attr.Weapon != 0 && unit.Attr.Weapon2 != 0)
                     return;
                 //相同武器，不能捡
-                ItemBase ib0 = GameData.FindItemByIdx(unit.Attr.Weapon);
+                ItemBase ib0 = GameData.Instance.FindItemByIdx(unit.Attr.Weapon);
                 WeaponBase wb0 = WeaponMng.Instance.GetItem(ib0.UnitId);
                 if (wb0 != null && wb0.WeaponR == ItemInfo.model)
                     return;
 
                 if (unit.Attr.Weapon2 != 0)
                 {
-                    ItemBase ib1 = GameData.FindItemByIdx(unit.Attr.Weapon2);
+                    ItemBase ib1 = GameData.Instance.FindItemByIdx(unit.Attr.Weapon2);
                     WeaponBase wb1 = WeaponMng.Instance.GetItem(ib1.UnitId);
                     if (wb1 != null && wb1.WeaponR == ItemInfo.model)
                         return;
                 }
 
                 //同类武器不能捡
-                int weaponPickup = GameData.GetWeaponCode(ItemInfo.model);
-                ItemBase wb = GameData.FindItemByIdx(weaponPickup);
+                int weaponPickup = GameData.Instance.GetWeaponCode(ItemInfo.model);
+                ItemBase wb = GameData.Instance.FindItemByIdx(weaponPickup);
                 if (wb == null)
                     return;
 
-                ItemBase wbl = GameData.FindItemByIdx(unit.Attr.Weapon);
+                ItemBase wbl = GameData.Instance.FindItemByIdx(unit.Attr.Weapon);
                 if (wbl == null)
                     return;
 
-                ItemBase wbr = GameData.FindItemByIdx(unit.Attr.Weapon2);
+                ItemBase wbr = GameData.Instance.FindItemByIdx(unit.Attr.Weapon2);
                 if (wb.SubType == wbl.SubType)
                     return;
 
@@ -202,30 +202,30 @@ public class SceneItemAgent : MonoBehaviour {
                 if (unit.Attr.Weapon != 0 && unit.Attr.Weapon2 != 0)
                     return;
                 //相同武器，不能捡
-                ItemBase ib0 = GameData.FindItemByIdx(unit.Attr.Weapon);
+                ItemBase ib0 = GameData.Instance.FindItemByIdx(unit.Attr.Weapon);
                 WeaponBase wb0 = WeaponMng.Instance.GetItem(ib0.UnitId);
                 if (wb0 != null && wb0.WeaponR == weaponModel)
                     return;
 
                 if (unit.Attr.Weapon2 != 0)
                 {
-                    ItemBase ib1 = GameData.FindItemByIdx(unit.Attr.Weapon2);
+                    ItemBase ib1 = GameData.Instance.FindItemByIdx(unit.Attr.Weapon2);
                     WeaponBase wb1 = WeaponMng.Instance.GetItem(ib1.UnitId);
                     if (wb1 != null && wb1.WeaponR == weaponModel)
                         return;
                 }
 
                 //同类武器不能捡
-                int weaponPickup = GameData.GetWeaponCode(weaponModel);
-                ItemBase wb = GameData.FindItemByIdx(weaponPickup);
+                int weaponPickup = GameData.Instance.GetWeaponCode(weaponModel);
+                ItemBase wb = GameData.Instance.FindItemByIdx(weaponPickup);
                 if (wb == null)
                     return;
 
-                ItemBase wbl = GameData.FindItemByIdx(unit.Attr.Weapon);
+                ItemBase wbl = GameData.Instance.FindItemByIdx(unit.Attr.Weapon);
                 if (wbl == null)
                     return;
 
-                ItemBase wbr = GameData.FindItemByIdx(unit.Attr.Weapon2);
+                ItemBase wbr = GameData.Instance.FindItemByIdx(unit.Attr.Weapon2);
                 if (wb.SubType == wbl.SubType)
                     return;
 
@@ -357,7 +357,7 @@ public class SceneItemAgent : MonoBehaviour {
                 //不是一个Meteor.res里的物件
                 if (ItemInfo == null)
                 {
-                    List<ItemBase> its = GameData.itemMng.GetFullRow();
+                    List<ItemBase> its = GameData.Instance.itemMng.GetFullRow();
                     for (int i = 0; i < its.Count; i++)
                     {
                         if (its[i].MainType == 1)
