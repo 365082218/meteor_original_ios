@@ -312,11 +312,12 @@ public class CameraFollow : MonoBehaviour {
                 else
                 {
                     followDistance = Mathf.Abs(fRadis * Mathf.Cos(lastAngle * Mathf.Deg2Rad));
-                    followHeight = (lastAngle / Mathf.Abs(lastAngle)) * Mathf.Abs(fRadis * Mathf.Sin(lastAngle * Mathf.Deg2Rad));
+                    followHeight = lastAngle == 0.0f ? 0 : (lastAngle / Mathf.Abs(lastAngle)) * Mathf.Abs(fRadis * Mathf.Sin(lastAngle * Mathf.Deg2Rad));
                 }
             }
 
             cameraLookAt = new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, MeteorManager.Instance.LocalPlayer.transform.position.y + BodyHeight, MeteorManager.Instance.LocalPlayer.mPos.z);//朝向焦点
+            //Debug.Log("followHeight:" + followHeight);
             newPos = cameraLookAt + MeteorManager.Instance.LocalPlayer.transform.forward * followDistance + new Vector3(0, followHeight, 0);
             RaycastHit wallHit;
             bool hitWall = false;
