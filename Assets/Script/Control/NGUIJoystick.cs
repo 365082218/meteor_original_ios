@@ -107,7 +107,7 @@ public class NGUIJoystick : MonoBehaviour
 		}
 	}
 
-    Vector2 fixAnchor = new Vector2(391, 340);
+    Vector2 fixAnchor = new Vector2(406, 369);
     public void SetAnchor(Vector2 anchor)
     {
         fixAnchor = anchor;
@@ -400,7 +400,7 @@ public class NGUIJoystick : MonoBehaviour
 
     public void ResetJoystick()
     {
-        JoyCollider.radius = 120;
+        JoyCollider.radius = 55;
         target.localPosition = Vector3.zero;
         background.gameObject.SetActive(false);
         if (Global.GMeteorInput != null)

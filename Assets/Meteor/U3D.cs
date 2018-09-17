@@ -1440,13 +1440,18 @@ public class U3D : MonoBehaviour {
             u.PlaySkill();
     }
 
+    //665->剔骨 W11_4
+    public static void Drop(int itemIdx)
+    {
+        MakeItem(itemIdx);
+    }
     //仍物品到前方地面上
     public static void MakeItem(int itemIdx)
     {
         ItemBase it = GameData.Instance.FindItemByIdx(itemIdx);
-        if (it.MainType == 1)
+        if (it.MainType == 1)//武器
             DropMng.Instance.DropWeapon2(it.UnitId);
-        else if (it.MainType == 2)
+        else if (it.MainType == 2)//
         {
 
         }
@@ -1497,4 +1502,6 @@ public class U3D : MonoBehaviour {
         Level[] level = LevelMng.Instance.GetAllItem();
         GameData.Instance.gameStatus.Level = level[level.Length - 1].ID;
     }
+
+    
 }

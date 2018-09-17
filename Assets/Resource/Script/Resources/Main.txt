@@ -65,3 +65,7 @@ end
 function Perform(a, b, c)
 	U3D.Perform(a, b, c);
 end
+
+function Drop(it)
+	U3D.Drop(it);
+end

@@ -2,6 +2,7 @@
 using System.Collections;
 using CoClass;
 using System.Collections.Generic;
+using System;
 
 public enum EBUFF_ID
 {
@@ -550,7 +551,7 @@ public partial class MeteorUnit : MonoBehaviour
     {
         float dis = Attr.View / 2;//视野，可能指的是直径，这里变为半径
         if (U3D.IsSpecialWeapon(Attr.Weapon))
-            dis = 10000;
+            dis = Attr.View;//远程武器，视野距离翻倍.
         int index = -1;
         MeteorUnit tar = null;
         Collider[] other = Physics.OverlapSphere(transform.position, dis, 1 << LayerMask.NameToLayer("Monster") | 1 << LayerMask.NameToLayer("LocalPlayer"));
@@ -702,13 +703,13 @@ public partial class MeteorUnit : MonoBehaviour
     void SelectSceneItem()
     {
         float dis = Attr.View / 2;//视野，可能指的是直径，这里变为半径
-        Collider[] other = Physics.OverlapSphere(transform.position, dis, LayerMask.NameToLayer("Trigger"));
+        //Collider[] other = Physics.OverlapSphere(transform.position, dis, LayerMask.NameToLayer("Trigger"));
         int index = -1;
         SceneItemAgent tar = null;
         //直接遍历算了
-        for (int i = 0; i < other.Length; i++)
+        for (int i = 0; i < MeteorManager.Instance.SceneItems.Count; i++)
         {
-            SceneItemAgent item = other[i].gameObject.GetComponent<SceneItemAgent>();
+            SceneItemAgent item = MeteorManager.Instance.SceneItems[i].gameObject.GetComponent<SceneItemAgent>();
             if (item == null)
                 continue;
             if (!item.CanPickup())
@@ -721,7 +722,7 @@ public partial class MeteorUnit : MonoBehaviour
                 tar = item;
             }
         }
-        if (index >= 0 && index < other.Length && tar != null)
+        if (index >= 0 && index < MeteorManager.Instance.SceneItems.Count && tar != null)
             TargetItem = tar;
     }
 
@@ -940,7 +941,16 @@ public partial class MeteorUnit : MonoBehaviour
     //专门用来播放左转，右转动画的，直接面对角色不要调用这个。
     public void SetOrientation(float orient)
     {
-        Quaternion quat = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y + orient, transform.eulerAngles.z);
+        Quaternion quat = Quaternion.identity;
+        try
+        {
+            quat = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y + orient, transform.eulerAngles.z);
+        }
+        catch (Exception exp)
+        {
+            Debug.LogError(exp.Message);
+            Debug.DebugBreak();
+        }
         transform.rotation = quat;
         if (controller.Input.OnInputMoving())
         {
@@ -2058,6 +2068,19 @@ public partial class MeteorUnit : MonoBehaviour
                 }
             }
         }
+        else if (other.tag.Equals("PickupItemAgent") || (other.transform.parent != null && other.transform.parent.tag.Equals("PickupItemAgent")))
+        {
+            PickupItemAgent trigger = other.gameObject.GetComponentInParent<PickupItemAgent>();
+            if (trigger == null)
+                return;
+
+            if (trigger != null)
+            {
+                trigger.OnPickup(this);
+                if (TargetItem == trigger)
+                    TargetItem = null;
+            }
+        }
     }
 
     public void OnTriggerStay(Collider other)
@@ -2095,6 +2118,20 @@ public partial class MeteorUnit : MonoBehaviour
                 }
             }
         }
+        else if (other.tag.Equals("PickupItemAgent") || (other.transform.parent != null && other.transform.parent.tag.Equals("PickupItemAgent")))
+        {
+            PickupItemAgent trigger = other.gameObject.GetComponentInParent<PickupItemAgent>();
+            if (trigger == null)
+                return;
+
+            if (trigger != null)
+            {
+                trigger.OnPickup(this);
+                if (TargetItem == trigger)
+                    TargetItem = null;
+            }
+        }
+
     }
 
     //public void OnTriggerExit(Collider other)

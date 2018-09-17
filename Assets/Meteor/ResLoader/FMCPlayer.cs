@@ -151,10 +151,10 @@ public class FMCPlayer : MonoBehaviour {
         state = 1;
     }
 
-    public void Init(string file)
+    public void Init(string file, FMCFile f = null)
     {
         fmcFile = file;
-        frames = FMCLoader.Instance.Load(fmcFile);
+        frames = f != null ? f : FMCLoader.Instance.Load(fmcFile);
         pose = FMCPose.LoadPose(fmcFile);
         state = 1;
         //ChangePose(0, 0);

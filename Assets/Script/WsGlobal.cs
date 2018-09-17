@@ -516,5 +516,20 @@ public class WsGlobal {
                 objMesh.transform.localPosition = fIns.SceneItems[i].pos;
             }
         }
+        else
+        {
+            //一个预设
+            GameObject prefab = Resources.Load(file) as GameObject;
+            if (prefab != null)
+            {
+                GameObject obj = GameObject.Instantiate(prefab, parent);
+                obj.transform.localScale = Vector3.one;
+                obj.transform.localPosition = Vector3.zero;
+                obj.transform.rotation = Quaternion.identity;
+                BoxCollider co = obj.GetComponentInChildren<BoxCollider>();
+                co.isTrigger = true;
+                WsGlobal.SetObjectLayer(obj, parent.gameObject.layer);
+            }
+        }
     }
 }

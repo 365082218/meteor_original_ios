@@ -75,6 +75,7 @@ public class DropMng:Singleton<DropMng>{
         obj.transform.localScale = Vector3.one;
         obj.transform.SetParent(Loader.Instance == null ? null : Loader.Instance.transform);
         obj.transform.position = pos.position + Vector3.up * 50 + forward * 35;
+        obj.layer = LayerMask.NameToLayer("Trigger");
         PickupItemAgent agent = obj.AddComponent<PickupItemAgent>();
         agent.SetPickupItem(des);
         return obj;

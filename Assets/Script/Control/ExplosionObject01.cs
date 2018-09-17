@@ -120,13 +120,12 @@ public class ExplosionObject01 : MonoBehaviour {
     public static void OnComplete(GameObject obj)
     {
         SceneItemAgent agent = obj.GetComponent<SceneItemAgent>();
-        agent.tag = "SceneItemAgent";
         CFX_AutoRotate rotate = obj.GetComponent<CFX_AutoRotate>();
         GameObject.Destroy(rotate);
-
         obj.transform.rotation = Quaternion.Euler(0, obj.transform.eulerAngles.y, 0);
         if (agent != null)
         {
+            agent.tag = "SceneItemAgent";
             agent.OnStart();
             //agent.SetAsDrop();
             if (agent.ItemInfo != null && agent.ItemInfo.IsFlag())

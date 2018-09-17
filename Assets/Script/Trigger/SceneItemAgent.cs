@@ -402,14 +402,22 @@ public class SceneItemAgent : MonoBehaviour {
                 }
             }
 
-            player = GetComponent<FMCPlayer>();
-            if (player == null)
-                player = gameObject.AddComponent<FMCPlayer>();
-            player.Init(s);
-            if (player.frames == null)
+            FMCFile f = FMCLoader.Instance.Load(s);
+            if (f != null)
             {
-                Destroy(player);
-                player = null;
+                player = GetComponent<FMCPlayer>();
+                if (player == null)
+                    player = gameObject.AddComponent<FMCPlayer>();
+                player.Init(s, f);
+            }
+            else
+            {
+                player = GetComponent<FMCPlayer>();
+                if (player != null)
+                {
+                    DestroyObject(player);
+                    player = null;
+                }
             }
         }
     }

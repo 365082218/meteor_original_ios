@@ -339,7 +339,7 @@ public class GameData:Singleton<GameData>
             gameStatus.MusicVolume = 50;
             gameStatus.SoundVolume = 50;
             gameStatus.NickName = "昱泉杀手";
-            gameStatus.JoyAnchor = new MyVector2(391,340);
+            gameStatus.JoyAnchor = new MyVector2(406,369);
             gameStatus.AxisSensitivity = new MyVector2(0.5f, 0.5f);
             gameStatus.MeteorVersion = "9.07";
             gameStatus.TargetFrame = 60;

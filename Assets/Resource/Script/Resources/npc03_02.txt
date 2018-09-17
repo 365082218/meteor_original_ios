@@ -1,4 +1,4 @@
-Name	= "夜猫子";
+Name = "夜猫子";
 Model =	3;
 Weapon = 4;
 Weapon2 = 14;

@@ -28,6 +28,8 @@ public class PickupItemAgent : MonoBehaviour {
             collider[i].enabled = false;
     }
 
+    [SerializeField]
+    private AnimationCurve curve;
     public void OnStart()
     {
         BoxCollider[] collider = GetComponentsInChildren<BoxCollider>(true);
@@ -40,6 +42,16 @@ public class PickupItemAgent : MonoBehaviour {
         }
 
         initializeY = transform.position.y;
+        if (curve == null)
+        {
+            Keyframe[] ks = new Keyframe[2];
+            ks[0] = new Keyframe(0, -1);
+            ks[1] = new Keyframe(1, 1);
+            curve = new AnimationCurve(ks);
+        }
+        curve.postWrapMode = WrapMode.PingPong;
+        curve.preWrapMode = WrapMode.PingPong;
+        StartCoroutine(yMove());
     }
 
     bool up = true;
@@ -66,14 +78,8 @@ public class PickupItemAgent : MonoBehaviour {
         }
     }
 
-    private void OnTriggerStay(Collider other)
+    public void OnPickup(MeteorUnit unit)
     {
-        OnPickup(other);
-    }
-
-    private void OnPickup(Collider other)
-    {
-        MeteorUnit unit = other.GetComponentInParent<MeteorUnit>();
         if (unit != null && !unit.Dead)
         {
             //满武器，不能捡
@@ -114,10 +120,5 @@ public class PickupItemAgent : MonoBehaviour {
             SFXLoader.Instance.PlayEffect(672, unit.gameObject, true);
             Destroy(gameObject);
         }
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        OnPickup(other);
     }
 }

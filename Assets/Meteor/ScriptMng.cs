@@ -62,9 +62,7 @@ public class ScriptMng:MonoBehaviour
 	{
         if (!string.IsNullOrEmpty(scriptText))
         {
-            object ret = LuaSvr.mainState.doString(scriptText);
-            if (ret == null)
-                throw new Exception("DoScript Failed");
+            LuaSvr.mainState.doString(scriptText);
         }
         else
             throw new Exception("script content is null or empty");
