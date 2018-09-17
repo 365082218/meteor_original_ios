@@ -518,7 +518,7 @@ public class MapObjectExporter : MonoBehaviour {
                     continue;
                 ObjMaterial objMaterial = new ObjMaterial();
                 if (mats[material].mainTexture)
-                    //objMaterial.textureName = AssetDatabase.GetAssetPath(mats[material].mainTexture);
+                    ;//objMaterial.textureName = AssetDatabase.GetAssetPath(mats[material].mainTexture);
                 else
                     objMaterial.textureName = null;
                 string[] s = null;
