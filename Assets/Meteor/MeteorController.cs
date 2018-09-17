@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 //Meteor_KeyBoard_Input
@@ -1910,9 +1911,8 @@ public class MeteorInput
             return;
         if (InputCore.OnKeyDown(keyStatus))
             InputCore.Reset();
-        //任意的按下一个按键，会让重复扫描功能暂停
-        EKeyList[] keys = new EKeyList[genFreq.Keys.Count];
-        genFreq.Keys.CopyTo(keys, 0);
+        //任意的按下一个按键，
+        EKeyList[] keys = genFreq.Keys.ToArray();
         for (int i = 0; i < keys.Length; i++)
             genFreq[keys[i]] = AppInfo.Instance.GetWaitForNextInput() + 1;
         keyStatus.Pressed = keyStatus.PressedTime < DoubleClickTime ? 2 : 1;
@@ -2082,8 +2082,8 @@ public class MeteorController : MonoBehaviour {
         {
             if (Owner.robot != null)
                 Owner.robot.Update();
-            CheckActionInput(Time.deltaTime);
         }
+        CheckActionInput(Time.deltaTime);
         if (Input != null)
             Input.Update(Time.deltaTime);
     }

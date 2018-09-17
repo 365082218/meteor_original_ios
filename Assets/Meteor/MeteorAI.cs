@@ -48,7 +48,6 @@ public enum EAISubStatus
     FightNearTarget,//距离指定目标已是直线距离
     FightAim,//战斗中若使用远程武器，瞄准敌方的几率，否则就随机
     //FightChangeWeapon,//战斗中切换武器->可能会跑近（使用近战武器），或跑远（使用远程武器）
-    FightOnHurt,//战斗中被敌人击中
     FightLeave,//跑远
     FightGetItem,//战斗中去捡起物品-镖物-补给-武器-BUFF道具
     SubStatusIdle,
@@ -716,9 +715,6 @@ public class MeteorAI {
             case EAISubStatus.FightNearTarget:
                 OnFightNearTarget();
                 break;
-            case EAISubStatus.FightOnHurt:
-                OnHurt();
-                break;
         }
     }
 
@@ -887,6 +883,16 @@ public class MeteorAI {
 
     void OnFight()
     {
+        //如果处于跌倒状态.A处理从地面站立,僵直过后才能正常站立 B，在后面的逻辑中，决定是否用爆气解除跌倒状态
+        if (owner.posMng.mActiveAction.Idx == CommonAction.Struggle || owner.posMng.mActiveAction.Idx == CommonAction.Struggle0)
+        {
+            if (struggleCoroutine == null && !owner.charLoader.InStraight)
+            {
+                struggleCoroutine = owner.StartCoroutine(ProcessStruggle());
+                return;
+            }
+        }
+
         //有任意输入时，不要进入攻击状态，否则状态切换可能过快.
         if (PlayWeaponPoseCorout != null || InputCorout != null)
             return;
@@ -1192,9 +1198,9 @@ public class MeteorAI {
             //Debug.LogError("fight leave");
             Stop();
             TargetPos = fightTarget.mPos + vec.normalized * 125.0f;
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            go.transform.localScale = Vector3.one * 10;
-            go.transform.position = TargetPos;
+            //GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            //go.transform.localScale = Vector3.one * 10;
+            //go.transform.position = TargetPos;
             owner.posMng.ChangeAction(0);
             AttackRotateToTargetCoroutine = owner.StartCoroutine(AttackRotateToTarget(TargetPos, EAIStatus.Fight, EAISubStatus.FightGotoPosition, false, true));
         }
@@ -1361,23 +1367,6 @@ public class MeteorAI {
     }
 
     Coroutine struggleCoroutine;
-    void OnHurt()
-    {
-        if (owner.charLoader.InStraight)
-            return;
-        owner.controller.Input.ResetInput();
-
-        if (owner.posMng.mActiveAction.Idx == CommonAction.Struggle || owner.posMng.mActiveAction.Idx == CommonAction.Struggle0)
-        {
-            if (struggleCoroutine == null && !owner.charLoader.InStraight)
-                struggleCoroutine = owner.StartCoroutine(ProcessStruggle());
-        }
-        else if (Time.realtimeSinceStartup - onHurtTick >= 1.5f)
-        {
-            //Debug.LogError("not struggle action");
-            SubStatus = EAISubStatus.Fight;
-        }
-    }
 
     IEnumerator ProcessStruggle()
     {
@@ -1656,7 +1645,6 @@ public class MeteorAI {
     }
 
     //如果attacker为空，则代表是非角色伤害了自己
-    float onHurtTick;
     public void OnDamaged(MeteorUnit attacker)
     {
         //受到非目标的攻击后，记下来，一会找他算账
@@ -1665,10 +1653,13 @@ public class MeteorAI {
         Stop();
         ResetAIKey();
         StopCoroutine();
-        Status = EAIStatus.Fight;
-        SubStatus = EAISubStatus.FightOnHurt;
-        //在此状态下开始检查，超过2秒后，如果没有切换到倒地姿势，则切换回状态.
-        onHurtTick = Time.realtimeSinceStartup;
+        owner.controller.Input.ResetInput();
+        if (attacker != null)
+        {
+            Status = EAIStatus.Fight;
+            SubStatus = EAISubStatus.Fight;
+            fightTarget = attacker;
+        }
     }
 
     //寻路相关的.

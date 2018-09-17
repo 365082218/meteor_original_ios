@@ -632,9 +632,7 @@ public partial class MeteorUnit : MonoBehaviour
     {
         if (IsDebugUnit())
             return;
-        //死亡姿势播放完毕后，会取消掉角色的碰撞盒，就不要再计算角色的落下之类的了.
-        if (!charController.enabled)
-            return;
+
         if (Climbing)
             ClimbingTime += Time.deltaTime;
         else
@@ -843,6 +841,9 @@ public partial class MeteorUnit : MonoBehaviour
 
     public void ProcessGravity()
     {
+        //死亡姿势播放完毕后，会取消掉角色的碰撞盒，就不要再计算角色的落下之类的了.
+        if (!charController.enabled)
+            return;
         //计算运动方向
         //角色forward指向人物背面
         //根据角色状态计算重力大小，在墙壁，空中，以及空中水平轴的阻力
@@ -1157,7 +1158,7 @@ public partial class MeteorUnit : MonoBehaviour
         if (charController == null)
             charController = gameObject.AddComponent<CharacterController>();
         charController.center = new Vector3(0, Info.Pivot, 0);
-        charController.height = Global.GLevelItem.ID == 7 ? 32.0f: Info.Height;//32是跨越皇天城的栅栏的最大高度，超过这个高度就没法过去了。
+        charController.height = Info.Height;
         charController.radius = 9.0f;//不这么大碰不到寻路点.
         charController.stepOffset = 7.6f;
 
@@ -2768,11 +2769,27 @@ public partial class MeteorUnit : MonoBehaviour
             checkRotateTick -= Time.deltaTime;
             if (checkRotateTick < 0.0f)
             {
-                posMng. Rotateing = false;
+                posMng.Rotateing = false;
                 CheckRotate = null;
                 yield break;
             }
             yield return 0;
+        }
+    }
+
+    public void OnGameResult(int result)
+    {
+        if (CheckRotate != null)
+        {
+            StopCoroutine(CheckRotate);
+            CheckRotate = null;
+            posMng.Rotateing = false;
+        }
+        if (posMng.mActiveAction.Idx < CommonAction.Crouch || posMng.mActiveAction.Idx == CommonAction.GunIdle)
+        {
+            //posMng.ChangeAction(CommonAction.Idle);
+            posMng.ChangeAction(CommonAction.Taunt, 0.1f);
+            posMng.playResultAction = true;
         }
     }
 

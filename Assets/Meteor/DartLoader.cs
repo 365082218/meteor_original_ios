@@ -67,7 +67,7 @@ public class DartLoader : MonoBehaviour {
         {
             BoxCollider bc = mr.gameObject.AddComponent<BoxCollider>();
             bc.isTrigger = true;
-            bc.size = new Vector3(2, 1, 6);
+            bc.size = new Vector3(6, 3, 6);
         }
         if (fly != null)
             StopCoroutine(fly);
@@ -153,7 +153,7 @@ public class DartLoader : MonoBehaviour {
         InventoryItem item = Weapon;
         if (item.Info().MainType == (int)EquipType.Weapon)
         {
-            float scale = 2.0f;
+            float scale = 1.0f;
             WeaponBase weaponProperty = WeaponMng.Instance.GetItem(item.Info().UnitId);
             string weaponR = "";
             weaponR = weaponProperty.WeaponR;

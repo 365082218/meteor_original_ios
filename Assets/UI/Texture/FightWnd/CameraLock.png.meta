@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 525e3a05e3100d94aa87dc397f82b8a3
-timeCreated: 1499274353
+guid: 7e79d206ff22f254ba913c039585ddb1
+timeCreated: 1537139062
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName: {}
@@ -24,13 +24,13 @@ TextureImporter:
   generateCubemap: 6
   cubemapConvolution: 0
   seamlessCubemap: 0
-  textureFormat: -1
+  textureFormat: 1
   maxTextureSize: 2048
   textureSettings:
     filterMode: -1
     aniso: 16
     mipBias: -1
-    wrapMode: 1
+    wrapMode: -1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
@@ -55,7 +55,7 @@ TextureImporter:
     textureFormat: -1
     textureCompression: 2
     compressionQuality: 50
-    crunchedCompression: 0
+    crunchedCompression: 1
     allowsAlphaSplitting: 0
     overridden: 0
   - buildTarget: Standalone
@@ -63,7 +63,7 @@ TextureImporter:
     textureFormat: -1
     textureCompression: 2
     compressionQuality: 50
-    crunchedCompression: 0
+    crunchedCompression: 1
     allowsAlphaSplitting: 0
     overridden: 0
   - buildTarget: iPhone
@@ -71,7 +71,7 @@ TextureImporter:
     textureFormat: -1
     textureCompression: 2
     compressionQuality: 50
-    crunchedCompression: 0
+    crunchedCompression: 1
     allowsAlphaSplitting: 0
     overridden: 0
   - buildTarget: Android
@@ -79,7 +79,7 @@ TextureImporter:
     textureFormat: -1
     textureCompression: 2
     compressionQuality: 50
-    crunchedCompression: 0
+    crunchedCompression: 1
     allowsAlphaSplitting: 0
     overridden: 0
   spriteSheet:
@@ -88,5 +88,5 @@ TextureImporter:
     outline: []
   spritePackingTag: FightWnd
   userData: 
-  assetBundleName: camerau.png
+  assetBundleName: 
   assetBundleVariant: 

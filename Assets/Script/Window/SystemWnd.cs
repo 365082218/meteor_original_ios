@@ -154,6 +154,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
 
     void OnEnableLog(bool toggle)
     {
+        GameData.Instance.gameStatus.EnableLog = toggle;
         if (toggle)
             WSDebug.Ins.OpenLogView();
         else
@@ -162,6 +163,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
 
     void OnLevelDebug(bool toggle)
     {
+        GameData.Instance.gameStatus.LevelDebug = toggle;
         if (toggle)
             Game.Instance.ShowDbg();
         else

@@ -9,6 +9,7 @@ using System.Collections;
 public class Startup : MonoBehaviour {
     public static Startup ins;
     public Font TextFont;
+    public GameObject fpsCanvas;
     public GameState state { get { return GameData.Instance.gameStatus; } }
     //public InputField cheat;
     public AudioSource Music;
@@ -30,27 +31,17 @@ public class Startup : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        //if (ins != this)
-        //{
-        //    //Music = null;
-        //    //Sound = null;
-        //    //Listener = null;
-        //    //UI上的元素重新赋值过去，从其他场景转回来就会出现新的一套UI
-        //    //ins.cheat = cheat;
-        //    Destroy(gameObject);//U3D OCAgent等其他挂在这里的都会没有.
-        //    if (ins.GetComponent<AudioListener>() == null)
-        //        ins.gameObject.AddComponent<AudioListener>();
-        //    ins.GameStart();
-        //    return;
-        //}
         Random.InitState(System.Guid.NewGuid().GetHashCode());
+#if !STRIP_LOGS
+        fpsCanvas.SetActive(true);
+#endif
     }
 
     // Update is called once per frame
     void Update () {
     }
 
-    #region (notification)
+#region (notification)
     //void CleanNotification()
     //{
     //    UnityEngine.iOS.LocalNotification l = new UnityEngine.iOS.LocalNotification();
@@ -89,7 +80,7 @@ public class Startup : MonoBehaviour {
     //        NotificationServices.ScheduleLocalNotification(localNotification);
     //    }
     //}
-    #endregion 
+#endregion
     void OnApplicationPause(bool paused)
     {
         //程序进入后台时

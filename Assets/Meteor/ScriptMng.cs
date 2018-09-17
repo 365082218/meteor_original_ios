@@ -18,13 +18,7 @@ public class ScriptMng:MonoBehaviour
 
 	public void Start()
 	{
-        svr = new LuaSvr();
-		svr.init (null, ()=>
-        {
-            CallScript("Main");
-            save = LuaSvr.mainState.getFunction("save");
-            //Startup.ins.GameStart();
-        });
+        ResetStatus();
 	}
 
 	public void Update()
@@ -49,8 +43,9 @@ public class ScriptMng:MonoBehaviour
         {
             if (!string.IsNullOrEmpty(script))
             {
-                if (File.Exists(Application.persistentDataPath + "/" + script))
-                    svr.start(Application.persistentDataPath + "/" + script);
+                string p = string.Format("{0}/{1}", Application.persistentDataPath, script);
+                if (File.Exists(p))
+                    svr.start(p);
                 else
                     svr.start(script);
             }
@@ -59,7 +54,7 @@ public class ScriptMng:MonoBehaviour
         }
         catch (Exception exp)
         {
-            Debug.LogError(exp.Message + ":" + exp.StackTrace);
+            Debug.LogError(string.Format("{0}:{1}", exp.Message, exp.StackTrace));
         }
 	}
 
@@ -80,45 +75,6 @@ public class ScriptMng:MonoBehaviour
     {
         LuaSvr.mainState.doFile(script);
     }
-    //返回，指示场景物体不要在调用此函数，因为脚本里没有相应处理
-    public bool OnAttack(SceneItemAgent sceneObj, int characterid, int damage)
-    {
-        if (sceneObj != null)
-        {
-            LuaFunction func = LuaSvr.mainState.getFunction(sceneObj.name + "_OnAttack");
-            if (func != null)
-            {
-                func.call(sceneObj.InstanceId, characterid, damage);
-                return true;
-            }
-            else
-            {
-                Debug.LogError("can not find function:" + sceneObj.name + "_OnIdle");
-                return false;
-            }
-        }
-        return true;
-    }
-
-    //同上
-    public bool OnIdle(SceneItemAgent sceneObj)
-    {
-        if (sceneObj != null)
-        {
-            LuaFunction func = LuaSvr.mainState.getFunction(sceneObj.name + "_OnIdle");
-            if (func != null)
-            {
-                func.call(sceneObj.InstanceId);
-                return true;
-            }
-            else
-            {
-                Debug.LogError("can not find function:" + sceneObj.name + "_OnIdle");
-                return false;
-            }
-        }
-        return true;
-    }
 
     public void Save()
     {
@@ -129,8 +85,19 @@ public class ScriptMng:MonoBehaviour
     public void Load(int index)
     {
         //恢复脚本变量状态
-        if (File.Exists(Application.persistentDataPath + "/" + index + "/script_status.txt"))
-            CallScript(Application.persistentDataPath + "/" + index + "/script_status.txt");
+        string p = string.Format("{0}/{1}/script_status.txt", Application.persistentDataPath, index);
+        if (File.Exists(p))
+            CallScript(p);
+    }
+
+    public void ResetStatus()
+    {
+        svr = new LuaSvr();
+        svr.init(null, () =>
+        {
+            CallScript("Main");
+            save = LuaSvr.mainState.getFunction("save");
+        });
     }
 }
 

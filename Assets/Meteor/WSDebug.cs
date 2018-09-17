@@ -606,12 +606,11 @@ public class WSDebug : MonoBehaviour {
     //有此脚本，即可在任何关卡开启游戏
     public void Start()
     {
-
-        for (int i = 0; i < 20; i++)
-            AmbLoader.Ins.LoadCharacterAmb(i);
-        AmbLoader.Ins.LoadCharacterAmb();
-        ActionInterrupt.Instance.Init();
-        MenuResLoader.Instance.Init();
+        //for (int i = 0; i < 20; i++)
+        //    AmbLoader.Ins.LoadCharacterAmb(i);
+        //AmbLoader.Ins.LoadCharacterAmb();
+        //ActionInterrupt.Instance.Init();
+        //MenuResLoader.Instance.Init();
             //level = 1;
         DontDestroyOnLoad(gameObject);
             //DontDestroyOnLoad(canvas);
@@ -666,7 +665,7 @@ public class WSDebug : MonoBehaviour {
 
     }
 
-    public System.Collections.Generic.List<string> ltemTexture = new System.Collections.Generic.List<string>();
+    //public System.Collections.Generic.List<string> ltemTexture = new System.Collections.Generic.List<string>();
     //public void ProcessItemTexture()
     //{
     //    Level lev = LevelMng.Instance.GetItem(level);

@@ -125,7 +125,7 @@ public class MonsterEx
             return;
         //非主角属性，从脚本重新加载
         Attack1 = (int)(double)ScriptMng.ins.GetVariable("Attack1");
-        Debug.LogError("Attack1:" + Attack1);
+        //Debug.LogError("Attack1:" + Attack1);
         Attack2 = (int)(double)ScriptMng.ins.GetVariable("Attack2");
         Attack3 = (int)(double)ScriptMng.ins.GetVariable("Attack3");
         Think = (int)(double)ScriptMng.ins.GetVariable("Think");

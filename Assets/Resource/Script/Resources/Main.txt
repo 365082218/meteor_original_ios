@@ -61,3 +61,7 @@ end
 function UpdateAIAttrib(a)
 	U3D.UpdateAIAttrib(a);
 end
+
+function Perform(a, b, c)
+	U3D.Perform(a, b, c);
+end

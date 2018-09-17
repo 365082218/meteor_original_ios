@@ -294,8 +294,11 @@ public class PoseStatus
     }
 
     //动作播放完毕，切换下一个可连接动作.
+    public bool playResultAction = false;
     public void OnActionFinished()
     {
+        //if (_Self.Attr.IsPlayer)
+        //    Debug.Log("onaction finished");
         if (waitPause)
         {
             //死亡后接事件
@@ -514,10 +517,22 @@ public class PoseStatus
 
     public void ChangeAction(int idx = CommonAction.Idle, float time = 0.0f, int targetFrame = 0)
     {
-        //if (idx == CommonAction.Idle && !_Self.Attr.IsPlayer &&  mActiveAction != null && (mActiveAction.Idx == CommonAction.Struggle || mActiveAction.Idx == CommonAction.Struggle0))
-        //{
-        //    Debug.DebugBreak();
-        //}
+        //本局游戏已有结果,播放嘲讽动画.
+        if (Global.Result && GameBattleEx.Instance != null && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle))
+        {
+            playResultAction = true;
+            if (_Self.Camp == EUnitCamp.EUC_ENEMY && GameBattleEx.Instance.Result <= 0)
+            {
+                ChangeAction(CommonAction.Taunt, 0.1f);
+                return;
+            }
+            else if (_Self.Camp == EUnitCamp.EUC_FRIEND && GameBattleEx.Instance.Result == 1)
+            {
+                ChangeAction(CommonAction.Taunt, 0.1f);
+                return;
+            }
+        }
+
         _Self.IgnoreGravitys(PoseStatus.IgnoreGravity(idx));//设置招式重力
         bool ignorePhy = IgnorePhysical(idx);
         if (ignorePhy != _Self.IgnorePhysical)

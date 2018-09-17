@@ -791,7 +791,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &878637632
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2129,9 +2129,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TextFont: {fileID: 12800000, guid: a9815cf17fe52274f944f55eb598d58d, type: 3}
+  fpsCanvas: {fileID: 878637631}
   Music: {fileID: 2044160637}
   Sound: {fileID: 2044160636}
   listener: {fileID: 2044160635}
+  playerListener: {fileID: 0}
 --- !u!114 &2044160639
 MonoBehaviour:
   m_ObjectHideFlags: 0

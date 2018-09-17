@@ -93,6 +93,7 @@ public class FightWnd: Window<FightWnd>
     GameObject BuffRoot;
     GameObject TargetBuffPanel;
     GameObject Unlock;
+    Image LockSprite;
     void Init()
     {
         //debugPanel = Control("Debug");
@@ -125,6 +126,7 @@ public class FightWnd: Window<FightWnd>
         //Global.ldaControlX("System", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSystemWnd(); });
         Unlock = Global.ldaControlX("Unlock", WndObject);
         Unlock.GetComponentInChildren<Button>().onClick.AddListener(OnClickChangeLock);
+        LockSprite = Global.ldaControlX("LockSprite", Unlock).GetComponent<Image>();
         Global.ldaControlX("SfxMenu", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSfxWnd(); });
         Global.ldaControlX("Robot", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenRobotWnd(); });
         //floatButton = Global.ldaControlX("FloatButton", WndObject).GetComponent<UIButtonExtended>();
@@ -272,6 +274,14 @@ public class FightWnd: Window<FightWnd>
         Global.ldaControlX("SfxMenu", WndObject).SetActive(GameData.Instance.gameStatus.EnableDebugSFX);
         Global.ldaControlX("Robot", WndObject).SetActive(GameData.Instance.gameStatus.EnableDebugRobot);
         Global.ldaControlX("MiniMap", WndObject).SetActive(true);
+        if (GameData.Instance.gameStatus.LevelDebug)
+            Game.Instance.ShowDbg();
+        else
+            Game.Instance.CloseDbg();
+        if (GameData.Instance.gameStatus.EnableLog)
+            WSDebug.Ins.OpenLogView();
+        else
+            WSDebug.Ins.CloseLogView();
     }
 
     void OnAttackPress()
@@ -282,7 +292,7 @@ public class FightWnd: Window<FightWnd>
 
     public void OnChangeLock(bool locked)
     {
-        Unlock.GetComponent<Image>().sprite = locked ? Global.ldaControlX("LockSprite", Unlock).GetComponent<Image>().sprite : Global.ldaControlX("UnlockSprite", Unlock).GetComponent<Image>().sprite;
+        LockSprite.enabled = locked;
     }
 
     void OnClickChangeLock()
@@ -472,17 +482,17 @@ public class FightWnd: Window<FightWnd>
         //}
         if (hpWarningE != null)
         {
-            GameBattleEx.Instance.StopCoroutine(hpWarningE);
+            MeteorManager.Instance.LocalPlayer.StopCoroutine(hpWarningE);
             hpWarningE = null;
         }
         if (angryWarningE != null)
         {
-            GameBattleEx.Instance.StopCoroutine(angryWarningE);
+            MeteorManager.Instance.LocalPlayer.StopCoroutine(angryWarningE);
             angryWarningE = null;
         }
         if (updateValue != null)
         {
-            GameBattleEx.Instance.StopCoroutine(updateValue);
+            MeteorManager.Instance.LocalPlayer.StopCoroutine(updateValue);
             updateValue = null;
         }
         //if (updateBuff != null)

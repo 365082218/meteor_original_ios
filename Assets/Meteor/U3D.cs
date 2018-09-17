@@ -1219,6 +1219,10 @@ public class U3D : MonoBehaviour {
         return 0;
     }
 
+    public static int Perform(int id, string pose, int last)
+    {
+        return Perform(id, pose, new int[] { last });
+    }
 
     public static int Perform(int id, string pose, params int[] fun)
     {

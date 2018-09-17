@@ -15,7 +15,7 @@ Properties {
 }
 
 SubShader {
-	Tags {"Queue"="AlphaTest" "IgnoreProjector"="True" "RenderType"="Transparent"}
+	Tags {"Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"}
 	//Tags{ "Queue" = "Geometry+50" "RenderType" = "Opaque" }
 	LOD 100
 	cull off Lighting Off

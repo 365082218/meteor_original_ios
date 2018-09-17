@@ -273,7 +273,7 @@ public class Loader : MonoBehaviour {
             //环境特效.一直存在的特效.和特效挂载点
             string effect;
             if (des.SceneItems[i].ContainsKey("effect", out effect))
-                SFXLoader.Instance.PlayEffect(effect, obj);
+                SFXLoader.Instance.PlayEffect(string.Format("{0}.ef", effect), obj);
             obj.transform.position = des.SceneItems[i].pos;
             obj.transform.rotation = des.SceneItems[i].quat;
             obj.transform.SetParent(transform);

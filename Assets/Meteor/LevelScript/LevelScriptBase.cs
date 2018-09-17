@@ -313,7 +313,7 @@ public class ScriptBase
     }
     public static void CreateEffect(string target, string effect)
     {
-        U3D.CreateEffect(target, effect);
+        U3D.CreateEffect(target, string.Format("{0}.ef", effect));
     }
     public static void MakeString(ref string s, string b, int i)
     {

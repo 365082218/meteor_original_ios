@@ -182,7 +182,7 @@ public abstract class Window<T> :Windows where T : class, new()
 		//Debug.Log("Open Window:"+PrefabName);
         if (mWndObject)
         {
-            Debug.LogError("Window:" + PrefabName + "The window already opened!!!!");
+            ////Debug.LogError("Window:" + PrefabName + "The window already opened!!!!");
             WindowMng.RemoveWindow(mWndObject, this);
             GameObject.Destroy(mWndObject);//这句话会导致一个界面上的成员变量没清理
             if (WindowStyle.WS_Ext <= mWindowStyle)
