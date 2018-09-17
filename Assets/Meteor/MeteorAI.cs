@@ -108,6 +108,7 @@ public class MeteorAI {
         //这个暂停是部分行为需要停止AI一段指定时间间隔
         if (paused)
         {
+            Stop();
             pause_tick -= Time.deltaTime;
             if (pause_tick <= 0.0f)
                 paused = false;
@@ -709,9 +710,9 @@ public class MeteorAI {
             case EAISubStatus.FightSubRotateToTarget:
                 OnFightSubRotateToTarget();
                 break;
-            case EAISubStatus.FightNear:
-                OnFightNear();
-                break;
+            //case EAISubStatus.FightNear:
+            //    OnFightNear();
+            //    break;
             case EAISubStatus.FightNearTarget:
                 OnFightNearTarget();
                 break;
@@ -720,6 +721,15 @@ public class MeteorAI {
 
     void OnFightNearTarget()
     {
+        if (Time.realtimeSinceStartup - statusTick >= 3.0f)
+        {
+            Stop();
+            Status = EAIStatus.Fight;
+            SubStatus = EAISubStatus.Fight;
+            return;
+        }
+
+        owner.FaceToTarget(fightTarget);
         owner.controller.Input.AIMove(0, 1);
         float dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(fightTarget.mPos.x, 0, fightTarget.mPos.z));
         float disMin = 30;
@@ -739,6 +749,7 @@ public class MeteorAI {
         float disMin = owner.Speed * Time.deltaTime * 0.15f;
         if (dis <= disMin)
         {
+            Stop();
             Status = EAIStatus.Fight;
             SubStatus = EAISubStatus.Fight;
         }
@@ -820,6 +831,7 @@ public class MeteorAI {
         }
     }
 
+    float statusTick = 0.0f;
     void OnFightGotoTarget()
     {
         TargetPos = fightTarget.mPos;
@@ -849,6 +861,7 @@ public class MeteorAI {
                 //到达终点.
                 owner.controller.Input.AIMove(0, 0);
                 SubStatus = EAISubStatus.FightNearTarget;//要先转向面向攻击目标.
+                statusTick = Time.realtimeSinceStartup;
                 return;
             }
             else
@@ -1452,12 +1465,22 @@ public class MeteorAI {
     {
         paused = pause;
         pause_tick = pause_time;
+        if (paused)
+        {
+            Stop();
+            StopCoroutine();
+        }
         //Debug.Log(string.Format("unit:{0} pause:{1}", owner.name, pause_tick));
     }
 
     public void EnableAI(bool enable)
     {
         stoped = !enable;
+        if (stoped)
+        {
+            Stop();
+            StopCoroutine();
+        }
     }
 
     public void ChangeState(EAIStatus type)
