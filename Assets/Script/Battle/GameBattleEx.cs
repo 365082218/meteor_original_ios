@@ -47,9 +47,10 @@ public partial class GameBattleEx : MonoBehaviour {
         if (Global.Result)
             return;
         Resume();
+        Global.GameOverTick = Time.realtimeSinceStartup;
         Global.Result = true;
         Global.PauseAll = true;
-        MeteorManager.Instance.LocalPlayer.controller.InputLocked = true;
+        MeteorManager.Instance.LocalPlayer.controller.LockInput(true);
         GameObject.Destroy(Startup.ins.playerListener);
         Startup.ins.playerListener = null;
         Startup.ins.listener.enabled = true;
@@ -79,7 +80,7 @@ public partial class GameBattleEx : MonoBehaviour {
             GameData.Instance.SaveState();
         }
         
-        Invoke("PlayEndMovie", 5.0f);
+        //Invoke("PlayEndMovie", 5.0f);
     }
 
     void PlayEndMovie()
@@ -132,6 +133,14 @@ public partial class GameBattleEx : MonoBehaviour {
     List<int> UnitActKeyDeleted = new List<int>();
 	// Update is called once per frame
 	void Update () {
+        if (Global.Result)
+        {
+            if (Time.realtimeSinceStartup - Global.GameOverTick >= 5.0f)
+            {
+                PlayEndMovie();
+                Global.GameOverTick = float.MaxValue;
+            }
+        }
         if (Global.PauseAll)
             return;
 

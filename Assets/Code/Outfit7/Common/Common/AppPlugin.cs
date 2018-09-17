@@ -744,7 +744,7 @@ namespace Outfit7.Common {
 #if UNITY_EDITOR || NATIVE_SIM
                     CachedSystemRateThisAppDialogRequired = false;
 #elif UNITY_IPHONE
-                    CachedSystemRateThisAppDialogRequired = _IsSystemRateThisAppDialogRequired();
+                    //CachedSystemRateThisAppDialogRequired = _IsSystemRateThisAppDialogRequired();
 #elif UNITY_ANDROID
                     CachedSystemRateThisAppDialogRequired = false;
 #elif UNITY_WP8
@@ -763,7 +763,7 @@ namespace Outfit7.Common {
 #if UNITY_EDITOR || NATIVE_SIM
 
 #elif UNITY_IPHONE
-            _OpenSystemRateThisAppDialog();
+            //_OpenSystemRateThisAppDialog();
 #elif UNITY_ANDROID
 
 #elif UNITY_WP8

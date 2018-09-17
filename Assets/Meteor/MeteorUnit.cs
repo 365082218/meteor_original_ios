@@ -2822,6 +2822,10 @@ public partial class MeteorUnit : MonoBehaviour
             CheckRotate = null;
             posMng.Rotateing = false;
         }
+
+        //controller.Input.ResetInput();
+        //controller.Input.ResetJoy();
+
         if (posMng.mActiveAction.Idx < CommonAction.Crouch || posMng.mActiveAction.Idx == CommonAction.GunIdle)
         {
             //posMng.ChangeAction(CommonAction.Idle);
