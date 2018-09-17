@@ -1,9 +1,0 @@
-﻿using Outfit7.NamespaceTemplate.Controller;
-using Outfit7.NamespaceTemplate.Controller.Ui;
-
-namespace Outfit7.NamespaceTemplate.Controller.Logic {
-    public class ControllerTemplate : StateControllerBehaviour<UiControllerTemplate> {
-
-
-    }
-}

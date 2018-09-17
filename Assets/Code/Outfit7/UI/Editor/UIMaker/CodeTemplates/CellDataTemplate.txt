@@ -1,9 +1,0 @@
-﻿using Outfit7.UI;
-
-namespace Outfit7.UI.Cell {
-    public class CellDataTemplate : AbstractCellData {
-        public CellDataTemplate() {
-
-        }
-    }
-}

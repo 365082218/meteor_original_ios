@@ -1,1 +1,0 @@
-The Application uses SimpleJSON Library in public domain.
