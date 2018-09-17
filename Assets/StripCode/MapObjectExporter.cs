@@ -70,8 +70,8 @@ public class MapObjectExporter : MonoBehaviour {
                 Debug.LogError("texture miss:" + tex);
             mat[x].SetTexture("_MainTex", texture);
             mat[x].name = materialName;
-            UnityEditor.AssetDatabase.CreateAsset(mat[x], fullSavePath + mat[x].name + ".mat");
-            UnityEditor.AssetDatabase.Refresh();
+            //UnityEditor.AssetDatabase.CreateAsset(mat[x], fullSavePath + mat[x].name + ".mat");
+            //UnityEditor.AssetDatabase.Refresh();
         }
 
         bool saveMesh = false;
@@ -152,8 +152,8 @@ public class MapObjectExporter : MonoBehaviour {
                             {
                                 defaults = new Material(Shader.Find("Custom/MeteorVertexL"));
                                 defaults.name = materialName;
-                                UnityEditor.AssetDatabase.CreateAsset(defaults, fullSavePath + "/Resources/" + defaults.name + ".mat");
-                                UnityEditor.AssetDatabase.Refresh();
+                                //UnityEditor.AssetDatabase.CreateAsset(defaults, fullSavePath + "/Resources/" + defaults.name + ".mat");
+                                //UnityEditor.AssetDatabase.Refresh();
                             }
                             targetMat.Add(defaults);
                         }
@@ -255,8 +255,8 @@ public class MapObjectExporter : MonoBehaviour {
                     Debug.LogError("texture miss:" + tex);
                 mat[x].SetTexture("_MainTex", texture);
                 mat[x].name = materialName;
-                UnityEditor.AssetDatabase.CreateAsset(mat[x], fullSavePath + mat[x].name + ".mat");
-                UnityEditor.AssetDatabase.Refresh();
+                //UnityEditor.AssetDatabase.CreateAsset(mat[x], fullSavePath + mat[x].name + ".mat");
+                //UnityEditor.AssetDatabase.Refresh();
             }
         }
         while (true)
@@ -334,8 +334,8 @@ public class MapObjectExporter : MonoBehaviour {
                                         {
                                             defaults = new Material(Shader.Find("Custom/MeteorVertexL"));
                                             defaults.name = materialName;
-                                            UnityEditor.AssetDatabase.CreateAsset(defaults, fullSavePath + "/Resources/" + defaults.name + ".mat");
-                                            UnityEditor.AssetDatabase.Refresh();
+                                            //UnityEditor.AssetDatabase.CreateAsset(defaults, fullSavePath + "/Resources/" + defaults.name + ".mat");
+                                            //UnityEditor.AssetDatabase.Refresh();
                                         }
                                         targetMat.Add(defaults);
                                     }
@@ -383,7 +383,7 @@ public class MapObjectExporter : MonoBehaviour {
                     {
                         MeshToFile(mfSave, fullSavePath, des.SceneItems[i].name);
                         //UnityEditor.AssetDatabase.CreateAsset(objMesh.GetComponent<MeshFilter>().sharedMesh, fullSavePath + "/" + des.SceneItems[i].name + ".asset");
-                        UnityEditor.AssetDatabase.Refresh();
+                        //UnityEditor.AssetDatabase.Refresh();
                     }
                     //yield return 0;
                 }
