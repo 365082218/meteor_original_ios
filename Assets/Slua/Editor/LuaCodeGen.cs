@@ -81,8 +81,9 @@ namespace SLua
             static void Update()
             {
                 EditorApplication.update -= Update;
+#if UNITY_EDITOR
                 Lua3rdMeta.Instance.ReBuildTypes();
-
+#endif
                 // Remind user to generate lua interface code
                 var remindGenerate = !EditorPrefs.HasKey("SLUA_REMIND_GENERTE_LUA_INTERFACE") || EditorPrefs.GetBool("SLUA_REMIND_GENERTE_LUA_INTERFACE");
                 bool ok = System.IO.Directory.Exists(GenPath + "Unity") || System.IO.File.Exists(GenPath + WrapperName);

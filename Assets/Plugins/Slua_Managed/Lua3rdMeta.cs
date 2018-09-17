@@ -46,7 +46,7 @@ namespace SLua{
 			this.hideFlags = HideFlags.NotEditable;
 			#endif
 		}
-		#if UNITY_EDITOR
+		//#if UNITY_EDITOR
 
 		public void ReBuildTypes(){
 			typesWithAttribtues.Clear();
@@ -71,7 +71,7 @@ namespace SLua{
 			}
 		}
 
-		#endif
+		//#endif
 		private static Lua3rdMeta _instance=null;
 		public static Lua3rdMeta Instance{
 			get{
