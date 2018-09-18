@@ -1499,8 +1499,8 @@ public class U3D : MonoBehaviour {
 
     public static void UnlockLevel()
     {
-        Level[] level = LevelMng.Instance.GetAllItem();
-        GameData.Instance.gameStatus.Level = level[level.Length - 1].ID;
+        //Level[] level = LevelMng.Instance.GetAllItem();
+        GameData.Instance.gameStatus.Level = Global.LEVELMAX;
     }
 
     

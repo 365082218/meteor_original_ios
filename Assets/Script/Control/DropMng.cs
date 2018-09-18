@@ -11,7 +11,7 @@ public class DropMng:Singleton<DropMng>{
             return;
         ItemBase ib = GameData.Instance.itemMng.GetRowByIdx(mainWeapon) as ItemBase;
         WeaponBase wb = WeaponMng.Instance.GetItem(ib.UnitId);
-        GameObject trigget = CreateObj(wb.WeaponR, player.transform, -player.transform.forward);
+        GameObject trigget = CreateTriggerObj(wb.WeaponR, player.transform, -player.transform.forward);
         //obj.Add(trigget);
         //ExplosionObject01.iTweenExplosion01(1, ref obj, player.transform.position);
         player.Attr.Weapon2 = 0;
@@ -35,7 +35,7 @@ public class DropMng:Singleton<DropMng>{
         int mainWeapon = player.Attr.Weapon;
         ItemBase ib = GameData.Instance.itemMng.GetRowByIdx(mainWeapon) as ItemBase;
         WeaponBase wb = WeaponMng.Instance.GetItem(ib.UnitId);
-        GameObject trigget = CreateObj(wb.WeaponR, player.transform, -player.transform.forward);
+        GameObject trigget = CreateTriggerObj(wb.WeaponR, player.transform, -player.transform.forward);
         //obj.Add(trigget);
         //ExplosionObject01.iTweenExplosion01(1, ref obj, player.transform.position);
         ExplosionObject01.DropItem(trigget, player.mPos, -player.transform.forward);
@@ -50,6 +50,7 @@ public class DropMng:Singleton<DropMng>{
         }
     }
 
+    //一定不能是武器.角色死亡后镖物之类
     GameObject CreateObj(string des, Transform pos, Vector3 forward)
     {
         GameObject obj = new GameObject(des);
@@ -67,6 +68,7 @@ public class DropMng:Singleton<DropMng>{
         return obj;
     }
 
+    //武器
     GameObject CreateTriggerObj(string des, Transform pos, Vector3 forward)
     {
         GameObject obj = new GameObject(des);
@@ -76,8 +78,10 @@ public class DropMng:Singleton<DropMng>{
         obj.transform.SetParent(Loader.Instance == null ? null : Loader.Instance.transform);
         obj.transform.position = pos.position + Vector3.up * 50 + forward * 35;
         obj.layer = LayerMask.NameToLayer("Trigger");
+        obj.tag = "PickupItemAgent";
         PickupItemAgent agent = obj.AddComponent<PickupItemAgent>();
         agent.SetPickupItem(des);
+        agent.SetAsDrop();
         return obj;
     }
 }

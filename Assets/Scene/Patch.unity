@@ -465,7 +465,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Meshes:
   - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 4300000, guid: dab5016fc5e97ff42a11b2c8501b82d9, type: 3}
   - {fileID: 4300004, guid: 182f3ed070f39c84181730911cc73dca, type: 3}
   - {fileID: 0}
   - {fileID: 0}

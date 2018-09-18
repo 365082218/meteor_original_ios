@@ -134,7 +134,7 @@ public class DesFile
             TextAsset assetDes = Resources.Load<TextAsset>(strFile);
             if (assetDes == null)
             {
-                Debug.LogError("des file miss:" + strFile);
+                Debug.LogError(string.Format("des file miss:{0} maybe is a Prefab", strFile));
                 return;
             }
             MemoryStream ms = new MemoryStream(assetDes.bytes);

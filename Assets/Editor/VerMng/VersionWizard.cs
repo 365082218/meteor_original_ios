@@ -9,6 +9,7 @@ using Idevgame.Util;
 
 public static class BuildDefine
 {
+    public const string StripKeyBoard = "STRIP_KEYBOARD";//剔除键盘操作-导出移动包必选
     // Editor
     public const string DefineEditor = "UNITY_EDITOR";
     public const string DefineDebugBuild = "DEVEL_BUILD";

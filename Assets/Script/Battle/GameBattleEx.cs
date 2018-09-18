@@ -74,9 +74,9 @@ public partial class GameBattleEx : MonoBehaviour {
         if (NGUIJoystick.instance)
             NGUIJoystick.instance.Lock(true);
         //如果胜利，且不是最后一关，打开最新关标志.
-        if (result == 1 && GameData.Instance.gameStatus.Level < LevelMng.Instance.GetAllItem().Length && Global.GLevelItem.ID + 1 > GameData.Instance.gameStatus.Level)
+        if (result == 1 && GameData.Instance.gameStatus.Level < Global.LEVELMAX)
         {
-            GameData.Instance.gameStatus.Level = Global.GLevelItem.ID + 1;
+            GameData.Instance.gameStatus.Level++;
             GameData.Instance.SaveState();
         }
         

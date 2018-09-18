@@ -68,7 +68,9 @@ public class FixedPlatformCtrl : MonoBehaviour {
             //Debug.LogError("OnTrigger:" + Trigger);
             if (GameBattleEx.Instance != null)
                 GameBattleEx.Instance.OnSceneEvent(SceneEvent.EventEnter, u.InstanceId, gameObject);
-            this.enabled = false;
+            //任意角色进来，都会触发掉落动画，之后其他角色进来无法再触发.
+            if (fmcPlayer != null)
+                this.enabled = false;
         }
     }
 }

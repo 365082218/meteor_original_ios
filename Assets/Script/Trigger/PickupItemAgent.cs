@@ -23,7 +23,7 @@ public class PickupItemAgent : MonoBehaviour {
 
     public void SetAsDrop()
     {
-        BoxCollider[] collider = GetComponentsInChildren<BoxCollider>();
+        Collider[] collider = GetComponentsInChildren<Collider>();
         for (int i = 0; i < collider.Length; i++)
             collider[i].enabled = false;
     }
@@ -32,12 +32,15 @@ public class PickupItemAgent : MonoBehaviour {
     private AnimationCurve curve;
     public void OnStart()
     {
-        BoxCollider[] collider = GetComponentsInChildren<BoxCollider>(true);
+        Collider[] collider = GetComponentsInChildren<Collider>(true);
         for (int i = 0; i < collider.Length; i++)
         {
-            if (collider[i].gameObject.activeInHierarchy)
+            if (!collider[i].gameObject.activeInHierarchy)
                 continue;
             collider[i].enabled = true;
+            MeshCollider me = collider[i] as MeshCollider;
+            if (me != null)
+                me.convex = true;
             collider[i].isTrigger = true;
         }
 

@@ -33,7 +33,7 @@ public class Global
     public const float ClimbLimit = 1.5f;//爬墙持续提供向上的力
     public const float JumpTimeLimit = 0.15f;//最少要跳跃这么久之后才能攀爬
     public const int LEVELSTART = 1;//初始关卡ID
-    public const int LEVELMAX = 99;//角色级别上限
+    public const int LEVELMAX = 28;//最大关卡28
     public const int ANGRYMAX = 100;
     public const float AttackRange = 90.0f;//近战攻击距离
     public const float FollowDistance = 50.0f;//近距离内不需要再跟随

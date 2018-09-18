@@ -528,7 +528,14 @@ public class WsGlobal {
                 obj.transform.rotation = Quaternion.identity;
                 BoxCollider co = obj.GetComponentInChildren<BoxCollider>();
                 co.isTrigger = true;
-                WsGlobal.SetObjectLayer(obj, parent.gameObject.layer);
+                int k = obj.transform.childCount;
+                while (obj.transform.childCount != 0)
+                {
+                    Transform tri = obj.transform.GetChild(0);
+                    tri.SetParent(parent);
+                }
+                GameObject.Destroy(obj);
+                WsGlobal.SetObjectLayer(parent.gameObject, parent.gameObject.layer);
             }
         }
     }

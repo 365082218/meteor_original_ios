@@ -8382,6 +8382,7 @@ public class LevelScript_sn25 : LevelScriptBase
     }
 }
 
+//寻路测试
 public class LevelScript_sn26 : LevelScriptBase
 {
     public override int GetRoundTime() { return RoundTime; }

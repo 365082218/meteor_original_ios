@@ -970,7 +970,7 @@ public partial class MeteorUnit : MonoBehaviour
                         posMng.ChangeAction(CommonAction.CrouchLeft, 0.1f);
                 }
                 else
-                if (posMng.mActiveAction.Idx == CommonAction.Idle
+                if (posMng.mActiveAction.Idx < CommonAction.Crouch
                     || (posMng.mActiveAction.Idx == CommonAction.WalkRight && controller.Input.mInputVector.x == 0))
                     posMng.ChangeAction(CommonAction.WalkLeft, 0.1f);
             }
@@ -984,7 +984,7 @@ public partial class MeteorUnit : MonoBehaviour
                         posMng.ChangeAction(CommonAction.CrouchRight, 0.1f);
                 }
                 else
-                if (posMng.mActiveAction.Idx == CommonAction.Idle
+                if (posMng.mActiveAction.Idx < CommonAction.Crouch
                     || (posMng.mActiveAction.Idx == CommonAction.WalkLeft && controller.Input.mInputVector.x == 0))
                     posMng.ChangeAction(CommonAction.WalkRight, 0.1f);
             }
@@ -1000,7 +1000,7 @@ public partial class MeteorUnit : MonoBehaviour
                         posMng.ChangeAction(CommonAction.CrouchLeft, 0.1f);
                 }
                 else
-                if (posMng.mActiveAction.Idx == CommonAction.Idle
+                if (posMng.mActiveAction.Idx < CommonAction.Crouch
                     || (posMng.mActiveAction.Idx == CommonAction.WalkRight && controller.Input.mInputVector.x == 0))
                     posMng.ChangeAction(CommonAction.WalkLeft, 0.1f);
             }
@@ -1014,7 +1014,7 @@ public partial class MeteorUnit : MonoBehaviour
                         posMng.ChangeAction(CommonAction.CrouchRight, 0.1f);
                 }
                 else
-                if (posMng.mActiveAction.Idx == CommonAction.Idle
+                if (posMng.mActiveAction.Idx < CommonAction.Crouch
                     || (posMng.mActiveAction.Idx == CommonAction.WalkLeft && controller.Input.mInputVector.x == 0))
                     posMng.ChangeAction(CommonAction.WalkRight, 0.1f);
             }

@@ -12,6 +12,7 @@ TagManager:
   - soldier
   - WayPoint
   - SceneItemAgent
+  - PickupItemAgent
   layers:
   - Default
   - TransparentFX

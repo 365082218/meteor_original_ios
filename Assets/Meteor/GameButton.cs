@@ -15,6 +15,7 @@ public class GameButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         isPointDown = false;
     }
     [SerializeField] private bool ChangeColor = false;
+    PolygonCollider2D polygonCollider;
     private bool isPointDown = false;
     private float lastInvokeTime;
     public bool repeatScan = false;
@@ -30,6 +31,7 @@ public class GameButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
             hilight = Color.white;
             normal = Img.color;
         }
+        polygonCollider = transform.GetComponent<PolygonCollider2D>();
     }
 
     void Start()
@@ -58,17 +60,61 @@ public class GameButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (OnPress != null)
+        if (polygonCollider != null)
         {
-            if (ChangeColor)
-                Img.color = hilight;
-            OnPress.Invoke();
+            if (polygonCollider.OverlapPoint(UICamera.currentCamera.ScreenToWorldPoint(eventData.position)))
+            {
+                if (OnPress != null)
+                {
+                    if (ChangeColor)
+                        Img.color = hilight;
+                    OnPress.Invoke();
+                }
+                UIButtonScale sc = gameObject.GetComponent<UIButtonScale>();
+                if (sc != null)
+                    sc.OnPress(true);
+                isPointDown = true;
+                lastInvokeTime = Time.time;
+            }
         }
-        UIButtonScale sc = gameObject.GetComponent<UIButtonScale>();
-        if (sc != null)
-            sc.OnPress(true);
-        isPointDown = true;
-        lastInvokeTime = Time.time;
+        else
+        {
+            if (OnPress != null)
+            {
+                if (ChangeColor)
+                    Img.color = hilight;
+                OnPress.Invoke();
+            }
+            UIButtonScale sc = gameObject.GetComponent<UIButtonScale>();
+            if (sc != null)
+                sc.OnPress(true);
+            isPointDown = true;
+            lastInvokeTime = Time.time;
+        }
+    }
+
+    private bool Contains(Vector2[] pVertexs, Vector2 pPoint)
+    {
+        var crossNumber = 0;
+
+        for (int i = 0, count = pVertexs.Length; i < count; i++)
+        {
+            var vec1 = pVertexs[i];
+            var vec2 = i == count - 1 // 如果当前已到最后一个顶点，则下一个顶点用第一个顶点的数据
+                ? pVertexs[0]
+                : pVertexs[i + 1];
+
+
+            if (((vec1.y <= pPoint.y) && (vec2.y > pPoint.y))
+                || ((vec1.y > pPoint.y) && (vec2.y <= pPoint.y)))
+            {
+                if (pPoint.x < vec1.x + (pPoint.y - vec1.y) / (vec2.y - vec1.y) * (vec2.x - vec1.x))
+                {
+                    crossNumber += 1;
+                }
+            }
+        }
+        return (crossNumber & 1) == 1;
     }
 
     public void OnPointerUp(PointerEventData eventData)

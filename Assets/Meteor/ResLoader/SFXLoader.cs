@@ -258,7 +258,9 @@ public class SfxFile
                     //就是100 +X+尾部变长。
                     int endRegionCnt = TailSectionLength;
                     //sfx.TailLength = 100 + endRegionCnt;
-                    reader.BaseStream.Seek(96 + endRegionCnt, SeekOrigin.Current);//到终点
+                    //粒子细节=96+endRegionCnt
+                    sfx.particle = reader.ReadBytes(96 + endRegionCnt);
+                    //reader.BaseStream.Seek(96 + endRegionCnt, SeekOrigin.Current);//到终点
                     //offset += sfx.TailLength;
                     //后面还有3个变长串，可为空的
                     int regionCnt = reader.ReadInt32();// (asset.bytes, offset);
@@ -399,6 +401,7 @@ public class SfxEffect
     public Vector2 origAtt = Vector2.zero;//各自的参数设置 顶部半径，底部半径
     public Vector4 sphereAttr = Vector4.zero;
     //粒子系统使用的
+    public byte[] particle;
     public string[] Tails = new string[3];
 }
 

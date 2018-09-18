@@ -329,11 +329,7 @@ public class GameData:Singleton<GameData>
         if (gameStatus == null)
         {
             gameStatus = new GameState();
-#if DEBUG_DEV
-            gameStatus.Level = LevelMng.Instance.GetAllItem()[LevelMng.Instance.GetAllItem().Length - 1].ID;
-#else
             gameStatus.Level = 1;
-#endif
             gameStatus.saveSlot = 0;//默认使用0号存档.
             gameStatus.Language = (int)LanguageType.Ch;//默认使用英文.
             gameStatus.MusicVolume = 50;
