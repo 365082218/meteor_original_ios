@@ -325,7 +325,9 @@ public class MeteorAI {
                 if (targetIndex >= Path.Count)
                 {
                     UnityEngine.Debug.LogError(string.Format("targetIndex:{0}, FollowPath:{1}", targetIndex, Path.Count));
-                    Debug.DebugBreak();
+                    Status = EAIStatus.Wait;
+                    SubStatus = EAISubStatus.SubStatusWait;
+                    return;
                 }
 
                 Assert.IsTrue(targetIndex < Path.Count);
@@ -779,7 +781,9 @@ public class MeteorAI {
         if (targetIndex >= FollowPath.Count)
         {
             UnityEngine.Debug.LogError(string.Format("targetIndex:{0}, FollowPath:{1}", targetIndex, FollowPath.Count));
-            Debug.DebugBreak();
+            Status = EAIStatus.Fight;
+            SubStatus = EAISubStatus.Fight;
+            return;
         }
 
         Assert.IsTrue(targetIndex < FollowPath.Count);
@@ -982,7 +986,12 @@ public class MeteorAI {
                     //更新状态.
                     ThinkCheckTick = Time.realtimeSinceStartup + owner.Attr.Think / 100.0f;
                     if (fightTarget == null)
+                    {
                         Debug.LogError("fightTarget == null");
+                        Status = EAIStatus.Wait;
+                        SubStatus = EAISubStatus.SubStatusWait;
+                        return;
+                    }
                     float dis = Vector3.Distance(owner.mPos, fightTarget.mPos);
                     //距离战斗目标不同，选择不同方式应对.
                     if (dis >= Global.AttackRange)
