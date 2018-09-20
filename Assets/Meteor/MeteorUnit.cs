@@ -2285,7 +2285,8 @@ public partial class MeteorUnit : MonoBehaviour
                         //Debug.LogError("targetPos:" + TargetPos);
                         posMng.ChangeAction(TargetPos);
                         charLoader.SetActionScale(dam.DefenseMove);
-                        AngryValue += 2;//防御住伤害。则怒气增加
+                        int realDamage = CalcDamage(attacker);
+                        AngryValue += realDamage / 20;//防御住伤害。则怒气增加
                     }
                     else if (dam._AttackType == 1)
                     {
@@ -2320,7 +2321,7 @@ public partial class MeteorUnit : MonoBehaviour
 
                         string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                        AngryValue += (int)((realDamage * 5) / 50.0f);
+                        AngryValue += (int)((realDamage * 10) / 73.0f);
                         if (Attr.Dead)
                             OnDead(attacker);
                         else
@@ -2374,7 +2375,7 @@ public partial class MeteorUnit : MonoBehaviour
 
                     if (charLoader != null && dam.TargetValue != 0.0f)
                         charLoader.LockTime(dam.TargetValue);
-                    AngryValue += (int)((realDamage * 5) / 50.0f);
+                    AngryValue += (int)((realDamage * 10) / 73.0f);
                     string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                     SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
                     if (Attr.Dead)
@@ -2480,7 +2481,8 @@ public partial class MeteorUnit : MonoBehaviour
                         //Debug.LogError("targetPos:" + TargetPos);
                         posMng.ChangeAction(TargetPos);
                         charLoader.SetActionScale(dam.DefenseMove);
-                        AngryValue += 2;//防御住伤害。则怒气增加
+                        int realDamage = CalcDamage(attacker);
+                        AngryValue += (realDamage / 20);//防御住伤害。则怒气增加 200CC = 100 ANG
                     }
                     else if (dam._AttackType == 1)
                     {
@@ -2529,7 +2531,7 @@ public partial class MeteorUnit : MonoBehaviour
                         //}
                         string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                        AngryValue += (int)((realDamage * 5) / 50.0f);
+                        AngryValue += (int)(realDamage * 10 / 73.0f);
                         if (Attr.Dead)
                             OnDead(attacker);
                         else
@@ -2583,7 +2585,7 @@ public partial class MeteorUnit : MonoBehaviour
 
                     if (charLoader != null && dam.TargetValue != 0.0f)
                         charLoader.LockTime(dam.TargetValue);
-                    AngryValue += (int)((realDamage * 5) / 50.0f);
+                    AngryValue += (int)((realDamage * 10) / 73.0f);
                     //EquipWeaponCode idx = EquipWeaponCode.Blade;
                     //switch ((EquipWeaponType)attacker.GetWeaponType())
                     //{

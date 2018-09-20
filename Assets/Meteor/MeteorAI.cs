@@ -1987,7 +1987,7 @@ public class MeteorAI {
                         Status = PatrolPath.Count == 1 ? EAIStatus.PatrolInPlace : EAIStatus.Patrol;
                         if (PatrolPath.Count == 1)
                             SubStatus = EAISubStatus.PatrolSubInPlace;
-                        curPatrolIndex = -1;
+                        //curPatrolIndex = -1;
                         targetPatrolIndex = -1;
                         PatrolPathBegin.Clear();
                         break;
@@ -2111,7 +2111,7 @@ public class MeteorAI {
                     //逆序巡逻
                     if (reverse)
                     {
-                        if (curPatrolIndex == 0)
+                        if (curPatrolIndex <= 0)
                         {
                             reverse = false;
                             break;
