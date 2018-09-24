@@ -60,8 +60,6 @@ public class U3D : MonoBehaviour {
         LoadingTipsManager.Instance.ReLoad();
         UnitMng.Instance.ReLoad();
         WeaponMng.Instance.ReLoad();
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
-            MeteorManager.Instance.UnitInfos[i].Attr.UpdateAttr();
     }
 
     //当前场景立即产生一个npc
@@ -969,9 +967,11 @@ public class U3D : MonoBehaviour {
                             ret = MeteorManager.Instance.UnitInfos[i];
                         }
                     }
-                    return ret;
+                    else
+                        ret = MeteorManager.Instance.UnitInfos[i];
                 }
             }
+            return ret;
         }
         else
         {
@@ -980,6 +980,7 @@ public class U3D : MonoBehaviour {
         return null;
     }
 
+    //取得敌对方首领.
     static MeteorUnit GetEnemyTeamLeader(EUnitCamp camp)
     {
         if (camp == EUnitCamp.EUC_ENEMY)
@@ -1481,8 +1482,11 @@ public class U3D : MonoBehaviour {
         return objCamera == null ? null : objCamera.GetComponent<Camera>();
     }
 
-    //是否是远程武器
-    [DoNotToLua]
+    public static bool IsWeapon(int itemIdx)
+    {
+        return itemIdx != 0;
+    }
+
     public static bool IsSpecialWeapon(int itemIdx)
     {
         ItemBase it0 = GameData.Instance.FindItemByIdx(itemIdx);
@@ -1497,9 +1501,22 @@ public class U3D : MonoBehaviour {
         return false;
     }
 
+    public static int GetMaxLevel()
+    {
+        Level[] level = LevelMng.Instance.GetAllItem();
+        if (level == null)
+            return 0;
+        int max = 0;
+        for (int i = 0; i < level.Length; i++)
+        {
+            if (level[i].ID > max)
+                max = level[i].ID;
+        }
+        return max;
+    }
+
     public static void UnlockLevel()
     {
-        //Level[] level = LevelMng.Instance.GetAllItem();
         GameData.Instance.gameStatus.Level = Global.LEVELMAX;
     }
 

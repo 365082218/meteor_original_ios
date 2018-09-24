@@ -1,18 +1,17 @@
 local class = {}
-
-function AI_01()
-	class.Name = "大刀哨兵";
-	class.Model = 2;
-	class.Weapon = 8;
-	class.Weapon2 = 2;
+function npc1000_4()
+	class.Name = "火枪兵";
+	class.Model = 6;
+	class.Weapon = 12;
+	class.Weapon2 = 0;
 	class.Team = 2;
-	class.View = 400;
+	class.View = 1000;
 	class.Think = 50;
-	class.Attack1 = 55;
-	class.Attack2 = 40;
-	class.Attack3 = 0;
-	class.Guard =	5;
-	class.Dodge =	5;
+	class.Attack1 = 30;
+	class.Attack2 = 30;
+	class.Attack3 = 30;
+	class.Guard = 5;
+	class.Dodge = 5;
 	class.Jump = 5;
 	class.Look = 60;
 	class.Burst = 1;
@@ -20,11 +19,11 @@ function AI_01()
 	class.GetItem = 0;
 	class.Spawn = 0;
 	class.HP = 1000;
-	
 	class.g_selfAddr = 0;
 	class.g_self = 0;
 	return class;
 end
+
 function class:OnInit(a)
 	class.g_selfAddr = a;
 end
@@ -32,5 +31,5 @@ end
 function class:OnStart()
 	class.g_self = GetSelf(class.g_selfAddr);
 	ChangeBehavior(class.g_self, "wait");
+	--Perform(class.g_self, "guard", 99999);
 end
-

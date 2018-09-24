@@ -29,7 +29,7 @@ public class UITalkBubble : MonoBehaviour {
         }
         else
         {
-            if (AutoHide)
+            if (AutoHide && MeteorManager.Instance.LocalPlayer != null)
             {
                 if (gameObject.activeInHierarchy)
                 {

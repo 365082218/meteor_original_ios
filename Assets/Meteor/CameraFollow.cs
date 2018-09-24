@@ -68,10 +68,10 @@ public class CameraFollow : MonoBehaviour {
         RotateIntensity = 8.0f;
         Unlocked = false;
         followHeight = 6;
-        followDistance = 55.0f;
-        BodyHeight = 32;
+        followDistance = 45.0f;
+        BodyHeight = 30;
         m_MinSize = 60;
-        LookAtAngle = 5.0f;
+        LookAtAngle = 0.0f;
         m_Camera = GetComponent<Camera>();
         m_Camera.fieldOfView = m_MinSize;
         fRadis = Mathf.Sqrt(followDistance * followDistance + followHeight * followHeight);
@@ -136,14 +136,14 @@ public class CameraFollow : MonoBehaviour {
         if (MeteorManager.Instance.LocalPlayer.GetLockedTarget() != null && !DisableLockTarget)
         {
             cameraLookAt = (MeteorManager.Instance.LocalPlayer.mPos + MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + new Vector3(0, 25, 0);
-            CameraRadis = Vector3.Distance(MeteorManager.Instance.LocalPlayer.mPos, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + 55;
+            CameraRadis = Vector3.Distance(MeteorManager.Instance.LocalPlayer.mPos, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + 45;
             float dis = Vector3.Distance(new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, 0, MeteorManager.Instance.LocalPlayer.mPos.z), new Vector3(MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos.x, 0, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos.z));
             Vector3 vecDiff = MeteorManager.Instance.LocalPlayer.mPos - MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos;
             Vector3 vecForward = Vector3.Normalize(new Vector3(vecDiff.x, 0, vecDiff.z));
 
-            //最远时，15度，最近时85度，其他值。10码 = 80度 140码 15度 约为 y = -0.5x + 85
+            //最远时，15度，最近时95度，其他值。10码 = 80度 140码 15度 约为 y = -0.5x + 85
             //半径最低65，最高
-            angleY = -0.5f * dis + 85;
+            angleY = -0.5f * dis + 95;
             float yHeight = Mathf.Tan(LookAtAngle * Mathf.Deg2Rad) * CameraRadis;
             newViewIndex[0] = cameraLookAt + Quaternion.AngleAxis(-angleY, Vector3.up) * vecForward * CameraRadis;
             newViewIndex[0].y += yHeight;
@@ -279,6 +279,7 @@ public class CameraFollow : MonoBehaviour {
             if (MeteorManager.Instance.LocalPlayer.posMng.CanRotateY)
             {
 #if STRIP_KEYBOARD
+                //Debug.LogError(string.Format("deltaLast.x:{0}", NGUICameraJoystick.instance.deltaLast.x));
                 yRotate = NGUICameraJoystick.instance.deltaLast.x * GameData.Instance.gameStatus.AxisSensitivity.x;
 #else
                 yRotate = 2 * Input.GetAxis("Mouse X");

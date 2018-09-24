@@ -75,13 +75,10 @@ public class Level : ITableItem
         get
         {
             string items = sceneItems;
-            string items2 = Global.GScript == null ? null : Global.GScript.GetDesName();
-            if (!string.IsNullOrEmpty(items2))
-                items = items2;
-            if (wayPoints == null && !string.IsNullOrEmpty(items))
-                wayPoints = WayLoader.Instance.Load(items);
-            else if (WayMng.Instance != null)
+            if (WayMng.Instance != null)
                 wayPoints = WayMng.Instance.wayPoints;
+            else if (wayPoints == null && !string.IsNullOrEmpty(items))
+                wayPoints = WayLoader.Instance.Load(items);
             return wayPoints;
         }
     }

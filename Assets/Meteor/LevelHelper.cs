@@ -86,7 +86,6 @@ public class LevelHelper : MonoBehaviour
             return;
         }
 
-        Global.Result = false;
         Global.GScript = script;
         SceneMng.OnLoad();//
         //加载场景配置数据

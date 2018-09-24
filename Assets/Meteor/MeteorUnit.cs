@@ -331,6 +331,7 @@ public partial class MeteorUnit : MonoBehaviour
     //MeteorUnit wantTarget = null;//绿色目标.只有主角拥有。
     MeteorUnit lockTarget = null;//攻击目标.主角主动攻击敌方后，没解锁前，都以这个目标作为锁定攻击目标，摄像机自动以主角和此目标，做一个自动视围盒，
     public Vector3 mPos { get { return transform.position; } }
+    public Vector3 mSkeletonPivot { get { return transform.position + Global.BodyHeight; } }
     public bool Crouching { get { return posMng.mActiveAction.Idx == CommonAction.Crouch || (posMng.mActiveAction.Idx >= CommonAction.CrouchForw && posMng.mActiveAction.Idx <= CommonAction.CrouchBack); } }
     public bool Climbing { get { return posMng.mActiveAction.Idx == CommonAction.ClimbLeft || posMng.mActiveAction.Idx == CommonAction.ClimbRight || posMng.mActiveAction.Idx == CommonAction.ClimbUp; } }
     public bool ClimbJumping { get { return posMng.mActiveAction.Idx == CommonAction.WallRightJump || posMng.mActiveAction.Idx == CommonAction.WallLeftJump; } }
@@ -364,11 +365,11 @@ public partial class MeteorUnit : MonoBehaviour
         switch ((EquipWeaponType)GetWeaponType())
         {
             case EquipWeaponType.Knife:
-                if (direction == 0)
+                if (direction == 0)//左侧
                     return 56;
-                else if (direction == 1)
+                else if (direction == 1)//背后
                     return 85;
-                else if (direction == 2)
+                else if (direction == 2)//右侧
                     return 58;
                 else if (direction == 3)
                     return 59;
@@ -549,6 +550,7 @@ public partial class MeteorUnit : MonoBehaviour
     //选择一个敌方目标
     public void SelectEnemy()
     {
+        lockTarget = null;
         float dis = Attr.View / 2;//视野，可能指的是直径，这里变为半径
         if (U3D.IsSpecialWeapon(Attr.Weapon))
             dis = Attr.View;//远程武器，视野距离翻倍.
@@ -730,27 +732,30 @@ public partial class MeteorUnit : MonoBehaviour
     void RefreshTarget()
     {
         MeteorUnit temp = lockTarget;
-        if (lockTarget == null)
+        if (lockTarget == null || lockTarget.Dead)
             SelectEnemy();
         else
         {
             //死亡，失去视野，超出视力范围，重新选择
-            float d = Vector3.Distance(lockTarget.transform.position, transform.position);
-            if (lockTarget.Dead)
+            if (robot.killTarget == lockTarget)
             {
-                lockTarget = null;
+                //强制杀死还存活的角色时，不会丢失目标.
             }
-            else if (lockTarget.HasBuff(EBUFF_Type.HIDE))
+            else
             {
-                //隐身20码内可发现，2个角色紧贴着
-                if (d >= 35.0f)
+                float d = Vector3.Distance(lockTarget.transform.position, transform.position);
+                if (lockTarget.HasBuff(EBUFF_Type.HIDE))
+                {
+                    //隐身20码内可发现，2个角色紧贴着
+                    if (d >= 35.0f)
+                    {
+                        lockTarget = null;
+                    }
+                }
+                else if (d >= (Attr.View / 2 + 50))//给一定距离以免不停的切换目标
                 {
                     lockTarget = null;
                 }
-            }
-            else if (d >= (Attr.View / 2 + 50))//给一定距离以免不停的切换目标
-            {
-                lockTarget = null;
             }
         }
 
@@ -1057,6 +1062,7 @@ public partial class MeteorUnit : MonoBehaviour
         if (robot != null)
         {
             robot.killTarget = unit;
+            SetLockedTarget(unit);
             robot.ChangeState(EAIStatus.Kill);
         }
     }
@@ -1481,7 +1487,7 @@ public partial class MeteorUnit : MonoBehaviour
         {
             MoveOnGroundEx = hit.distance <= 4.8f;
             //Debug.Log(string.Format("distance:{0}", hit.distance));
-            Floating = hit.distance >= 16.0f;
+            Floating = hit.distance >= 8.0f;
         }
         else
             MoveOnGroundEx = false;
@@ -1881,6 +1887,10 @@ public partial class MeteorUnit : MonoBehaviour
         {
             hitPoint = hit.point;
             hitNormal = hit.normal;
+            if (robot != null)
+            {
+                robot.CheckStatus();
+            }
         }
     }
 
@@ -2224,9 +2234,29 @@ public partial class MeteorUnit : MonoBehaviour
     {
         if (NGUICameraJoystick.instance != null)
             NGUICameraJoystick.instance.ResetJoystick();//防止受到攻击时还可以移动视角
+        SetGunReady(false);
         Attr.ReduceHp(buffDamage);
         posMng.OnChangeAction(CommonAction.OnDrugHurt);
     }
+
+    /*
+     * 
+     * 每一个动作开始的时候，都会刷新一个数组，
+     * 当你在这个动作中，任何一帧碰撞过一个角色之后，
+     * 会记录一个结构
+     * {target:被碰撞的角色, 
+     * frame:第几帧}
+     * 你可以利用这个结构获得：
+     * 1，我已经碰撞过某个角色多少次了。
+     * 2，我上次第几帧碰撞了某个角色。
+     * 一些act里面会有要求说我一个动作可以连续命中同一个角色多少次，
+     * 每次间隔多少的。对于这个结构的记录方式的优化，因为项目而不同。
+
+作者：猴与花果山
+链接：https://www.zhihu.com/question/44675181/answer/98073941
+来源：知乎
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+     */
 
     //飞镖或飞轮的，含受击定义,即使飞镖拥有者死了，仍调用.
     void OnDamage(MeteorUnit attacker, AttackDes attackdes)
@@ -2285,14 +2315,14 @@ public partial class MeteorUnit : MonoBehaviour
                         //Debug.LogError("targetPos:" + TargetPos);
                         posMng.ChangeAction(TargetPos);
                         charLoader.SetActionScale(dam.DefenseMove);
-                        int realDamage = CalcDamage(attacker);
-                        AngryValue += realDamage / 20;//防御住伤害。则怒气增加
+                        int realDamage = CalcDamage(attacker, attackdes);
+                        AngryValue += realDamage / 35;//防御住伤害。则怒气增加
                     }
                     else if (dam._AttackType == 1)
                     {
                         //这个招式伤害多少?
                         //dam.PoseIdx;算伤害
-                        int realDamage = CalcDamage(attacker);
+                        int realDamage = CalcDamage(attacker, attackdes);
                         //Debug.Log("受到:" + realDamage + " 点伤害");
                         Option poseInfo = MenuResLoader.Instance.GetPoseInfo(dam.PoseIdx);
                         if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)
@@ -2350,7 +2380,7 @@ public partial class MeteorUnit : MonoBehaviour
                 else
                 {
                     int realDamage = CalcDamage(attacker, attackdes);
-                    //Debug.LogError(Attr.Name + ":受到:" + attacker.Attr.name + " 的攻击 减少 " + realDamage + " 点气血");
+                    Debug.LogError(Attr.Name + ":受到:" + attacker.Attr.name + " 的攻击 减少 " + realDamage + " 点气血" + ":f" + Time.frameCount);
                     Attr.ReduceHp(realDamage);
                     //if (hurtRecord.ContainsKey(attacker))
                     //    hurtRecord[attacker] += realDamage;
@@ -2423,7 +2453,6 @@ public partial class MeteorUnit : MonoBehaviour
         //Debug.Log(string.Format("player:{0} attacked by:{1}", name, attacker == null ? "null": attacker.name));
         //任意受击，都会让角色退出持枪预备姿势
         SetGunReady(false);
-
         if (attacker == null)
         {
             //环境伤害.
@@ -2482,14 +2511,14 @@ public partial class MeteorUnit : MonoBehaviour
                         posMng.ChangeAction(TargetPos);
                         charLoader.SetActionScale(dam.DefenseMove);
                         int realDamage = CalcDamage(attacker);
-                        AngryValue += (realDamage / 20);//防御住伤害。则怒气增加 200CC = 100 ANG
+                        AngryValue += (realDamage / 35);//防御住伤害。则怒气增加 200CC = 100 ANG
                     }
                     else if (dam._AttackType == 1)
                     {
                         //这个招式伤害多少?
                         //dam.PoseIdx;算伤害
                         int realDamage = CalcDamage(attacker);
-                        //Debug.Log("受到:" + realDamage + " 点伤害");
+                        
                         Option poseInfo = MenuResLoader.Instance.GetPoseInfo(dam.PoseIdx);
                         if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)
                             GetItem(poseInfo.first[0].flag[1]);
@@ -2509,7 +2538,7 @@ public partial class MeteorUnit : MonoBehaviour
                         //    else
                         //        lockTarget = attacker;
                         //}
-
+                        Debug.Log("受到:" + realDamage + " 点伤害");
                         Attr.ReduceHp(realDamage);
                         if (charLoader != null && dam.TargetValue != 0.0f)
                             charLoader.LockTime(dam.TargetValue);
@@ -2560,7 +2589,7 @@ public partial class MeteorUnit : MonoBehaviour
                 else
                 {
                     int realDamage = CalcDamage(attacker);
-                    //Debug.Log("受到:" + realDamage + " 点伤害");
+                    Debug.Log("受到:" + realDamage + " 点伤害" + " f:" + Time.frameCount);
                     Attr.ReduceHp(realDamage);
                     //if (hurtRecord.ContainsKey(attacker))
                     //    hurtRecord[attacker] += realDamage;

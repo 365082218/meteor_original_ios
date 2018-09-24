@@ -1,30 +1,35 @@
-Name = "官差﹒乙";
-Model =	2;
-Weapon = 8;
-Weapon2 = 11;
-Team = 2;
-View = 300;
-Think = 65;
-Attack1	= 20;
-Attack2 = 25;
-Attack3 = 30;
-Guard =	25;
-Dodge =	10;
-Jump = 10;
-Look = 30;
-Burst = 10;
-Aim = 80;
-GetItem = 100;
-Spawn = 246;
-HP = 1500;	
+local class = {}
+function npc13_07()
+	class.Name = "官差﹒乙";
+	class.Model =	2;
+	class.Weapon = 8;
+	class.Weapon2 = 11;
+	class.Team = 2;
+	class.View = 300;
+	class.Think = 65;
+	class.Attack1	= 20;
+	class.Attack2 = 25;
+	class.Attack3 = 30;
+	class.Guard =	25;
+	class.Dodge =	10;
+	class.Jump = 10;
+	class.Look = 30;
+	class.Burst = 10;
+	class.Aim = 80;
+	class.GetItem = 100;
+	class.Spawn = 246;
+	class.HP = 1500;	
 
-g_selfAddr = 0;
-g_self = 0;
-function OnInit(a)
-	g_selfAddr = a;
+	class.g_selfAddr = 0;
+	class.g_self = 0;
+	return class;
 end
 
-function OnStart()
-	g_self = GetSelf(g_selfAddr);
-	ChangeBehavior(g_self, "idle");
+function class:OnInit(a)
+	class.g_selfAddr = a;
+end
+
+function class:OnStart()
+	class.g_self = GetSelf(class.g_selfAddr);
+	ChangeBehavior(class.g_self, "idle");
 end

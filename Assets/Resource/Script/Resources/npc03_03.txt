@@ -1,31 +1,36 @@
-Name	= "火枪哨兵﹒甲";
-Model =	8;
-Weapon = 3;
-Weapon2 = 6;
-Team = 2;
-View = 1500;
-Think = 90;
-Attack1	= 10;
-Attack2 = 40;
-Attack3 = 30;
-Guard =	20;
-Dodge =	20;
-Jump = 10;
-Look = 50;
-Burst = 20;
-Aim = 90;
-GetItem = 5;
-Spawn = 98;
-HP = 1500;	
+local class = {}
+function npc03_03()
+	class.Name	= "火枪哨兵﹒甲";
+	class.Model =	8;
+	class.Weapon = 3;
+	class.Weapon2 = 6;
+	class.Team = 2;
+	class.View = 1500;
+	class.Think = 90;
+	class.Attack1	= 10;
+	class.Attack2 = 40;
+	class.Attack3 = 30;
+	class.Guard =	20;
+	class.Dodge =	20;
+	class.Jump = 10;
+	class.Look = 50;
+	class.Burst = 20;
+	class.Aim = 90;
+	class.GetItem = 5;
+	class.Spawn = 98;
+	class.HP = 1500;	
 
-g_selfAddr = 0;
-g_self = 0;
-function OnInit(a)
-	g_selfAddr = a;
+	class.g_selfAddr = 0;
+	class.g_self = 0;
+	return class;
 end
 
-function OnStart()
-	g_self = GetSelf(g_selfAddr);
+function class:OnInit(a)
+	class.g_selfAddr = a;
+end
+
+function class:OnStart()
+	class.g_self = GetSelf(class.g_selfAddr);
 	--local m = {"patrol", 98, 99, 23} --"patrol", 98, 99, 23
-	ChangeBehavior(g_self, "patrol", 98, 99, 23);
+	ChangeBehavior(class.g_self, "patrol", 98, 99, 23);
 end

@@ -69,3 +69,23 @@ end
 function Drop(it)
 	U3D.Drop(it);
 end
+
+function LevelScript_sn26()
+	U3D.AddNPC("AI_01");
+end
+
+function sn1000_1()
+	U3D.AddNPC("npc1000_1")
+end
+
+function sn1000_2()
+	U3D.AddNPC("npc1000_2")
+end
+
+function sn1000_3()
+	U3D.AddNPC("npc1000_3")
+end
+
+function sn1000_4()
+	U3D.AddNPC("npc1000_4")
+end

@@ -1,30 +1,35 @@
-Name = "军枪官差﹒乙";
-Model =	8;
-Weapon = 16;
-Weapon2 = 15;
-Team = 2;
-View = 400;
-Think = 70;
-Attack1	= 20;
-Attack2 = 20;
-Attack3 = 15;
-Guard =	20;
-Dodge =	30;
-Jump = 10;
-Look = 30;
-Burst = 5;
-Aim = 70;
-GetItem = 8;
-Spawn = 219;
-HP = 2000;	
+local class = {}
+function npc13_04()
+	class.Name = "军枪官差﹒乙";
+	class.Model =	8;
+	class.Weapon = 16;
+	class.Weapon2 = 15;
+	class.Team = 2;
+	class.View = 400;
+	class.Think = 70;
+	class.Attack1	= 20;
+	class.Attack2 = 20;
+	class.Attack3 = 15;
+	class.Guard =	20;
+	class.Dodge =	30;
+	class.Jump = 10;
+	class.Look = 30;
+	class.Burst = 5;
+	class.Aim = 70;
+	class.GetItem = 8;
+	class.Spawn = 219;
+	class.HP = 2000;	
 
-g_selfAddr = 0;
-g_self = 0;
-function OnInit(a)
-	g_selfAddr = a;
+	class.g_selfAddr = 0;
+	class.g_self = 0;
+	return class;
 end
 
-function OnStart()
-	g_self = GetSelf(g_selfAddr);
-	ChangeBehavior(g_self, "follow", "vip");
+function class:OnInit(a)
+	class.g_selfAddr = a;
+end
+
+function class:OnStart()
+	class.g_self = GetSelf(class.g_selfAddr);
+	ChangeBehavior(class.g_self, "follow", "vip");
 end

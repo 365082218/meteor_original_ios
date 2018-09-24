@@ -243,13 +243,30 @@ public class Loader : MonoBehaviour {
             if (des.SceneItems[i].ContainsKey("ticket", out type))
             {
                 //剧情模式出现
-                string[] subtype = type.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
-                for (int t = 0; t < subtype.Length; t++)
-                    if (int.Parse(subtype[t]) == (int)Global.GGameMode)
+                if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+                {
+                    string[] subtype = type.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+                    for (int t = 0; t < subtype.Length; t++)
                     {
-                        active = true;
-                        break;
+                        if (int.Parse(subtype[t]) == (int)GameMode.Normal)
+                        {
+                            active = true;
+                            break;
+                        }
                     }
+                }
+                else if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+                {
+                    string[] subtype = type.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
+                    for (int t = 0; t < subtype.Length; t++)
+                    {
+                        if (int.Parse(subtype[t]) == (int)Global.GGameMode)
+                        {
+                            active = true;
+                            break;
+                        }
+                    }
+                }
             }
             else
                 active = true;

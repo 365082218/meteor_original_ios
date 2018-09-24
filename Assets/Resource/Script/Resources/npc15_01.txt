@@ -1,31 +1,34 @@
-Name = "萧安";
-Model =	7;
-Weapon = 24;
-Weapon2 = 23;
-Team = 2;
-View = 400;
-Think = 90;
-Attack1	= 20;
-Attack2 = 30;
-Attack3 = 30;
-Guard =	20;
-Dodge =	30;
-Jump = 20;
-Look = 100;
-Burst = 50;
-Aim = 90;
-GetItem = 100;
-Spawn = 73;
-HP = 7500;
-	
-
-g_selfAddr = 0;
-g_self = 0;
-function OnInit(a)
-	g_selfAddr = a;
+local class = {}
+function npc15_01()
+	class.Name = "萧安";
+	class.Model =	7;
+	class.Weapon = 24;
+	class.Weapon2 = 23;
+	class.Team = 2;
+	class.View = 400;
+	class.Think = 90;
+	class.Attack1	= 20;
+	class.Attack2 = 30;
+	class.Attack3 = 30;
+	class.Guard =	20;
+	class.Dodge =	30;
+	class.Jump = 20;
+	class.Look = 100;
+	class.Burst = 50;
+	class.Aim = 90;
+	class.GetItem = 100;
+	class.Spawn = 73;
+	class.HP = 7500;
+	class.g_selfAddr = 0;
+	class.g_self = 0;
+	return class;
 end
 
-function OnStart()
-	g_self = GetSelf(g_selfAddr);
-	ChangeBehavior(g_self, "patrol", 73, 81);
+function class:OnInit(a)
+	class.g_selfAddr = a;
+end
+
+function class:OnStart()
+	class.g_self = GetSelf(class.g_selfAddr);
+	ChangeBehavior(class.g_self, "patrol", 73, 81);
 end

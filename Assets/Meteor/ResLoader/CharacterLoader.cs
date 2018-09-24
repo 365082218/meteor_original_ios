@@ -362,6 +362,7 @@ public class CharacterLoader : MonoBehaviour
             {
                 if (curIndex > po.LoopStart)
                 {
+                    LoopCount++;
                     PlayPosEvent();
                     if (loop)
                         curIndex = po.LoopStart;
@@ -559,6 +560,7 @@ public class CharacterLoader : MonoBehaviour
             {
                 if (curIndex > po.LoopStart)
                 {
+                    LoopCount ++;
                     PlayPosEvent();
                     if (loop)
                         curIndex = po.LoopStart;
@@ -885,14 +887,14 @@ public class CharacterLoader : MonoBehaviour
     //这2个用来实现一些技能
     int TheFirstFrame = -1;//第一个Action的第一帧，0则无
     int TheLastFrame = -1;//最后一个Action的最后一帧，0则无
-
+    public int LoopCount = 0;
     bool effectPlayed = false;
     public bool Pause = false;
     bool single = false;
     public void SetPosData(Pose pos, float BlendTime = 0.0f, bool singlePos = false, int targetFrame = 0)
     {
         //一些招式，需要把尾部事件执行完才能切换武器.
-        
+        LoopCount = 0;
         if (TheLastFrame != -1 && po != null)
         {
             ActionEvent.HandlerFinalActionFrame(mOwner, po.Idx);

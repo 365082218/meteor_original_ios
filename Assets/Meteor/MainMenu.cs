@@ -53,7 +53,7 @@ public class MainMenu : Window<MainMenu> {
         if (select != null)
         {
             //Log.LogInfo("u3d.loadlevel");
-            U3D.LoadLevel(select.ID, LevelMode.SinglePlayerTask, GameMode.Normal);
+            U3D.LoadLevel(select.ID, LevelMode.SinglePlayerTask, (GameMode)select.LevelType);
         }
         else
             Log.WriteError("select == null");

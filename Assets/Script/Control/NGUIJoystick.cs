@@ -107,7 +107,7 @@ public class NGUIJoystick : MonoBehaviour
 		}
 	}
 
-    Vector2 fixAnchor = new Vector2(406, 369);
+    Vector2 fixAnchor = new Vector2(390, 340);
     public void SetAnchor(Vector2 anchor)
     {
         fixAnchor = anchor;

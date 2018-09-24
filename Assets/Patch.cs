@@ -22,6 +22,7 @@ public class Patch : MonoBehaviour {
         //清理数据
         ResMng.Reload();
         StartCoroutine(LoadData());
+        Global.LEVELMAX = U3D.GetMaxLevel();
     }
 	
 	// Update is called once per frame

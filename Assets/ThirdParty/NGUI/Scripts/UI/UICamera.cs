@@ -63,6 +63,7 @@ public class UICamera : MonoBehaviour
 		public bool touchBegan = true;
 		public bool pressStarted = false;
 		public bool dragStarted = false;
+        public bool lastDragStarted = false;//上一帧是否处于拖拽状态.
 	}
 
 	class Highlighted
@@ -1055,6 +1056,7 @@ public class UICamera : MonoBehaviour
 			currentTouch.clickNotification = ClickNotification.Always;
 			currentTouch.totalDelta = Vector2.zero;
 			currentTouch.dragStarted = false;
+            currentTouch.lastDragStarted = false;
 			Notify(currentTouch.pressed, "OnPress", true);
 
 			// Clear the selection
@@ -1100,9 +1102,11 @@ public class UICamera : MonoBehaviour
 						if (mTooltip != null) ShowTooltip(false);
 
 						isDragging = true;
-						bool isDisabled = (currentTouch.clickNotification == ClickNotification.None);
+                        currentTouch.lastDragStarted = true;
+                        bool isDisabled = (currentTouch.clickNotification == ClickNotification.None);
 						Notify(currentTouch.dragged, "OnDrag", currentTouch.delta);
-						isDragging = false;
+                        
+                        isDragging = false;
 
 						if (isDisabled)
 						{
@@ -1115,7 +1119,17 @@ public class UICamera : MonoBehaviour
 							currentTouch.clickNotification = ClickNotification.None;
 						}
 					}
+                    else if (currentTouch.lastDragStarted)
+                    {
+                        currentTouch.lastDragStarted = false;
+                        Notify(currentTouch.dragged, "OnDrag", Vector2.zero);
+                    }
 				}
+                else if (currentTouch.lastDragStarted)
+                {
+                    currentTouch.lastDragStarted = false;
+                    Notify(currentTouch.dragged, "OnDrag", Vector2.zero);
+                }
 			}
 		}
 

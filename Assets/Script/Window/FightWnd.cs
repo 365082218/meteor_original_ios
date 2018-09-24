@@ -286,7 +286,7 @@ public class FightWnd: Window<FightWnd>
 
     void OnAttackPress()
     {
-        if (Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll) return;
+        if (Global.GMeteorInput == null || Global.PauseAll) return;
         Global.GMeteorInput.OnKeyDown(EKeyList.KL_Attack, false);//也可看作普攻
     }
 
@@ -297,7 +297,7 @@ public class FightWnd: Window<FightWnd>
 
     void OnClickChangeLock()
     {
-        if (Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll) return;
+        if (Global.GMeteorInput == null || Global.PauseAll) return;
         //远程武器禁止切换锁定状态
         int weaponEquiped = MeteorManager.Instance.LocalPlayer.GetWeaponType();
         if (weaponEquiped == (int)EquipWeaponType.Gun || weaponEquiped == (int)EquipWeaponType.Dart || weaponEquiped == (int)EquipWeaponType.Guillotines)
@@ -319,13 +319,13 @@ public class FightWnd: Window<FightWnd>
         if (MeteorManager.Instance.LocalPlayer.Dead)
             return;
 
-        if (Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll) return;
+        if (Global.GMeteorInput == null || Global.PauseAll) return;
             Global.GMeteorInput.OnKeyDown(EKeyList.KL_Crouch);
     }
 
     void OnCrouchRelease()
     {
-        if (Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll) return;
+        if (Global.GMeteorInput == null || Global.PauseAll) return;
             Global.GMeteorInput.OnKeyUp(EKeyList.KL_Crouch);
     }
 
@@ -334,7 +334,7 @@ public class FightWnd: Window<FightWnd>
         if (MeteorManager.Instance.LocalPlayer.Dead)
             return;
 
-        if (Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll) return;
+        if (Global.GMeteorInput == null || Global.PauseAll) return;
             Global.GMeteorInput.OnKeyDown(EKeyList.KL_ChangeWeapon);
     }
 
@@ -343,13 +343,13 @@ public class FightWnd: Window<FightWnd>
         if (MeteorManager.Instance.LocalPlayer.Dead)
             return;
 
-        if (Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll) return;
+        if (Global.GMeteorInput == null || Global.PauseAll) return;
             Global.GMeteorInput.OnKeyUp(EKeyList.KL_ChangeWeapon);
     }
 
     void OnAttackRelease()
     {
-        if (Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll) return;
+        if (Global.GMeteorInput == null || Global.PauseAll) return;
         Global.GMeteorInput.OnKeyUp(EKeyList.KL_Attack);
     }
 
@@ -358,14 +358,14 @@ public class FightWnd: Window<FightWnd>
         if (!MeteorManager.Instance.LocalPlayer.posMng.CanDefence)
             return;
 
-        if (Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll) return;
+        if (Global.GMeteorInput == null || Global.PauseAll) return;
         Global.GMeteorInput.OnKeyDown(EKeyList.KL_Defence, true);//不要被键盘状态同步，否则按下马上就抬起，那么防御姿势就消失了
         
     }
 
     void OnDefenceRelease()
     {
-        if (Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll) return;
+        if (Global.GMeteorInput == null || Global.PauseAll) return;
         Global.GMeteorInput.OnKeyUp(EKeyList.KL_Defence);
     }
 
@@ -374,13 +374,13 @@ public class FightWnd: Window<FightWnd>
         //if (!MeteorManager.Instance.LocalPlayer.posMng.CanJump)
         //    return;
 
-        if (Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll) return;
+        if (Global.GMeteorInput == null || Global.PauseAll) return;
         Global.GMeteorInput.OnKeyDown(EKeyList.KL_Jump, false);//
     }
 
     void OnJumpRelease()
     {
-        if (Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll) return;
+        if (Global.GMeteorInput == null || Global.PauseAll) return;
         Global.GMeteorInput.OnKeyUp(EKeyList.KL_Jump);
     }
 
@@ -388,11 +388,8 @@ public class FightWnd: Window<FightWnd>
     public void OnBreakOut()
     {
         //Debug.Log("OnBreakOut");
-        if (Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll)
-        {
-            //Debug.Log("Global.GMeteorInput == null || Global.timeScale == 0 || Global.PauseAll");
+        if (Global.GMeteorInput == null || Global.PauseAll)
             return;
-        }
         if (MeteorManager.Instance.LocalPlayer.AngryValue >= 60 || GameData.Instance.gameStatus.EnableInfiniteAngry)
         {
             Global.GMeteorInput.OnKeyDown(EKeyList.KL_BreakOut, false);

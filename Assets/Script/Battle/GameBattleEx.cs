@@ -40,16 +40,14 @@ public partial class GameBattleEx : MonoBehaviour {
         _Ins = null;
     }
 
-    public int Result = -1;
+    public int Result = -10;
     //显示失败，或者胜利界面 >=1 = win <= 0 = lose 2 == none
     public void GameOver(int result)
     {
-        if (Global.Result)
+        if (Result != -10)
             return;
-        Resume();
-        Global.GameOverTick = Time.realtimeSinceStartup;
-        Global.Result = true;
         Global.PauseAll = true;
+        ShowWayPoint(false);
         MeteorManager.Instance.LocalPlayer.controller.LockInput(true);
         GameObject.Destroy(Startup.ins.playerListener);
         Startup.ins.playerListener = null;
@@ -67,7 +65,8 @@ public partial class GameBattleEx : MonoBehaviour {
             BattleResultWnd.Instance.Close();
         BattleResultWnd.Instance.Open();
         Result = result;
-        StartCoroutine(BattleResultWnd.Instance.SetResult(result));
+        timeTick = 4.0f;
+        Startup.ins.StartCoroutine(BattleResultWnd.Instance.SetResult(result));
 
         if (NGUICameraJoystick.instance)
             NGUICameraJoystick.instance.Lock(true);
@@ -79,24 +78,22 @@ public partial class GameBattleEx : MonoBehaviour {
             GameData.Instance.gameStatus.Level++;
             GameData.Instance.SaveState();
         }
-        
-        //Invoke("PlayEndMovie", 5.0f);
     }
 
-    void PlayEndMovie()
-    {
-        //if (!string.IsNullOrEmpty(Global.GLevelItem.sceneItems))
-        //{
-        //    string num = Global.GLevelItem.sceneItems.Substring(2);
-        //    int number = 0;
-        //    if (int.TryParse(num, out number))
-        //    {
-        //        Debug.Log("v" + number);
-        //        U3D.PlayMovie("v" + number);
-        //    }
-        //}
-        GotoMenu();
-    }
+    //void PlayEndMovie()
+    //{
+    //    //if (!string.IsNullOrEmpty(Global.GLevelItem.sceneItems))
+    //    //{
+    //    //    string num = Global.GLevelItem.sceneItems.Substring(2);
+    //    //    int number = 0;
+    //    //    if (int.TryParse(num, out number))
+    //    //    {
+    //    //        Debug.Log("v" + number);
+    //    //        U3D.PlayMovie("v" + number);
+    //    //    }
+    //    //}
+    //    GotoMenu();
+    //}
 
     public int GetMiscGameTime()
     {
@@ -133,12 +130,13 @@ public partial class GameBattleEx : MonoBehaviour {
     List<int> UnitActKeyDeleted = new List<int>();
 	// Update is called once per frame
 	void Update () {
-        if (Global.Result)
+        if (Result != -10)
         {
-            if (Time.realtimeSinceStartup - Global.GameOverTick >= 5.0f)
+            timeTick -= Time.deltaTime;
+           if (timeTick <= 0.0)
             {
-                PlayEndMovie();
-                Global.GameOverTick = float.MaxValue;
+                timeTick = 100.0f;
+                Startup.ins.PlayEndMovie();
             }
         }
         if (Global.PauseAll)
@@ -421,6 +419,12 @@ public partial class GameBattleEx : MonoBehaviour {
             sceneObjs[i].OnStart(lev_script);
             RegisterCollision(sceneObjs[i]);
         }
+
+        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        {
+            if (MeteorManager.Instance.UnitInfos[i].Attr != null)
+                MeteorManager.Instance.UnitInfos[i].Attr.OnStart();//AI脚本必须在所有角色都加载完毕后再调用
+        }
         U3D.InsertSystemMsg("新回合开始计时");
         CheckGameMode();
     }
@@ -430,8 +434,9 @@ public partial class GameBattleEx : MonoBehaviour {
         if (Global.GGameMode == GameMode.ANSHA)
         {
             MeteorUnit uEnemy = U3D.GetTeamLeader(EUnitCamp.EUC_ENEMY);
-            SFXLoader.Instance.PlayEffect("vipblue", MeteorManager.Instance.LocalPlayer.gameObject, false);
-            SFXLoader.Instance.PlayEffect("vipred", uEnemy.gameObject, false);
+            SFXLoader.Instance.PlayEffect("vipblue.ef", MeteorManager.Instance.LocalPlayer.gameObject, false);
+            if (uEnemy != null)
+                SFXLoader.Instance.PlayEffect("vipred.ef", uEnemy.gameObject, false);
         }
     }
 
@@ -708,7 +713,7 @@ public partial class GameBattleEx : MonoBehaviour {
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
             MeteorManager.Instance.UnitInfos[i].EnableAI(false);
         Global.PauseAll = true;
-        Time.timeScale = 0;
+        //Time.timeScale = 0;
     }
 
     public void Resume()
@@ -1008,12 +1013,12 @@ public partial class GameBattleEx : MonoBehaviour {
         }
     }
 
-    void GotoMenu()
-    {
-        MeteorManager.Instance.Clear();
-        FightWnd.Instance.Close();
-        U3D.GoBack(()=> { MainMenu.Instance.Open(); });
-    }
+    //void GotoMenu()
+    //{
+    //    MeteorManager.Instance.Clear();
+    //    FightWnd.Instance.Close();
+    //    U3D.GoBack(()=> { MainMenu.Instance.Open(); });
+    //}
 
     public void ChangeLockStatus()
     {

@@ -20,9 +20,8 @@ public class Global
     public static LevelScriptBase GScript;
     public static Type GScriptType;
     public static System.Random Rand = new System.Random((int)DateTime.Now.ToFileTime());
-    public static bool Result = false;//战斗已经有结果，之后任意的触发战斗结束（比如所有NPC全部死，结算时有5秒，这之间主角死，会重复进入）
-    public static float GameOverTick;
     static bool mPauseAll ;
+    public static Vector3 BodyHeight = new Vector3(0, 28, 0);
     public static bool PauseAll
     {
         get { return mPauseAll; }
@@ -33,20 +32,11 @@ public class Global
     public const float ClimbLimit = 1.5f;//爬墙持续提供向上的力
     public const float JumpTimeLimit = 0.15f;//最少要跳跃这么久之后才能攀爬
     public const int LEVELSTART = 1;//初始关卡ID
-    public const int LEVELMAX = 28;//最大关卡28
+    public static int LEVELMAX = 29;//最大关卡29
     public const int ANGRYMAX = 100;
     public const float AttackRange = 90.0f;//近战攻击距离
     public const float FollowDistance = 50.0f;//近距离内不需要再跟随
     public const int BreakChange = 3;//3%爆气几率
-    public static float timeScale
-	{
-		get {return Time.timeScale;}
-
-		set
-		{
-			Time.timeScale = value;
-		}
-	}
 
     public static DateTime JSLongToDataTime(long longTime)
     {

@@ -308,6 +308,18 @@ public class MeteorInput
     public bool AcceptInput()
     {
         Pose p = PoseStatus.ActionList[mOwner.UnitId][posMng.mActiveAction.Idx];
+        if (p == null)
+            return false;
+        //飞轮.
+        if (p.Idx >= 218 && p.Idx <= 225)
+            return false;
+        //if (p.Idx == CommonAction.Idle || p.Idx == CommonAction.GunIdle)
+        //{
+        //    //最少要在Idle下1-2回合
+        //    if (mOwner.charLoader.LoopCount <= 1)
+        //        return false;
+        //}
+
         if (p.Next != null)
         {
             int inputEnd = p.Next.End;
@@ -321,6 +333,19 @@ public class MeteorInput
             else
                 return false;
         }
+        else
+        {
+            ActionNode act = ActionInterrupt.Instance.GetActions(p.Idx);
+            if (act == null)
+                return false;
+            if (act.target == null || act.target.Count == 0)
+                return false;
+        }
+
+        //切换武器，不接受连招输入.
+        //if (p.Idx == CommonAction.ChangeWeapon || p.Idx == CommonAction.AirChangeWeapon)
+        //    return false;
+
         return true;
     }
 
@@ -331,9 +356,6 @@ public class MeteorInput
         if (!AcceptInput())
             return false;
         int weapon = mOwner.GetWeaponType();
-        //状态要抵消,必须方向相反.比如匕首后前前A,如果在按住后的时候,只需要输入上上A就可以凑招了
-        //当解析方向相反的招式起始按键时,必须考虑凑招问题
-        //单独按键需要判断 跳,爬墙,等状态
         switch (weapon)
         {
             case (int)EquipWeaponType.Knife:

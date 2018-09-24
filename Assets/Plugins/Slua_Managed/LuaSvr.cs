@@ -243,5 +243,15 @@ namespace SLua
 			}
 			return null;
 		}
+
+        public object dofile(string classes)
+        {
+            if (classes != null)
+            {
+                mainState.doFile(classes);
+                return mainState.run(classes);
+            }
+            return null;
+        }
 	}
 }

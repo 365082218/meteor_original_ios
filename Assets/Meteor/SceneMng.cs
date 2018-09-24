@@ -114,9 +114,8 @@ class SceneMng
         }
         unit.Init(mon.Model, mon);
         MeteorManager.Instance.OnGenerateUnit(unit);
-        LuaFunction onInit = ScriptMng.ins.GetFunc("OnInit");
-        LuaFunction OnStart = ScriptMng.ins.GetFunc("OnStart");
-        onInit.call(unit.InstanceId);
+        LuaFunction onInit = mon.sState["OnInit"] as LuaFunction;
+        onInit.call(mon.sState, unit.InstanceId);
         unit.SetGround(false);
         if (Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
@@ -157,7 +156,7 @@ class SceneMng
         }
         
         unit.transform.rotation = new Quaternion(0, 0, 0, 1);
-        OnStart.call();
+        //OnStart.call();
         U3D.InsertSystemMsg(unit.name + " 加入游戏");
         return unit;
     }

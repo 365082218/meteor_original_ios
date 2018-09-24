@@ -100,7 +100,9 @@ public class DartLoader : MonoBehaviour {
         DartLoader dart = dartObj.GetComponent<DartLoader>();
         dart.LoadAttack(weapon, forw, att, owner);
     }
-    
+
+    List<MeteorUnit> attacked = new List<MeteorUnit>();
+    List<SceneItemAgent> attackeds = new List<SceneItemAgent>();
     public void OnTriggerEnter(Collider other)
     {
         if (other.transform.root.gameObject.layer == LayerMask.NameToLayer("Scene"))
@@ -108,15 +110,21 @@ public class DartLoader : MonoBehaviour {
             SceneItemAgent it = other.GetComponentInParent<SceneItemAgent>();
             if (it != null)
             {
+                if (attackeds.Contains(it))
+                    return;
+                attackeds.Add(it);
                 Debug.Log("dart attack sceneitemagent");
                 it.OnDamage(owner, _attack);
             }
+            GameObject.Destroy(this);
             GameObject.Destroy(gameObject);
         }
         else
         {
             MeteorUnit unit = other.GetComponentInParent<MeteorUnit>();
             if (unit == null)
+                return;
+            if (attacked.Contains(unit))
                 return;
             //同队忽略攻击
             if (unit.SameCamp(owner))
@@ -129,6 +137,8 @@ public class DartLoader : MonoBehaviour {
             //record.target = unit;
             //record.tick = 0.2f;
             //rec.Add(record);
+            attacked.Add(unit);
+            GameObject.Destroy(this);
             GameObject.Destroy(gameObject);
             //Debug.LogError("dart attack end");
         }

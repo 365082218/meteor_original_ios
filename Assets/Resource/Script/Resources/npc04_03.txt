@@ -1,29 +1,34 @@
-Name = "金枪侍卫﹒乙";
-Model =	8;
-Weapon = 25;
-Weapon2 = 15;
-Team = 2;
-View = 300;
-Think = 70;
-Attack1	= 25;
-Attack2 = 25;
-Attack3 = 20;
-Guard =	30;
-Dodge =	10;
-Jump = 10;
-Look = 30;
-Burst = 5;
-Aim = 70;
-GetItem = 8;
-Spawn = 18;
-HP = 2500;	
-g_selfAddr = 0;
-g_self = 0;
-function OnInit(a)
-	g_selfAddr = a;
+local class = {}
+function npc04_03()
+	class.Name = "金枪侍卫﹒乙";
+	class.Model =	8;
+	class.Weapon = 25;
+	class.Weapon2 = 15;
+	class.Team = 2;
+	class.View = 300;
+	class.Think = 70;
+	class.Attack1	= 25;
+	class.Attack2 = 25;
+	class.Attack3 = 20;
+	class.Guard =	30;
+	class.Dodge =	10;
+	class.Jump = 10;
+	class.Look = 30;
+	class.Burst = 5;
+	class.Aim = 70;
+	class.GetItem = 8;
+	class.Spawn = 18;
+	class.HP = 2500;	
+	class.g_selfAddr = 0;
+	class.g_self = 0;
+	return class;
 end
 
-function OnStart()
-	g_self = GetSelf(g_selfAddr);
-	ChangeBehavior(g_self, "wait");
+function class:OnInit(a)
+	class.g_selfAddr = a;
+end
+
+function class:OnStart()
+	class.g_self = GetSelf(class.g_selfAddr);
+	ChangeBehavior(class.g_self, "wait");
 end

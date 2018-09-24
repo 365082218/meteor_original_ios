@@ -262,7 +262,6 @@ public class MainWnd : Window<MainWnd>
 #endif
         });
         Control("UploadLog").GetComponent<Button>().onClick.AddListener(() => { FtpLog.UploadStart(); });
-        Global.timeScale = 1;
         //Cursor.SetCursor(Resources.Load<Texture2D>("mCursor"), new Vector2(0, 0), CursorMode.Auto);
         //Cursor.visible = true;
     }
@@ -746,6 +745,126 @@ public class SfxWnd: Window<SfxWnd>
     }
 }
 
+public class BattleStatusWnd: Window<BattleStatusWnd>
+{
+    public override string PrefabName
+    {
+        get
+        {
+            return "BattleStatusWnd";
+        }
+    }
+
+    protected override bool OnOpen()
+    {
+        Init();
+        return base.OnOpen();
+    }
+
+    protected override bool OnClose()
+    {
+        return base.OnClose();
+    }
+
+    GameObject BattleResult;
+    GameObject BattleTitle;
+    Transform MeteorResult;
+    Transform ButterflyResult;
+    public void Init()
+    {
+        MeteorResult = Control("MeteorResult").transform;
+        ButterflyResult = Control("ButterflyResult").transform;
+        BattleResult = Global.ldaControlX("BattleResult", WndObject);
+        BattleTitle = Global.ldaControlX("BattleTitle", WndObject);
+        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        {
+            if (GameBattleEx.Instance.BattleResult.ContainsKey(MeteorManager.Instance.UnitInfos[i].name))
+            {
+                InsertPlayerResult(MeteorManager.Instance.UnitInfos[i].name, GameBattleEx.Instance.BattleResult[MeteorManager.Instance.UnitInfos[i].name]);
+                GameBattleEx.Instance.BattleResult.Remove(MeteorManager.Instance.UnitInfos[i].name);
+            }
+            else if (MeteorManager.Instance.UnitInfos[i].Camp == EUnitCamp.EUC_ENEMY || MeteorManager.Instance.UnitInfos[i].Camp == EUnitCamp.EUC_FRIEND)
+                InsertPlayerResult(MeteorManager.Instance.UnitInfos[i].name, MeteorManager.Instance.UnitInfos[i].InstanceId, 0, 0, MeteorManager.Instance.UnitInfos[i].Camp);
+        }
+
+        foreach (var each in GameBattleEx.Instance.BattleResult)
+            InsertPlayerResult(each.Key, each.Value);
+        GameBattleEx.Instance.BattleResult.Clear();
+    }
+
+    void InsertPlayerResult(string name_, int id, int killed, int dead, EUnitCamp camp)
+    {
+        GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem")); ;
+        obj.transform.SetParent(camp == EUnitCamp.EUC_FRIEND ? MeteorResult : ButterflyResult);
+        obj.layer = MeteorResult.gameObject.layer;
+        obj.transform.localRotation = Quaternion.identity;
+        obj.transform.localScale = Vector3.one;
+        obj.transform.localPosition = Vector3.zero;
+
+        Text Idx = ldaControl("Idx", obj).GetComponent<Text>();
+        Text Name = ldaControl("Name", obj).GetComponent<Text>();
+        //Text Camp = ldaControl("Camp", obj).GetComponent<Text>();
+        Text Killed = ldaControl("Killed", obj).GetComponent<Text>();
+        Text Dead = ldaControl("Dead", obj).GetComponent<Text>();
+        Idx.text = (id + 1).ToString();
+        Name.text = name_;
+        //Camp.text = result.camp == 1 ""
+        Killed.text = killed.ToString();
+        Dead.text = dead.ToString();
+        MeteorUnit u = U3D.GetUnit(id);
+        if (u != null)
+        {
+            if (u.Dead)
+            {
+                Idx.color = Color.red;
+                Name.color = Color.red;
+                Killed.color = Color.red;
+                Dead.color = Color.red;
+            }
+        }
+        else
+        {
+            //得不到信息了。说明该NPC被移除掉了
+            Idx.color = Color.red;
+            Name.color = Color.red;
+            Killed.color = Color.red;
+            Dead.color = Color.red;
+        }
+    }
+
+    void InsertPlayerResult(string name_, GameBattleEx.BattleResultItem result)
+    {
+        GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem")); ;
+        obj.transform.SetParent(result.camp == 1 ? MeteorResult : ButterflyResult);
+        obj.layer = MeteorResult.gameObject.layer;
+        obj.transform.localRotation = Quaternion.identity;
+        obj.transform.localScale = Vector3.one;
+        obj.transform.localPosition = Vector3.zero;
+
+        Text Idx = ldaControl("Idx", obj).GetComponent<Text>();
+        Text Name = ldaControl("Name", obj).GetComponent<Text>();
+        //Text Camp = ldaControl("Camp", obj).GetComponent<Text>();
+        Text Killed = ldaControl("Killed", obj).GetComponent<Text>();
+        Text Dead = ldaControl("Dead", obj).GetComponent<Text>();
+        Idx.text = (result.id + 1).ToString();
+        Name.text = name_;
+        //Camp.text = result.camp == 1 ""
+        Killed.text = result.killCount.ToString();
+        Dead.text = result.deadCount.ToString();
+        MeteorUnit u = U3D.GetUnit(result.id);
+        if (u != null)
+        {
+            if (u.Dead)
+            {
+                Idx.color = Color.red;
+                Name.color = Color.red;
+                Killed.color = Color.red;
+                Dead.color = Color.red;
+            }
+        }
+    }
+}
+
 public class BattleResultWnd : Window<BattleResultWnd>
 {
     public override string PrefabName
@@ -774,7 +893,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
 
     public IEnumerator SetResult(int result)
     {
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(0.5f);
         if (result == 1)
         {
             for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
@@ -785,7 +904,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
                 MeteorManager.Instance.UnitInfos[i].OnGameResult(result);
             }
         }
-        yield return new WaitForSeconds(2.0f);
+        yield return new WaitForSeconds(1.5f);
         string mat = "";
         Text txt;
         switch (result)

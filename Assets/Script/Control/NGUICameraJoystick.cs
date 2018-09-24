@@ -14,11 +14,13 @@ public class NGUICameraJoystick : MonoBehaviour
     //public Image CameraF;//摄像机
     //public Image CameraI;//背景
     int mLastFingerId = -2;
+    BoxCollider[] touchBoxes;
     //public Quaternion lastMeteorUnit = Quaternion.identity;
     void Awake()
     {
-        ResetJoystick();
         mInstance = this;
+        touchBoxes = GetComponents<BoxCollider>();
+        ResetJoystick();
     }
     public Vector2 deltaLast = Vector2.zero;
     void OnDestroy()
@@ -34,10 +36,19 @@ public class NGUICameraJoystick : MonoBehaviour
 
 	void Update() 
 	{
-		if (isPress)
-			mPressTime += Time.deltaTime;
-		else
-			mPressTime = 0.0f;
+        if (isPress)
+        {
+            mPressTime += Time.deltaTime;
+            //if (mLastFingerId == UICamera.currentTouchID && !MeteorManager.Instance.LocalPlayer.Dead)
+            //{
+            //    Vector2 touchPos = UICamera.currentTouch.pos - mFingerDownPos;
+            //    deltaLast = touchPos;
+            //    //Debug.LogError(string.Format("{0}:{1}", deltaLast.x, deltaLast.y));
+            //    mFingerDownPos = UICamera.currentTouch.pos;
+            //}
+        }
+        else
+            mPressTime = 0.0f;
 	}
 
 	float mPressTime = 0.0f;
@@ -55,28 +66,33 @@ public class NGUICameraJoystick : MonoBehaviour
             return;
         if (enabled && gameObject.activeSelf)
         {
+            if (MeteorManager.Instance.LocalPlayer.Dead)
+                return;
             if (pressed)
             {
-                if (MeteorManager.Instance.LocalPlayer.Dead)
-                    return;
                 //CameraI.color = new Color(1, 1, 1, 0.1f);
                 isPress = mPressed = pressed;
                 //print("OnPress");
                 //lastMeteorUnit = MeteorManager.Instance.LocalPlayer.transform.rotation;
                 //MeteorManager.Instance.LocalPlayer.OnCameraRotateStart();
                 Vector2 curPos = UICamera.currentTouch.pos;
-                if (mLastFingerId == -2 || mLastFingerId != UICamera.currentTouchID)
+                //不允许后面触碰顶替前者触碰，必须是 按下，拖拽，抬起，而不可以是
+                if (mLastFingerId == -2)
                 {
                     mLastFingerId = UICamera.currentTouchID;
 					mFingerDownPos = curPos;
                 }
 				mPressTime = 0.0f;
-                OnDrag(Vector2.zero);
+                //OnDrag(Vector2.zero);
             }
             else
             {
-                isPress = mPressed = false;
-                ResetJoystick();
+                if (mLastFingerId == UICamera.currentTouchID)
+                {
+                    isPress = mPressed = false;
+                    ResetJoystick();
+                }
+                //Debug.LogError("release");
             }
         }
     }
@@ -87,25 +103,32 @@ public class NGUICameraJoystick : MonoBehaviour
         if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
             return;
 #endif
+        //Debug.LogError("draging");
         if (MeteorManager.Instance.LocalPlayer.Dead)
             return;
 		if (isPress && enabled && gameObject.activeSelf)
 		{
             //float angle = 0.0f;
             if (mLastFingerId == UICamera.currentTouchID)
-			{
-				Vector2 touchPos = UICamera.currentTouch.pos - mFingerDownPos;
+            {
+                Vector2 touchPos = UICamera.currentTouch.pos - mFingerDownPos;
                 deltaLast = delta;
+                //Debug.LogError(string.Format("{0}:{1}", deltaLast.x, deltaLast.y));
                 mFingerDownPos = UICamera.currentTouch.pos;
-                //if (touchPos.x > width)
-                //    touchPos.x = width;
-                //else if (touchPos.x < -width)
-                //    touchPos.x = -width;
-                //angle = touchPos.x / width * 144.0f;
-			}
+            }
+            //else
+            //{
+            //    deltaLast = Vector2.zero;
+            //    Debug.LogError("!isPress && enabled && gameObject.activeSelf");
+            //}
             //if (MeteorManager.Instance.LocalPlayer.posMng.CanRotateY)
             //    MeteorManager.Instance.LocalPlayer.SetOrientation(Quaternion.Euler(0, angle, 0), lastMeteorUnit);
             //if ()
+        }
+        else
+        {
+            deltaLast = Vector2.zero;
+            //Debug.LogError("dragEnd");
         }
     }
 
@@ -113,14 +136,21 @@ public class NGUICameraJoystick : MonoBehaviour
     {
         //lastMeteorUnit = Quaternion.identity;
         //CameraI.color = new Color(1, 1, 1, 0);
-        mLastFingerId = -2;
-        mPressed = false;
-        deltaLast = Vector2.zero;
+        //mLastFingerId = -2;
+        //mPressed = false;
+        //deltaLast = Vector2.zero;
         Lock(false);
     }
 
     public void Lock(bool state)
     {
-        GetComponent<BoxCollider>().enabled = !state;
+        for (int i = 0; i < touchBoxes.Length; i++)
+            touchBoxes[i].enabled = !state;
+        if (!state)
+        {
+            mLastFingerId = -2;
+            mPressed = false;
+            deltaLast = Vector2.zero;
+        }
     }
 }

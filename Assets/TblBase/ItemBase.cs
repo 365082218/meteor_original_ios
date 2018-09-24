@@ -83,8 +83,8 @@ public class ActionEvent : Singleton<ActionEvent>
             //    break;
             case FrameEvent.ChangeWeaponPos5:
                 return 1;
-            case FrameEvent.ChangeWeapon0://左打虎
-            case FrameEvent.ChangeWeapon1://右打虎
+            case FrameEvent.ChangeWeapon0://左侧换兵
+            case FrameEvent.ChangeWeapon1://右侧换兵
                 return owner.GetNextWeaponType();//这个连不连的上还不清楚.
             case FrameEvent.ChangeWeaponPose570_0:
                 return 1;

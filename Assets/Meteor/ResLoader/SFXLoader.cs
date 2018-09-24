@@ -464,9 +464,9 @@ public class SFXLoader :Singleton<SFXLoader>{
                     return f.Play(target, timePlayed);
                 }
             }
-            catch
+            catch (Exception exp)
             {
-                Debug.LogError(string.Format("{0}  parse error", file));
+                Debug.LogError(string.Format("{0}  parse error {1}", file, exp.Message));
             }
 
         }

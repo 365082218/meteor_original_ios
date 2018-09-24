@@ -1,44 +1,50 @@
-Name = "蒙面人﹒甲";
-Model =	10;
-Weapon = 30;
-Weapon2 = 23;
-Team = 2;
-View = 800;
-Think = 80;
-Attack1	= 40;
-Attack2 = 30;
-Attack3 = 10;
-Guard =	20;
-Dodge =	30;
-Jump = 20;
-Look = 50;
-Burst = 20;
-Aim = 80;
-GetItem = 50;
-Spawn = 129;
-HP = 4000;	
+local class = {}
+function npc05_03()
+	class.Name = "蒙面人﹒甲";
+	class.Model =	10;
+	class.Weapon = 30;
+	class.Weapon2 = 23;
+	class.Team = 2;
+	class.View = 800;
+	class.Think = 80;
+	class.Attack1	= 40;
+	class.Attack2 = 30;
+	class.Attack3 = 10;
+	class.Guard =	20;
+	class.Dodge =	30;
+	class.Jump = 20;
+	class.Look = 50;
+	class.Burst = 20;
+	class.Aim = 80;
+	class.GetItem = 50;
+	class.Spawn = 129;
+	class.HP = 4000;	
 
-g_selfAddr = 0;
-g_self = 0;
-function OnInit(a)
-	g_selfAddr = a;
+	class.g_selfAddr = 0;
+	class.g_self = 0;
+	return class;
 end
 
-function OnStart()
-	g_self = GetSelf(g_selfAddr);
-	ChangeBehavior(g_self, "follow", "player");
+function class:OnInit(a)
+	class.g_selfAddr = a;
 end
 
-function Attack(enable)
+function class:OnStart()
+	class.g_self = GetSelf(class.g_selfAddr);
+	ChangeBehavior(class.g_self, "follow", "player");
+end
+
+--不会用到以下函数.
+function class:Attack(enable)
 	if (enable == 1) then
-		Attack1 = 40;
-		Attack2 = 30;
-		Attack3 = 10;
-		UpdateAIAttrib(g_self);
+		class.Attack1 = 40;
+		class.Attack2 = 30;
+		class.Attack3 = 10;
+		UpdateAIAttrib(class.g_self);
 	else
-		Attack1 = 0;
-		Attack2 = 0;
-		Attack3 = 0;
-		UpdateAIAttrib(g_self);		
+		class.Attack1 = 0;
+		class.Attack2 = 0;
+		class.Attack3 = 0;
+		UpdateAIAttrib(class.g_self);		
 	end
 end

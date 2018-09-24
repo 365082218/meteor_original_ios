@@ -36,8 +36,14 @@ public class ScriptMng:MonoBehaviour
         return LuaSvr.mainState.getFunction(iden);
     }
 
-    //重加载一个脚本文件，变量的值会全部恢复.
-	public void CallScript(string script)
+    public void CallFunc(string fun)
+    {
+        LuaFunction f = LuaSvr.mainState.getFunction(fun);
+        if (f != null)
+            f.call();
+    }
+    //主状态上.加载脚本后，运行以main为名称的函数
+    public void CallScript(string script)
 	{
         try
         {
@@ -58,7 +64,8 @@ public class ScriptMng:MonoBehaviour
         }
 	}
 
-	public void CallString(string scriptText)
+    //主状态上.
+    public void CallString(string scriptText)
 	{
         if (!string.IsNullOrEmpty(scriptText))
         {
@@ -68,10 +75,16 @@ public class ScriptMng:MonoBehaviour
             throw new Exception("script content is null or empty");
 	}
 
-    //只是设置变量，不调用函数
-    public void DoScript(string script)
+    //加载脚本后，运行以script为名称的函数
+    public object Reload(string script)
     {
-        LuaSvr.mainState.doFile(script);
+        return svr.dofile(script);
+    }
+
+    //加载脚本后，运行以script为名称的函数
+    public object DoScript(string script)
+    {
+        return svr.dofile(script);
     }
 
     public void Save()

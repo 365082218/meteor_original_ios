@@ -41,7 +41,29 @@ public class Startup : MonoBehaviour {
     void Update () {
     }
 
-#region (notification)
+    public void PlayEndMovie()
+    {
+        //if (!string.IsNullOrEmpty(Global.GLevelItem.sceneItems))
+        //{
+        //    string num = Global.GLevelItem.sceneItems.Substring(2);
+        //    int number = 0;
+        //    if (int.TryParse(num, out number))
+        //    {
+        //        Debug.Log("v" + number);
+        //        U3D.PlayMovie("v" + number);
+        //    }
+        //}
+        GotoMenu();
+    }
+
+    void GotoMenu()
+    {
+        MeteorManager.Instance.Clear();
+        FightWnd.Instance.Close();
+        U3D.GoBack(() => { MainMenu.Instance.Open(); });
+    }
+
+    #region (notification)
     //void CleanNotification()
     //{
     //    UnityEngine.iOS.LocalNotification l = new UnityEngine.iOS.LocalNotification();
@@ -80,7 +102,7 @@ public class Startup : MonoBehaviour {
     //        NotificationServices.ScheduleLocalNotification(localNotification);
     //    }
     //}
-#endregion
+    #endregion
     void OnApplicationPause(bool paused)
     {
         //程序进入后台时

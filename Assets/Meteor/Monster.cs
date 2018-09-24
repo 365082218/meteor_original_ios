@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using ProtoBuf;
+using SLua;
 //光环类技能，属于较麻烦的一个地方。先不做.
 //穿戴装备以及初始化对象顺序
 //1：初始化所有战斗对象的基础属性，包括装备的附加属性，但是不包括装备的技能光环。
@@ -86,6 +87,9 @@ public class MonsterEx
     public int Weapon;
     public int Weapon2;
     public int Team;
+
+    public LuaTable sState;
+
     public MonsterEx()
     {
         IsPlayer = false;
@@ -114,55 +118,59 @@ public class MonsterEx
         AngryValue = 0;
     }
 
+    public void OnStart()
+    {
+        if (sState != null)
+        {
+            LuaFunction f = (sState["OnStart"] as LuaFunction);
+            f.call(sState);
+        }
+    }
     public void UpdateAttr()
     {
         //主角属性无法更改
         if (IsPlayer)
             return;
-        if (!string.IsNullOrEmpty(NpcTemplate))
-            ScriptMng.ins.DoScript(NpcTemplate);
-        else
+        if (sState == null)
             return;
-        //非主角属性，从脚本重新加载
-        Attack1 = (int)(double)ScriptMng.ins.GetVariable("Attack1");
-        //Debug.LogError("Attack1:" + Attack1);
-        Attack2 = (int)(double)ScriptMng.ins.GetVariable("Attack2");
-        Attack3 = (int)(double)ScriptMng.ins.GetVariable("Attack3");
-        Think = (int)(double)ScriptMng.ins.GetVariable("Think");
-        Guard = (int)(double)ScriptMng.ins.GetVariable("Guard");
-        Jump = (int)(double)ScriptMng.ins.GetVariable("Jump");
-        Look = (int)(double)ScriptMng.ins.GetVariable("Look");
-        Burst = (int)(double)ScriptMng.ins.GetVariable("Burst");
-        Aim = (int)(double)ScriptMng.ins.GetVariable("Aim");
-        GetItem = (int)(double)ScriptMng.ins.GetVariable("GetItem");
-        View = (int)(double)ScriptMng.ins.GetVariable("View");
+        Attack1 = (int)(double)sState["Attack1"];
+        Attack2 = (int)(double)sState["Attack2"];
+        Attack3 = (int)(double)sState["Attack3"];
+        Think = (int)(double)sState["Think"];
+        Guard = (int)(double)sState["Guard"];
+        Jump = (int)(double)sState["Jump"];
+        Look = (int)(double)sState["Look"];
+        Burst = (int)(double)sState["Burst"];
+        Aim = (int)(double)sState["Aim"];
+        GetItem = (int)(double)sState["GetItem"];
+        View = (int)(double)sState["View"];
     }
 
     //unit id , 名称, 所在队伍中的下标.
     public bool InitMonster(string Script)
     {
         IsPlayer = false;
-        ScriptMng.ins.DoScript(Script);
+        sState = ScriptMng.ins.DoScript(Script) as LuaTable;
         NpcTemplate = Script;
-        Model = (int)(double)ScriptMng.ins.GetVariable("Model");
-        name = (string)ScriptMng.ins.GetVariable("Name");
-        Weapon = (int)(double)ScriptMng.ins.GetVariable("Weapon");
-        Weapon2 = (int)(double)ScriptMng.ins.GetVariable("Weapon2");
-        Team = (int)(double)ScriptMng.ins.GetVariable("Team");
-        View = (int)(double)ScriptMng.ins.GetVariable("View");
-        Think = (int)(double)ScriptMng.ins.GetVariable("Think");
-        HpMax = (int)(double)ScriptMng.ins.GetVariable("HP");
-        SpawnPoint = (int)(double)ScriptMng.ins.GetVariable("Spawn");
+        Model = (int)(double)sState["Model"];
+        name = (string)sState["Name"];
+        Weapon = (int)(double)sState["Weapon"];
+        Weapon2 = (int)(double)sState["Weapon2"];
+        Team = (int)(double)sState["Team"];
+        View = (int)(double)sState["View"];
+        Think = (int)(double)sState["Think"];
+        HpMax = (int)(double)sState["HP"];
+        SpawnPoint = (int)(double)sState["Spawn"];
         Speed = 1000;
-        Guard = (int)(double)ScriptMng.ins.GetVariable("Guard");
-        Jump = (int)(double)ScriptMng.ins.GetVariable("Jump");
-        Look = (int)(double)ScriptMng.ins.GetVariable("Look");
-        Burst = (int)(double)ScriptMng.ins.GetVariable("Burst");
-        Aim = (int)(double)ScriptMng.ins.GetVariable("Aim");
-        GetItem = (int)(double)ScriptMng.ins.GetVariable("GetItem");
-        Attack1 = (int)(double)ScriptMng.ins.GetVariable("Attack1");
-        Attack2 = (int)(double)ScriptMng.ins.GetVariable("Attack2");
-        Attack3 = (int)(double)ScriptMng.ins.GetVariable("Attack3");
+        Guard = (int)(double)sState["Guard"];
+        Jump = (int)(double)sState["Jump"];
+        Look = (int)(double)sState["Look"];
+        Burst = (int)(double)sState["Burst"];
+        Aim = (int)(double)sState["Aim"];
+        GetItem = (int)(double)sState["GetItem"];
+        Attack1 = (int)(double)sState["Attack1"];
+        Attack2 = (int)(double)sState["Attack2"];
+        Attack3 = (int)(double)sState["Attack3"];
         hpCur = HpMax;
         mpCur = MpMax;
         return true;

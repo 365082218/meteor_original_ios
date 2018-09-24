@@ -518,7 +518,7 @@ public class PoseStatus
     public void ChangeAction(int idx = CommonAction.Idle, float time = 0.0f, int targetFrame = 0)
     {
         //本局游戏已有结果,播放嘲讽动画.
-        if (Global.Result && GameBattleEx.Instance != null && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle))
+        if (GameBattleEx.Instance != null && GameBattleEx.Instance.Result != -10 && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle))
         {
             playResultAction = true;
             if (_Self.Camp == EUnitCamp.EUC_ENEMY && GameBattleEx.Instance.Result <= 0)
