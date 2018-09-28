@@ -2,10 +2,7 @@
 using System.Collections;
 
 //仿原smoothfollow脚本，第三人称跟随相机，总在人物背后跟随着角色
-//问题：没有鼠标，没法进行视角转换，无法旋转，原流星镜头的旋转是由鼠标相对的滑动控制的。
-//而现在没有鼠标了，改为左控制位移，右控制镜头旋转.
 /*
- * Nikki Ma
 Nikki Ma
 奔流河的守候。
 7 人赞同了该回答
@@ -27,11 +24,6 @@ public class CameraFollow : MonoBehaviour {
     public float followRotationDamping = 5;
     public float followHeightDamping = 5;
     public float m_MinSize = 55;//fov最小55
-
-    //Vector3 m_DesiredPosition;
-    //Vector3 m_MoveVelocity;
-    //float m_DampTime;
-    //float m_ZoomSpeed;//fov
     [HideInInspector]
     public Camera m_Camera;
     public Vector3 cameraLookAt = Vector3.zero;
@@ -68,7 +60,7 @@ public class CameraFollow : MonoBehaviour {
         RotateIntensity = 8.0f;
         Unlocked = false;
         followHeight = 6;
-        followDistance = 45.0f;
+        followDistance = 55.0f;
         BodyHeight = 30;
         m_MinSize = 60;
         LookAtAngle = 0.0f;
@@ -99,10 +91,11 @@ public class CameraFollow : MonoBehaviour {
     public bool Smooth = true;
     public void ForceUpdate()
     {
-        LateUpdate();
+        if (MeteorManager.Instance.LocalPlayer != null && !Global.PauseAll)
+            CameraSmoothFollow(Smooth);
     }
 
-    void LateUpdate()
+    void Update()
     {
         if (MeteorManager.Instance.LocalPlayer != null && !Global.PauseAll)
             CameraSmoothFollow(Smooth);
@@ -136,7 +129,7 @@ public class CameraFollow : MonoBehaviour {
         if (MeteorManager.Instance.LocalPlayer.GetLockedTarget() != null && !DisableLockTarget)
         {
             cameraLookAt = (MeteorManager.Instance.LocalPlayer.mPos + MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + new Vector3(0, 25, 0);
-            CameraRadis = Vector3.Distance(MeteorManager.Instance.LocalPlayer.mPos, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + 45;
+            CameraRadis = Vector3.Distance(MeteorManager.Instance.LocalPlayer.mPos, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + 55;
             float dis = Vector3.Distance(new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, 0, MeteorManager.Instance.LocalPlayer.mPos.z), new Vector3(MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos.x, 0, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos.z));
             Vector3 vecDiff = MeteorManager.Instance.LocalPlayer.mPos - MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos;
             Vector3 vecForward = Vector3.Normalize(new Vector3(vecDiff.x, 0, vecDiff.z));
@@ -193,75 +186,34 @@ public class CameraFollow : MonoBehaviour {
             }
 
             newPos = vecTarget;
-            //以下方法，无法避免角色跳跃过锁定目标后，摄像机大幅度转动的问题
-            /*
-            if (CameraCanLookTarget(vecTarget[0], out wallHitPos))
-            {
-                //dis = Vector3.Distance(vecTarget[0], cameraLookAt);
-                newPos = vecTarget[0];
-            }
-            else
-            {
-                dis = Vector3.Distance(wallHitPos, cameraLookAt);
-                //如果视角太近了，就切换一下视角.
-                if (dis < 40.0f)
-                {
-                    //如果太近了，在跟前无法看全，尝试切换视角.
-                    //如果右侧视角被墙壁遮挡
-                    if (CameraCanLookTarget(vecTarget[1], out wallHitPos))
-                    {
-                        newPos = vecTarget[1];
-                        ViewIndex = (ViewIndex + 1) % 3;
-                    }
-                    else
-                    {
-                        dis = Vector3.Distance(wallHitPos, cameraLookAt);
-                        if (dis < 40.0f)
-                        {
-                            //如果左侧视角也被墙壁遮挡
-                            if (CameraCanLookTarget(vecTarget[2], out wallHitPos))
-                            {
-                                ViewIndex = (ViewIndex + 2) % 3;
-                                newPos = vecTarget[2];
-                            }
-                            else
-                            {
-                                ViewIndex = (ViewIndex + 2) % 3;
-                                newPos = wallHitPos;
-                            }
-                        }
-                        else
-                        {
-                            ViewIndex = (ViewIndex + 1) % 3;
-                            newPos = wallHitPos;
-                        }
-                        //如果顶部视角同样被墙壁遮挡,无较好的视角了，使用顶部透墙视角.
-                    }
-                }
-                else
-                    newPos = wallHitPos;
-            }
-            */
-
             //整个视角都是缓动的
             if (smooth)
-                newPos = Vector3.Lerp(transform.position, newPos, smoothIntensity * Time.deltaTime);
+            {
+                float x = Mathf.Lerp(transform.position.x, newPos.x, smoothIntensity * Time.deltaTime);
+                float y = Mathf.Lerp(transform.position.y, newPos.y, smoothIntensity * Time.deltaTime);
+                float z = Mathf.Lerp(transform.position.z, newPos.z, smoothIntensity * Time.deltaTime);
+                newPos.x = x;
+                newPos.y = y;
+                newPos.z = z;
+            }
             transform.position = newPos;
-
             //摄像机朝向观察目标
             if (smooth)
             {
                 Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                 transform.rotation = Quaternion.Slerp(transform.rotation, to, RotateIntensity * Time.deltaTime);
-                transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
+                Vector3 vec = transform.eulerAngles;
+                vec.z = 0;
+                transform.eulerAngles = vec;
             }
             else
             {
                 Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                 transform.rotation = to;//看向b骨骼顶部25码处
-                transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
+                Vector3 vec = transform.eulerAngles;
+                vec.z = 0;
+                transform.eulerAngles = vec;
             }
-
         }
         else
         {
@@ -317,9 +269,13 @@ public class CameraFollow : MonoBehaviour {
                 }
             }
 
-            cameraLookAt = new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, MeteorManager.Instance.LocalPlayer.transform.position.y + BodyHeight, MeteorManager.Instance.LocalPlayer.mPos.z);//朝向焦点
+            cameraLookAt.x = MeteorManager.Instance.LocalPlayer.mPos.x;
+            cameraLookAt.y = MeteorManager.Instance.LocalPlayer.transform.position.y + BodyHeight;//朝向焦点
+            cameraLookAt.z = MeteorManager.Instance.LocalPlayer.mPos.z;
+
             //Debug.Log("followHeight:" + followHeight);
-            newPos = cameraLookAt + MeteorManager.Instance.LocalPlayer.transform.forward * followDistance + new Vector3(0, followHeight, 0);
+            newPos = cameraLookAt + MeteorManager.Instance.LocalPlayer.transform.forward * followDistance;
+            newPos.y += followHeight;
             RaycastHit wallHit;
             bool hitWall = false;
             if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
@@ -352,7 +308,9 @@ public class CameraFollow : MonoBehaviour {
                 //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                 //transform.rotation = to;
                 transform.LookAt(cameraLookAt);
-                transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
+                Vector3 vec = transform.eulerAngles;
+                vec.z = 0;
+                transform.eulerAngles = vec;
                 Unlocked = false;
                 return;
             }
@@ -365,7 +323,9 @@ public class CameraFollow : MonoBehaviour {
                     //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                     //transform.rotation = to;
                     transform.LookAt(cameraLookAt);
-                    transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
+                    Vector3 vec = transform.eulerAngles;
+                    vec.z = 0;
+                    transform.eulerAngles = vec;
                     Unlocked = false;
                     return;
                 }
@@ -382,7 +342,9 @@ public class CameraFollow : MonoBehaviour {
                     //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                     //transform.rotation = to;
                     transform.LookAt(cameraLookAt);
-                    transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0);
+                    Vector3 vec = transform.eulerAngles;
+                    vec.z = 0;
+                    transform.eulerAngles = vec;
                     return;
                 }
             }
@@ -405,119 +367,5 @@ public class CameraFollow : MonoBehaviour {
         }
         hit = pos;
         return true;
-    }
-
-    //private void Move()
-    //{
-    //    // Find the average position of the targets.
-    //    FindAveragePosition();
-
-    //    // Smoothly transition to that position.
-    //    transform.position = Vector3.SmoothDamp(transform.position, m_DesiredPosition, ref m_MoveVelocity, m_DampTime);
-    //}
-
-
-    private void FindAveragePosition()
-    {
-        //Vector3 averagePos = new Vector3();
-        //int numTargets = 0;
-
-        //// Go through all the targets and add their positions together.
-        //for (int i = 0; i < m_Targets.Length; i++)
-        //{
-        //    // If the target isn't active, go on to the next one.
-        //    if (!m_Targets[i].gameObject.activeSelf)
-        //        continue;
-
-        //    // Add to the average and increment the number of targets in the average.
-        //    averagePos += m_Targets[i].position;
-        //    numTargets++;
-        //}
-
-        //// If there are targets divide the sum of the positions by the number of them to find the average.
-        //if (numTargets > 0)
-        //    averagePos /= numTargets;
-
-        //// Keep the same y value.
-        //averagePos.y = transform.position.y;
-
-        //// The desired position is the average position;
-        //m_DesiredPosition = averagePos;
-    }
-
-
-    private void Zoom()
-    {
-        // Find the required size based on the desired position and smoothly transition to that size.
-        //float requiredSize = FindRequiredSize();
-        //m_Camera.fieldOfView = Mathf.SmoothDamp(m_Camera.fieldOfView, requiredSize, ref m_ZoomSpeed, m_DampTime);
-    }
-
-
-    private float FindRequiredSize()
-    {
-        //// Find the position the camera rig is moving towards in its local space.
-        //Vector3 desiredLocalPos = m_DesiredPosition;
-
-        //// Start the camera's size calculation at zero.
-        //float size = 0f;
-
-        //// Go through all the targets...
-        //for (int i = 0; i < m_Targets.Length; i++)
-        //{
-        //    // ... and if they aren't active continue on to the next target.
-        //    if (!m_Targets[i].gameObject.activeSelf)
-        //        continue;
-
-        //    // Otherwise, find the position of the target in the camera's local space.
-        //    Vector3 targetLocalPos = m_Targets[i].position;
-
-        //    // Find the position of the target from the desired position of the camera's local space.
-        //    Vector3 desiredPosToTarget = targetLocalPos - desiredLocalPos;
-
-        //    // Choose the largest out of the current size and the distance of the tank 'up' or 'down' from the camera.
-        //    size = Mathf.Max(size, Mathf.Abs(desiredPosToTarget.y));
-
-        //    // Choose the largest out of the current size and the calculated size based on the tank being to the left or right of the camera.
-        //    size = Mathf.Max(size, Mathf.Abs(desiredPosToTarget.x) / m_Camera.aspect);
-        //}
-
-        //// Add the edge buffer to the size.
-        ////size += m_ScreenEdgeBuffer;
-
-        //// Make sure the camera's size isn't below the minimum.
-        //size = Mathf.Max(size, m_MinSize);
-
-        //return size;
-        return 0;
-    }
-
-
-    //public void SetStartPositionAndSize()
-    //{
-    //    // Find the desired position.
-    //    FindAveragePosition();
-
-    //    // Set the camera's position to the desired position without damping.
-    //    transform.position = m_DesiredPosition;
-
-    //    // Find and set the required size of the camera.
-    //    m_Camera.fieldOfView = FindRequiredSize();
-    //}
-
-    //这种状态下。由自动控制模块计算位置，当角色距离敌人视距内，且当前无目标时。选择目标。
-    public void SetAutoControl()
-    {
-
-    }
-
-    //期望位置在角色背面。
-    float yOffset;//绕Y轴角度偏移+-90
-    float xOffset;//绕X轴角度偏移+-60
-    //计算摄像机在角色外围的圆球体中的位置。
-    //x轴，y轴 每个轴
-    public void AutoMove()
-    {
-        transform.LookAt(cameraLookAt);//身高的约2/3 36.7
     }
 }

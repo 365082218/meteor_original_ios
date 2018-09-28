@@ -26,6 +26,7 @@ public enum EAISubStatus
     FightGotoTarget,//在打斗前，必须走到目标范围附近,就是朝目标移动
     FightGotoPosition,//朝目的地移动，需要寻路.
     FightSubRotateToTarget,//走到路点后，旋转朝向下一个路点.
+    FightSubRotateToPosition,//朝向下一个位置或路点
     FightSubLeavetoTarget,//离开、逃跑.
 
     Fight,//实际出招/向其他状态切换，
@@ -195,13 +196,10 @@ public class MeteorAI {
             }
         }
 
-        if (owner.IsOnGround() && owner.OnGroundTick >= 5)
+        if (owner.IsOnGround())
         {
             switch (Status)
             {
-                //case EAIStatus.AttackTarget:
-                //    OnAttackTarget();
-                //    break;
                 case EAIStatus.Fight:
                     FightOnGround();
                     break;
@@ -227,50 +225,16 @@ public class MeteorAI {
                     OnPatrolInPlace();
                     break;
                 case EAIStatus.GotoPatrol:
-                    //Debug.LogError("gotopatrol");
                     OnGotoPatrol();
                     break;
                 case EAIStatus.Patrol:
-                    //Debug.LogError("patrol");
                     OnPatrol();
                     break;
                 case EAIStatus.Follow:
-                    MovetoTarget(followTarget);
+                    OnFollow();
                     break;
                 case EAIStatus.Kill:
-                    switch (SubStatus)
-                    {
-                        case EAISubStatus.KillThink:
-                            OnKillThink();
-                            break;
-                        case EAISubStatus.KillGotoTarget:
-                        case EAISubStatus.FollowGotoTarget:
-                            if (killTarget == null)
-                                killTarget = owner.GetLockedTarget();
-                            if (killTarget != null)
-                                MovetoTarget(killTarget);
-                            else
-                            {
-                                Status = EAIStatus.Idle;
-                            }
-                            break;
-                        case EAISubStatus.KillGetTarget:
-                            if (killTarget == null || killTarget.Dead)
-                                killTarget = owner.GetLockedTarget();
-                            if (killTarget != null)
-                                OnKillGetTarget(killTarget);
-                            else
-                            {
-                                Status = EAIStatus.Idle;
-                            }
-                            break;
-                        case EAISubStatus.FollowSubRotateToTarget:
-                            if (FollowRotateToTargetCoroutine == null)
-                            {
-                                FollowRotateToTargetCoroutine = owner.StartCoroutine(FollowRotateToTarget(Path[targetIndex].pos, EAISubStatus.FollowGotoTarget));
-                            }
-                            break;
-                    }
+                    OnKill();
                     break;
             }
         }
@@ -326,56 +290,49 @@ public class MeteorAI {
                 if (curIndex == -1)
                     targetIndex = 0;
 
+                //已经到达过最后一个寻路点.
+                Vector3 wantPosition = Vector3.zero;
+                bool usePath = false;
                 if (targetIndex >= Path.Count)
                 {
-                    UnityEngine.Debug.LogError(string.Format("targetIndex:{0}, FollowPath:{1}", targetIndex, Path.Count));
-                    Status = EAIStatus.Wait;
-                    SubStatus = EAISubStatus.SubStatusWait;
-                    return;
-                }
-
-                Assert.IsTrue(targetIndex < Path.Count);
-                //检查这一帧是否会走过目标，因为跨步太大.【这一段有问题，只有离目标非常近的时候再判断才行，远的话，可能会绕路，导致下一帧距离目标的位置越来越远】
-                NextFramePos = owner.GetSceneItemTarget().transform.position - owner.mSkeletonPivot;
-                NextFramePos.y = 0;
-                NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.13f;
-                float s = GetAngleBetween(NextFramePos - owner.mSkeletonPivot, owner.GetSceneItemTarget().transform.position - NextFramePos);
-                if (s < 0)
-                {
-                    owner.controller.Input.AIMove(0, 0);
-                    ChangeState(EAIStatus.Wait);
-                }
-                //角色与目标都在一个寻路点范围内，直线处理
-                if (Path.Count == 1)
-                {
-                    owner.FaceToTarget(owner.GetSceneItemTarget().transform.position);
-                    owner.controller.Input.AIMove(0, 1);
+                    wantPosition = owner.GetSceneItemTarget().transform.position;
                 }
                 else
                 {
-                    float dis = Vector3.Distance(owner.mSkeletonPivot, Path[targetIndex].pos);
-                    if (dis <= owner.Speed * Time.deltaTime * 0.13f)
+                    usePath = true;
+                    wantPosition = Path[targetIndex].pos;
+                }
+
+                //检查这一帧是否会走过目标，因为跨步太大.【这一段有问题，只有离目标非常近的时候再判断才行，远的话，可能会绕路，导致下一帧距离目标的位置越来越远】
+                NextFramePos = wantPosition - owner.mSkeletonPivot;
+                //33码距离内.
+                if (Vector3.Magnitude(NextFramePos) <= 1000)
+                {
+                    NextFramePos.y = 0;
+                    NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.15f;
+                    float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(wantPosition - NextFramePos));
+                    //反向
+                    if (s < 0)
                     {
-                        owner.controller.Input.AIMove(0, 0);
-                        if (targetIndex == Path.Count - 1)
+                        //仍在寻路点路径上.
+                        if (usePath)
                         {
-                            //到达终点.
                             owner.controller.Input.AIMove(0, 0);
-                            ChangeState(EAIStatus.Wait);
-                            return;
-                        }
-                        else
-                        {
                             curIndex = targetIndex;
                             targetIndex += 1;
+                            RotateRound = Random.Range(1, 3);
+                            SubStatus = EAISubStatus.GetItemSubRotateToItem;//到指定地点后旋转到目标.
+                            return;
                         }
-                        RotateRound = Random.Range(1, 3);
-                        SubStatus = EAISubStatus.GetItemSubRotateToItem;//到指定地点后旋转到目标.
-                        return;
+                        //不在寻路点上，说明已经到达终点
+                        owner.controller.Input.AIMove(0, 0);
+                        ChangeState(EAIStatus.Wait);
                     }
-
-                    owner.FaceToTarget(Path[targetIndex].pos);
-                    owner.controller.Input.AIMove(0, 1);
+                }
+                owner.FaceToTarget(wantPosition);
+                owner.controller.Input.AIMove(0, 1);
+                if (usePath)
+                {
                     //模拟跳跃键，移动到下一个位置.还得按住上
                     if (curIndex != -1)
                     {
@@ -397,7 +354,16 @@ public class MeteorAI {
                 break;
             case EAISubStatus.GetItemSubRotateToItem:
                 if (GetItemRotateToTargetCoroutine == null)
-                    GetItemRotateToTargetCoroutine = owner.StartCoroutine(GetItemRotateToTarget(Path[targetIndex].pos));
+                {
+                    Vector3 targetPosition = Vector3.zero;
+                    if (targetIndex >= Path.Count)
+                        targetPosition = owner.GetSceneItemTarget().transform.position;
+                    else if (targetIndex >= 0)
+                        targetPosition = Path[targetIndex].pos;
+                    else
+                        return;
+                    GetItemRotateToTargetCoroutine = owner.StartCoroutine(GetItemRotateToTarget(targetPosition));
+                }
                 break;
         }
     }
@@ -639,53 +605,49 @@ public class MeteorAI {
                 if (curIndex == -1)
                     targetIndex = 0;
 
+                //已经到达过最后一个寻路点.
+                Vector3 wantPosition = Vector3.zero;
+                bool usePath = false;
                 if (targetIndex >= Path.Count)
                 {
-                    UnityEngine.Debug.LogError(string.Format("targetIndex:{0}, FollowPath:{1}", targetIndex, Path.Count));
-                    Debug.DebugBreak();
-                    SubStatus = EAISubStatus.AttackTarget;
-                    return true;
-                }
-
-                Assert.IsTrue(targetIndex < Path.Count);
-                float dis = Vector3.Distance(owner.mSkeletonPivot, AttackTarget);
-                if (dis <= owner.Speed * Time.deltaTime * 0.13f)
-                {
-                    owner.controller.Input.AIMove(0, 0);
-                    SubStatus = EAISubStatus.AttackTarget;
-                    return false;
-                }
-                if (Path.Count == 1)
-                {
-                    //角色与目标都在一个寻路点范围内，直线处理
-                    owner.FaceToTarget(AttackTarget);
-                    owner.controller.Input.AIMove(0, 1);
+                    wantPosition = AttackTarget;
                 }
                 else
                 {
-                    dis = Vector3.Distance(owner.mSkeletonPivot, Path[targetIndex].pos);
-                    if (dis <= owner.Speed * Time.deltaTime * 0.13f)
+                    usePath = true;
+                    wantPosition = Path[targetIndex].pos;
+                }
+
+                //检查这一帧是否会走过目标，因为跨步太大.【这一段有问题，只有离目标非常近的时候再判断才行，远的话，可能会绕路，导致下一帧距离目标的位置越来越远】
+                NextFramePos = wantPosition - owner.mSkeletonPivot;
+                //33码距离内.
+                if (Vector3.Magnitude(NextFramePos) <= 1000)
+                {
+                    NextFramePos.y = 0;
+                    NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.15f;
+                    float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(wantPosition - NextFramePos));
+                    if (s < 0)
                     {
-                        owner.controller.Input.AIMove(0, 0);
-                        if (targetIndex == Path.Count - 1)
+                        //仍在寻路点路径上.
+                        if (usePath)
                         {
-                            //到达终点.
                             owner.controller.Input.AIMove(0, 0);
-                            SubStatus = EAISubStatus.AttackTarget;
-                            return false;
-                        }
-                        else
-                        {
                             curIndex = targetIndex;
                             targetIndex += 1;
+                            RotateRound = Random.Range(1, 3);
+                            SubStatus = EAISubStatus.AttackTargetSubRotateToTarget;//到指定地点后旋转到目标.
+                            return false;
                         }
-                        RotateRound = Random.Range(1, 3);
-                        SubStatus = EAISubStatus.AttackTargetSubRotateToTarget;//到指定地点后旋转到目标.
+                        //不在寻路点上，说明已经到达终点
+                        owner.controller.Input.AIMove(0, 0);
+                        SubStatus = EAISubStatus.AttackTarget;
                         return false;
                     }
-
-                    owner.FaceToTarget(Path[targetIndex].pos);
-                    owner.controller.Input.AIMove(0, 1);
+                }
+                owner.FaceToTarget(wantPosition);
+                owner.controller.Input.AIMove(0, 1);
+                if (usePath)
+                {
                     //模拟跳跃键，移动到下一个位置.还得按住上
                     if (curIndex != -1)
                     {
@@ -728,7 +690,16 @@ public class MeteorAI {
                 }
             case EAISubStatus.AttackTargetSubRotateToTarget:
                 if (AttackRotateToTargetCoroutine == null)
-                    AttackRotateToTargetCoroutine = owner.StartCoroutine(AttackRotateToTarget(Path[targetIndex].pos, EAIStatus.Wait, EAISubStatus.AttackGotoTarget, false, true));
+                {
+                    Vector3 vec = Vector3.zero;
+                    if (targetIndex >= Path.Count)
+                        vec = AttackTarget;
+                    else if (targetIndex >= 0)
+                        vec = Path[targetIndex].pos;
+                    else
+                        return false;
+                    AttackRotateToTargetCoroutine = owner.StartCoroutine(AttackRotateToTarget(vec, EAIStatus.Wait, EAISubStatus.AttackGotoTarget, false, true));
+                }
                 break;
         }
         return false;
@@ -759,6 +730,9 @@ public class MeteorAI {
             case EAISubStatus.FightSubRotateToTarget:
                 OnFightSubRotateToTarget();
                 break;
+            case EAISubStatus.FightSubRotateToPosition:
+                OnFightSubRotateToPosition();
+                break;
             //case EAISubStatus.FightNear:
             //    OnFightNear();
             //    break;
@@ -770,13 +744,13 @@ public class MeteorAI {
 
     void OnFightNearTarget()
     {
-        if (Time.realtimeSinceStartup - statusTick >= 3.0f)
-        {
-            Stop();
-            Status = EAIStatus.Fight;
-            SubStatus = EAISubStatus.Fight;
-            return;
-        }
+        //if (statusTick >= 3.0f)
+        //{
+        //    Stop();
+        //    Status = EAIStatus.Fight;
+        //    SubStatus = EAISubStatus.Fight;
+        //    return;
+        //}
 
         owner.FaceToTarget(fightTarget);
         owner.controller.Input.AIMove(0, 1);
@@ -806,10 +780,34 @@ public class MeteorAI {
 
     void OnFightSubRotateToTarget()
     {
-        if (FollowRotateToTargetCoroutine == null && Path.Count > targetIndex)
-            FollowRotateToTargetCoroutine = owner.StartCoroutine(FollowRotateToTarget(Path[targetIndex].pos, EAISubStatus.FightGotoPosition));
+        if (FollowRotateToTargetCoroutine == null)
+        {
+            Vector3 vec = Vector3.zero;
+            if (targetIndex >= Path.Count)
+                vec = fightTarget.mSkeletonPivot;
+            else if (targetIndex >= 0)
+                vec = Path[targetIndex].pos;
+            else
+                return;
+            FollowRotateToTargetCoroutine = owner.StartCoroutine(FollowRotateToTarget(vec, EAISubStatus.FightGotoTarget));
+        }
     }
 
+    void OnFightSubRotateToPosition()
+    {
+        if (FollowRotateToPositionCoroutine == null)
+        {
+            Vector3 vec = Vector3.zero;
+            if (targetIndex >= Path.Count)
+                vec = TargetPos;
+            else if (targetIndex >= 0)
+                vec = Path[targetIndex].pos;
+            else
+                return;
+
+            FollowRotateToPositionCoroutine = owner.StartCoroutine(FollowRotateToPosition(vec, EAISubStatus.FightGotoPosition));
+        }
+    }
     //计算出下一帧的位置.
     Vector3 NextFramePos = Vector3.zero;
 
@@ -821,62 +819,50 @@ public class MeteorAI {
         if (curIndex == -1)
             targetIndex = 0;
 
+        //已经到达过最后一个寻路点.
+        Vector3 wantPosition = Vector3.zero;
+        bool usePath = false;
         if (targetIndex >= Path.Count)
         {
-            UnityEngine.Debug.LogError(string.Format("targetIndex:{0}, FollowPath:{1}", targetIndex, Path.Count));
-            Status = EAIStatus.Fight;
-            SubStatus = EAISubStatus.Fight;
-            return;
-        }
-
-        Assert.IsTrue(targetIndex < Path.Count);
-
-        float dis = Vector3.Distance(owner.mSkeletonPivot, TargetPos);
-        if (dis <= owner.Speed * Time.deltaTime * 0.13f)
-        {
-            owner.controller.Input.AIMove(0, 0);
-            Status = EAIStatus.Fight;
-            SubStatus = EAISubStatus.Fight;
-            return;
-        }
-
-        if (Path.Count == 1)
-        {
-            //角色与目标都在一个寻路点范围内，直线处理
-            owner.FaceToTarget(TargetPos);
-            owner.controller.Input.AIMove(0, 1);
+            wantPosition = TargetPos;
         }
         else
         {
-            dis = Vector3.Distance(owner.mSkeletonPivot, Path[targetIndex].pos);
-            float disMin = owner.Speed * Time.deltaTime * 0.15f;
-            ////if (lastPos != Vector3.zero && Vector3.Dot(new Vector3(owner.mPos.x, 0, owner.mPos.z) - new Vector3(lastPos.x, 0, lastPos.z), new Vector3(Path[targetIndex].pos.x, 0, Path[targetIndex].pos.z) - new Vector3(owner.mPos.x, 0, owner.mPos.z)) < 0)
-            ////{
-            ////    Debug.DebugBreak();
-            ////}
+            usePath = true;
+            wantPosition = Path[targetIndex].pos;
+        }
 
-            if (dis <= disMin)
+        //检查这一帧是否会走过目标，因为跨步太大.【这一段有问题，只有离目标非常近的时候再判断才行，远的话，可能会绕路，导致下一帧距离目标的位置越来越远】
+        NextFramePos = wantPosition - owner.mSkeletonPivot;
+        //33码距离内.
+        if (Vector3.Magnitude(NextFramePos) <= 1000)
+        {
+            NextFramePos.y = 0;
+            NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.15f;
+            float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(wantPosition - NextFramePos));
+            if (s < 0)
             {
-                //Debug.Log(string.Format("dis:{0} dis min:{1}", dis, disMin));
-                owner.controller.Input.AIMove(0, 0);
-                if (targetIndex == Path.Count - 1)
+                //仍在寻路点路径上.
+                if (usePath)
                 {
-                    Status = EAIStatus.Fight;
-                    SubStatus = EAISubStatus.Fight;
-                    return;
-                }
-                else
-                {
+                    owner.controller.Input.AIMove(0, 0);
                     curIndex = targetIndex;
                     targetIndex += 1;
+                    RotateRound = Random.Range(1, 3);
+                    SubStatus = EAISubStatus.FightSubRotateToPosition;//到指定地点后旋转到目标.
+                    return;
                 }
-                RotateRound = Random.Range(1, 3);
-                SubStatus = EAISubStatus.FightSubRotateToTarget;//到指定地点后旋转到目标.
+                //不在寻路点上，说明已经到达终点
+                owner.controller.Input.AIMove(0, 0);
+                Status = EAIStatus.Fight;
+                SubStatus = EAISubStatus.Fight;
                 return;
             }
-
-            owner.FaceToTarget(Path[targetIndex].pos);
-            owner.controller.Input.AIMove(0, 1);
+        }
+        owner.FaceToTarget(wantPosition);
+        owner.controller.Input.AIMove(0, 1);
+        if (usePath)
+        {
             //模拟跳跃键，移动到下一个位置.还得按住上
             if (curIndex != -1)
             {
@@ -884,6 +870,7 @@ public class MeteorAI {
                 {
                     AIJump();
                     AIJumpDelay = 0.0f;
+                    return;
                 }
                 //尝试几率跳跃，否则可能会被卡住.
                 int random = Random.Range(0, 100);
@@ -891,82 +878,83 @@ public class MeteorAI {
                 {
                     AIJump();
                     AIJumpDelay = 0.0f;
+                    return;
                 }
-            }
+            };
         }
     }
 
-    float statusTick = 0.0f;
     void OnFightGotoTarget()
     {
+        //先查看与目标角色距离，在一定距离内结束此状态
+        if (Vector3.Magnitude(fightTarget.mSkeletonPivot - owner.mSkeletonPivot) <= 1000)
+        {
+            owner.controller.Input.AIMove(0, 0);
+            SubStatus = EAISubStatus.FightNearTarget;
+            return;
+        }
+
         if (PathRefreshTick > 5.0f)
             RefreshPath(owner.mPos, fightTarget.mSkeletonPivot);
 
         if (curIndex == -1)
             targetIndex = 0;
 
-        if (targetIndex >= Path.Count)
+        //已经到达过最后一个寻路点.
+        //检查这一帧是否会走过目标，因为跨步太大.【这一段有问题，只有离目标非常近的时候再判断才行，远的话，可能会绕路，导致下一帧距离目标的位置越来越远】
+        if (targetIndex < Path.Count)
         {
-            UnityEngine.Debug.LogError(string.Format("targetIndex:{0}, FollowPath:{1}", targetIndex, Path.Count));
-            Debug.DebugBreak();
+            NextFramePos = Path[targetIndex].pos - owner.mSkeletonPivot;
+            //33码距离内.
+            if (Vector3.Magnitude(NextFramePos) <= 1000)
+            {
+                NextFramePos.y = 0;
+                NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.15f;
+                float s = GetAngleBetween((NextFramePos - owner.mSkeletonPivot).normalized, (Path[targetIndex].pos - NextFramePos).normalized);
+                if (s < 0)
+                {
+                    if (targetIndex == Path.Count - 1)
+                    {
+                        owner.controller.Input.AIMove(0, 0);
+                        SubStatus = EAISubStatus.FightNearTarget;//要先转向面向攻击目标.
+                        return;
+                    }
+                    else
+                    {
+                        owner.controller.Input.AIMove(0, 0);
+                        curIndex = targetIndex;
+                        targetIndex += 1;
+                        RotateRound = Random.Range(1, 3);
+                        SubStatus = EAISubStatus.FightSubRotateToTarget;//到指定地点后旋转到目标.
+                        return;
+                    }
+                }
+            }
         }
 
-        Assert.IsTrue(targetIndex < Path.Count);
-        float dis = Vector3.Distance(owner.mSkeletonPivot, fightTarget.mSkeletonPivot);
-        if (dis <= owner.Speed * Time.deltaTime * 0.13f)
-        {
-            owner.controller.Input.AIMove(0, 0);
-            SubStatus = EAISubStatus.FightNearTarget;//要先转向面向攻击目标.
-            statusTick = Time.realtimeSinceStartup;
-            return;
-        }
-        if (Path.Count == 1)
-        {
-            owner.FaceToTarget(fightTarget.mSkeletonPivot);
-            owner.controller.Input.AIMove(0, 1);
-        }
+        if (targetIndex < Path.Count)
+            owner.FaceToTarget(Path[targetIndex].pos);
         else
+            owner.FaceToTarget(fightTarget.mSkeletonPivot);
+
+        owner.controller.Input.AIMove(0, 1);
+
+        //模拟跳跃键，移动到下一个位置.还得按住上
+        if (curIndex != -1 && curIndex < Path.Count && targetIndex < Path.Count)
         {
-            dis = Vector3.Distance(owner.mSkeletonPivot, Path[targetIndex].pos);
-            float disMin = owner.Speed * Time.deltaTime * 0.15f;
-            if (dis <= disMin)
+            if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
             {
-                owner.controller.Input.AIMove(0, 0);
-                if (targetIndex == Path.Count - 1)
-                {
-                    //到达终点.
-                    owner.controller.Input.AIMove(0, 0);
-                    SubStatus = EAISubStatus.FightNearTarget;//要先转向面向攻击目标.
-                    statusTick = Time.realtimeSinceStartup;
-                    return;
-                }
-                else
-                {
-                    curIndex = targetIndex;
-                    targetIndex += 1;
-                }
-                RotateRound = Random.Range(1, 3);
-                SubStatus = EAISubStatus.FightSubRotateToTarget;//到指定地点后旋转到目标.
+                AIJump();
+                AIJumpDelay = 0.0f;
                 return;
             }
-
-            owner.FaceToTarget(Path[targetIndex].pos);
-            owner.controller.Input.AIMove(0, 1);
-            //模拟跳跃键，移动到下一个位置.还得按住上
-            if (curIndex != -1)
+            //尝试几率跳跃，否则可能会被卡住.
+            int random = Random.Range(0, 100);
+            if (random < owner.Attr.Jump && AIJumpDelay >= 2.5f)
             {
-                if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
-                {
-                    AIJump();
-                    AIJumpDelay = 0.0f;
-                }
-                //尝试几率跳跃，否则可能会被卡住.
-                int random = Random.Range(0, 100);
-                if (random < owner.Attr.Jump && AIJumpDelay >= 2.5f)
-                {
-                    AIJump();
-                    AIJumpDelay = 0.0f;
-                }
+                AIJump();
+                AIJumpDelay = 0.0f;
+                return;
             }
         }
     }
@@ -1361,105 +1349,138 @@ public class MeteorAI {
         SubStatus = EAISubStatus.KillGetTarget;
     }
 
+    void OnFollow()
+    {
+        MovetoTarget(followTarget);
+    }
+
+    void OnKill()
+    {
+        switch (SubStatus)
+        {
+            case EAISubStatus.KillThink:
+                OnKillThink();
+                break;
+            case EAISubStatus.KillGotoTarget:
+                if (killTarget == null)
+                    killTarget = owner.GetLockedTarget();
+                if (killTarget != null)
+                    MovetoTarget(killTarget);
+                else
+                {
+                    Status = EAIStatus.Idle;
+                }
+                break;
+            case EAISubStatus.KillGetTarget:
+                if (killTarget == null || killTarget.Dead)
+                    killTarget = owner.GetLockedTarget();
+                if (killTarget != null)
+                    OnKillGetTarget(killTarget);
+                else
+                {
+                    Status = EAIStatus.Idle;
+                }
+                break;
+            case EAISubStatus.FollowSubRotateToTarget:
+                if (FollowRotateToTargetCoroutine == null)
+                {
+                    FollowRotateToTargetCoroutine = owner.StartCoroutine(FollowRotateToTarget(Path[targetIndex].pos, EAISubStatus.FollowGotoTarget));
+                }
+                break;
+        }
+    }
+
     void MovetoTarget(MeteorUnit target)
     {
         float dis = 0.0f;
         switch (SubStatus)
         {
             case EAISubStatus.FollowGotoTarget:
-            case EAISubStatus.KillGotoTarget:
-                if (PathRefreshTick >= 5f)
+                dis = Vector3.Distance(owner.mSkeletonPivot, target.mSkeletonPivot);
+                if (dis < Global.FollowDistance)//小于50码停止跟随，不需要计算路径
                 {
-                    //先确定是否重新刷新路线.
-                    dis = Vector3.Distance(owner.mSkeletonPivot, target.mSkeletonPivot);
-                    if (dis < Global.FollowDistance)//小于50码停止跟随，不需要计算路径
-                    {
-                        //FollowPath.Clear();
-                        //Debug.Log("stop follow until 35 meters");
-                        owner.controller.Input.AIMove(0, 0);
-                        ChangeState(EAIStatus.Wait);//开始寻找敌人
-                        return;
-                    }
+                    //FollowPath.Clear();
+                    //Debug.Log("stop follow until 35 meters");
+                    owner.controller.Input.AIMove(0, 0);
+                    ChangeState(EAIStatus.Wait);//开始寻找敌人
+                    return;
+                }
+
+                if (PathRefreshTick >= 5f)
                     RefreshPath(owner.mSkeletonPivot, target.mSkeletonPivot);
+
+                if (targetIndex >= Path.Count)
+                    RefreshPath(owner.mSkeletonPivot, target.mSkeletonPivot);
+
+                if (curIndex == -1)
+                    targetIndex = 0;
+
+                if (Vector3.Magnitude(target.mSkeletonPivot - owner.mSkeletonPivot) <= 1000)
+                {
+
+                }
+                //已经到达过最后一个寻路点.
+                Vector3 wantPosition = Vector3.zero;
+                bool usePath = false;
+                if (targetIndex >= Path.Count)
+                {
+                    wantPosition = target.mSkeletonPivot;
                 }
                 else
                 {
-                    if (targetIndex >= Path.Count)
-                        RefreshPath(owner.mSkeletonPivot, target.mSkeletonPivot);
+                    usePath = true;
+                    wantPosition = Path[targetIndex].pos;
+                }
 
-                    if (curIndex == -1)
-                        targetIndex = 0;
-
-                    if (targetIndex >= Path.Count)
+                //检查这一帧是否会走过目标，因为跨步太大.【这一段有问题，只有离目标非常近的时候再判断才行，远的话，可能会绕路，导致下一帧距离目标的位置越来越远】
+                NextFramePos = wantPosition - owner.mSkeletonPivot;
+                //33码距离内.
+                if (Vector3.Magnitude(NextFramePos) <= 1000)
+                {
+                    NextFramePos.y = 0;
+                    NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.15f;
+                    float s = GetAngleBetween(NextFramePos - owner.mSkeletonPivot, wantPosition - NextFramePos);
+                    if (s < 0)
                     {
-                        UnityEngine.Debug.LogError(string.Format("targetIndex:{0}, FollowPath:{1}", targetIndex, Path.Count));
-                        Debug.DebugBreak();
-                    }
-                    Assert.IsTrue(targetIndex < Path.Count);
-
-                    //查看是否该停下.
-                    dis = Vector3.SqrMagnitude(owner.mSkeletonPivot - target.mSkeletonPivot);
-                    if (dis <= 900)
-                    {
-                        //距离目标已经足够近
-                        owner.controller.Input.AIMove(0, 0);
-                        ChangeState(EAIStatus.Wait);//开始寻找敌人
-                        return;
-                    }
-
-                    dis = Vector3.Distance(owner.mSkeletonPivot, target.mSkeletonPivot);
-                    if (dis <= owner.Speed * Time.deltaTime * 0.13f)
-                    {
-                        owner.controller.Input.AIMove(0, 0);
-                        ChangeState(EAIStatus.Wait);//开始寻找敌人
-                        return;
-                    }
-
-                    if (Path.Count == 1)
-                    {
-                        owner.FaceToTarget(target.mSkeletonPivot);
-                        owner.controller.Input.AIMove(0, 1);
-                    }
-                    else
-                    {
-                        dis = Vector3.Distance(new Vector3(owner.mPos.x, 0, owner.mPos.z), new Vector3(Path[targetIndex].pos.x, 0, Path[targetIndex].pos.z));
-                        if (dis <= owner.Speed * Time.deltaTime * 0.13f)
+                        //仍在寻路点路径上.
+                        if (usePath)
                         {
                             owner.controller.Input.AIMove(0, 0);
-                            if (targetIndex == Path.Count - 1)
-                            {
-                                ChangeState(EAIStatus.Wait);//开始寻找敌人
-                                return;
-                            }
-                            else
-                            {
-                                curIndex = targetIndex;
-                                targetIndex += 1;
-                            }
+                            curIndex = targetIndex;
+                            targetIndex += 1;
                             RotateRound = Random.Range(1, 3);
                             SubStatus = EAISubStatus.FollowSubRotateToTarget;//到指定地点后旋转到目标.
                             return;
                         }
-
-                        owner.FaceToTarget(new Vector3(Path[targetIndex].pos.x, 0, Path[targetIndex].pos.z));
-                        owner.controller.Input.AIMove(0, 1);
-                        //模拟跳跃键，移动到下一个位置.还得按住上
-                        if (curIndex != -1)
-                        {
-                            if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
-                            {
-                                AIJump();
-                                AIJumpDelay = 0.0f;
-                            }
-                            //尝试几率跳跃，否则可能会被卡住.
-                            int random = Random.Range(0, 100);
-                            if (random < owner.Attr.Jump && AIJumpDelay >= 2.5f)
-                            {
-                                AIJump();
-                                AIJumpDelay = 0.0f;
-                            }
-                        }
+                        //不在寻路点上，说明已经到达终点
+                        owner.controller.Input.AIMove(0, 0);
+                        ChangeState(EAIStatus.Wait);//开始寻找敌人
+                        return;
                     }
+                }
+
+                owner.FaceToTarget(wantPosition);
+                owner.controller.Input.AIMove(0, 1);
+                if (usePath)
+                {
+                    //模拟跳跃键，移动到下一个位置.还得按住上
+                    if (curIndex != -1)
+                    {
+                        if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
+                        {
+                            AIJump();
+                            AIJumpDelay = 0.0f;
+                            return;
+                        }
+                        //尝试几率跳跃，否则可能会被卡住.
+                        int random = Random.Range(0, 100);
+                        if (random < owner.Attr.Jump && AIJumpDelay >= 2.5f)
+                        {
+                            AIJump();
+                            AIJumpDelay = 0.0f;
+                            return;
+                        }
+                    };
                 }
                 break;
             case EAISubStatus.FollowSubRotateToTarget:
@@ -2019,7 +2040,8 @@ public class MeteorAI {
     }
 
     Coroutine FollowRotateToTargetCoroutine;
-    IEnumerator FollowRotateToTarget(Vector3 vec, EAISubStatus onFinishSubStatus)
+    Coroutine FollowRotateToPositionCoroutine;
+    IEnumerator FollowRotateToPosition(Vector3 vec, EAISubStatus onFinishSubStatus)
     {
         if (vec.x == owner.mPos.x && vec.z == owner.mPos.z)
         {
@@ -2056,9 +2078,48 @@ public class MeteorAI {
             }
             yield return 0;
         }
+        FollowRotateToPositionCoroutine = null;
+        SubStatus = onFinishSubStatus;
+    }
+
+    IEnumerator FollowRotateToTarget(Vector3 vec, EAISubStatus onFinishSubStatus)
+    {
+        if (vec.x == owner.mPos.x && vec.z == owner.mPos.z)
+        {
+            FollowRotateToTargetCoroutine = null;
+            SubStatus = onFinishSubStatus;
+            yield break;
+        }
+        Vector3 diff = (vec - owner.mPos);
+        diff.y = 0;
+        float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
+        float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
+        float angle = Mathf.Abs(Mathf.Acos(dot) * Mathf.Rad2Deg);
+        bool rightRotate = dot2 > 0;
+        float offset = 0.0f;
+        float offsetmax = GetAngleBetween(vec);
+        float timeTotal = offsetmax / 150.0f;
+        float timeTick = 0.0f;
+        while (true)
+        {
+            float yOffset = 0.0f;
+            timeTick += Time.deltaTime;
+            if (rightRotate)
+                yOffset = Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            else
+                yOffset = -Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
+            owner.SetOrientation(yOffset - offset);
+            offset = yOffset;
+            if (timeTick > timeTotal)
+            {
+                if (owner.posMng.mActiveAction.Idx == CommonAction.WalkRight || owner.posMng.mActiveAction.Idx == CommonAction.WalkLeft)
+                    owner.posMng.ChangeAction(0, 0.1f);
+                break;
+            }
+            yield return 0;
+        }
         FollowRotateToTargetCoroutine = null;
         SubStatus = onFinishSubStatus;
-        //SubStatus = EAISubStatus.FollowGotoTarget;
     }
 
     //朝向指定目标，一定时间内
