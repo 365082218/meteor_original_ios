@@ -29,3 +29,4 @@ FuBenID	Scene	SceneMode	Des	DisableFindWay	Chapter	Name	LevelType	LevelScript	St
 27	Meteor_06	1	AI测试	0	飞镖AI	远程AI测试	5	sn1000	sn1000_2	sn06	S5		1		
 28	Meteor_06	1	AI测试	0	防御硬直	防御硬直测试	5	sn1000	sn1000_3	sn06	S5		1		
 29	Meteor_06	1	火枪测试场景	0	火枪测试	火枪测试	5	sn1000	sn1000_4	sn06	S5		1		
+30	Meteor_06	1	跟随测试场景	0	跟随测试	跟随测试	5	sn1000	sn1000_5	sn06	S5		1		

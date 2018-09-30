@@ -35,7 +35,8 @@ public class Global
     public static int LEVELMAX = 29;//最大关卡29
     public const int ANGRYMAX = 100;
     public const float AttackRange = 90.0f;//近战攻击距离
-    public const float FollowDistance = 50.0f;//近距离内不需要再跟随
+    public const float FollowDistanceEnd = 2500.0f;//结束跟随
+    public const float FollowDistanceStart = 4225.0f;//开始跟随
     public const int BreakChange = 3;//3%爆气几率
 
     public static DateTime JSLongToDataTime(long longTime)

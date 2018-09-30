@@ -549,7 +549,7 @@ public class PoseStatus
         if (load != null)
         {
             int weapon = _Self.GetWeaponType();
-            CanMove = false;
+            //CanMove = false;
             if (idx == CommonAction.Defence)
             {
                 switch ((EquipWeaponType)weapon)

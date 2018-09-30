@@ -189,9 +189,9 @@ public class CameraFollow : MonoBehaviour {
             //整个视角都是缓动的
             if (smooth)
             {
-                float x = Mathf.Lerp(transform.position.x, newPos.x, smoothIntensity * Time.deltaTime);
-                float y = Mathf.Lerp(transform.position.y, newPos.y, smoothIntensity * Time.deltaTime);
-                float z = Mathf.Lerp(transform.position.z, newPos.z, smoothIntensity * Time.deltaTime);
+                float x = Mathf.Lerp(transform.position.x, newPos.x, smoothIntensity * Time.smoothDeltaTime);
+                float y = Mathf.Lerp(transform.position.y, newPos.y, smoothIntensity * Time.smoothDeltaTime);
+                float z = Mathf.Lerp(transform.position.z, newPos.z, smoothIntensity * Time.smoothDeltaTime);
                 newPos.x = x;
                 newPos.y = y;
                 newPos.z = z;
@@ -201,7 +201,7 @@ public class CameraFollow : MonoBehaviour {
             if (smooth)
             {
                 Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
-                transform.rotation = Quaternion.Slerp(transform.rotation, to, RotateIntensity * Time.deltaTime);
+                transform.rotation = Quaternion.Slerp(transform.rotation, to, RotateIntensity * Time.smoothDeltaTime);
                 Vector3 vec = transform.eulerAngles;
                 vec.z = 0;
                 transform.eulerAngles = vec;
@@ -287,7 +287,7 @@ public class CameraFollow : MonoBehaviour {
                 hitWall = true;
                 //Debug.LogError("hitWall" + wallHit.transform.name);
                 //摄像机与角色间有物件遮挡住角色，开始自动计算摄像机位置.
-                //Debug.LogError("camera linecast with:" + wallHit.transform.name);
+                Debug.LogError("camera linecast with:" + wallHit.transform.name);
                 newPos = wallHit.point + Vector3.Normalize(cameraLookAt - wallHit.point) * 5;
                 if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
                 1 << LayerMask.NameToLayer("Scene") |
@@ -334,7 +334,7 @@ public class CameraFollow : MonoBehaviour {
                     //没被墙壁阻隔，可以缓动Y
                     if (smooth && !hitWall)
                     {
-                        newPos.y = Mathf.Lerp(transform.position.y, newPos.y, smoothIntensity * Time.deltaTime);
+                        newPos.y = Mathf.Lerp(transform.position.y, newPos.y, smoothIntensity * Time.smoothDeltaTime);
                         //Debug.LogError("平滑且无墙壁间隔时");
                     }
 

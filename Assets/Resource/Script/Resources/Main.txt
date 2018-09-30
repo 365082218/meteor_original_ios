@@ -89,3 +89,7 @@ end
 function sn1000_4()
 	U3D.AddNPC("npc1000_4")
 end
+
+function sn1000_5()
+	U3D.AddNPC("npc1000_5")
+end

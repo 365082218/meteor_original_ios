@@ -54,11 +54,11 @@ public class FightWnd: Window<FightWnd>
     //GameObject debugPanel;
 
     //当前攻击对象控件
-    GameObject targetInfo;
-    Image targetHp;
-    Text targetName;
+    //GameObject targetInfo;
+    //Image targetHp;
+    //Text targetName;
     //Text targetTitleInfo;
-    Text targetHpInfo;
+    //Text targetHpInfo;
     //Text targetBuffInfo;
 
     //角色面板，暂时取消
@@ -136,14 +136,14 @@ public class FightWnd: Window<FightWnd>
         //Button effectPlay = Global.ldaControlX("PlayEffect", WndObject).GetComponent<Button>();
 
         //targetInfo
-        targetInfo = Global.ldaControlX("TargetInfo", WndObject);
-        targetHp = Global.ldaControlX("TargetHp", targetInfo).GetComponent<Image>();
-        targetName = Global.ldaControlX("TargetName", targetInfo).GetComponent<Text>();
+        //targetInfo = Global.ldaControlX("TargetInfo", WndObject);
+        //targetHp = Global.ldaControlX("TargetHp", targetInfo).GetComponent<Image>();
+        //targetName = Global.ldaControlX("TargetName", targetInfo).GetComponent<Text>();
         //targetTitleInfo = Global.ldaControlX("TargetTitleInfo", targetInfo).GetComponent<Text>();
-        targetHpInfo = Global.ldaControlX("TargetHpInfo", targetInfo).GetComponent<Text>();
+        //targetHpInfo = Global.ldaControlX("TargetHpInfo", targetInfo).GetComponent<Text>();
         //targetBuffInfo = Global.ldaControlX("TargetBuffInfo", targetInfo).GetComponent<Text>();
         //
-        targetInfo.SetActive(false);
+        //targetInfo.SetActive(false);
 
         //Button replay = Global.ldaControlX("Replay", WndObject).GetComponent<Button>();
         //currentPos = Global.ldaControlX("CurrentPose", WndObject).GetComponent<Button>();
@@ -471,7 +471,7 @@ public class FightWnd: Window<FightWnd>
 
     public void OnBattleEnd()
     {
-        targetInfo.SetActive(false);
+        //targetInfo.SetActive(false);
         //if (hideTargetInfo != null)
         //{
         //    GameBattleEx.Instance.StopCoroutine(hideTargetInfo);

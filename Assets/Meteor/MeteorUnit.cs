@@ -275,7 +275,6 @@ public partial class MeteorUnit : MonoBehaviour
     public uint OnGroundTick = 0;
     [SerializeField]
     public MeteorAI robot;
-    public float idleRushTick = 0.0f;
     //按照角色的坐标围成一圈，每个30度 12个空位，距离50，其实应该按
     //public Dictionary<int, MeteorUnit> SlotInfo = new Dictionary<int, MeteorUnit>();
     //public Dictionary<int, GameObject> SlotFreePos = new Dictionary<int, GameObject>(); 
@@ -677,7 +676,7 @@ public partial class MeteorUnit : MonoBehaviour
         for (int i = 0; i < removedD.Count; i++)
             attackDelay.Remove(removedD[i]);
 
-        charLoader.CharacterUpdate();
+        //charLoader.CharacterUpdate();
         if (robot != null)
             RefreshTarget();
         ProcessGravity();
@@ -794,6 +793,7 @@ public partial class MeteorUnit : MonoBehaviour
     //增加一点速度，让其爬墙，或者持续跳
     public void AddYVelocity(float y)
     {
+        return;
         ImpluseVec.y += y;
         if (ImpluseVec.y > yClimbLimitMax)
             ImpluseVec.y = yClimbLimitMax;
@@ -812,6 +812,7 @@ public partial class MeteorUnit : MonoBehaviour
     //处理地面摩擦力, scale地面摩擦力倍数，空中时摩擦力为0.2倍
     void ProcessFriction(float scale = 1.0f)
     {
+        return;
         if (ImpluseVec.x != 0)
         {
             if (ImpluseVec.x > 0)
@@ -886,9 +887,20 @@ public partial class MeteorUnit : MonoBehaviour
             {
                 //处理跳跃的下半程
                 float s = ImpluseVec.y * Time.deltaTime - 0.5f * gScale * Time.deltaTime * Time.deltaTime;
-                Move(new Vector3(ImpluseVec.x * Time.deltaTime, s, ImpluseVec.z * Time.deltaTime) + charLoader.moveDelta);
+                Vector3 v;
+                v.x = ImpluseVec.x * Time.deltaTime;
+                v.y = IsOnGround() ? 0 : s;
+                v.z = ImpluseVec.z * Time.deltaTime;
+                v += charLoader.moveDelta;
+                Move(v);
+                float v2 = Vector3.Magnitude(v);
+                if (Mathf.Abs(v2) >= 5.0f)
+                {
+                    UnityEngine.Debug.DebugBreak();
+                }
                 //Move(new Vector3(0, s, 0) + transform.right * ImpluseVec.x * Time.deltaTime - transform.forward * ImpluseVec.z * Time.deltaTime);
-                //Debug.Log("move s:" + s);
+                //Debug.Log("move s:" + v2);
+
                 //只判断控制器，有时候在空中也会为真，但是还是要把速度与加速度计算
                 if (!OnGround)
                 {
@@ -904,10 +916,16 @@ public partial class MeteorUnit : MonoBehaviour
                 //    ImpluseVec.z = 0;
                 //}
             }
-            if (OnGround || OnTopGround)//如果在地面，或者顶到天花板，那么应用摩擦力.
-                ProcessFriction();
-            else if (MoveOnGroundEx)
-                ProcessFriction(0.8f);//没贴着地面，还是要有摩擦力，否则房顶滑动太厉害
+
+            //if (OnGround || OnTopGround)
+            //{
+            //    ImpluseVec.x = 0;
+            //    ImpluseVec.z = 0;
+            //}
+            //if (OnGround || OnTopGround)//如果在地面，或者顶到天花板，那么应用摩擦力.
+            //    ProcessFriction();
+            //else if (MoveOnGroundEx)
+            //    ProcessFriction(0.8f);//没贴着地面，还是要有摩擦力，否则房顶滑动太厉害
         }
     }
 
@@ -1425,6 +1443,7 @@ public partial class MeteorUnit : MonoBehaviour
     //被墙壁推开.
     public void ProcessFall(float scale = 1.0f)
     {
+        return;
         Vector3 vec = transform.position - hitPoint;
         vec.y = 0;
         SetWorldVelocity(Vector3.Normalize(vec) * 50 * scale);
@@ -1622,7 +1641,7 @@ public partial class MeteorUnit : MonoBehaviour
                         else if (MoveOnGroundEx)
                         {
                             //Debug.LogError("爬墙碰到地面-落到地面");
-                            posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
+                            //posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                         }
                     }
                     else //落地时候碰到墙壁.给一个反向的推力,
@@ -1688,17 +1707,17 @@ public partial class MeteorUnit : MonoBehaviour
             {
                 if ((posMng.mActiveAction.Idx >= CommonAction.Jump && posMng.mActiveAction.Idx <= CommonAction.JumpBackFall) || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
                 {
-                    posMng.ChangeAction(0, 0.1f);
+                   // posMng.ChangeAction(0, 0.1f);
                     //Debug.LogError("接触地面切换到IDle");
                 }
-                ResetYVelocity();
+                //ResetYVelocity();
             }
         }
 
         //如果撞到天花板了.
-        if (OnTopGround)
-            if (ImpluseVec.y > 0)
-                ImpluseVec.y = 0;
+        //if (OnTopGround)
+        //    if (ImpluseVec.y > 0)
+        //        ImpluseVec.y = 0;
 
         
     }
@@ -1722,14 +1741,14 @@ public partial class MeteorUnit : MonoBehaviour
 
     public void ResetWorldVelocity(bool reset)
     {
-        if (reset)
-            ImpluseVec.x = ImpluseVec.z = 0;
+        //if (reset)
+        //    ImpluseVec.x = ImpluseVec.z = 0;
     }
 
     public void SetWorldVelocityExcludeY(Vector3 vec)
     {
-        ImpluseVec.x = vec.x;
-        ImpluseVec.z = vec.z;
+        //ImpluseVec.x = vec.x;
+        //ImpluseVec.z = vec.z;
     }
 
     public void SetWorldVelocity(Vector3 vec)
@@ -1739,19 +1758,19 @@ public partial class MeteorUnit : MonoBehaviour
         ImpluseVec.z = vec.z;
     }
 
-    public void SetVelocity(Vector3 velocityD)
-    {
-        SetVelocity(new Vector2(velocityD.z, velocityD.x));
-    }
+    //public void SetVelocity(Vector3 velocityD)
+    //{
+    //    SetVelocity(new Vector2(velocityD.z, velocityD.x));
+    //}
 
     //设置世界坐标系的速度,z向人物面前，x向人物右侧
     public void SetJumpVelocity(Vector2 velocityM)
     {
-        float z = velocityM.y * JumpVelocityForward;
-        float x = velocityM.x * JumpVelocityForward;
-        Vector3 vec = z * -transform.forward + x * -transform.right;
-        ImpluseVec.z = vec.z;
-        ImpluseVec.x = vec.x;
+        //float z = velocityM.y * JumpVelocityForward;
+        //float x = velocityM.x * JumpVelocityForward;
+        //Vector3 vec = z * -transform.forward + x * -transform.right;
+        //ImpluseVec.z = vec.z;
+        //ImpluseVec.x = vec.x;
     }
 
     public void SetVelocity(float z, float x)
@@ -1759,6 +1778,7 @@ public partial class MeteorUnit : MonoBehaviour
         Vector3 vec = z * -transform.forward + x * -transform.right;
         ImpluseVec.z = vec.z;
         ImpluseVec.x = vec.x;
+        //Log.Print("z:" + ImpluseVec.z);
     }
 
     //计算水平轴的冲量 = 物体的末速度（1S内）
@@ -1866,10 +1886,10 @@ public partial class MeteorUnit : MonoBehaviour
     {
         if (hit.gameObject.transform.root.tag.Equals("meteorUnit"))
         {
-            MeteorUnit hitUnit = hit.gameObject.transform.root.GetComponent<MeteorUnit>();
-            Vector3 vec = hitUnit.mPos - transform.position;
-            vec.y = 0;
-            hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 30);
+            //MeteorUnit hitUnit = hit.gameObject.transform.root.GetComponent<MeteorUnit>();
+            //Vector3 vec = hitUnit.mPos - transform.position;
+            //vec.y = 0;
+            //hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 30);
         }
         else if (hit.gameObject.transform.root.tag.Equals("SceneItemAgent"))
         {

@@ -18,6 +18,12 @@ public class Log
     {
         Init();
     }
+
+    public static void Print(string message)
+    {
+        UnityEngine.Debug.Log(string.Format("f:{0} message:{1}", Time.frameCount, message));
+    }
+
     private static FileStream fs;
     public static void Write(string message)
     {

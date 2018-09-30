@@ -132,7 +132,10 @@ public class MeteorInput
                     else if (NGUIJoystick.instance.ArrowPressed)
                         mInputVector = new Vector2(NGUIJoystick.instance.Delta.x, NGUIJoystick.instance.Delta.y);
                     else
+                    {
                         mInputVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+                        Log.Print(string.Format("horz:{0} vert:{1}", mInputVector.x, mInputVector.y));
+                    }
                 }
                 else
                     mInputVector = new Vector2(OffX, OffZ);//AIMove 自动战斗输入
