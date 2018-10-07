@@ -134,7 +134,7 @@ public class MeteorInput
                     else
                     {
                         mInputVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-                        Log.Print(string.Format("horz:{0} vert:{1}", mInputVector.x, mInputVector.y));
+                        //Log.Print(string.Format("horz:{0} vert:{1}", mInputVector.x, mInputVector.y));
                     }
                 }
                 else
@@ -315,6 +315,13 @@ public class MeteorInput
             return false;
         //飞轮.
         if (p.Idx >= 218 && p.Idx <= 225)
+            return false;
+
+        //防御中无法接受输入.
+        if (p.Idx >= CommonAction.DefenceHitStart && p.Idx <= CommonAction.DefenceHitEnd)
+            return false;
+
+        if (p.Idx >= CommonAction.HitStart && p.Idx <= CommonAction.HitEnd)
             return false;
         //if (p.Idx == CommonAction.Idle || p.Idx == CommonAction.GunIdle)
         //{
@@ -1986,8 +1993,7 @@ public class MeteorInput
             {
                 direction.Normalize();
                 //跑的速度 1000 = 145M/S 按原来游戏计算
-                float normal = mOwner.HasBuff((int)EBUFF_ID.DrugEx) ? 0.5f : 1f;
-                Vector2 runTrans = direction * mOwner.Speed * (mOwner.Crouching ? 0.25f : normal);//蹲下是跑步的4/1,中毒是一半速度
+                Vector2 runTrans = direction * mOwner.Speed * (mOwner.Crouching ? 0.25f : 1.0f);//蹲下是跑步的4/1,中毒是一半速度
                 float x = runTrans.x * (mOwner.Crouching ? 0.065f : 0.036f), y = runTrans.y * (mOwner.Crouching ? 0.065f : (runTrans.y >= 0 ? 0.100f: 0.036f));//前走速度145 后走速度36,左右走速度是36 模型Z轴与角色面朝相反
                 mOwner.SetVelocity(y, x);
             }
@@ -2063,26 +2069,9 @@ public class MeteorController : MonoBehaviour {
     public MeteorInput Input;
     MeteorUnit mOwner;
     PoseStatus posMng;
-    float mCameraModify = 0.0f;
     bool mInputLocked = false;
-    Vector3 mCameraPosCache = Vector3.zero;
-    Vector3 mCameraOffset = Vector3.zero;
-
     public bool InputLocked { get { return mInputLocked; } set { mInputLocked = value; } }
-
-    public Transform CameraTag;
-    public static MeteorController currentController = null;
-
-    public Transform CameraTarget;
-    public bool doCameraView = false;
-    public Vector3 FeatureCameraPos = Vector3.zero;
-    public Vector3 FeatureIncCameraPos = Vector3.zero;
-    public Vector3 FeatureNowCameraPos = Vector3.zero;
-
-    public Vector3 CameraPos = new Vector3(3, 2, 0);
     public Vector3 CameraLookAtOffset = new Vector3(0, 1, 0);
-    Vector3 LookAtPos;
-    public Vector2 BossCamera = new Vector2(30, 20);
     public MeteorUnit Owner { get { return mOwner; } }
 
     void Start()
@@ -2130,39 +2119,39 @@ public class MeteorController : MonoBehaviour {
         MeteorBehaviour.Instance.ProcessBehaviour(Owner);
     }
 
-    float mAdjustTime = 3.0f;
-    float mAdjustLeftTime = 0.0f;
-    float preY = float.MaxValue;
-    int HitY = 1;
-    int curHity = 0;
-    Transform trans;
-    bool isAttackMove;
-    Vector3 attackPos = Vector3.zero;
-    Vector3 attackOffset = Vector3.zero;
+    //float mAdjustTime = 3.0f;
+    //float mAdjustLeftTime = 0.0f;
+    //float preY = float.MaxValue;
+    //int HitY = 1;
+    //int curHity = 0;
+    //Transform trans;
+    //bool isAttackMove;
+    //Vector3 attackPos = Vector3.zero;
+    //Vector3 attackOffset = Vector3.zero;
 
-    void UpdateFollowBone()
-    {
-        if (Owner.posMng.FollowBone != null)
-        {
-            Transform tran = Owner.posMng.FollowBone;
-            if (isAttackMove == false)
-            {
-                attackPos = tran.position;
-            }
-            else
-            {
-                CameraLookAtOffset = (attackPos - tran.position) * Owner.posMng.FollowBoneScale + Vector3.up;
-                attackOffset = (attackPos - tran.position) * Owner.posMng.FollowBoneScale;
-            }
-            isAttackMove = true;
-        }
-        else
-        {
-            CameraLookAtOffset = Vector3.Lerp(CameraLookAtOffset, Vector3.up, Time.deltaTime * 5);
-            attackOffset = Vector3.Lerp(attackOffset, Vector3.zero, Time.deltaTime * 5);
-            isAttackMove = false;
-        }
-    }
+    //void UpdateFollowBone()
+    //{
+    //    if (Owner.posMng.FollowBone != null)
+    //    {
+    //        Transform tran = Owner.posMng.FollowBone;
+    //        if (isAttackMove == false)
+    //        {
+    //            attackPos = tran.position;
+    //        }
+    //        else
+    //        {
+    //            CameraLookAtOffset = (attackPos - tran.position) * Owner.posMng.FollowBoneScale + Vector3.up;
+    //            attackOffset = (attackPos - tran.position) * Owner.posMng.FollowBoneScale;
+    //        }
+    //        isAttackMove = true;
+    //    }
+    //    else
+    //    {
+    //        CameraLookAtOffset = Vector3.Lerp(CameraLookAtOffset, Vector3.up, Time.deltaTime * 5);
+    //        attackOffset = Vector3.Lerp(attackOffset, Vector3.zero, Time.deltaTime * 5);
+    //        isAttackMove = false;
+    //    }
+    //}
 
     public void LockInput(bool param)
     {

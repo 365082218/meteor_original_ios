@@ -63,7 +63,7 @@ public class CameraFollow : MonoBehaviour {
         followDistance = 55.0f;
         BodyHeight = 30;
         m_MinSize = 60;
-        LookAtAngle = 0.0f;
+        LookAtAngle = 10.0f;
         m_Camera = GetComponent<Camera>();
         m_Camera.fieldOfView = m_MinSize;
         fRadis = Mathf.Sqrt(followDistance * followDistance + followHeight * followHeight);
@@ -129,7 +129,7 @@ public class CameraFollow : MonoBehaviour {
         if (MeteorManager.Instance.LocalPlayer.GetLockedTarget() != null && !DisableLockTarget)
         {
             cameraLookAt = (MeteorManager.Instance.LocalPlayer.mPos + MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + new Vector3(0, 25, 0);
-            CameraRadis = Vector3.Distance(MeteorManager.Instance.LocalPlayer.mPos, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + 55;
+            CameraRadis = Vector3.Distance(MeteorManager.Instance.LocalPlayer.mPos, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + 50;
             float dis = Vector3.Distance(new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, 0, MeteorManager.Instance.LocalPlayer.mPos.z), new Vector3(MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos.x, 0, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos.z));
             Vector3 vecDiff = MeteorManager.Instance.LocalPlayer.mPos - MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos;
             Vector3 vecForward = Vector3.Normalize(new Vector3(vecDiff.x, 0, vecDiff.z));
@@ -287,17 +287,17 @@ public class CameraFollow : MonoBehaviour {
                 hitWall = true;
                 //Debug.LogError("hitWall" + wallHit.transform.name);
                 //摄像机与角色间有物件遮挡住角色，开始自动计算摄像机位置.
-                Debug.LogError("camera linecast with:" + wallHit.transform.name);
+                //Debug.LogError("camera linecast with:" + wallHit.transform.name);
                 newPos = wallHit.point + Vector3.Normalize(cameraLookAt - wallHit.point) * 5;
-                if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
-                1 << LayerMask.NameToLayer("Scene") |
-                (1 << LayerMask.NameToLayer("Default")) |
-                (1 << LayerMask.NameToLayer("Wall")) |
-                (1 << LayerMask.NameToLayer("Water"))))
-                {
-                    //m_Targets[2].position = wallHit.point;
-                    //Debug.LogError("?????");
-                }
+                //if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
+                //1 << LayerMask.NameToLayer("Scene") |
+                //(1 << LayerMask.NameToLayer("Default")) |
+                //(1 << LayerMask.NameToLayer("Wall")) |
+                //(1 << LayerMask.NameToLayer("Water"))))
+                //{
+                //    m_Targets[2].position = wallHit.point;
+                //    Debug.LogError("?????");
+                //}
             }
 
             //只有高度是缓动的，其他轴上都是即刻

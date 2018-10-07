@@ -122,6 +122,9 @@ public class Patch : MonoBehaviour {
         }
         yield return new WaitForEndOfFrame();
         Application.targetFrameRate = AppInfo.Instance.GetTargetFrame();
+#if UNITY_EDITOR
+        Application.targetFrameRate = 240;
+#endif
         Log.Write(string.Format("fps:{0}", Application.targetFrameRate));
         U3D.PlayMovie("start.mv");
         AppDomain.CurrentDomain.UnhandledException += UncaughtException;

@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: Scene10
-  m_Shader: {fileID: 4800000, guid: 7fd0f0715eff7014ea3b131f346a079f, type: 3}
+  m_Shader: {fileID: 4800000, guid: ef621c64e7b2bba4ead3fdfbdaf32cde, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_CustomRenderQueue: -1
@@ -21,14 +21,26 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - first:
+        name: _MainTex
+      second:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - first:
         name: <noninit>
       second: 0
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors:
     - first:
         name: <noninit>
       second: {r: 0, g: 1.6360399e+10, b: 0, a: 1.6360333e+10}
     - first:
         name: _Color
+      second: {r: 0, g: 0, b: 0, a: 1}
+    - first:
+        name: _TintColor
       second: {r: 0, g: 0, b: 0, a: 1}

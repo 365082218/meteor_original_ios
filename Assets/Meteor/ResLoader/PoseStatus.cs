@@ -82,7 +82,7 @@ public class PoseStatus
                 return false;
             if (mActiveAction.Idx >= CommonAction.DForw4 && mActiveAction.Idx <= CommonAction.DBack6)
                 return false;
-            if (mActiveAction.Idx == CommonAction.Struggle || mActiveAction.Idx == CommonAction.Dead)
+            if (mActiveAction.Idx == CommonAction.Struggle || mActiveAction.Idx == CommonAction.Dead || mActiveAction.Idx == CommonAction.Struggle0)
                 return false;
             if (mActiveAction.Idx == CommonAction.BreakOut || mActiveAction.Idx == CommonAction.ChangeWeapon ||
                 mActiveAction.Idx == CommonAction.Taunt || mActiveAction.Idx == CommonAction.AirChangeWeapon)
@@ -190,11 +190,15 @@ public class PoseStatus
             return false;
         return act.IgnoreCollision == 1;
     }
+
     public static bool IgnoreGravity(int idx)
     {
         ActionBase act = GameData.Instance.actionMng.GetRowByIdx(idx) as ActionBase;
         if (act == null)
+        {
+            //Debug.LogError(string.Format("action:{0} ignoregravity:false", idx));
             return false;
+        }
         return act.IgnoreGravity == 1;
     }
 
@@ -250,11 +254,11 @@ public class PoseStatus
                         if (!_Self.IsOnGround())
                             _Self.ResetYVelocity();
                         //_Self.IgnoreGravitys(IgnoreGravity(idx));
-
+                        //Debug.LogError("link action");
                         if (mActiveAction.Next != null)
                         {
                             //Debug.LogError("直接切换动作：" + idx + " NextPose:" + mActiveAction.Next.Time);
-                            ChangeAction(idx, mActiveAction.Next.Time);
+                            ChangeAction(idx, mActiveAction.Next.Time, true);
                         }
                         else
                             ChangeAction(idx);
@@ -285,8 +289,9 @@ public class PoseStatus
             }
             else
             {
+                //Debug.LogError("link action 2");
                 if (mActiveAction.Next != null)
-                    ChangeAction(idx, mActiveAction.Next.Time);
+                    ChangeAction(idx, mActiveAction.Next.Time, true);
                 else
                     ChangeAction(idx);
             }
@@ -316,7 +321,7 @@ public class PoseStatus
                 //212=>213
                 if (mActiveAction.Idx == CommonAction.GunReload)
                 {
-                    ChangeAction(CommonAction.GunIdle, 0.1f);
+                    ChangeAction(CommonAction.GunIdle, 0.1f, true);
                 }
                 else
                 {
@@ -331,7 +336,7 @@ public class PoseStatus
                         if (mActiveAction.Link != 0)
                         {
                             if (mActiveAction.Next != null)
-                                ChangeAction(mActiveAction.Link, mActiveAction.Next.Time);
+                                ChangeAction(mActiveAction.Link, mActiveAction.Next.Time, true);
                             else
                                 ChangeAction(mActiveAction.Link);
                         }
@@ -340,7 +345,7 @@ public class PoseStatus
                             if (!_Self.GunReady)
                             {
                                 if (mActiveAction.Next != null)
-                                    ChangeAction(CommonAction.Idle, 0.1f);
+                                    ChangeAction(CommonAction.Idle, 0.1f, true);
                                 else
                                     ChangeAction(CommonAction.Idle);
                             }
@@ -348,7 +353,7 @@ public class PoseStatus
                             {
                                 //没有重装子弹的进入213
                                 if (mActiveAction.Next != null)
-                                    ChangeAction(CommonAction.GunIdle, mActiveAction.Next.Time);
+                                    ChangeAction(CommonAction.GunIdle, mActiveAction.Next.Time, true);
                                 else
                                     ChangeAction(CommonAction.GunIdle);
                             }
@@ -362,7 +367,7 @@ public class PoseStatus
                 {
                     int TargetActionIdx = mActiveAction.Idx;
                     if (mActiveAction.Next != null)
-                        ChangeAction(LinkInput[mActiveAction.Idx], mActiveAction.Next.Time);//
+                        ChangeAction(LinkInput[mActiveAction.Idx], mActiveAction.Next.Time, true);//
                     else
                         ChangeAction(LinkInput[mActiveAction.Idx]);
                     LinkInput.Clear();
@@ -372,7 +377,7 @@ public class PoseStatus
                     if (mActiveAction.Link != 0)
                     {
                         if (mActiveAction.Next != null)
-                            ChangeAction(mActiveAction.Link, 0.1f);
+                            ChangeAction(mActiveAction.Link, 0.1f, true);
                         else
                             ChangeAction(mActiveAction.Link);
                     }
@@ -412,20 +417,20 @@ public class PoseStatus
                                     case EquipWeaponType.Gun: ReadyAction = CommonAction.GunReady; break;
                                 }
                                 if (mActiveAction.Next != null)
-                                    ChangeAction(ReadyAction, 0.1f);
+                                    ChangeAction(ReadyAction, mActiveAction.Next.Time, true);
                                 else
                                     ChangeAction(ReadyAction);
                             }
                             else
                             {
                                 if (mActiveAction.Next != null)
-                                    ChangeAction(CommonAction.Idle, mActiveAction.Next.Time);
+                                    ChangeAction(CommonAction.Idle, mActiveAction.Next.Time, true);
                                 else
                                     ChangeAction(CommonAction.Idle, 0.1f);
                             }
                         }
                         else
-                            ChangeAction(CommonAction.JumpFall, 0.1f);
+                            ChangeAction(CommonAction.JumpFall, 0.1f, true);
                     }
                 }
             }
@@ -447,58 +452,18 @@ public class PoseStatus
     CharacterLoader load;
     //动作在地面还是空中
     //动作是移动 防守 还是攻击 受伤 待机 
+    bool singleAction = false;
     public void ChangeActionSingle(int idx = CommonAction.Idle)
     {
-        if (ActionList[UnitId].Count > idx && load != null)
-        {
-            CanMove = false;
-            if (idx == CommonAction.Defence)
-            {
-                switch ((EquipWeaponType)_Self.GetWeaponType())
-                {
-                    case EquipWeaponType.Knife: idx = CommonAction.KnifeDefence; break;
-                    case EquipWeaponType.Sword: idx = CommonAction.SwordDefence; break;
-                    case EquipWeaponType.Blade: idx = CommonAction.BladeDefence; break;
-                    case EquipWeaponType.Lance: idx = CommonAction.LanceDefence; break;
-                    case EquipWeaponType.Brahchthrust: idx = CommonAction.BrahchthrustDefence; break;
-                    //case EquipWeaponType.Dart: idx = CommonAction.DartDefence;break;
-                    case EquipWeaponType.Gloves: idx = CommonAction.ZhihuDefence; break;//没找到
-                    //case EquipWeaponType.Guillotines: idx = CommonAction.GuillotinesDefence;break;
-                    case EquipWeaponType.Hammer: idx = CommonAction.HammerDefence; break;
-                    case EquipWeaponType.NinjaSword: idx = CommonAction.RendaoDefence; break;
-                    case EquipWeaponType.HeavenLance: idx = CommonAction.QiankunDefenct; break;//
-                                                                                               //case EquipWeaponType.Gun: return;//
-                }
-            }
-            else
-            if (idx == CommonAction.Jump)
-            {
-                CanMove = true;//跳跃后，可以微量移动
-            }
-            //else if (idx == Data.CommonActionI.ShortJump)
-            //{
-            //    CanChangeWeapon = false;//空中不可换武器
-            //    CanMove = true;
-            //}
-            else if ((idx >= CommonAction.WalkForward && idx <= CommonAction.RunOnDrug) || idx == CommonAction.Crouch)
-            {
-                CanMove = true;
-            }
-            else if (idx == CommonAction.Idle)
-            {
-                CanMove = true;
-            }
-            load.SetPosData(ActionList[UnitId][idx], 0, true);
-            load.Pause = false;
-            mActiveAction = ActionList[UnitId][idx];
-        }
+        singleAction = true;
+        ChangeAction(idx, 0.1f, true);
     }
 
     //被动情况下播放动画，类似，受到攻击，或者防御住对方的攻击
     public void OnChangeAction(int idx)
     {
         //如果是一些倒地动作，动作播放完之后还需要固定长时间才能起身
-        ChangeAction(idx, 0.1f);
+        ChangeAction(idx, 0.1f, true);
     }
 
     bool IsSkillStartPose(int pose)
@@ -515,8 +480,10 @@ public class PoseStatus
         return false;
     }
 
-    public void ChangeAction(int idx = CommonAction.Idle, float time = 0.0f, int targetFrame = 0)
+    public void ChangeAction(int idx = CommonAction.Idle, float time = 0.0f, bool ignoreBlendMove = false)
     {
+        if (idx == 0 && _Self != null && _Self.posMng != null && _Self.posMng.mActiveAction != null && _Self.posMng.mActiveAction.Idx == 109)
+            Debug.LogError("123");
         //本局游戏已有结果,播放嘲讽动画.
         if (GameBattleEx.Instance != null && GameBattleEx.Instance.Result != -10 && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle))
         {
@@ -549,7 +516,7 @@ public class PoseStatus
         if (load != null)
         {
             int weapon = _Self.GetWeaponType();
-            //CanMove = false;
+            CanMove = false;
             if (idx == CommonAction.Defence)
             {
                 switch ((EquipWeaponType)weapon)
@@ -640,15 +607,10 @@ public class PoseStatus
                         _Self.FaceToTarget(_Self.GetLockedTarget());
                 }
             }
-            load.SetPosData(ActionList[UnitId][idx], time, false, targetFrame);
+            load.SetPosData(ActionList[UnitId][idx], time, singleAction, ignoreBlendMove);
+            singleAction = false;
             mActiveAction = ActionList[UnitId][idx];
             LinkInput.Clear();
-            //是倒地姿势，都僵直一秒
-            if (idx == CommonAction.Struggle || idx == CommonAction.Struggle0)
-            {
-                //Debug.LogError("僵直1秒");
-                _Self.charLoader.LockTime(1.0f);
-            }
         }
     }
 

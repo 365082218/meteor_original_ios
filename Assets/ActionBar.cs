@@ -45,11 +45,11 @@ public class ActionBar : MonoBehaviour {
                 if (MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle)
                     MeteorManager.Instance.LocalPlayer.posMng.ChangeAction(CommonAction.Dead);
                 break;
-            case 5:
-                //加速
-                MeteorManager.Instance.LocalPlayer.Attr.AddSpeed(150);
-                //MeteorManager.Instance.LocalPlayer.GetItem(5);
-                break;
+            //case 5:
+            //    //加速
+            //    MeteorManager.Instance.LocalPlayer.Attr.AddSpeed(150);
+            //    //MeteorManager.Instance.LocalPlayer.GetItem(5);
+            //    break;
         }
     }
 }

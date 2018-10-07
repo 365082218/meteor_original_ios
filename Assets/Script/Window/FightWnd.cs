@@ -34,16 +34,9 @@ public class FightWnd: Window<FightWnd>
     }
 
     Text timeLabel;
-    //Image weaponType;
-
     Image hpBar;
-    //Image mpBar;
     Image angryBar;
     Text hpLabel;
-    //Text mpLabel;
-    //Text NameLabel;
-    //Text LvLabel;
-    //UIButtonExtended floatButton;//浮动按钮，同时只有一个.负责触发到传送-平台时，开启对应的功能与否
     Image hpWarning;
     Image angryWarning;
     
@@ -51,15 +44,6 @@ public class FightWnd: Window<FightWnd>
     Dropdown dr;
     Dropdown effectDr;
     Button currentPos;
-    //GameObject debugPanel;
-
-    //当前攻击对象控件
-    //GameObject targetInfo;
-    //Image targetHp;
-    //Text targetName;
-    //Text targetTitleInfo;
-    //Text targetHpInfo;
-    //Text targetBuffInfo;
 
     //角色面板，暂时取消
     void OnPlayerInfo()
@@ -70,10 +54,6 @@ public class FightWnd: Window<FightWnd>
             PlayerWnd.Instance.Open();
     }
 
-    //void OnChangeDebug()
-    //{
-    //    debugPanel.SetActive(!debugPanel.activeSelf);
-    //}
     public void HideCameraBtn()
     {
         if (Unlock != null)
@@ -96,7 +76,6 @@ public class FightWnd: Window<FightWnd>
     Image LockSprite;
     void Init()
     {
-        //debugPanel = Control("Debug");
         LevelTalkRoot = Global.ldaControlX("LevelTalk", WndObject).transform;
         ctrl = LevelTalkRoot.GetComponent<AutoMsgCtrl>();
         ctrl.SetConfig(1.5f, 1f);
@@ -115,114 +94,47 @@ public class FightWnd: Window<FightWnd>
         Global.ldaControlX("ChangeWeapon", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnChangeWeaponRelease);
         Global.ldaControlX("BreakOut", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnBreakOut);
         Global.ldaControlX("WeaponSelect", WndObject).GetComponentInChildren<Button>().onClick.AddListener(()=> { U3D.OpenWeaponWnd(); });
-
         Global.ldaControlX("SceneName", WndObject).GetComponent<Button>().onClick.AddListener(()=> { OpenMiniMap(); });
         Global.ldaControlX("SceneName", WndObject).GetComponentInChildren<Text>().text = Global.GLevelItem.Name;
         Global.ldaControlX("MXH", WndObject).GetComponent<GameButton>().OnPress.AddListener(()=> { U3D.OpenSystemWnd(); });
         Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnCrouchPress);
         Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnCrouchRelease);
         Global.ldaControlX("Drop", WndObject).GetComponent<Button>().onClick.AddListener(OnClickDrop);
-        //Global.ldaControlX("Inventory", WndObject).GetComponentInChildren<Button>().onClick.AddListener(delegate () { U3D.OpenInVentory(); });
-        //Global.ldaControlX("System", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSystemWnd(); });
         Unlock = Global.ldaControlX("Unlock", WndObject);
         Unlock.GetComponentInChildren<Button>().onClick.AddListener(OnClickChangeLock);
         LockSprite = Global.ldaControlX("LockSprite", Unlock).GetComponent<Image>();
         Global.ldaControlX("SfxMenu", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSfxWnd(); });
         Global.ldaControlX("Robot", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenRobotWnd(); });
-        //floatButton = Global.ldaControlX("FloatButton", WndObject).GetComponent<UIButtonExtended>();
-        //floatButton.gameObject.SetActive(false);
-        //dr = Global.ldaControlX("Dropdown", WndObject).GetComponent<Dropdown>();
-        //effectDr = Global.ldaControlX("EffectList", WndObject).GetComponent<Dropdown>();
-        //Button effectPlay = Global.ldaControlX("PlayEffect", WndObject).GetComponent<Button>();
-
-        //targetInfo
-        //targetInfo = Global.ldaControlX("TargetInfo", WndObject);
-        //targetHp = Global.ldaControlX("TargetHp", targetInfo).GetComponent<Image>();
-        //targetName = Global.ldaControlX("TargetName", targetInfo).GetComponent<Text>();
-        //targetTitleInfo = Global.ldaControlX("TargetTitleInfo", targetInfo).GetComponent<Text>();
-        //targetHpInfo = Global.ldaControlX("TargetHpInfo", targetInfo).GetComponent<Text>();
-        //targetBuffInfo = Global.ldaControlX("TargetBuffInfo", targetInfo).GetComponent<Text>();
-        //
-        //targetInfo.SetActive(false);
-
-        //Button replay = Global.ldaControlX("Replay", WndObject).GetComponent<Button>();
-        //currentPos = Global.ldaControlX("CurrentPose", WndObject).GetComponent<Button>();
-        //var skillList = Global.ldaControlX("SkillList", WndObject).GetComponent<Dropdown>();
-        //skillList.options.Add(new Dropdown.OptionData("匕首大绝-259"));
-        //skillList.options.Add(new Dropdown.OptionData("镖大绝-203"));
-        //skillList.options.Add(new Dropdown.OptionData("火枪大绝-216"));
-        //skillList.options.Add(new Dropdown.OptionData("双刺大绝-244"));
-        //skillList.options.Add(new Dropdown.OptionData("枪大绝-293"));
-        //skillList.options.Add(new Dropdown.OptionData("匕首大绝-259"));
-        //skillList.options.Add(new Dropdown.OptionData("刀大绝-310"));
-        //skillList.options.Add(new Dropdown.OptionData("爆气-367"));
-        //skillList.options.Add(new Dropdown.OptionData("剑大绝-368"));
-        //skillList.options.Add(new Dropdown.OptionData("拳套大绝-421"));
-        //skillList.options.Add(new Dropdown.OptionData("乾坤刀大绝-451"));
-        //skillList.options.Add(new Dropdown.OptionData("忍天地同寿-468"));
-        //skillList.options.Add(new Dropdown.OptionData("忍刀隐身-535"));
-        //skillList.options.Add(new Dropdown.OptionData("锤大绝-325"));
-        //skillList.options.Add(new Dropdown.OptionData("忍刀大绝-474"));
-        //skillList.onValueChanged.AddListener((int idx) => {
-        //string s = skillList.options[skillList.value].text; var v = s.Split('-'); MeteorManager.Instance.LocalPlayer.posMng.ChangeAction(int.Parse(v[1])); });
         timeLabel = Global.ldaControlX("GameTime", WndObject).GetComponent<Text>();
-        //weaponType = ldaControl("WeaponType", WndObject).gameObject.GetComponent<Image>();
         hpWarning = ldaControl("HPFlashWarning", WndObject).gameObject.GetComponent<Image>();
         angryWarning = ldaControl("AngryWarning", WndObject).gameObject.GetComponent<Image>();
         hpBar = ldaControl("HPBar", WndObject).gameObject.GetComponent<Image>();
-        //mpBar = ldaControl("MPBar", WndObject).gameObject.GetComponent<Image>();
         angryBar = ldaControl("AngryBar", WndObject).gameObject.GetComponent<Image>();
         hpLabel = ldaControl("HPLabel", WndObject).gameObject.GetComponent<Text>();
-        //mpLabel = ldaControl("MPLabel", WndObject).gameObject.GetComponent<Text>();
-        //NameLabel = ldaControl("NameLabel", WndObject).gameObject.GetComponent<Text>();
-        //LvLabel = ldaControl("LVLabel", WndObject).gameObject.GetComponent<Text>();
-        //exp = ldaControl("Exp", WndObject).gameObject.GetComponent<Image>();
         if (MeteorManager.Instance.LocalPlayer != null)
         {
-            //int SubType = MeteorManager.Instance.LocalPlayer.GetWeaponType();
-            //if (PoseStatus.ActionList.ContainsKey(MeteorManager.Instance.LocalPlayer.UnitId))
-            //{
-            //    foreach (var each in PoseStatus.ActionList[MeteorManager.Instance.LocalPlayer.UnitId])
-            //        dr.options.Add(new Dropdown.OptionData("动作 " + each.Idx));
-            //}
-            //foreach (var each in SFXLoader.Instance.Effect)
-            //{
-            //    effectDr.options.Add(new Dropdown.OptionData(each.Key));
-            //}
-            //dr.onValueChanged.AddListener((int idx)=> { MeteorManager.Instance.LocalPlayer.posMng.ChangeActionSingle(idx); });
-            //effectDr.onValueChanged.AddListener((int idx) => { SFXLoader.Instance.PlayEffect(effectDr.options[idx].text, MeteorManager.Instance.LocalPlayer.posMng.AnimalCtrlEx); });
-            //replay.onClick.AddListener(() =>{ if (dr.value != -1)MeteorManager.Instance.LocalPlayer.posMng.ChangeActionSingle(dr.value); });
-            //currentPos.onClick.AddListener(() => { if (currentPosIdx != -1) MeteorManager.Instance.LocalPlayer.posMng.ChangeActionSingle(currentPosIdx); });
-            //effectPlay.onClick.AddListener(() => { if (effectDr.value != -1 && effectDr.options.Count > effectDr.value) SFXLoader.Instance.PlayEffect(effectDr.options[effectDr.value].text, MeteorManager.Instance.LocalPlayer.posMng.AnimalCtrlEx); });
             angryBar.fillAmount = 0.0f;
             angryWarning.enabled = false;
             hpWarning.enabled = false;
             UpdatePlayerInfo();
         }
-
-        //debugPanel.SetActive(GameData.Instance.gameStatus.EnableDebug);
         UpdateUIButton();
         if (NGUIJoystick.instance != null)
             NGUIJoystick.instance.SetAnchor(GameData.Instance.gameStatus.JoyAnchor);
-        //Control("JoyArrow").SetActive(false);
-        //Control("Unlock").SetActive(false);
-        //Control("ClickPanel").SetActive(false);
-        //Control("FloatOpen").SetActive(false);
-        //Control("ActionFloat").SetActive(false);
     }
 
-    int currentPosIdx;
-    public void UpdatePoseStatus(int idx, int frame = 0)
-    {
-        if (currentPos != null)
-        {
-            currentPosIdx = idx;
-            currentPos.GetComponentInChildren<Text>().text = "Pose " + idx + " Frames " + frame;
-        }
+    //int currentPosIdx;
+    //public void UpdatePoseStatus(int idx, int frame = 0)
+    //{
+    //    if (currentPos != null)
+    //    {
+    //        currentPosIdx = idx;
+    //        currentPos.GetComponentInChildren<Text>().text = "Pose " + idx + " Frames " + frame;
+    //    }
 
-        MeteorManager.Instance.LocalPlayer.Action = idx;
-        MeteorManager.Instance.LocalPlayer.Frame = frame;
-    }
+    //    MeteorManager.Instance.LocalPlayer.Action = idx;
+    //    MeteorManager.Instance.LocalPlayer.Frame = frame;
+    //}
 
     IEnumerator ShowHPWarning()
     {

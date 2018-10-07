@@ -218,7 +218,11 @@ public class MonsterEx
         return itemUnEquip;
     }
 
-    //初始速度1000，后面+的速度，就直接加，跟百分比一个样.
+    public void MultiplySpeed(float per)
+    {
+        Speed = (int)((float)Speed * per);
+    }
+
     public void AddSpeed(int speed)
     {
         Speed += speed;

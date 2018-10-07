@@ -527,8 +527,8 @@ public partial class GameBattleEx : MonoBehaviour {
                 GameObject gun = unit.weaponLoader.GetGunTrans();
                 if (gun != null)
                 {
-                    int gunAim = Random.Range(0, 100);//射击命中几率.
-                    if (gunAim < unit.Attr.Aim)
+                    int gunAim = Random.Range(1, 101);//射击命中几率.
+                    if (gunAim <= unit.Attr.Aim)
                     {
                         Ray r = new Ray(gun.transform.position, -gun.transform.forward);
                         RaycastHit[] allHit = Physics.RaycastAll(r, 3000, 1 << LayerMask.NameToLayer("Bone") | 1 << LayerMask.NameToLayer("Scene") | 1 << LayerMask.NameToLayer("Monster") | 1 << LayerMask.NameToLayer("LocalPlayer"));
@@ -1323,7 +1323,7 @@ public class ActionConfig
                 if (unit != null && unit.robot != null)
                 {
                     unit.robot.SetPatrolPath(action[action.Count - 1].Path);
-                    unit.robot.ChangeState(EAIStatus.GotoPatrol);
+                    unit.robot.ChangeState(EAIStatus.Patrol);//多点巡逻.
                 }
                 action.RemoveAt(action.Count - 1);
             }

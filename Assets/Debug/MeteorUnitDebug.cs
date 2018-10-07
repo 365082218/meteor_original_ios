@@ -7,7 +7,6 @@ public class MeteorUnitDebug : MeteorUnit
     public Transform CameraTarget;
     //Vector3 mPosition;
     //int mCacheLayerMask;
-
     void Awake()
     {
     }
@@ -43,11 +42,50 @@ public class MeteorUnitDebug : MeteorUnit
         //ProcessGravity();
     }
 
+    //public override void ProcessGravity()
+    //{
+    //    if (ImpluseVec.y > 0)
+    //    {
+    //        float s = ImpluseVec.y * Time.deltaTime - 0.5f * gScale * Time.deltaTime * Time.deltaTime;
+    //        Move(new Vector3(ImpluseVec.x * Time.deltaTime, s, ImpluseVec.z * Time.deltaTime) + charLoader.moveDelta);
+    //        ImpluseVec.y = ImpluseVec.y - gScale * Time.deltaTime;
+    //        //???
+    //        //Move(new Vector3(ImpluseVec.x * Time.deltaTime, 0, ImpluseVec.z * Time.deltaTime) + charLoader.moveDelta);
+    //    }
+    //    else
+    //    {
+    //        if (IgnoreGravity)
+    //        {
+    //            //浮空状态，某些大招会在空中停留.注意其他轴如果有速度，那么应该算
+    //            Move(new Vector3(ImpluseVec.x * Time.deltaTime, 0, ImpluseVec.z * Time.deltaTime) + charLoader.moveDelta);
+    //        }
+    //        else
+    //        {
+    //            //处理跳跃的下半程
+    //            float s = ImpluseVec.y * Time.deltaTime - 0.5f * gScale * Time.deltaTime * Time.deltaTime;
+    //            Vector3 v;
+    //            v.x = ImpluseVec.x * Time.deltaTime;
+    //            v.y = IsOnGround() ? 0 : s;
+    //            v.z = ImpluseVec.z * Time.deltaTime;
+    //            v += charLoader.moveDelta;
+    //            Move(v);
+    //            float v2 = Vector3.Magnitude(v);
+    //            if (Mathf.Abs(v2) >= 5.0f)
+    //            {
+    //                UnityEngine.Debug.DebugBreak();
+    //            }
+    //            //Move(new Vector3(0, s, 0) + transform.right * ImpluseVec.x * Time.deltaTime - transform.forward * ImpluseVec.z * Time.deltaTime);
+    //            //Debug.Log("move s:" + v2);
+
+    //            //只判断控制器，有时候在空中也会为真，但是还是要把速度与加速度计算
+    //        }
+    //    }
+    //}
     //计算重力作用下的运动方向以及位移
 
     //public CharacterController charController;
     //Rigidbody rig;
-    
+
     public void Init(int modelIdx, int layer)
     {
         tag = "meteorUnit";

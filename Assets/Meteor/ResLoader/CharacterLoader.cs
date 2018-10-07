@@ -120,8 +120,8 @@ public class CharacterLoader : MonoBehaviour
             }
         }
 
-        if (mOwner.Attr.IsPlayer && FightWnd.Exist)
-            FightWnd.Instance.UpdatePoseStatus(-1, frame);
+        //if (mOwner.Attr.IsPlayer && FightWnd.Exist)
+        //    FightWnd.Instance.UpdatePoseStatus(-1, frame);
     }
 
     void GenerateBounds(Mesh me, List<Transform> bo)
@@ -300,19 +300,19 @@ public class CharacterLoader : MonoBehaviour
         }
     }
 
-    bool CheckStraight = false;
-    public bool InStraight {
-        get { return CheckStraight; }
-    }
+    bool checkStaright = false;
     public void LockTime(float t)
     {
-        CheckStraight = true;
         PoseStraight = t;
+        if (PoseStraight > 0.0f)
+            checkStaright = true;
+        else
+            checkStaright = false;
     }
 
     public bool IsInStraight()
     {
-        return CheckStraight && PoseStraight > 0;
+        return PoseStraight > 0;
     }
 
     void Start()
@@ -323,24 +323,28 @@ public class CharacterLoader : MonoBehaviour
     int lastFrameIndex = 1;
     int lastSource = 1;
     int lastPosIdx = 0;
-    Vector3 lastDBasePos = Vector3.zero;
-    float Speed
-    {
-        get
-        {
-            return (float)owner.Speed / 1000.0f;
-        }
-    }
+    Vector3 lastDBasePos = Vector3.zero;//上一帧的d_base骨骼坐标.
+    Vector3 nextDBasePos = Vector3.zero;//下一帧的d_base骨骼坐标.
 
-    //设置动作位移的根骨骼移动比例
+    //设置动作位移的根骨骼移动比例,比如完整动作，会让角色Y轴移动10，那么比例为2时，这个动作就会让角色移动20，而帧数不变
     float moveScale = 1.0f;
     public void SetActionScale(float scale)
     {
         moveScale = scale;
     }
 
-    void PlayNextKeyFrame(float delta)
+    //设置动作提前切换，比如跳跃向上动作，完整有15帧，当按下一个小跳，不按攻击时，这个跳跃是会提前切换到152，而不是播放完整动作后切换.
+    //不能用动作位移缩放是因为，仅仅改变位移，没有改变帧数上的表现，小跳动作看起来与高度完全不符合运动规律.所以要提前结束151动作
+    //提前百分比结束
+    float quickChange = 1.0f;
+    public void SetActionQuickChange(float scale)
     {
+        quickChange = scale;
+    }
+
+    void PlayNextKeyFrame()
+    {
+        //Debug.LogError("PlayNextKeyFrame timeratio:" + ratio);
         TryPlayEffect();
         ChangeAttack();
         ChangeWeaponTrail();
@@ -356,8 +360,19 @@ public class CharacterLoader : MonoBehaviour
         //有连招.
         if (TestInputLink())
             return;
+
         if (loop)
         {
+            if (checkStaright)
+            {
+                if (PoseStraight <= 0.0f)
+                {
+                    loop = false;
+                    curIndex = po.End + 1;
+                    checkStaright = false;
+                    return;
+                }
+            }
             if (curIndex > po.LoopEnd)
             {
                 if (curIndex > po.LoopStart)
@@ -373,7 +388,7 @@ public class CharacterLoader : MonoBehaviour
         }
         else
         {
-            if (curIndex > po.End)
+            if (curIndex > po.Start + (po.End - po.Start) * quickChange)
             {
                 if (single)
                     Pause = true;
@@ -400,8 +415,8 @@ public class CharacterLoader : MonoBehaviour
         else if (po.SourceIdx == 1)
             status = AmbLoader.FrameBoneAni[CharacterIdx][curIndex];
 
-        if (mOwner.Attr.IsPlayer && FightWnd.Exist)
-            FightWnd.Instance.UpdatePoseStatus(po.Idx, curIndex);
+        //if (mOwner.Attr.IsPlayer && FightWnd.Exist)
+        //    FightWnd.Instance.UpdatePoseStatus(po.Idx, curIndex);
 
         for (int i = 0; i < bo.Count; i++)
         {
@@ -412,13 +427,12 @@ public class CharacterLoader : MonoBehaviour
 
         bool IgnoreActionMoves = IgnoreActionMove(po.Idx);
         if (owner.IsDebugUnit())
-        {
             IgnoreActionMoves = false;
-        }
         for (int i = 0; i < dummy.Count; i++)
         {
             if (i == 0)
             {
+                //Debug.LogError("action move");
                 if (lastPosIdx == po.Idx)
                 {
                     Vector3 targetPos = status.DummyPos[i];
@@ -433,6 +447,8 @@ public class CharacterLoader : MonoBehaviour
                     {
                     }
                     moveDelta += vec;
+                    //if (po.Idx == 151)
+                    //    Debug.LogError(string.Format("pose:{0} frame:{1} move: x ={2}, y ={3} z = {4}", po.Idx, curIndex, moveDelta.x, moveDelta.y, moveDelta.z));
                     lastDBasePos = targetPos;
                 }
             }
@@ -472,7 +488,9 @@ public class CharacterLoader : MonoBehaviour
         {
             try
             {
-                PlayEffect();
+                //在其他调试场景里屏蔽掉特效
+                if (GameBattleEx.Instance != null)
+                    PlayEffect();
             }
             catch (System.Exception exp)
             {
@@ -531,9 +549,10 @@ public class CharacterLoader : MonoBehaviour
                 {
                     if (curIndex >= po.ActionList[i].Start && curIndex <= po.ActionList[i].End)
                     {
+                        //Debug.LogError("TestInputLink");
                         int targetIdx = po.Idx;
                         if (po.Next != null)
-                            posMng.ChangeAction(posMng.LinkInput[targetIdx], po.Next.Time);//
+                            posMng.ChangeAction(posMng.LinkInput[targetIdx], po.Next.Time, true);//
                         else
                             posMng.ChangeAction(posMng.LinkInput[targetIdx]);
                         posMng.LinkInput.Clear();
@@ -547,6 +566,7 @@ public class CharacterLoader : MonoBehaviour
 
     public void PlayFrame(float timeRatio)
     {
+        //Debug.LogError("play frame timeratio:" + timeRatio);
         float speedScale = GetSpeedScale();
         TryPlayEffect();
         ChangeAttack();
@@ -556,6 +576,16 @@ public class CharacterLoader : MonoBehaviour
         //超过末尾了.
         if (loop)
         {
+            if (checkStaright)
+            {
+                if (PoseStraight <= 0.0f)
+                {
+                    loop = false;
+                    curIndex = po.End + 1;
+                    checkStaright = false;
+                    return;
+                }
+            }
             if (curIndex > po.LoopEnd)
             {
                 if (curIndex > po.LoopStart)
@@ -571,7 +601,7 @@ public class CharacterLoader : MonoBehaviour
         }
         else
         {
-            if (curIndex > po.End)
+            if (curIndex > po.Start + (po.End - po.Start) * quickChange)
             {
                 if (single)
                     Pause = true;
@@ -603,8 +633,8 @@ public class CharacterLoader : MonoBehaviour
         else if (po.SourceIdx == 1)
             status = AmbLoader.FrameBoneAni[CharacterIdx][curIndex];
 
-        if (mOwner.Attr.IsPlayer && FightWnd.Exist)
-            FightWnd.Instance.UpdatePoseStatus(po.Idx, lastFrameIndex);
+        //if (mOwner.Attr.IsPlayer && FightWnd.Exist)
+        //    FightWnd.Instance.UpdatePoseStatus(po.Idx, lastFrameIndex);
 
         for (int i = 0; i < bo.Count; i++)
         {
@@ -621,13 +651,12 @@ public class CharacterLoader : MonoBehaviour
 
         bool IgnoreActionMoves = IgnoreActionMove(po.Idx);
         if (owner.IsDebugUnit())
-        {
             IgnoreActionMoves = false;
-        }
         for (int i = 0; i < dummy.Count; i++)
         {
             if (i == 0)
             {
+                //Debug.LogError("action move");
                 if (lastPosIdx == po.Idx)
                 {
                     Vector3 targetPos = Vector3.Lerp(lastStatus.DummyPos[i], status.DummyPos[i], timeRatio);
@@ -643,6 +672,8 @@ public class CharacterLoader : MonoBehaviour
 
                     }
                     moveDelta += vec;
+                    //if (po.Idx == 151)
+                    //    Debug.LogError(string.Format("pose:{0} frame:{1} move: x ={2}, y ={3} z = {4}", po.Idx, curIndex, moveDelta.x, moveDelta.y, moveDelta.z));
                     lastDBasePos = targetPos;
                 }
             }
@@ -661,23 +692,28 @@ public class CharacterLoader : MonoBehaviour
         if (po != null)
         {
             moveDelta = Vector3.zero;
-            if (CheckStraight)
-            {
-                PoseStraight -= Time.deltaTime;
+            //if (PoseStraight > 0.0f)
+            //{
+                //PoseStraight -= Time.deltaTime;
                 //检查僵直是否过期.
-                if (PoseStraight <= 0.0f && loop)
-                {
-                    loop = false;
-                    curIndex = po.LoopEnd;
-                    CheckStraight = false;
-                }
-            }
+                //if (PoseStraight <= 0.0f && loop)
+                //{
+                //    if (owner.IsOnGround())
+                //    {
+                //        loop = false;
+                //        curIndex = po.LoopEnd;
+                //    }
+                //}
+            //}
             if (blendTime == 0.0f)
             {
                 lastFramePlayedTimes += Time.deltaTime;
-                
+
+                if (checkStaright && PoseStraight > 0.0f && owner.IsOnGround())
+                    PoseStraight -= Time.deltaTime;
+
                 float speedScale = GetSpeedScale();
-                float fps = FPS / (Speed * speedScale);
+                float fps = FPS / speedScale;
                 if (lastFramePlayedTimes < fps)
                 {
                     PlayFrame(lastFramePlayedTimes / fps);
@@ -686,10 +722,10 @@ public class CharacterLoader : MonoBehaviour
                 {
                     while (lastFramePlayedTimes >= fps)
                     {
-                        PlayNextKeyFrame(fps);
+                        PlayNextKeyFrame();
                         lastFramePlayedTimes -= fps;
                         speedScale = GetSpeedScale();
-                        fps = FPS / (Speed * speedScale);
+                        fps = FPS / speedScale;
                     }
                 }
             }
@@ -717,23 +753,21 @@ public class CharacterLoader : MonoBehaviour
                     {
                         if (i == 0)
                         {
-                            //混合动作，不许移动角色
-                            //if (lastPosIdx == po.Idx)
-                            //{
-                            //    Vector3 targetPos = Vector3.Lerp(lastFrameStatus.DummyPos[i], status.DummyPos[i], playedTime / blendTime);
-                            //    Vector3 vec = transform.rotation * (targetPos - lastDBasePos) * moveScale;
-                            //    if (IgnoreActionMove(po.Idx))
-                            //    {
-                            //        vec.x = 0;
-                            //        vec.z = 0;
-                            //        vec.y = 0;
-                            //    }
-                            //    else
-                            //    {
-                            //    }
-                            //    moveDelta += vec;
-                            //    lastDBasePos = targetPos;
-                            //}
+                            Vector3 targetPos = Vector3.Lerp(lastFrameStatus.DummyPos[i], status.DummyPos[i], playedTime / blendTime);
+                            Vector3 vec = transform.rotation * (targetPos - nextDBasePos) * moveScale;
+                            if (IgnoreActionMove(po.Idx) || IgnoreBlendMove)
+                            {
+                                vec.x = 0;
+                                vec.z = 0;
+                                vec.y = 0;
+                            }
+                            else
+                            {
+                            }
+                            moveDelta += vec;
+                            nextDBasePos = targetPos;
+                            //if (po.Idx == 151)
+                            //    Debug.LogError(string.Format("pose:{0} frame:{1} move: x ={2}, y ={3} z = {4}", po.Idx, curIndex, moveDelta.x, moveDelta.y, moveDelta.z));
                         }
                         else
                         {
@@ -798,12 +832,14 @@ public class CharacterLoader : MonoBehaviour
         else if (po.Idx == CommonAction.Struggle || po.Idx == CommonAction.Struggle0)
         {
             //一些有僵直的动作,必须等到僵直循环动作第一次结束后开始减少僵直值.
-            if (CheckStraight && PoseStraight < 0)
-            {
-                mOwner.IgnoreGravitys(false);
-                if (mOwner.IsOnGround()) loop = false;
-                CheckStraight = false;
-            }
+            //mOwner.IgnoreGravitys(false);
+            //if (PoseStraight <= 0.0f)
+            //{
+            if (checkStaright)
+                return;
+            if (mOwner.IsOnGround() && LoopCount > 1)
+                loop = false;
+            //}
         }
         else if ((po.Idx >= CommonAction.Idle && po.Idx <= 21) || (po.Idx >= CommonAction.WalkForward && po.Idx <= CommonAction.RunOnDrug))
         {
@@ -812,16 +848,20 @@ public class CharacterLoader : MonoBehaviour
         else if (po.Idx == 219 || po.Idx == 221 || po.Idx == 223)//飞轮出击后等待接回飞轮
         {
             //等着收回武器
-            
         }
         else
         {
-            if (PoseStraight <= 0.0f)
-            {
-                mOwner.IgnoreGravitys(false);
-                if (mOwner.IsOnGround()) loop = false;
-            }
-            //WSLog.LogFrame("POSE:" + po.Idx + " Straight:" + PoseStraight);
+            //mOwner.IgnoreGravitys(false);
+            //Debug.LogError("straight:" + PoseStraight);
+            //Debug.LogError(string.Format("action:{0} is not processed", po.Idx));
+            if (checkStaright)
+                return;
+            //if (PoseStraight <= 0.0f)
+            //{
+                if (mOwner.IsOnGround() && LoopCount > 1)
+                    loop = false;
+
+            //}
         }
     }
 
@@ -839,7 +879,7 @@ public class CharacterLoader : MonoBehaviour
                     break;
                 }
             }
-            frameCost += FPS / (Speed * speedScale) ;
+            frameCost += FPS / speedScale ;
         }
         return frameCost;
     }
@@ -863,6 +903,7 @@ public class CharacterLoader : MonoBehaviour
 
     Pose po;
     public int curIndex = 0;
+    public int curPos = 0;
     int blendStart = 0;
     public int GetCurrentFrameIndex() { return curIndex; }
 
@@ -891,9 +932,11 @@ public class CharacterLoader : MonoBehaviour
     bool effectPlayed = false;
     public bool Pause = false;
     bool single = false;
-    public void SetPosData(Pose pos, float BlendTime = 0.0f, bool singlePos = false, int targetFrame = 0)
+    bool IgnoreBlendMove = false;
+    public void SetPosData(Pose pos, float BlendTime = 0.0f, bool singlePos = false, bool ignoreBlendMove = false)
     {
         //一些招式，需要把尾部事件执行完才能切换武器.
+        IgnoreBlendMove = ignoreBlendMove;
         LoopCount = 0;
         if (TheLastFrame != -1 && po != null)
         {
@@ -912,7 +955,7 @@ public class CharacterLoader : MonoBehaviour
             lastPosIdx = po.Idx;
 
         moveScale = 1.0f;
-
+        quickChange = 1.0f;
         //重置速度
         bool isAttackPos = false;
         if (po == null)
@@ -931,7 +974,11 @@ public class CharacterLoader : MonoBehaviour
         else
             lastPosIdx = pos.Idx;
         if (BlendTime != 0.0f)
+        {
             GetCurrentSnapShot();
+            //如果有混合，重置混合位置.
+            nextDBasePos = lastFrameStatus.DummyPos[0];
+        }
         //动画帧率与运行帧率可能要转换一下.
         blendTime = BlendTime;
         lastFramePlayedTimes = 0;
@@ -974,7 +1021,7 @@ public class CharacterLoader : MonoBehaviour
 
         //算第一个融合条件很多，有切换目的帧是否设定，第一个混合帧是否存在，上一个动作是否攻击动作，锤绝325BUG，其他招式接325，还要在地面等，应该不需要在地面等
         //curIndex = targetFrame != 0 ? targetFrame : (act != null ? (act.Type == "Action" ? act.Start: (isAttackPos ? act.End : pos.Start)): pos.Start);
-        curIndex = targetFrame != 0 ? targetFrame : (act != null ? (act.Type == "Action" ? (isAttackPos ? act.Start : pos.Start) : (isAttackPos ? act.End : act.Start)) : pos.Start);
+        curIndex = act != null ? (act.Type == "Action" ? (isAttackPos ? act.Start : pos.Start) : (isAttackPos ? act.End : act.Start)) : pos.Start;
         //部分动作混合帧比开始帧还靠前
         if (curIndex < pos.Start)
             curIndex = pos.Start;
@@ -982,6 +1029,7 @@ public class CharacterLoader : MonoBehaviour
         effectPlayed = false;
         sfxEffect = null;
         playedTime = 0;
+        
         //下一个动作的第一帧所有虚拟物体
         if (po.SourceIdx == 0)
             lastDBasePos = AmbLoader.CharCommon[curIndex].DummyPos[0];
@@ -994,6 +1042,8 @@ public class CharacterLoader : MonoBehaviour
             if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 18 && lastPosIdx != 468)//18为，使用招式后获取物品ID 468-469都会调用微尘，hack掉468pose的
                 owner.GetItem(poseInfo.first[0].flag[1]);//忍刀小绝，同归于尽，会获得微尘物品，会即刻死亡
         }
+
+        curPos = pos.Idx;
     }
 
     public void GetCurrentSnapShot()

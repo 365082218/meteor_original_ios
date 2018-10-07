@@ -13,9 +13,6 @@ public class UnitTopUI : MonoBehaviour {
     {
         rect = GetComponent<RectTransform>();
     }
-    void Start () {
-	    
-	}
 	
 	// Update is called once per frame
 	void LateUpdate () {

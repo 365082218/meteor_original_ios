@@ -339,6 +339,7 @@ public class GameData:Singleton<GameData>
             gameStatus.AxisSensitivity = new MyVector2(0.5f, 0.5f);
             gameStatus.MeteorVersion = "9.07";
             gameStatus.TargetFrame = 60;
+
         }
         AppInfo.Instance.MeteorVersion = gameStatus.MeteorVersion;
     }

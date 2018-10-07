@@ -37,6 +37,9 @@ public class AppInfo:Singleton<AppInfo>
 
     public int GetWaitForNextInput()
     {
+#if UNITY_EDITOR
+        return 24;
+#endif
         if (GameData.Instance.gameStatus.TargetFrame == 30)
             return 12;
         return 24;//2个输入中间最大间隔24帧超过即断开.

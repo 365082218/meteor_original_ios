@@ -16,6 +16,7 @@ public class WayMng : MonoBehaviour {
             wp.pos = points[i].transform.position;
             wp.size = 10;
             wp.link = new Dictionary<int, WayLength>();
+            wp.index = int.Parse(points[i].name);
             for (int j = 0; j < points[i].Link.Length; j++)
             {
                 int jIndex = int.Parse(points[i].Link[j].name);
