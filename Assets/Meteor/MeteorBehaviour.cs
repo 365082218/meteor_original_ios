@@ -67,7 +67,7 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
         }
         if (moveVec.x != 0)
         {
-            if (Owner.HasBuff((int)EBUFF_ID.DrugEx) || Owner.HasBuff((int)EBUFF_ID.Drug)
+            if (Owner.HasBuff((int)EBUFF_ID.DrugEx) || Owner.HasBuff((int)EBUFF_ID.Drug))
             {
                 if (Owner.posMng.mActiveAction.Idx != CommonAction.RunOnDrug)
                     Owner.posMng.ChangeAction(CommonAction.RunOnDrug);
