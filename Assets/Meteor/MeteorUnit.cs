@@ -1791,7 +1791,7 @@ public partial class MeteorUnit : MonoBehaviour
         posMng.CanAdjust = true;
         posMng.CheckClimb = true;
         posMng.ChangeAction(act, 0.1f);
-        //charLoader.SetActionScale(jumpScale);
+        charLoader.SetActionScale(jumpScale);
         charLoader.SetActionQuickChange(jumpScale);
     }
 

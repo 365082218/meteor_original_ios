@@ -124,20 +124,20 @@ public class MeteorAI {
         lookTick += Time.deltaTime;
         //行为优先级 
         //AI强制行为(攻击指定位置，Kill追杀（不论视野）攻击 ) > 战斗 > 跟随 > 巡逻 > 
-        if (Status == EAIStatus.Patrol)
+        if (Status == EAIStatus.Patrol || Status == EAIStatus.Follow)
         {
             //巡逻状态如果找到了敌人，与敌人搏斗.
             if (killTarget != null)
                 ChangeState(EAIStatus.Kill);
-            else
-            if (followTarget != null)
-                ChangeState(EAIStatus.Follow);
             else
             if (owner.GetLockedTarget() != null)
             {
                 Debug.LogError("locked target is not null change to wait");
                 ChangeState(EAIStatus.Wait);
             }
+            else
+            if (followTarget != null)
+                ChangeState(EAIStatus.Follow);
         }
 
         if (Status == EAIStatus.Fight)

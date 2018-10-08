@@ -720,13 +720,19 @@ public class CharacterLoader : MonoBehaviour
                 }
                 else
                 {
+                    int loopcnt = 0;
                     while (lastFramePlayedTimes >= fps)
                     {
+                        loopcnt++;
                         PlayNextKeyFrame();
                         lastFramePlayedTimes -= fps;
                         speedScale = GetSpeedScale();
                         fps = FPS / speedScale;
+                        break;
                     }
+
+                    if (loopcnt >= 2)
+                        Debug.LogError("error loopcount");
                 }
             }
             else

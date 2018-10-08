@@ -104,7 +104,7 @@ public class CameraFollow : MonoBehaviour {
         Unlocked = true;
     }
 
-    public float SmoothDampTime = 0.2f;//平滑到稳定所需时间.
+    public float SmoothDampTime = 0.1f;//平滑到稳定所需时间.
     public float LookAtAngle = 0.0f;//朝目标俯视角度
     public float BodyHeight = 10.0f;//目标脊椎往上多少
 
@@ -312,10 +312,10 @@ public class CameraFollow : MonoBehaviour {
                 newPos.y = y;
                 //newPos.z = z;
                 transform.position = newPos;
-
-                transform.LookAt(cameraLookAt);
                 Vector3 vec = transform.eulerAngles;
-                //vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, 0.1f);
+                transform.LookAt(cameraLookAt);
+                vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
+                vec.y = transform.eulerAngles.y;
                 //vec.y = Mathf.SmoothDampAngle(vec.y, transform.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
                 vec.z = 0;
                 transform.eulerAngles = vec;
@@ -337,11 +337,12 @@ public class CameraFollow : MonoBehaviour {
                     transform.position = newPos;
                     //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                     //transform.rotation = to;
-                    
-                    transform.LookAt(cameraLookAt);
                     Vector3 vec = transform.eulerAngles;
-                    //vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, 0.1f);
+                    transform.LookAt(cameraLookAt);
+                    
+                    vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
                     //vec.y = Mathf.SmoothDampAngle(vec.y, transform.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
+                    vec.y = transform.eulerAngles.y;
                     vec.z = 0;
                     transform.eulerAngles = vec;
                     Unlocked = false;
@@ -359,10 +360,11 @@ public class CameraFollow : MonoBehaviour {
                     transform.position = newPos;
                     //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                     //transform.rotation = to;
-                    
-                    transform.LookAt(cameraLookAt);
                     Vector3 vec = transform.eulerAngles;
-                    //vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, 0.1f);
+                    transform.LookAt(cameraLookAt);
+                    
+                    vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
+                    vec.y = transform.eulerAngles.y;
                     //vec.y = Mathf.SmoothDampAngle(vec.y, transform.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
                     vec.z = 0;
                     transform.eulerAngles = vec;
