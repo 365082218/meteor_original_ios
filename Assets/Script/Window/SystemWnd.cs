@@ -304,7 +304,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
         GameData.Instance.gameStatus.TargetFrame = on ? 60 : 30;
         Application.targetFrameRate = GameData.Instance.gameStatus.TargetFrame;
 #if UNITY_EDITOR
-        Application.targetFrameRate = 240;
+        Application.targetFrameRate = 60;
 #endif
     }
 

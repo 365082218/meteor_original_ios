@@ -753,19 +753,19 @@ public class CharacterLoader : MonoBehaviour
                     {
                         if (i == 0)
                         {
-                            Vector3 targetPos = Vector3.Lerp(lastFrameStatus.DummyPos[i], status.DummyPos[i], playedTime / blendTime);
-                            Vector3 vec = transform.rotation * (targetPos - nextDBasePos) * moveScale;
-                            if (IgnoreActionMove(po.Idx) || IgnoreBlendMove)
-                            {
-                                vec.x = 0;
-                                vec.z = 0;
-                                vec.y = 0;
-                            }
-                            else
-                            {
-                            }
-                            moveDelta += vec;
-                            nextDBasePos = targetPos;
+                            //Vector3 targetPos = Vector3.Lerp(lastFrameStatus.DummyPos[i], status.DummyPos[i], playedTime / blendTime);
+                            //Vector3 vec = transform.rotation * (targetPos - nextDBasePos) * moveScale;
+                            //if (IgnoreActionMove(po.Idx) || IgnoreBlendMove)
+                            //{
+                                //vec.x = 0;
+                                //vec.z = 0;
+                                //vec.y = 0;
+                            //}
+                            //else
+                            //{
+                            //}
+                            //moveDelta += vec;
+                            lastDBasePos = status.DummyPos[i];
                             //if (po.Idx == 151)
                             //    Debug.LogError(string.Format("pose:{0} frame:{1} move: x ={2}, y ={3} z = {4}", po.Idx, curIndex, moveDelta.x, moveDelta.y, moveDelta.z));
                         }
