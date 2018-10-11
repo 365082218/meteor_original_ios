@@ -10278,7 +10278,7 @@ GameObject:
   - component: {fileID: 798199484}
   - component: {fileID: 798199483}
   - component: {fileID: 798199482}
-  m_Layer: 10
+  m_Layer: 20
   m_Name: Box4027
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14077,7 +14077,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1072467042
 Transform:
   m_ObjectHideFlags: 0

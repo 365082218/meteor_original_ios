@@ -345,6 +345,8 @@ public class MeteorInput
         }
         else
         {
+            if (p.Idx == CommonAction.GunIdle)
+                return true;
             ActionNode act = ActionInterrupt.Instance.GetActions(p.Idx);
             if (act == null)
                 return false;

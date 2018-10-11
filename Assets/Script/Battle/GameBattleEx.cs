@@ -529,31 +529,33 @@ public partial class GameBattleEx : MonoBehaviour {
                 GameObject gun = unit.weaponLoader.GetGunTrans();
                 if (gun != null)
                 {
-                    int gunAim = Random.Range(1, 101);//射击命中几率.
-                    if (gunAim <= unit.Attr.Aim)
+                    //int gunAim = Random.Range(1, 101);//射击命中几率.
+                    Vector3 vec;
+                    if (unit.GetLockedTarget() != null)
+                        vec = (unit.GetLockedTarget().mSkeletonPivot + new Vector3(unit.Attr.Aim / 5, 0, unit.Attr.Aim / 5) - gun.transform.position).normalized;
+                    else
+                        vec = -gun.transform.forward;
+                    Ray r = new Ray(gun.transform.position, vec);
+                    RaycastHit[] allHit = Physics.RaycastAll(r, 3000, 1 << LayerMask.NameToLayer("Bone") | 1 << LayerMask.NameToLayer("Scene") | 1 << LayerMask.NameToLayer("Monster") | 1 << LayerMask.NameToLayer("LocalPlayer"));
+                    RaycastHit[] allHitSort = SortRaycastHit(allHit);
+                    //先排个序，从近到远
+                    for (int i = 0; i < allHitSort.Length; i++)
                     {
-                        Ray r = new Ray(gun.transform.position, -gun.transform.forward);
-                        RaycastHit[] allHit = Physics.RaycastAll(r, 3000, 1 << LayerMask.NameToLayer("Bone") | 1 << LayerMask.NameToLayer("Scene") | 1 << LayerMask.NameToLayer("Monster") | 1 << LayerMask.NameToLayer("LocalPlayer"));
-                        RaycastHit[] allHitSort = SortRaycastHit(allHit);
-                        //先排个序，从近到远
-                        for (int i = 0; i < allHitSort.Length; i++)
+                        if (allHitSort[i].transform.gameObject.layer == LayerMask.NameToLayer("Scene"))
                         {
-                            if (allHitSort[i].transform.gameObject.layer == LayerMask.NameToLayer("Scene"))
-                            {
-                                //SFXLoader.Instance.PlayEffect("gunshot", )
-                                break;
-                            }
-                            MeteorUnit unitAttacked = allHitSort[i].transform.gameObject.GetComponentInParent<MeteorUnit>();
-                            if (unitAttacked != null)
-                            {
-                                if (unit == unitAttacked)
-                                    continue;
-                                if (unit.SameCamp(unitAttacked))
-                                    continue;
-                                if (unitAttacked.Dead)
-                                    continue;
-                                unitAttacked.OnAttack(unit, attackDef);
-                            }
+                            //SFXLoader.Instance.PlayEffect("gunshot", )
+                            break;
+                        }
+                        MeteorUnit unitAttacked = allHitSort[i].transform.gameObject.GetComponentInParent<MeteorUnit>();
+                        if (unitAttacked != null)
+                        {
+                            if (unit == unitAttacked)
+                                continue;
+                            if (unit.SameCamp(unitAttacked))
+                                continue;
+                            if (unitAttacked.Dead)
+                                continue;
+                            unitAttacked.OnAttack(unit, attackDef);
                         }
                     }
                 }
@@ -587,7 +589,7 @@ public partial class GameBattleEx : MonoBehaviour {
                         if (unit.GetLockedTarget() == null)
                         {
                             //角色的面向 + 一定随机
-                            forw = (Quaternion.AngleAxis(Random.Range(-25, 25), Vector3.up)  * Quaternion.AngleAxis(Random.Range(-5, 5), Vector3.right)  * - unit.transform.forward).normalized;
+                            forw = (Quaternion.AngleAxis(Random.Range(-35, 35), Vector3.up)  * Quaternion.AngleAxis(Random.Range(-5, 5), Vector3.right)  * - unit.transform.forward).normalized;
                         }
                         else
                         {
@@ -600,11 +602,10 @@ public partial class GameBattleEx : MonoBehaviour {
                             }
 
                             if (u == null)
-                                forw = (Quaternion.AngleAxis(Random.Range(-25, 25), Vector3.up) * Quaternion.AngleAxis(Random.Range(-5, 5), Vector3.right) * -unit.transform.forward).normalized;//角色的面向
+                                forw = (Quaternion.AngleAxis(Random.Range(-35, 35), Vector3.up) * Quaternion.AngleAxis(Random.Range(-5, 5), Vector3.right) * -unit.transform.forward).normalized;//角色的面向
                             else
                             {
-                                float aim = (100 - unit.Attr.Aim) / 10.0f;
-                                Vector3 vec = unit.GetLockedTarget().mPos + new Vector3(Random.Range(-aim, aim), Random.Range(10, 38), Random.Range(-aim, aim));
+                                Vector3 vec = unit.GetLockedTarget().mPos + new Vector3(Random.Range(-unit.Attr.Aim, unit.Attr.Aim), Random.Range(10, 38), Random.Range(-unit.Attr.Aim, unit.Attr.Aim));
                                 float dis = Vector3.Distance(vec, vecSpawn);
                                 float vt = Mathf.Sqrt(2 * DartLoader.gspeed * dis + (DartLoader.InitializeSpeed * DartLoader.InitializeSpeed));
                                 float t = (vt - DartLoader.InitializeSpeed) / DartLoader.gspeed;

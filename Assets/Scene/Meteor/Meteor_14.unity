@@ -3330,7 +3330,7 @@ GameObject:
   - component: {fileID: 388993801}
   - component: {fileID: 388993803}
   - component: {fileID: 388993800}
-  m_Layer: 10
+  m_Layer: 20
   m_Name: HBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3423,7 +3423,7 @@ GameObject:
   - component: {fileID: 434272653}
   - component: {fileID: 434272655}
   - component: {fileID: 434272656}
-  m_Layer: 10
+  m_Layer: 20
   m_Name: Plane38
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6652,7 +6652,7 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1044348427}
-  m_LocalRotation: {x: 0.6549768, y: 0.1749938, z: 0.1749938, w: -0.7139747}
+  m_LocalRotation: {x: 0.6549767, y: 0.17499378, z: 0.17499378, w: -0.71397465}
   m_LocalPosition: {x: 1137.583, y: -99.094, z: -946.273}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []

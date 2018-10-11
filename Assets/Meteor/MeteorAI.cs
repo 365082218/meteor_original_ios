@@ -545,6 +545,14 @@ public class MeteorAI {
                 }
             }
         }
+        else
+        {
+            if (owner.posMng.mActiveAction.Idx == CommonAction.GunIdle)
+            {
+                //枪只有 A， 上A， 下A， 下上A， 下上上A
+                ////Debug.LogError("shoot");
+            }
+        }
     }
 
     //攻击目标位置

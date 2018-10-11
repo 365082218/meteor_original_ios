@@ -20573,7 +20573,7 @@ GameObject:
   - component: {fileID: 1080432854}
   - component: {fileID: 1080432856}
   - component: {fileID: 1080432853}
-  m_Layer: 10
+  m_Layer: 20
   m_Name: hellBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
