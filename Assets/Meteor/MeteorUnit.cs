@@ -539,6 +539,8 @@ public partial class MeteorUnit : MonoBehaviour
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
         {
             MeteorUnit unit = MeteorManager.Instance.UnitInfos[i];
+            if (unit == this)
+                continue;
             if (!SameCamp(unit))
                 continue;
             if (unit.Dead)
@@ -800,6 +802,7 @@ public partial class MeteorUnit : MonoBehaviour
     public const float yLimitMax = 500;//最大向上速度
     public const float yClimbLimitMax = 180.0f;
     public const float yClimbEndLimit = -30.0f;//爬墙时,Y速度到达此速度，开始计时，时间到就从墙壁落下
+    public const float JumpLimit = 85f;
     //角色跳跃高度74，是以脚趾算最低点，倒过来算出dbase,则需要减去差值。
     public bool IgnoreGravity = false;
     //物体动量(质量*速度)的改变,等于物体所受外力冲量的总和.这就是动量定理
@@ -1684,7 +1687,7 @@ public partial class MeteorUnit : MonoBehaviour
         }
 
         //如果Y轴速度向下，但是已经接触地面了
-        if (ImpluseVec.y <= 0 && !IgnoreGravity && !posMng.Jump)
+        if (ImpluseVec.y <= 0 && !IgnoreGravity)
         {
             if (MoveOnGroundEx || OnGround)
             {
@@ -1784,15 +1787,16 @@ public partial class MeteorUnit : MonoBehaviour
     {
         canControlOnAir = true;
         OnGround = false;
-        float jumpScale = Short ? (ShortScale) : 1.0f;
-        
+        float jumpScale = Short ? (ShortScale * 0.32f) : 1.0f;
+        float h = JumpLimit * jumpScale;
+        ImpluseVec.y = CalcVelocity(h);
         //ImpluseVec.y = 0.0f;
         posMng.JumpTick = 0.0f;
         posMng.CanAdjust = true;
         posMng.CheckClimb = true;
         posMng.ChangeAction(act, 0.1f);
         charLoader.SetActionScale(jumpScale);
-        charLoader.SetActionQuickChange(jumpScale);
+        //charLoader.SetActionQuickChange(jumpScale);
     }
 
     public void ReleaseDefence()

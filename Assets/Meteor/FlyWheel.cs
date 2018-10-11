@@ -215,6 +215,8 @@ public class FlyWheel : MonoBehaviour {
             //同队忽略攻击
             if (unit.SameCamp(owner))
                 return;
+            if (unit == owner)
+                return;
             unit.OnAttack(owner, _attack);
             attackTick.Add(unit, 0.2f);
         }
@@ -251,6 +253,8 @@ public class FlyWheel : MonoBehaviour {
                 return;
             //同队忽略攻击
             if (unit.SameCamp(owner))
+                return;
+            if (unit == owner)
                 return;
             unit.OnAttack(owner, _attack);
             attackTick.Add(unit, 0.2f);

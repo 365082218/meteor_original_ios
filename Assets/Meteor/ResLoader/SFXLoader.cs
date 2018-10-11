@@ -259,13 +259,38 @@ public class SfxFile
                     int endRegionCnt = TailSectionLength;
                     //sfx.TailLength = 100 + endRegionCnt;
                     //粒子细节=96+endRegionCnt
+                    sfx.version = endRegionCnt == 0 ? 0 : 1;
                     sfx.particle = reader.ReadBytes(96 + endRegionCnt);
-                    //reader.BaseStream.Seek(96 + endRegionCnt, SeekOrigin.Current);//到终点
-                    //offset += sfx.TailLength;
-                    //后面还有3个变长串，可为空的
+                    //前面的28字节不知道干啥的。
+                    reader.BaseStream.Seek(-96, SeekOrigin.Current);
+                    sfx.MaxParticles = reader.ReadInt32();
+                    sfx.startSizeMin = reader.ReadSingle();
+                    sfx.startSizeMax = reader.ReadSingle();
+                    sfx.unknwon2  = reader.ReadSingle();//1
+                    sfx.unknown3 = reader.ReadSingle();//5
+                    sfx.unknown0 = reader.ReadSingle();//30?可能是重力系数.其大于0时，粒子往下朝，其小于=0时，粒子向上
+                    sfx.StartLifetime = reader.ReadSingle();//粒子生命周期
+                    sfx.unknown1 = reader.ReadSingle();//1
+                    sfx.startSpeedMin = reader.ReadSingle();//50 - startSpeed
+                    sfx.startSpeedMax = reader.ReadSingle();//80 - startSpeed2
+                    sfx.unknown4 = reader.ReadSingle();//0.1f
+                    sfx.unknown5 = reader.ReadSingle();//0.1f;
+                    sfx.unknown6 = reader.ReadSingle();//-1.0f;
+                    sfx.unknown7 = reader.ReadSingle();//-1.0f;
+                    sfx.unknown8 = reader.ReadSingle();//-1.0f;
+                    sfx.unknown9 = reader.ReadSingle();//+1.0f;
+                    sfx.unknown10 = reader.ReadSingle();//+1.0f;
+                    sfx.unknown11 = reader.ReadSingle();//+1.0f;
+                    sfx.unknown12 = reader.ReadInt32();//0
+                    sfx.unknown13 = reader.ReadInt32();//1
+                    sfx.unknown14 = reader.ReadInt32();//1
+                    sfx.unknown15 = reader.ReadSingle();//0.5f
+                    sfx.multiplyAlpha = reader.ReadInt32();//1
+                    sfx.alpha = reader.ReadSingle();//0.3
+
                     int regionCnt = reader.ReadInt32();// (asset.bytes, offset);
-                    //offset += 4;
-                    //sfx.TailLength += 4;
+                                                        //offset += 4;
+                                                        //sfx.TailLength += 4;
                     string sBone = readNextString(reader, regionCnt);
                     //string sBone = System.Text.Encoding.UTF8.GetString(asset.bytes, offset, regionCnt);
                     sfx.Tails[0] = sBone;
@@ -401,8 +426,33 @@ public class SfxEffect
     public Vector2 origAtt = Vector2.zero;//各自的参数设置 顶部半径，底部半径
     public Vector4 sphereAttr = Vector4.zero;
     //粒子系统使用的
+    public int version;//96字节版=0 124字节版=1
     public byte[] particle;
     public string[] Tails = new string[3];
+    public int MaxParticles;
+    public float startSizeMin;
+    public float startSizeMax;
+    public float startSpeedMin;
+    public float startSpeedMax;
+    public float unknown0;//30?
+    public float StartLifetime;//粒子生命周期
+    public float unknown1;//1
+    public float unknwon2;//50
+    public float unknown3;//80
+    public float unknown4;//0.1f
+    public float unknown5;//0.1f;
+    public float unknown6;//-1.0f;
+    public float unknown7;//-1.0f;
+    public float unknown8;//-1.0f;
+    public float unknown9;//+1.0f;
+    public float unknown10;//+1.0f;
+    public float unknown11;//+1.0f;
+    public int unknown12;//0
+    public int unknown13;//1
+    public int unknown14;//1
+    public float unknown15;//0.5f
+    public int multiplyAlpha;//1是否叠加透明度
+    public float alpha;//0.3透明度
 }
 
 public class SFXLoader :Singleton<SFXLoader>{

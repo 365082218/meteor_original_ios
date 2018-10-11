@@ -328,21 +328,22 @@ public class CameraFollow : MonoBehaviour {
                 {
                     //Debug.LogError("有x y轴偏移");
                     //float x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, 0.1f);
-                    float y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
+                    //float y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
                     //float z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, 0.1f);
                     //newPos.x = x;
-                    newPos.y = y;
+                    //newPos.y = y;
                     //newPos.z = z;
 
                     transform.position = newPos;
                     //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                     //transform.rotation = to;
-                    Vector3 vec = transform.eulerAngles;
-                    transform.LookAt(cameraLookAt);
                     
-                    vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
+                    transform.LookAt(cameraLookAt);
+                    Vector3 vec = transform.eulerAngles;
+
+                    //vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
                     //vec.y = Mathf.SmoothDampAngle(vec.y, transform.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
-                    vec.y = transform.eulerAngles.y;
+                    //vec.y = transform.eulerAngles.y;
                     vec.z = 0;
                     transform.eulerAngles = vec;
                     Unlocked = false;

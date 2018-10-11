@@ -79,7 +79,33 @@ DRAG*/
         mOwner = parent.GetComponent<MeteorUnit>();
         source = effect;
         if (effect.EffectType.Equals("PARTICLE"))
+        {
             particle = Instantiate(Resources.Load<GameObject>("SFXParticles"), Vector3.zero, Quaternion.identity, transform).GetComponent<ParticleSystem>();
+            ParticleSystem.MainModule mainModule = particle.main;
+            ParticleSystem.EmissionModule emissionModule = particle.emission;
+            ParticleSystem.ShapeModule shapeModule = particle.shape;
+            
+            emissionModule.rateOverTime = new ParticleSystem.MinMaxCurve(effect.MaxParticles, effect.MaxParticles);
+            mainModule.startLifetime = effect.StartLifetime;
+            mainModule.maxParticles = effect.MaxParticles;
+            mainModule.startSize3D = false;
+            mainModule.startSize = new ParticleSystem.MinMaxCurve(effect.startSizeMin, effect.startSizeMax);
+            mainModule.startSpeed = new ParticleSystem.MinMaxCurve(effect.startSpeedMin, effect.startSpeedMax);
+            mainModule.loop = true;
+            mainModule.duration = 1.0f;
+
+            //124字节的，烟雾特效，旋转角度 0-360，shape使用box, render使用billboard
+            if (effect.version == 1)
+            {
+                mainModule.startRotation = new ParticleSystem.MinMaxCurve(0, 360);
+                shapeModule.shapeType = ParticleSystemShapeType.Box;
+                shapeModule.box = new Vector3(effect.startSizeMin, 0, effect.startSizeMax);
+                ParticleSystemRenderer r = particle.GetComponent<ParticleSystemRenderer>();
+                r.renderMode = ParticleSystemRenderMode.Billboard;
+                r.minParticleSize = 0.1f;
+                r.maxParticleSize = 0.1f;
+            }
+        }
 
         if (string.IsNullOrEmpty(effect.Bone0))
             PositionFollow = mOwner == null ? parentSfx.transform : mOwner.transform;
@@ -218,7 +244,7 @@ DRAG*/
                 render.material.SetColor("_Color", effect.frames[0].colorRGB);
                 render.material.SetColor("_TintColor", effect.frames[0].colorRGB);
                 render.material.SetFloat("_Intensity", effect.frames[0].TailFlags[9]);
-                //particle.Emit(1);
+                particle.Play();
             }
             else
             {
@@ -650,8 +676,9 @@ DRAG*/
                     ParticleSystemRenderer render = particle.GetComponent<ParticleSystemRenderer>();
                     render.material.SetColor("_Color", source.frames[playedIndex - 1].colorRGB);
                     render.material.SetColor(vertexColor, source.frames[playedIndex - 1].colorRGB);
-                    //粒子不要设置强度了，原版本的粒子实现和UNITY的不一样render.material.SetFloat("_Intensity", source.frames[playedIndex].TailFlags[9]);
-                    particle.Emit(1);
+                    //粒子不要设置强度了，原版本的粒子实现和UNITY的不一样
+                    render.material.SetFloat("_Intensity", source.multiplyAlpha == 1 ? source.alpha * source.frames[playedIndex - 1].TailFlags[9] : source.frames[playedIndex - 1].TailFlags[9]);
+                    //particle.Emit(source.MaxParticles);
                     //particle.Simulate();
                     playedIndex++;
                     //playedTime = 0.0f;
@@ -818,7 +845,7 @@ DRAG*/
         }
 
         
-        mRender.material.SetFloat("_Intensity", Mathf.Lerp(source.frames[playedIndex - 1].TailFlags[9], source.frames[playedIndex].TailFlags[9], timeRatio2));
+        mRender.material.SetFloat("_Intensity", Mathf.Lerp(source.multiplyAlpha == 1 ? source.alpha * source.frames[playedIndex - 1].TailFlags[9] : source.frames[playedIndex - 1].TailFlags[9], source.multiplyAlpha == 1 ? source.alpha * source.frames[playedIndex].TailFlags[9] : source.frames[playedIndex].TailFlags[9], timeRatio2));
         mRender.material.SetColor(vertexColor, Color.Lerp(source.frames[playedIndex - 1].colorRGB, source.frames[playedIndex].colorRGB, timeRatio2));
     }
 

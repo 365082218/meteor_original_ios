@@ -824,14 +824,18 @@ public class SceneItemAgent : MonoBehaviour {
 
     public void AutoDestroy()
     {
-        for (int i = 0; i < MeteorManager.Instance.SceneItems.Count; i++)
+        //如果某人拾取了flag，不要再刷新镖物
+        if (!U3D.GetFlag())
         {
-            if (MeteorManager.Instance.SceneItems[i] != this 
-                && MeteorManager.Instance.SceneItems[i].ItemInfo != null 
-                && MeteorManager.Instance.SceneItems[i].ItemInfo.IsFlag())
+            for (int i = 0; i < MeteorManager.Instance.SceneItems.Count; i++)
             {
-                MeteorManager.Instance.SceneItems[i].OnRefresh();
-                break;
+                if (MeteorManager.Instance.SceneItems[i] != this
+                    && MeteorManager.Instance.SceneItems[i].ItemInfo != null
+                    && MeteorManager.Instance.SceneItems[i].ItemInfo.IsFlag())
+                {
+                    MeteorManager.Instance.SceneItems[i].OnRefresh();
+                    break;
+                }
             }
         }
         MeteorManager.Instance.OnDestroySceneItem(this);

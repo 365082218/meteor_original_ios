@@ -129,6 +129,9 @@ public class DartLoader : MonoBehaviour {
             //同队忽略攻击
             if (unit.SameCamp(owner))
                 return;
+            //部分关卡角色无阵营
+            if (unit == owner)
+                return;
             //if (rec.Find(m => m.target.Equals(unit)) != null)
             //    return;
             //Debug.LogError("dart attack start");

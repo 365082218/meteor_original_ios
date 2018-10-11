@@ -333,15 +333,6 @@ public class CharacterLoader : MonoBehaviour
         moveScale = scale;
     }
 
-    //设置动作提前切换，比如跳跃向上动作，完整有15帧，当按下一个小跳，不按攻击时，这个跳跃是会提前切换到152，而不是播放完整动作后切换.
-    //不能用动作位移缩放是因为，仅仅改变位移，没有改变帧数上的表现，小跳动作看起来与高度完全不符合运动规律.所以要提前结束151动作
-    //提前百分比结束
-    float quickChange = 1.0f;
-    public void SetActionQuickChange(float scale)
-    {
-        quickChange = scale;
-    }
-
     void PlayNextKeyFrame()
     {
         //Debug.LogError("PlayNextKeyFrame timeratio:" + ratio);
@@ -388,7 +379,7 @@ public class CharacterLoader : MonoBehaviour
         }
         else
         {
-            if (curIndex > po.Start + (po.End - po.Start) * quickChange)
+            if (curIndex > po.End)
             {
                 if (single)
                     Pause = true;
@@ -601,7 +592,7 @@ public class CharacterLoader : MonoBehaviour
         }
         else
         {
-            if (curIndex > po.Start + (po.End - po.Start) * quickChange)
+            if (curIndex > po.End)
             {
                 if (single)
                     Pause = true;
@@ -961,7 +952,6 @@ public class CharacterLoader : MonoBehaviour
             lastPosIdx = po.Idx;
 
         moveScale = 1.0f;
-        quickChange = 1.0f;
         //重置速度
         bool isAttackPos = false;
         if (po == null)
@@ -1174,7 +1164,7 @@ public class AmbLoader
         int frames = binRead.ReadInt32();
         int unknown = binRead.ReadInt32();
         Dictionary<int, BoneStatus> innerValue = new Dictionary<int, BoneStatus>();
-        for (int i = 1; i <= frames; i++)
+        for (int i = 0; i < frames; i++)
         {
             BoneStatus status = new BoneStatus();
             status.Init();

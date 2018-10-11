@@ -515,6 +515,8 @@ public partial class GameBattleEx : MonoBehaviour {
                     {
                         if (unit.SameCamp(unitAttacked))
                             continue;
+                        if (unit == unitAttacked)
+                            continue;
                         if (unitAttacked.Dead)
                             continue;
                         unitAttacked.OnAttack(unit, attackDef);
@@ -544,6 +546,8 @@ public partial class GameBattleEx : MonoBehaviour {
                             MeteorUnit unitAttacked = allHitSort[i].transform.gameObject.GetComponentInParent<MeteorUnit>();
                             if (unitAttacked != null)
                             {
+                                if (unit == unitAttacked)
+                                    continue;
                                 if (unit.SameCamp(unitAttacked))
                                     continue;
                                 if (unitAttacked.Dead)

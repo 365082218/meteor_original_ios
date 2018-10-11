@@ -290,6 +290,13 @@ public class MeteorAI {
         switch (SubStatus)
         {
             case EAISubStatus.GetItemGotoItem:
+                if (owner.GetSceneItemTarget() == null)
+                {
+                    Stop();
+                    ChangeState(EAIStatus.Wait);
+                    return;
+                }
+
                 if (Path.Count == 0)
                 {
                     if (owner.GetSceneItemTarget() != null)
@@ -361,6 +368,12 @@ public class MeteorAI {
             case EAISubStatus.GetItemSubRotateToItem:
                 if (GetItemRotateToTargetCoroutine == null)
                 {
+                    if (owner.GetSceneItemTarget() == null)
+                    {
+                        owner.controller.Input.AIMove(0, 0);
+                        ChangeState(EAIStatus.Wait);
+                        return;
+                    }
                     Vector3 targetPosition = Vector3.zero;
                     if (targetIndex >= Path.Count)
                         targetPosition = owner.GetSceneItemTarget().transform.position;

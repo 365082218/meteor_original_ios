@@ -377,7 +377,7 @@ public class PoseStatus
                     if (mActiveAction.Link != 0)
                     {
                         if (mActiveAction.Next != null)
-                            ChangeAction(mActiveAction.Link, 0.1f, true);
+                            ChangeAction(mActiveAction.Link, mActiveAction.Next.Time, true);
                         else
                             ChangeAction(mActiveAction.Link);
                     }
@@ -426,7 +426,7 @@ public class PoseStatus
                                 if (mActiveAction.Next != null)
                                     ChangeAction(CommonAction.Idle, mActiveAction.Next.Time, true);
                                 else
-                                    ChangeAction(CommonAction.Idle, 0.1f);
+                                    ChangeAction(CommonAction.Idle);
                             }
                         }
                         else
