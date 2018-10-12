@@ -90,16 +90,32 @@ public class U3D : MonoBehaviour {
         unit.Init(idx % Global.model.Length, mon);
         MeteorManager.Instance.OnGenerateUnit(unit);
         unit.SetGround(false);
-        //新模式，只有出生点.
-        if (Global.GLevelItem.SceneMode == 1)
+
+        if (camp == EUnitCamp.EUC_FRIEND)
         {
-            unit.transform.position = GameObject.Find("StartPoint").transform.position;
-            unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
-            InsertSystemMsg(LevelHelper.GetCampStr(unit));
-            //找寻敌人攻击.因为这个并没有脚本模板
-            unit.robot.ChangeState(EAIStatus.Wait);
-            return;
+            //朋友站左侧
+            unit.transform.position = MeteorManager.Instance.LocalPlayer.mPos - 35 * (Quaternion.AngleAxis(30, Vector3.up) * MeteorManager.Instance.LocalPlayer.transform.forward);
+            unit.FaceToTarget(MeteorManager.Instance.LocalPlayer);
+            U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "player" });
         }
+        else if (camp == EUnitCamp.EUC_ENEMY)
+        {
+            //敌人站右侧
+            unit.transform.position = MeteorManager.Instance.LocalPlayer.mPos - 35 * (Quaternion.AngleAxis(-30, Vector3.up) * MeteorManager.Instance.LocalPlayer.transform.forward);
+            unit.FaceToTarget(MeteorManager.Instance.LocalPlayer);
+        }
+        else
+        {
+            //其他人站正前方
+            unit.transform.position = MeteorManager.Instance.LocalPlayer.mPos - 35 * MeteorManager.Instance.LocalPlayer.transform.forward;
+            unit.FaceToTarget(MeteorManager.Instance.LocalPlayer);
+        }
+        
+        
+        InsertSystemMsg(LevelHelper.GetCampStr(unit));
+        //找寻敌人攻击.因为这个并没有脚本模板
+        unit.robot.ChangeState(EAIStatus.Wait);
+        return;
 
         if (Global.GLevelMode == LevelMode.SinglePlayerTask)
         {

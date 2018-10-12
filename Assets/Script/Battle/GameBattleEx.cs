@@ -616,7 +616,7 @@ public partial class GameBattleEx : MonoBehaviour {
                                 forw = (Quaternion.AngleAxis(Random.Range(-35, 35), Vector3.up) * Quaternion.AngleAxis(Random.Range(-5, 5), Vector3.right) * -unit.transform.forward).normalized;//角色的面向
                             else
                             {
-                                Vector3 vec = unit.GetLockedTarget().mPos + new Vector3(Random.Range(-unit.Attr.Aim, unit.Attr.Aim), Random.Range(10, 38), Random.Range(-unit.Attr.Aim, unit.Attr.Aim));
+                                Vector3 vec = unit.GetLockedTarget().mPos + new Vector3(Random.Range(-unit.Attr.Aim / 10, unit.Attr.Aim / 10), Random.Range(10, 38), Random.Range(-unit.Attr.Aim / 10, unit.Attr.Aim / 10));
                                 float dis = Vector3.Distance(vec, vecSpawn);
                                 float vt = Mathf.Sqrt(2 * DartLoader.gspeed * dis + (DartLoader.InitializeSpeed * DartLoader.InitializeSpeed));
                                 float t = (vt - DartLoader.InitializeSpeed) / DartLoader.gspeed;

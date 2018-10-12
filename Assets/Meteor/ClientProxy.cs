@@ -144,9 +144,16 @@ class ClientProxy
     {
         if (server == null)
         {
-            IPAddress[] addr = Dns.GetHostAddresses(AppInfo.Instance.Domain);
-            if (addr.Length != 0)
-                server = new IPEndPoint(addr[0], AppInfo.Instance.GatePort);
+            try
+            {
+                IPAddress[] addr = Dns.GetHostAddresses(AppInfo.Instance.Domain);
+                if (addr.Length != 0)
+                    server = new IPEndPoint(addr[0], AppInfo.Instance.GatePort);
+            }
+            catch
+            {
+                //单机时,或者网址dns无法解析时.
+            }
         }
     }
 

@@ -124,7 +124,7 @@ public class MeteorAI {
         lookTick += Time.deltaTime;
         //行为优先级 
         //AI强制行为(攻击指定位置，Kill追杀（不论视野）攻击 ) > 战斗 > 跟随 > 巡逻 > 
-        if (Status == EAIStatus.Patrol || Status == EAIStatus.Follow)
+        if (Status == EAIStatus.Patrol)
         {
             //巡逻状态如果找到了敌人，与敌人搏斗.
             if (killTarget != null)
@@ -402,7 +402,13 @@ public class MeteorAI {
     Coroutine LookRotateToTargetCoroutine;
     void OnLook()
     {
-        if (LookRotateToTargetCoroutine == null && owner.GetLockedTarget() != null)
+        if (owner.GetLockedTarget() != null && LookRotateToTargetCoroutine == null)
+        {
+            Stop();
+            ChangeState(EAIStatus.Wait);
+            return;
+        }
+        if (LookRotateToTargetCoroutine == null && owner.GetLockedTarget() == null)
         {
             float angle = Random.Range(-60, 60);
             Stop();//停止移动.
@@ -1550,11 +1556,15 @@ public class MeteorAI {
     //原地不动-
     void OnWait()
     {
-        int lookChance = Random.Range(1, 101);
-        if (lookTick >= 5.0f && (lookChance <= owner.Attr.Look))
+        
+        if (lookTick >= 5.0f)
         {
-            lookTick = 0;//5秒内最多能进行一次四处看.
-            ChangeState(EAIStatus.Look);
+            int lookChance = Random.Range(1, 101);
+            if (lookChance <= owner.Attr.Look)
+            {
+                lookTick = 0;//5秒内最多能进行一次四处看.
+                ChangeState(EAIStatus.Look);
+            }
         }
     }
 
