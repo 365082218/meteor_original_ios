@@ -80,7 +80,7 @@ Idx	Name	IgnoreMove	IgnoreGravity	IgnoreCollision	GravityEvent	IgnoreXZVelocity
 227	刺空展臂	1	1	0		1
 228	刺空上A踢	0	1	0		
 229	刺空上A2踢腿	0	1	0		1
-235	双刺空中下A	0	1	1	10969:1-10972:0	1
+235	双刺空中下A	0	0	1	10969:1-10972:0	1
 236	双刺空中下A2	0	0	0		1
 245	匕首空A1	0	1	0		
 246	匕首空A2	0	1	0		

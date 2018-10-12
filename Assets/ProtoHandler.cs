@@ -166,19 +166,29 @@ class ProtoHandler
 
     static void EnterLevelRsp_(EnterLevelRsp rsp)
     {
-
+        //进入到房间内,开始加载场景设置角色初始化位置
+        U3D.LoadNetLevel(rsp.scene.items, rsp.scene.players);
     }
 
     //自己建房间成功，则转到选人界面.与加入房间一个德行
     static void OnCreateRoomRsp(CreateRoomRsp rsp)
     {
-
+        if (rsp.result == 1)
+        {
+            GameOverlayWnd.Instance.InsertSystemMsg(string.Format("创建房间 编号:{0}", rsp.roomId));
+            RoleSelectWnd.Instance.Open();
+        }
+        else
+        {
+            GameOverlayWnd.Instance.InsertSystemMsg("创建房间失败");
+        }
     }
 
-    //其他人进入房间
+    //其他人进入我所在的房间
     static void OnEnterRoomRsp_(OnEnterRoomRsp rsp)
     {
-        //显示某某进入房间的文字，
+        //显示某某进入房间的文字
+        GameOverlayWnd.Instance.InsertSystemMsg(string.Format("{0} 进入房间", rsp.playerNick));
     }
 
     static void OnJoinRoomRsp(JoinRoomRsp rsp)
@@ -188,14 +198,28 @@ class ProtoHandler
         //到最后一步确认后，开始同步服务器场景数据.
         if (rsp.result == 1)
         {
-            //选人，或者阵营，或者
+            if (NetWorkBattle.Ins.RoomId == -1)
+            {
+                //选人，或者阵营，或者
+                UnityEngine.Debug.LogError("OnJoinRoom successful");
+                if (MainLobby.Instance != null)
+                    MainLobby.Instance.Close();
+                NetWorkBattle.Ins.OnEnterRoomSuccessed((int)rsp.roomId, (int)rsp.levelIdx, (int)rsp.playerId);
+                RoleSelectWnd.Instance.Open();//阵营选择,最后一步，调用进入Level,那个时候再加载场景之类.
+            }
+            //U3D.LoadNetLevel((int)rsp.levelIdx, LevelMode.MultiplyPlayer, GameMode.MENGZHU);
         }
         else
         {
             //显示各种错误信息框
+            //rsp.reason
+            //2未找到
+            //3需要退出当前房间
+            //1房间满
+            UnityEngine.Debug.LogError(string.Format("error:{0}", rsp.reason));
             switch (rsp.reason)
             {
-
+                
             }
         }
     }

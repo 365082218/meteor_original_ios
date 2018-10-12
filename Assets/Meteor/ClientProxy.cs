@@ -103,6 +103,8 @@ class ClientProxy
                 if (tConn != null)
                     tConn.Change(5000, 5000);
             }
+            if (proxy != null)
+                proxy.Reset();
             return;
         }
 
@@ -178,6 +180,22 @@ class ClientProxy
         Common.SendJoinRoom(roomId);
     }
 
+    public static void EnterLevel(int model, int weapon)
+    {
+        Common.SendEnterLevel(model, weapon);
+    }
+
+    //同步当前帧的输入状态
+    public static void SyncInput()
+    {
+
+    }
+
+    //同步当前角色状态,定点数，位置 + 旋转 + 帧动画 + 时刻
+    public static void SyncFrame()
+    {
+
+    }
     //public static void SendBattleResult(bool result, int battleId, List<int> monster, Action<RBase> cb = null)
     //{
     //    try

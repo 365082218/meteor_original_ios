@@ -22,6 +22,11 @@ namespace CoClass
             Len = 0;
         }
 
+        public void Reset()
+        {
+            Len = 0;//buff里的数据脏了，要清除掉.
+        }
+
         //返回此包是否出错.
         public bool Analysis(int receivedLength, Dictionary<int, byte[]> packets)
         {

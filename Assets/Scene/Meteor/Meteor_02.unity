@@ -19135,7 +19135,7 @@ GameObject:
   - component: {fileID: 1414540708}
   - component: {fileID: 1414540707}
   - component: {fileID: 1414540706}
-  m_Layer: 10
+  m_Layer: 20
   m_Name: Box04
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -4,6 +4,7 @@ using SLua;
 using UnityEngine;
 using CoClass;
 using System.IO;
+using protocol;
 
 class SceneMng
 {
@@ -12,6 +13,75 @@ class SceneMng
         WsWindow.Close(WsWindow.Dialogue);//进战斗前必须把交互对话框关闭.
         WsWindow.Close(WsWindow.Battle);
         WsWindow.Open(WsWindow.Battle);
+    }
+
+    public static void OnEnterNetLevel(List<SceneItem_> items, int level)
+    {
+        Level lev = LevelMng.Instance.GetItem(level);
+        if (Loader.Instance != null)
+        {
+            Loader.Instance.LoadFixedScene(lev.sceneItems);
+            //加载服务器传递过来的动态物件列表
+            for (int i = 0; i < items.Count; i++)
+                Loader.Instance.LoadDynamicTrigger(items[i]);
+        }
+        else
+        {
+            Debug.LogError("Loader not exist");
+        }
+
+        Global.GLevelSpawn = new Vector3[16];
+        Global.GCampASpawn = new Vector3[8];
+        Global.GCampBSpawn = new Vector3[8];
+        if (Global.GLevelItem.ID > 22)
+        {
+            //新地图没有这些地点
+            for (int i = 0; i < 16; i++)
+            {
+                Global.GLevelSpawn[i] = i < Global.GLevelItem.wayPoint.Count ? Global.GLevelItem.wayPoint[i].pos : GameObject.Find("StartPoint").transform.position;
+            }
+
+            for (int i = 0; i < 8; i++)
+            {
+                Global.GCampASpawn[i] = i < Global.GLevelItem.wayPoint.Count ? Global.GLevelItem.wayPoint[i].pos : GameObject.Find("StartPoint").transform.position;
+                Global.GCampBSpawn[i] = i < Global.GLevelItem.wayPoint.Count ? Global.GLevelItem.wayPoint[i].pos : GameObject.Find("StartPoint").transform.position;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 16; i++)
+            {
+                Global.GLevelSpawn[i] = Global.ldaControlX(string.Format("D_user{0:d2}", i + 1), Loader.Instance.gameObject).transform.position;
+            }
+
+            for (int i = 0; i < 8; i++)
+            {
+                Global.GCampASpawn[i] = Global.ldaControlX(string.Format("D_teamA{0:d2}", i + 1), Loader.Instance.gameObject).transform.position;
+                Global.GCampBSpawn[i] = Global.ldaControlX(string.Format("D_teamB{0:d2}", i + 1), Loader.Instance.gameObject).transform.position;
+            }
+        }
+
+        GameObject objWayPoint = new GameObject("wayPoint");
+        objWayPoint.transform.position = Vector3.zero;
+        objWayPoint.transform.rotation = Quaternion.identity;
+        objWayPoint.transform.localScale = Vector3.one;
+        objWayPoint.layer = LayerMask.NameToLayer("WayPoint");
+        for (int i = 0; i < Global.GLevelItem.wayPoint.Count; i++)
+        {
+            GameObject wayPoint = new GameObject(string.Format("WayPoint{0}", i));
+            wayPoint.tag = "WayPoint";
+            wayPoint.transform.SetParent(objWayPoint.transform);
+            wayPoint.transform.position = Global.GLevelItem.wayPoint[i].pos;
+            wayPoint.layer = objWayPoint.layer;
+            wayPoint.transform.rotation = Quaternion.identity;
+            wayPoint.transform.localScale = Vector3.one;
+            BoxCollider box = wayPoint.AddComponent<BoxCollider>();
+            box.isTrigger = true;
+            box.size = Vector3.one * (Global.GLevelItem.wayPoint[i].size);
+            box.center = Vector3.zero;
+            WayPointTrigger trigger = wayPoint.AddComponent<WayPointTrigger>();
+            trigger.WayIndex = i;
+        }
     }
 
     //指明进入一张地图,地图上所有的道具，建筑，陷阱，传送门，Npc,怪物,障碍物都需要保存下来，以便下次进入场景恢复
@@ -24,8 +94,7 @@ class SceneMng
         string items = levelScript.GetDesName();
         if (!string.IsNullOrEmpty(items))
             sceneItems = items;
-        //加载地图上无论如何都固有的环境,类似瀑布水流声，一些配置点，d_user d_team等
-        //Loader load = GameObject.FindObjectOfType<Loader>();
+
         if (Loader.Instance != null)
         {
             Loader.Instance.LoadFixedScene(sceneItems);
@@ -180,6 +249,22 @@ class SceneMng
         if (ret.InitMonster(Script))
             return ret;
         return null;
+    }
+
+    public static MonsterEx InitNetPlayer(Player_ player)
+    {
+        MonsterEx ret = new MonsterEx();
+        ret.hpCur = player.hp;
+        ret.HpMax = player.hpMax;
+        ret.mpCur = player.angry;
+        ret.Model = player.model;
+        ret.Weapon = (int)player.weapon;
+        ret.Weapon2 = (int)player.weapon2;
+        ret.name = player.name;
+        ret.SpawnPoint = player.SpawnPoint;
+        ret.Speed = 1000;
+        ret.IsPlayer = player.id == NetWorkBattle.Ins.PlayerId;
+        return ret;
     }
 
     public static MonsterEx InitPlayer(LevelScriptBase script)

@@ -7,8 +7,33 @@ using System.Security.Cryptography;
 using UnityEngine;
 using ProtoBuf;
 using System.Xml;
+using protocol;
 
 //using UnityEditor;
+class QuaternionHelper
+{
+    static Quaternion quat;
+    public static Quaternion ConvertTo(Quaternion_ other)
+    {
+        quat.x = other.x;
+        quat.y = other.y;
+        quat.z = other.z;
+        quat.w = other.w;
+        return quat;
+    }
+}
+
+class Vector3Helper
+{
+    static Vector3 vec;
+    public static Vector3 ConvertTo(Vector3_ other)
+    {
+        vec.x = other.x;
+        vec.y = other.y;
+        vec.z = other.z;
+        return vec;
+    }
+}
 
 //加载关卡内的虚拟物品，类似原来流星蝴蝶剑的箱子/酒坛，或者之类的
 public class Loader : MonoBehaviour {
@@ -213,6 +238,27 @@ public class Loader : MonoBehaviour {
                 continue;
             }
         }
+    }
+
+    public void LoadDynamicTrigger(SceneItem_ sceneItems)
+    {
+        GameObject obj = new GameObject();
+        obj.name = sceneItems.model;
+
+        SceneItemAgent target = obj.AddComponent<SceneItemAgent>();
+        target.tag = "SceneItemAgent";
+        target.Load(sceneItems.model);
+        //target.LoadCustom(des.SceneItems[i].name, des.SceneItems[i].custom);//自定义的一些属性，name=damage100
+        target.ApplyPost();
+        MeteorManager.Instance.OnGenerateSceneItem(target);
+        //环境特效.一直存在的特效.和特效挂载点
+        //string effect;
+        //if (des.SceneItems[i].ContainsKey("effect", out effect))
+        //    SFXLoader.Instance.PlayEffect(string.Format("{0}.ef", effect), obj);
+        //sceneItems.pos
+        obj.transform.position = Vector3Helper.ConvertTo(sceneItems.pos);
+        obj.transform.rotation = QuaternionHelper.ConvertTo(sceneItems.rotation);
+        obj.transform.SetParent(transform);
     }
 
     public void LoadDynamicTrigger(string sceneItems)

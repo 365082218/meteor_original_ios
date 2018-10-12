@@ -1939,6 +1939,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16edc67b7740ada4ebe96fcd1290091a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  RoomId: -1
+  LevelId: -1
+  PlayerId: -1
+  heroIdx: 0
+  weaponIdx: 0
 --- !u!114 &2044160634
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -9,6 +9,7 @@ using System;
 using System.IO;
 using CoClass;
 using UnityEngine.Profiling;
+using protocol;
 
 [CustomLuaClassAttribute]
 public class U3D : MonoBehaviour {
@@ -60,6 +61,13 @@ public class U3D : MonoBehaviour {
         LoadingTipsManager.Instance.ReLoad();
         UnitMng.Instance.ReLoad();
         WeaponMng.Instance.ReLoad();
+    }
+
+    public static int GetNormalWeapon(int i)
+    {
+        if (i < 0 || i >= weaponCode.Length)
+            return 5;
+        return weaponCode[i];
     }
 
     //当前场景立即产生一个npc
@@ -166,6 +174,69 @@ public class U3D : MonoBehaviour {
         //GameObject.Destroy(unit.gameObject);
         Global.PauseAll = false;
         MeteorManager.Instance.LocalPlayer.controller.InputLocked = false;
+    }
+
+    public static MeteorUnit InitNetPlayer(Player_ player)
+    {
+        MonsterEx mon = SceneMng.InitNetPlayer(player);
+        GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
+        Vector3 spawnPos;
+        spawnPos.x = player.pos.x;
+        spawnPos.y = player.pos.y;
+        spawnPos.z = player.pos.z;
+        Quaternion quat;
+        quat.w = player.rotation.w;
+        quat.x = player.rotation.x;
+        quat.y = player.rotation.y;
+        quat.z = player.rotation.z;
+
+        GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
+        MeteorUnit unit = ins.GetComponent<MeteorUnit>();
+        if (mon.IsPlayer)
+            MeteorManager.Instance.LocalPlayer = unit;
+        unit.Camp = EUnitCamp.EUC_NONE;
+        unit.Init(mon.Model, mon);
+        MeteorManager.Instance.OnGenerateUnit(unit);
+        unit.SetGround(false);
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer && mon.IsPlayer)
+        {
+            if (Global.GGameMode == GameMode.Normal)
+            {
+                unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+            }
+            else if (Global.GGameMode == GameMode.MENGZHU)
+            {
+                //16个点
+                unit.transform.position = Global.GLevelSpawn[Global.SpawnIndex];
+                Global.SpawnIndex++;
+                Global.SpawnIndex %= 16;
+                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+            }
+            else if (Global.GGameMode == GameMode.ANSHA || Global.GGameMode == GameMode.SIDOU)
+            {
+                //2个队伍8个点.
+                if (unit.Camp == EUnitCamp.EUC_FRIEND)
+                {
+                    unit.transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
+                    Global.CampASpawnIndex++;
+                    Global.CampASpawnIndex %= 8;
+                }
+                else if (unit.Camp == EUnitCamp.EUC_ENEMY)
+                {
+                    unit.transform.position = Global.GCampASpawn[Global.CampBSpawnIndex];
+                    Global.CampBSpawnIndex++;
+                    Global.CampBSpawnIndex %= 8;
+                }
+            }
+        }
+        else
+        {
+            unit.transform.position = spawnPos;
+            unit.transform.rotation = quat;
+        }
+        U3D.InsertSystemMsg(LevelHelper.GetCampStr(unit));
+        return unit;
     }
 
     public static MeteorUnit InitPlayer(LevelScriptBase script)
@@ -589,6 +660,12 @@ public class U3D : MonoBehaviour {
         
     }
 
+    public static void PlayBtnAudio()
+    {
+        if (SoundManager.Instance != null)
+            SoundManager.Instance.PlaySound("btn");
+    }
+
     //显示建筑列表，包括可建造及已建造的
     public static void ShowBuild()
     {
@@ -660,6 +737,24 @@ public class U3D : MonoBehaviour {
         //            ctrls[i].Save();
         //    }
         //}
+    }
+
+    public static void LoadNetLevel(List<SceneItem_> sceneItems, List<Player_> players)
+    {
+        uint profileTotalAllocate = Profiler.GetTotalAllocatedMemory();
+        uint profileTotalReserved = Profiler.GetTotalReservedMemory();
+        long gcTotal = System.GC.GetTotalMemory(false);
+        if (FightWnd.Exist)
+            FightWnd.Instance.Close();
+        WindowMng.CloseAll();
+        //暂时不允许使用声音管理器，在切换场景时不允许播放
+        SoundManager.Instance.StopAll();
+        SoundManager.Instance.Enable(false);
+        SaveLastLevelData();
+        ClearLevelData();
+        Resources.UnloadUnusedAssets();
+        GC.Collect();
+        NetWorkBattle.Ins.Load(sceneItems, players);
     }
 
     public static void LoadLevel(int id, LevelMode levelmode, GameMode gamemode)

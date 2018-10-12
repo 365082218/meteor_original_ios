@@ -1547,14 +1547,14 @@ public partial class MeteorUnit : MonoBehaviour
                         posMng.mActiveAction.Idx == CommonAction.JumpBackFall ||
                         posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
                 {
-                    Debug.LogError("贴着墙壁-贴着地面-被墙壁推开");
+                    //Debug.LogError("贴着墙壁-贴着地面-被墙壁推开");
                     ProcessFall();
                     floatTick = Time.timeSinceLevelLoad;
                 }
             }
             else if (Floating && Time.timeSinceLevelLoad - floatTick >= 0.75f)
             {
-                Debug.LogError("在地面-但是角色底部浮空推开");
+                //Debug.LogError("在地面-但是角色底部浮空推开");
                 ProcessFall(0.75f);
                 floatTick = Time.timeSinceLevelLoad;
             }
@@ -1649,7 +1649,7 @@ public partial class MeteorUnit : MonoBehaviour
                             posMng.mActiveAction.Idx == CommonAction.JumpBackFall ||
                             posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
                         {
-                            Debug.LogError("被墙壁轻微推开，避免悬挂在墙壁上");
+                            //Debug.LogError("被墙壁轻微推开，避免悬挂在墙壁上");
                             ProcessFall();
                         }
                     }
@@ -1662,7 +1662,7 @@ public partial class MeteorUnit : MonoBehaviour
             else if (Climbing)
             {
                 //爬墙过程中忽然没贴着墙壁了???直接落下
-                Debug.LogError("爬墙没有贴着墙壁-结束爬墙");
+                //Debug.LogError("爬墙没有贴着墙壁-结束爬墙");
                 posMng.ChangeAction(CommonAction.JumpFall, 0.1f, true);
                 ProcessFall();
             }
@@ -1676,7 +1676,7 @@ public partial class MeteorUnit : MonoBehaviour
                     posMng.mActiveAction.Idx == CommonAction.WalkBackward)
                 {
 
-                    Debug.LogError("浮空-落地" + posMng.mActiveAction.Idx);
+                    //Debug.LogError("浮空-落地" + posMng.mActiveAction.Idx);
                     //AddYVelocity(-100);//让他快速一点落地
                     posMng.ChangeAction(CommonAction.JumpFall, 0.1f, true);
                     //看是否被物件推开

@@ -64,6 +64,117 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
     }
 }
 
+public class WeaponSelectWnd:Window<WeaponSelectWnd>
+{
+    public override string PrefabName { get { return "WeaponSelectWnd"; } }
+    protected override bool OnOpen()
+    {
+        Init();
+        return base.OnOpen();
+    }
+    Image weaponImg;
+    int weaponIdx = 0;
+
+    void Init()
+    {
+        weaponImg = ldaControl("Image").GetComponent<Image>();
+        weaponImg.material = ResMng.Load("Weapon_0") as Material;
+        Control("Next").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            OnNextWeapon();
+            U3D.PlayBtnAudio();
+        });
+        Control("Prev").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            OnPrevWeapon();
+            U3D.PlayBtnAudio();
+        });
+        Control("Select").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            OnSelectWeapon();
+            U3D.PlayBtnAudio();
+        });
+    }
+
+    void OnNextWeapon()
+    {
+        weaponIdx += 1;
+        if (weaponIdx >= 12)
+            weaponIdx = 0;
+        weaponImg.material = ResMng.Load(string.Format("Weapon_{0}", weaponIdx)) as Material;
+    }
+
+    void OnPrevWeapon()
+    {
+        weaponIdx -= 1;
+        if (weaponIdx < 0)
+            weaponIdx = 11;
+        weaponImg.material = ResMng.Load(string.Format("Weapon_{0}", weaponIdx)) as Material;
+    }
+
+    void OnSelectWeapon()
+    {
+        NetWorkBattle.Ins.weaponIdx = U3D.GetNormalWeapon(weaponIdx);
+        NetWorkBattle.Ins.EnterLevel();
+        Close();
+    }
+}
+
+public class RoleSelectWnd: Window<RoleSelectWnd>
+{
+    public override string PrefabName { get { return "RoleSelectWnd"; } }
+    protected override bool OnOpen()
+    {
+        Init();
+        return base.OnOpen();
+    }
+    Image heroImg;
+    int heroIdx = 0;
+    void Init()
+    {
+        heroImg = ldaControl("Image").GetComponent<Image>();
+        heroImg.material = ResMng.Load("Hero0") as Material;
+        Control("Next").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            OnNextHero();
+            U3D.PlayBtnAudio();
+        });
+        Control("Prev").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            OnPrevHero();
+            U3D.PlayBtnAudio();
+        });
+        Control("Select").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            OnSelectHero();
+            U3D.PlayBtnAudio();
+        });
+    }
+
+    void OnNextHero()
+    {
+        heroIdx += 1;
+        if (heroIdx >= ModelMng.Instance.GetAllItem().Length)
+            heroIdx = 0;
+        heroImg.material = ResMng.Load(string.Format("Hero{0}", heroIdx)) as Material;
+    }
+
+    void OnPrevHero()
+    {
+        heroIdx -= 1;
+        if (heroIdx < 0)
+            heroIdx = ModelMng.Instance.GetAllItem().Length - 1;
+        heroImg.material = ResMng.Load(string.Format("Hero{0}", heroIdx)) as Material;
+    }
+
+    void OnSelectHero()
+    {
+        NetWorkBattle.Ins.heroIdx = heroIdx;
+        WeaponSelectWnd.Instance.Open();
+        Close();
+    }
+}
+
 public class MainLobby : Window<MainLobby>
 {
     public override string PrefabName { get { return "MainLobby"; } }

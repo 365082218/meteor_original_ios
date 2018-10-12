@@ -116,7 +116,8 @@ public class PathMng:Singleton<PathMng>
                 user.robot.PathInfo.Add(0, new List<PathNode>() { no });
                 CollectPathInfo(user, start, end);
 
-                //foreach (var each in PathInfo)
+                //Debug.LogError(string.Format("寻路起始点:{0}-寻路终止点:{1}", start, end));
+                //foreach (var each in user.robot.PathInfo)
                 //{
                 //    Debug.Log(string.Format("layer:{0}", each.Key));
                 //    for (int i = 0; i < each.Value.Count; i++)
@@ -153,10 +154,14 @@ public class PathMng:Singleton<PathMng>
                                     target = each.Value[i].parent;
                                     break;
                                 }
-                                goOut = true;
+                                if (each.Value[i].parent == start)
+                                    goOut = true;
+                                //goOut = true;
                                 break;
                             }
                         }
+                        if (find)
+                            break;
                     }
 
                     if (!find)

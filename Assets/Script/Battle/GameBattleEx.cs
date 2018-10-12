@@ -46,6 +46,12 @@ public partial class GameBattleEx : MonoBehaviour {
     {
         if (Result != -10)
             return;
+
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        {
+            //等待服务器再开一局.逻辑先不处理.
+            return;
+        }
         Global.PauseAll = true;
         ShowWayPoint(false);
         MeteorManager.Instance.LocalPlayer.controller.LockInput(true);
@@ -179,7 +185,7 @@ public partial class GameBattleEx : MonoBehaviour {
             UnitActKeyDeleted.Clear();
         }
 
-        if (lev_script != null)
+        if (lev_script != null && Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
             if (timeDelay >= 1.0f)
             {
@@ -407,23 +413,28 @@ public partial class GameBattleEx : MonoBehaviour {
         SceneItemAgent[] sceneObjs = FindObjectsOfType<SceneItemAgent>();
         //上一局如果暂停了，新局开始都恢复
         Resume();
-        if (lev_script != null)
-        {
-            lev_script.Scene_OnLoad();
-            lev_script.Scene_OnInit();
-            lev_script.OnStart();
-        }
 
-        for (int i = 0; i < sceneObjs.Length; i++)
+        //只有单人模式，才从脚本恢复这些物件，否则都应该由服务器发出物件的信息恢复.
+        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
-            sceneObjs[i].OnStart(lev_script);
-            RegisterCollision(sceneObjs[i]);
-        }
+            if (lev_script != null)
+            {
+                lev_script.Scene_OnLoad();
+                lev_script.Scene_OnInit();
+                lev_script.OnStart();
+            }
 
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
-        {
-            if (MeteorManager.Instance.UnitInfos[i].Attr != null)
-                MeteorManager.Instance.UnitInfos[i].Attr.OnStart();//AI脚本必须在所有角色都加载完毕后再调用
+            for (int i = 0; i < sceneObjs.Length; i++)
+            {
+                sceneObjs[i].OnStart(lev_script);
+                RegisterCollision(sceneObjs[i]);
+            }
+
+            for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+            {
+                if (MeteorManager.Instance.UnitInfos[i].Attr != null)
+                    MeteorManager.Instance.UnitInfos[i].Attr.OnStart();//AI脚本必须在所有角色都加载完毕后再调用
+            }
         }
         U3D.InsertSystemMsg("新回合开始计时");
         CheckGameMode();

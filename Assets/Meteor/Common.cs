@@ -330,15 +330,14 @@ public class Common
         Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.JoinRoomReq, req);
     }
 
-    //public static void SendEnterLevel(int roleid, Action<RBase> cb)
-    //{
-    //    EnterLevel req = new EnterLevel();
-    //    req.account = GameData.user.account;
-    //    req.cmd = (short)CmdAction.EnterLevelReq;
-    //    req.roleId = roleid;
-    //    req.uid = GameData.user.uid;
-    //    Exec(ClientProxy.sProxy, req, cb);
-    //}
+    public static void SendEnterLevel(int model, int weapon)
+    {
+        EnterLevelReq req = new EnterLevelReq();
+        req.camp = 0;//暂时全部为盟主模式
+        req.model = (uint)model;
+        req.weapon = (uint)weapon;
+        Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.EnterLevelReq, req);
+    }
 
     //public static void SendEnterMap(EntryPoint ept)
     //{
