@@ -2118,7 +2118,8 @@ public class MeteorController : MonoBehaviour {
         if (Input.HasInput((int)EKeyList.KL_DropWeapon, (int)EInputType.EIT_Click, Time.deltaTime))
             Owner.DropWeapon();
         //行为树处理.
-        MeteorBehaviour.Instance.ProcessBehaviour(Owner);
+        if (GameBattleEx.Instance != null && !GameBattleEx.Instance.BattleFinished())
+            MeteorBehaviour.Instance.ProcessBehaviour(Owner);
     }
 
     //float mAdjustTime = 3.0f;

@@ -76,6 +76,11 @@ public class U3D : MonoBehaviour {
     static int weaponIndex = 0;
     public static void SpawnRobot(int idx, EUnitCamp camp)
     {
+        if (Global.GLevelMode != LevelMode.SinglePlayerTask)
+        {
+            U3D.PopupTip("联机无法添加机器人");
+            return;
+        }
         MonsterEx mon = new MonsterEx();
         mon.Weapon = weaponCode[weaponIndex % weaponCode.Length];
         mon.Weapon2 = weaponCode[(weaponIndex + 1) % weaponCode.Length];

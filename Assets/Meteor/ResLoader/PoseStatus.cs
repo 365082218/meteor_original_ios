@@ -485,15 +485,15 @@ public class PoseStatus
         if (idx == 0 && _Self != null && _Self.posMng != null && _Self.posMng.mActiveAction != null && _Self.posMng.mActiveAction.Idx == 109)
             Debug.LogError("123");
         //本局游戏已有结果,播放嘲讽动画.
-        if (GameBattleEx.Instance != null && GameBattleEx.Instance.Result != -10 && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle))
+        if (GameBattleEx.Instance != null && GameBattleEx.Instance.BattleFinished() && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle))
         {
             playResultAction = true;
-            if (_Self.Camp == EUnitCamp.EUC_ENEMY && GameBattleEx.Instance.Result <= 0)
+            if (_Self.Camp == EUnitCamp.EUC_ENEMY && GameBattleEx.Instance.BattleLose())
             {
                 ChangeAction(CommonAction.Taunt, 0.1f);
                 return;
             }
-            else if (_Self.Camp == EUnitCamp.EUC_FRIEND && GameBattleEx.Instance.Result == 1)
+            else if (_Self.Camp == EUnitCamp.EUC_FRIEND && GameBattleEx.Instance.BattleWin())
             {
                 ChangeAction(CommonAction.Taunt, 0.1f);
                 return;

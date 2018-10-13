@@ -16,7 +16,6 @@ public partial class GameBattleEx : MonoBehaviour {
     [HideInInspector]
     public CameraFollow m_CameraControl;
     int time = 1000;
-    float timeTick;
     float timeClock = 0.0f;
     const float ViewLimit = 180;
     static GameBattleEx _Ins;
@@ -40,7 +39,27 @@ public partial class GameBattleEx : MonoBehaviour {
         _Ins = null;
     }
 
-    public int Result = -10;
+    public bool BattleWin()
+    {
+        return Result >= 1;
+    }
+
+    public bool BattleLose()
+    {
+        return Result <= 0 && Result != -10;
+    }
+
+    public bool BattleTimeup()
+    {
+        return Result == 2;
+    }
+
+    public bool BattleFinished()
+    {
+        return Result != -10;
+    }
+
+    int Result = -10;
     //显示失败，或者胜利界面 >=1 = win <= 0 = lose 2 == none
     public void GameOver(int result)
     {
@@ -71,7 +90,6 @@ public partial class GameBattleEx : MonoBehaviour {
             BattleResultWnd.Instance.Close();
         BattleResultWnd.Instance.Open();
         Result = result;
-        timeTick = 4.0f;
         Startup.ins.StartCoroutine(BattleResultWnd.Instance.SetResult(result));
 
         if (NGUICameraJoystick.instance)
@@ -112,7 +130,6 @@ public partial class GameBattleEx : MonoBehaviour {
     }
 
     void Start () {
-        timeTick = 0.0f;
         StartCoroutine(UpdateTime());
 	}
 
@@ -136,15 +153,6 @@ public partial class GameBattleEx : MonoBehaviour {
     List<int> UnitActKeyDeleted = new List<int>();
 	// Update is called once per frame
 	void Update () {
-        if (Result != -10)
-        {
-            timeTick -= Time.deltaTime;
-           if (timeTick <= 0.0)
-            {
-                timeTick = 100.0f;
-                Startup.ins.PlayEndMovie();
-            }
-        }
         if (Global.PauseAll)
             return;
 

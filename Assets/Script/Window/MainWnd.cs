@@ -279,7 +279,8 @@ public class MainLobby : Window<MainLobby>
 
     void OnCreateRoom()
     {
-        WorldTemplateWnd.Instance.Open();
+        U3D.PopupTip("此功能暂时无效");
+        //WorldTemplateWnd.Instance.Open();
     }
 
     void OnJoinRoom()
@@ -1050,6 +1051,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
         ButterflyResult = Control("ButterflyResult").transform;
         BattleResult = Global.ldaControlX("BattleResult", WndObject);
         BattleTitle = Global.ldaControlX("BattleTitle", WndObject);
+        Control("Close").GetComponent<Button>().onClick.AddListener(() => { Startup.ins.PlayEndMovie(); });
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
         {
             if (GameBattleEx.Instance.BattleResult.ContainsKey(MeteorManager.Instance.UnitInfos[i].name))
