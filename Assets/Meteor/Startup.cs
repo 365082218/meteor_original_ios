@@ -39,6 +39,18 @@ public class Startup : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
+        if (GameBattleEx.Instance != null && !GameBattleEx.Instance.BattleFinished() && Global.GLevelMode == LevelMode.SinglePlayerTask)
+        {
+            if (Input.GetKeyUp(KeyCode.Alpha0))
+                MeteorManager.Instance.LocalPlayer.PlaySkill();
+            if (Input.GetKeyUp(KeyCode.Escape))
+            {
+                if (NewSystemWnd.Exist)
+                    NewSystemWnd.Instance.Close();
+                else
+                    NewSystemWnd.Instance.Open();
+            }
+        }
     }
 
     public void PlayEndMovie()

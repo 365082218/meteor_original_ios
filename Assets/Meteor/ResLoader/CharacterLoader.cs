@@ -301,6 +301,7 @@ public class CharacterLoader : MonoBehaviour
     }
 
     bool checkStaright = false;
+    bool startCount = false;//开始计算僵直，在循环部分的动画播放一次时，开始减少僵直时长
     public void LockTime(float t)
     {
         PoseStraight = t;
@@ -359,13 +360,15 @@ public class CharacterLoader : MonoBehaviour
                 if (PoseStraight <= 0.0f)
                 {
                     loop = false;
-                    curIndex = po.End + 1;
+                    curIndex = po.LoopEnd + 1;
                     checkStaright = false;
+                    startCount = false;
                     return;
                 }
             }
             if (curIndex > po.LoopEnd)
             {
+                startCount = true;
                 if (curIndex > po.LoopStart)
                 {
                     LoopCount++;
@@ -543,7 +546,7 @@ public class CharacterLoader : MonoBehaviour
                         //Debug.LogError("TestInputLink");
                         int targetIdx = po.Idx;
                         if (po.Next != null)
-                            posMng.ChangeAction(posMng.LinkInput[targetIdx], po.Next.Time, true);//
+                            posMng.ChangeAction(posMng.LinkInput[targetIdx], po.Next.Time);
                         else
                             posMng.ChangeAction(posMng.LinkInput[targetIdx]);
                         posMng.LinkInput.Clear();
@@ -572,22 +575,21 @@ public class CharacterLoader : MonoBehaviour
                 if (PoseStraight <= 0.0f)
                 {
                     loop = false;
-                    curIndex = po.End + 1;
+                    curIndex = po.LoopEnd + 1;
                     checkStaright = false;
+                    startCount = false;
                     return;
                 }
             }
+
             if (curIndex > po.LoopEnd)
             {
-                if (curIndex > po.LoopStart)
-                {
-                    LoopCount ++;
-                    PlayPosEvent();
-                    if (loop)
-                        curIndex = po.LoopStart;
-                    return;
-                }
-                curIndex = po.LoopStart;
+                startCount = true;
+                LoopCount ++;
+                PlayPosEvent();
+                if (loop)
+                    curIndex = po.LoopStart;
+                return;
             }
         }
         else
@@ -700,31 +702,21 @@ public class CharacterLoader : MonoBehaviour
             {
                 lastFramePlayedTimes += Time.deltaTime;
 
-                if (checkStaright && PoseStraight > 0.0f && owner.IsOnGround())
+                if (checkStaright && PoseStraight > 0.0f && owner.IsOnGround() && startCount)
                     PoseStraight -= Time.deltaTime;
 
                 float speedScale = GetSpeedScale();
                 float fps = FPS / speedScale;
-                if (lastFramePlayedTimes < fps)
+                while (lastFramePlayedTimes >= fps)
                 {
-                    PlayFrame(lastFramePlayedTimes / fps);
+                    PlayNextKeyFrame();
+                    lastFramePlayedTimes -= fps;
+                    speedScale = GetSpeedScale();
+                    fps = FPS / speedScale;
                 }
-                else
-                {
-                    int loopcnt = 0;
-                    while (lastFramePlayedTimes >= fps)
-                    {
-                        loopcnt++;
-                        PlayNextKeyFrame();
-                        lastFramePlayedTimes -= fps;
-                        speedScale = GetSpeedScale();
-                        fps = FPS / speedScale;
-                        break;
-                    }
 
-                    if (loopcnt >= 2)
-                        Debug.LogError("error loopcount");
-                }
+                if (lastFramePlayedTimes < fps && lastFramePlayedTimes > 0)
+                    PlayFrame(lastFramePlayedTimes / fps);
             }
             else
             {
@@ -929,11 +921,9 @@ public class CharacterLoader : MonoBehaviour
     bool effectPlayed = false;
     public bool Pause = false;
     bool single = false;
-    bool IgnoreBlendMove = false;
-    public void SetPosData(Pose pos, float BlendTime = 0.0f, bool singlePos = false, bool ignoreBlendMove = false)
+    public void SetPosData(Pose pos, float BlendTime = 0.0f, bool singlePos = false)
     {
         //一些招式，需要把尾部事件执行完才能切换武器.
-        IgnoreBlendMove = ignoreBlendMove;
         LoopCount = 0;
         if (TheLastFrame != -1 && po != null)
         {

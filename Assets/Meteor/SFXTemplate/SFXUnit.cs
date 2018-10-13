@@ -244,7 +244,8 @@ DRAG*/
                 render.material.SetColor("_Color", effect.frames[0].colorRGB);
                 render.material.SetColor("_TintColor", effect.frames[0].colorRGB);
                 render.material.SetFloat("_Intensity", effect.frames[0].TailFlags[9]);
-                particle.Play();
+                if (!GameData.Instance.gameStatus.DisableParticle)
+                    particle.Play();
             }
             else
             {
@@ -678,6 +679,7 @@ DRAG*/
                     render.material.SetColor(vertexColor, source.frames[playedIndex - 1].colorRGB);
                     //粒子不要设置强度了，原版本的粒子实现和UNITY的不一样
                     render.material.SetFloat("_Intensity", source.multiplyAlpha == 1 ? source.alpha * source.frames[playedIndex - 1].TailFlags[9] : source.frames[playedIndex - 1].TailFlags[9]);
+                    //particle.Play();
                     //particle.Emit(source.MaxParticles);
                     //particle.Simulate();
                     playedIndex++;

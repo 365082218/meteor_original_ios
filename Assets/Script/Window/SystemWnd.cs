@@ -147,9 +147,38 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Control("MeteorVerText").GetComponent<Text>().text = AppInfo.Instance.MeteorVersion;
         Control("ChangeModel").GetComponent<Button>().onClick.AddListener(() => { ModelWnd.Instance.Open(); });
         Control("UnlockAll").GetComponent<Button>().onClick.AddListener(() => { U3D.UnlockLevel(); });
-        
+
+        //粒子特效
+        Toggle toggleDisableParticle = Control("Particle").GetComponent<Toggle>();
+        toggleDisableParticle.isOn = GameData.Instance.gameStatus.DisableParticle;
+        toggleDisableParticle.onValueChanged.AddListener(OnDisableParticle);
+        OnDisableParticle(toggleDisableParticle.isOn);
+
+        //关闭摇杆
+        Toggle toggleDisableJoyStick = Control("Joystick").GetComponent<Toggle>();
+        toggleDisableJoyStick.isOn = GameData.Instance.gameStatus.DisableJoystick;
+        toggleDisableJoyStick.onValueChanged.AddListener(OnDisableJoyStick);
+        OnDisableJoyStick(toggleDisableJoyStick.isOn);
+
         InitLevel();
         mWindowStyle = WindowStyle.WS_Modal;
+    }
+
+    void OnDisableJoyStick(bool disable)
+    {
+        GameData.Instance.gameStatus.DisableJoystick = disable;
+        if (NGUIJoystick.instance != null)
+        {
+            if (GameData.Instance.gameStatus.DisableJoystick)
+                NGUIJoystick.instance.OnDisabled();
+            else
+                NGUIJoystick.instance.OnEnabled();
+        }
+    }
+
+    void OnDisableParticle(bool disable)
+    {
+        GameData.Instance.gameStatus.DisableParticle = disable;
     }
 
     void OnEnableLog(bool toggle)

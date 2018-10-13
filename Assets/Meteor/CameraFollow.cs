@@ -54,7 +54,8 @@ public class CameraFollow : MonoBehaviour {
     public void Init()
     {
         DisableLockTarget = GameData.Instance.gameStatus.DisableLock;
-        Unlocked = false;
+        animationPlay = false;
+        animationTick = 0.0f;
         followHeight = 6;
         followDistance = 55.0f;
         BodyHeight = 30;
@@ -97,11 +98,31 @@ public class CameraFollow : MonoBehaviour {
             CameraSmoothFollow(Smooth);
     }
 
-    //为真则下一帧摄像机要看向目标.
-    bool Unlocked;
+    //为真则下一帧摄像机要切换视角模式.
+    bool animationPlay = false;
+    float animationTick = 0.0f;
+    public void OnLockTarget()
+    {
+        animationTick = 0.0f;
+        animationPlay = true;
+        currentVelocityX = 0;
+        currentVelocityY = 0;
+        currentVelocityZ = 0;
+        currentEulerVelocityX = 0;
+        currentEulerVelocityY = 0;
+        currentEulerVelocityZ = 0;
+    }
+
     public void OnUnlockTarget()
     {
-        Unlocked = true;
+        animationTick = 0.0f;
+        animationPlay = true;
+        currentVelocityX = 0;
+        currentVelocityY = 0;
+        currentVelocityZ = 0;
+        currentEulerVelocityX = 0;
+        currentEulerVelocityY = 0;
+        currentEulerVelocityZ = 0;
     }
 
     public float SmoothDampTime = 0.1f;//平滑到稳定所需时间.
@@ -128,105 +149,98 @@ public class CameraFollow : MonoBehaviour {
         Vector3 newPos = Vector3.zero;
         Vector3 vecTarget = Vector3.zero;
         Vector3 wallHitPos = Vector3.zero;//撞到墙壁的位置
-        if (MeteorManager.Instance.LocalPlayer.GetLockedTarget() != null && !DisableLockTarget)
+
+        //固定视角
+        //视角1：背后固定跟随角色
+
+        //电影视角
+        //视角2: 左侧望着格斗的2人
+        //视角3: 右侧望着格斗的2人
+        //视角4：顶部望着格斗的2人
+
+        //过程1：由固定视角，切换到电影视角
+        //过程2: 由电影视角，切换到固定视角
+
+        if (MeteorManager.Instance.LocalPlayer.GetLockedTarget() != null)
         {
-            cameraLookAt = (MeteorManager.Instance.LocalPlayer.mPos + MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + new Vector3(0, 25, 0);
-            CameraRadis = Vector3.Distance(MeteorManager.Instance.LocalPlayer.mPos, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + 50;
-            float dis = Vector3.Distance(new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, 0, MeteorManager.Instance.LocalPlayer.mPos.z), new Vector3(MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos.x, 0, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos.z));
-            Vector3 vecDiff = MeteorManager.Instance.LocalPlayer.mPos - MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos;
-            Vector3 vecForward = Vector3.Normalize(new Vector3(vecDiff.x, 0, vecDiff.z));
-
-            //最远时，15度，最近时95度，其他值。10码 = 80度 140码 15度 约为 y = -0.5x + 85
-            //半径最低65，最高
-            angleY = -0.5f * dis + 95;
-            float yHeight = Mathf.Tan(LookAtAngle * Mathf.Deg2Rad) * CameraRadis;
-            newViewIndex[0] = cameraLookAt + Quaternion.AngleAxis(-angleY, Vector3.up) * vecForward * CameraRadis;
-            newViewIndex[0].y += yHeight;
-
-            newViewIndex[1] = cameraLookAt + Quaternion.AngleAxis(angleY, Vector3.up) * vecForward * CameraRadis;
-            newViewIndex[1].y += yHeight;
-            newViewIndex[2] = cameraLookAt + Quaternion.AngleAxis(-angleY, MeteorManager.Instance.LocalPlayer.transform.right) * vecForward * CameraRadis;//顶部最后考虑
-
-            //vecTarget[0] = newViewIndex[ViewIndex];
-            //vecTarget[1] = newViewIndex[(ViewIndex + 1) % 3];
-            //vecTarget[2] = newViewIndex[(ViewIndex + 2) % 3];
-
-            //重新排。当前排第一，顶部排最后，剩下的排第二。这样切换就不会那么频繁.
-            //for (int i = 0; i < 3; i++)
-            //    m_Targets[i].position = newViewIndex[i];
-            dis = 1000.0f;
-            for (int i = 0; i < 2; i++)
+            //有锁定目标
+            if (!DisableLockTarget)
             {
-                if (CameraCanLookTarget(newViewIndex[i], out wallHitPos))
+                //开启摄像机锁定系统
+                cameraLookAt = (MeteorManager.Instance.LocalPlayer.mPos + MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + new Vector3(0, 25, 0);
+                CameraRadis = Vector3.Distance(MeteorManager.Instance.LocalPlayer.mPos, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + 50;
+                float dis = Vector3.Distance(new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, 0, MeteorManager.Instance.LocalPlayer.mPos.z), new Vector3(MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos.x, 0, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos.z));
+                Vector3 vecDiff = MeteorManager.Instance.LocalPlayer.mPos - MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos;
+                Vector3 vecForward = Vector3.Normalize(new Vector3(vecDiff.x, 0, vecDiff.z));
+
+                //最远时，15度，最近时95度，其他值。10码 = 80度 140码 15度 约为 y = -0.5x + 85
+                //半径最低65，最高
+                angleY = -0.5f * dis + 95;
+                float yHeight = Mathf.Tan(LookAtAngle * Mathf.Deg2Rad) * CameraRadis;
+                newViewIndex[0] = cameraLookAt + Quaternion.AngleAxis(-angleY, Vector3.up) * vecForward * CameraRadis;
+                newViewIndex[0].y += yHeight;
+
+                newViewIndex[1] = cameraLookAt + Quaternion.AngleAxis(angleY, Vector3.up) * vecForward * CameraRadis;
+                newViewIndex[1].y += yHeight;
+                newViewIndex[2] = cameraLookAt + Quaternion.AngleAxis(-angleY, MeteorManager.Instance.LocalPlayer.transform.right) * vecForward * CameraRadis;//顶部最后考虑
+
+                //vecTarget[0] = newViewIndex[ViewIndex];
+                //vecTarget[1] = newViewIndex[(ViewIndex + 1) % 3];
+                //vecTarget[2] = newViewIndex[(ViewIndex + 2) % 3];
+
+                //重新排。当前排第一，顶部排最后，剩下的排第二。这样切换就不会那么频繁.
+                //for (int i = 0; i < 3; i++)
+                //    m_Targets[i].position = newViewIndex[i];
+                dis = 1000.0f;
+                for (int i = 0; i < 2; i++)
                 {
-                    float fdis = Vector3.Distance(newViewIndex[i], transform.position);
-                    if (fdis < dis)
+                    if (CameraCanLookTarget(newViewIndex[i], out wallHitPos))
                     {
-                        dis = fdis;
-                        vecTarget = newViewIndex[i];
+                        float fdis = Vector3.Distance(newViewIndex[i], transform.position);
+                        if (fdis < dis)
+                        {
+                            dis = fdis;
+                            vecTarget = newViewIndex[i];
+                        }
+                    }
+                    else
+                    {
+                        float fdis = Vector3.Distance(wallHitPos, transform.position);
+                        float disWall = Vector3.Distance(wallHitPos, cameraLookAt);//墙壁与看向目标的距离一定要足够，否则视角堵着很难受.
+                        if (fdis < dis && disWall > 40.0f)
+                        {
+                            dis = fdis;
+                            vecTarget = wallHitPos;
+                        }
                     }
                 }
-                else
+
+                //左侧右侧都被墙壁堵住，并且太近
+                if (vecTarget == Vector3.zero)
                 {
-                    float fdis = Vector3.Distance(wallHitPos, transform.position);
-                    float disWall = Vector3.Distance(wallHitPos, cameraLookAt);//墙壁与看向目标的距离一定要足够，否则视角堵着很难受.
-                    if (fdis < dis && disWall > 40.0f)
-                    {
-                        dis = fdis;
+                    if (CameraCanLookTarget(newViewIndex[2], out wallHitPos))
+                        vecTarget = newViewIndex[2];
+                    else
                         vecTarget = wallHitPos;
-                    }
                 }
-            }
 
-            //左侧右侧都被墙壁堵住，并且太近
-            if (vecTarget == Vector3.zero)
-            {
-                if (CameraCanLookTarget(newViewIndex[2], out wallHitPos))
-                    vecTarget = newViewIndex[2];
-                else
-                    vecTarget = wallHitPos;
-            }
-
-            newPos = vecTarget;
-            //整个视角都是缓动的
-            if (smooth)
-            {
-                //float x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, 0.1f);
-                float y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
-                //float z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, 0.1f);
-                //newPos.x = x;
-                newPos.y = y;
-                //newPos.z = z;
-            }
-
-            transform.position = newPos;
-            //摄像机朝向观察目标,平滑的旋转视角
-            if (smooth)
-            {
+                newPos = vecTarget;
+                //整个视角都是缓动的
+                newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime);
+                newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
+                newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime);
+                transform.position = newPos;
+                //摄像机朝向观察目标,平滑的旋转视角
                 Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                 Vector3 vec = to.eulerAngles;
-                //vec.x = Mathf.SmoothDampAngle(transform.eulerAngles.x, to.eulerAngles.x, ref currentEulerVelocityX, 0.1f);
-                //vec.y = Mathf.SmoothDampAngle(transform.eulerAngles.y, to.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
-                vec.z = 0;
-
-                //Quaternion slerp = Quaternion.Slerp(transform.rotation, to, RotateIntensity * Time.smoothDeltaTime);
-                transform.eulerAngles = vec;
-                //Vector3 vec = transform.eulerAngles;
-                //vec.z = 0;
-                //transform.eulerAngles = vec;
-            }
-            else
-            {
-                Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
-                transform.rotation = to;//看向b骨骼顶部25码处
-                Vector3 vec = transform.eulerAngles;
+                vec.x = Mathf.SmoothDampAngle(transform.eulerAngles.x, to.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
+                vec.y = Mathf.SmoothDampAngle(transform.eulerAngles.y, to.eulerAngles.y, ref currentEulerVelocityY, SmoothDampTime);
                 vec.z = 0;
                 transform.eulerAngles = vec;
             }
         }
         else
         {
-            //摄像机缓动功能先不管，否则抖动很厉害。
             float yRotate = 0.0f;
             //Y轴旋转，受到是否可旋转，以及当前是否有锁定对象决定
             if (MeteorManager.Instance.LocalPlayer.posMng.CanRotateY)
@@ -235,7 +249,7 @@ public class CameraFollow : MonoBehaviour {
                 //Debug.LogError(string.Format("deltaLast.x:{0}", NGUICameraJoystick.instance.deltaLast.x));
                 yRotate = NGUICameraJoystick.instance.deltaLast.x * GameData.Instance.gameStatus.AxisSensitivity.x;
 #else
-                yRotate = 2 * Input.GetAxis("Mouse X");
+                yRotate = Input.GetAxis("Mouse X");
 #endif
                 if (yRotate != 0)
                     MeteorManager.Instance.LocalPlayer.SetOrientation(yRotate);
@@ -244,7 +258,7 @@ public class CameraFollow : MonoBehaviour {
 #if STRIP_KEYBOARD
             xRotate = NGUICameraJoystick.instance.deltaLast.y * GameData.Instance.gameStatus.AxisSensitivity.y;
 #else
-            xRotate = 2 * Input.GetAxis("Mouse Y");
+            xRotate = Input.GetAxis("Mouse Y");
 #endif
             if (xRotate != 0.0f)
             {
@@ -301,62 +315,49 @@ public class CameraFollow : MonoBehaviour {
                 //}
             }
 
-            //只有高度是缓动的，其他轴上都是即刻
-            if (Unlocked)
+            //由电影视角，切换到单人视角之间的动画.
+            if (animationPlay)
             {
-                //当锁定目标丢失，或者死亡时.
-                //float x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime);
-                float y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
-                //float z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime);
-                //newPos.x = x;
-                newPos.y = y;
-                //newPos.z = z;
-                transform.position = newPos;
-                Vector3 vec = transform.eulerAngles;
-                transform.LookAt(cameraLookAt);
-                vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
-                vec.y = transform.eulerAngles.y;
-                //vec.y = Mathf.SmoothDampAngle(vec.y, transform.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
-                vec.z = 0;
-                transform.eulerAngles = vec;
-                Unlocked = false;
-                return;
+                if (animationTick >= SmoothDampTime)
+                {
+                    animationTick = 0.0f;
+                    animationPlay = false;
+                }
+                else
+                {
+                    //当锁定目标丢失，或者死亡时.从双人视角转换为单人视角的摄像机过渡动画.
+                    newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime);
+                    newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
+                    newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime);
+                    transform.position = newPos;
+                    transform.LookAt(cameraLookAt);
+                    Vector3 vec = transform.eulerAngles;
+                    //vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
+                    //vec.y = transform.eulerAngles.y;
+                    //vec.y = Mathf.SmoothDampAngle(vec.y, transform.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
+                    vec.z = 0;
+                    transform.eulerAngles = vec;
+                    return;
+                }
             }
             else
             {
+                //只有高度是缓动的，其他轴上都是即刻
                 if (xRotate != 0.0f || yRotate != 0.0f)
                 {
-                    //Debug.LogError("有x y轴偏移");
-                    //float x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, 0.1f);
-                    //float y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
-                    //float z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, 0.1f);
-                    //newPos.x = x;
-                    //newPos.y = y;
-                    //newPos.z = z;
-
+                    //当旋转视角时，视角即刻到位，以免晃动.
                     transform.position = newPos;
-                    //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
-                    //transform.rotation = to;
-                    
                     transform.LookAt(cameraLookAt);
                     Vector3 vec = transform.eulerAngles;
-
-                    //vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
-                    //vec.y = Mathf.SmoothDampAngle(vec.y, transform.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
-                    //vec.y = transform.eulerAngles.y;
                     vec.z = 0;
                     transform.eulerAngles = vec;
-                    Unlocked = false;
                     return;
                 }
                 else
                 {
                     //没被墙壁阻隔，可以缓动Y
                     if (smooth && !hitWall)
-                    {
                         newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
-                        //Debug.LogError("平滑且无墙壁间隔时");
-                    }
 
                     transform.position = newPos;
                     //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);

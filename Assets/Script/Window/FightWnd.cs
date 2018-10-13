@@ -186,6 +186,7 @@ public class FightWnd: Window<FightWnd>
         Global.ldaControlX("SfxMenu", WndObject).SetActive(GameData.Instance.gameStatus.EnableDebugSFX);
         Global.ldaControlX("Robot", WndObject).SetActive(GameData.Instance.gameStatus.EnableDebugRobot);
         Global.ldaControlX("MiniMap", WndObject).SetActive(true);
+
         if (GameData.Instance.gameStatus.LevelDebug)
             Game.Instance.ShowDbg();
         else

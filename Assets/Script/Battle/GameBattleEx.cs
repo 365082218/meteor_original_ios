@@ -826,6 +826,7 @@ public partial class GameBattleEx : MonoBehaviour {
             MeteorUnit lockTarget = autoTarget;
             MeteorManager.Instance.LocalPlayer.SetLockedTarget(lockTarget);
             ChangeLockedTarget(lockTarget);
+            CameraFollow.Ins.OnLockTarget();
         }
     }
 

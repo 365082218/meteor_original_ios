@@ -224,7 +224,7 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
             else if (Input.mInputVector == Vector2.zero && !posMng.Rotateing)
             {
                 if (posMng.mActiveAction.Idx != CommonAction.Crouch)
-                    posMng.ChangeAction(CommonAction.Crouch, 0.1f, true);
+                    posMng.ChangeAction(CommonAction.Crouch, 0.1f);
             }
         }
         else if (posMng.mActiveAction.Idx == CommonAction.Run || posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
@@ -316,7 +316,7 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
                 Owner.IdleRush(3);
             }
             else if (!posMng.Rotateing && Input.mInputVector == Vector2.zero)
-                posMng.ChangeAction(CommonAction.Idle, 0.1f, true);
+                posMng.ChangeAction(CommonAction.Idle, 0.1f);
             else if (ProcessNormalAction(Owner))
             {
                 return;
@@ -413,7 +413,7 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
                 Owner.IdleRush(3);
             }
             else if (!posMng.Rotateing && Input.mInputVector == Vector2.zero)
-                posMng.ChangeAction(CommonAction.Idle, 0.1f, true);
+                posMng.ChangeAction(CommonAction.Idle, 0.1f);
             else if (ProcessNormalAction(Owner))
             {
                 return;
@@ -438,19 +438,19 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
             {
                 if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_Release, Time.deltaTime))
                 {
-                    posMng.ChangeAction(CommonAction.DCForw, 0.1f, true);
+                    posMng.ChangeAction(CommonAction.DCForw, 0.1f);
                 }
                 else if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_Release, Time.deltaTime))
                 {
-                    posMng.ChangeAction(CommonAction.DCBack, 0.1f, true);
+                    posMng.ChangeAction(CommonAction.DCBack, 0.1f);
                 }
                 else if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_Release, Time.deltaTime))
                 {
-                    posMng.ChangeAction(CommonAction.DCLeft, 0.1f, true);
+                    posMng.ChangeAction(CommonAction.DCLeft, 0.1f);
                 }
                 else if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_Release, Time.deltaTime))
                 {
-                    posMng.ChangeAction(CommonAction.DCRight, 0.1f, true);
+                    posMng.ChangeAction(CommonAction.DCRight, 0.1f);
                 }
                 else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress, Time.deltaTime))
                 {
@@ -463,9 +463,9 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
                 else if (Input.HasInput((int)EKeyList.KL_Defence, (int)EInputType.EIT_Click, Time.deltaTime))
                 {
                     if (posMng.mActiveAction.Idx == CommonAction.Struggle)
-                        Owner.posMng.ChangeAction(CommonAction.IdleBack, 0.1f, true);
+                        Owner.posMng.ChangeAction(CommonAction.IdleBack, 0.1f);
                     else if (posMng.mActiveAction.Idx == CommonAction.Struggle0)
-                        Owner.posMng.ChangeAction(CommonAction.IdleFront, 0.1f, true);
+                        Owner.posMng.ChangeAction(CommonAction.IdleFront, 0.1f);
                 }
             }
         }
@@ -474,7 +474,7 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
             if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_Release, Time.deltaTime))
             {
                 //Owner.ProcessFall();
-                Owner.posMng.ChangeAction(CommonAction.JumpFall, 0.1f, true);
+                Owner.posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
             }
             else if (Owner.ImpluseVec.y > 0 && Owner.OnTouchWall)
             {

@@ -132,7 +132,7 @@ public class MeteorAI {
             else
             if (owner.GetLockedTarget() != null)
             {
-                Debug.LogError("locked target is not null change to wait");
+                //Debug.LogError("locked target is not null change to wait");
                 ChangeState(EAIStatus.Wait);
             }
             else
@@ -212,7 +212,7 @@ public class MeteorAI {
             //如果巡逻数据不为空，再次进入巡逻状态.
             if (patrolData != null && patrolData.Count != 0)
             {
-                Debug.LogError("enter patrol");
+                //Debug.LogError("enter patrol");
                 ChangeState(EAIStatus.Patrol);
                 return;
             }

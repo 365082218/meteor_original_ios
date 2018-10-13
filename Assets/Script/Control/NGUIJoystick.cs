@@ -30,6 +30,23 @@ public class NGUIJoystick : MonoBehaviour
             return (Time.timeScale != 0) ? mDelta.normalized : Vector2.zero;
         }
     }
+
+    public void OnEnabled()
+    {
+        if (target != null)
+            target.gameObject.SetActive(true);
+        if (JoyCollider != null)
+            JoyCollider.enabled = true;
+    }
+
+    public void OnDisabled()
+    {
+        if (target != null)
+            target.gameObject.SetActive(false);
+        if (JoyCollider != null)
+            JoyCollider.enabled = false;
+    }
+
     public SphereCollider JoyCollider;
 	static Vector2 mSlipDelta = Vector2.zero;
 	static public Vector2 SlipDelta {get {return mSlipDelta;} set {mSlipDelta = value;} }
@@ -68,10 +85,10 @@ public class NGUIJoystick : MonoBehaviour
         aKey.OnPress.AddListener(() => { Global.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyA); JoyCollider.enabled = false; });
         dKey.OnPress.AddListener(() => { Global.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyD); JoyCollider.enabled = false; });
 
-        wKey.OnRelease.AddListener(() => { Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW); JoyCollider.enabled = true; });
-        sKey.OnRelease.AddListener(() => { Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS); JoyCollider.enabled = true; });
-        aKey.OnRelease.AddListener(() => { Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA); JoyCollider.enabled = true; });
-        dKey.OnRelease.AddListener(() => { Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD); JoyCollider.enabled = true; });
+        wKey.OnRelease.AddListener(() => { Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW); if (!GameData.Instance.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
+        sKey.OnRelease.AddListener(() => { Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS); if (!GameData.Instance.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
+        aKey.OnRelease.AddListener(() => { Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA); if (!GameData.Instance.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
+        dKey.OnRelease.AddListener(() => { Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD); if (!GameData.Instance.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
 
         //if (wKey != null)
         //    wKey.SetKeyActive(false);
@@ -418,7 +435,8 @@ public class NGUIJoystick : MonoBehaviour
         sKey.enabled = !state;
         aKey.enabled = !state;
         dKey.enabled = !state;
-        JoyCollider.enabled = !state;
+        if (!GameData.Instance.gameStatus.DisableJoystick)
+            JoyCollider.enabled = !state;
         //background.gameObject.SetActive(!state);
     }
 

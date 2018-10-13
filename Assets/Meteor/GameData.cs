@@ -84,6 +84,8 @@ public class GameState
     public bool EnableLog;//HIDEBUG日志
     public bool LevelDebug;//关卡内功能
     public bool DisableLock;//无锁定
+    public bool DisableParticle;//无粒子特效
+    public bool DisableJoystick;//不显示摇杆.
 }
 
 public class GameData:Singleton<GameData>

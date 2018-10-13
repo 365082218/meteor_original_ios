@@ -661,7 +661,7 @@ public partial class MeteorUnit : MonoBehaviour
         foreach (var each in keyM)
         {
             Damaged[each] -= Time.deltaTime;
-            Debug.LogError("time:" + Time.deltaTime);
+            //Debug.LogError("time:" + Time.deltaTime);
             if (Damaged[each] < 0.0f)
                 removedM.Add(each);
         }
@@ -802,7 +802,7 @@ public partial class MeteorUnit : MonoBehaviour
     public const float yLimitMax = 500;//最大向上速度
     public const float yClimbLimitMax = 180.0f;
     public const float yClimbEndLimit = -30.0f;//爬墙时,Y速度到达此速度，开始计时，时间到就从墙壁落下
-    public const float JumpLimit = 85f;
+    public const float JumpLimit = 65f;
     //角色跳跃高度74，是以脚趾算最低点，倒过来算出dbase,则需要减去差值。
     public bool IgnoreGravity = false;
     //物体动量(质量*速度)的改变,等于物体所受外力冲量的总和.这就是动量定理
@@ -1109,7 +1109,10 @@ public partial class MeteorUnit : MonoBehaviour
         IgnorePhysical = false;
         name = Attr.Name;
         gameObject.layer = Attr.IsPlayer ? LayerMask.NameToLayer("LocalPlayer") : LayerMask.NameToLayer("Monster");
-        robot = Attr.IsPlayer ? null : new MeteorAI(this);
+
+        //单机模式下有ai
+        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+            robot = Attr.IsPlayer ? null : new MeteorAI(this);
         
         controller = gameObject.GetComponent<MeteorController>();
         if (controller == null)
@@ -1513,7 +1516,7 @@ public partial class MeteorUnit : MonoBehaviour
                     if (posMng.ClimbFallTick > PoseStatus.ClimbFallLimit)
                     {
                         Debug.LogError("爬墙速度低于最低速度-爬墙落下");
-                        posMng.ChangeAction(CommonAction.JumpFall, 0.1f, true);//短时间内落地姿势
+                        posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                         ProcessFall();
                         posMng.ClimbFallTick = 0.0f;
                     }
@@ -1521,7 +1524,7 @@ public partial class MeteorUnit : MonoBehaviour
                 else if (MoveOnGroundEx)
                 {
                     Debug.LogError("爬墙碰到地面-落到地面");
-                    posMng.ChangeAction(CommonAction.JumpFall, 0.1f, true);//短时间内落地姿势
+                    posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                 }
                 else
                 {
@@ -1621,7 +1624,7 @@ public partial class MeteorUnit : MonoBehaviour
                             if (posMng.ClimbFallTick > PoseStatus.ClimbFallLimit)
                             {
                                 Debug.LogError("爬墙速度低于最低速度-爬墙落下");
-                                posMng.ChangeAction(CommonAction.JumpFall, 0.1f, true);//短时间内落地姿势
+                                posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                                 ProcessFall();
                                 posMng.ClimbFallTick = 0.0f;
                             }
@@ -1629,7 +1632,7 @@ public partial class MeteorUnit : MonoBehaviour
                         else if (MoveOnGroundEx)
                         {
                             Debug.LogError("爬墙碰到地面-落到地面");
-                            posMng.ChangeAction(CommonAction.JumpFall, 0.1f, true);//短时间内落地姿势
+                            posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                         }
                     }
                     else //落地时候碰到墙壁.给一个反向的推力,
@@ -1663,7 +1666,7 @@ public partial class MeteorUnit : MonoBehaviour
             {
                 //爬墙过程中忽然没贴着墙壁了???直接落下
                 //Debug.LogError("爬墙没有贴着墙壁-结束爬墙");
-                posMng.ChangeAction(CommonAction.JumpFall, 0.1f, true);
+                posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
                 ProcessFall();
             }
             else if (Floating)
@@ -1678,7 +1681,7 @@ public partial class MeteorUnit : MonoBehaviour
 
                     //Debug.LogError("浮空-落地" + posMng.mActiveAction.Idx);
                     //AddYVelocity(-100);//让他快速一点落地
-                    posMng.ChangeAction(CommonAction.JumpFall, 0.1f, true);
+                    posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
                     //看是否被物件推开
                     ProcessFall();
                     floatTick = Time.timeSinceLevelLoad;
@@ -1693,7 +1696,7 @@ public partial class MeteorUnit : MonoBehaviour
             {
                 if ((posMng.mActiveAction.Idx >= CommonAction.Jump && posMng.mActiveAction.Idx <= CommonAction.JumpBackFall) || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
                 {
-                    posMng.ChangeAction(0, 0.1f, true);
+                    posMng.ChangeAction(0, 0.1f);
                     //Debug.LogError("接触地面切换到IDle");
                 }
                 ResetYVelocity();
@@ -2325,7 +2328,7 @@ public partial class MeteorUnit : MonoBehaviour
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
                         //TargetPos = 40 + ((int)idx - 1) * 4 + direction;
                         //Debug.LogError("targetPos:" + TargetPos);
-                        posMng.ChangeAction(TargetPos, 0.1f, true);
+                        posMng.ChangeAction(TargetPos, 0.1f);
                         charLoader.SetActionScale(dam.DefenseMove);
                         int realDamage = CalcDamage(attacker, attackdes);
                         AngryValue += realDamage / 35;//防御住伤害。则怒气增加
@@ -2392,7 +2395,7 @@ public partial class MeteorUnit : MonoBehaviour
                 else
                 {
                     int realDamage = CalcDamage(attacker, attackdes);
-                    Debug.LogError(Attr.Name + ":受到:" + attacker.Attr.name + " 的攻击 减少 " + realDamage + " 点气血" + ":f" + Time.frameCount);
+                    //Debug.LogError(Attr.Name + ":受到:" + attacker.Attr.name + " 的攻击 减少 " + realDamage + " 点气血" + ":f" + Time.frameCount);
                     Attr.ReduceHp(realDamage);
                     //if (hurtRecord.ContainsKey(attacker))
                     //    hurtRecord[attacker] += realDamage;
@@ -2517,7 +2520,7 @@ public partial class MeteorUnit : MonoBehaviour
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
                         //TargetPos = 40 + ((int)idx - 1) * 4 + direction;
                         //Debug.LogError("targetPos:" + TargetPos);
-                        posMng.ChangeAction(TargetPos, 0.1f, true);
+                        posMng.ChangeAction(TargetPos, 0.1f);
                         charLoader.SetActionScale(dam.DefenseMove);
                         int realDamage = CalcDamage(attacker);
                         AngryValue += (realDamage / 35);//防御住伤害。则怒气增加 200CC = 100 ANG
@@ -2680,16 +2683,16 @@ public partial class MeteorUnit : MonoBehaviour
         switch (dir)
         {
             case 0:
-                posMng.ChangeAction(CommonAction.DCForw, 0.1f, true);
+                posMng.ChangeAction(CommonAction.DCForw, 0.1f);
                 break;
             case 1:
-                posMng.ChangeAction(CommonAction.DCBack, 0.1f, true);
+                posMng.ChangeAction(CommonAction.DCBack, 0.1f);
                 break;
             case 2:
-                posMng.ChangeAction(CommonAction.DCLeft, 0.1f, true);
+                posMng.ChangeAction(CommonAction.DCLeft, 0.1f);
                 break;
             case 3:
-                posMng.ChangeAction(CommonAction.DCRight, 0.1f, true);
+                posMng.ChangeAction(CommonAction.DCRight, 0.1f);
                 break;
         }
     }
@@ -2708,25 +2711,25 @@ public partial class MeteorUnit : MonoBehaviour
                         break;
                     case (int)EquipWeaponType.Hammer://锤子
                     case (int)EquipWeaponType.Brahchthrust://双刺
-                        posMng.ChangeAction(CommonAction.DForw1, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DForw1, 0.1f);
                         break;
                     case (int)EquipWeaponType.Sword:
                     case (int)EquipWeaponType.Blade:
-                        posMng.ChangeAction(CommonAction.DForw2, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DForw2, 0.1f);
                         break;
                     case (int)EquipWeaponType.Knife:
                     case (int)EquipWeaponType.Lance:
                     
-                        posMng.ChangeAction(CommonAction.DForw3, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DForw3, 0.1f);
                         break;
                     case (int)EquipWeaponType.NinjaSword:
-                        posMng.ChangeAction(CommonAction.DForw4, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DForw4, 0.1f);
                         break;
                     case (int)EquipWeaponType.HeavenLance:
-                        posMng.ChangeAction(CommonAction.DForw5, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DForw5, 0.1f);
                         break;
                     case (int)EquipWeaponType.Gloves:
-                        posMng.ChangeAction(CommonAction.DForw6, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DForw6, 0.1f);
                         break;
                 }
                 
@@ -2741,24 +2744,24 @@ public partial class MeteorUnit : MonoBehaviour
                         break;
                     case (int)EquipWeaponType.Hammer://锤子
                     case (int)EquipWeaponType.Brahchthrust://双刺
-                        posMng.ChangeAction(CommonAction.DBack1, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DBack1, 0.1f);
                         break;
                     case (int)EquipWeaponType.Sword:
                     case (int)EquipWeaponType.Blade:
-                        posMng.ChangeAction(CommonAction.DBack2, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DBack2, 0.1f);
                         break;
                     case (int)EquipWeaponType.Knife:
                     case (int)EquipWeaponType.Lance:
-                        posMng.ChangeAction(CommonAction.DBack3, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DBack3, 0.1f);
                         break;
                     case (int)EquipWeaponType.NinjaSword:
-                        posMng.ChangeAction(CommonAction.DBack4, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DBack4, 0.1f);
                         break;
                     case (int)EquipWeaponType.HeavenLance:
-                        posMng.ChangeAction(CommonAction.DBack5, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DBack5, 0.1f);
                         break;
                     case (int)EquipWeaponType.Gloves:
-                        posMng.ChangeAction(CommonAction.DBack6, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DBack6, 0.1f);
                         break;
                 }
                 break;
@@ -2772,24 +2775,24 @@ public partial class MeteorUnit : MonoBehaviour
                         break;
                     case (int)EquipWeaponType.Hammer://锤子
                     case (int)EquipWeaponType.Brahchthrust://双刺
-                        posMng.ChangeAction(CommonAction.DLeft1, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DLeft1, 0.1f);
                         break;
                     case (int)EquipWeaponType.Sword:
                     case (int)EquipWeaponType.Blade:
-                        posMng.ChangeAction(CommonAction.DLeft2, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DLeft2, 0.1f);
                         break;
                     case (int)EquipWeaponType.Knife:
                     case (int)EquipWeaponType.Lance:
-                        posMng.ChangeAction(CommonAction.DLeft3, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DLeft3, 0.1f);
                         break;
                     case (int)EquipWeaponType.NinjaSword:
-                        posMng.ChangeAction(CommonAction.DLeft4, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DLeft4, 0.1f);
                         break;
                     case (int)EquipWeaponType.HeavenLance:
-                        posMng.ChangeAction(CommonAction.DLeft5, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DLeft5, 0.1f);
                         break;
                     case (int)EquipWeaponType.Gloves:
-                        posMng.ChangeAction(CommonAction.DLeft6, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DLeft6, 0.1f);
                         break;
                 }
                 break;
@@ -2803,24 +2806,24 @@ public partial class MeteorUnit : MonoBehaviour
                         break;
                     case (int)EquipWeaponType.Hammer://锤子
                     case (int)EquipWeaponType.Brahchthrust://双刺
-                        posMng.ChangeAction(CommonAction.DRight1, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DRight1, 0.1f);
                         break;
                     case (int)EquipWeaponType.Sword:
                     case (int)EquipWeaponType.Blade:
-                        posMng.ChangeAction(CommonAction.DRight2, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DRight2, 0.1f);
                         break;
                     case (int)EquipWeaponType.Knife:
                     case (int)EquipWeaponType.Lance:
-                        posMng.ChangeAction(CommonAction.DRight3, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DRight3, 0.1f);
                         break;
                     case (int)EquipWeaponType.NinjaSword:
-                        posMng.ChangeAction(CommonAction.DRight4, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DRight4, 0.1f);
                         break;
                     case (int)EquipWeaponType.HeavenLance:
-                        posMng.ChangeAction(CommonAction.DRight5, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DRight5, 0.1f);
                         break;
                     case (int)EquipWeaponType.Gloves:
-                        posMng.ChangeAction(CommonAction.DRight6, 0.1f, true);
+                        posMng.ChangeAction(CommonAction.DRight6, 0.1f);
                         break;
                 }
                 break;
@@ -3102,18 +3105,60 @@ public partial class MeteorUnit : MonoBehaviour
         }
         return pose;
     }
-    //0大绝，其他的就是pose号
+
+    Coroutine PlayWeaponPoseCorout;
+    void TryPlayWeaponPose(int KeyMap)
+    {
+        if (PlayWeaponPoseCorout != null)
+            return;
+        PlayWeaponPoseCorout = StartCoroutine(PlayWeaponPose(KeyMap));
+    }
+
+    IEnumerator PlayWeaponPose(int KeyMap)
+    {
+        List<VirtualInput> skill = VirtualInput.CalcPoseInput(KeyMap);
+        for (int i = 0; i < skill.Count; i++)
+        {
+            controller.Input.OnKeyDown(skill[i].key, true);
+            yield return 0;
+            controller.Input.OnKeyUp(skill[i].key);
+            yield return 0;
+        }
+        PlayWeaponPoseCorout = null;
+    }
+
+    //0大绝，其他的就是pose号,仅主角用.
     public void PlaySkill(int skill = 0)
     {
-        if (AngryValue >= 100 || (GameData.Instance.gameStatus.EnableInfiniteAngry && Attr.IsPlayer))
+        //技能0为当前武器绝招
+        if (skill == 0)
         {
-            //得到武器的大绝pose号码。
-            int pose = GetSkillPose();
-            AngryValue -= Attr.IsPlayer ? (GameData.Instance.gameStatus.EnableInfiniteAngry ? 0 : 100): 100;
-            //Debug.LogError("使用技能后:怒气值:" + AngryValue);
-            posMng.ChangeAction(pose);
+            if (controller.Input.AcceptInput())
+            {
+                if (AngryValue >= 100 || (GameData.Instance.gameStatus.EnableInfiniteAngry && Attr.IsPlayer))
+                {
+                    //得到武器的大绝pose号码。
+                    AngryValue -= Attr.IsPlayer ? (GameData.Instance.gameStatus.EnableInfiniteAngry ? 0 : 100) : 100;
+                    ActionNode act = ActionInterrupt.Instance.GetActions(posMng.mActiveAction.Idx);
+                    ActionNode attack3 = ActionInterrupt.Instance.GetSkillNode(this, act);
+                    if (attack3 != null)
+                    {
+                        TryPlayWeaponPose(attack3.KeyMap);
+                    }
+                }
+                else if (Attr.IsPlayer)
+                    U3D.InsertSystemMsg("怒气不足");
+            }
+            else
+                U3D.InsertSystemMsg("无法快速绝招");
         }
-        else if (Attr.IsPlayer)
-            U3D.InsertSystemMsg("怒气不足");
+        else if (skill == 1)
+        {
+            //当前武器小技能1
+        }
+        else if (skill == 2)
+        {
+            //当前武器小技能2
+        }
     }
 }
