@@ -31,7 +31,7 @@ public class Startup : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        Random.InitState(System.Guid.NewGuid().GetHashCode());
+        Random.InitState(19861013);
 #if !STRIP_LOGS
         fpsCanvas.SetActive(true);
 #endif

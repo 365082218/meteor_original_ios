@@ -219,7 +219,9 @@ class ProtoHandler
             UnityEngine.Debug.LogError(string.Format("error:{0}", rsp.reason));
             switch (rsp.reason)
             {
-                
+                case 1:U3D.PopupTip("此房间已满，无法进入");break;
+                case 2:U3D.PopupTip("房间已解散");break;
+                case 3:U3D.PopupTip("需要先退出房间");break;
             }
         }
     }

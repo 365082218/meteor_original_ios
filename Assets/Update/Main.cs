@@ -69,7 +69,21 @@ public class Main : MonoBehaviour {
 	
 	IEnumerator CheckNeedUpdate()
 	{
-        //仅在WIFI下可用
+        //仅在局域网下可用
+        if (Application.internetReachability == NetworkReachability.NotReachable)
+        {
+            //不可用
+            GameStart();
+            yield break;
+        }
+        else if (Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork)
+        {
+            //3G-4G流量套餐
+            //别更新
+            GameStart();
+            yield break;
+        }
+        else
 		if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
         {
             Log.WriteError("download:" + string.Format(strVFile, strHost, strPort, strProjectUrl, strPlatform, strVFileName));

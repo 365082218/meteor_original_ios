@@ -2177,6 +2177,63 @@ Mesh:
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   m_MeshOptimized: 0
+--- !u!1001 &263836331
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 643
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+      propertyPath: m_RootOrder
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 198605898097315832, guid: e8dd107ed6f0f1f42ac6d10c9d397b11,
+        type: 2}
+      propertyPath: ShapeModule.boxY
+      value: 3000
+      objectReference: {fileID: 0}
+    - target: {fileID: 198605898097315832, guid: e8dd107ed6f0f1f42ac6d10c9d397b11,
+        type: 2}
+      propertyPath: randomSeed
+      value: -1661353092
+      objectReference: {fileID: 0}
+    - target: {fileID: 198605898097315832, guid: e8dd107ed6f0f1f42ac6d10c9d397b11,
+        type: 2}
+      propertyPath: ShapeModule.boxX
+      value: 3000
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 100100000, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+  m_IsPrefabParent: 0
 --- !u!43 &267423664
 Mesh:
   m_ObjectHideFlags: 0
@@ -6652,7 +6709,7 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1044348427}
-  m_LocalRotation: {x: 0.6549767, y: 0.17499378, z: 0.17499378, w: -0.71397465}
+  m_LocalRotation: {x: 0.6549768, y: 0.1749938, z: 0.1749938, w: -0.7139747}
   m_LocalPosition: {x: 1137.583, y: -99.094, z: -946.273}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []

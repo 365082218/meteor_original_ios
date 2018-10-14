@@ -2276,6 +2276,8 @@ public partial class MeteorUnit : MonoBehaviour
     //飞镖或飞轮的，含受击定义,即使飞镖拥有者死了，仍调用.
     void OnDamage(MeteorUnit attacker, AttackDes attackdes)
     {
+        if (Dead)
+            return;
         if (NGUICameraJoystick.instance != null && Attr.IsPlayer)
             NGUICameraJoystick.instance.ResetJoystick();//防止受到攻击时还可以移动视角
 
@@ -2459,6 +2461,9 @@ public partial class MeteorUnit : MonoBehaviour
     //除了，武器碰撞，特效碰撞，还可以是buff，机关
     public void OnDamage(MeteorUnit attacker, int buffDamage = 0)
     {
+        if (Dead)
+            return;
+
         if (NGUICameraJoystick.instance != null && Attr.IsPlayer)
             NGUICameraJoystick.instance.ResetJoystick();//防止受到攻击时还可以移动视角
 

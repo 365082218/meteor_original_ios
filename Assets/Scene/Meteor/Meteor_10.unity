@@ -3503,6 +3503,68 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingOrder: 0
+--- !u!1001 &325128448
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 1484
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+      propertyPath: m_RootOrder
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 198605898097315832, guid: e8dd107ed6f0f1f42ac6d10c9d397b11,
+        type: 2}
+      propertyPath: ShapeModule.boxX
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 198605898097315832, guid: e8dd107ed6f0f1f42ac6d10c9d397b11,
+        type: 2}
+      propertyPath: randomSeed
+      value: -1661353092
+      objectReference: {fileID: 0}
+    - target: {fileID: 198605898097315832, guid: e8dd107ed6f0f1f42ac6d10c9d397b11,
+        type: 2}
+      propertyPath: ShapeModule.boxY
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 198605898097315832, guid: e8dd107ed6f0f1f42ac6d10c9d397b11,
+        type: 2}
+      propertyPath: InitialModule.maxNumParticles
+      value: 1000
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 100100000, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
+  m_IsPrefabParent: 0
 --- !u!43 &334359553
 Mesh:
   m_ObjectHideFlags: 0

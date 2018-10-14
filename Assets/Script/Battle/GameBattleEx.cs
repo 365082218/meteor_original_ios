@@ -90,7 +90,7 @@ public partial class GameBattleEx : MonoBehaviour {
             BattleResultWnd.Instance.Close();
         BattleResultWnd.Instance.Open();
         Result = result;
-        Startup.ins.StartCoroutine(BattleResultWnd.Instance.SetResult(result));
+        BattleResultWnd.Instance.Coroutine = Startup.ins.StartCoroutine(BattleResultWnd.Instance.SetResult(result));
 
         if (NGUICameraJoystick.instance)
             NGUICameraJoystick.instance.Lock(true);
@@ -415,7 +415,12 @@ public partial class GameBattleEx : MonoBehaviour {
         DisableCameraLock = GameData.Instance.gameStatus.DisableLock;
         //updateFn = ScriptMng.ins.GetFunc("OnUpdate");
         if (script != null)
-            time = script.GetRoundTime() * 60;
+        {
+            if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+                time = script.GetRoundTime() * 60;
+            else
+                time = 7200;
+        }
         timeClock = 0.0f;
         //注册所有场景物件的受击框
         SceneItemAgent[] sceneObjs = FindObjectsOfType<SceneItemAgent>();
@@ -423,20 +428,22 @@ public partial class GameBattleEx : MonoBehaviour {
         Resume();
 
         //只有单人模式，才从脚本恢复这些物件，否则都应该由服务器发出物件的信息恢复.
+        if (lev_script != null)
+        {
+            lev_script.Scene_OnLoad();
+            lev_script.Scene_OnInit();
+        }
+
+        for (int i = 0; i < sceneObjs.Length; i++)
+        {
+            sceneObjs[i].OnStart(lev_script);
+            RegisterCollision(sceneObjs[i]);
+        }
+
         if (Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
             if (lev_script != null)
-            {
-                lev_script.Scene_OnLoad();
-                lev_script.Scene_OnInit();
                 lev_script.OnStart();
-            }
-
-            for (int i = 0; i < sceneObjs.Length; i++)
-            {
-                sceneObjs[i].OnStart(lev_script);
-                RegisterCollision(sceneObjs[i]);
-            }
 
             for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
             {

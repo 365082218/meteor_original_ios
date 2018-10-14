@@ -121,78 +121,13 @@ public class U3D : MonoBehaviour {
         //找寻敌人攻击.因为这个并没有脚本模板
         unit.robot.ChangeState(EAIStatus.Wait);
         return;
-
-        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
-        {
-            unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
-            unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
-        }
-        else if (Global.GLevelMode == LevelMode.MultiplyPlayer)
-        {
-            if (Global.GGameMode == GameMode.Normal)
-            {
-                unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
-                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
-            }
-            else if (Global.GGameMode == GameMode.MENGZHU)
-            {
-                //16个点
-                unit.transform.position = Global.GLevelSpawn[Global.SpawnIndex];
-                Global.SpawnIndex++;
-                Global.SpawnIndex %= 16;
-                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
-            }
-            else if (Global.GGameMode == GameMode.ANSHA || Global.GGameMode == GameMode.SIDOU)
-            {
-                //2个队伍8个点.
-                if (unit.Camp == EUnitCamp.EUC_FRIEND)
-                {
-                    unit.transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
-                    Global.CampASpawnIndex++;
-                    Global.CampASpawnIndex %= 8;
-                }
-                else if (unit.Camp == EUnitCamp.EUC_ENEMY)
-                {
-                    unit.transform.position = Global.GCampASpawn[Global.CampBSpawnIndex];
-                    Global.CampBSpawnIndex++;
-                    Global.CampBSpawnIndex %= 8;
-                }
-            }
-        }
-
-        InsertSystemMsg(LevelHelper.GetCampStr(unit));
-        //找寻敌人攻击.因为这个并没有脚本模板
-        unit.robot.ChangeState(EAIStatus.Wait);
-        //unit.transform.position = Global.GLevelItem.wayPoint.Count != 0 ? Global.GLevelItem.wayPoint[nextSpawnPoint].pos : GameObject.Find("StartPoint").transform.position;
-        //unit.transform.rotation = new Quaternion(0, 0, 0, 1);
     }
 
     public static void ChangePlayerModel(int model)
     {
         Global.PauseAll = true;
         MeteorManager.Instance.LocalPlayer.controller.InputLocked = true;
-
         MeteorManager.Instance.LocalPlayer.Init(model, MeteorManager.Instance.LocalPlayer.Attr, true);
-
-        //MeteorUnit unit = MeteorManager.Instance.LocalPlayer;
-        //MonsterEx mon = unit.Attr;
-        //GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
-        //GameObject objClone = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
-        //MeteorUnit unitClone = objClone.GetComponent<MeteorUnit>();
-        //MeteorManager.Instance.LocalPlayer = unitClone;
-        //unitClone.Camp = EUnitCamp.EUC_FRIEND;//流星阵营
-        //unitClone.Init(model, mon);
-        //mon.Model = model;
-        //MeteorManager.Instance.OnCloneUnit(unit, unitClone);
-        ////LuaFunction onInit = ScriptMng.ins.GetFunc("OnInit");
-        ////LuaFunction OnStart = ScriptMng.ins.GetFunc("OnStart");
-        ////onInit.call(unit.InstanceId);
-        ////unit.SetGround(false);
-        //unitClone.transform.position = unit.transform.position;// = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
-        //unitClone.transform.eulerAngles = unit.transform.eulerAngles;// = new Vector3(0, mon.SpawnDir, 0);
-        //unitClone.gameObject.AddComponent<AudioListener>();
-
-        //GameObject.Destroy(unit.gameObject);
         Global.PauseAll = false;
         MeteorManager.Instance.LocalPlayer.controller.InputLocked = false;
     }
@@ -223,7 +158,7 @@ public class U3D : MonoBehaviour {
         {
             if (Global.GGameMode == GameMode.Normal)
             {
-                unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
                 unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
             }
             else if (Global.GGameMode == GameMode.MENGZHU)
@@ -270,21 +205,32 @@ public class U3D : MonoBehaviour {
         unit.Camp = EUnitCamp.EUC_FRIEND;//流星阵营
         unit.Init(mon.Model, mon);
         MeteorManager.Instance.OnGenerateUnit(unit);
-        //LuaFunction onInit = ScriptMng.ins.GetFunc("OnInit");
-        //LuaFunction OnStart = ScriptMng.ins.GetFunc("OnStart");
-        //onInit.call(unit.InstanceId);
         unit.SetGround(false);
         if (Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
-            unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
-            unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+            if (Global.GLevelItem.DisableFindWay == 1)
+            {
+                //不许寻路，无寻路点的关卡，使用
+                unit.transform.position = Global.GLevelSpawn[mon.SpawnPoint >= Global.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
+            }
+            else
+            {
+                unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+            }
         }
         else if (Global.GLevelMode == LevelMode.MultiplyPlayer)
         {
             if (Global.GGameMode == GameMode.Normal)
             {
-                unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
-                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+                if (Global.GLevelItem.DisableFindWay == 1)
+                {
+                    //不许寻路，无寻路点的关卡，使用
+                    unit.transform.position = Global.GLevelSpawn[mon.SpawnPoint >= Global.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
+                }
+                else
+                {
+                    unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                }
             }
             else if (Global.GGameMode == GameMode.MENGZHU)
             {
@@ -311,7 +257,7 @@ public class U3D : MonoBehaviour {
                 }
             }
         }
-        //OnStart.call();
+        unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
         U3D.InsertSystemMsg(LevelHelper.GetCampStr(unit));
         return unit;
     }

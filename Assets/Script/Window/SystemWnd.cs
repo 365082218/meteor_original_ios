@@ -179,6 +179,14 @@ public class NewSystemWnd : Window<NewSystemWnd>
     void OnDisableParticle(bool disable)
     {
         GameData.Instance.gameStatus.DisableParticle = disable;
+        if (disable)
+        {
+            if (Global.GScript != null)
+            {
+                Global.GScript.CleanSceneParticle();
+            }
+            
+        }
     }
 
     void OnEnableLog(bool toggle)

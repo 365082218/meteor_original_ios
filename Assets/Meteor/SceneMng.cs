@@ -33,21 +33,8 @@ class SceneMng
         Global.GLevelSpawn = new Vector3[16];
         Global.GCampASpawn = new Vector3[8];
         Global.GCampBSpawn = new Vector3[8];
-        if (Global.GLevelItem.ID > 22)
-        {
-            //新地图没有这些地点
-            for (int i = 0; i < 16; i++)
-            {
-                Global.GLevelSpawn[i] = i < Global.GLevelItem.wayPoint.Count ? Global.GLevelItem.wayPoint[i].pos : GameObject.Find("StartPoint").transform.position;
-            }
 
-            for (int i = 0; i < 8; i++)
-            {
-                Global.GCampASpawn[i] = i < Global.GLevelItem.wayPoint.Count ? Global.GLevelItem.wayPoint[i].pos : GameObject.Find("StartPoint").transform.position;
-                Global.GCampBSpawn[i] = i < Global.GLevelItem.wayPoint.Count ? Global.GLevelItem.wayPoint[i].pos : GameObject.Find("StartPoint").transform.position;
-            }
-        }
-        else
+        if (WayMng.Instance == null)
         {
             for (int i = 0; i < 16; i++)
             {
@@ -58,6 +45,19 @@ class SceneMng
             {
                 Global.GCampASpawn[i] = Global.ldaControlX(string.Format("D_teamA{0:d2}", i + 1), Loader.Instance.gameObject).transform.position;
                 Global.GCampBSpawn[i] = Global.ldaControlX(string.Format("D_teamB{0:d2}", i + 1), Loader.Instance.gameObject).transform.position;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 16; i++)
+            {
+                Global.GLevelSpawn[i] = WayMng.Instance.wayPoints[i >= WayMng.Instance.wayPoints.Count ? 0 : i].pos;
+            }
+
+            for (int i = 0; i < 8; i++)
+            {
+                Global.GCampASpawn[i] = WayMng.Instance.wayPoints[i >= WayMng.Instance.wayPoints.Count ? 0 : i].pos;
+                Global.GCampBSpawn[i] = WayMng.Instance.wayPoints[i >= WayMng.Instance.wayPoints.Count ? 0 : i].pos;
             }
         }
 
@@ -108,21 +108,8 @@ class SceneMng
         Global.GLevelSpawn = new Vector3[16];
         Global.GCampASpawn = new Vector3[8];
         Global.GCampBSpawn = new Vector3[8];
-        if (Global.GLevelItem.ID > 22)
-        {
-            //新地图没有这些地点
-            for (int i = 0; i < 16; i++)
-            {
-                Global.GLevelSpawn[i] = i < Global.GLevelItem.wayPoint.Count ? Global.GLevelItem.wayPoint[i].pos : GameObject.Find("StartPoint").transform.position;
-            }
 
-            for (int i = 0; i < 8; i++)
-            {
-                Global.GCampASpawn[i] = i < Global.GLevelItem.wayPoint.Count ? Global.GLevelItem.wayPoint[i].pos : GameObject.Find("StartPoint").transform.position;
-                Global.GCampBSpawn[i] = i < Global.GLevelItem.wayPoint.Count ? Global.GLevelItem.wayPoint[i].pos : GameObject.Find("StartPoint").transform.position;
-            }
-        }
-        else
+        if (WayMng.Instance == null)
         {
             for (int i = 0; i < 16; i++)
             {
@@ -133,6 +120,19 @@ class SceneMng
             {
                 Global.GCampASpawn[i] = Global.ldaControlX(string.Format("D_teamA{0:d2}", i + 1), Loader.Instance.gameObject).transform.position;
                 Global.GCampBSpawn[i] = Global.ldaControlX(string.Format("D_teamB{0:d2}", i + 1), Loader.Instance.gameObject).transform.position;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 16; i++)
+            {
+                Global.GLevelSpawn[i] = WayMng.Instance.wayPoints[i >= WayMng.Instance.wayPoints.Count ? 0 : i].pos;
+            }
+
+            for (int i = 0; i < 8; i++)
+            {
+                Global.GCampASpawn[i] = WayMng.Instance.wayPoints[i >= WayMng.Instance.wayPoints.Count ? 0 : i].pos;
+                Global.GCampBSpawn[i] = WayMng.Instance.wayPoints[i >= WayMng.Instance.wayPoints.Count ? 0 : i].pos;
             }
         }
 
@@ -159,7 +159,7 @@ class SceneMng
         }
     }
 
-    //生成指定怪物
+    //生成指定怪物,这个是从脚本入口来的，是正式关卡中生成NPC的
     public static MeteorUnit Spawn(string script)
     {
         MonsterEx mon = InitMon(script);
@@ -188,15 +188,33 @@ class SceneMng
         unit.SetGround(false);
         if (Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
-            unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
-            unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+            if (Global.GLevelItem.DisableFindWay == 1)
+            {
+                //不许寻路，无寻路点的关卡，使用
+                unit.transform.position = Global.GLevelSpawn[mon.SpawnPoint >= Global.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
+                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+            }
+            else
+            {
+                unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+            }
         }
         else if (Global.GLevelMode == LevelMode.MultiplyPlayer)
         {
             if (Global.GGameMode == GameMode.Normal)
             {
-                unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : GameObject.Find("StartPoint").transform.position;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
-                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+                if (Global.GLevelItem.DisableFindWay == 1)
+                {
+                    //不许寻路，无寻路点的关卡，使用
+                    unit.transform.position = Global.GLevelSpawn[mon.SpawnPoint >= Global.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
+                    unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+                }
+                else
+                {
+                    unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                    unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
+                }
             }
             else if (Global.GGameMode == GameMode.MENGZHU)
             {

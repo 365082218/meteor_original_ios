@@ -1002,7 +1002,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
     GameObject BattleTitle;
     Transform MeteorResult;
     Transform ButterflyResult;
-
+    public Coroutine Coroutine;
     public IEnumerator SetResult(int result)
     {
         yield return new WaitForSeconds(0.5f);
@@ -1051,7 +1051,15 @@ public class BattleResultWnd : Window<BattleResultWnd>
         ButterflyResult = Control("ButterflyResult").transform;
         BattleResult = Global.ldaControlX("BattleResult", WndObject);
         BattleTitle = Global.ldaControlX("BattleTitle", WndObject);
-        Control("Close").GetComponent<Button>().onClick.AddListener(() => { Startup.ins.PlayEndMovie(); });
+        Control("Close").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            if (Coroutine != null)
+            {
+                Startup.ins.StopCoroutine(Coroutine);
+                Coroutine = null;
+            }
+            Startup.ins.PlayEndMovie();
+        });
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
         {
             if (GameBattleEx.Instance.BattleResult.ContainsKey(MeteorManager.Instance.UnitInfos[i].name))

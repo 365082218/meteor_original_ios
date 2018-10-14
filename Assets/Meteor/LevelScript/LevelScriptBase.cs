@@ -71,18 +71,86 @@ public class ScriptBase
 
     }
 
+    public void CleanSceneParticle()
+    {
+        if (SnowEffect != null)
+        {
+            GameObject.Destroy(SnowEffect);
+            SnowParticle = null;
+        }
+    }
+
+    static GameObject SnowEffect;
+    static ParticleSystem SnowParticle;
+    static ParticleSystem.ForceOverLifetimeModule SnowForce;
+    static ParticleSystem.MainModule SnowMain;
     public void SetScene(string fun, int arg)
     {
-        //SetScene("snow", 1);
+        if (GameData.Instance.gameStatus.DisableParticle)
+            return;
+        if (fun == "snow")
+        {
+            if (SnowEffect == null)
+            {
+                SnowEffect = GameObject.Find("Snow_Particle");
+                if (SnowEffect != null)
+                {
+                    SnowParticle = SnowEffect.GetComponent<ParticleSystem>();
+                    SnowMain = SnowParticle.main;
+                    SnowForce = SnowParticle.forceOverLifetime;
+                    SnowParticle.Play();
+                }
+            }
+        }
+        else if (string.Equals(fun, "snowdensity"))
+        {
+            if (SnowParticle != null)
+            {
+                SnowMain.maxParticles = arg * 3;
+            }
+        }
     }
+
     public void SetScene(string fun, int a, int b, int c)
     {
+        if (GameData.Instance.gameStatus.DisableParticle)
+            return;
         //SetScene("winddir", 50, 0, 0);
+        if (fun == "winddir")
+        {
+            //设置风速，类似风场
+            if (SnowParticle != null)
+            {
+                SnowForce.enabled = true;
+                SnowForce.space = ParticleSystemSimulationSpace.World;
+                SnowForce.x = new ParticleSystem.MinMaxCurve(0, a);
+                SnowForce.y = new ParticleSystem.MinMaxCurve(0, b);
+                SnowForce.z = new ParticleSystem.MinMaxCurve(0, c);
+            }
+        }
     }
+
     public void SetScene(string fun, int a, int b)
     {
+        if (GameData.Instance.gameStatus.DisableParticle)
+            return;
         //SetScene("snowspeed", 20, 100);
         //SetScene("snowsize", 5, 5);
+        if (string.Equals(fun, "snowspeed"))
+        {
+            if (SnowParticle != null)
+            {
+                SnowMain.startSpeed = new ParticleSystem.MinMaxCurve(a, b);
+            }
+        }
+        else if (string.Equals(fun, "snowsize"))
+        {
+            if (SnowParticle != null)
+            {
+                SnowMain.startSize3D = false;
+                SnowMain.startSize = new ParticleSystem.MinMaxCurve(a, b);
+            }
+        }
     }
 
     //返回角色是否存在执行动作序列
@@ -986,8 +1054,8 @@ public class ScriptBase
         MakeString(ref itemname, "D_itRJug", index);
         MakeString(ref weaponname, "D_wpRJug", index);
 
-        int randx = rand(1, 4);
-
+        int randx = rand(1, 5);
+        Debug.LogError("打碎随机坛子-得到产出序号:" + randx);
         string ritemname = "";
         string rweaponname = "";
 
@@ -7321,7 +7389,7 @@ public class LevelScript_sn21 : LevelScriptBase
 public class LevelScript_sn22 : LevelScriptBase
 {
     int RoundTime = 30;
-    int PlayerSpawn = 16;
+    int PlayerSpawn = 15;
     int PlayerSpawnDir = 84;
     int PlayerWeapon = 5;
     int PlayerWeapon2 = 0;
@@ -8265,7 +8333,7 @@ public class LevelScript_sn25 : LevelScriptBase
     public override int GetPlayerMaxHp() { return PlayerHP; }
     int RoundTime = 20;
     int PlayerSpawn = 0;
-    int PlayerSpawnDir = 90;
+    int PlayerSpawnDir = 200;
     int PlayerWeapon = 24;
     int PlayerWeapon2 = 14;
     int PlayerHP = 2000;
@@ -8449,7 +8517,7 @@ public class LevelScript_sn26 : LevelScriptBase
     }
 }
 
-//所有的新关卡，不读取
+//所有的新关卡，不读取,通用模板，无剧情，仅用来测试
 public class LevelScript_sn1000 : LevelScriptBase
 {
     public override int GetRoundTime() {  return 100; }

@@ -107,9 +107,6 @@ public class SceneItemAgent : MonoBehaviour {
             if (refresh_tick <= 0.0f)
             {
                 OnRefresh();
-                Refresh = false;
-                if (ItemInfo.IsWeapon() || ItemInfo.IsItem())
-                    refresh_tick = ItemInfo.first[1].flag[1];
             }
         }
     }
@@ -275,6 +272,9 @@ public class SceneItemAgent : MonoBehaviour {
         }
         if (ItemInfo.IsFlag())
             U3D.InsertSystemMsg("镖物重置");
+        Refresh = false;
+        if (ItemInfo.IsWeapon() || ItemInfo.IsItem())
+            refresh_tick = ItemInfo.first[1].flag[1];
     }
 
     public Transform root;
@@ -600,6 +600,10 @@ public class SceneItemAgent : MonoBehaviour {
                     MeteorManager.Instance.OnDestroySceneItem(this);
                     GameObject.Destroy(gameObject);
                 }
+
+                //如果在刷新倒计时中，立即刷新物件.
+                if (Refresh)
+                    OnRefresh();
             }
             else if (sub_features == "interactive")
             {

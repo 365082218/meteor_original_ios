@@ -24,7 +24,7 @@ FuBenID	Scene	SceneMode	Des	DisableFindWay	Chapter	Name	LevelType	LevelScript	St
 22	Meteor_06			0	后传	四方阵	5	sn06		sn06	S5				
 23	Meteor_02			0	后传	秦皇陵	5	sn02		sn02	S2				
 24	Meteor_23		老伯设计孙剑击杀万鹏王，却不但孙剑反遭暗算被杀，自己也被十二飞鹏帮四大舵主所围	1	决战前夕	韩棠-大决战	6	sn23		sn23	S11		1		
-25	Meteor_25		在弥留之际，空中显示出一条幻境	1	大往生	往生幻境	5	sn26		sn26	S11		1		使用五爪峰作为基础地图，再加上随机生成地板砖，通向所有反派角色楼阁，打碎所有守护
+25	Meteor_25		在弥留之际，空中显示出一条幻境	1	大往生	往生幻境	5	sn25		sn25	S11		1		使用五爪峰作为基础地图，再加上随机生成地板砖，通向所有反派角色楼阁，打碎所有守护
 26	Meteor_06	1	AI测试	0	刀AI	近战AI测试	5	sn1000	sn1000_1	sn06	S5		1		
 27	Meteor_06	1	AI测试	0	飞镖AI	远程AI测试	5	sn1000	sn1000_2	sn06	S5		1		
 28	Meteor_06	1	AI测试	0	防御硬直	防御硬直测试	5	sn1000	sn1000_3	sn06	S5		1		

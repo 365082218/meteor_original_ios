@@ -1816,6 +1816,8 @@ public class MeteorAI {
     //如果attacker为空，则代表是非角色伤害了自己
     public void OnDamaged(MeteorUnit attacker)
     {
+        //寻路数据要清空.
+        Path.Clear();
         //受到非目标的攻击后，记下来，一会找他算账
         if (lastAttacker != attacker && owner.GetLockedTarget() != attacker && attacker != null)
             lastAttacker = attacker;
@@ -1879,7 +1881,7 @@ public class MeteorAI {
 
     //绕原地
     Coroutine PatrolRotateCoroutine;//巡逻到达某个目的点后，会随机旋转1-5次，每次都会停留不固定的时间
-    IEnumerator PatrolRotate(float angleSpeed = 90.0f)
+    IEnumerator PatrolRotate(float angleSpeed = 150)
     {
         float rotateAngle1 = Random.Range(-90, -45);
         float rotateAngle2 = Random.Range(45, 90);
