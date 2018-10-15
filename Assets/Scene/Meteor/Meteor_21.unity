@@ -7865,7 +7865,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 1484
+      value: 1203
       objectReference: {fileID: 0}
     - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
       propertyPath: m_LocalPosition.z
@@ -7909,12 +7909,12 @@ Prefab:
     - target: {fileID: 198605898097315832, guid: e8dd107ed6f0f1f42ac6d10c9d397b11,
         type: 2}
       propertyPath: InitialModule.maxNumParticles
-      value: 3000
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 198605898097315832, guid: e8dd107ed6f0f1f42ac6d10c9d397b11,
         type: 2}
       propertyPath: EmissionModule.rateOverTime.scalar
-      value: 300
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 198605898097315832, guid: e8dd107ed6f0f1f42ac6d10c9d397b11,
         type: 2}

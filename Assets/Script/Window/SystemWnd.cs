@@ -90,6 +90,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Control("ReloadTable").GetComponent<Button>().onClick.AddListener(()=> { U3D.ReloadTable(); });
         Control("SetJoyPosition").GetComponent<Button>().onClick.AddListener(OnSetJoyPosition);
         Control("DoScript").GetComponent<Button>().onClick.AddListener(OnDoScript);
+        Control("Snow").GetComponent<Button>().onClick.AddListener(OnSnow);
         //显示战斗界面的调试按钮
         Toggle toggleDebug = Control("EnableSFX").GetComponent<Toggle>();
         toggleDebug.isOn = GameData.Instance.gameStatus.EnableDebugSFX;
@@ -348,6 +349,12 @@ public class NewSystemWnd : Window<NewSystemWnd>
     void OnShowWayPoint(bool on)
     {
         GameBattleEx.Instance.ShowWayPoint(on);
+    }
+
+    void OnSnow()
+    {
+        if (Global.GScript != null)
+            Global.GScript.Snow();
     }
 
     void OnDoScript()

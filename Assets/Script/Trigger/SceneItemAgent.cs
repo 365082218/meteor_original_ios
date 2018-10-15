@@ -487,10 +487,12 @@ public class SceneItemAgent : MonoBehaviour {
                             MeshCollider m = co[c] as MeshCollider;
                             if (m != null)
                             {
-                                m.convex = false;
-                                m.isTrigger = false;
+                                m.convex = true;
+                                m.isTrigger = true;
                             }
-                            co[c].enabled = false;
+                            else
+                                co[c].isTrigger = true;
+                            co[c].enabled = true;
                         }
                     }
                 }

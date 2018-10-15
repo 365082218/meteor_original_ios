@@ -645,6 +645,15 @@ public partial class MeteorUnit : MonoBehaviour
 
 
     // Update is called once per frame
+    List<MeteorUnit> keyM = new List<MeteorUnit>();
+    List<MeteorUnit> removedM = new List<MeteorUnit>();
+    List<SceneItemAgent> keyS = new List<SceneItemAgent>();
+    List<SceneItemAgent> removedS = new List<SceneItemAgent>();
+    List<SceneItemAgent> keyD = new List<SceneItemAgent>();
+    List<SceneItemAgent> removedD = new List<SceneItemAgent>();
+    List<SceneItemAgent> keyT = new List<SceneItemAgent>();
+    List<SceneItemAgent> removedT = new List<SceneItemAgent>();
+
     void Update()
     {
         if (IsDebugUnit())
@@ -656,8 +665,9 @@ public partial class MeteorUnit : MonoBehaviour
             ClimbingTime = 0;
         if (posMng.Jump)
             posMng.JumpTick += Time.deltaTime;
-        List<MeteorUnit> keyM = new List<MeteorUnit>(Damaged.Keys);
-        List<MeteorUnit> removedM = new List<MeteorUnit>();
+        keyM.Clear();
+        keyM.AddRange(Damaged.Keys);
+        removedM.Clear();
         foreach (var each in keyM)
         {
             Damaged[each] -= Time.deltaTime;
@@ -667,8 +677,9 @@ public partial class MeteorUnit : MonoBehaviour
         }
         for (int i = 0; i < removedM.Count; i++)
             Damaged.Remove(removedM[i]);
-        List<SceneItemAgent> keyS = new List<SceneItemAgent>(Damaged2.Keys);
-        List<SceneItemAgent> removedS = new List<SceneItemAgent>();
+        keyS.Clear();
+        keyS.AddRange(Damaged2.Keys);
+        removedS.Clear();
         foreach (var each in keyS)
         {
             Damaged2[each] -= Time.deltaTime;
@@ -680,8 +691,9 @@ public partial class MeteorUnit : MonoBehaviour
             Damaged2.Remove(removedS[i]);
 
         //机关或者尖刺打到我.
-        List<SceneItemAgent> keyD = new List<SceneItemAgent>(attackDelay.Keys);
-        List<SceneItemAgent> removedD = new List<SceneItemAgent>();
+        keyD.Clear();
+        keyD.AddRange(attackDelay.Keys);
+        removedD.Clear();
         foreach (var each in keyD)
         {
             attackDelay[each] -= Time.deltaTime;
@@ -691,6 +703,19 @@ public partial class MeteorUnit : MonoBehaviour
 
         for (int i = 0; i < removedD.Count; i++)
             attackDelay.Remove(removedD[i]);
+
+        keyT.Clear();
+        keyT.AddRange(touchDelay.Keys);
+        removedT.Clear();
+        foreach (var each in keyT)
+        {
+            touchDelay[each] -= Time.deltaTime;
+            if (touchDelay[each] < 0.0f)
+                removedT.Add(each);
+        }
+
+        for (int i = 0; i < removedT.Count; i++)
+            touchDelay.Remove(removedT[i]);
 
         charLoader.CharacterUpdate();
         if (robot != null)
@@ -2058,6 +2083,7 @@ public partial class MeteorUnit : MonoBehaviour
 
     //只负责一些机关，例如滚石，摆斧，撞到角色时的伤害处理
     Dictionary<SceneItemAgent, float> attackDelay = new Dictionary<SceneItemAgent, float>();
+    Dictionary<SceneItemAgent, float> touchDelay = new Dictionary<SceneItemAgent, float>();//部分回血阵的回血间隔
     public void OnTriggerEnter(Collider other)
     {
         if (Dead)
@@ -2084,9 +2110,12 @@ public partial class MeteorUnit : MonoBehaviour
                 }
                 else
                 {
+                    if (touchDelay.ContainsKey(trigger))
+                        return;
                     if (trigger.root != null)
                     {
                         trigger.OnPickup(this);
+                        touchDelay[trigger] = 2.0f;
                         if (TargetItem == trigger)
                             TargetItem = null;
                     }
@@ -2134,9 +2163,12 @@ public partial class MeteorUnit : MonoBehaviour
                 else
                 {
                     //持续血阵，状态
+                    if (touchDelay.ContainsKey(trigger))
+                        return;
                     if (trigger.root != null)
                     {
                         trigger.OnPickup(this);
+                        touchDelay[trigger] = 2.0f;
                         if (TargetItem == trigger)
                             TargetItem = null;
                     }

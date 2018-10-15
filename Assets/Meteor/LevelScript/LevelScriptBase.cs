@@ -83,30 +83,50 @@ public class ScriptBase
     static GameObject SnowEffect;
     static ParticleSystem SnowParticle;
     static ParticleSystem.ForceOverLifetimeModule SnowForce;
+    static ParticleSystem.EmissionModule SnowEmission;
     static ParticleSystem.MainModule SnowMain;
+    public void Snow()
+    {
+        SetScene("snow", 1);//雪粒子
+        SetScene("snowdensity", 1000);//粒子密度
+        SetScene("winddir", 50, 0, 0);//风方向
+        SetScene("snowspeed", 20, 100);//雪速度
+        SetScene("snowsize", 5, 5);//粒子尺寸
+    }
+
     public void SetScene(string fun, int arg)
     {
         if (GameData.Instance.gameStatus.DisableParticle)
             return;
         if (fun == "snow")
         {
-            if (SnowEffect == null)
+            if (arg == 1)
             {
-                SnowEffect = GameObject.Find("Snow_Particle");
-                if (SnowEffect != null)
+                if (SnowEffect == null)
                 {
-                    SnowParticle = SnowEffect.GetComponent<ParticleSystem>();
-                    SnowMain = SnowParticle.main;
-                    SnowForce = SnowParticle.forceOverLifetime;
-                    SnowParticle.Play();
+                    SnowEffect = GameObject.Find("Snow_Particle");
+                    if (SnowEffect != null)
+                    {
+                        SnowParticle = SnowEffect.GetComponent<ParticleSystem>();
+                        SnowMain = SnowParticle.main;
+                        SnowForce = SnowParticle.forceOverLifetime;
+                        SnowEmission = SnowParticle.emission;
+                        SnowParticle.Play();
+                    }
                 }
+            }
+            else
+            {
+                CleanSceneParticle();
             }
         }
         else if (string.Equals(fun, "snowdensity"))
         {
             if (SnowParticle != null)
             {
-                SnowMain.maxParticles = arg * 3;
+                SnowMain.maxParticles = arg;
+                SnowEmission.rateOverTime = new ParticleSystem.MinMaxCurve(50, 100);
+                SnowMain.startLifetime = 10;
             }
         }
     }
@@ -141,6 +161,7 @@ public class ScriptBase
             if (SnowParticle != null)
             {
                 SnowMain.startSpeed = new ParticleSystem.MinMaxCurve(a, b);
+                SnowMain.gravityModifier = 0.5f;
             }
         }
         else if (string.Equals(fun, "snowsize"))
@@ -2779,11 +2800,11 @@ public class LevelScript_sn04: LevelScriptBase
 
     public override void Scene_OnLoad()
     {
-        //SetScene("snow", 1);//雪粒子
-        //SetScene("snowdensity", 200);//粒子密度
-        //SetScene("winddir", 50, 0, 0);//风方向
-        //SetScene("snowspeed", 20, 100);//雪速度
-        //SetScene("snowsize", 5, 5);//粒子尺寸
+        SetScene("snow", 1);//雪粒子
+        SetScene("snowdensity", 200);//粒子密度
+        SetScene("winddir", 50, 0, 0);//风方向
+        SetScene("snowspeed", 20, 100);//雪速度
+        SetScene("snowsize", 5, 5);//粒子尺寸
 
         //string name;
         //int i;
@@ -3828,7 +3849,7 @@ public class LevelScript_sn07: LevelScriptBase
 
     public void RandomActivate()
     {
-        int r = rand(0, 6);
+        int r = rand(0, 7);
         Output("Activate", r);
         if (r == 0)
         {
