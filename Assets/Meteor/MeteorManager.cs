@@ -40,7 +40,7 @@ public class MeteorManager {
         UnitInfos.Add(clone);
     }
 
-    public void OnGenerateUnit(MeteorUnit unit)
+    public void OnGenerateUnit(MeteorUnit unit, int playerId = 0)
     {
         if (UnitInfos.Contains(unit))
         {
@@ -51,7 +51,10 @@ public class MeteorManager {
         //for (int i = 0; i < UnitInfos.Count; i++)
         //    UnitInfos[i].PhysicalIgnore(unit, false);
         UnitInfos.Add(unit);
-        unit.InstanceId = UnitInstanceIdx++;
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            unit.InstanceId = playerId;
+        else
+            unit.InstanceId = UnitInstanceIdx++;
     }
 
     public void OnDestroySceneItem(SceneItemAgent item)

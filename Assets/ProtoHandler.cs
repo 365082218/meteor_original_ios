@@ -30,58 +30,71 @@ class ProtoHandler
         lock (ClientProxy.Packet)
         {
             MemoryStream ms = null;
-            foreach (var each in ClientProxy.Packet)
+            try
             {
-                switch (each.Key)
+
+
+                foreach (var each in ClientProxy.Packet)
                 {
-                    case (int)MeteorMsg.MsgType.GetRoomRsp:
-                        ms = new MemoryStream(each.Value);
-                        GetRoomRsp rspG = ProtoBuf.Serializer.Deserialize<GetRoomRsp>(ms);
-                        OnGetRoomRsp(rspG);
-                        break;
-                    case (int)MeteorMsg.MsgType.JoinRoomRsp:
-                        ms = new MemoryStream(each.Value);
-                        JoinRoomRsp rspJ = ProtoBuf.Serializer.Deserialize<JoinRoomRsp>(ms);
-                        OnJoinRoomRsp(rspJ);
-                        break;
-                    case (int)MeteorMsg.MsgType.OnJoinRoomRsp:
-                        ms = new MemoryStream(each.Value);
-                        OnEnterRoomRsp rspE = ProtoBuf.Serializer.Deserialize<OnEnterRoomRsp>(ms);
-                        OnEnterRoomRsp_(rspE);
-                        break;
-                    case (int)MeteorMsg.MsgType.CreateRoomRsp:
-                        ms = new MemoryStream(each.Value);
-                        CreateRoomRsp rspC = ProtoBuf.Serializer.Deserialize<CreateRoomRsp>(ms);
-                        OnCreateRoomRsp(rspC);
-                        break;
-                    case (int)MeteorMsg.MsgType.EnterLevelRsp:
-                        ms = new MemoryStream(each.Value);
-                        EnterLevelRsp rspER = ProtoBuf.Serializer.Deserialize<EnterLevelRsp>(ms);
-                        EnterLevelRsp_(rspER);
-                        break;
-                    case (int)MeteorMsg.MsgType.OnEnterLevelRsp:
-                        ms = new MemoryStream(each.Value);
-                        OnEnterLevelRsp rspOE = ProtoBuf.Serializer.Deserialize<OnEnterLevelRsp>(ms);
-                        OnEnterLevelRsp_(rspOE);
-                        break;
-                    case (int)MeteorMsg.MsgType.OnLeaveRoomRsp:
-                        ms = new MemoryStream(each.Value);
-                        OnLeaveRoomRsp rspL = ProtoBuf.Serializer.Deserialize<OnLeaveRoomRsp>(ms);
-                        OnLevvaRoomRsp_(rspL);
-                        break;
-                    case (int)MeteorMsg.MsgType.SyncInput:
-                        ms = new MemoryStream(each.Value);
-                        InputReq InputRsp = ProtoBuf.Serializer.Deserialize<InputReq>(ms);
-                        OnSyncInputRsp(InputRsp);
-                        break;
-                    case (int)MeteorMsg.MsgType.SyncKeyFrame:
-                        ms = new MemoryStream(each.Value);
-                        KeyFrame KeyFrameRsp = ProtoBuf.Serializer.Deserialize<KeyFrame>(ms);
-                        OnSyncKeyFrame(KeyFrameRsp);
-                        break;
+                    UnityEngine.Debug.LogError(string.Format("收到:{0}", each.Key));
+                    switch (each.Key)
+                    {
+                        case (int)MeteorMsg.MsgType.GetRoomRsp:
+                            ms = new MemoryStream(each.Value);
+                            GetRoomRsp rspG = ProtoBuf.Serializer.Deserialize<GetRoomRsp>(ms);
+                            OnGetRoomRsp(rspG);
+                            break;
+                        case (int)MeteorMsg.MsgType.JoinRoomRsp:
+                            ms = new MemoryStream(each.Value);
+                            JoinRoomRsp rspJ = ProtoBuf.Serializer.Deserialize<JoinRoomRsp>(ms);
+                            ClientJoinRoomRsp(rspJ);
+                            break;
+                        case (int)MeteorMsg.MsgType.OnJoinRoomRsp:
+                            ms = new MemoryStream(each.Value);
+                            OnEnterRoomRsp rspE = ProtoBuf.Serializer.Deserialize<OnEnterRoomRsp>(ms);
+                            OnEnterRoomRsp_(rspE);
+                            break;
+                        case (int)MeteorMsg.MsgType.CreateRoomRsp:
+                            ms = new MemoryStream(each.Value);
+                            CreateRoomRsp rspC = ProtoBuf.Serializer.Deserialize<CreateRoomRsp>(ms);
+                            OnCreateRoomRsp(rspC);
+                            break;
+                        case (int)MeteorMsg.MsgType.EnterLevelRsp:
+                            ms = new MemoryStream(each.Value);
+                            EnterLevelRsp rspER = ProtoBuf.Serializer.Deserialize<EnterLevelRsp>(ms);
+                            EnterLevelRsp_(rspER);
+                            break;
+                        case (int)MeteorMsg.MsgType.OnEnterLevelRsp:
+                            ms = new MemoryStream(each.Value);
+                            OnEnterLevelRsp rspOE = ProtoBuf.Serializer.Deserialize<OnEnterLevelRsp>(ms);
+                            OnEnterLevelRsp_(rspOE);
+                            break;
+                        case (int)MeteorMsg.MsgType.OnLeaveRoomRsp:
+                            ms = new MemoryStream(each.Value);
+                            OnLeaveRoomRsp rspL = ProtoBuf.Serializer.Deserialize<OnLeaveRoomRsp>(ms);
+                            OnLeaveRoomRsp_(rspL);
+                            break;
+                        case (int)MeteorMsg.MsgType.SyncInput:
+                            ms = new MemoryStream(each.Value);
+                            InputReq InputRsp = ProtoBuf.Serializer.Deserialize<InputReq>(ms);
+                            OnSyncInputRsp(InputRsp);
+                            break;
+                        case (int)MeteorMsg.MsgType.SyncKeyFrame:
+                            ms = new MemoryStream(each.Value);
+                            KeyFrame KeyFrameRsp = ProtoBuf.Serializer.Deserialize<KeyFrame>(ms);
+                            OnSyncKeyFrame(KeyFrameRsp);
+                            break;
+                    }
                 }
             }
-            ClientProxy.Packet.Clear();
+            catch (Exception exp)
+            {
+                UnityEngine.Debug.LogError(exp.Message + exp.StackTrace);
+            }
+            finally
+            {
+                ClientProxy.Packet.Clear();
+            }
         }
 
         lock (messageQueue)
@@ -154,20 +167,28 @@ class ProtoHandler
 
     }
 
-    static void OnLevvaRoomRsp_(OnLeaveRoomRsp rsp)
+    static void OnLeaveRoomRsp_(OnLeaveRoomRsp rsp)
     {
         //rsp.playerId
+        if (NetWorkBattle.Ins != null)
+            U3D.InsertSystemMsg(string.Format("{0}离开了房间", NetWorkBattle.Ins.GetPlayerName((int)rsp.playerId)));
     }
 
     static void OnEnterLevelRsp_(OnEnterLevelRsp rsp)
     {
-
+        //其他玩家进入此房间
+        if (NetWorkBattle.Ins != null && rsp != null && rsp.player != null && rsp.player.id != NetWorkBattle.Ins.PlayerId)
+            U3D.InitNetPlayer(rsp.player);
     }
 
+    public static bool loading = false;
     static void EnterLevelRsp_(EnterLevelRsp rsp)
     {
+        if (loading)
+            return;
         //进入到房间内,开始加载场景设置角色初始化位置
         U3D.LoadNetLevel(rsp.scene.items, rsp.scene.players);
+        loading = true;
     }
 
     //自己建房间成功，则转到选人界面.与加入房间一个德行
@@ -184,14 +205,15 @@ class ProtoHandler
         }
     }
 
-    //其他人进入我所在的房间
+    //其他人进入我所在的房间，消息发给我
     static void OnEnterRoomRsp_(OnEnterRoomRsp rsp)
     {
         //显示某某进入房间的文字
         GameOverlayWnd.Instance.InsertSystemMsg(string.Format("{0} 进入房间", rsp.playerNick));
     }
 
-    static void OnJoinRoomRsp(JoinRoomRsp rsp)
+    //自己进入房间的消息被服务器处理，返回给自己
+    static void ClientJoinRoomRsp(JoinRoomRsp rsp)
     {
         //如果规则是暗杀或者死斗
         //自己进入房间成功时的信息,跳转到选角色界面，角色选择，就跳转到武器选择界面

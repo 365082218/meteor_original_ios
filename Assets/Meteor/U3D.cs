@@ -708,6 +708,7 @@ public class U3D : MonoBehaviour {
 
     public static void LoadNetLevel(List<SceneItem_> sceneItems, List<Player_> players)
     {
+        Debug.LogError("LoadNetLevel " + Time.frameCount);
         uint profileTotalAllocate = Profiler.GetTotalAllocatedMemory();
         uint profileTotalReserved = Profiler.GetTotalReservedMemory();
         long gcTotal = System.GC.GetTotalMemory(false);

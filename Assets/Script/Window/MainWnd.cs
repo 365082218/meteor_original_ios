@@ -195,6 +195,8 @@ public class MainLobby : Window<MainLobby>
 
     public void OnGetRoom(GetRoomRsp rsp)
     {
+        if (RoomRoot == null)
+            return;
         SelectRoomId = -1;
         int cnt = rsp.RoomInLobby.Count;
         for (int i = 0; i < rooms.Count; i++)

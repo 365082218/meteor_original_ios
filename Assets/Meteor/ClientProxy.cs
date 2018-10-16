@@ -192,6 +192,11 @@ class ClientProxy
         Common.SendEnterLevel(model, weapon);
     }
 
+    public static void LeaveLevel()
+    {
+        Common.SendLeaveLevel();
+    }
+
     //同步当前帧的输入状态
     public static void SyncInput()
     {

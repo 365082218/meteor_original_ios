@@ -235,7 +235,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
     {
         Close();
         GameBattleEx.Instance.Pause();
-        U3D.LoadLevel(levelId, LevelMode.MultiplyPlayer, GameMode.SIDOU);
+        U3D.LoadLevel(levelId, LevelMode.SinglePlayerTask, GameMode.SIDOU);
     }
 
     void OnChangeVer(string ver)
@@ -414,6 +414,9 @@ public class NewSystemWnd : Window<NewSystemWnd>
         FightWnd.Instance.Close();
         if (GameOverlayWnd.Exist)
             GameOverlayWnd.Instance.ClearSystemMsg();
+        //离开副本
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            ClientProxy.LeaveLevel();
         U3D.GoBack();
     }
 }

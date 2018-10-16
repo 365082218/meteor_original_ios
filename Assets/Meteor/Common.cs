@@ -330,8 +330,14 @@ public class Common
         Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.JoinRoomReq, req);
     }
 
+    public static void SendLeaveLevel()
+    {
+        Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.LeaveRoomReq);
+    }
+
     public static void SendEnterLevel(int model, int weapon)
     {
+        UnityEngine.Debug.LogError("sendEnterLevel " + UnityEngine.Time.frameCount);
         EnterLevelReq req = new EnterLevelReq();
         req.camp = 0;//暂时全部为盟主模式
         req.model = (uint)model;

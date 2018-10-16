@@ -35,8 +35,17 @@ public class NetWorkBattle : MonoBehaviour {
         bSync = false;
 	}
 	
-	//等待服务器帧同步.
-	void Update () {
+    public string GetPlayerName(int id)
+    {
+        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        {
+            if (MeteorManager.Instance.UnitInfos[i].InstanceId == id)
+                return MeteorManager.Instance.UnitInfos[i].name;
+        }
+        return "不明身份者";
+    }
+    //等待服务器帧同步.
+    void Update () {
         if (bSync)
         {
             while (FrameIndex < ServerFrameIndex)
@@ -63,6 +72,7 @@ public class NetWorkBattle : MonoBehaviour {
             U3D.GoBack();
             bSync = false;
             FrameIndex = ServerFrameIndex = 0;
+            U3D.InsertSystemMsg("与服务器断开链接.");
         }
         RoomId = -1;
         RoomName = "";
@@ -111,6 +121,7 @@ public class NetWorkBattle : MonoBehaviour {
         Global.GLevelItem = lev;
         Global.GLevelMode = LevelMode.MultiplyPlayer;
         Global.GGameMode = GameMode.MENGZHU;//所有场景道具都不加载，这部分物件的属性需要同步.
+        LoadingWnd.Instance.Open();
         StartCoroutine(LoadAsync(lev, sceneItems, players));
     }
 
@@ -129,6 +140,7 @@ public class NetWorkBattle : MonoBehaviour {
             yield return 0;
         yield return 0;
         OnLoadFinishedEx(lev, sceneItems, players);
+        ProtoHandler.loading = false;
         yield return 0;
     }
 
