@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using protocol;
+using UnityEngine;
 //仅本机的，因为tcp链接一部分代码在其他线程返回，故这里要推到数据结构等主线程来取.
 public enum LocalMsgType
 {
@@ -258,10 +259,14 @@ class ProtoHandler
     {
         //取得房间信息
         if (result == 1)
+        {
+            Debug.LogError("connected");
             ClientProxy.UpdateGameServer();
+        }
         else
         {
             //链接失败,重置对战
+            Debug.LogError("disconnected");
             NetWorkBattle.Ins.OnDisconnect();
         }
     }

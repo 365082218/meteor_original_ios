@@ -8,12 +8,13 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using UnityEngine;
 
 //处理与服务器的连接.没有p2p
 class ClientProxy
 {
     public static bool quit = false;
-    public static AutoResetEvent logicEvent = new AutoResetEvent(false);//负责收到服务器后的响应线程的激活.
+    //public static AutoResetEvent logicEvent = new AutoResetEvent(false);//负责收到服务器后的响应线程的激活.
     public static IPEndPoint server;
     public static TcpProxy proxy;
     public static Dictionary<int, byte[]> Packet = new Dictionary<int, byte[]>();//消息ID和字节流
@@ -47,7 +48,7 @@ class ClientProxy
         }
         catch (Exception exp)
         {
-            Log.Write(exp.Message);
+            Debug.LogError(exp.Message);
             result.Message = (int)LocalMsgType.Connect;
             result.Result = 0;
             ProtoHandler.PostMessage(result);
@@ -117,7 +118,7 @@ class ClientProxy
                 return;
             }
         }
-        logicEvent.Set();
+        //logicEvent.Set();
 
         if (!quit)
         {
