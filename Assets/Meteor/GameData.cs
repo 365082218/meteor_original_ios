@@ -73,16 +73,67 @@ public class GameState
     public bool EnableDebugStatus;//角色头顶的信息条显示 动作 帧 状态 属性 等信息
     public bool EnableWeaponChoose;//战斗UI控制面板是否显示按钮
     public bool EnableDebugRobot;//调试角色按钮。
-    public bool EnableInfiniteAngry;//无限气.
+    bool _EnableInfiniteAngry;
+    public bool EnableInfiniteAngry
+    {
+        get
+        {
+            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+                return false;
+            return _EnableInfiniteAngry;
+        }
+        set
+        {
+            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            {
+                return;
+            }
+            _EnableInfiniteAngry = value;
+        }
+    }//无限气.
     public bool EnableItemName;//查看掉落武器的名称.-后续分支可能会加入武器装备养成元素.
-    public bool EnableGodMode;//一击必杀
+    bool _EnableGodMode;
+    public bool EnableGodMode
+    {
+        get
+        {
+            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+                return false;
+            return _EnableGodMode;
+        }
+        set
+        {
+            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            {
+                return;
+            }
+            _EnableGodMode = value;
+        }
+    }//一击必杀
     public MyVector2 JoyAnchor;//摇杆坐标.
     public MyVector2 AxisSensitivity;//轴视角转向灵敏度
     public string MeteorVersion;
     public int TargetFrame;//60-30
     public bool ShowWayPoint;//显示路点
     public bool EnableLog;//HIDEBUG日志
-    public bool LevelDebug;//关卡内功能
+    bool _LevelDebug;
+    public bool LevelDebug
+    {
+        get
+        {
+            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+                return false;
+            return _LevelDebug;
+        }
+        set
+        {
+            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            {
+                return;
+            }
+            _LevelDebug = value;
+        }
+    }//关卡内功能
     public bool DisableLock;//无锁定
     public bool DisableParticle;//无粒子特效
     public bool DisableJoystick;//不显示摇杆.

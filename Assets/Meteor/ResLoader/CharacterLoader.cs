@@ -107,10 +107,10 @@ public class CharacterLoader : MonoBehaviour
             {
                 if (lastPosIdx == po.Idx)
                 {
-                    Vector3 targetPos = status.DummyPos[i];
-                    Vector3 moveDelta = transform.rotation * (targetPos - vTmp);
-                    mOwner.Move(moveDelta);
-                    vTmp = targetPos;
+                    //Vector3 targetPos = status.DummyPos[i];
+                    //Vector3 moveDelta = transform.rotation * (targetPos - vTmp);
+                    //mOwner.Move(moveDelta);
+                    //vTmp = targetPos;
                 }
             }
             else
@@ -894,6 +894,7 @@ public class CharacterLoader : MonoBehaviour
     public int curIndex = 0;
     public int curPos = 0;
     int blendStart = 0;
+    public void SetCurrentFrameIndex(int v) { curIndex = v; }
     public int GetCurrentFrameIndex() { return curIndex; }
 
     //僵直清空/飞轮回收，等一些情况时，取消循环,立即切换到动作结束

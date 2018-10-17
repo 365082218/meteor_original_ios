@@ -150,11 +150,11 @@ public class U3D : MonoBehaviour {
         MeteorUnit unit = ins.GetComponent<MeteorUnit>();
         if (mon.IsPlayer)
             MeteorManager.Instance.LocalPlayer = unit;
-        unit.Camp = EUnitCamp.EUC_NONE;
+        unit.Camp = EUnitCamp.EUC_KILLALL;
         unit.Init(mon.Model, mon);
         MeteorManager.Instance.OnGenerateUnit(unit);
         unit.SetGround(false);
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer && mon.IsPlayer)
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
         {
             if (Global.GGameMode == GameMode.Normal)
             {
@@ -164,25 +164,19 @@ public class U3D : MonoBehaviour {
             else if (Global.GGameMode == GameMode.MENGZHU)
             {
                 //16个点
-                unit.transform.position = Global.GLevelSpawn[Global.SpawnIndex];
-                Global.SpawnIndex++;
-                Global.SpawnIndex %= 16;
+                unit.transform.position = Global.GLevelSpawn[mon.SpawnPoint];
                 unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
             }
             else if (Global.GGameMode == GameMode.ANSHA || Global.GGameMode == GameMode.SIDOU)
             {
-                //2个队伍8个点.
+                //2个队伍8个点.必须带阵营.
                 if (unit.Camp == EUnitCamp.EUC_FRIEND)
                 {
-                    unit.transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
-                    Global.CampASpawnIndex++;
-                    Global.CampASpawnIndex %= 8;
+                    unit.transform.position = Global.GCampASpawn[mon.SpawnPoint];
                 }
                 else if (unit.Camp == EUnitCamp.EUC_ENEMY)
                 {
-                    unit.transform.position = Global.GCampASpawn[Global.CampBSpawnIndex];
-                    Global.CampBSpawnIndex++;
-                    Global.CampBSpawnIndex %= 8;
+                    unit.transform.position = Global.GCampASpawn[mon.SpawnPoint];
                 }
             }
         }
@@ -988,8 +982,6 @@ public class U3D : MonoBehaviour {
     }
     public static void CreateEffect(int id, string effect)
     {
-        //if (effect == "GiMaHIT")
-            //Debug.LogError("find");
         SceneItemAgent[] agents = FindObjectsOfType<SceneItemAgent>();
         SceneItemAgent objEffect = null;
         for (int i = 0; i < agents.Length; i++)
@@ -1002,12 +994,18 @@ public class U3D : MonoBehaviour {
         }
         if (SFXLoader.Instance != null && objEffect != null)
             SFXLoader.Instance.PlayEffect(effect, objEffect.gameObject, true);
+
+        if (syncToServer)
+        {
+            //???同步特效生成到服务器，服务器告诉其他客户端，在该物件上产生一个特效.
+        }
     }
 
     //开启同步和关闭同步，这里先放着，等联机时实现
+    public static bool syncToServer = false;
     public static void NetEvent(int status)
     {
-
+        syncToServer = status == 1;
     }
 
     public static MeteorUnit GetTeamLeader(EUnitCamp camp)

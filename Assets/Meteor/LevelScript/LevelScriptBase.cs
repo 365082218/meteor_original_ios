@@ -68,7 +68,7 @@ public class ScriptBase
 
     public static void NetEvent(int status)
     {
-
+        U3D.NetEvent(status);
     }
 
     public void CleanSceneParticle()

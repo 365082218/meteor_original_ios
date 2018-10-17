@@ -42,7 +42,7 @@ public enum EInputType
 
 public enum EUnitCamp
 {
-    EUC_KILLALL = 0,	    // 与所有人不和平
+    EUC_KILLALL = 0,	    // 与所有人不和平,盟主模式下，角色的阵营
     EUC_FRIEND = 1,     // 流星雇佣兵或者NPC，帮助流星打Enemy或者KILLALL
     EUC_ENEMY = 2,      // 蝴蝶
     EUC_NONE = 3,    // 与所有人和平 NPC,不攻击，不受击
@@ -343,6 +343,11 @@ public class Common
         req.model = (uint)model;
         req.weapon = (uint)weapon;
         Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.EnterLevelReq, req);
+    }
+
+    public static void SyncFrame(KeyFrame k)
+    {
+        Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.KeyFrameReq, k);
     }
 
     //public static void SendEnterMap(EntryPoint ept)

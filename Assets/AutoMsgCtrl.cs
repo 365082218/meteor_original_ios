@@ -11,7 +11,7 @@ public class AutoMsgCtrl : MonoBehaviour {
         Stack = 1,//左侧剧情，每个角色有自己谈话堆栈，互相之间是顺序，自身多条信息用堆栈，每个信息间可能包含间隔
     }
     MsgCtrlType type = MsgCtrlType.Default;
-    float lastTime = 1.0f;
+    float lastTime = 2.0f;
     float alphaTime = 0.5f;
     Coroutine fade;
     // Use this for initialization

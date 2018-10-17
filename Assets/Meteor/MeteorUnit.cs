@@ -643,7 +643,6 @@ public partial class MeteorUnit : MonoBehaviour
         //rig.velocity;
     }
 
-
     // Update is called once per frame
     List<MeteorUnit> keyM = new List<MeteorUnit>();
     List<MeteorUnit> removedM = new List<MeteorUnit>();
@@ -653,7 +652,9 @@ public partial class MeteorUnit : MonoBehaviour
     List<SceneItemAgent> removedD = new List<SceneItemAgent>();
     List<SceneItemAgent> keyT = new List<SceneItemAgent>();
     List<SceneItemAgent> removedT = new List<SceneItemAgent>();
-
+    int GameFrame = 0;
+    private float AccumilatedTime = 0f;
+    private float FrameLength = 0.05f; //50 miliseconds
     void Update()
     {
         if (IsDebugUnit())
@@ -1133,7 +1134,10 @@ public partial class MeteorUnit : MonoBehaviour
         IgnoreGravity = true;
         IgnorePhysical = false;
         name = Attr.Name;
-        gameObject.layer = Attr.IsPlayer ? LayerMask.NameToLayer("LocalPlayer") : LayerMask.NameToLayer("Monster");
+        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+            gameObject.layer = Attr.IsPlayer ? LayerMask.NameToLayer("LocalPlayer") : LayerMask.NameToLayer("Monster");
+        else
+            gameObject.layer = LayerMask.NameToLayer("LocalPlayer");
 
         //单机模式下有ai
         if (Global.GLevelMode == LevelMode.SinglePlayerTask)
@@ -1301,6 +1305,22 @@ public partial class MeteorUnit : MonoBehaviour
         if (Attr != null)
             return GameData.Instance.MakeEquip(Attr.Weapon2).Info().SubType;
         return -1;
+    }
+
+    public void SyncWeapon(int weapon1, int weapon2)
+    {
+        if (weaponLoader == null && Attr.Weapon == weapon1)
+        {
+            Attr.Weapon2 = weapon2;
+            return;
+        }
+        weaponLoader.UnEquipWeapon();
+        Attr.Weapon = weapon1;
+        Attr.Weapon2 = weapon2;
+        IndicatedWeapon = GameData.Instance.MakeEquip(Attr.Weapon);
+        if (IndicatedWeapon != null && weaponLoader != null)
+            weaponLoader.EquipWeapon(IndicatedWeapon);
+        IndicatedWeapon = null;
     }
 
     public void ChangeNextWeapon()

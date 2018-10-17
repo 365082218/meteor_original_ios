@@ -147,7 +147,7 @@ public class WeaponLoader : MonoBehaviour {
 
     //后者决定是否真正切换到这个武器对应的POSE里，
     //乾坤刀部分姿态可切换，在切换未完成时
-    public void ChangeWeaponPos(int pose, bool realChangePose = false)
+    public void ChangeWeaponPos(int pose)
     {
         InventoryItem curWeapon = Weapon;
         if (Weapon != null)

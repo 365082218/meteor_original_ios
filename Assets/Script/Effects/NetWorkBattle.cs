@@ -7,14 +7,14 @@ using UnityEngine.SceneManagement;
 
 public class NetWorkBattle : MonoBehaviour {
 
-    //ÔÚ·¿¼äµÄÍæ¼Ò.
+    //åœ¨æˆ¿é—´çš„ç©å®¶.
     Dictionary<int, protocol.Player_> playerInfo = new Dictionary<int, Player_>();
     Dictionary<int, MeteorUnit> player = new Dictionary<int, MeteorUnit>();
     SceneInfo scene;
-    public int RoomId = -1;//·¿¼äÔÚ·şÎñÆ÷µÄ±àºÅ
-    public int LevelId = -1;//·¿¼ä³¡¾°¹Ø¿¨±àºÅ
-    public int PlayerId = -1;//Ö÷½ÇÔÚ·şÎñÆ÷µÄ½ÇÉ«±àºÅ.
-    public int heroIdx;//Ñ¡ÔñµÄÄ£ĞÍ±àºÅ.
+    public int RoomId = -1;//æˆ¿é—´åœ¨æœåŠ¡å™¨çš„ç¼–å·
+    public int LevelId = -1;//æˆ¿é—´åœºæ™¯å…³å¡ç¼–å·
+    public int PlayerId = -1;//ä¸»è§’åœ¨æœåŠ¡å™¨çš„è§’è‰²ç¼–å·.
+    public int heroIdx;//é€‰æ‹©çš„æ¨¡å‹ç¼–å·.
     public int weaponIdx;
     string RoomName;
     bool bSync;
@@ -35,25 +35,39 @@ public class NetWorkBattle : MonoBehaviour {
         bSync = false;
 	}
 	
-    public string GetPlayerName(int id)
+    public MeteorUnit GetNetPlayer(int id)
+    {
+        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        {
+            if (MeteorManager.Instance.UnitInfos[i].InstanceId == id)
+                return MeteorManager.Instance.UnitInfos[i];
+        }
+        return null;
+    }
+
+    public string GetNetPlayerName(int id)
     {
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
         {
             if (MeteorManager.Instance.UnitInfos[i].InstanceId == id)
                 return MeteorManager.Instance.UnitInfos[i].name;
         }
-        return "²»Ã÷Éí·İÕß";
+        return "ä¸æ˜èº«ä»½è€…";
     }
-    //µÈ´ı·şÎñÆ÷Ö¡Í¬²½.
+    //ç­‰å¾…æœåŠ¡å™¨å¸§åŒæ­¥.
+    KeyFrame frame = new KeyFrame();
+    uint frameIndex = 0;
+    uint turn = 0;
     void Update () {
         if (bSync)
         {
-            while (FrameIndex < ServerFrameIndex)
+            frameIndex++;
+            if (frameIndex % 5 == 0)
             {
-                //foreach (var each in player)
-                //    each.Value.GameFrame(FrameIndex);
-                //GameBattleEx.Instance.GameFrame(FrameIndex);
-                FrameIndex++;
+                frame.frameIndex = turn;
+                turn++;
+                SyncAttribute(frame.Players[0]);
+                Common.SyncFrame(frame);
             }
         }
 	}
@@ -62,7 +76,7 @@ public class NetWorkBattle : MonoBehaviour {
     {
         if (GameBattleEx.Instance && RoomId != -1)
         {
-            //ÔÚÁª»úÕ½¶·³¡¾°ÖĞ.
+            //åœ¨è”æœºæˆ˜æ–—åœºæ™¯ä¸­.
             GameBattleEx.Instance.Pause();
             SoundManager.Instance.StopAll();
             BuffMng.Instance.Clear();
@@ -72,22 +86,82 @@ public class NetWorkBattle : MonoBehaviour {
             U3D.GoBack();
             bSync = false;
             FrameIndex = ServerFrameIndex = 0;
-            U3D.InsertSystemMsg("Óë·şÎñÆ÷¶Ï¿ªÁ´½Ó.");
+            U3D.InsertSystemMsg("ä¸æœåŠ¡å™¨æ–­å¼€é“¾æ¥.");
         }
         RoomId = -1;
         RoomName = "";
     }
 
-    //Ñ¡ÔñºÃÁË½ÇÉ«ºÍÎäÆ÷£¬Ïò·şÎñÆ÷·¢³ö½øÈë·¿¼äÇëÇó.
+    //é€‰æ‹©å¥½äº†è§’è‰²å’Œæ­¦å™¨ï¼Œå‘æœåŠ¡å™¨å‘å‡ºè¿›å…¥æˆ¿é—´è¯·æ±‚.
     public void EnterLevel()
     {
         ClientProxy.EnterLevel(heroIdx, weaponIdx);
+    }
+
+    public void SyncAttribute(Player_ p)
+    {
+        p.angry = MeteorManager.Instance.LocalPlayer.AngryValue;
+        p.aniSource = MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.SourceIdx;
+        p.Camp = (int)EUnitCamp.EUC_KILLALL;
+        p.frame = MeteorManager.Instance.LocalPlayer.charLoader.GetCurrentFrameIndex();
+        p.hp = MeteorManager.Instance.LocalPlayer.Attr.hpCur;
+        p.hpMax = MeteorManager.Instance.LocalPlayer.Attr.HpMax;
+        p.id = (uint)MeteorManager.Instance.LocalPlayer.InstanceId;
+        p.model = MeteorManager.Instance.LocalPlayer.Attr.Model;
+        p.name = "";// MeteorManager.Instance.LocalPlayer.name;
+        p.pos = new Vector3_();
+        p.pos.x = Mathf.FloorToInt(MeteorManager.Instance.LocalPlayer.mPos.x * 1000);
+        p.pos.y = Mathf.FloorToInt(MeteorManager.Instance.LocalPlayer.mPos.y * 1000);
+        p.pos.z = Mathf.FloorToInt(MeteorManager.Instance.LocalPlayer.mPos.z * 1000);
+        p.rotation = new Quaternion_();
+        p.rotation.w = Mathf.FloorToInt(MeteorManager.Instance.LocalPlayer.transform.rotation.w * 1000);
+        p.rotation.x = Mathf.FloorToInt(MeteorManager.Instance.LocalPlayer.transform.rotation.x * 1000);
+        p.rotation.y = Mathf.FloorToInt(MeteorManager.Instance.LocalPlayer.transform.rotation.y * 1000);
+        p.rotation.z = Mathf.FloorToInt(MeteorManager.Instance.LocalPlayer.transform.rotation.z * 1000);
+        p.SpawnPoint = MeteorManager.Instance.LocalPlayer.Attr.SpawnPoint;
+        p.weapon = (uint)MeteorManager.Instance.LocalPlayer.Attr.Weapon;
+        p.weapon1 = p.weapon;
+        p.weapon2 = (uint)MeteorManager.Instance.LocalPlayer.Attr.Weapon2;
+        p.weapon_pos = (uint)MeteorManager.Instance.LocalPlayer.weaponLoader.GetCurrentWeapon().WeaponPos;
+    }
+
+    public void ApplyAttribute(MeteorUnit unit, Player_ p)
+    {
+        MeteorManager.Instance.LocalPlayer.AngryValue = p.angry;
+        //MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx = ;
+        //p.Camp = (int)EUnitCamp.EUC_KILLALL;
+        MeteorManager.Instance.LocalPlayer.charLoader.ChangeFrame(p.aniSource, p.frame); 
+        MeteorManager.Instance.LocalPlayer.Attr.hpCur = p.hp;
+        //p.hpMax = MeteorManager.Instance.LocalPlayer.Attr.HpMax;
+        //p.id = (uint)MeteorManager.Instance.LocalPlayer.InstanceId;
+        //p.model = MeteorManager.Instance.LocalPlayer.Attr.Model;
+        //p.name = MeteorManager.Instance.LocalPlayer.name;
+        Vector3 vec;
+        vec.x = p.pos.x / 1000.0f;
+        vec.y = p.pos.y / 1000.0f;
+        vec.z = p.pos.z / 1000.0f;
+        MeteorManager.Instance.LocalPlayer.transform.position = vec;
+        Quaternion quat;
+        quat.w = p.rotation.w / 1000.0f;
+        quat.x = p.rotation.x / 1000.0f;
+        quat.y = p.rotation.y / 1000.0f;
+        quat.z = p.rotation.z / 1000.0f;
+        p.rotation = new Quaternion_();
+        //p.SpawnPoint = MeteorManager.Instance.LocalPlayer.Attr.SpawnPoint;
+        if (MeteorManager.Instance.LocalPlayer.Attr.Weapon != (int)p.weapon)
+            unit.SyncWeapon((int)p.weapon, (int)p.weapon2);
+        MeteorManager.Instance.LocalPlayer.weaponLoader.ChangeWeaponPos((int)p.weapon_pos);
     }
 
     public void OnEnterLevelSucessed(SceneInfo scene_)
     {
         scene = scene_;
         FrameIndex = 0;
+        frame.Players.Clear();
+        Player_ p = new Player_();
+        SyncAttribute(p);
+        frame.Players.Add(p);
+        bSync = true;
     }
 
     public void OnEnterRoomSuccessed(int roomId, int levelid, int playerid)
@@ -97,18 +171,13 @@ public class NetWorkBattle : MonoBehaviour {
         PlayerId = playerid;
     }
 
-    public void OnNetWorkBattleStart()
-    {
-        bSync = true;
-    }
-
-    //Í¬²½È«²¿µÄÊäÈë.
+    //åŒæ­¥å…¨éƒ¨çš„è¾“å…¥.
     public void OnSyncInput()
     {
         ServerFrameIndex++;
     }
 
-    //Í¬²½È«²¿Êı¾İ
+    //åŒæ­¥å…¨éƒ¨æ•°æ®
     public void OnSyncFrame()
     {
 
@@ -120,7 +189,7 @@ public class NetWorkBattle : MonoBehaviour {
         Level lev = LevelMng.Instance.GetItem(LevelId);
         Global.GLevelItem = lev;
         Global.GLevelMode = LevelMode.MultiplyPlayer;
-        Global.GGameMode = GameMode.MENGZHU;//ËùÓĞ³¡¾°µÀ¾ß¶¼²»¼ÓÔØ£¬Õâ²¿·ÖÎï¼şµÄÊôĞÔĞèÒªÍ¬²½.
+        Global.GGameMode = GameMode.MENGZHU;//æ‰€æœ‰åœºæ™¯é“å…·éƒ½ä¸åŠ è½½ï¼Œè¿™éƒ¨åˆ†ç‰©ä»¶çš„å±æ€§éœ€è¦åŒæ­¥.
         LoadingWnd.Instance.Open();
         StartCoroutine(LoadAsync(lev, sceneItems, players));
     }
@@ -170,34 +239,34 @@ public class NetWorkBattle : MonoBehaviour {
 
         Global.GScript = script;
         SceneMng.OnLoad();//
-        //¼ÓÔØ³¡¾°ÅäÖÃÊı¾İ
-        SceneMng.OnEnterNetLevel(sceneItems, lev.ID);//Ô­°æ¹¦ÄÜ²»¼ÓÔØÆäËû´æµµÊı¾İ.
+        //åŠ è½½åœºæ™¯é…ç½®æ•°æ®
+        SceneMng.OnEnterNetLevel(sceneItems, lev.ID);//åŸç‰ˆåŠŸèƒ½ä¸åŠ è½½å…¶ä»–å­˜æ¡£æ•°æ®.
 
-        //ÉèÖÃÖ÷½ÇÊôĞÔ
+        //è®¾ç½®ä¸»è§’å±æ€§
         for (int i = 0; i < players.Count; i++)
             U3D.InitNetPlayer(players[i]);
 
-        //°ÑÒôÆµÕìÌıÒÆµ½½ÇÉ«
+        //æŠŠéŸ³é¢‘ä¾¦å¬ç§»åˆ°è§’è‰²
         Startup.ins.listener.enabled = false;
         Startup.ins.playerListener = MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
 
-        //µÈ½Å±¾ÉèÖÃºÃÎï¼şµÄ×´Ì¬ºó£¬¸ù¾İ×´Ì¬¾ö¶¨ÊÇ·ñÉú³ÉÊÜ»÷ºĞ£¬¹¥»÷ºĞµÈ.
+        //ç­‰è„šæœ¬è®¾ç½®å¥½ç‰©ä»¶çš„çŠ¶æ€åï¼Œæ ¹æ®çŠ¶æ€å†³å®šæ˜¯å¦ç”Ÿæˆå—å‡»ç›’ï¼Œæ”»å‡»ç›’ç­‰.
         GameBattleEx.Instance.Init(lev, script);
 
-        //ÏÈ´´½¨Ò»¸öÏà»ú
+        //å…ˆåˆ›å»ºä¸€ä¸ªç›¸æœº
         GameObject camera = GameObject.Instantiate(Resources.Load("CameraEx")) as GameObject;
         camera.name = "CameraEx";
 
-        //½ÇÉ«ÉãÏñ»ú¸úËæÕß×Å½ÇÉ«.
+        //è§’è‰²æ‘„åƒæœºè·Ÿéšè€…ç€è§’è‰².
         CameraFollow followCamera = GameObject.Find("CameraEx").GetComponent<CameraFollow>();
         followCamera.Init();
         GameBattleEx.Instance.m_CameraControl = followCamera;
-        //ÉãÏñ»úÍê±Ïºó
+        //æ‘„åƒæœºå®Œæ¯•å
         FightWnd.Instance.Open();
         if (!string.IsNullOrEmpty(lev.BgmName))
             SoundManager.Instance.PlayMusic(lev.BgmName);
 
-        //³ıÁËÖ÷½ÇµÄËùÓĞ½ÇÉ«,¿ªÊ¼Êä³ö,Ñ¡ÔñÕóÓª, ½øÈëÕ½³¡
+        //é™¤äº†ä¸»è§’çš„æ‰€æœ‰è§’è‰²,å¼€å§‹è¾“å‡º,é€‰æ‹©é˜µè¥, è¿›å…¥æˆ˜åœº
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
         {
             if (MeteorManager.Instance.UnitInfos[i] == MeteorManager.Instance.LocalPlayer)
@@ -210,9 +279,9 @@ public class NetWorkBattle : MonoBehaviour {
     public static string GetCampStr(MeteorUnit unit)
     {
         if (unit.Camp == EUnitCamp.EUC_ENEMY)
-            return string.Format("{0} Ñ¡Ôñºûµû, ½øÈëÕ½³¡", unit.name);
+            return string.Format("{0} é€‰æ‹©è´è¶, è¿›å…¥æˆ˜åœº", unit.name);
         if (unit.Camp == EUnitCamp.EUC_FRIEND)
-            return string.Format("{0} Ñ¡ÔñÁ÷ĞÇ,½øÈëÕ½³¡", unit.name);
-        return string.Format("{0} ½øÈëÕ½³¡", unit.name);
+            return string.Format("{0} é€‰æ‹©æµæ˜Ÿ,è¿›å…¥æˆ˜åœº", unit.name);
+        return string.Format("{0} è¿›å…¥æˆ˜åœº", unit.name);
     }
 }

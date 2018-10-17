@@ -156,13 +156,15 @@ public partial class GameBattleEx : MonoBehaviour {
         if (Global.PauseAll)
             return;
 
-        timeClock += Time.deltaTime;
-        if (timeClock > (float)time)//时间超过，平局
+        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
-            GameOver(2);
-            return;
+            timeClock += Time.deltaTime;
+            if (timeClock > (float)time)//时间超过，平局
+            {
+                GameOver(2);
+                return;
+            }
         }
-
         //更新BUFF
         foreach (var each in BuffMng.Instance.BufDict)
             each.Value.Update();
@@ -735,6 +737,9 @@ public partial class GameBattleEx : MonoBehaviour {
     //全部AI暂停，游戏时间停止，任何依据时间做动画的物件，全部要停止.
     public void Pause()
     {
+        //联机时不许暂停
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            return;
         if (MeteorManager.Instance.LocalPlayer != null)
             MeteorManager.Instance.LocalPlayer.controller.LockInput(true);
         if (NGUIJoystick.instance != null)

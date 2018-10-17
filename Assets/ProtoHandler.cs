@@ -33,8 +33,6 @@ class ProtoHandler
             MemoryStream ms = null;
             try
             {
-
-
                 foreach (var each in ClientProxy.Packet)
                 {
                     UnityEngine.Debug.LogError(string.Format("收到:{0}", each.Key));
@@ -159,7 +157,15 @@ class ProtoHandler
     //同步关键帧，全部角色的属性，都设置一次
     static void OnSyncKeyFrame(KeyFrame frame)
     {
-
+        for (int i = 0; i < frame.Players.Count; i++)
+        {
+            MeteorUnit unit = NetWorkBattle.Ins.GetNetPlayer((int)frame.Players[i].id);
+            if (unit != null && unit.InstanceId != NetWorkBattle.Ins.PlayerId)
+            {
+                //对其他玩家同步所有属性
+                NetWorkBattle.Ins.ApplyAttribute(unit, frame.Players[i]);
+            }
+        }
     }
 
     //同步服务端发来的其他玩家的按键
@@ -172,7 +178,7 @@ class ProtoHandler
     {
         //rsp.playerId
         if (NetWorkBattle.Ins != null)
-            U3D.InsertSystemMsg(string.Format("{0}离开了房间", NetWorkBattle.Ins.GetPlayerName((int)rsp.playerId)));
+            U3D.InsertSystemMsg(string.Format("{0}离开了房间", NetWorkBattle.Ins.GetNetPlayerName((int)rsp.playerId)));
     }
 
     static void OnEnterLevelRsp_(OnEnterLevelRsp rsp)
