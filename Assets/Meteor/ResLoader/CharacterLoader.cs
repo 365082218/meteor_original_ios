@@ -27,7 +27,6 @@ public class CharacterLoader : MonoBehaviour
     public List<Transform> bo;
     List<Transform> dummy;
     public GameObject Skin;
-    int CharacterIdx = 0;
     public Transform rootBone;
     //根骨骼初始位置和旋转，用于RootMotion到上一级
     public Vector3 RootPos;
@@ -36,7 +35,6 @@ public class CharacterLoader : MonoBehaviour
     {
         owner = GetComponent<MeteorUnit>();
         posMng = owner.posMng;
-        CharacterIdx = id;
         Skin = new GameObject();
         Skin.transform.SetParent(transform);
         Skin.transform.localRotation = Quaternion.identity;
@@ -106,7 +104,9 @@ public class CharacterLoader : MonoBehaviour
             netPose = pose; 
             effectPlayed = false;
         }
+        lastFrameIndex = curIndex;
         curIndex = frame;
+
         
         TryPlayEffect();
         ChangeAttack();
@@ -422,7 +422,7 @@ public class CharacterLoader : MonoBehaviour
         if (po.SourceIdx == 0)
             status = AmbLoader.CharCommon[curIndex];
         else if (po.SourceIdx == 1)
-            status = AmbLoader.FrameBoneAni[CharacterIdx][curIndex];
+            status = AmbLoader.FrameBoneAni[owner.UnitId][curIndex];
 
         //if (mOwner.Attr.IsPlayer && FightWnd.Exist)
         //    FightWnd.Instance.UpdatePoseStatus(po.Idx, curIndex);
@@ -632,29 +632,27 @@ public class CharacterLoader : MonoBehaviour
         //curIndex = targetIndex;
         BoneStatus status = null;
         BoneStatus lastStatus = null;
-        if (lastSource == 0)
+        if (lastSource == 0 && AmbLoader.CharCommon.Count > lastFrameIndex && lastFrameIndex >= 0)
             lastStatus = AmbLoader.CharCommon[lastFrameIndex];
-        else
-            lastStatus = AmbLoader.FrameBoneAni[CharacterIdx][lastFrameIndex];
+        else if (AmbLoader.FrameBoneAni.ContainsKey(owner.UnitId) && AmbLoader.FrameBoneAni[owner.UnitId].Count > lastFrameIndex && lastFrameIndex >= 0)
+            lastStatus = AmbLoader.FrameBoneAni[owner.UnitId][lastFrameIndex];
         if (po.SourceIdx == 0)
             status = AmbLoader.CharCommon[curIndex];
         else if (po.SourceIdx == 1)
-            status = AmbLoader.FrameBoneAni[CharacterIdx][curIndex];
+            status = AmbLoader.FrameBoneAni[owner.UnitId][curIndex];
 
         //if (mOwner.Attr.IsPlayer && FightWnd.Exist)
         //    FightWnd.Instance.UpdatePoseStatus(po.Idx, lastFrameIndex);
 
-        for (int i = 0; i < bo.Count; i++)
+        if (status != null && lastStatus != null)
         {
-            //if (bo[i] == owner.HeadBone && GameBattleEx.Instance.autoTarget != null && owner.Attr.IsPlayer)
-            //{
+            for (int i = 0; i < bo.Count; i++)
+            {
+                bo[i].localRotation = Quaternion.Slerp(lastStatus.BoneQuat[i], status.BoneQuat[i], timeRatio);
 
-            //}
-            //else
-            bo[i].localRotation = Quaternion.Slerp(lastStatus.BoneQuat[i], status.BoneQuat[i], timeRatio);
-
-            if (i == 0)
-                bo[i].localPosition = Vector3.Lerp(lastStatus.BonePos, status.BonePos, timeRatio);
+                if (i == 0)
+                    bo[i].localPosition = Vector3.Lerp(lastStatus.BonePos, status.BonePos, timeRatio);
+            }
         }
 
         bool IgnoreActionMoves = IgnoreActionMove(po.Idx);
@@ -740,10 +738,10 @@ public class CharacterLoader : MonoBehaviour
                 ChangeWeaponTrail();
 
                 BoneStatus status = null;
-                if (po.SourceIdx == 0)
+                if (po.SourceIdx == 0 && AmbLoader.CharCommon.Count > blendStart && blendStart >= 0)
                     status = AmbLoader.CharCommon[blendStart];
-                else if (po.SourceIdx == 1)
-                    status = AmbLoader.FrameBoneAni[CharacterIdx][blendStart];
+                else if (po.SourceIdx == 1 && AmbLoader.FrameBoneAni.ContainsKey(mOwner.UnitId) && AmbLoader.FrameBoneAni[mOwner.UnitId].Count > blendStart && blendStart >= 0)
+                    status = AmbLoader.FrameBoneAni[mOwner.UnitId][blendStart];
 
                 if (playedTime < blendTime && blendTime != 0.0f && lastFrameStatus != null)
                 {
@@ -1036,7 +1034,7 @@ public class CharacterLoader : MonoBehaviour
         if (po.SourceIdx == 0)
             lastDBasePos = AmbLoader.CharCommon[curIndex].DummyPos[0];
         else if (po.SourceIdx == 1)
-            lastDBasePos = AmbLoader.FrameBoneAni[CharacterIdx][curIndex].DummyPos[0];
+            lastDBasePos = AmbLoader.FrameBoneAni[owner.UnitId][curIndex].DummyPos[0];
 
         if (lastPosIdx != 0)
         {
