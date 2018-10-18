@@ -19,12 +19,12 @@ public class LevelHelper : MonoBehaviour
         public int gate;
     }
 
-    public void Load(int id, LoadingUI loading)
+    public void Load(int id)
     {
-        StartCoroutine(LoadLevelAsync(id, loading));
+        StartCoroutine(LoadLevelAsync(id));
     }
 
-    IEnumerator LoadLevelAsync(int levelId, LoadingUI loading)
+    IEnumerator LoadLevelAsync(int levelId)
     {
         int displayProgress = 0;
         int toProgress = 0;
@@ -41,8 +41,8 @@ public class LevelHelper : MonoBehaviour
             while (displayProgress < toProgress)
             {
                 ++displayProgress;
-                if (loading != null)
-                    loading.UpdateProgress(displayProgress / 100.0f);
+                if (LoadingWnd.Exist)
+                    LoadingWnd.Instance.UpdateProgress(displayProgress / 100.0f);
                 yield return 0;
             }
             yield return 0;
@@ -52,8 +52,8 @@ public class LevelHelper : MonoBehaviour
         while (displayProgress < toProgress)
         {
             ++displayProgress;
-            if (loading != null)
-                loading.UpdateProgress(displayProgress / 100.0f);
+            if (LoadingWnd.Exist)
+                LoadingWnd.Instance.UpdateProgress(displayProgress / 100.0f);
             yield return 0;
         }
         //WSLog.LogInfo("displayProgress < toProgress");
@@ -63,7 +63,8 @@ public class LevelHelper : MonoBehaviour
         OnLoadFinishedEx(lev);
         for (int i = 0; i < 5; i++)
             yield return 0;
-        LoadingWnd.Instance.Close();
+        if (LoadingWnd.Exist)
+            LoadingWnd.Instance.Close();
         Destroy(this);
     }
 

@@ -202,7 +202,7 @@ public class U3D : MonoBehaviour {
         unit.SetGround(false);
         if (Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
-            if (Global.GLevelItem.DisableFindWay == 1)
+            if (Global.GLevelItem.DisableFindWay == 0)
             {
                 //不许寻路，无寻路点的关卡，使用
                 unit.transform.position = Global.GLevelSpawn[mon.SpawnPoint >= Global.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
@@ -721,11 +721,6 @@ public class U3D : MonoBehaviour {
 
     public static void LoadLevel(int id, LevelMode levelmode, GameMode gamemode)
     {
-        LoadLevel(id, LoadingWnd.Instance, levelmode, gamemode);
-    }
-
-    public static void LoadLevel(int id, LoadingUI loading, LevelMode levelmode, GameMode gamemode)
-    {
         uint profileTotalAllocate = Profiler.GetTotalAllocatedMemory();
         uint profileTotalReserved = Profiler.GetTotalReservedMemory();
         long gcTotal = System.GC.GetTotalMemory(false);
@@ -763,7 +758,7 @@ public class U3D : MonoBehaviour {
             }
         }
         LevelHelper helper = ins.gameObject.AddComponent<LevelHelper>();
-        helper.Load(id, loading);
+        helper.Load(id);
         Log.Write("helper.load end");
     }
 
