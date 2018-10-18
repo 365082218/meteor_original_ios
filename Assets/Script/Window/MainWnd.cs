@@ -270,13 +270,12 @@ public class MainLobby : Window<MainLobby>
     void OnGoback()
     {
         MainWnd.Instance.Open();
-        ClientProxy.Exit();
         Close();
     }
 
     void OnRefresh()
     {
-
+        ClientProxy.UpdateGameServer();
     }
 
     void OnCreateRoom()
@@ -376,8 +375,7 @@ public class MainWnd : Window<MainWnd>
 #endif
         });
         Control("UploadLog").GetComponent<Button>().onClick.AddListener(() => { FtpLog.UploadStart(); });
-        //Cursor.SetCursor(Resources.Load<Texture2D>("mCursor"), new Vector2(0, 0), CursorMode.Auto);
-        //Cursor.visible = true;
+        ClientProxy.Exit();
     }
 
     void OnSinglePlayer()

@@ -10,16 +10,17 @@ public class NetWorkBattle : MonoBehaviour {
     //在房间的玩家.
     Dictionary<int, protocol.Player_> playerInfo = new Dictionary<int, Player_>();
     Dictionary<int, MeteorUnit> player = new Dictionary<int, MeteorUnit>();
-    SceneInfo scene;
+    public SceneInfo scene;
     public int RoomId = -1;//房间在服务器的编号
     public int LevelId = -1;//房间场景关卡编号
     public int PlayerId = -1;//主角在服务器的角色编号.
     public int heroIdx;//选择的模型编号.
     public int weaponIdx;
     string RoomName;
-    bool bSync;
+    public bool bSync;
     int FrameIndex;
     int ServerFrameIndex;
+    public int gameTime;
     static NetWorkBattle _Ins;
     public static NetWorkBattle Ins { get { return _Ins; } }
     // Use this for initialization
@@ -33,8 +34,15 @@ public class NetWorkBattle : MonoBehaviour {
         RoomId = -1;
         RoomName = "";
         bSync = false;
-	}
+        TurnStarted = false;//在进入战场后，对客户端来说才需要
+    }
 	
+    public void OnPlayerUpdate(int t)
+    {
+        tick = 0;
+        gameTime = t;
+    }
+
     public MeteorUnit GetNetPlayer(int id)
     {
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
@@ -58,16 +66,25 @@ public class NetWorkBattle : MonoBehaviour {
     KeyFrame frame = new KeyFrame();
     uint frameIndex = 0;
     uint turn = 0;
+    uint tick = 0;
+    public bool TurnStarted = false;
     void Update () {
-        if (bSync)
+        if (bSync && RoomId != -1 && TurnStarted)
         {
             frameIndex++;
-            if (frameIndex % 5 == 0)
+            frame.frameIndex = turn;
+            turn++;
+            tick++;
+            SyncAttribute(frame.Players[0]);
+            Common.SyncFrame(frame);
+
+            //36=3秒个turn内没收到服务器回复的同步信息，算作断开连接.
+            if (tick >= 360)
             {
-                frame.frameIndex = turn;
-                turn++;
-                SyncAttribute(frame.Players[0]);
-                Common.SyncFrame(frame);
+                bSync = false;
+                ReconnectWnd.Instance.Open();
+                if (GameBattleEx.Instance != null)
+                    GameBattleEx.Instance.NetPause();
             }
         }
 	}
@@ -81,15 +98,16 @@ public class NetWorkBattle : MonoBehaviour {
             SoundManager.Instance.StopAll();
             BuffMng.Instance.Clear();
             MeteorManager.Instance.Clear();
-            FightWnd.Instance.Close();
-            player.Clear();
+            if (FightWnd.Exist)
+                FightWnd.Instance.Close();
             U3D.GoBack();
-            bSync = false;
             FrameIndex = ServerFrameIndex = 0;
             U3D.InsertSystemMsg("与服务器断开链接.");
         }
+        bSync = false;
         RoomId = -1;
         RoomName = "";
+        TurnStarted = false;
     }
 
     //选择好了角色和武器，向服务器发出进入房间请求.
@@ -101,7 +119,7 @@ public class NetWorkBattle : MonoBehaviour {
     public void SyncAttribute(Player_ p)
     {
         p.angry = MeteorManager.Instance.LocalPlayer.AngryValue;
-        p.aniSource = MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.SourceIdx;
+        p.aniSource = MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx;
         p.Camp = (int)EUnitCamp.EUC_KILLALL;
         p.frame = MeteorManager.Instance.LocalPlayer.charLoader.GetCurrentFrameIndex();
         p.hp = MeteorManager.Instance.LocalPlayer.Attr.hpCur;
@@ -127,11 +145,11 @@ public class NetWorkBattle : MonoBehaviour {
 
     public void ApplyAttribute(MeteorUnit unit, Player_ p)
     {
-        MeteorManager.Instance.LocalPlayer.AngryValue = p.angry;
+        unit.AngryValue = p.angry;
         //MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx = ;
         //p.Camp = (int)EUnitCamp.EUC_KILLALL;
-        MeteorManager.Instance.LocalPlayer.charLoader.ChangeFrame(p.aniSource, p.frame); 
-        MeteorManager.Instance.LocalPlayer.Attr.hpCur = p.hp;
+        unit.charLoader.ChangeFrame(p.aniSource, p.frame);
+        unit.Attr.hpCur = p.hp;
         //p.hpMax = MeteorManager.Instance.LocalPlayer.Attr.HpMax;
         //p.id = (uint)MeteorManager.Instance.LocalPlayer.InstanceId;
         //p.model = MeteorManager.Instance.LocalPlayer.Attr.Model;
@@ -140,28 +158,29 @@ public class NetWorkBattle : MonoBehaviour {
         vec.x = p.pos.x / 1000.0f;
         vec.y = p.pos.y / 1000.0f;
         vec.z = p.pos.z / 1000.0f;
-        MeteorManager.Instance.LocalPlayer.transform.position = vec;
+        unit.transform.position = vec;
         Quaternion quat;
         quat.w = p.rotation.w / 1000.0f;
         quat.x = p.rotation.x / 1000.0f;
         quat.y = p.rotation.y / 1000.0f;
         quat.z = p.rotation.z / 1000.0f;
-        p.rotation = new Quaternion_();
+        unit.transform.rotation = quat;
         //p.SpawnPoint = MeteorManager.Instance.LocalPlayer.Attr.SpawnPoint;
-        if (MeteorManager.Instance.LocalPlayer.Attr.Weapon != (int)p.weapon)
+        if (unit.Attr.Weapon != (int)p.weapon)
             unit.SyncWeapon((int)p.weapon, (int)p.weapon2);
-        MeteorManager.Instance.LocalPlayer.weaponLoader.ChangeWeaponPos((int)p.weapon_pos);
+        if (unit.weaponLoader.GetCurrentWeapon().WeaponPos != p.weapon_pos)
+            unit.weaponLoader.ChangeWeaponPos((int)p.weapon_pos);
     }
 
-    public void OnEnterLevelSucessed(SceneInfo scene_)
+    public void OnEnterLevelSucessed()
     {
-        scene = scene_;
         FrameIndex = 0;
         frame.Players.Clear();
         Player_ p = new Player_();
         SyncAttribute(p);
         frame.Players.Add(p);
         bSync = true;
+        TurnStarted = true;//进入战场后才开始同步角色数据
     }
 
     public void OnEnterRoomSuccessed(int roomId, int levelid, int playerid)
@@ -210,6 +229,7 @@ public class NetWorkBattle : MonoBehaviour {
         yield return 0;
         OnLoadFinishedEx(lev, sceneItems, players);
         ProtoHandler.loading = false;
+        NetWorkBattle.Ins.OnEnterLevelSucessed();
         yield return 0;
     }
 

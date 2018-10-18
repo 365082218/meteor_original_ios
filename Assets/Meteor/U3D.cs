@@ -152,7 +152,7 @@ public class U3D : MonoBehaviour {
             MeteorManager.Instance.LocalPlayer = unit;
         unit.Camp = EUnitCamp.EUC_KILLALL;
         unit.Init(mon.Model, mon);
-        MeteorManager.Instance.OnGenerateUnit(unit);
+        MeteorManager.Instance.OnGenerateUnit(unit, (int)player.id);
         unit.SetGround(false);
         if (Global.GLevelMode == LevelMode.MultiplyPlayer)
         {
@@ -702,7 +702,7 @@ public class U3D : MonoBehaviour {
 
     public static void LoadNetLevel(List<SceneItem_> sceneItems, List<Player_> players)
     {
-        Debug.LogError("LoadNetLevel " + Time.frameCount);
+        //Debug.LogError("LoadNetLevel " + Time.frameCount);
         uint profileTotalAllocate = Profiler.GetTotalAllocatedMemory();
         uint profileTotalReserved = Profiler.GetTotalReservedMemory();
         long gcTotal = System.GC.GetTotalMemory(false);

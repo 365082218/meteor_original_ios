@@ -14,17 +14,17 @@ public class WindowMng
     static Dictionary<GameObject, Windows> WndList = new Dictionary<GameObject, Windows>();
     public static void AddWindow(GameObject obj, Windows win)
     {
-        if (!WndList.ContainsKey(obj))
+        if (obj != null && !WndList.ContainsKey(obj))
             WndList.Add(obj, win);
     }
     public static void RemoveWindow(GameObject obj, Windows win)
     {
-        if (WndList.ContainsKey(obj))
+        if (obj != null && WndList.ContainsKey(obj))
             WndList.Remove(obj);
     }
     public static void OnModalClick(GameObject obj)
     {
-        if (WndList.ContainsKey(obj))
+        if (obj != null && WndList.ContainsKey(obj))
             WndList[obj].OnClick();
     }
     public static void CloseAll()
@@ -281,7 +281,8 @@ public abstract class Window<T> :Windows where T : class, new()
 
     public override void Close()
     {
-        WindowMng.RemoveWindow(mWndObject, this);
+        if (mWndObject)
+            WindowMng.RemoveWindow(mWndObject, this);
         OnClose();
         if (mWndObject != null)
         {

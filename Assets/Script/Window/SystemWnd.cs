@@ -411,7 +411,8 @@ public class NewSystemWnd : Window<NewSystemWnd>
         BuffMng.Instance.Clear();
         MeteorManager.Instance.Clear();
         Close();
-        FightWnd.Instance.Close();
+        if (FightWnd.Exist)
+            FightWnd.Instance.Close();
         if (GameOverlayWnd.Exist)
             GameOverlayWnd.Instance.ClearSystemMsg();
         //离开副本

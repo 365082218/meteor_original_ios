@@ -1944,6 +1944,9 @@ MonoBehaviour:
   PlayerId: -1
   heroIdx: 0
   weaponIdx: 0
+  bSync: 0
+  gameTime: 0
+  TurnStarted: 0
 --- !u!114 &2044160634
 MonoBehaviour:
   m_ObjectHideFlags: 0

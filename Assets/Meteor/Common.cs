@@ -337,7 +337,7 @@ public class Common
 
     public static void SendEnterLevel(int model, int weapon)
     {
-        UnityEngine.Debug.LogError("sendEnterLevel " + UnityEngine.Time.frameCount);
+        //UnityEngine.Debug.LogError("sendEnterLevel " + UnityEngine.Time.frameCount);
         EnterLevelReq req = new EnterLevelReq();
         req.camp = 0;//暂时全部为盟主模式
         req.model = (uint)model;

@@ -18,7 +18,7 @@ public class AppInfo:Singleton<AppInfo>
     {
         string sVersion = PlayerPrefs.GetString(versionKey);
         if (string.IsNullOrEmpty(sVersion))
-            PlayerPrefs.SetString(versionKey, "0.1.0.1");
+            PlayerPrefs.SetString(versionKey, "0.1.1.2");
         return PlayerPrefs.GetString(versionKey);
     }
 
@@ -45,10 +45,8 @@ public class AppInfo:Singleton<AppInfo>
         return 24;//2个输入中间最大间隔24帧超过即断开.
     }
 
-#if LOCALHOST
-    public string Domain = "127.0.0.1";
-#else
+
+    //public string Domain = "127.0.0.1";
     public string Domain = "www.idevgame.com";
-#endif
     public ushort GatePort = 7200;
 }

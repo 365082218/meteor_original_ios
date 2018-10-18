@@ -196,6 +196,7 @@ class ClientProxy
     public static void LeaveLevel()
     {
         Common.SendLeaveLevel();
+        NetWorkBattle.Ins.OnDisconnect();
     }
 
     //同步当前帧的输入状态

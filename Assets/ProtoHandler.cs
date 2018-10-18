@@ -35,7 +35,7 @@ class ProtoHandler
             {
                 foreach (var each in ClientProxy.Packet)
                 {
-                    UnityEngine.Debug.LogError(string.Format("收到:{0}", each.Key));
+                    //UnityEngine.Debug.LogError(string.Format("收到:{0}", each.Key));
                     switch (each.Key)
                     {
                         case (int)MeteorMsg.MsgType.GetRoomRsp:
@@ -155,17 +155,37 @@ class ProtoHandler
     }
 
     //同步关键帧，全部角色的属性，都设置一次
+    //在进入房间后开始接收此消息，有可能玩家还没进入战场，因为要选择角色和武器.
     static void OnSyncKeyFrame(KeyFrame frame)
     {
-        for (int i = 0; i < frame.Players.Count; i++)
+        if (NetWorkBattle.Ins.RoomId == -1)
         {
-            MeteorUnit unit = NetWorkBattle.Ins.GetNetPlayer((int)frame.Players[i].id);
-            if (unit != null && unit.InstanceId != NetWorkBattle.Ins.PlayerId)
+            Debug.LogError("退出房间后仍收到同步消息");
+            return;
+        }
+        if (!NetWorkBattle.Ins.bSync && NetWorkBattle.Ins.TurnStarted)
+        {
+            NetWorkBattle.Ins.bSync = true;
+            if (ReconnectWnd.Exist)
+                ReconnectWnd.Instance.Close();
+            if (GameBattleEx.Instance)
+                GameBattleEx.Instance.Resume();
+        }
+
+        if (NetWorkBattle.Ins.TurnStarted && MeteorManager.Instance.LocalPlayer != null)
+        {
+            //在战场更新中,更新其他角色信息，自己的只上传.
+            for (int i = 0; i < frame.Players.Count; i++)
             {
-                //对其他玩家同步所有属性
-                NetWorkBattle.Ins.ApplyAttribute(unit, frame.Players[i]);
+                MeteorUnit unit = NetWorkBattle.Ins.GetNetPlayer((int)frame.Players[i].id);
+                if (unit != null && unit.InstanceId != MeteorManager.Instance.LocalPlayer.InstanceId)
+                {
+                    //玩家同步所有属性
+                    NetWorkBattle.Ins.ApplyAttribute(unit, frame.Players[i]);
+                }
             }
         }
+        NetWorkBattle.Ins.OnPlayerUpdate((int)frame.frameIndex);
     }
 
     //同步服务端发来的其他玩家的按键
@@ -178,7 +198,17 @@ class ProtoHandler
     {
         //rsp.playerId
         if (NetWorkBattle.Ins != null)
-            U3D.InsertSystemMsg(string.Format("{0}离开了房间", NetWorkBattle.Ins.GetNetPlayerName((int)rsp.playerId)));
+        {
+            MeteorUnit unit = NetWorkBattle.Ins.GetNetPlayer((int)rsp.playerId);
+            if (unit != null)
+            {
+                if (unit.InstanceId != MeteorManager.Instance.LocalPlayer.InstanceId)
+                {
+                    U3D.InsertSystemMsg(string.Format("{0}离开了房间", NetWorkBattle.Ins.GetNetPlayerName((int)rsp.playerId)));
+                    MeteorManager.Instance.OnNetRemoveUnit(unit);
+                }
+            }
+        }
     }
 
     static void OnEnterLevelRsp_(OnEnterLevelRsp rsp)
@@ -194,6 +224,7 @@ class ProtoHandler
         if (loading)
             return;
         //进入到房间内,开始加载场景设置角色初始化位置
+        NetWorkBattle.Ins.scene = rsp.scene;
         U3D.LoadNetLevel(rsp.scene.items, rsp.scene.players);
         loading = true;
     }
@@ -230,7 +261,7 @@ class ProtoHandler
             if (NetWorkBattle.Ins.RoomId == -1)
             {
                 //选人，或者阵营，或者
-                UnityEngine.Debug.LogError("OnJoinRoom successful");
+                //UnityEngine.Debug.LogError("OnJoinRoom successful");
                 if (MainLobby.Instance != null)
                     MainLobby.Instance.Close();
                 NetWorkBattle.Ins.OnEnterRoomSuccessed((int)rsp.roomId, (int)rsp.levelIdx, (int)rsp.playerId);
@@ -266,13 +297,13 @@ class ProtoHandler
         //取得房间信息
         if (result == 1)
         {
-            Debug.LogError("connected");
+            //Debug.LogError("connected");
             ClientProxy.UpdateGameServer();
         }
         else
         {
             //链接失败,重置对战
-            Debug.LogError("disconnected");
+            //Debug.LogError("disconnected");
             NetWorkBattle.Ins.OnDisconnect();
         }
     }

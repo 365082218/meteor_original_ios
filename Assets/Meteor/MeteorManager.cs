@@ -86,6 +86,23 @@ public class MeteorManager {
         self.IgnorePhysical = ignore;
     }
 
+    //直接删除，而不隐藏，NPC要隐藏是因为死了还有剧情对话。
+    public void OnNetRemoveUnit(MeteorUnit unit)
+    {
+        MeteorManager.Instance.PhysicalIgnore(unit, true);
+
+        for (int i = 0; i < UnitInfos.Count; i++)
+            UnitInfos[i].OnUnitDead(unit);
+
+        if (UnitInfos.Contains(unit))
+            UnitInfos.Remove(unit);
+        if (DeadUnits.Contains(unit))
+            DeadUnits.Remove(unit);
+
+        BuffMng.Instance.RemoveUnit(unit);
+        GameObject.Destroy(unit.gameObject);
+    }
+
     //某个角色从场景删除
     public void OnRemoveUnit(MeteorUnit unit)
     {

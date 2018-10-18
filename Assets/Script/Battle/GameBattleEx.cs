@@ -15,7 +15,7 @@ public enum SceneEvent
 public partial class GameBattleEx : MonoBehaviour {
     [HideInInspector]
     public CameraFollow m_CameraControl;
-    int time = 1000;
+    int time = 1000;//秒
     float timeClock = 0.0f;
     const float ViewLimit = 180;
     static GameBattleEx _Ins;
@@ -137,10 +137,13 @@ public partial class GameBattleEx : MonoBehaviour {
     {
         while (true)
         {
-            if (IsTimeup())
+            if (Global.GLevelMode == LevelMode.SinglePlayerTask)
             {
-                StopCoroutine("UpdateTime");
-                yield break;
+                if (IsTimeup())
+                {
+                    StopCoroutine("UpdateTime");
+                    yield break;
+                }
             }
             yield return new WaitForSeconds(1);
             if (FightWnd.Exist)
@@ -421,7 +424,7 @@ public partial class GameBattleEx : MonoBehaviour {
             if (Global.GLevelMode == LevelMode.SinglePlayerTask)
                 time = script.GetRoundTime() * 60;
             else
-                time = 7200;
+                time = 30 * 60;
         }
         timeClock = 0.0f;
         //注册所有场景物件的受击框
@@ -702,14 +705,29 @@ public partial class GameBattleEx : MonoBehaviour {
     public string GetTimeClock()
     {
         //600 = 10:00
-        int left = time - Mathf.FloorToInt(timeClock);
-        if (left < 0)
-            left = 0;
-        int minute = left / 60;
-        int seconds = left % 60;
-        string t = "";
-        t = string.Format("{0:D2}:{1:D2}", minute, seconds);
-        return t;
+        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+        {
+            int left = time - Mathf.FloorToInt(timeClock);
+            if (left < 0)
+                left = 0;
+            int minute = left / 60;
+            int seconds = left % 60;
+            string t = "";
+            t = string.Format("{0:D2}:{1:D2}", minute, seconds);
+            return t;
+        }
+        else if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        {
+            int left = Mathf.FloorToInt(NetWorkBattle.Ins.gameTime / 1000);
+            if (left < 0)
+                left = 0;
+            int minute = left / 60;
+            int seconds = left % 60;
+            string t = "";
+            t = string.Format("{0:D2}:{1:D2}", minute, seconds);
+            return t;
+        }
+        return "--:--";
     }
 
     public bool IsTimeup()
@@ -733,13 +751,8 @@ public partial class GameBattleEx : MonoBehaviour {
     //}
 
     
-
-    //全部AI暂停，游戏时间停止，任何依据时间做动画的物件，全部要停止.
-    public void Pause()
+    public void NetPause()
     {
-        //联机时不许暂停
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
-            return;
         if (MeteorManager.Instance.LocalPlayer != null)
             MeteorManager.Instance.LocalPlayer.controller.LockInput(true);
         if (NGUIJoystick.instance != null)
@@ -749,7 +762,15 @@ public partial class GameBattleEx : MonoBehaviour {
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
             MeteorManager.Instance.UnitInfos[i].EnableAI(false);
         Global.PauseAll = true;
-        //Time.timeScale = 0;
+    }
+
+    //全部AI暂停，游戏时间停止，任何依据时间做动画的物件，全部要停止.
+    public void Pause()
+    {
+        //联机时不许暂停
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            return;
+        NetPause();
     }
 
     public void Resume()
@@ -763,7 +784,6 @@ public partial class GameBattleEx : MonoBehaviour {
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
             MeteorManager.Instance.UnitInfos[i].EnableAI(true);
         Global.PauseAll = false;
-        Time.timeScale = 1;
     }
 
     public MeteorUnit lockedTarget;
@@ -878,6 +898,8 @@ public partial class GameBattleEx : MonoBehaviour {
     //敌方角色移动时，不用整个刷新，只需要用当前的自动目标和这个对象对比下角度就OK
     public void RefreshAutoTarget()
     {
+        if (MeteorManager.Instance.LocalPlayer == null)
+            return;
         if (MeteorManager.Instance.LocalPlayer.GetWeaponType() == (int)EquipWeaponType.Dart || MeteorManager.Instance.LocalPlayer.GetWeaponType() == (int)EquipWeaponType.Gun)
             return;
         if (lockedTarget != null)

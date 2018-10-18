@@ -86,14 +86,36 @@ public class CharacterLoader : MonoBehaviour
     }
 
     Vector3 vTmp = Vector3.zero;
-    public void ChangeFrame(int source, int frame)
+    //旧的
+    int netFrame = -1;
+    int netPose = -1;
+    
+    public void ChangeFrame(int pose, int frame)
     {
-        Pause = true;
+        Pause = false;
+        if (!PoseStatus.ActionList.ContainsKey(owner.UnitId))
+            return;
+        po = PoseStatus.ActionList[owner.UnitId][pose];
+        if (po.SourceIdx == 0 && (AmbLoader.CharCommon.Count <= frame || !AmbLoader.FrameBoneAni.ContainsKey(owner.UnitId)))
+            return;
+        if (po.SourceIdx == 1 && AmbLoader.FrameBoneAni[owner.UnitId].Count <= frame)
+            return;
+        if (pose != netPose)
+        {
+            lastPosIdx = netPose;
+            netPose = pose; 
+            effectPlayed = false;
+        }
+        curIndex = frame;
+        
+        TryPlayEffect();
+        ChangeAttack();
+        ChangeWeaponTrail();
         BoneStatus status = null;
-        if (source == 0)
+        if (po.SourceIdx == 0)
             status = AmbLoader.CharCommon[frame];
-        else if (source == 1)
-            status = AmbLoader.FrameBoneAni[CharacterIdx][frame];
+        else if (po.SourceIdx == 1)
+            status = AmbLoader.FrameBoneAni[owner.UnitId][frame];
 
         for (int i = 0; i < bo.Count; i++)
         {
@@ -105,13 +127,9 @@ public class CharacterLoader : MonoBehaviour
         {
             if (i == 0)
             {
-                if (lastPosIdx == po.Idx)
-                {
-                    //Vector3 targetPos = status.DummyPos[i];
-                    //Vector3 moveDelta = transform.rotation * (targetPos - vTmp);
-                    //mOwner.Move(moveDelta);
-                    //vTmp = targetPos;
-                }
+                //if (lastPosIdx == po.Idx)
+                //{
+                //}
             }
             else
             {
@@ -119,9 +137,6 @@ public class CharacterLoader : MonoBehaviour
                 dummy[i].localPosition = status.DummyPos[i];
             }
         }
-
-        //if (mOwner.Attr.IsPlayer && FightWnd.Exist)
-        //    FightWnd.Instance.UpdatePoseStatus(-1, frame);
     }
 
     void GenerateBounds(Mesh me, List<Transform> bo)
