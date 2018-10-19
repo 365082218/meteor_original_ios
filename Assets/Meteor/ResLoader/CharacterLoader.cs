@@ -658,35 +658,38 @@ public class CharacterLoader : MonoBehaviour
         bool IgnoreActionMoves = IgnoreActionMove(po.Idx);
         if (owner.IsDebugUnit())
             IgnoreActionMoves = false;
-        for (int i = 0; i < dummy.Count; i++)
+        if (lastStatus != null && status != null)
         {
-            if (i == 0)
+            for (int i = 0; i < dummy.Count; i++)
             {
-                //Debug.LogError("action move");
-                if (lastPosIdx == po.Idx)
+                if (i == 0)
                 {
-                    Vector3 targetPos = Vector3.Lerp(lastStatus.DummyPos[i], status.DummyPos[i], timeRatio);
-                    Vector3 vec = transform.rotation * (targetPos - lastDBasePos) * moveScale;
-                    if (IgnoreActionMoves)
+                    //Debug.LogError("action move");
+                    if (lastPosIdx == po.Idx)
                     {
-                        vec.x = 0;
-                        vec.z = 0;
-                        vec.y = 0;
-                    }
-                    else
-                    {
+                        Vector3 targetPos = Vector3.Lerp(lastStatus.DummyPos[i], status.DummyPos[i], timeRatio);
+                        Vector3 vec = transform.rotation * (targetPos - lastDBasePos) * moveScale;
+                        if (IgnoreActionMoves)
+                        {
+                            vec.x = 0;
+                            vec.z = 0;
+                            vec.y = 0;
+                        }
+                        else
+                        {
 
+                        }
+                        moveDelta += vec;
+                        //if (po.Idx == 151)
+                        //    Debug.LogError(string.Format("pose:{0} frame:{1} move: x ={2}, y ={3} z = {4}", po.Idx, curIndex, moveDelta.x, moveDelta.y, moveDelta.z));
+                        lastDBasePos = targetPos;
                     }
-                    moveDelta += vec;
-                    //if (po.Idx == 151)
-                    //    Debug.LogError(string.Format("pose:{0} frame:{1} move: x ={2}, y ={3} z = {4}", po.Idx, curIndex, moveDelta.x, moveDelta.y, moveDelta.z));
-                    lastDBasePos = targetPos;
                 }
-            }
-            else
-            {
-                dummy[i].localRotation = Quaternion.Slerp(lastStatus.DummyQuat[i], status.DummyQuat[i], timeRatio);
-                dummy[i].localPosition = Vector3.Lerp(lastStatus.DummyPos[i], status.DummyPos[i], timeRatio);
+                else
+                {
+                    dummy[i].localRotation = Quaternion.Slerp(lastStatus.DummyQuat[i], status.DummyQuat[i], timeRatio);
+                    dummy[i].localPosition = Vector3.Lerp(lastStatus.DummyPos[i], status.DummyPos[i], timeRatio);
+                }
             }
         }
     }
@@ -743,7 +746,7 @@ public class CharacterLoader : MonoBehaviour
                 else if (po.SourceIdx == 1 && AmbLoader.FrameBoneAni.ContainsKey(mOwner.UnitId) && AmbLoader.FrameBoneAni[mOwner.UnitId].Count > blendStart && blendStart >= 0)
                     status = AmbLoader.FrameBoneAni[mOwner.UnitId][blendStart];
 
-                if (playedTime < blendTime && blendTime != 0.0f && lastFrameStatus != null)
+                if (playedTime < blendTime && blendTime != 0.0f && lastFrameStatus != null && status != null)
                 {
                     for (int i = 0; i < bo.Count; i++)
                     {

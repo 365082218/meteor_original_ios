@@ -202,15 +202,7 @@ public class U3D : MonoBehaviour {
         unit.SetGround(false);
         if (Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
-            if (Global.GLevelItem.DisableFindWay == 0)
-            {
-                //不许寻路，无寻路点的关卡，使用
-                unit.transform.position = Global.GLevelSpawn[mon.SpawnPoint >= Global.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
-            }
-            else
-            {
-                unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
-            }
+            unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
         }
         else if (Global.GLevelMode == LevelMode.MultiplyPlayer)
         {
