@@ -72,12 +72,15 @@ public class NetWorkBattle : MonoBehaviour {
         if (bSync && RoomId != -1 && TurnStarted)
         {
             frameIndex++;
-            frame.frameIndex = turn;
-            turn++;
             tick++;
-            SyncAttribute(frame.Players[0]);
-            Common.SyncFrame(frame);
+            if (frameIndex % 5 == 0)
+            {
+                frame.frameIndex = turn;
+                turn++;
 
+                SyncAttribute(frame.Players[0]);
+                Common.SyncFrame(frame);
+            }
             //36=3秒个turn内没收到服务器回复的同步信息，算作断开连接.
             if (tick >= 360)
             {

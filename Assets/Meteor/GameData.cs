@@ -137,6 +137,8 @@ public class GameState
     public bool DisableLock;//无锁定
     public bool DisableParticle;//无粒子特效
     public bool DisableJoystick;//不显示摇杆.
+    public List<ServerInfo> ServerList;
+    public int defaultServerIdx;
 }
 
 public class GameData:Singleton<GameData>
@@ -392,8 +394,34 @@ public class GameData:Singleton<GameData>
             gameStatus.AxisSensitivity = new MyVector2(0.5f, 0.5f);
             gameStatus.MeteorVersion = "9.07";
             gameStatus.TargetFrame = 60;
-
+            ServerInfo svr = new ServerInfo();
+            svr.Idx = 0;
+            svr.ServerName = "www.idevgame.com";
+            svr.ServerHost = "www.idevgame.com";
+            svr.ServerPort = 7200;
+            svr.type = 0;
+            gameStatus.ServerList = new List<ServerInfo>();//用户自定义的服务器列表.
+            gameStatus.ServerList.Add(svr);
+            gameStatus.defaultServerIdx = 0;//指向默认，修改仅设置该值.
         }
+        else
+        {
+            //如果成功加载了存档，检查其中的一些成员是否不符合要求
+            if (gameStatus.ServerList == null || gameStatus.ServerList.Count == 0)
+            {
+                ServerInfo svr = new ServerInfo();
+                svr.Idx = 0;
+                svr.ServerName = "www.idevgame.com";
+                svr.ServerPort = 7200;
+                svr.type = 0;
+                gameStatus.ServerList = new List<ServerInfo>();//用户自定义的服务器列表.
+                gameStatus.ServerList.Add(svr);
+            }
+
+            if (gameStatus.defaultServerIdx > gameStatus.ServerList.Count)
+                gameStatus.defaultServerIdx = 0;
+        }
+        
         AppInfo.Instance.MeteorVersion = gameStatus.MeteorVersion;
     }
 

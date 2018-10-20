@@ -18,7 +18,7 @@ public class AppInfo:Singleton<AppInfo>
     {
         string sVersion = PlayerPrefs.GetString(versionKey);
         if (string.IsNullOrEmpty(sVersion))
-            PlayerPrefs.SetString(versionKey, "0.1.1.2");
+            PlayerPrefs.SetString(versionKey, "0.1.2.0");
         return PlayerPrefs.GetString(versionKey);
     }
 
@@ -26,7 +26,7 @@ public class AppInfo:Singleton<AppInfo>
     {
         PlayerPrefs.SetString(versionKey, v);
     }
-    public const int Version = 20181018;
+    public const int Version = 20181020;
     public const int ProtocolVersion = 1;//对战协议版本，在网络初始化后，如果服务器协议版本与此数字相等，则可以进行联机对战，否则需要更新到最新版本
     public string MeteorVersion = "9.07";
     //运行帧速率设置 60 = 12 30 = 6 120 = 24
@@ -44,9 +44,4 @@ public class AppInfo:Singleton<AppInfo>
             return 12;
         return 24;//2个输入中间最大间隔24帧超过即断开.
     }
-
-
-    //public string Domain = "127.0.0.1";
-    public string Domain = "www.idevgame.com";
-    public ushort GatePort = 7200;
 }

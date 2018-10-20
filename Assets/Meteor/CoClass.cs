@@ -541,11 +541,13 @@ namespace CoClass
         [ProtoMember(2)]
         public string ServerName;
         [ProtoMember(3)]
-        public string ServerIP;
+        public string ServerHost;
         [ProtoMember(4)]
-        public int ServerPort;
+        public string ServerIP;
         [ProtoMember(5)]
-        public int States;
+        public int ServerPort;
+        [ProtoMember(6)]
+        public int type;//0：域名 1：ip
     }
 
     [ProtoContract]

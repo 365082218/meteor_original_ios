@@ -53,6 +53,7 @@ public abstract class  Windows
     public virtual void Show(){}
     public virtual void Hide(){}
     public virtual void OnClick(){}
+    public virtual void OnRefresh(int message, object param) { }//当其他窗口刷新了本窗口用到的数据后，刷新本窗口的UI
 }
 
 public abstract class Window<T> :Windows where T : class, new() 
@@ -82,6 +83,12 @@ public abstract class Window<T> :Windows where T : class, new()
     {
         return true; 
     }
+
+    public override void OnRefresh(int message, object param)
+    {
+
+    }
+
     protected virtual bool Use3DCanvas()
     {
         return false;

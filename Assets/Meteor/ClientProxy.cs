@@ -23,6 +23,13 @@ class ClientProxy
     public static void Init()
     {
         quit = false;
+
+        if (sProxy == null)
+            sProxy = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+        if (proxy == null)
+            proxy = new TcpProxy();
+
         InitServerCfg();
         if (tConn == null)
             tConn = new Timer(TryConn, null, 0, 5000);
@@ -30,8 +37,6 @@ class ClientProxy
 
     public static void TryConn(object param)
     {
-        if (sProxy == null)
-            sProxy = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         sProxy.BeginConnect(server, OnTcpConnect, sProxy);
         if (tConn != null)
             tConn.Change(Timeout.Infinite, Timeout.Infinite);
@@ -60,8 +65,7 @@ class ClientProxy
         result.Message = (int)LocalMsgType.Connect;
         result.Result = 1;
         ProtoHandler.PostMessage(result);
-        if (proxy == null)
-            proxy = new TcpProxy();
+
         try
         {
             sProxy.BeginReceive(proxy.GetBuffer(), 0, TcpProxy.PacketSize, SocketFlags.None, OnReceivedData, sProxy);
@@ -72,8 +76,7 @@ class ClientProxy
             result.Result = 0;
             ProtoHandler.PostMessage(result);
             sProxy.Close();
-            sProxy = null;
-            proxy = null;
+            proxy.Reset();
             if (tConn != null)
                 tConn.Change(5000, 5000);
         }
@@ -99,8 +102,7 @@ class ClientProxy
                 msg.Result = 1;
                 ProtoHandler.PostMessage(msg);
                 sProxy.Close();
-                sProxy = null;
-                proxy = null;
+                proxy.Reset();
                 if (tConn != null)
                     tConn.Change(5000, 5000);
             }
@@ -114,7 +116,7 @@ class ClientProxy
             if (!proxy.Analysis(len, Packet))
             {
                 sProxy.Close();
-                sProxy = null;
+                proxy.Reset();
                 return;
             }
         }
@@ -133,8 +135,7 @@ class ClientProxy
                 msg.Result = 1;
                 ProtoHandler.PostMessage(msg);
                 sProxy.Close();
-                sProxy = null;
-                proxy = null;
+                proxy.Reset();
                 if (tConn != null)
                     tConn.Change(5000, 5000);
             }
@@ -147,9 +148,21 @@ class ClientProxy
         {
             try
             {
-                IPAddress[] addr = Dns.GetHostAddresses(AppInfo.Instance.Domain);
-                if (addr.Length != 0)
-                    server = new IPEndPoint(addr[0], AppInfo.Instance.GatePort);
+                int port = 0;
+                if (GameData.Instance.gameStatus.defaultServerIdx >= GameData.Instance.gameStatus.ServerList.Count)
+                    GameData.Instance.gameStatus.defaultServerIdx = 0;
+                port = GameData.Instance.gameStatus.ServerList[GameData.Instance.gameStatus.defaultServerIdx].ServerPort;
+                if (GameData.Instance.gameStatus.ServerList[GameData.Instance.gameStatus.defaultServerIdx].type == 1)
+                {
+                    IPAddress address = IPAddress.Parse(GameData.Instance.gameStatus.ServerList[GameData.Instance.gameStatus.defaultServerIdx].ServerIP);
+                    server = new IPEndPoint(address, port);
+                }
+                else
+                {
+                    IPAddress[] addr = Dns.GetHostAddresses(GameData.Instance.gameStatus.ServerList[GameData.Instance.gameStatus.defaultServerIdx].ServerHost);
+                    if (addr.Length != 0)
+                        server = new IPEndPoint(addr[0], port);
+                }
             }
             catch
             {
@@ -166,14 +179,34 @@ class ClientProxy
     public static void Exit()
     {
         quit = true;
-        if (sProxy != null && sProxy.Connected)
-            sProxy.Close();
-        sProxy = null;
+
+        if (sProxy != null)
+        {
+            try
+            {
+                sProxy.Shutdown(SocketShutdown.Both);
+                sProxy.Close();
+                
+            }
+            catch
+            {
+                
+            }
+            finally
+            {
+                sProxy = null;
+            }
+        }
+        if (proxy != null)
+            proxy.Reset();
+
         if (tConn != null)
         {
             tConn.Dispose();
             tConn = null;
         }
+
+        server = null;
     }
 
     //发出的.

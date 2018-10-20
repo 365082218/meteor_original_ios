@@ -8,6 +8,7 @@ using ProtoBuf;
 using System;
 using protocol;
 using Idevgame.Util;
+using System.Net;
 
 public class GunShootUI:Window<GunShootUI>
 {
@@ -245,6 +246,8 @@ public class MainLobby : Window<MainLobby>
 
     void Init()
     {
+        ClientProxy.Init();
+
         Control("JoinRoom").GetComponent<Button>().onClick.AddListener(() =>
         {
             OnJoinRoom();
@@ -261,8 +264,11 @@ public class MainLobby : Window<MainLobby>
         {
             OnGoback();
         });
+
+        Control("Server").GetComponent<Text>().text = string.Format("服务器:{0}        IP:{1}        端口:{2}", GameData.Instance.gameStatus.ServerList[GameData.Instance.gameStatus.defaultServerIdx].ServerName,
+            ClientProxy.server == null ? "还未取得": ClientProxy.server.Address.ToString(), ClientProxy.server == null ? "还未取得": ClientProxy.server.Port.ToString());
         RoomRoot = Control("RoomRoot");
-        ClientProxy.Init();
+        Control("Version").GetComponent<Text>().text = GameData.Instance.gameStatus.MeteorVersion;
     }
 
 
@@ -290,6 +296,195 @@ public class MainLobby : Window<MainLobby>
         {
             ClientProxy.JoinRoom(SelectRoomId);
         }
+    }
+}
+
+public class ServerListWnd:Window<ServerListWnd>
+{
+    public const int ADD = 1;
+    public override string PrefabName { get { return "ServerListWnd"; } }
+    protected override bool OnOpen()
+    {
+        Init();
+        return base.OnOpen();
+    }
+    protected override bool OnClose()
+    {
+        return base.OnClose();
+    }
+
+    public override void OnRefresh(int message, object param)
+    {
+        switch (message)
+        {
+            case ADD:
+                ServerInfo info = param as ServerInfo;
+                GameObject prefab = ResMng.LoadPrefab("SelectListItem") as GameObject;
+                InsertServerItem(info, prefab);
+                break;
+        }
+    }
+
+    GameObject ServerListRoot;
+    void Init()
+    {
+        ServerListRoot = Control("ServerListRoot");
+        GameObject prefab = ResMng.LoadPrefab("SelectListItem") as GameObject;
+        for (int i = 0; i < serverList.Count; i++)
+        {
+            GameObject.Destroy(serverList[i]);
+        }
+        serverList.Clear();
+        for (int i = 0; i < GameData.Instance.gameStatus.ServerList.Count; i++)
+        {
+            InsertServerItem(GameData.Instance.gameStatus.ServerList[i], prefab);
+        }
+        GameObject defaultServer = Control("SelectListItem");
+        Text text = Control("Text", defaultServer).GetComponent<Text>();
+        //设置为当前服务器.
+        Control("Default").GetComponent<Button>().onClick.AddListener(()=> {
+            GameData.Instance.gameStatus.defaultServerIdx = selectServerId;
+            text.text = GameData.Instance.gameStatus.ServerList[selectServerId].ServerName;
+            text.text += string.Format(":{0}", GameData.Instance.gameStatus.ServerList[selectServerId].ServerPort);
+        });
+
+        Control("Delete").GetComponent<Button>().onClick.AddListener(()=> {
+            //不能删除默认
+            if (selectServerId < serverList.Count && selectServerId != 0 && selectServerId < GameData.Instance.gameStatus.ServerList.Count)
+            {
+                GameObject.Destroy(serverList[selectServerId]);
+                serverList.RemoveAt(selectServerId);
+                GameData.Instance.gameStatus.ServerList.RemoveAt(selectServerId);
+                for (int i = selectServerId; i < GameData.Instance.gameStatus.ServerList.Count; i++)
+                    GameData.Instance.gameStatus.ServerList[i].Idx--;
+                selectServerId--;
+                if (selectServerId >= serverList.Count)
+                    selectServerId = 0;
+                selectedBtn = null;
+            }
+        });
+        Control("Close").GetComponent<Button>().onClick.AddListener(() => { Close(); });
+        Control("AddHost").GetComponent<Button>().onClick.AddListener(()=> {
+            if (AddHostWnd.Exist)
+                AddHostWnd.Instance.Close();
+            else
+                AddHostWnd.Instance.Open();
+        });
+
+        text.text = GameData.Instance.gameStatus.ServerList[GameData.Instance.gameStatus.defaultServerIdx].ServerName + string.Format(":{0}", GameData.Instance.gameStatus.ServerList[GameData.Instance.gameStatus.defaultServerIdx].ServerPort);
+    }
+
+    List<GameObject> serverList = new List<GameObject>();
+    Button selectedBtn;
+    int selectServerId;
+    public void InsertServerItem(ServerInfo server, GameObject prefab)
+    {
+        GameObject host = GameObject.Instantiate(prefab, ServerListRoot.transform);
+        host.layer = ServerListRoot.layer;
+        host.transform.localPosition = Vector3.zero;
+        host.transform.localScale = Vector3.one;
+        host.transform.rotation = Quaternion.identity;
+        host.transform.SetParent(ServerListRoot.transform);
+        Control("Text", host).GetComponent<Text>().text = server.ServerName + string.Format(":{0}", server.ServerPort);
+        Button btn = host.GetComponent<Button>();
+        btn.onClick.AddListener(() => { OnSelectServer(server.Idx, btn); });
+        serverList.Add(host);
+    }
+
+    void OnSelectServer(int id, Button btn)
+    {
+        if (selectedBtn != null)
+        {
+            selectedBtn.image.color = new Color(1, 1, 1, 0);
+            selectedBtn = null;
+        }
+        btn.image.color = new Color(144.0f / 255.0f, 104.0f / 255.0f, 104.0f / 255.0f, 104.0f / 255.0f);
+        selectedBtn = btn;
+        selectServerId = id;
+    }
+}
+
+//添加域名和端口的服务器
+public class AddHostWnd:Window<AddHostWnd>
+{
+    public override string PrefabName { get { return "AddHostWnd"; } }
+    protected override bool OnOpen()
+    {
+        Init();
+        return base.OnOpen();
+    }
+    protected override bool OnClose()
+    {
+        return base.OnClose();
+    }
+
+    InputField serverName;
+    InputField serverHost;
+    InputField serverIP;
+    InputField serverPort;
+    void Init()
+    {
+        serverName = Control("ServerName").GetComponent<InputField>();
+        serverHost = Control("ServerHost").GetComponent<InputField>();
+        serverIP = Control("ServerIP").GetComponent<InputField>();
+        serverPort = Control("ServerPort").GetComponent<InputField>();
+        serverPort.onEndEdit.AddListener((string editport)=> {
+            int p = 0;
+            if (!int.TryParse(editport, out p))
+            {
+                U3D.PopupTip("端口必须是小于65535的正整数");
+                serverPort.text = "";
+                return;
+            }
+            if (p >= 65535 || p < 0)
+            {
+                U3D.PopupTip("端口必须是小于65535的正整数");
+                serverPort.text = "";
+                return;
+            }
+        });
+        serverIP.onEndEdit.AddListener((string value) => {
+            IPAddress address;
+            if (!IPAddress.TryParse(value, out address))
+            {
+                U3D.PopupTip("请输入正确的IP地址");
+                serverIP.text = "";
+                return;
+            }
+        });
+        Control("Yes").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            if (string.IsNullOrEmpty(serverHost.text) && string.IsNullOrEmpty(serverIP.text))
+            {
+                U3D.PopupTip("域名和IP地址必须正确填写其中一项");
+                return;
+            }
+            int port = 0;
+            if (string.IsNullOrEmpty(serverPort.text) || !int.TryParse(serverPort.text, out port))
+            {
+                U3D.PopupTip("端口填写不正确");
+                return;
+            }
+
+            //如果域名不为空
+            if (!string.IsNullOrEmpty(serverHost.text))
+            {
+                ServerInfo info = new ServerInfo();
+                info.type = 0;
+                info.ServerPort = port;
+                info.ServerName = string.IsNullOrEmpty(serverName.text) ? serverHost.text : serverName.text;
+                info.ServerHost = serverHost.text;
+                info.Idx = GameData.Instance.gameStatus.ServerList.Count;
+                GameData.Instance.gameStatus.ServerList.Add(info);
+                if (ServerListWnd.Exist)
+                    ServerListWnd.Instance.OnRefresh(ServerListWnd.ADD, info);
+                Close();
+            }
+        });
+        Control("Cancel").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            Close();
+        });
     }
 }
 
@@ -373,6 +568,12 @@ public class MainWnd : Window<MainWnd>
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
 #endif
+        });
+        Control("ServerCfg").GetComponent<Button>().onClick.AddListener(()=> {
+            if (ServerListWnd.Exist)
+                ServerListWnd.Instance.Close();
+            else
+                ServerListWnd.Instance.Open();
         });
         Control("UploadLog").GetComponent<Button>().onClick.AddListener(() => { FtpLog.UploadStart(); });
         ClientProxy.Exit();
