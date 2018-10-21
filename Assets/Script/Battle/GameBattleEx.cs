@@ -17,7 +17,7 @@ public partial class GameBattleEx : MonoBehaviour {
     public CameraFollow m_CameraControl;
     int time = 1000;//秒
     float timeClock = 0.0f;
-    const float ViewLimit = 250;
+    const float ViewLimit = 62500;
     static GameBattleEx _Ins;
     public static GameBattleEx Instance { get { return _Ins; } }
     // Use this for initialization
@@ -214,12 +214,15 @@ public partial class GameBattleEx : MonoBehaviour {
         CollisionCheck();
     }
 
+    //每一个攻击盒，与所有受击盒碰撞测试.
+    Dictionary<MeteorUnit, List<MeteorUnit>> hitDic = new Dictionary<MeteorUnit, List<MeteorUnit>>();
+    //每个攻击盒，与所有环境物受击盒碰撞测试
+    Dictionary<MeteorUnit, List<SceneItemAgent>> hitDic2 = new Dictionary<MeteorUnit, List<SceneItemAgent>>();
+
     private void CollisionCheck()
     {
-        //每一个攻击盒，与所有受击盒碰撞测试.
-        Dictionary<MeteorUnit, List<MeteorUnit>> hitDic = new Dictionary<MeteorUnit, List<MeteorUnit>>();
-        //每个攻击盒，与所有环境物受击盒碰撞测试
-        Dictionary<MeteorUnit, List<SceneItemAgent>> hitDic2 = new Dictionary<MeteorUnit, List<SceneItemAgent>>();
+        hitDic.Clear();
+        hitDic2.Clear();
         foreach (var attack in DamageList)
         {
             //攻击盒与角色受击盒碰撞
@@ -806,7 +809,7 @@ public partial class GameBattleEx : MonoBehaviour {
             if (unit.Dead)
                 return false;
             Vector3 vec = unit.transform.position - MeteorManager.Instance.LocalPlayer.transform.position;
-            float v = vec.magnitude;
+            float v = vec.sqrMagnitude;
             if (v > ViewLimit)
                 return false;
             //vec.y = 0;
@@ -905,7 +908,7 @@ public partial class GameBattleEx : MonoBehaviour {
         if (lockedTarget != null)
         {
             Vector3 vec = lockedTarget.transform.position - MeteorManager.Instance.LocalPlayer.transform.position;
-            float v = vec.magnitude;
+            float v = vec.sqrMagnitude;
             if (v > ViewLimit)
                 Unlock();
             return;
@@ -927,7 +930,7 @@ public partial class GameBattleEx : MonoBehaviour {
             if (MeteorManager.Instance.UnitInfos[i].Dead)
                 continue;
             Vector3 vec = MeteorManager.Instance.UnitInfos[i].transform.position - player.transform.position;
-            float v = vec.magnitude;
+            float v = vec.sqrMagnitude;
             //飞轮时，无限角度距离
             if (v > ViewLimit && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
                 continue;
@@ -980,7 +983,7 @@ public partial class GameBattleEx : MonoBehaviour {
         if (autoTarget != null && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
         {
             Vector3 vec = autoTarget.transform.position - player.transform.position;
-            float v = vec.magnitude;
+            float v = vec.sqrMagnitude;
             if (v > ViewLimit)
                 Unlock();
         }

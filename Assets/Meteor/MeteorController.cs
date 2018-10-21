@@ -2094,11 +2094,14 @@ public class MeteorController : MonoBehaviour {
 
     private void Update()
     {
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer && Owner != MeteorManager.Instance.LocalPlayer)
+            return;
         if (!Global.PauseAll)
         {
             if (Owner.robot != null)
                 Owner.robot.Update();
         }
+
         CheckActionInput(Time.deltaTime);
         if (Input != null)
             Input.Update(Time.deltaTime);

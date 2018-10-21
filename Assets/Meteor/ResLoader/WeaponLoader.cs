@@ -904,12 +904,20 @@ public class WeaponLoader : MonoBehaviour {
         }
     }
 
+    Color dragC;
     public void ChangeWeaponTrail(DragDes drag)
     {
         for (int i = 0; i < trail.Count; i++)
         {
             trail[i].Emit = drag == null ? false : true;
-            trail[i]._colors[0] = drag == null ? Color.white : new Color(drag.Color.x / 255.0f, drag.Color.y / 255.0f, drag.Color.z/255.0f, 0.5f);
+            if (drag != null)
+            {
+                dragC.r = drag.Color.x / 255.0f;
+                dragC.g = drag.Color.y / 255.0f;
+                dragC.b = drag.Color.z / 255.0f;
+                dragC.a = 0.5f;
+            }
+            trail[i]._colors[0] = drag == null ? Color.white : dragC;
             trail[i]._lifeTime = drag == null ? 0 : drag.Time;
         }
     }

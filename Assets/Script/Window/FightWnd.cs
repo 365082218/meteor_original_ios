@@ -37,6 +37,7 @@ public class FightWnd: Window<FightWnd>
     Image hpBar;
     Image angryBar;
     Text hpLabel;
+    Text userNick;
     Image hpWarning;
     Image angryWarning;
     
@@ -111,6 +112,12 @@ public class FightWnd: Window<FightWnd>
         hpBar = ldaControl("HPBar", WndObject).gameObject.GetComponent<Image>();
         angryBar = ldaControl("AngryBar", WndObject).gameObject.GetComponent<Image>();
         hpLabel = ldaControl("HPLabel", WndObject).gameObject.GetComponent<Text>();
+        userNick = ldaControl("UserNick", WndObject).gameObject.GetComponent<Text>();
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        {
+            userNick.text = MeteorManager.Instance.LocalPlayer.Name;
+            userNick.gameObject.SetActive(true);
+        }
         if (MeteorManager.Instance.LocalPlayer != null)
         {
             angryBar.fillAmount = 0.0f;

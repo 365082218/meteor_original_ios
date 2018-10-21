@@ -197,9 +197,10 @@ public class Buff
         }
     }
 
+    List<MeteorUnit> unitRemoved = new List<MeteorUnit>();
     public void Update()
     {
-        List<MeteorUnit> unitRemoved = new List<MeteorUnit>();
+        unitRemoved.Clear();
         switch (refresh_type)
         {
             case 1:

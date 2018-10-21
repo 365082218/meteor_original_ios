@@ -73,7 +73,7 @@ public class NetWorkBattle : MonoBehaviour {
         {
             frameIndex++;
             tick++;
-            if (frameIndex % 5 == 0)
+            if (frameIndex % 2 == 0)
             {
                 frame.frameIndex = turn;
                 turn++;
@@ -103,9 +103,13 @@ public class NetWorkBattle : MonoBehaviour {
             MeteorManager.Instance.Clear();
             if (FightWnd.Exist)
                 FightWnd.Instance.Close();
-            U3D.GoBack();
+            bSync = false;
+            RoomId = -1;
+            RoomName = "";
+            TurnStarted = false;
             FrameIndex = ServerFrameIndex = 0;
             U3D.InsertSystemMsg("与服务器断开链接.");
+            U3D.GoBack();            
         }
         bSync = false;
         RoomId = -1;

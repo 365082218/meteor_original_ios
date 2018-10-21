@@ -85,8 +85,8 @@ public class CharacterLoader : MonoBehaviour
 
     Vector3 vTmp = Vector3.zero;
     //旧的
-    int netFrame = -1;
-    int netPose = -1;
+    int netFrame = 0;
+    int netPose = 0;
     
     public void ChangeFrame(int pose, int frame)
     {
@@ -106,8 +106,6 @@ public class CharacterLoader : MonoBehaviour
         }
         lastFrameIndex = curIndex;
         curIndex = frame;
-
-        
         TryPlayEffect();
         ChangeAttack();
         ChangeWeaponTrail();
@@ -116,6 +114,7 @@ public class CharacterLoader : MonoBehaviour
             status = AmbLoader.CharCommon[frame];
         else if (po.SourceIdx == 1)
             status = AmbLoader.FrameBoneAni[owner.UnitId][frame];
+
 
         for (int i = 0; i < bo.Count; i++)
         {
@@ -127,9 +126,6 @@ public class CharacterLoader : MonoBehaviour
         {
             if (i == 0)
             {
-                //if (lastPosIdx == po.Idx)
-                //{
-                //}
             }
             else
             {
@@ -527,8 +523,7 @@ public class CharacterLoader : MonoBehaviour
 
         if (!open)
         {
-            //if (owner.allowAttack)
-                mOwner.ChangeAttack(null);
+            mOwner.ChangeAttack(null);
         }
     }
 
@@ -898,8 +893,8 @@ public class CharacterLoader : MonoBehaviour
         //if (po.Idx == 325 || po.Idx == 253 || po.Idx == 276 || po.Idx == 560 || po.Idx == 471)
         //if (po.Idx != 325)
         timePlayed = GetTimePlayed(curIndex);
-        if (!string.IsNullOrEmpty(po.EffectID) && po.EffectID != "0")
-            sfxEffect = SFXLoader.Instance.PlayEffect(po.EffectID + ".ef", this, timePlayed);
+        if (!string.IsNullOrEmpty(po.EffectID) && !string.Equals(po.EffectID, "0"))
+            sfxEffect = SFXLoader.Instance.PlayEffect(string.Format("{0}.ef", po.EffectID), this, timePlayed);
         effectPlayed = true;
     }
 
