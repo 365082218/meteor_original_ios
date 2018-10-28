@@ -26,7 +26,7 @@ public class Startup : MonoBehaviour {
     {
         ins = this;
         DontDestroyOnLoad(gameObject);
-        Debug.LogError(string.Format("GameStart Meteor Version:{0}", AppInfo.Instance.AppVersion()));
+        //Debug.LogError(string.Format("GameStart Meteor Version:{0}", AppInfo.Instance.AppVersion()));
     }
 
     // Use this for initialization

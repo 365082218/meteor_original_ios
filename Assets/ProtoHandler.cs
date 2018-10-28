@@ -89,7 +89,7 @@ class ProtoHandler
                             OnSyncKeyFrame(KeyFrameRsp);
                             break;
                         case (int)MeteorMsg.MsgType.UserDeadSB2C:
-                            Debug.LogError("OnUserDead");
+                            //Debug.LogError("OnUserDead");
                             ms = new MemoryStream(each.Value);
                             UserId userDeadRsp = ProtoBuf.Serializer.Deserialize<UserId>(ms);
                             OnUserDead(userDeadRsp);
@@ -349,7 +349,7 @@ class ProtoHandler
 
     static void OnGetRoomRsp(GetRoomRsp rsp)
     {
-        Debug.LogError("get room rsp");
+        //Debug.LogError("get room rsp");
         if (MainLobby.Exist)
             MainLobby.Instance.OnGetRoom(rsp);
     }
