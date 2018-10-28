@@ -275,18 +275,19 @@ public class FightWnd: Window<FightWnd>
 
     void OnDefencePress()
     {
-        if (!MeteorManager.Instance.LocalPlayer.posMng.CanDefence)
+        if (MeteorManager.Instance.LocalPlayer.Dead)
             return;
-
         if (Global.GMeteorInput == null || Global.PauseAll) return;
-        Global.GMeteorInput.OnKeyDown(EKeyList.KL_Defence, true);//不要被键盘状态同步，否则按下马上就抬起，那么防御姿势就消失了
+            Global.GMeteorInput.OnKeyDown(EKeyList.KL_Defence, true);//不要被键盘状态同步，否则按下马上就抬起，那么防御姿势就消失了
         
     }
 
     void OnDefenceRelease()
     {
+        if (MeteorManager.Instance.LocalPlayer.Dead)
+            return;
         if (Global.GMeteorInput == null || Global.PauseAll) return;
-        Global.GMeteorInput.OnKeyUp(EKeyList.KL_Defence);
+            Global.GMeteorInput.OnKeyUp(EKeyList.KL_Defence);
     }
 
     void OnJumpPress()

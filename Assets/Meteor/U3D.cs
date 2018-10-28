@@ -202,7 +202,12 @@ public class U3D : MonoBehaviour {
         unit.SetGround(false);
         if (Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
-            unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+            if (Global.GLevelItem.wayPoint.Count == 0)
+            {
+                unit.transform.position = Global.GLevelSpawn[mon.SpawnPoint];
+            }
+            else
+                unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
         }
         else if (Global.GLevelMode == LevelMode.MultiplyPlayer)
         {
