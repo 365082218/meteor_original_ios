@@ -72,7 +72,16 @@ namespace protocol
       KeyFrameReq = 114,
             
       [global::ProtoBuf.ProtoEnum(Name=@"SyncKeyFrame", Value=115)]
-      SyncKeyFrame = 115
+      SyncKeyFrame = 115,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"UserDeadSB2C", Value=116)]
+      UserDeadSB2C = 116,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"UserRebornReq", Value=117)]
+      UserRebornReq = 117,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"UserRebornSB2C", Value=118)]
+      UserRebornSB2C = 118
     }
   
     private global::ProtoBuf.IExtension extensionObject;
@@ -872,6 +881,23 @@ namespace protocol
     public global::System.Collections.Generic.List<Player_> Players
     {
       get { return _Players; }
+    }
+  
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"UserId")]
+  public partial class UserId : global::ProtoBuf.IExtensible
+  {
+    public UserId() {}
+    
+    private readonly global::System.Collections.Generic.List<uint> _Player = new global::System.Collections.Generic.List<uint>();
+    [global::ProtoBuf.ProtoMember(1, Name=@"Player", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public global::System.Collections.Generic.List<uint> Player
+    {
+      get { return _Player; }
     }
   
     private global::ProtoBuf.IExtension extensionObject;

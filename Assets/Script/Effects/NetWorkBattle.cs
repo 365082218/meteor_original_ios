@@ -68,8 +68,9 @@ public class NetWorkBattle : MonoBehaviour {
     uint turn = 0;
     uint tick = 0;
     public bool TurnStarted = false;
+    public bool waitReborn = false;
     void Update () {
-        if (bSync && RoomId != -1 && TurnStarted)
+        if (bSync && RoomId != -1 && TurnStarted && MeteorManager.Instance.LocalPlayer != null && !waitReborn)
         {
             frameIndex++;
             tick++;
@@ -80,7 +81,16 @@ public class NetWorkBattle : MonoBehaviour {
 
                 SyncAttribute(frame.Players[0]);
                 Common.SyncFrame(frame);
+
+                if (MeteorManager.Instance.LocalPlayer.Dead)
+                {
+                    //Debug.LogError("waitreborn hp:" + frame.Players[0].hp);
+                    
+                    waitReborn = true;
+                }
             }
+
+
             //36=3秒个turn内没收到服务器回复的同步信息，算作断开连接.
             if (tick >= 360)
             {
@@ -113,6 +123,7 @@ public class NetWorkBattle : MonoBehaviour {
         }
         bSync = false;
         RoomId = -1;
+        waitReborn = false;
         RoomName = "";
         TurnStarted = false;
     }

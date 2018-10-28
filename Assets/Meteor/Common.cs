@@ -322,6 +322,13 @@ public class Common
         Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.GetRoomReq);
     }
 
+    public static void SendRebornRequest(int playerid)
+    {
+        UserId id = new UserId();
+        id.Player.Add((uint)playerid);
+        Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.UserRebornReq, id);
+    }
+
     public static void SendJoinRoom(int roomId)
     {
         JoinRoomReq req = new JoinRoomReq();

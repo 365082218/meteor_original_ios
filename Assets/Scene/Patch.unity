@@ -1947,6 +1947,7 @@ MonoBehaviour:
   bSync: 0
   gameTime: 0
   TurnStarted: 0
+  waitReborn: 0
 --- !u!114 &2044160634
 MonoBehaviour:
   m_ObjectHideFlags: 0

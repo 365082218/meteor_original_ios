@@ -68,6 +68,11 @@ class ProtoHandler
                             OnEnterLevelRsp rspOE = ProtoBuf.Serializer.Deserialize<OnEnterLevelRsp>(ms);
                             OnEnterLevelRsp_(rspOE);
                             break;
+                        case (int)MeteorMsg.MsgType.UserRebornSB2C:
+                            ms = new MemoryStream(each.Value);
+                            OnEnterLevelRsp rspReborn = ProtoBuf.Serializer.Deserialize<OnEnterLevelRsp>(ms);
+                            OnUserRebornRsp_(rspReborn);
+                            break;
                         case (int)MeteorMsg.MsgType.OnLeaveRoomRsp:
                             ms = new MemoryStream(each.Value);
                             OnLeaveRoomRsp rspL = ProtoBuf.Serializer.Deserialize<OnLeaveRoomRsp>(ms);
@@ -82,6 +87,12 @@ class ProtoHandler
                             ms = new MemoryStream(each.Value);
                             KeyFrame KeyFrameRsp = ProtoBuf.Serializer.Deserialize<KeyFrame>(ms);
                             OnSyncKeyFrame(KeyFrameRsp);
+                            break;
+                        case (int)MeteorMsg.MsgType.UserDeadSB2C:
+                            Debug.LogError("OnUserDead");
+                            ms = new MemoryStream(each.Value);
+                            UserId userDeadRsp = ProtoBuf.Serializer.Deserialize<UserId>(ms);
+                            OnUserDead(userDeadRsp);
                             break;
                     }
                 }
@@ -154,6 +165,34 @@ class ProtoHandler
         }
     }
 
+    //看是自己挂了还是其他人挂了
+    static void OnUserDead(UserId id)
+    {
+        if (id.Player != null)
+        {
+            for (int i = 0; i < id.Player.Count; i++)
+            {
+                MeteorUnit unit = U3D.GetUnit((int)id.Player[i]);
+                if (unit != MeteorManager.Instance.LocalPlayer)
+                {
+                    MeteorManager.Instance.OnNetRemoveUnit(unit);
+                }
+                else
+                {
+                    //摄像机先禁用跟随.禁用
+                    //if (MeteorManager.Instance.LocalPlayer == null)
+                    //    return;
+                    MeteorManager.Instance.OnNetRemoveUnit(unit);
+                    if (CameraFollow.Ins != null)
+                        CameraFollow.Ins.FreeCamera = true;
+                    MeteorManager.Instance.LocalPlayer = null;
+                    //向服务器发送复活请求.由服务器返回位置,然后在该位置创建角色
+                    ClientProxy.ReqReborn(NetWorkBattle.Ins.PlayerId);
+                }
+            }
+        }
+    }
+
     //同步关键帧，全部角色的属性，都设置一次
     //在进入房间后开始接收此消息，有可能玩家还没进入战场，因为要选择角色和武器.
     static void OnSyncKeyFrame(KeyFrame frame)
@@ -211,11 +250,33 @@ class ProtoHandler
         }
     }
 
+    //角色复活时,返回消息体与其他人进场是一样的
+    static void OnUserRebornRsp_(OnEnterLevelRsp rsp)
+    {
+        if (NetWorkBattle.Ins != null && rsp != null && rsp.player != null)
+        {
+            NetWorkBattle.Ins.waitReborn = false;
+            U3D.InitNetPlayer(rsp.player);//其他人复活,或者其他人进入战场,或者自己复活.
+            if (rsp.player.id == NetWorkBattle.Ins.PlayerId && MeteorManager.Instance.LocalPlayer != null)
+            {
+                AudioListener au = MeteorManager.Instance.LocalPlayer.gameObject.GetComponent<AudioListener>();
+                if (au == null)
+                {
+                    Startup.ins.listener.enabled = false;
+                    Startup.ins.playerListener = MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
+                }
+                if (FightWnd.Exist)
+                    FightWnd.Instance.UpdatePlayerInfo();
+            }
+        }
+    }
+
+    //其他角色进入战场时.
     static void OnEnterLevelRsp_(OnEnterLevelRsp rsp)
     {
         //其他玩家进入此房间
-        if (NetWorkBattle.Ins != null && rsp != null && rsp.player != null && rsp.player.id != NetWorkBattle.Ins.PlayerId)
-            U3D.InitNetPlayer(rsp.player);
+        if (NetWorkBattle.Ins != null && rsp != null && rsp.player != null)
+            U3D.InitNetPlayer(rsp.player);//其他人复活,或者其他人进入战场,或者自己复活.
     }
 
     public static bool loading = false;
@@ -288,6 +349,7 @@ class ProtoHandler
 
     static void OnGetRoomRsp(GetRoomRsp rsp)
     {
+        Debug.LogError("get room rsp");
         if (MainLobby.Exist)
             MainLobby.Instance.OnGetRoom(rsp);
     }

@@ -90,12 +90,136 @@ public class CameraFollow : MonoBehaviour {
     {
         if (MeteorManager.Instance.LocalPlayer != null && !Global.PauseAll)
             CameraSmoothFollow(Smooth);
+        else
+        {
+            if (FreeCamera)
+            {
+                OnAutoMove();
+            }
+        }
+    }
+
+    const float AutoSwitchTarget = 10.0f;//观察一个战斗团体10秒左右然后检查是否要切换观察位置.
+    float lastWatchTick;
+    bool freeCamera;
+    public bool FreeCamera
+    {
+        set
+        {
+            lastWatchTick = 0;
+            freeCamera = value;
+        }
+        get
+        {
+            return freeCamera;
+        }
     }
 
     void LateUpdate()
     {
         if (MeteorManager.Instance.LocalPlayer != null && !Global.PauseAll)
             CameraSmoothFollow(Smooth);
+        else
+        {
+            if (FreeCamera)
+            {
+                //摄像机挑选
+                OnAutoMove();
+            }
+        }
+    }
+
+    //该角色背后肩膀处
+    Vector3 randomOffset;
+    Vector3 CalcLookat(MeteorUnit unit)
+    {
+        if (unit != null)
+            return unit.mSkeletonPivot;
+        return Vector3.zero;//不改变视向
+    }
+
+    Vector3 CalcPosition(MeteorUnit unit)
+    {
+        if (unit != null)
+        {
+            return unit.mSkeletonPivot + unit.transform.forward * -55;
+        }
+        //
+        randomOffset.x = Random.Range(30, 200);
+        randomOffset.z = Random.Range(30, 200);
+        randomOffset.y = 0;
+        return transform.position + randomOffset;
+    }
+
+    void OnAutoMove()
+    {
+        lastWatchTick += Time.deltaTime;
+        if (lastWatchTick >= AutoSwitchTarget)
+        {
+            lastWatchTick = 0.0f;
+            ChangeAutoTarget();
+        }
+
+        if (AutoTarget != null)
+        {
+            Vector3 newPos = CalcPosition(AutoTarget);
+            cameraLookAt = CalcLookat(AutoTarget);
+            if (animationPlay)
+            {
+                if (animationTick >= SmoothDampTime)
+                {
+                    animationTick = 0.0f;
+                    animationPlay = false;
+                }
+                else
+                {
+                    //当锁定目标丢失，或者死亡时.从双人视角转换为单人视角的摄像机过渡动画.
+                    newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime);
+                    newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
+                    newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime);
+                    transform.position = newPos;
+                    if (cameraLookAt != Vector3.zero)
+                    {
+                        transform.LookAt(cameraLookAt);
+                        Vector3 vec = transform.eulerAngles;
+                        //vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
+                        //vec.y = transform.eulerAngles.y;
+                        //vec.y = Mathf.SmoothDampAngle(vec.y, transform.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
+                        vec.z = 0;
+                        transform.eulerAngles = vec;
+                    }
+                    return;
+                }
+            }
+            else
+            {
+                newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime);
+                newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
+                newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime);
+                transform.position = newPos;
+                //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
+                //transform.rotation = to;
+                if (cameraLookAt != Vector3.zero)
+                {
+                    Vector3 vec = transform.eulerAngles;
+                    transform.LookAt(cameraLookAt);
+
+                    vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
+                    vec.y = transform.eulerAngles.y;
+                    //vec.y = Mathf.SmoothDampAngle(vec.y, transform.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
+                    vec.z = 0;
+                    transform.eulerAngles = vec;
+                }
+            }
+        }
+    }
+
+    MeteorUnit AutoTarget;
+    void ChangeAutoTarget()
+    {
+        OnLockTarget();
+        int i = Random.Range(0, MeteorManager.Instance.UnitInfos.Count);
+        AutoTarget = MeteorManager.Instance.UnitInfos[i];
     }
 
     //为真则下一帧摄像机要切换视角模式.

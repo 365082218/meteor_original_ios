@@ -221,6 +221,11 @@ class ClientProxy
         Common.SendJoinRoom(roomId);
     }
 
+    public static void ReqReborn(int userId)
+    {
+        Common.SendRebornRequest(userId);
+    }
+
     public static void EnterLevel(int model, int weapon)
     {
         Common.SendEnterLevel(model, weapon);
