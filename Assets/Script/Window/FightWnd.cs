@@ -38,13 +38,13 @@ public class FightWnd: Window<FightWnd>
     Image angryBar;
     Text hpLabel;
     //Text userNick;
-    Image hpWarning;
-    Image angryWarning;
+    //Image hpWarning;
+    //Image angryWarning;
     
-    Image exp;
-    Dropdown dr;
-    Dropdown effectDr;
-    Button currentPos;
+    //Image exp;
+    //Dropdown dr;
+    //Dropdown effectDr;
+    //Button currentPos;
 
     //角色面板，暂时取消
     void OnPlayerInfo()
@@ -71,8 +71,8 @@ public class FightWnd: Window<FightWnd>
     Transform LevelTalkRoot;
     Animation actionStatusBarCtrl;
     GameObject FloatOpen;
-    GameObject BuffRoot;
-    GameObject TargetBuffPanel;
+    //GameObject BuffRoot;
+    //GameObject TargetBuffPanel;
     GameObject Unlock;
     Image LockSprite;
     void Init()
@@ -81,8 +81,8 @@ public class FightWnd: Window<FightWnd>
         ctrl = LevelTalkRoot.GetComponent<AutoMsgCtrl>();
         ctrl.SetConfig(1.5f, 1f);
         FloatOpen = Control("FloatOpen");
-        BuffRoot = Control("BuffPanel");
-        TargetBuffPanel = Control("TargetBuffPanel");
+        //BuffRoot = Control("BuffPanel");
+        //TargetBuffPanel = Control("TargetBuffPanel");
         FloatOpen.GetComponent<Button>().onClick.AddListener(OnChangeActionBarStatus);
         actionStatusBarCtrl = Control("Slots").GetComponent<Animation>();
         Global.ldaControlX("Attack", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnAttackPress);
@@ -97,7 +97,7 @@ public class FightWnd: Window<FightWnd>
         Global.ldaControlX("WeaponSelect", WndObject).GetComponentInChildren<Button>().onClick.AddListener(()=> { U3D.OpenWeaponWnd(); });
         Global.ldaControlX("SceneName", WndObject).GetComponent<Button>().onClick.AddListener(()=> { OpenMiniMap(); });
         Global.ldaControlX("SceneName", WndObject).GetComponentInChildren<Text>().text = Global.GLevelItem.Name;
-        Global.ldaControlX("MXH", WndObject).GetComponent<GameButton>().OnPress.AddListener(()=> { U3D.OpenSystemWnd(); });
+        Global.ldaControlX("System", WndObject).GetComponentInChildren<Button>().onClick.AddListener(()=> { U3D.OpenSystemWnd(); });
         Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnCrouchPress);
         Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnCrouchRelease);
         Global.ldaControlX("Drop", WndObject).GetComponent<Button>().onClick.AddListener(OnClickDrop);
@@ -107,8 +107,8 @@ public class FightWnd: Window<FightWnd>
         Global.ldaControlX("SfxMenu", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSfxWnd(); });
         Global.ldaControlX("Robot", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenRobotWnd(); });
         timeLabel = Global.ldaControlX("GameTime", WndObject).GetComponent<Text>();
-        hpWarning = ldaControl("HPFlashWarning", WndObject).gameObject.GetComponent<Image>();
-        angryWarning = ldaControl("AngryWarning", WndObject).gameObject.GetComponent<Image>();
+        //hpWarning = ldaControl("HPFlashWarning", WndObject).gameObject.GetComponent<Image>();
+        //angryWarning = ldaControl("AngryWarning", WndObject).gameObject.GetComponent<Image>();
         hpBar = ldaControl("HPBar", WndObject).gameObject.GetComponent<Image>();
         angryBar = ldaControl("AngryBar", WndObject).gameObject.GetComponent<Image>();
         hpLabel = ldaControl("HPLabel", WndObject).gameObject.GetComponent<Text>();
@@ -121,8 +121,8 @@ public class FightWnd: Window<FightWnd>
         if (MeteorManager.Instance.LocalPlayer != null)
         {
             angryBar.fillAmount = 0.0f;
-            angryWarning.enabled = false;
-            hpWarning.enabled = false;
+            //angryWarning.enabled = false;
+            //hpWarning.enabled = false;
             UpdatePlayerInfo();
         }
         UpdateUIButton();
@@ -143,31 +143,31 @@ public class FightWnd: Window<FightWnd>
     //    MeteorManager.Instance.LocalPlayer.Frame = frame;
     //}
 
-    IEnumerator ShowHPWarning()
-    {
-        while (true)
-        {
-            if (MeteorManager.Instance.LocalPlayer.Dead)
-                break;
-            if ((float)MeteorManager.Instance.LocalPlayer.Attr.HpMax * 0.3f > (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur)
-                hpWarning.enabled = !hpWarning.enabled;
-            yield return new WaitForSeconds(0.5f);//半秒切换一次状态
-        }
-        hpWarning.enabled = false;
-    }
+    //IEnumerator ShowHPWarning()
+    //{
+    //    while (true)
+    //    {
+    //        if (MeteorManager.Instance.LocalPlayer.Dead)
+    //            break;
+    //        if ((float)MeteorManager.Instance.LocalPlayer.Attr.HpMax * 0.3f > (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur)
+    //            hpWarning.enabled = !hpWarning.enabled;
+    //        yield return new WaitForSeconds(0.5f);//半秒切换一次状态
+    //    }
+    //    hpWarning.enabled = false;
+    //}
 
-    IEnumerator ShowAngryWarning()
-    {
-        while (true)
-        {
-            if (MeteorManager.Instance.LocalPlayer.Dead)
-                break;
-            if (MeteorManager.Instance.LocalPlayer.AngryValue == Global.ANGRYMAX)
-                angryWarning.enabled = !angryWarning.enabled;
-            yield return new WaitForSeconds(0.5f);//半秒切换一次状态
-        }
-        angryWarning.enabled = false;
-    }
+    //IEnumerator ShowAngryWarning()
+    //{
+    //    while (true)
+    //    {
+    //        if (MeteorManager.Instance.LocalPlayer.Dead)
+    //            break;
+    //        if (MeteorManager.Instance.LocalPlayer.AngryValue == Global.ANGRYMAX)
+    //            angryWarning.enabled = !angryWarning.enabled;
+    //        yield return new WaitForSeconds(0.5f);//半秒切换一次状态
+    //    }
+    //    angryWarning.enabled = false;
+    //}
 
     bool actionBarStatus = false;
     void OnChangeActionBarStatus()
@@ -324,15 +324,15 @@ public class FightWnd: Window<FightWnd>
         if (MeteorManager.Instance.LocalPlayer != null && !MeteorManager.Instance.LocalPlayer.Dead)
         {
             angryBar.fillAmount = (float)MeteorManager.Instance.LocalPlayer.AngryValue /(float)Global.ANGRYMAX;
-            if (MeteorManager.Instance.LocalPlayer.AngryValue == Global.ANGRYMAX && lastAngry != Global.ANGRYMAX)
-            {
-                if (angryWarningE != null)
-                    MeteorManager.Instance.LocalPlayer.StopCoroutine(angryWarningE);
-                angryWarningE = MeteorManager.Instance.LocalPlayer.StartCoroutine(ShowAngryWarning());
-                lastAngry = Global.ANGRYMAX;
-            }
-            else
-                lastAngry = MeteorManager.Instance.LocalPlayer.AngryValue;
+            //if (MeteorManager.Instance.LocalPlayer.AngryValue == Global.ANGRYMAX && lastAngry != Global.ANGRYMAX)
+            //{
+            //    if (angryWarningE != null)
+            //        MeteorManager.Instance.LocalPlayer.StopCoroutine(angryWarningE);
+            //    angryWarningE = MeteorManager.Instance.LocalPlayer.StartCoroutine(ShowAngryWarning());
+            //    lastAngry = Global.ANGRYMAX;
+            //}
+            //else
+            //    lastAngry = MeteorManager.Instance.LocalPlayer.AngryValue;
         }
     }
 
@@ -342,13 +342,13 @@ public class FightWnd: Window<FightWnd>
         if (MeteorManager.Instance.LocalPlayer != null)
         {
             hpBar.fillAmount = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.TotalHp;
-            if ((float)MeteorManager.Instance.LocalPlayer.Attr.TotalHp * 0.3f >= (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur && (float)MeteorManager.Instance.LocalPlayer.Attr.TotalHp * 0.3f < lastHp)
-            {
-                GameBattleEx.Instance.StartCoroutine(ShowHPWarning());
-                lastHp = MeteorManager.Instance.LocalPlayer.Attr.hpCur;
-            }
-            else
-                lastHp = MeteorManager.Instance.LocalPlayer.Attr.hpCur;
+            //if ((float)MeteorManager.Instance.LocalPlayer.Attr.TotalHp * 0.3f >= (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur && (float)MeteorManager.Instance.LocalPlayer.Attr.TotalHp * 0.3f < lastHp)
+            //{
+            //    GameBattleEx.Instance.StartCoroutine(ShowHPWarning());
+            //    lastHp = MeteorManager.Instance.LocalPlayer.Attr.hpCur;
+            //}
+            //else
+            //    lastHp = MeteorManager.Instance.LocalPlayer.Attr.hpCur;
         }
     }
 
@@ -398,16 +398,16 @@ public class FightWnd: Window<FightWnd>
         //    GameBattleEx.Instance.StopCoroutine(hideTargetInfo);
         //    hideTargetInfo = null;
         //}
-        if (hpWarningE != null)
-        {
-            MeteorManager.Instance.LocalPlayer.StopCoroutine(hpWarningE);
-            hpWarningE = null;
-        }
-        if (angryWarningE != null)
-        {
-            MeteorManager.Instance.LocalPlayer.StopCoroutine(angryWarningE);
-            angryWarningE = null;
-        }
+        //if (hpWarningE != null)
+        //{
+        //    MeteorManager.Instance.LocalPlayer.StopCoroutine(hpWarningE);
+        //    hpWarningE = null;
+        //}
+        //if (angryWarningE != null)
+        //{
+        //    MeteorManager.Instance.LocalPlayer.StopCoroutine(angryWarningE);
+        //    angryWarningE = null;
+        //}
         if (updateValue != null)
         {
             MeteorManager.Instance.LocalPlayer.StopCoroutine(updateValue);
@@ -540,8 +540,8 @@ public class FightWnd: Window<FightWnd>
     }
 
     Coroutine updateValue;
-    Coroutine hpWarningE;
-    Coroutine angryWarningE;
+    //Coroutine hpWarningE;
+    //Coroutine angryWarningE;
     public void UpdatePlayerInfo()
     {
         if (MeteorManager.Instance.LocalPlayer != null && MeteorManager.Instance.LocalPlayer.Attr.hpCur >= 0)
@@ -551,13 +551,13 @@ public class FightWnd: Window<FightWnd>
             updateValue = MeteorManager.Instance.LocalPlayer.StartCoroutine(UpdateHPMP());
             hpLabel.text = ((int)(MeteorManager.Instance.LocalPlayer.Attr.hpCur / 10.0f)).ToString() + "/" + ((int)(MeteorManager.Instance.LocalPlayer.Attr.HpMax / 10.0f)).ToString();
             float hpPercent = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
-            if (hpPercent <= 0.1f)
-            {
-                if (hpWarningE != null)
-                    MeteorManager.Instance.LocalPlayer.StopCoroutine(hpWarningE);
-                if (!MeteorManager.Instance.LocalPlayer.Dead)
-                    hpWarningE = MeteorManager.Instance.LocalPlayer.StartCoroutine(ShowHPWarning());
-            }
+            //if (hpPercent <= 0.1f)
+            //{
+            //    if (hpWarningE != null)
+            //        MeteorManager.Instance.LocalPlayer.StopCoroutine(hpWarningE);
+            //    if (!MeteorManager.Instance.LocalPlayer.Dead)
+            //        hpWarningE = MeteorManager.Instance.LocalPlayer.StartCoroutine(ShowHPWarning());
+            //}
 
             UpdateAngryBar();
         }

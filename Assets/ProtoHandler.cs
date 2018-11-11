@@ -173,6 +173,8 @@ class ProtoHandler
             for (int i = 0; i < id.Player.Count; i++)
             {
                 MeteorUnit unit = U3D.GetUnit((int)id.Player[i]);
+                if (unit == null)
+                    continue;
                 if (unit != MeteorManager.Instance.LocalPlayer)
                 {
                     MeteorManager.Instance.OnNetRemoveUnit(unit);

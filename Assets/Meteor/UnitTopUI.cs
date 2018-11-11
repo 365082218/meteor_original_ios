@@ -22,6 +22,8 @@ public class UnitTopUI : MonoBehaviour {
             return;
         if (owner == MeteorManager.Instance.LocalPlayer)
             return;
+        if (MeteorManager.Instance.LocalPlayer == null)
+            return;
         bool faceto = MeteorManager.Instance.LocalPlayer.IsFacetoTarget(owner);
         if (faceto)
         {
