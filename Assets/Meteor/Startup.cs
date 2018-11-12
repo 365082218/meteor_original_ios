@@ -26,6 +26,7 @@ public class Startup : MonoBehaviour {
     {
         ins = this;
         DontDestroyOnLoad(gameObject);
+        Application.targetFrameRate = 60;
         //Debug.LogError(string.Format("GameStart Meteor Version:{0}", AppInfo.Instance.AppVersion()));
     }
 
