@@ -121,10 +121,13 @@ public class Patch : MonoBehaviour {
             yield return new WaitForEndOfFrame();
         }
         yield return new WaitForEndOfFrame();
-        Application.targetFrameRate = AppInfo.Instance.GetTargetFrame();
+        Application.targetFrameRate = GameData.Instance.gameStatus.TargetFrame;
 #if UNITY_EDITOR
         Application.targetFrameRate = 60;
+#elif UNITY_STANDALONE
+        Application.targetFrameRate = 120;
 #endif
+
         Log.Write(string.Format("fps:{0}", Application.targetFrameRate));
         U3D.PlayMovie("start.mv");
         AppDomain.CurrentDomain.UnhandledException += UncaughtException;

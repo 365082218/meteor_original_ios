@@ -175,7 +175,7 @@ public class MeteorInput
             //只有使用键盘的时候，键的状态才从与键盘状态同步。
             //return;
             //UNITY的时候，会从硬件扫描
-#if UNITY_EDITOR && !STRIP_KEYBOARD
+#if (UNITY_EDITOR || UNITY_STANDALONE_WIN) && !STRIP_KEYBOARD
             if (mOwner.Attr.IsPlayer)//主角才读取键盘输入
             {
                 float kValue = Input.GetAxisRaw(keyStatus.AxisName);
@@ -1996,7 +1996,7 @@ public class MeteorInput
                 direction.Normalize();
                 //跑的速度 1000 = 145M/S 按原来游戏计算
                 Vector2 runTrans = direction * mOwner.Speed * (mOwner.Crouching ? 0.25f : 1.0f);//蹲下是跑步的4/1,中毒是一半速度
-                float x = runTrans.x * (mOwner.Crouching ? 0.065f : 0.036f), y = runTrans.y * (mOwner.Crouching ? 0.065f : (runTrans.y >= 0 ? 0.100f: 0.036f));//前走速度145 后走速度36,左右走速度是36 模型Z轴与角色面朝相反
+                float x = runTrans.x * (mOwner.Crouching ? 0.085f : 0.045f), y = runTrans.y * (mOwner.Crouching ? 0.085f : (runTrans.y >= 0 ? 0.135f: 0.045f));//前走速度145 后走速度36,左右走速度是36 模型Z轴与角色面朝相反
                 mOwner.SetVelocity(y, x);
             }
             else
@@ -2014,7 +2014,7 @@ public class MeteorInput
                 {
                     direction.Normalize();
                     Vector2 runTrans = direction * mOwner.Speed;
-                    float x = runTrans.x * 0.036f, y = runTrans.y * 0.036f;
+                    float x = runTrans.x * 0.045f, y = runTrans.y * 0.045f;
                     mOwner.SetVelocity(y, x);
                     //Debug.LogError("垂直跳跃中轻微滑动摇杆");
                 }

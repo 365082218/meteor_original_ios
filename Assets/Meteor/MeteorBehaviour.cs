@@ -125,7 +125,8 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
             {
                 return;
             }
-            else if (Input.HasInput((int)EKeyList.KL_Defence, (int)EInputType.EIT_Pressing, Time.deltaTime))
+            else
+            if (Input.HasInput((int)EKeyList.KL_Defence, (int)EInputType.EIT_Pressing, Time.deltaTime))
             {
                 Owner.Defence();
                 return;

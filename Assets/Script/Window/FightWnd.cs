@@ -128,6 +128,13 @@ public class FightWnd: Window<FightWnd>
         UpdateUIButton();
         if (NGUIJoystick.instance != null)
             NGUIJoystick.instance.SetAnchor(GameData.Instance.gameStatus.JoyAnchor);
+
+#if (UNITY_EDITOR || UNITY_STANDALONE_WIN) && !STRIP_KEYBOARD
+        Control("ClickPanel").SetActive(false);
+        Control("JoyArrow").SetActive(false);
+        Control("ActionFloat").SetActive(false);
+        Control("FloatOpen").SetActive(false);
+#endif
     }
 
     //int currentPosIdx;

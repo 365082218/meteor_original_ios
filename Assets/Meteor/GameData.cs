@@ -393,7 +393,11 @@ public class GameData:Singleton<GameData>
             gameStatus.JoyAnchor = new MyVector2(390,340);
             gameStatus.AxisSensitivity = new MyVector2(0.5f, 0.5f);
             gameStatus.MeteorVersion = "9.07";
+#if UNITY_STANDALONE_WIN
+            gameStatus.TargetFrame = 120;//PC上120帧
+#else
             gameStatus.TargetFrame = 60;
+#endif
             ServerInfo svr = new ServerInfo();
             svr.Idx = 0;
             svr.ServerName = "www.idevgame.com";

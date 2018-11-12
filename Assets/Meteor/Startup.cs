@@ -41,12 +41,15 @@ public class Startup : MonoBehaviour {
     void Update () {
         if (GameBattleEx.Instance != null && !GameBattleEx.Instance.BattleFinished() && Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
-            if (Input.GetKeyUp(KeyCode.Alpha0))
-                MeteorManager.Instance.LocalPlayer.PlaySkill();
             if (Input.GetKeyUp(KeyCode.Escape))
             {
                 if (NewSystemWnd.Exist)
+                {
                     NewSystemWnd.Instance.Close();
+#if UNITY_STANDALONE
+                    Cursor.lockState = CursorLockMode.Locked;
+#endif
+                }
                 else
                     NewSystemWnd.Instance.Open();
             }
