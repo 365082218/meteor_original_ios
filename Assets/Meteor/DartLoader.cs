@@ -166,7 +166,7 @@ public class DartLoader : MonoBehaviour {
         InventoryItem item = Weapon;
         if (item.Info().MainType == (int)EquipType.Weapon)
         {
-            float scale = 1.0f;
+            float scale = 2.0f;
             WeaponBase weaponProperty = WeaponMng.Instance.GetItem(item.Info().UnitId);
             string weaponR = "";
             weaponR = weaponProperty.WeaponR;

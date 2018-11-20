@@ -2,8 +2,15 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+//∂‘œÛ≥ÿ
 public class EffectPoolManager : MonoBehaviour
 {
+    public static EffectPoolManager Instance;
+    void Awake()
+    {
+        Instance = this;
+    }
+
     Dictionary<string, ObjectPool> mEffectPools = new Dictionary<string, ObjectPool>();
     public GameObject Spawn(int idx)
     {
@@ -30,7 +37,7 @@ public class EffectPoolManager : MonoBehaviour
 
     GameObject Spawn(ObjectPool objectPool)
     {
-        if (objectPool == null) 
+        if (objectPool == null)
             return null;
         GameObject effect = objectPool.Spawn(true) as GameObject;
         return effect;

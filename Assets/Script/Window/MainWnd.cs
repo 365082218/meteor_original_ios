@@ -90,7 +90,7 @@ public class WeaponSelectWnd:Window<WeaponSelectWnd>
             OnPrevWeapon();
             U3D.PlayBtnAudio();
         });
-        Control("Select").GetComponent<Button>().onClick.AddListener(() =>
+        Control("Select").GetComponent<UIButtonExtended>().onClick.AddListener(() =>
         {
             OnSelectWeapon();
             U3D.PlayBtnAudio();
@@ -145,7 +145,7 @@ public class RoleSelectWnd: Window<RoleSelectWnd>
             OnPrevHero();
             U3D.PlayBtnAudio();
         });
-        Control("Select").GetComponent<Button>().onClick.AddListener(() =>
+        Control("Select").GetComponent<UIButtonExtended>().onClick.AddListener(() =>
         {
             OnSelectHero();
             U3D.PlayBtnAudio();
