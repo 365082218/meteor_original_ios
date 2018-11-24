@@ -441,4 +441,11 @@ public class WeaponTrail : MonoBehaviour
 			pointList.Remove(p);
 		}
 	}
+
+    public void Open(float life = 0.2f)
+    {
+        Emit = true;
+        _colors[0] = Color.white;
+        _lifeTime = life;
+    }
 }

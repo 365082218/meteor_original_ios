@@ -921,4 +921,26 @@ public class WeaponLoader : MonoBehaviour {
             trail[i]._lifeTime = drag == null ? 0 : drag.Time;
         }
     }
+
+    public void OpenWeaponTrail()
+    {
+        for (int i = 0; i < trail.Count; i++)
+        {
+            trail[i].Emit = true;
+                dragC.r = 1;
+                dragC.g = 1;
+                dragC.b = 1;
+                dragC.a = 0.5f;
+            trail[i]._colors[0] = dragC;
+            trail[i]._lifeTime = 0.8f;
+        }
+    }
+
+    public void CloseWeaponTrail()
+    {
+        for (int i = 0; i < trail.Count; i++)
+        {
+            trail[i].Emit = false;
+        }
+    }
 }

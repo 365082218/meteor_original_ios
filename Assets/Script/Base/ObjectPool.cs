@@ -5,8 +5,8 @@ using System.Collections.Generic;
 public class ObjectPool : MonoBehaviour
 {
     public Object Prefab;
-    public int InitNum;
-    public int PoolNum;
+    public int InitNum;//初始化的对象.
+    public int PoolNum;//池子内的对象.<包括初始化对象>
 
     Stack<Object> mInstances = new Stack<Object>();
 
@@ -24,14 +24,9 @@ public class ObjectPool : MonoBehaviour
 
     public Object Spawn(bool create)
     {
-        //add by Lindean
-        //if (create)
-        //    return GameObject.Instantiate(Prefab) as GameObject;
-
         if (mInstances.Count > 0)
         {
             Object instance = mInstances.Pop();
-            //instance.SetActive(true);
             PoolNum--;
             return instance;
         }

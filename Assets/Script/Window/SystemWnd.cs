@@ -73,9 +73,9 @@ public class NewSystemWnd : Window<NewSystemWnd>
 
     void Init()
     {
-#if UNITY_STANDALONE
-        Cursor.lockState = CursorLockMode.None;
-#endif
+//#if UNITY_STANDALONE
+//        Cursor.lockState = CursorLockMode.None;
+//#endif
         Control("Continue").GetComponent<Button>().onClick.AddListener(OnClickClose);
         if (Startup.ins != null)
         {

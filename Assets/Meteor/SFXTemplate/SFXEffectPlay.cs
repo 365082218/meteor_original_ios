@@ -102,58 +102,54 @@ public class SFXEffectPlay : MonoBehaviour {
                 audioList.Add(effectList[i]);
             else if (effectList[i].EffectType == "BILLBOARD")
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType == "BOX")
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType == "PLANE")
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType == "DONUT")
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType == "MODEL")
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType == "SPHERE")
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType == "PARTICLE")
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType == "CYLINDER")
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
-                //sfx.Init(effectList[i], this, i);
-                //objSfx = GameObject.Instantiate(Resources.Load("SFXCYLINDER")) as GameObject;
-                //SFXCylinder sfxc = objSfx.GetComponent<SFXCylinder>();
-                //sfxc.Init(effectList[i], GetComponent<MeteorUnit>(), this);
             }
             else if (effectList[i].EffectType == "DRAG")
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
 
                 //sfx.Init(effectList[i], this, i);
@@ -206,54 +202,54 @@ public class SFXEffectPlay : MonoBehaviour {
                 audioList.Add(effectList[i]);
             else if (effectList[i].EffectType.Equals("BILLBOARD"))
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType.Equals("BOX"))
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType.Equals("PLANE"))
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType.Equals("DONUT"))
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType.Equals("MODEL"))
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType.Equals("SPHERE"))
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType.Equals("PARTICLE"))
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType.Equals("CYLINDER"))
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
             }
             else if (effectList[i].EffectType.Equals("DRAG"))
             {
-                objSfx = GameObject.Instantiate(EffectPoolManager.Instance.Spawn("SFXUnit")) as GameObject;
+                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
                 sfx = objSfx.GetComponent<SFXUnit>();
             }
             else

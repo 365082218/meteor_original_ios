@@ -1540,6 +1540,11 @@ public class U3D : MonoBehaviour {
         return itemIdx != 0;
     }
 
+    public static bool IsSpecialWeapon(EquipWeaponType t)
+    {
+        return t == EquipWeaponType.Gun || t == EquipWeaponType.Guillotines || t == EquipWeaponType.Dart;
+    }
+
     public static bool IsSpecialWeapon(int itemIdx)
     {
         ItemBase it0 = GameData.Instance.FindItemByIdx(itemIdx);

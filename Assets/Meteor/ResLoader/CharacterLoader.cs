@@ -529,6 +529,8 @@ public class CharacterLoader : MonoBehaviour
 
     void ChangeWeaponTrail()
     {
+        if (U3D.IsSpecialWeapon(mOwner.weaponLoader.WeaponSubType()))
+            return;
         //开启武器拖尾
         if (po.Drag != null)
         {

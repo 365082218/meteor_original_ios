@@ -417,9 +417,9 @@ public partial class GameBattleEx : MonoBehaviour {
     int EventDeath = 202;
     public void Init(Level lev, LevelScriptBase script)
     {
-#if UNITY_STANDALONE
-        Cursor.lockState = CursorLockMode.Locked;
-#endif
+//#if UNITY_STANDALONE
+//        Cursor.lockState = CursorLockMode.Locked;
+//#endif
         Scene_OnCharacterEvent = Global.GScriptType.GetMethod("Scene_OnCharacterEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         Scene_OnEvent = Global.GScriptType.GetMethod("Scene_OnEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         lev_script = script;
@@ -790,9 +790,9 @@ public partial class GameBattleEx : MonoBehaviour {
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
             MeteorManager.Instance.UnitInfos[i].EnableAI(true);
         Global.PauseAll = false;
-#if UNITY_STANDALONE
-        Cursor.lockState = CursorLockMode.Locked;
-#endif
+//#if UNITY_STANDALONE
+//        Cursor.lockState = CursorLockMode.Locked;
+//#endif
     }
 
     public MeteorUnit lockedTarget;

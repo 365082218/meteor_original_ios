@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//血滴子，敌方无法逃脱，除了防御/或用地形躲避.
 public class FlyWheel : MonoBehaviour {
     Spline spline = new Spline(3);
     MeteorUnit owner;
@@ -11,13 +12,13 @@ public class FlyWheel : MonoBehaviour {
     Transform WeaponRoot;
     Transform R;//武器
     InventoryItem Weapon;
-
+    WeaponTrail Trail;
     int status = 0;//0-发射 1-回收
     //射程-无限-跟踪，最多2秒-去1秒回1秒
     float tTotal = 3.0f;
     float tTick = 0.0f;
-    float speed = 550.0f;
-    float returnspeed = 450.0f;
+    float speed = 350.0f;
+    float returnspeed = 300.0f;
     bool outofArea = false;
     private void Awake()
     {
@@ -41,12 +42,12 @@ public class FlyWheel : MonoBehaviour {
 	}
 
     Coroutine fly;
-    LineRenderer line;
+    //LineRenderer line;
     public void LoadAttack(InventoryItem weapon, MeteorUnit target, AttackDes attackdef, MeteorUnit Owner)
     {
-        line = gameObject.AddComponent<LineRenderer>();
-        line.startWidth = 1f;
-        line.endWidth = 1f;
+        //line = gameObject.AddComponent<LineRenderer>();
+        //line.startWidth = 1f;
+        //line.endWidth = 1f;
         //line.numPositions = 200;
         owner = Owner;
         _attack = attackdef;
@@ -67,6 +68,16 @@ public class FlyWheel : MonoBehaviour {
         tTotal = spline.GetLength() / speed;
         //Debug.LogError("tTotal Init:" + tTotal + " length:" + spline.GetLength() + " speed:" + speed);
         LoadWeapon();
+        //增加拖尾
+        GameObject trailS = Global.ldaControlX("d_wpnRS", this.gameObject);
+        GameObject trailE = Global.ldaControlX("d_wpnRE", this.gameObject);
+        Trail = gameObject.AddComponent<WeaponTrail>();
+        if (trailS != null)
+            Trail.AddTransform(trailS.transform);
+        if (trailE != null)
+            Trail.AddTransform(trailE.transform);
+        Trail.Init(Owner);
+        Trail.Open();
         MeshRenderer mr = gameObject.GetComponentInChildren<MeshRenderer>();
         if (mr != null)
         {
@@ -123,6 +134,7 @@ public class FlyWheel : MonoBehaviour {
             return;
         TargetPosCache = auto_target.mPos + Vector3.up * 25.0f;
         spline.SetControlPoint(2, TargetPosCache);
+        tTotal = tTick + spline.GetLength() / speed;
     }
 
     IEnumerator Fly()
@@ -135,7 +147,7 @@ public class FlyWheel : MonoBehaviour {
                 //发射,随机自转
                 tTick += Time.deltaTime;
                 refreshDelay -= Time.deltaTime;
-                if (refreshDelay <= 0.1f && !outofArea)
+                if (refreshDelay <= 0.0f && !outofArea)
                 {
                     RefreshSpline();
                     refreshDelay = 0.1f;
@@ -145,14 +157,11 @@ public class FlyWheel : MonoBehaviour {
                 {
                     status = 1;//无论是否撞到敌人，返回.
                     tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / returnspeed;
-                    //if (float.IsNaN(tTotal) || tTotal == 0.0f)
-                    //{
-                    //    Debug.LogError("error nan " + Vector3.Distance(transform.position, owner.WeaponR.position).ToString() + " return speed:" + returnspeed);
-                    //}
                     tTick = 0.0f;
                     yield return 0;
                     continue;
                 }
+
                 transform.Rotate(new Vector3(0, 15.0f, 0), Space.Self);
                 //Debug.LogError("tTick:" + tTick + " tTotal:" + tTotal);
                 Vector3 v = spline.Eval(tTick / tTotal);

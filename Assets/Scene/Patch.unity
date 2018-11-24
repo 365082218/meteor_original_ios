@@ -1084,8 +1084,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 1000013043959464, guid: 65d178b63aa8de54d8dcce9f73950cda, type: 2}
-  InitNum: 10
-  PoolNum: 30
+  InitNum: 1
+  PoolNum: 5
 --- !u!1 &1080542349
 GameObject:
   m_ObjectHideFlags: 0

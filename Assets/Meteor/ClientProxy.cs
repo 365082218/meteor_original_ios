@@ -47,7 +47,8 @@ class ClientProxy
         LocalMsg result = new LocalMsg();
         try
         {
-            sProxy.EndConnect(ret);
+            if (sProxy != null)
+                sProxy.EndConnect(ret);
             if (tConn != null)
                 tConn.Change(Timeout.Infinite, Timeout.Infinite);
         }
@@ -55,6 +56,7 @@ class ClientProxy
         {
             Debug.LogError(exp.Message);
             result.Message = (int)LocalMsgType.Connect;
+            result.message = exp.Message;
             result.Result = 0;
             ProtoHandler.PostMessage(result);
             if (tConn != null)

@@ -408,37 +408,6 @@ DRAG*/
                     OnLastFrame(timeRatio2, vertexColor);
                     transform.localScale = Vector3.Lerp(source.frames[playedIndex - 1].scale, source.frames[playedIndex].scale, timeRatio2);
                 }
-                //if (source.frames[playedIndex].startTime <= playedTime)
-                //{
-                //    if (RotateFollow != null)
-                //        transform.rotation = RotateFollow.rotation * source.frames[playedIndex].quat;
-                //    else
-                //        transform.rotation = source.frames[playedIndex].quat;
-
-                //    if (PositionFollow != null)
-                //        transform.position = PositionFollow.position + source.frames[playedIndex].pos;
-                //    else
-                //        transform.position = source.frames[playedIndex].pos;
-                //    transform.localScale = source.frames[playedIndex].scale;
-                //    mRender.material.SetFloat("_Intensity", source.frames[playedIndex].TailFlags[9]);
-                //    mRender.material.SetColor(vertexColor, source.frames[playedIndex].colorRGB);
-                //    playedIndex++;
-                //}
-                //else
-                //{
-                //    if (RotateFollow != null)
-                //        transform.rotation = RotateFollow.rotation * Quaternion.Slerp(source.frames[playedIndex - 1].quat, source.frames[playedIndex].quat, timeRatio2);
-                //    else
-                //        transform.rotation = Quaternion.Slerp(source.frames[playedIndex - 1].quat, source.frames[playedIndex].quat, timeRatio2);
-                //    if (PositionFollow != null)
-                //        transform.position = PositionFollow.position + Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2);
-                //    else
-                //        transform.position = Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2);
-                //    transform.localScale = Vector3.Lerp(source.frames[playedIndex - 1].scale, source.frames[playedIndex].scale, timeRatio2);
-                    
-                //    mRender.material.SetFloat("_Intensity", Mathf.Lerp(source.frames[playedIndex - 1].TailFlags[9], source.frames[playedIndex].TailFlags[9], timeRatio2));
-                //    mRender.material.SetColor(vertexColor, Color.Lerp(source.frames[playedIndex - 1].colorRGB, source.frames[playedIndex].colorRGB, timeRatio2));
-                //}
             }
             else if (source.EffectType.Equals("PLANE"))
             {
@@ -452,38 +421,6 @@ DRAG*/
                     OnLastFrame(timeRatio2, vertexColor);
                     transform.localScale = Vector3.Lerp(source.frames[playedIndex - 1].scale, source.frames[playedIndex].scale, timeRatio2);
                 }
-                //if (source.frames[playedIndex].startTime <= playedTime)
-                //{
-                //    if (RotateFollow != null)
-                //        transform.rotation = RotateFollow.rotation * source.frames[playedIndex].quat; 
-                //    else
-                //        transform.rotation = source.frames[playedIndex].quat;
-
-                //    if (PositionFollow != null)
-                //        transform.position = PositionFollow.position + source.frames[playedIndex].pos;
-                //    else
-                //        transform.position = source.frames[playedIndex].pos;
-
-                //    transform.localScale = new Vector3(source.origScale.x * source.frames[playedIndex].scale.x, source.origScale.y * source.frames[playedIndex].scale.y, source.origScale.z * source.frames[playedIndex].scale.z);
-                //    mRender.material.SetColor(vertexColor, source.frames[playedIndex].colorRGB);
-                //    mRender.material.SetFloat("_Intensity", source.frames[playedIndex].TailFlags[9]);
-                //    playedIndex++;
-                //}
-                //else
-                //{
-                //    if (RotateFollow != null)
-                //        transform.rotation = RotateFollow.rotation * Quaternion.Slerp(source.frames[playedIndex - 1].quat, source.frames[playedIndex].quat, timeRatio2);
-                //    else
-                //        transform.rotation = Quaternion.Slerp(source.frames[playedIndex - 1].quat, source.frames[playedIndex].quat, timeRatio2);
-                //    if (PositionFollow != null)
-                //        transform.localPosition = PositionFollow.position + Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2);
-                //    else
-                //        transform.position = Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2);
-                //    transform.localScale = Vector3.Lerp(new Vector3(source.origScale.x * source.frames[playedIndex - 1].scale.x, source.origScale.y * source.frames[playedIndex - 1].scale.y, source.origScale.z * source.frames[playedIndex - 1].scale.z), new Vector3(source.origScale.x * source.frames[playedIndex].scale.x, source.origScale.y * source.frames[playedIndex].scale.y, source.origScale.z * source.frames[playedIndex].scale.z), timeRatio2);
-
-                //    mRender.material.SetFloat("_Intensity", Mathf.Lerp(source.frames[playedIndex - 1].TailFlags[9], source.frames[playedIndex].TailFlags[9], timeRatio2));
-                //    mRender.material.SetColor(vertexColor, Color.Lerp(source.frames[playedIndex - 1].colorRGB, source.frames[playedIndex].colorRGB, timeRatio2));
-                //}
             }
             else if (source.EffectType.Equals("SPHERE"))
             {
@@ -497,77 +434,6 @@ DRAG*/
                     OnLastFrame(timeRatio2, vertexColor);
                     transform.localScale = Vector3.Slerp(source.frames[playedIndex - 1].scale, source.frames[playedIndex].scale, timeRatio2);
                 }
-                //if (source.frames[playedIndex].startTime <= playedTime)
-                //{
-                //    if (RotateFollow != null)
-                //        transform.rotation = RotateFollow.rotation * source.frames[playedIndex].quat;
-                //    else
-                //        transform.rotation = source.frames[playedIndex].quat;
-
-                //    if (source.localSpace == 1)
-                //    {
-                //        if (RotateFollow != null)
-                //        {
-                //            Vector3 targetPos = RotateFollow.TransformPoint(source.frames[playedIndex].pos) - RotateFollow.position;
-                //            if (PositionFollow != null)
-                //                transform.position = PositionFollow.position + targetPos;
-                //            else
-                //                transform.position = targetPos;
-                //        }
-                //    }
-                //    else
-                //    {
-                //        if (PositionFollow != null)
-                //            transform.position = PositionFollow.position + source.frames[playedIndex].pos;
-                //        else
-                //            transform.position = source.frames[playedIndex].pos;
-                //    }
-
-                //    //if (PositionFollow != null)
-                //    //    transform.position = PositionFollow.position + source.frames[playedIndex].pos;
-                //    //else
-                //    //    transform.position = source.frames[playedIndex].pos;
-                //    transform.localScale = source.frames[playedIndex].scale;
-                //    mRender.material.SetFloat("_Intensity", source.frames[playedIndex].TailFlags[9]);
-                //    mRender.material.SetColor(vertexColor, source.frames[playedIndex].colorRGB);
-                //    playedIndex++;
-                //}
-                //else
-                //{
-                //    //旋转用球面插值
-                //    if (RotateFollow != null)
-                //        transform.rotation = RotateFollow.rotation * Quaternion.Slerp(source.frames[playedIndex - 1].quat, source.frames[playedIndex].quat, timeRatio2);
-                //    else
-                //        transform.rotation = Quaternion.Slerp(source.frames[playedIndex - 1].quat, source.frames[playedIndex].quat, timeRatio2);
-
-                //    if (source.localSpace == 1)
-                //    {
-                //        if (RotateFollow != null)
-                //        {
-                //            Vector3 targetPos = RotateFollow.TransformPoint(Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2)) - RotateFollow.position;
-                //            if (PositionFollow != null)
-                //                transform.position = PositionFollow.position + targetPos;
-                //            else
-                //                transform.position = targetPos;
-                //        }
-                //    }
-                //    else
-                //    {
-                //        if (PositionFollow != null)
-                //            transform.position = PositionFollow.position + Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2);
-                //        else
-                //            transform.position = Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2);
-                //    }
-
-                //    ////移动用直线插值，
-                //    //if (PositionFollow != null)
-                //    //    transform.position = PositionFollow.position + Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2);
-                //    //else
-                //    //    transform.localPosition = Vector3.Lerp(source.frames[playedIndex - 1].pos , source.frames[playedIndex].pos, timeRatio2);
-                //    transform.localScale = Vector3.Slerp(source.frames[playedIndex - 1].scale, source.frames[playedIndex].scale, timeRatio2);
-                //    mRender.material.SetFloat("_Intensity", Mathf.Lerp(source.frames[playedIndex - 1].TailFlags[9], source.frames[playedIndex].TailFlags[9], timeRatio2));
-                //    mRender.material.SetColor(vertexColor, Color.Lerp(source.frames[playedIndex - 1].colorRGB, source.frames[playedIndex].colorRGB, timeRatio2));
-                //}
             }
             else if (source.EffectType.Equals("BILLBOARD"))
             {
@@ -583,76 +449,6 @@ DRAG*/
                     transform.LookAt(Camera.main.transform);
                     transform.localScale = Vector3.Lerp(new Vector3(source.origScale.x * source.frames[playedIndex - 1].scale.x, source.origScale.y * source.frames[playedIndex - 1].scale.y, source.origScale.z * source.frames[playedIndex - 1].scale.z), new Vector3(source.origScale.x * source.frames[playedIndex].scale.x, source.origScale.y * source.frames[playedIndex].scale.y, source.origScale.z * source.frames[playedIndex].scale.z), timeRatio2);
                 }
-                //if (source.frames[playedIndex].startTime <= playedTime)
-                //{
-                //    if (RotateFollow != null)
-                //        transform.rotation = RotateFollow.rotation * source.frames[playedIndex].quat;
-                //    else
-                //        transform.rotation = source.frames[playedIndex].quat;
-
-                //    if (source.localSpace == 1)
-                //    {
-                //        if (RotateFollow != null)
-                //        {
-                //            Vector3 targetPos = RotateFollow.TransformPoint(source.frames[playedIndex].pos) - RotateFollow.position;
-                //            if (PositionFollow != null)
-                //                transform.position = PositionFollow.position + targetPos;
-                //            else
-                //                transform.position = targetPos;
-                //        }
-                //        else
-                //            Debug.LogError("缺少惯性坐标系骨骼");
-                //    }
-                //    else
-                //    {
-                //        if (PositionFollow != null)
-                //            transform.position = PositionFollow.position + source.frames[playedIndex].pos;
-                //        else
-                //            transform.position = source.frames[playedIndex].pos;
-                //    }
-
-                //    transform.localScale = new Vector3(source.origScale.x * source.frames[playedIndex].scale.x, source.origScale.y * source.frames[playedIndex].scale.y, source.origScale.z * source.frames[playedIndex].scale.z);
-                //    //transform.LookAt(Camera.main.transform);
-                //    mRender.material.SetFloat("_Intensity", source.frames[playedIndex].TailFlags[9]);
-                //    mRender.material.SetColor(vertexColor, new Color(source.frames[playedIndex].colorRGB.r, source.frames[playedIndex].colorRGB.g, source.frames[playedIndex].colorRGB.b, source.frames[playedIndex].colorRGB.a));
-
-                //    playedIndex++;
-                //    //playedTime = 0.0f;
-                //}
-                //else
-                //{
-                //    if (RotateFollow != null)
-                //        transform.rotation = RotateFollow.rotation * source.frames[playedIndex].quat;
-                //    else
-                //        transform.rotation = source.frames[playedIndex].quat;
-
-                //    if (source.localSpace == 1)
-                //    {
-                //        if (PositionFollow != null)
-                //        {
-                //            Vector3 targetPos = RotateFollow.TransformPoint(Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2)) - RotateFollow.position;
-                //            if (PositionFollow != null)
-                //                transform.position = PositionFollow.position + targetPos;
-                //            else
-                //                transform.position = targetPos;
-                //        }
-                //        else
-                //            Debug.LogError("缺少惯性坐标骨骼");
-                //    }
-                //    else
-                //    {
-                //        if (PositionFollow != null)
-                //            transform.position = PositionFollow.position + Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2);
-                //        else
-                //            transform.position = Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2);
-                //    }
-
-                //    transform.localScale = Vector3.Lerp(new Vector3(source.origScale.x * source.frames[playedIndex - 1].scale.x, source.origScale.y * source.frames[playedIndex - 1].scale.y, source.origScale.z * source.frames[playedIndex - 1].scale.z), new Vector3(source.origScale.x * source.frames[playedIndex].scale.x, source.origScale.y * source.frames[playedIndex].scale.y, source.origScale.z * source.frames[playedIndex].scale.z), timeRatio2);
-                //    //transform.LookAt(Camera.main.transform);
-                //    mRender.material.SetFloat("_Intensity", Mathf.Lerp(source.frames[playedIndex - 1].TailFlags[9], source.frames[playedIndex].TailFlags[9], timeRatio2));
-                //    mRender.material.SetColor(vertexColor, Color.Lerp(new Color(source.frames[playedIndex - 1].colorRGB.r, source.frames[playedIndex - 1].colorRGB.g, source.frames[playedIndex - 1].colorRGB.b, source.frames[playedIndex - 1].colorRGB.a), new Color(source.frames[playedIndex].colorRGB.r, source.frames[playedIndex].colorRGB.g, source.frames[playedIndex].colorRGB.b, source.frames[playedIndex].colorRGB.a), timeRatio2));
-
-                //}
             }
             else if (source.EffectType.Equals("MODEL"))
             {
@@ -688,12 +484,6 @@ DRAG*/
                 else
                 {
                     OnLastFrame(timeRatio2, vertexColor);
-                    //transform.localScale = Vector3.Lerp(source.frames[playedIndex - 1].scale, source.frames[playedIndex].scale, timeRatio2);
-                    //ParticleSystemRenderer render = particle.GetComponent<ParticleSystemRenderer>();
-                    //render.material.SetColor("_Color", new Color(source.frames[playedIndex].colorRGB.r, source.frames[playedIndex].colorRGB.g, source.frames[playedIndex].colorRGB.b, source.frames[playedIndex].colorRGB.a));
-                    //render.material.SetColor(vertexColor, new Color(source.frames[playedIndex].colorRGB.r, source.frames[playedIndex].colorRGB.g, source.frames[playedIndex].colorRGB.b, source.frames[playedIndex].colorRGB.a));
-                    //particle.Emit(1);
-                    //render.material.SetFloat("_Intensity", source.frames[playedIndex].TailFlags[9]);
                 }
             }
             else if (source.EffectType.Equals("DONUT"))
@@ -708,30 +498,6 @@ DRAG*/
                     OnLastFrame(timeRatio2, vertexColor);
                     transform.localScale = Vector3.Lerp(source.frames[playedIndex - 1].scale, source.frames[playedIndex].scale, timeRatio2);
                 }
-                //if (source.frames[playedIndex].startTime <= playedTime)
-                //{
-                //    if (RotateFollow != null)
-                //        transform.rotation = RotateFollow.rotation * source.frames[playedIndex].quat;
-                //    else
-                //        transform.rotation = source.frames[playedIndex].quat;
-                //    transform.localPosition = source.frames[playedIndex].pos;
-                //    transform.localScale = source.frames[playedIndex].scale;
-                //    mRender.material.SetFloat("_Intensity", source.frames[playedIndex].TailFlags[9]);
-                //    mRender.material.SetColor(vertexColor, source.frames[playedIndex].colorRGB);
-                //    playedIndex++;
-                //    //playedTime = 0.0f;
-                //}
-                //else
-                //{
-                //    if (RotateFollow != null)
-                //        transform.rotation = RotateFollow.rotation * source.frames[playedIndex].quat;
-                //    else
-                //        transform.rotation = Quaternion.Slerp(source.frames[playedIndex - 1].quat, source.frames[playedIndex].quat, timeRatio2);
-                //    transform.localPosition = Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2);
-                //    transform.localScale = Vector3.Lerp(source.frames[playedIndex - 1].scale, source.frames[playedIndex].scale, timeRatio2);
-                //    mRender.material.SetFloat("_Intensity", Mathf.Lerp(source.frames[playedIndex - 1].TailFlags[9], source.frames[playedIndex].TailFlags[9], timeRatio2));
-                //    mRender.material.SetColor(vertexColor, Color.Lerp(source.frames[playedIndex - 1].colorRGB, source.frames[playedIndex].colorRGB, timeRatio2));
-                //}
             }
             else if (source.EffectType.Equals("DRAG"))
             {
@@ -745,30 +511,6 @@ DRAG*/
                     OnLastFrame(timeRatio2, vertexColor);
                     transform.localScale = Vector3.Lerp(source.frames[playedIndex - 1].scale, source.frames[playedIndex].scale, timeRatio2);
                 }
-                //if (source.frames[playedIndex].startTime <= playedTime)
-                //{
-                //    if (RotateFollow != null)
-                //        transform.rotation = RotateFollow.rotation * source.frames[playedIndex].quat;
-                //    else
-                //        transform.rotation = source.frames[playedIndex].quat;
-                //    transform.localPosition = source.frames[playedIndex].pos;
-                //    transform.localScale = source.frames[playedIndex].scale;
-                //    mRender.material.SetFloat("_Intensity", source.frames[playedIndex].TailFlags[9]);
-                //    mRender.material.SetColor(vertexColor, source.frames[playedIndex].colorRGB);
-                //    playedIndex++;
-                //    //playedTime = 0.0f;
-                //}
-                //else
-                //{
-                //    if (RotateFollow != null)
-                //        transform.rotation = RotateFollow.rotation * source.frames[playedIndex].quat;
-                //    else
-                //        RotateFollow.transform.rotation = Quaternion.Slerp(source.frames[playedIndex - 1].quat, source.frames[playedIndex].quat, timeRatio2);
-                //    transform.localPosition = Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2);
-                //    transform.localScale = Vector3.Lerp(source.frames[playedIndex - 1].scale, source.frames[playedIndex].scale, timeRatio2);
-                //    mRender.material.SetFloat("_Intensity", Mathf.Lerp(source.frames[playedIndex - 1].TailFlags[9], source.frames[playedIndex].TailFlags[9], timeRatio2));
-                //    mRender.material.SetColor(vertexColor, Color.Lerp(source.frames[playedIndex - 1].colorRGB, source.frames[playedIndex].colorRGB, timeRatio2));
-                //}
             }
 
             yield return 0;

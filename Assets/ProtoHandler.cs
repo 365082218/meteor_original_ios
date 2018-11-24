@@ -20,6 +20,7 @@ public class LocalMsg
     public int Message;
     public int Result;
     public int Param;
+    public string message;
 }
 
 class ProtoHandler
@@ -114,7 +115,7 @@ class ProtoHandler
             {
                 switch (messageQueue[i].Message)
                 {
-                    case (short)LocalMsgType.Connect: OnConnect(messageQueue[i].Result);break;
+                    case (short)LocalMsgType.Connect: OnConnect(messageQueue[i].Result, messageQueue[i].message);break;
                     case (short)LocalMsgType.DisConnect: OnDisconnect();break;
                     case (short)LocalMsgType.SendFTPLogComplete: OnSendComplete(messageQueue[i].Result, messageQueue[i].Param);break;
                     case (short)LocalMsgType.GameStart:OnGameStart();break;
@@ -356,7 +357,7 @@ class ProtoHandler
             MainLobby.Instance.OnGetRoom(rsp);
     }
 
-    static void OnConnect(int result)
+    static void OnConnect(int result, string message)
     {
         //取得房间信息
         if (result == 1)
@@ -368,6 +369,7 @@ class ProtoHandler
         {
             //链接失败,重置对战
             //Debug.LogError("disconnected");
+            U3D.PopupTip(message);
             NetWorkBattle.Ins.OnDisconnect();
         }
     }
