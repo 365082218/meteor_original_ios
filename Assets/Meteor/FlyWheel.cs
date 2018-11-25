@@ -3,8 +3,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum FlyStatus
+{
+    FlySpline,//发射-以贝塞尔曲线方式运动
+    FlyGoto,//直线追随
+    FlyReturn,//撞击到目标后直线返回，不会被墙壁遮挡
+}
+
 //血滴子，敌方无法逃脱，除了防御/或用地形躲避.
 public class FlyWheel : MonoBehaviour {
+
+    public static bool FindFlyWheel(MeteorUnit owner)
+    {
+        for (int i = 0; i < FlyWheel.wheels.Count; i++)
+        {
+            if (FlyWheel.wheels[i].owner == owner)
+                return true;
+        }
+        return false;
+    }
+    static List<FlyWheel> wheels = new List<FlyWheel>();
+    static void Register(FlyWheel wheel)
+    {
+        wheels.Add(wheel);
+    }
+    static void UnRegister(FlyWheel wheel)
+    {
+        wheels.Remove(wheel);
+    }
     Spline spline = new Spline(3);
     MeteorUnit owner;
     MeteorUnit auto_target;
@@ -13,8 +39,8 @@ public class FlyWheel : MonoBehaviour {
     Transform R;//武器
     InventoryItem Weapon;
     WeaponTrail Trail;
-    int status = 0;//0-发射 1-回收
-    //射程-无限-跟踪，最多2秒-去1秒回1秒
+    FlyStatus status = FlyStatus.FlySpline;
+    //射程-无限-跟踪，不受时间限制
     float tTotal = 3.0f;
     float tTick = 0.0f;
     float speed = 350.0f;
@@ -28,9 +54,14 @@ public class FlyWheel : MonoBehaviour {
     void Start () {
 		
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    private void OnDestroy()
+    {
+        FlyWheel.UnRegister(this);
+    }
+
+    // Update is called once per frame
+    void Update () {
         List<MeteorUnit> deleted = new List<MeteorUnit>();
 		foreach (var each in attackTick)
         {
@@ -134,14 +165,14 @@ public class FlyWheel : MonoBehaviour {
             return;
         TargetPosCache = auto_target.mPos + Vector3.up * 25.0f;
         spline.SetControlPoint(2, TargetPosCache);
-        tTotal = tTick + spline.GetLength() / speed;
+        //tTotal = tTick + spline.GetLength() / speed;
     }
 
     IEnumerator Fly()
     {
         while (true)
         {
-            if (status == 0)
+            if (status == FlyStatus.FlySpline)
             {
                 //Debug.LogError("status == 0");
                 //发射,随机自转
@@ -155,11 +186,10 @@ public class FlyWheel : MonoBehaviour {
 
                 if (tTick > tTotal)
                 {
-                    status = 1;//无论是否撞到敌人，返回.
-                    tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / returnspeed;
-                    tTick = 0.0f;
+                    status = outofArea ? FlyStatus.FlyReturn : FlyStatus.FlyGoto;//如果还没有撞到敌人.则在接下来的时间里，直线追击敌人
+                    //tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / returnspeed;
+                    //tTick = 0.0f;
                     yield return 0;
-                    continue;
                 }
 
                 transform.Rotate(new Vector3(0, 15.0f, 0), Space.Self);
@@ -168,7 +198,17 @@ public class FlyWheel : MonoBehaviour {
                 //Debug.LogError(v.ToString());
                 transform.position = v;
             }
-            else if (status == 1)
+            else if (status == FlyStatus.FlyGoto)
+            {
+                transform.Rotate(new Vector3(0, 15.0f, 0), Space.Self);
+                Vector3 dir = auto_target.mSkeletonPivot - transform.position;
+                //Debug.LogError("dir.magnitude:" + dir.sqrMagnitude + " speed*time.deltatime:" + speed * Time.deltaTime);
+                //WsGlobal.AddDebugLine(transform.position, transform.position + dir, Color.red, "dir");
+                if (dir.magnitude <= speed * Time.deltaTime)//下一帧能够超过目标.
+                    status = FlyStatus.FlyReturn;
+                transform.position = transform.position + dir.normalized * speed * Time.deltaTime;
+            }
+            else if (status == FlyStatus.FlyReturn)
             {
                 //Debug.LogError("status == 1");
                 //回收-直线回转-穿墙
@@ -195,6 +235,7 @@ public class FlyWheel : MonoBehaviour {
         GameObject flyWheelObj = GameObject.Instantiate(Resources.Load("FlyWheel"), spawn, Quaternion.identity, null) as GameObject;
         flyWheelObj.layer = LayerMask.NameToLayer("Flight");
         FlyWheel wheel = flyWheelObj.GetComponent<FlyWheel>();
+        FlyWheel.Register(wheel);
         wheel.LoadAttack(weapon, autoTarget, attackDef, unit);
     }
 
@@ -204,9 +245,9 @@ public class FlyWheel : MonoBehaviour {
     {
         if (other.transform.root.gameObject.layer == LayerMask.NameToLayer("Scene"))
         {
-            if (status == 0)
+            if (status == FlyStatus.FlySpline || status == FlyStatus.FlyGoto)
             {
-                status = 1;
+                status = FlyStatus.FlyReturn;
                 tTick = 0.0f;
                 tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / returnspeed;
                 spline.SetControlPoint(2, transform.position);
@@ -235,9 +276,9 @@ public class FlyWheel : MonoBehaviour {
     {
         if (other.transform.root.gameObject.layer == LayerMask.NameToLayer("Scene"))
         {
-            if (status == 0)
+            if (status == FlyStatus.FlySpline || status == FlyStatus.FlyGoto)
             {
-                status = 1;
+                status = FlyStatus.FlyReturn;
                 tTick = 0.0f;
                 tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / returnspeed;
                 spline.SetControlPoint(2, transform.position);
@@ -248,7 +289,7 @@ public class FlyWheel : MonoBehaviour {
             MeteorUnit unit = other.GetComponentInParent<MeteorUnit>();
             if (unit == null)
                 return;
-            if (unit == owner && status == 1)
+            if (unit == owner && status == FlyStatus.FlyReturn)
             {
                 //Debug.LogError("WeaponReturned");
                 owner.WeaponReturned(_attack.PoseIdx);

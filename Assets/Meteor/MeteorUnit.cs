@@ -281,6 +281,7 @@ public partial class MeteorUnit : MonoBehaviour
     //按照角色的坐标围成一圈，每个30度 12个空位，距离50，其实应该按
     //public Dictionary<int, MeteorUnit> SlotInfo = new Dictionary<int, MeteorUnit>();
     //public Dictionary<int, GameObject> SlotFreePos = new Dictionary<int, GameObject>(); 
+    //群体AI处理角色站位.
     public Vector3 GetFreePos(out int slot, MeteorUnit user)
     {
         int k = -1;
@@ -321,6 +322,25 @@ public partial class MeteorUnit : MonoBehaviour
         return Vector3.zero;
     }
 
+    //指定的对象是否在自己视野内
+    public bool Find(MeteorUnit unit)
+    {
+        float d = Vector3.Distance(unit.transform.position, transform.position);
+        if (unit.HasBuff(EBUFF_Type.HIDE))
+        {
+            //隐身20码内可发现，2个角色相距较近
+            if (d >= 60.0f)
+                return false;
+        }
+        else
+        {
+            float v = U3D.IsSpecialWeapon(Attr.Weapon) ? Attr.View : Attr.View / 2;
+            if (d >= (v + 50))//给一定距离以免不停的切换目标
+                return false;
+        }
+        return true;
+    }
+
     public void AIPause(bool pause, float t = 0.0f)
     {
         if (robot != null)
@@ -332,6 +352,8 @@ public partial class MeteorUnit : MonoBehaviour
     //public List<SkillInput> SkillList = new List<SkillInput>();
     //MeteorUnit wantTarget = null;//绿色目标.只有主角拥有。
     MeteorUnit lockTarget = null;//攻击目标.主角主动攻击敌方后，没解锁前，都以这个目标作为锁定攻击目标，摄像机自动以主角和此目标，做一个自动视围盒，
+    Vector3 pos2 = Vector3.zero;
+    public Vector3 mPos2d { get { pos2 = transform.position; pos2.y = 0; return pos2; } }
     public Vector3 mPos { get { return transform.position; } }
     public Vector3 mSkeletonPivot { get { return transform.position + Global.BodyHeight; } }
     public bool Crouching { get { return posMng.mActiveAction.Idx == CommonAction.Crouch || (posMng.mActiveAction.Idx >= CommonAction.CrouchForw && posMng.mActiveAction.Idx <= CommonAction.CrouchBack); } }
@@ -522,14 +544,6 @@ public partial class MeteorUnit : MonoBehaviour
         }
     }
 
-    //public void PauseAI(int time)
-    //{
-    //    if (robot != null)
-    //        robot.Pause(time);
-    //    else if (controller != null)
-    //        controller.LockTime(time);    
-    //}
-
     //初始化的时候，设置默认选择友军是谁，所有治疗技能，增益BUFF均默认释放给他
     void SelectFriend()
     {
@@ -583,7 +597,7 @@ public partial class MeteorUnit : MonoBehaviour
             //隐身只能在10M内发现目标
             if (HasBuff(EBUFF_Type.HIDE))
             {
-                if (d > 35.0f)
+                if (d > 60.0f)
                     continue;
             }
 
@@ -789,7 +803,7 @@ public partial class MeteorUnit : MonoBehaviour
                 if (lockTarget.HasBuff(EBUFF_Type.HIDE))
                 {
                     //隐身20码内可发现，2个角色紧贴着
-                    if (d >= 35.0f)
+                    if (d >= 60.0f)
                     {
                         lockTarget = null;
                     }
@@ -969,11 +983,6 @@ public partial class MeteorUnit : MonoBehaviour
     public bool CanBurst()
     {
         return (AngryValue == Global.ANGRYMAX);
-    }
-
-    public bool InDanger()
-    {
-        return Attr.hpCur <= 20;//危险状态.
     }
 
     //专门用来播放左转，右转动画的，直接面对角色不要调用这个。

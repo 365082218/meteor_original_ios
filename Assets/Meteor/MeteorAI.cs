@@ -65,6 +65,7 @@ public class MeteorAI {
         SubStatus = EAISubStatus.SubStatusIdle;
         int count = Global.GLevelItem.wayPoint.Count;
         nodeContainer = new PathNode[count];
+        ThinkCheckTick = MeteorAI.ThinkDelay;
         for (int i = 0; i < count; i++)
             nodeContainer[i] = new PathNode();
     }
@@ -89,8 +90,10 @@ public class MeteorAI {
     //当前目标路径
     int pathIdx = -1;
     Vector3 TargetPos = Vector3.zero;
+    static readonly float ThinkDelay = 200;//思考延迟，每一帧这个延迟都会被配置里的Think减去一个数，减少到0时，就触发一次行为，否则返回
     // Update is called once per frame
     public void Update () {
+        ThinkCheckTick -= owner.Attr.Think;//
         //是否暂停AI。
         if (stoped)
             return;
@@ -118,10 +121,10 @@ public class MeteorAI {
             }
         }
 
-        ThinkCheckTick -= Time.deltaTime;
         ChangeWeaponTick -= Time.deltaTime;
         AIJumpDelay += Time.deltaTime;
         lookTick += Time.deltaTime;
+
         //行为优先级 
         //AI强制行为(攻击指定位置，Kill追杀（不论视野）攻击 ) > 战斗 > 跟随 > 巡逻 > 
         if (Status == EAIStatus.Patrol)
@@ -178,8 +181,8 @@ public class MeteorAI {
             //视线内存在可碰触的场景道具
             if (owner.GetSceneItemTarget() != null && owner.GetSceneItemTarget().CanPickup())
             {
-                int getItem = Random.Range(1, 101);
-                if (getItem <= owner.Attr.GetItem)
+                int getItem = Random.Range(0, 100);
+                if (getItem < owner.Attr.GetItem)
                 {
                     ChangeState(EAIStatus.GetItem);
                     return;
@@ -251,6 +254,8 @@ public class MeteorAI {
                 OnKill();
                 break;
         }
+
+
     }
 
     //逃跑
@@ -274,8 +279,8 @@ public class MeteorAI {
 
         leaveTick += Time.deltaTime;
         //给一定几率让处于危险状态逃跑中，切换到与角色对打
-        int random = Random.Range(1, 101);
-        if (random <= 5)
+        int random = Random.Range(0, 100);
+        if (random < 5)
             ChangeState(EAIStatus.Wait);
     }
 
@@ -337,8 +342,8 @@ public class MeteorAI {
                             return;
                         }
                         //尝试几率跳跃，否则可能会被卡住.
-                        int random = Random.Range(1, 101);
-                        if (AIJumpDelay >= 2.5f && random <= owner.Attr.Jump)
+                        int random = Random.Range(0, 100);
+                        if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
                         {
                             AIJump();
                             AIJumpDelay = 0.0f;
@@ -391,9 +396,8 @@ public class MeteorAI {
     {
         if (waitDefence <= 0.0f)
         {
-            int random = Random.Range(1, 101);
-            if (random <= owner.Attr.Guard)
-                owner.Guard(false);
+            int random = Random.Range(0, 100);
+            owner.Guard(random < owner.Attr.Guard);
         }
         waitDefence -= Time.deltaTime;
     }
@@ -509,7 +513,7 @@ public class MeteorAI {
     void TryAttack(int attack = 0)
     {
         if (attack == 0)
-            attack = Random.Range(1, 101);
+            attack = Random.Range(0, owner.Attr.Attack1 + owner.Attr.Attack2 + owner.Attr.Attack3);
         //已经在攻击招式中.后接招式挑选
         //把可以使用的招式放到集合里，A类放普攻，B类放搓招， C类放绝招
         ActionNode act = ActionInterrupt.Instance.GetActions(owner.posMng.mActiveAction.Idx);
@@ -520,7 +524,7 @@ public class MeteorAI {
             //owner.Attr.Attack2 = 0;
             //owner.Attr.Attack3 = 100;
             //owner.AngryValue = 100;
-            if (attack <= owner.Attr.Attack1)
+            if (attack < owner.Attr.Attack1)
             {
                 //普通攻击
                 //Debug.LogError("try attack 1");
@@ -530,7 +534,7 @@ public class MeteorAI {
                     TryPlayWeaponPose(attack1.KeyMap);
                 }
             }
-            else if (attack <= (owner.Attr.Attack1 + owner.Attr.Attack2))
+            else if (attack < (owner.Attr.Attack1 + owner.Attr.Attack2))
             {
                 //Debug.LogError("try attack2");
                 //连招
@@ -540,7 +544,7 @@ public class MeteorAI {
                     TryPlayWeaponPose(attack2[Random.Range(0, attack2.Count)].KeyMap);
                 }
             }
-            else if (attack <= (owner.Attr.Attack1 + owner.Attr.Attack2 + owner.Attr.Attack3))
+            else if (attack < (owner.Attr.Attack1 + owner.Attr.Attack2 + owner.Attr.Attack3))
             {
                 //绝招
                 //Debug.LogError("try attack3");
@@ -629,8 +633,8 @@ public class MeteorAI {
                             return false;
                         }
                         //尝试几率跳跃，否则可能会被卡住.
-                        int random = Random.Range(1, 101);
-                        if (AIJumpDelay >= 2.5f && random <= owner.Attr.Jump)
+                        int random = Random.Range(0, 100);
+                        if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
                         {
                             AIJump();
                             AIJumpDelay = 0.0f;
@@ -676,7 +680,7 @@ public class MeteorAI {
         return false;
     }
 
-    //地面攻击.
+    //地面攻击.思考仅处理战斗状态
     float ThinkCheckTick = 0.0f;
     float ChangeWeaponTick = 0.0f;
     void OnFightStatus()
@@ -812,8 +816,8 @@ public class MeteorAI {
                     return;
                 }
                 //尝试几率跳跃，否则可能会被卡住.
-                int random = Random.Range(1, 101);
-                if (AIJumpDelay >= 2.5f && random <= owner.Attr.Jump)
+                int random = Random.Range(0, 100);
+                if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
                 {
                     AIJump();
                     AIJumpDelay = 0.0f;
@@ -827,6 +831,13 @@ public class MeteorAI {
     {
         //先查看与目标角色距离，在一定距离内结束此状态
         if (Vector3.SqrMagnitude(fightTarget.mSkeletonPivot - owner.mSkeletonPivot) <= Global.AttackRange)
+        {
+            Stop();
+            ChangeState(EAIStatus.Fight);
+            return;
+        }
+
+        if (Vector3.SqrMagnitude(fightTarget.mPos2d - owner.mPos2d) <= 100)
         {
             Stop();
             ChangeState(EAIStatus.Fight);
@@ -872,7 +883,7 @@ public class MeteorAI {
                     return;
                 }
                 //尝试几率跳跃，否则可能会被卡住.
-                int random = Random.Range(1, 101);
+                int random = Random.Range(0, 100);
                 if (AIJumpDelay >= 2.5f && random <= owner.Attr.Jump)
                 {
                     AIJump();
@@ -920,6 +931,10 @@ public class MeteorAI {
                 return;
         }
 
+        if (ThinkCheckTick > 0)
+            return;
+        ThinkCheckTick = MeteorAI.ThinkDelay;
+
         if (owner.controller.Input.AcceptInput())
         {
             if (owner.posMng.IsAttackPose())
@@ -931,16 +946,16 @@ public class MeteorAI {
                     //如果是远程武器，先检查角度是否相差过大.过大先调整角度
                     if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
                     {
-                        if (GetAngleBetween(fightTarget.mPos) >= 30)
+                        if (GetAngleBetween(fightTarget.mPos) >= Global.AimDegree)
                         {
                             //停止连击，方向需要调整
                             return;
                         }
                         
                     }
-                    //近战武器，2%几率接前一招出招
-                    float chance = Random.Range(1, 101);
-                    if (chance <= 2)
+                    //近战武器，在可输入帧，每一帧30几率接前一招出招，如果这个输入帧大于50帧，基本就可以连上去
+                    int chance = Random.Range(0, 100);
+                    if (chance < Global.ComboProbability)
                     {
                         //UnityEngine.Debug.LogError(string.Format("{0}:chance attack", chance));
                         TryAttack();
@@ -968,7 +983,7 @@ public class MeteorAI {
                     {
                         int breakOut = Random.Range(0, 100);
                         //20时，就为20几率，0-19 共20
-                        if (breakOut <= Global.BreakChange)
+                        if (breakOut < Global.BreakChange)
                             InputCorout = owner.StartCoroutine(VirtualKeyEvent(EKeyList.KL_BreakOut));
                     }
                 }
@@ -987,100 +1002,62 @@ public class MeteorAI {
                 //或者远程状态下，使用近战武器跑近身打架
                 //或者远程状态下, 切换远程武器打架
                 //使用计时器，如果未到下一个不判断
-                if (ThinkCheckTick <= 0.0f)
+                if (fightTarget == null)
                 {
-                    //更新状态.
-                    ThinkCheckTick = owner.Attr.Think / 100.0f;
-                    if (fightTarget == null)
+                    ChangeState(EAIStatus.Wait);
+                    return;
+                }
+                float dis = Vector3.SqrMagnitude(owner.mSkeletonPivot - fightTarget.mSkeletonPivot);
+                //距离战斗目标不同，选择不同方式应对.
+                if (dis >= Global.AttackRange)
+                {
+                    //大部分几率是跑过去，走到跟前对打。
+                    //小部分几率是切换远程武器打目标。
+                    //1是否拥有远程武器
+                    if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
                     {
-                        ChangeState(EAIStatus.Wait);
-                        return;
-                    }
-                    float dis = Vector3.SqrMagnitude(owner.mSkeletonPivot - fightTarget.mSkeletonPivot);
-                    //距离战斗目标不同，选择不同方式应对.
-                    if (dis >= Global.AttackRange)
-                    {
-                        //大部分几率是跑过去，走到跟前对打。
-                        //小部分几率是切换远程武器打目标。
-                        //1是否拥有远程武器
-                        if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
+                        //主手是远程武器-.直接攻击,不处理，后续会处理到底是打还是啥.
+                        if (owner.Attr.Weapon2 == 0 || U3D.IsSpecialWeapon(owner.Attr.Weapon2))
                         {
-                            //主手是远程武器-.直接攻击,不处理，后续会处理到底是打还是啥.
-                            if (owner.Attr.Weapon2 == 0 || U3D.IsSpecialWeapon(owner.Attr.Weapon2))
+                            //站撸，因为只有远程武器？这个状态可能是丢掉武器发生的，应该算一个错误状态
+                            if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.AimDegree)
                             {
-                                //站撸，因为只有远程武器？这个状态可能是丢掉武器发生的，应该算一个错误状态
                                 SubStatus = EAISubStatus.FightAim;
-                                return;
-                            }
-
-                            int random = Random.Range(1, 101);
-                            if (random > 10)
-                            {
-                                //直接使用当前武器开打，需要瞄准.
-                                SubStatus = EAISubStatus.FightAim;
-                                return;
-                            }
-                            else
-                            {
-                                //切换武器，跑过去，开打,换到武器2
-                                if (ChangeWeaponTick <= 0.0f)
-                                {
-                                    owner.ChangeWeapon();
-                                    ChangeWeaponTick = 10.0f;
-                                    return;
-                                }
-                            }
-                        }
-                        else if (U3D.IsSpecialWeapon(owner.Attr.Weapon2))
-                        {
-                            //副手是远程武器-.一定几率切换武器，再攻击.
-                            int random = Random.Range(1, 101);
-                            if (random > 10)
-                            {
-                                //切换武器，开打(不跑过去),换到武器2
-                                //SubStatus = EAISubStatus.FightChangeWeapon;
-                                if (ChangeWeaponTick <= 0.0f)
-                                {
-                                    owner.ChangeWeapon();
-                                    ChangeWeaponTick = 10.0f;
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                //直接使用当前武器开打，跑过去，需要面对.
-                                SubStatus = EAISubStatus.FightGotoTarget;
                                 return;
                             }
                         }
                         else
                         {
-                            //双手全近战武器.在视野内 攻击距离外则跑近到攻击距离
-                            SubStatus = (EAISubStatus.FightGotoTarget);
-                            return;
-                        }
-
-                    }
-                    else
-                    {
-                        //检查有没有远程武器.
-                        //是否跑远使用远程武器.
-                        if (!U3D.IsSpecialWeapon(owner.Attr.Weapon))//主手不为远程武器
-                        {
-                            //主手近战武器，副手远程武器
-                            //无需处理，使用近战武器攻击就好。
-                        }
-                        else if (U3D.IsWeapon(owner.Attr.Weapon2) && !U3D.IsSpecialWeapon(owner.Attr.Weapon2))//主手为远程武器，副手有武器且不为远程武器
-                        {
-                            //主手远程武器,副手近战武器
-                            //1切换为近战武器，2跑远
-                            int random = Random.Range(1, (int)Global.AttackRange + 1);
-                            int limit = (int)(Global.AttackRange - (dis - 324));
-                            if (random < limit)
+                            int random = Random.Range(0, 100);
+                            if (random >= (100 -  Global.SpecialWeaponProbability))
                             {
-                                SubStatus = (EAISubStatus.FightLeave);
-                                return;
+                                //直接使用当前武器开打，如果非面向，需要瞄准.
+                                if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.AimDegree)
+                                {
+                                    SubStatus = EAISubStatus.FightAim;
+                                    return;
+                                }
                             }
+                            else
+                            {
+                                //切换武器，跑过去，开打
+                                if (ChangeWeaponTick <= 0.0f)
+                                {
+                                    owner.ChangeWeapon();
+                                    ChangeWeaponTick = 10.0f;
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                    else if (U3D.IsSpecialWeapon(owner.Attr.Weapon2))
+                    {
+                        //副手是远程武器-.一定几率切换武器，再攻击.90几率切换到远程武器
+                        int random = Random.Range(0, 100);
+                        if (random < Global.SpecialWeaponProbability)
+                        {
+                            //切换武器，开打(不跑过去),换到武器2
+                            //SubStatus = EAISubStatus.FightChangeWeapon;
                             if (ChangeWeaponTick <= 0.0f)
                             {
                                 owner.ChangeWeapon();
@@ -1090,69 +1067,134 @@ public class MeteorAI {
                         }
                         else
                         {
-                            //主手远程武器 副手无武器。距离太近
-                            if (dis < 25)
-                            {
-                                SubStatus = (EAISubStatus.FightLeave);
-                                return;
-                            }
+                            //直接使用当前武器开打，跑过去，需要面对.
+                            SubStatus = EAISubStatus.FightGotoTarget;
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        //双手全近战武器.在视野内 攻击距离外则跑近到攻击距离
+                        SubStatus = (EAISubStatus.FightGotoTarget);
+                        return;
+                    }
+                }
+                else
+                {
+                    //检查有没有远程武器.
+                    //是否跑远使用远程武器.
+                    if (!U3D.IsSpecialWeapon(owner.Attr.Weapon))//主手不为远程武器
+                    {
+                        //主手近战武器，副手远程武器
+                        //无需处理，使用近战武器攻击就好。
+                        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.AimDegree)
+                        {
+                            SubStatus = EAISubStatus.FightAim;
+                            return;
+                        }
+                    }
+                    else if (U3D.IsWeapon(owner.Attr.Weapon2) && !U3D.IsSpecialWeapon(owner.Attr.Weapon2))//主手为远程武器，副手有武器且不为远程武器
+                    {
+                        //主手远程武器,副手近战武器
+                        //1切换为近战武器，2跑远
+                        int random = Random.Range(1, (int)Global.AttackRange + 1);
+                        int limit = (int)(Global.AttackRange - (dis - 324));
+                        if (random < limit)
+                        {
+                            SubStatus = (EAISubStatus.FightLeave);
+                            return;
+                        }
+                        if (ChangeWeaponTick <= 0.0f)
+                        {
+                            owner.ChangeWeapon();
+                            ChangeWeaponTick = 10.0f;
+                            return;
+                        }
+
+                    }
+                    else
+                    {
+                        //主手远程武器 副手无武器。距离太近
+                        if (dis < Global.AttackRangeMin)
+                        {
+                            SubStatus = (EAISubStatus.FightLeave);
+                            return;
                         }
                     }
                 }
 
                 //使用近战武器，一定在攻击范围内。一次骰子判断所有概率.
-                int attack = Random.Range(1, 101 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst + owner.Attr.GetItem);
-                if (attack <= owner.Attr.Attack1 + owner.Attr.Attack2 + owner.Attr.Attack3)
+                int attack = Random.Range(0, 100);
+                if (attack < owner.Attr.Attack1)
                 {
-                    //先判断是否面朝目标，不是则先转动方向朝向目标
+                    //判定攻击
                     if (fightTarget == null)
                         Debug.LogError("fightTarget == null");
-                    if (GetAngleBetween(fightTarget.mPos) >= 30)
-                    {
-                        Stop();
-                        ChangeState(EAIStatus.Fight);
-                        return;
-                    }
                     TryAttack(attack);
                 }
                 else
                 {
-                    if (attack > 100 && attack <= 100 + owner.Attr.Dodge)
+                    //攻击的几率分开算，不能合并到一起，否则攻击几率太大.
+                    attack = Random.Range(0, 100);
+                    if (attack < owner.Attr.Attack2)
                     {
-                        //逃跑，在危险状态下
-                        if (owner.InDanger())
+                        TryAttack(owner.Attr.Attack1 + attack);
+                    }
+                    else
+                    {
+                        attack = Random.Range(0, 100);
+                        if (attack < owner.Attr.Attack3)
                         {
-                            LeaveReset();
-                            ChangeState(EAIStatus.Dodge);
+                            TryAttack(owner.Attr.Attack1 + owner.Attr.Attack2 + attack);
                         }
-                    }
-                    else
-                    if (JumpCoroutine == null && attack > 100 + owner.Attr.Dodge && attack <= 100 + owner.Attr.Dodge + owner.Attr.Jump)
-                    {
-                        //最好不要带方向跳跃，否则可能跳到障碍物外被场景卡住
-                        Stop();
-                        AIJump();
-                    }
-                    else if (!U3D.IsSpecialWeapon(owner.Attr.Weapon) && (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump && attack <= 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard))
-                    {
-                        //远程武器无法防御.
-                        Stop();
-                        owner.Guard(true);
-                    }
-                    else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look && attack <= 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst)
-                    {
-                        //快速移动.
-                        AIBurst((EKeyList.KL_KeyA) + attack % 4);
-                    }//不判断拾取物品，拾取物品发生在物品出现在视野内时
-                    else if (attack > 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst && attack <= 100 + owner.Attr.Dodge + owner.Attr.Jump + owner.Attr.Guard + owner.Attr.Look + owner.Attr.Burst + owner.Attr.GetItem)
-                    {
-                        //去捡包子.
-                        if (owner.GetSceneItemTarget() != null && owner.GetSceneItemTarget().CanPickup())
-                            ChangeState(EAIStatus.GetItem);
-                    }
-                    else
-                    {
-
+                        else
+                        {
+                            //判定防御
+                            int defence = Random.Range(0, 100);
+                            if (!U3D.IsSpecialWeapon(owner.Attr.Weapon) && defence < owner.Attr.Guard)
+                            {
+                                //远程武器无法防御.
+                                Stop();
+                                owner.Guard(true);
+                            }
+                            else
+                            {
+                                //判定闪躲
+                                int dodge = Random.Range(0, 100);
+                                if (dodge < owner.Attr.Dodge)
+                                {
+                                    //逃跑，在危险状态下
+                                    LeaveReset();
+                                    ChangeState(EAIStatus.Dodge);
+                                }
+                                else
+                                {
+                                    int jump = Random.Range(0, 100);
+                                    if (JumpCoroutine == null && jump < owner.Attr.Jump)
+                                    {
+                                        //最好不要带方向跳跃，否则可能跳到障碍物外被场景卡住
+                                        Stop();
+                                        AIJump();
+                                    }
+                                    else
+                                    {
+                                        int burst = Random.Range(0, 100);
+                                        //判断速冲.
+                                        if (burst < owner.Attr.Burst)
+                                            AIBurst((EKeyList.KL_KeyA) + attack % 4);
+                                        else
+                                        {
+                                            int pickup = Random.Range(0, 100);
+                                            if (pickup < owner.Attr.GetItem)
+                                            {
+                                                if (owner.GetSceneItemTarget() != null && owner.GetSceneItemTarget().CanPickup())
+                                                    ChangeState(EAIStatus.GetItem);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 return;
@@ -1182,7 +1224,7 @@ public class MeteorAI {
             return;
         }
 
-        if (GetAngleBetween(fightTarget.mSkeletonPivot) >= 30.0f)
+        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.AimDegree)
         {
             if (AttackRotateToTargetCoroutine == null)
             {
@@ -1360,8 +1402,8 @@ public class MeteorAI {
                             return;
                         }
                         //尝试几率跳跃，否则可能会被卡住.
-                        int random = Random.Range(1, 101);
-                        if (AIJumpDelay >= 2.5f && random <= owner.Attr.Jump)
+                        int random = Random.Range(0, 100);
+                        if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
                         {
                             AIJump();
                             AIJumpDelay = 0.0f;
@@ -1447,8 +1489,8 @@ public class MeteorAI {
                                 return;
                             }
                             //尝试几率跳跃，否则可能会被卡住.
-                            int random = Random.Range(1, 101);
-                            if (AIJumpDelay >= 2.5f && random <= owner.Attr.Jump)
+                            int random = Random.Range(0, 100);
+                            if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
                             {
                                 AIJump();
                                 AIJumpDelay = 0.0f;
@@ -1559,8 +1601,8 @@ public class MeteorAI {
         
         if (lookTick >= 5.0f)
         {
-            int lookChance = Random.Range(1, 101);
-            if (lookChance <= owner.Attr.Look)
+            int lookChance = Random.Range(0, 100);
+            if (lookChance < owner.Attr.Look)
             {
                 lookTick = 0;//5秒内最多能进行一次四处看.
                 ChangeState(EAIStatus.Look);
@@ -1827,8 +1869,16 @@ public class MeteorAI {
         owner.controller.Input.ResetInput();
         if (attacker != null)
         {
-            ChangeState(EAIStatus.Fight);
-            fightTarget = attacker;
+            //攻击者在视野内，切换为战斗姿态，否则
+            if (owner.Find(attacker))
+            {
+                //如果当前有攻击目标，是否切换目标
+                if (owner.GetLockedTarget() == null)
+                {
+                    ChangeState(EAIStatus.Fight);
+                    fightTarget = attacker;
+                }
+            }
         }
     }
 
@@ -1922,7 +1972,7 @@ public class MeteorAI {
         PatrolRotateCoroutine = null;
     }
 
-    //得到某个角色的面向向量与某个位置的夹角,不考虑Y轴
+    //得到某个角色的面向向量与某个位置的夹角,不考虑Y轴 
     float GetAngleBetween(Vector3 vec)
     {
         vec.y = 0;
@@ -1931,7 +1981,7 @@ public class MeteorAI {
             return 0;
 
         Vector3 vec1 = -owner.transform.forward;
-        Vector3 vec2 = (vec - owner.mPos).normalized;
+        Vector3 vec2 = (vec - owner.mPos2d).normalized;
         vec2.y = 0;
         float radian = Vector3.Dot(vec1, vec2);
         float degree = Mathf.Acos(radian) * Mathf.Rad2Deg;
@@ -2449,8 +2499,8 @@ public class MeteorAI {
                     }
 
                     //尝试几率跳跃，否则可能会被卡住.
-                    int random = Random.Range(1, 101);
-                    if (AIJumpDelay >= 2.5f && random <= owner.Attr.Jump)
+                    int random = Random.Range(0, 100);
+                    if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
                     {
                         AIJump();
                         AIJumpDelay = 0.0f;
@@ -2515,8 +2565,8 @@ public class MeteorAI {
                             return;
                         }
                         //尝试几率跳跃，否则可能会被卡住.
-                        int random = Random.Range(1, 101);
-                        if (AIJumpDelay >= 2.5f && random <= owner.Attr.Jump)
+                        int random = Random.Range(0, 100);
+                        if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
                         {
                             AIJump();
                             AIJumpDelay = 0.0f;

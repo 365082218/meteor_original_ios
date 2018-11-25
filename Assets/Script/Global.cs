@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 public class Global
 {
+    public static int ComboProbability = 5;//连几率
+    public static int SpecialWeaponProbability = 2;//2几率切换到远程武器，每次Think都有2%几率
+    public static float AimDegree = 45.0f;//夹角超过45度，需要进入瞄准
     public static string[] model = new string[] { "孟星魂", "冷燕", "铁胡子", "夜猫子", "破空", "冯浩", "孙剑", "萧安", "子興", "王强", "无名", "叶翔", "小何", "凤凤", "石群", "屠城", "范旋", "高老大", "孙玉伯", "律香川"};
     public static MeteorInput GMeteorInput = null;
 	public static Level GLevelItem = null;
@@ -34,6 +37,7 @@ public class Global
     public const int LEVELSTART = 1;//初始关卡ID
     public static int LEVELMAX = 29;//最大关卡29
     public const int ANGRYMAX = 100;
+    public const float AttackRangeMin = 35;//远程武器在距离35码内要离开目标，否则是很难攻击到目标的
     public const float AttackRange = 2500.0f;//近战攻击距离50
     public const float FollowDistanceEnd = 2500.0f;//结束跟随50
     public const float FollowDistanceStart = 4225.0f;//开始跟随65

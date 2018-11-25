@@ -1125,6 +1125,24 @@ public partial class GameBattleEx : MonoBehaviour {
         UnitActionStack[id].action.Add(it);
     }
 
+    void PushActionUse(int id, StackAction type, int idx)
+    {
+        if (!UnitActKey.Contains(id))
+            UnitActKey.Add(id);
+        if (!UnitActionStack.ContainsKey(id))
+        {
+            UnitActionStack.Add(id, new ActionConfig());
+            UnitActionStack[id].id = id;
+        }
+        ActionItem it = new ActionItem();
+        it.text = "";
+        it.pause_time = 0;
+        it.type = type;//say = 1 pause = 2 skill = 3;crouch = 4, block=5
+        it.param = idx;
+        it.target = Vector3.zero;
+        UnitActionStack[id].action.Add(it);
+    }
+
     //为了增加，朝指定位置攻击功能加的
     void PushAction(int id, StackAction type, Vector3 position, int count)
     {
@@ -1181,6 +1199,10 @@ public partial class GameBattleEx : MonoBehaviour {
         PushAction(id, StackAction.BLOCK, 0, "", status);
     }
 
+    public void PushActionUse(int id, int idx)
+    {
+        PushActionUse(id, StackAction.Use, idx);
+    }
     public void PushActionCrouch(int id, int status)
     {
         PushAction(id, StackAction.CROUCH, 0, "", status);
@@ -1292,6 +1314,7 @@ public enum StackAction
     Kill = 11,
     Aggress = 12,
     AttackTarget = 13,
+    Use = 14,//使用道具
 }
 
 public class ActionConfig
@@ -1427,6 +1450,13 @@ public class ActionConfig
                     if (unit.robot.OnAttackTarget())
                         action.RemoveAt(action.Count - 1);
                 }
+            }
+            else if (action[action.Count - 1].type == StackAction.Use)
+            {
+                MeteorUnit unit = U3D.GetUnit(id);
+                if (unit != null)
+                    unit.GetItem(action[action.Count - 1].param);
+                action.RemoveAt(action.Count - 1);
             }
         }
     }

@@ -1076,7 +1076,7 @@ public class ScriptBase
         MakeString(ref weaponname, "D_wpRJug", index);
 
         int randx = rand(1, 5);
-        Debug.LogError("打碎随机坛子-得到产出序号:" + randx);
+        //Debug.LogError("打碎随机坛子-得到产出序号:" + randx);
         string ritemname = "";
         string rweaponname = "";
 
@@ -4626,7 +4626,7 @@ public class LevelScript_sn10: LevelScriptBase
             AddNPC(rebornName);
             trg3 = 0;
         }
-
+        
         if (trg4 == 0 && trg2 == 2)
         {
             c = GetChar("屠城");

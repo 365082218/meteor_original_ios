@@ -1332,8 +1332,7 @@ public class U3D : MonoBehaviour {
             GameBattleEx.Instance.PushActionPause(0, param);//0代表主角色.
         else if (act == "use")
         {
-            MeteorManager.Instance.LocalPlayer.GetItem(param);
-            return 1;
+            GameBattleEx.Instance.PushActionUse(0, param);
         }
         else if (act == "crouch")
             GameBattleEx.Instance.PushActionCrouch(0, param);//1是指令状态，1代表应用状态， 0代表取消状态

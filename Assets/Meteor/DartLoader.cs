@@ -40,8 +40,8 @@ public class DartLoader : MonoBehaviour {
     
     public AttackDes _attack;
     Vector3 _direction;
-    public static float InitializeSpeed = 400.0f;
-    float _speed = 300.0f;//初始速度.
+    public static float InitializeSpeed = 350.0f;
+    float _speed = InitializeSpeed;//初始速度.
     public static float gspeed = 140.0f;//加速度.
     //float maxLength = 800;//跑多远开始开启重力.
     float maxDistance = 5000;//最远射程
@@ -116,7 +116,6 @@ public class DartLoader : MonoBehaviour {
                 Debug.Log("dart attack sceneitemagent");
                 it.OnDamage(owner, _attack);
             }
-            GameObject.Destroy(this);
             GameObject.Destroy(gameObject);
         }
         else
@@ -141,7 +140,6 @@ public class DartLoader : MonoBehaviour {
             //record.tick = 0.2f;
             //rec.Add(record);
             attacked.Add(unit);
-            GameObject.Destroy(this);
             GameObject.Destroy(gameObject);
             //Debug.LogError("dart attack end");
         }

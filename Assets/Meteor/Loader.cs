@@ -273,17 +273,6 @@ public class Loader : MonoBehaviour {
                 des.SceneItems[i].name.StartsWith("D_team") ||
                 des.SceneItems[i].name.StartsWith("D_User"))
                 continue;
-            //string effect;
-            //if (des.SceneItems[i].ContainsKey("effect", out effect))
-            //    continue;
-            //if (des.SceneItems[i].name.StartsWith("D_wp") ||
-            //    des.SceneItems[i].name.StartsWith("D_it") ||
-            //    des.SceneItems[i].name.StartsWith("D_It") ||
-            //    des.SceneItems[i].name.StartsWith("D_BBox") ||
-            //    des.SceneItems[i].name.StartsWith("D_RJug") ||
-            //    des.SceneItems[i].name.StartsWith("D_Jug"))
-            //    continue;
-
             string type;
             bool active = false;
             if (des.SceneItems[i].ContainsKey("ticket", out type))

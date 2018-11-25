@@ -1437,6 +1437,9 @@ public class MeteorInput
                 }
                 break;
             case (int)EquipWeaponType.Guillotines://血滴子
+                //先判定场景内有无已发射出还未返回到手里的血滴子，有则不许发射新的血滴子
+                if (FlyWheel.FindFlyWheel(mOwner))
+                    return false;
                 switch (KeyMap)
                 {
                     case 9:
