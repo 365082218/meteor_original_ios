@@ -17,7 +17,7 @@ public partial class GameBattleEx : MonoBehaviour {
     public CameraFollow m_CameraControl;
     int time = 1000;//秒
     float timeClock = 0.0f;
-    const float ViewLimit = 62500;
+    const float ViewLimit = 160000;//400码，自动解除锁定.
     static GameBattleEx _Ins;
     public static GameBattleEx Instance { get { return _Ins; } }
     // Use this for initialization
