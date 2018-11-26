@@ -737,12 +737,27 @@ public partial class MeteorUnit : MonoBehaviour
         if (robot != null)
             RefreshTarget();
         ProcessGravity();
+
+        //除了受击，防御，其他动作在有锁定目标下，都要转向锁定目标.
+        if (GetLockedTarget() != null && posMng.mActiveAction.Idx == CommonAction.Run)
+        {
+            if (robot == null && !GameData.Instance.gameStatus.DisableLock)
+            {
+                if (GetWeaponType() != (int)EquipWeaponType.Guillotines &&
+                    GetWeaponType() != (int)EquipWeaponType.Gun &&
+                    GetWeaponType() != (int)EquipWeaponType.Dart)
+                {
+                    FaceToTarget(GetLockedTarget());//抖动是因为招式忽略了角色间的碰撞,导致的离的太近
+                }
+            }
+        }
+
     }
 
-    private void LateUpdate()
-    {
+    //private void LateUpdate()
+    //{
         //ProcessFreePos();
-    }
+    //}
 
     //void ProcessFreePos()
     //{
@@ -1112,6 +1127,7 @@ public partial class MeteorUnit : MonoBehaviour
     public void FaceToTarget(Vector3 target)
     {
         Vector3 vdiff = transform.position - target;
+        vdiff.y = 0;
         transform.rotation = Quaternion.LookRotation(new Vector3(vdiff.x, 0, vdiff.z), Vector3.up);
         if (this == MeteorManager.Instance.LocalPlayer)
         {
