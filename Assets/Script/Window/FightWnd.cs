@@ -37,14 +37,6 @@ public class FightWnd: Window<FightWnd>
     Image hpBar;
     Image angryBar;
     Text hpLabel;
-    //Text userNick;
-    //Image hpWarning;
-    //Image angryWarning;
-    
-    //Image exp;
-    //Dropdown dr;
-    //Dropdown effectDr;
-    //Button currentPos;
 
     //角色面板，暂时取消
     void OnPlayerInfo()
@@ -71,8 +63,6 @@ public class FightWnd: Window<FightWnd>
     Transform LevelTalkRoot;
     Animation actionStatusBarCtrl;
     GameObject FloatOpen;
-    //GameObject BuffRoot;
-    //GameObject TargetBuffPanel;
     GameObject Unlock;
     Image LockSprite;
     void Init()
@@ -81,8 +71,6 @@ public class FightWnd: Window<FightWnd>
         ctrl = LevelTalkRoot.GetComponent<AutoMsgCtrl>();
         ctrl.SetConfig(1.5f, 1f);
         FloatOpen = Control("FloatOpen");
-        //BuffRoot = Control("BuffPanel");
-        //TargetBuffPanel = Control("TargetBuffPanel");
         FloatOpen.GetComponent<Button>().onClick.AddListener(OnChangeActionBarStatus);
         actionStatusBarCtrl = Control("Slots").GetComponent<Animation>();
         Global.ldaControlX("Attack", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnAttackPress);
@@ -107,22 +95,12 @@ public class FightWnd: Window<FightWnd>
         Global.ldaControlX("SfxMenu", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSfxWnd(); });
         Global.ldaControlX("Robot", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenRobotWnd(); });
         timeLabel = Global.ldaControlX("GameTime", WndObject).GetComponent<Text>();
-        //hpWarning = ldaControl("HPFlashWarning", WndObject).gameObject.GetComponent<Image>();
-        //angryWarning = ldaControl("AngryWarning", WndObject).gameObject.GetComponent<Image>();
         hpBar = ldaControl("HPBar", WndObject).gameObject.GetComponent<Image>();
         angryBar = ldaControl("AngryBar", WndObject).gameObject.GetComponent<Image>();
         hpLabel = ldaControl("HPLabel", WndObject).gameObject.GetComponent<Text>();
-        //userNick = ldaControl("UserNick", WndObject).gameObject.GetComponent<Text>();
-        //if (Global.GLevelMode == LevelMode.MultiplyPlayer)
-        //{
-        //    userNick.text = MeteorManager.Instance.LocalPlayer.Name;
-        //    userNick.gameObject.SetActive(true);
-        //}
         if (MeteorManager.Instance.LocalPlayer != null)
         {
             angryBar.fillAmount = 0.0f;
-            //angryWarning.enabled = false;
-            //hpWarning.enabled = false;
             UpdatePlayerInfo();
         }
         UpdateUIButton();
@@ -331,15 +309,6 @@ public class FightWnd: Window<FightWnd>
         if (MeteorManager.Instance.LocalPlayer != null && !MeteorManager.Instance.LocalPlayer.Dead)
         {
             angryBar.fillAmount = (float)MeteorManager.Instance.LocalPlayer.AngryValue /(float)Global.ANGRYMAX;
-            //if (MeteorManager.Instance.LocalPlayer.AngryValue == Global.ANGRYMAX && lastAngry != Global.ANGRYMAX)
-            //{
-            //    if (angryWarningE != null)
-            //        MeteorManager.Instance.LocalPlayer.StopCoroutine(angryWarningE);
-            //    angryWarningE = MeteorManager.Instance.LocalPlayer.StartCoroutine(ShowAngryWarning());
-            //    lastAngry = Global.ANGRYMAX;
-            //}
-            //else
-            //    lastAngry = MeteorManager.Instance.LocalPlayer.AngryValue;
         }
     }
 
@@ -349,26 +318,12 @@ public class FightWnd: Window<FightWnd>
         if (MeteorManager.Instance.LocalPlayer != null)
         {
             hpBar.fillAmount = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.TotalHp;
-            //if ((float)MeteorManager.Instance.LocalPlayer.Attr.TotalHp * 0.3f >= (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur && (float)MeteorManager.Instance.LocalPlayer.Attr.TotalHp * 0.3f < lastHp)
-            //{
-            //    GameBattleEx.Instance.StartCoroutine(ShowHPWarning());
-            //    lastHp = MeteorManager.Instance.LocalPlayer.Attr.hpCur;
-            //}
-            //else
-            //    lastHp = MeteorManager.Instance.LocalPlayer.Attr.hpCur;
         }
     }
 
     public void UpdateTime(string label)
     {
         timeLabel.text = label;
-    }
-
-    public bool DefenceLongPress = false;
-
-    public void PlayerMoveNotify(Transform target, EUnitCamp camp, bool isMainPlayer)
-    {
-        //在小地图这个地点绘制一个 圆点,如果是主角，绘制一个尖三角.
     }
 
     protected override bool OnClose()
@@ -399,37 +354,11 @@ public class FightWnd: Window<FightWnd>
 
     public void OnBattleEnd()
     {
-        //targetInfo.SetActive(false);
-        //if (hideTargetInfo != null)
-        //{
-        //    GameBattleEx.Instance.StopCoroutine(hideTargetInfo);
-        //    hideTargetInfo = null;
-        //}
-        //if (hpWarningE != null)
-        //{
-        //    MeteorManager.Instance.LocalPlayer.StopCoroutine(hpWarningE);
-        //    hpWarningE = null;
-        //}
-        //if (angryWarningE != null)
-        //{
-        //    MeteorManager.Instance.LocalPlayer.StopCoroutine(angryWarningE);
-        //    angryWarningE = null;
-        //}
         if (updateValue != null)
         {
             MeteorManager.Instance.LocalPlayer.StopCoroutine(updateValue);
             updateValue = null;
         }
-        //if (updateBuff != null)
-        //{
-        //    GameBattleEx.Instance.StopCoroutine(updateBuff);
-        //    updateBuff = null;
-        //}
-        //if (updateEnemyBuff != null)
-        //{
-        //    GameBattleEx.Instance.StopCoroutine(updateEnemyBuff);
-        //    updateEnemyBuff = null;
-        //}
         hpBar.fillAmount = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
     }
 
@@ -541,31 +470,26 @@ public class FightWnd: Window<FightWnd>
             hpBar.fillAmount = Mathf.Lerp(hpBar.fillAmount, targetValueHp, tick);
             tick += Time.deltaTime;
             if (tick >= 1.0f)
+            {
+                updateValue = null;
                 yield break;
+            }
             yield return 0;
         }
     }
 
     Coroutine updateValue;
-    //Coroutine hpWarningE;
-    //Coroutine angryWarningE;
     public void UpdatePlayerInfo()
     {
         if (MeteorManager.Instance.LocalPlayer != null && MeteorManager.Instance.LocalPlayer.Attr.hpCur >= 0)
         {
             if (updateValue != null)
-                MeteorManager.Instance.LocalPlayer.StopCoroutine(updateValue);
-            updateValue = MeteorManager.Instance.LocalPlayer.StartCoroutine(UpdateHPMP());
+            {
+                Startup.ins.StopCoroutine(updateValue);
+                updateValue = null;
+            }
+            updateValue = Startup.ins.StartCoroutine(UpdateHPMP());
             hpLabel.text = ((int)(MeteorManager.Instance.LocalPlayer.Attr.hpCur / 10.0f)).ToString() + "/" + ((int)(MeteorManager.Instance.LocalPlayer.Attr.HpMax / 10.0f)).ToString();
-            float hpPercent = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
-            //if (hpPercent <= 0.1f)
-            //{
-            //    if (hpWarningE != null)
-            //        MeteorManager.Instance.LocalPlayer.StopCoroutine(hpWarningE);
-            //    if (!MeteorManager.Instance.LocalPlayer.Dead)
-            //        hpWarningE = MeteorManager.Instance.LocalPlayer.StartCoroutine(ShowHPWarning());
-            //}
-
             UpdateAngryBar();
         }
     }

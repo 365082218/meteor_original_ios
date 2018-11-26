@@ -13,37 +13,18 @@ public class DamageRecord
 public class DartLoader : MonoBehaviour {
     InventoryItem weapon;
     public const float MaxDistance = 5000;
-    //List<DamageRecord> rec = new List<DamageRecord>();
     // Use this for initialization
     private void Awake()
     {
         rig = GetComponent<Rigidbody>();
         rig.useGravity = true;
     }
- //   void Start () {
-		
-	//}
-
-    // Update is called once per frame
-    //void Update()
-    //{
-        //for (int i = 0; i < rec.Count && i >= 0; i++)
-        //{
-        //    rec[i].tick -= Time.deltaTime;
-        //    if (rec[i].tick <= 0.0f)
-        //    {
-        //        rec.RemoveAt(i);
-        //        i--;
-        //    }
-        //}
-    //}
     
     public AttackDes _attack;
     Vector3 _direction;
     public static float InitializeSpeed = 350.0f;
     float _speed = InitializeSpeed;//初始速度.
     public static float gspeed = 140.0f;//加速度.
-    //float maxLength = 800;//跑多远开始开启重力.
     float maxDistance = 5000;//最远射程
     Rigidbody rig;
     Coroutine fly;
@@ -82,11 +63,7 @@ public class DartLoader : MonoBehaviour {
         {
             _speed += gspeed * Time.deltaTime;
             float dis = Time.deltaTime * _speed;
-            //transform.Translate(transform.forward * dis, Space.World);
-            //maxLength -= dis;
             maxDistance -= dis;
-            //if (maxLength <= 0.0f && !rig.useGravity)
-            //    rig.useGravity = true;
             if (maxDistance <= 0.0f)
                 DestroyObject(gameObject);
             yield return 0;
@@ -101,8 +78,6 @@ public class DartLoader : MonoBehaviour {
         dart.LoadAttack(weapon, forw, att, owner);
     }
 
-    List<MeteorUnit> attacked = new List<MeteorUnit>();
-    List<SceneItemAgent> attackeds = new List<SceneItemAgent>();
     public void OnTriggerEnter(Collider other)
     {
         if (other.transform.root.gameObject.layer == LayerMask.NameToLayer("Scene"))
@@ -110,10 +85,7 @@ public class DartLoader : MonoBehaviour {
             SceneItemAgent it = other.GetComponentInParent<SceneItemAgent>();
             if (it != null)
             {
-                if (attackeds.Contains(it))
-                    return;
-                attackeds.Add(it);
-                Debug.Log("dart attack sceneitemagent");
+                //Debug.Log("dart attack sceneitemagent");
                 it.OnDamage(owner, _attack);
             }
             GameObject.Destroy(gameObject);
@@ -122,8 +94,6 @@ public class DartLoader : MonoBehaviour {
         {
             MeteorUnit unit = other.GetComponentInParent<MeteorUnit>();
             if (unit == null)
-                return;
-            if (attacked.Contains(unit))
                 return;
             //同队忽略攻击
             if (unit.SameCamp(owner))
@@ -139,7 +109,6 @@ public class DartLoader : MonoBehaviour {
             //record.target = unit;
             //record.tick = 0.2f;
             //rec.Add(record);
-            attacked.Add(unit);
             GameObject.Destroy(gameObject);
             //Debug.LogError("dart attack end");
         }

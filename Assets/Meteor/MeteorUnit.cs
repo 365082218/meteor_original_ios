@@ -1790,13 +1790,7 @@ public partial class MeteorUnit : MonoBehaviour
             UpdateFlags(collisionFlags);
         }
         else
-        {
             transform.position += trans;
-        }
-        if (FightWnd.Exist)
-            FightWnd.Instance.PlayerMoveNotify(transform, Camp, Attr.IsPlayer);
-        //if (maxHeight < transform.position.y)
-        //    maxHeight = transform.position.y;
     }
 
     public void ResetWorldVelocity(bool reset)
@@ -1895,8 +1889,6 @@ public partial class MeteorUnit : MonoBehaviour
             {
                 if (Attr.IsPlayer)
                     FightWnd.Instance.UpdatePlayerInfo();
-                //else if (!MeteorManager.Instance.LocalPlayer.SameCamp(this))
-                //    FightWnd.Instance.UpdateMonsterInfo(this);
             }
             if (Attr.IsPlayer && NGUICameraJoystick.instance)
                 NGUICameraJoystick.instance.ResetJoystick();
@@ -2531,8 +2523,6 @@ public partial class MeteorUnit : MonoBehaviour
         {
             if (Attr.IsPlayer)
                 FightWnd.Instance.UpdatePlayerInfo();
-            //else if (attacker != null && attacker.Camp == EUnitCamp.EUC_FRIEND)
-            //    FightWnd.Instance.UpdateMonsterInfo(this);//设置当前受到伤害的是谁并显示其信息
         }
     }
 
@@ -2756,8 +2746,6 @@ public partial class MeteorUnit : MonoBehaviour
             //先飘血。
             if (Attr.IsPlayer)
                 FightWnd.Instance.UpdatePlayerInfo();
-            //else if (attacker != null && attacker.Camp == EUnitCamp.EUC_FRIEND)
-            //    FightWnd.Instance.UpdateMonsterInfo(this);//设置当前受到伤害的是谁并显示其信息
         }
     }
 
@@ -3105,8 +3093,6 @@ public partial class MeteorUnit : MonoBehaviour
                 if (FightWnd.Exist)
                     FightWnd.Instance.UpdatePlayerInfo();
             }
-            //else if (MeteorManager.Instance.LocalPlayer.GetLockedTarget() == this)
-            //    FightWnd.Instance.UpdateMonsterInfo(this);
         }
         else
             OnChangeWeaponType(ItemInfo.first[3].flag[1]);

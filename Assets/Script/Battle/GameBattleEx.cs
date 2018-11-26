@@ -307,30 +307,7 @@ public partial class GameBattleEx : MonoBehaviour {
                 if (!ondamaged.hitList[j].enabled)
                     continue;
                 if (colist[i].bounds.Intersects(ondamaged.hitList[j].bounds))
-                {
-                    //Debug.Log(string.Format("hitbox:{0}-onhitbox:{1}", colist[i].name, ondamaged.hitList[j].name));
-                    //Debug.DebugBreak();
                     return true;
-                }
-                //if (colist[i].bounds.min.x >= ondamaged.hitList[j].bounds.min.x &&
-                //    colist[i].bounds.min.y >= ondamaged.hitList[j].bounds.min.y &&
-                //    colist[i].bounds.min.z >= ondamaged.hitList[j].bounds.min.z &&
-                //    colist[i].bounds.max.x <= ondamaged.hitList[j].bounds.max.x &&
-                //    colist[i].bounds.max.y <= ondamaged.hitList[j].bounds.max.y &&
-                //    colist[i].bounds.max.z <= ondamaged.hitList[j].bounds.max.z)
-                //{
-                //    return true;
-                //}
-
-                //if (colist[i].bounds.min.x <= ondamaged.hitList[j].bounds.min.x &&
-                //    colist[i].bounds.min.y <= ondamaged.hitList[j].bounds.min.y &&
-                //    colist[i].bounds.min.z <= ondamaged.hitList[j].bounds.min.z &&
-                //    colist[i].bounds.max.x >= ondamaged.hitList[j].bounds.max.x &&
-                //    colist[i].bounds.max.y >= ondamaged.hitList[j].bounds.max.y &&
-                //    colist[i].bounds.max.z >= ondamaged.hitList[j].bounds.max.z)
-                //{
-                //    return true;
-                //}
             }
         }
         return false;
@@ -349,30 +326,7 @@ public partial class GameBattleEx : MonoBehaviour {
                 if (!ondamaged[j].enabled)
                     return false;
                 if (colist[i].bounds.Intersects(ondamaged[j].bounds))
-                {
-                    //Debug.Log(string.Format("hitbox:{0}-onhitbox:{1}", colist[i].name, ondamaged[j].name));
-                    //Debug.DebugBreak();
                     return true;
-                }
-                //if (colist[i].bounds.min.x >= ondamaged[j].bounds.min.x &&
-                //    colist[i].bounds.min.y >= ondamaged[j].bounds.min.y &&
-                //    colist[i].bounds.min.z >= ondamaged[j].bounds.min.z &&
-                //    colist[i].bounds.max.x <= ondamaged[j].bounds.max.x &&
-                //    colist[i].bounds.max.y <= ondamaged[j].bounds.max.y &&
-                //    colist[i].bounds.max.z <= ondamaged[j].bounds.max.z)
-                //{
-                //    return true;
-                //}
-
-                //if (colist[i].bounds.min.x <= ondamaged[j].bounds.min.x &&
-                //    colist[i].bounds.min.y <= ondamaged[j].bounds.min.y &&
-                //    colist[i].bounds.min.z <= ondamaged[j].bounds.min.z &&
-                //    colist[i].bounds.max.x >= ondamaged[j].bounds.max.x &&
-                //    colist[i].bounds.max.y >= ondamaged[j].bounds.max.y &&
-                //    colist[i].bounds.max.z >= ondamaged[j].bounds.max.z)
-                //{
-                //    return true;
-                //}
             }
         }
         return false;
@@ -409,7 +363,7 @@ public partial class GameBattleEx : MonoBehaviour {
         }
         return false;
     }
-    //SLua.LuaFunction updateFn;
+
     public LevelScriptBase Script { get { return lev_script; } }
     LevelScriptBase lev_script;
     System.Reflection.MethodInfo Scene_OnCharacterEvent;
@@ -417,9 +371,6 @@ public partial class GameBattleEx : MonoBehaviour {
     int EventDeath = 202;
     public void Init(Level lev, LevelScriptBase script)
     {
-//#if UNITY_STANDALONE
-//        Cursor.lockState = CursorLockMode.Locked;
-//#endif
         Scene_OnCharacterEvent = Global.GScriptType.GetMethod("Scene_OnCharacterEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         Scene_OnEvent = Global.GScriptType.GetMethod("Scene_OnEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         lev_script = script;
@@ -479,7 +430,6 @@ public partial class GameBattleEx : MonoBehaviour {
 
     //场景物件的受击框
     Dictionary<SceneItemAgent, List<Collider>> Collision = new Dictionary<SceneItemAgent, List<Collider>>();
-    //Dictionary<SceneItemAgent, List<Collider>>
     public void RegisterCollision(SceneItemAgent agent)
     {
         if (!Collision.ContainsKey(agent))
@@ -743,19 +693,6 @@ public partial class GameBattleEx : MonoBehaviour {
             return true;
         return false;
     }
-
-    //public void SetCameraTargets()
-    //{
-    //    MeteorUnit targetGroup = MeteorManager.Instance.LocalPlayer.GetLockedTarget();
-    //    // Create a collection of transforms the same size as the number of tanks.
-    //    Transform[] targets = new Transform[targetGroup == null ? 1 : 2];
-    //    targets[0] = MeteorManager.Instance.LocalPlayer.transform;
-    //    if (targets.Length == 2)
-    //        targets[1] = targetGroup.CameraTarget.transform;
-    //    // These are the targets the camera should follow.
-    //    m_CameraControl.m_Targets = targets;
-    //}
-
     
     public void NetPause()
     {
@@ -790,9 +727,6 @@ public partial class GameBattleEx : MonoBehaviour {
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
             MeteorManager.Instance.UnitInfos[i].EnableAI(true);
         Global.PauseAll = false;
-//#if UNITY_STANDALONE
-//        Cursor.lockState = CursorLockMode.Locked;
-//#endif
     }
 
     public MeteorUnit lockedTarget;
@@ -818,14 +752,6 @@ public partial class GameBattleEx : MonoBehaviour {
             float v = vec.sqrMagnitude;
             if (v > ViewLimit)
                 return false;
-            //vec.y = 0;
-            //vec = Vector3.Normalize(vec);
-            //Vector3 vecPlayer = -MeteorManager.Instance.LocalPlayer.transform.forward;
-            //float angle = Vector3.Dot(vecPlayer, vec);
-            //float angleMax = Mathf.Cos(75 * Mathf.Deg2Rad);//cos值越大，角度越小
-            ////大于75度，不能
-            //if (angle < angleMax)
-            //    return false;
             return true;
         }
         return false;
@@ -1080,13 +1006,6 @@ public partial class GameBattleEx : MonoBehaviour {
             }
         }
     }
-
-    //void GotoMenu()
-    //{
-    //    MeteorManager.Instance.Clear();
-    //    FightWnd.Instance.Close();
-    //    U3D.GoBack(()=> { MainMenu.Instance.Open(); });
-    //}
 
     public void ChangeLockStatus()
     {
