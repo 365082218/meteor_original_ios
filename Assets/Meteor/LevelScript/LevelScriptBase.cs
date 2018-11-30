@@ -1135,12 +1135,12 @@ public class ScriptBase
 
 
 public class LevelScriptBase:ScriptBase {
-    public virtual int GetRoundTime() { return 0; }
+    public virtual int GetRoundTime() { return 60000; }
     public virtual int GetPlayerSpawn() { return 0; }
     public virtual int GetPlayerSpawnDir() { return 0; }
     public virtual int GetPlayerWeapon() { return 0; }
     public virtual int GetPlayerWeapon2() { return 0; }
-    public virtual int GetPlayerMaxHp() { return 1000; }
+    public virtual int GetPlayerMaxHp() { return 2500; }
     public virtual int GetPlayerModel() { return 0; }
     public virtual string GetPlayerName() { return "孟星魂"; }
     public virtual string GetDesName() { return ""; }
