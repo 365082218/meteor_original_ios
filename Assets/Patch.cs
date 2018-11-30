@@ -22,7 +22,7 @@ public class Patch : MonoBehaviour {
         //清理数据
         ResMng.Reload();
         StartCoroutine(LoadData());
-        Global.LEVELMAX = U3D.GetMaxLevel();
+        Global.Init();//加载全局表.
     }
 	
 	// Update is called once per frame
@@ -78,24 +78,24 @@ public class Patch : MonoBehaviour {
         ActionInterrupt.Instance.Whole.Clear();
         ActionInterrupt.Instance.Root = null;
         ActionInterrupt.Instance.Init();
-        yield return new WaitForEndOfFrame();
+        yield return 0;
         toProgress = 40;
         while (displayProgress < toProgress)
         {
             displayProgress++;
             progress.fillAmount = (float)displayProgress / 100.0f;
             percent.text = string.Format("{0}%", displayProgress);
-            yield return new WaitForEndOfFrame();
+            yield return 0;
         }
         MenuResLoader.Instance.Init();
-        yield return new WaitForEndOfFrame();
+        yield return 0;
         toProgress = 50;
         while (displayProgress < toProgress)
         {
             displayProgress++;
             progress.fillAmount = (float)displayProgress / 100.0f;
             percent.text = string.Format("{0}%", displayProgress);
-            yield return new WaitForEndOfFrame();
+            yield return 0;
         }
         //for (int i = 0; i < 20; i++)
         //{
@@ -118,9 +118,9 @@ public class Patch : MonoBehaviour {
             displayProgress++;
             progress.fillAmount = (float)displayProgress / 100.0f;
             percent.text = string.Format("{0}%", displayProgress);
-            yield return new WaitForEndOfFrame();
+            yield return 0;
         }
-        yield return new WaitForEndOfFrame();
+        yield return 0;
         Application.targetFrameRate = GameData.Instance.gameStatus.TargetFrame;
 #if UNITY_EDITOR
         Application.targetFrameRate = 60;

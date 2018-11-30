@@ -367,12 +367,33 @@ public partial class MeteorUnit : MonoBehaviour
     public bool MoveOnGroundEx = false;//移动的瞬间，射线是否与地相聚不到4M。下坡的时候很容易离开地面
     public bool OnTouchWall = false;//贴着墙壁
     //public bool IsShow = true;
-    float SpeedScale = 1.0f;
-    public void SetSpeedScale(float scale)
+    float MoveSpeedScale = 1.0f;
+    float ActionSpeedScale = 1.0f;
+
+    public void SpeedFast()
     {
-        SpeedScale = scale;
+        MoveSpeedScale = Mathf.MoveTowards(MoveSpeedScale, SpeedMax, 0.1f);
+        ActionSpeedScale = Mathf.MoveTowards(ActionSpeedScale, SpeedMax, 0.1f);
     }
-    public int Speed { get { return (int)(Attr.Speed * SpeedScale) + CalcSpeed(); } }
+
+    public void SpeedSlow()
+    {
+        MoveSpeedScale = Mathf.MoveTowards(MoveSpeedScale, SpeedMin, 0.1f);
+        ActionSpeedScale = Mathf.MoveTowards(ActionSpeedScale, SpeedMin, 0.1f);
+    }
+
+    public static float SpeedMax = 16.0f;
+    public static float SpeedMin = 0.01f;
+
+
+    public float ActionSpeed { get { return Attr.ActionSpeed * ActionSpeedScale; } }
+    //MoveSpeed
+    public float GetMoveSpeedScale()
+    {
+        return (CalcSpeed() / 100.0f) * MoveSpeedScale;
+    }
+
+    public int MoveSpeed { get { return (int)(Attr.Speed * GetMoveSpeedScale()); } }
     public int AngryValue
     {
         get
@@ -1309,10 +1330,11 @@ public partial class MeteorUnit : MonoBehaviour
             weaponLoader.ChangeWeaponPos(pose);
     }
 
+    //移动速度/非动作速度
     public int CalcSpeed()
     {
         if (weaponLoader == null || weaponLoader.GetCurrentWeapon() == null || weaponLoader.GetCurrentWeapon().Info() == null)
-            return 0;
+            return 100;
         return weaponLoader.GetCurrentWeapon().Info().Speed;
     }
 
@@ -2274,7 +2296,6 @@ public partial class MeteorUnit : MonoBehaviour
         int BuffDef = Attr.CalcBuffDef();
         AttackDes atk = des == null ? attacker.damage : des;
         int WeaponDamage = attacker.CalcDamage();
-        //主角一般空踢，秒杀-香港脚
         int PoseDamage = MenuResLoader.Instance.FindOpt(atk.PoseIdx, 3).second[0].flag[6];
         int BuffDamage = attacker.Attr.CalcBuffDamage();
         int realDamage = Mathf.Abs(Mathf.CeilToInt(((WeaponDamage + BuffDamage) * PoseDamage) / 100.0f - (WeaponDef + BuffDef)));
@@ -2674,7 +2695,7 @@ public partial class MeteorUnit : MonoBehaviour
                 else
                 {
                     int realDamage = CalcDamage(attacker);
-                    Debug.Log("受到:" + realDamage + " 点伤害" + " f:" + Time.frameCount);
+                    //Debug.Log("受到:" + realDamage + " 点伤害" + " f:" + Time.frameCount);
                     Attr.ReduceHp(realDamage);
                     //if (hurtRecord.ContainsKey(attacker))
                     //    hurtRecord[attacker] += realDamage;

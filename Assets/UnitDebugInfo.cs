@@ -53,7 +53,7 @@ public class UnitDebugInfo : MonoBehaviour {
                 Angry.text = "怒气:" + target.AngryValue;
                 Att.text = "攻击力:" + (target.CalcDamage() + target.Attr.CalcBuffDamage());
                 Def.text = "防御力:" + (target.CalcDef() + target.Attr.CalcBuffDef());
-                Speed.text = "速度:" + target.Speed;
+                Speed.text = "移动速度:" + target.MoveSpeed;
                 Target.text = "锁定目标:" + (target.GetLockedTarget() != null ? target.GetLockedTarget().name : "-");
                 ActionFrame.text = string.Format("动作源{0:d1}-动作ID{1}-帧:{2}", target.posMng.mActiveAction.SourceIdx, target.posMng.mActiveAction.Idx, target.charLoader.curIndex);
                 Straight.text = string.Format("硬直{0}", target.charLoader.PoseStraight);

@@ -61,6 +61,7 @@ public class MonsterEx
     public int hpCur;
     public int mpCur;
     public int Speed;
+    public int ActionSpeed;
     public int Crit;
     public int View;
     public int Think;
@@ -114,6 +115,7 @@ public class MonsterEx
         HpMax = 2000;
         //SpawnPoint = 1;
         Speed = 1000;
+        ActionSpeed = 1;
         hpCur = HpMax;
         AngryValue = 0;
     }
@@ -218,6 +220,7 @@ public class MonsterEx
         return itemUnEquip;
     }
 
+    //仅修改移动速度,非动作速度
     public void MultiplySpeed(float per)
     {
         Speed = (int)((float)Speed * per);

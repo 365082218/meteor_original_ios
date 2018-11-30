@@ -21,7 +21,7 @@ public class ModelWnd:Window<ModelWnd>
 
     IEnumerator LoadModels()
     {
-        for (int i = 0; i < Global.model.Length; i++)
+        for (int i = 0; i < Global.CharacterMax; i++)
         {
             AddModel(i);
             yield return 0;
@@ -32,7 +32,7 @@ public class ModelWnd:Window<ModelWnd>
     {
         UIFunCtrl obj = (GameObject.Instantiate(Resources.Load("UIFuncItem")) as GameObject).GetComponent<UIFunCtrl>();
         obj.SetEvent(ChangeModel, Idx);
-        obj.SetText(Global.model[Idx]);
+        obj.SetText(Global.GetCharacter(Idx).Name);
         obj.transform.SetParent(GridViewRoot.transform);
         obj.gameObject.layer = GridViewRoot.layer;
         obj.transform.localScale = Vector3.one;
@@ -152,6 +152,9 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Control("ChangeModel").GetComponent<Button>().onClick.AddListener(() => { ModelWnd.Instance.Open(); });
         Control("UnlockAll").GetComponent<Button>().onClick.AddListener(() => { U3D.UnlockLevel(); });
 
+        Control("SpeedFast").GetComponent<Button>().onClick.AddListener(() => { OnChangeSpeed(true);});
+        Control("SpeedSlow").GetComponent<Button>().onClick.AddListener(() => { OnChangeSpeed(false);});
+
         //粒子特效
         Toggle toggleDisableParticle = Control("Particle").GetComponent<Toggle>();
         toggleDisableParticle.isOn = GameData.Instance.gameStatus.DisableParticle;
@@ -166,6 +169,17 @@ public class NewSystemWnd : Window<NewSystemWnd>
 
         InitLevel();
         mWindowStyle = WindowStyle.WS_Modal;
+    }
+
+    void OnChangeSpeed(bool fast)
+    {
+        if (MeteorManager.Instance.LocalPlayer != null)
+        {
+            if (fast)
+                MeteorManager.Instance.LocalPlayer.SpeedFast();
+            else
+                MeteorManager.Instance.LocalPlayer.SpeedSlow();
+        }
     }
 
     void OnDisableJoyStick(bool disable)

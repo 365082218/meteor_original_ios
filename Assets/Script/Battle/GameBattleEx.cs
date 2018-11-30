@@ -713,13 +713,16 @@ public partial class GameBattleEx : MonoBehaviour {
         //联机时不许暂停
         if (Global.GLevelMode == LevelMode.MultiplyPlayer)
             return;
+
         NetPause();
     }
 
     public void Resume()
     {
         if (MeteorManager.Instance.LocalPlayer != null)
+        {
             MeteorManager.Instance.LocalPlayer.controller.LockInput(false);
+        }
         if (NGUIJoystick.instance != null)
             NGUIJoystick.instance.Lock(false);
         if (NGUICameraJoystick.instance != null)
@@ -1295,7 +1298,7 @@ public class ActionConfig
             {
                 MeteorUnit unit = U3D.GetUnit(id);
                 unit.controller.LockInput(action[action.Count - 1].param == 1);
-                unit.posMng.OnChangeAction(0);
+                unit.posMng.LinkAction(0);
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.GUARD)

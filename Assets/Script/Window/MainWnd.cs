@@ -644,8 +644,8 @@ public class PlayerWnd:Window<PlayerWnd>
         SetStat("Stat Label 2", MeteorManager.Instance.LocalPlayer.AngryValue.ToString());
         SetStat("Stat Label 3", MeteorManager.Instance.LocalPlayer.CalcDamage().ToString());
         SetStat("Stat Label 4", MeteorManager.Instance.LocalPlayer.CalcDef().ToString());
-        SetStat("Stat Label 5", MeteorManager.Instance.LocalPlayer.Speed.ToString());
-        SetStat("Stat Label 6", string.Format("{0:f2}", MeteorManager.Instance.LocalPlayer.Speed / 1000.0f));
+        SetStat("Stat Label 5", MeteorManager.Instance.LocalPlayer.MoveSpeed.ToString());
+        SetStat("Stat Label 6", string.Format("{0:f2}", MeteorManager.Instance.LocalPlayer.MoveSpeed / 1000.0f));
 
         //处理背包的点击
         UIItemSlot [] slots = Global.ldaControlX("Slots Grid", WndObject).GetComponentsInChildren<UIItemSlot>();
@@ -925,13 +925,13 @@ public class RobotWnd : Window<RobotWnd>
         {
             RobotList[Idx].GetComponent<Button>().onClick.RemoveAllListeners();
             RobotList[Idx].GetComponent<Button>().onClick.AddListener(() => { SpawnRobot(Idx, pageIdx == 1 ? EUnitCamp.EUC_ENEMY : EUnitCamp.EUC_FRIEND); });
-            RobotList[Idx].GetComponentInChildren<Text>().text = string.Format("{0}{1}", Global.model[Idx], pageIdx == 1 ? "[敌]" : "[友]");
+            RobotList[Idx].GetComponentInChildren<Text>().text = string.Format("{0}{1}", Global.GetCharacter(Idx).Name, pageIdx == 1 ? "[敌]" : "[友]");
         }
         else
         {
             GameObject obj = GameObject.Instantiate(Resources.Load("GridItemBtn")) as GameObject;
             obj.GetComponent<Button>().onClick.AddListener(() => { SpawnRobot(Idx, pageIdx == 1 ? EUnitCamp.EUC_ENEMY : EUnitCamp.EUC_FRIEND); });
-            obj.GetComponentInChildren<Text>().text = string.Format("{0}{1}", Global.model[Idx], pageIdx == 1 ? "[敌]" : "[友]");
+            obj.GetComponentInChildren<Text>().text = string.Format("{0}{1}", Global.GetCharacter(Idx).Name, pageIdx == 1 ? "[敌]" : "[友]");
             obj.transform.SetParent(RobotRoot.transform);
             obj.gameObject.layer = RobotRoot.layer;
             obj.transform.localScale = Vector3.one;

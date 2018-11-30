@@ -9,7 +9,7 @@ public class Global
     public static int ComboProbability = 5;//连几率
     public static int SpecialWeaponProbability = 2;//2几率切换到远程武器，每次Think都有2%几率
     public static float AimDegree = 45.0f;//夹角超过45度，需要进入瞄准
-    public static string[] model = new string[] { "孟星魂", "冷燕", "铁胡子", "夜猫子", "破空", "冯浩", "孙剑", "萧安", "子興", "王强", "无名", "叶翔", "小何", "凤凤", "石群", "屠城", "范旋", "高老大", "孙玉伯", "律香川"};
+    public static readonly int CharacterMax = 20;//
     public static MeteorInput GMeteorInput = null;
 	public static Level GLevelItem = null;
     public static LevelMode GLevelMode;//建立房间时选择的类型，从主界面进，都是Normal
@@ -42,6 +42,16 @@ public class Global
     public const float FollowDistanceEnd = 2500.0f;//结束跟随50
     public const float FollowDistanceStart = 4225.0f;//开始跟随65
     public const int BreakChange = 3;//3%爆气几率
+
+    public static void Init()
+    {
+        Global.LEVELMAX = U3D.GetMaxLevel();
+    }
+
+    public static ModelInfo GetCharacter(int id)
+    {
+        return ModelMng.Instance.GetItem(id);
+    }
 
     public static DateTime JSLongToDataTime(long longTime)
     {

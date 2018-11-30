@@ -87,12 +87,13 @@ public class U3D : MonoBehaviour {
         weaponIndex++;
         mon.IsPlayer = false;
 
-        mon.name = Global.model[idx % Global.model.Length];
+        ModelInfo model = Global.GetCharacter(idx % Global.CharacterMax);
+        mon.name = model.Name;
         GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
         GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
         MeteorUnit unit = ins.GetComponent<MeteorUnit>();
         unit.Camp = camp;
-        unit.Init(idx % Global.model.Length, mon);
+        unit.Init(model.ModelId, mon);
         MeteorManager.Instance.OnGenerateUnit(unit);
         unit.SetGround(false);
 

@@ -718,7 +718,7 @@ public class CharacterLoader : MonoBehaviour
                 if (checkStaright && PoseStraight > 0.0f && owner.IsOnGround() && startCount)
                     PoseStraight -= Time.deltaTime;
 
-                float speedScale = GetSpeedScale();
+                float speedScale = owner.ActionSpeed * GetSpeedScale();
                 float fps = FPS / speedScale;
                 while (lastFramePlayedTimes >= fps)
                 {

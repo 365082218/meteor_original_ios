@@ -317,7 +317,7 @@ public class MeteorAI {
                     NextFramePos.y = 0;
                     if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
                     {
-                        NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.15f;
+                        NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                         float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(Path[targetIndex].pos - NextFramePos));
                         //反向
                         if (s < 0)
@@ -356,7 +356,7 @@ public class MeteorAI {
                     NextFramePos.y = 0;
                     if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
                     {
-                        NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.15f;
+                        NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                         float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(owner.GetSceneItemTarget().transform.position - NextFramePos));
                         //反向
                         if (s < 0)
@@ -587,7 +587,7 @@ public class MeteorAI {
                     if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
                     {
                         NextFramePos.y = 0;
-                        NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.15f;
+                        NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                         float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(AttackTarget - NextFramePos));
                         if (s < 0)
                         {
@@ -609,7 +609,7 @@ public class MeteorAI {
                     if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
                     {
                         NextFramePos.y = 0;
-                        NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.15f;
+                        NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                         float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(Path[targetIndex].pos - NextFramePos));
                         if (s < 0)
                         {
@@ -716,7 +716,7 @@ public class MeteorAI {
     {
         owner.controller.Input.AIMove(0, 1);
         float dis = Vector3.Distance(owner.mSkeletonPivot, fightTarget.mSkeletonPivot);
-        float disMin = owner.Speed * Time.deltaTime * 0.15f;
+        float disMin = owner.MoveSpeed * Time.deltaTime * 0.15f;
         if (dis <= disMin)
         {
             Stop();
@@ -772,7 +772,7 @@ public class MeteorAI {
             if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
             {
                 NextFramePos.y = 0;
-                NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.15f;
+                NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                 float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(TargetPos - NextFramePos));
                 if (s < 0)
                 {
@@ -792,7 +792,7 @@ public class MeteorAI {
             if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
             {
                 NextFramePos.y = 0;
-                NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.15f;
+                NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                 float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(Path[targetIndex].pos - NextFramePos));
                 if (s < 0)
                 {
@@ -860,7 +860,7 @@ public class MeteorAI {
             if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
             {
                 NextFramePos.y = 0;
-                NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.15f;
+                NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                 float s = GetAngleBetween((NextFramePos - owner.mSkeletonPivot).normalized, (Path[targetIndex].pos - NextFramePos).normalized);
                 if (s < 0)
                 {
@@ -1377,7 +1377,7 @@ public class MeteorAI {
                     //33码距离内.
                     if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
                     {
-                        NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.15f;
+                        NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                         float s = GetAngleBetween((NextFramePos - owner.mSkeletonPivot).normalized, (Path[targetIndex].pos - NextFramePos).normalized);
                         if (s < 0)
                         {
@@ -1464,7 +1464,7 @@ public class MeteorAI {
                         //33码距离内.
                         if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
                         {
-                            NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.15f;
+                            NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                             float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(Path[targetIndex].pos - NextFramePos));
                             if (s < 0)
                             {
@@ -1504,7 +1504,7 @@ public class MeteorAI {
                         NextFramePos.y = 0;
                         if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
                         {
-                            NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.15f;
+                            NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                             float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(killTarget.mSkeletonPivot - NextFramePos));
                             if (s < 0)
                             {
@@ -2518,7 +2518,7 @@ public class MeteorAI {
                     if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
                     {
                         NextFramePos.y = 0;
-                        NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.15f;
+                        NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                         float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(PatrolPath[targetPatrolIndex].pos - NextFramePos));
                         if (s < 0)
                         {
@@ -2541,7 +2541,7 @@ public class MeteorAI {
                     NextFramePos.y = 0;
                     if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
                     {
-                        NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.Speed * Time.deltaTime * 0.15f;
+                        NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                         float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(Path[targetIndex].pos - NextFramePos));
                         if (s < 0)
                         {

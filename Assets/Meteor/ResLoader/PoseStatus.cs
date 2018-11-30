@@ -227,6 +227,7 @@ public class PoseStatus
         OnActionFinishedEvt += evt;
     }
 
+    //这个动作做完后，链接到其他动作上.
     public void LinkAction(int idx)
     {
         //先把虚拟动作转换为实际动作ID

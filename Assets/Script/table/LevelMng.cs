@@ -45,6 +45,7 @@ public class ModelInfo:ITableItem
     {
         get { return ModelId; }
     }
+    public string Name;
     public int ModelId;
     public float Height;
     public float Pivot;
