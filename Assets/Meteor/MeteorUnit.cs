@@ -1176,7 +1176,7 @@ public partial class MeteorUnit : MonoBehaviour
         tag = "meteorUnit";
         UnitId = modelIdx;
 
-        ModelInfo Info = ModelMng.Instance.GetItem(UnitId + 1);
+        ModelInfo Info = ModelMng.Instance.GetItem(UnitId);
         Attr = mon;
         IgnoreGravity = true;
         IgnorePhysical = false;

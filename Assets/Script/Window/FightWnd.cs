@@ -312,15 +312,6 @@ public class FightWnd: Window<FightWnd>
         }
     }
 
-    int lastHp = 0;
-    public void UpdateHpBar()
-    {
-        if (MeteorManager.Instance.LocalPlayer != null)
-        {
-            hpBar.fillAmount = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.TotalHp;
-        }
-    }
-
     public void UpdateTime(string label)
     {
         timeLabel.text = label;

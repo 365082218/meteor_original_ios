@@ -125,6 +125,19 @@ public class MeteorAI {
         AIJumpDelay += Time.deltaTime;
         lookTick += Time.deltaTime;
 
+        //如果在硬直中
+        if (owner.charLoader.IsInStraight())
+            return;
+        //如果处于跌倒状态.A处理从地面站立,僵直过后才能正常站立 B，在后面的逻辑中，决定是否用爆气解除跌倒状态
+        if (owner.posMng.mActiveAction.Idx == CommonAction.Struggle || owner.posMng.mActiveAction.Idx == CommonAction.Struggle0)
+        {
+            if (struggleCoroutine == null)
+            {
+                struggleCoroutine = owner.StartCoroutine(ProcessStruggle());
+                return;
+            }
+        }
+
         //行为优先级 
         //AI强制行为(攻击指定位置，Kill追杀（不论视野）攻击 ) > 战斗 > 跟随 > 巡逻 > 
         if (Status == EAIStatus.Patrol)
@@ -902,19 +915,6 @@ public class MeteorAI {
 
     void OnFight()
     {
-        //如果在硬直中
-        if (owner.charLoader.IsInStraight())
-            return;
-        //如果处于跌倒状态.A处理从地面站立,僵直过后才能正常站立 B，在后面的逻辑中，决定是否用爆气解除跌倒状态
-        if (owner.posMng.mActiveAction.Idx == CommonAction.Struggle || owner.posMng.mActiveAction.Idx == CommonAction.Struggle0)
-        {
-            if (struggleCoroutine == null && !owner.charLoader.IsInStraight())
-            {
-                struggleCoroutine = owner.StartCoroutine(ProcessStruggle());
-                return;
-            }
-        }
-
         //有任意输入时，不要进入攻击状态，否则状态切换可能过快.
         if (PlayWeaponPoseCorout != null || InputCorout != null)
             return;
@@ -1570,7 +1570,6 @@ public class MeteorAI {
             break;
         }
         struggleCoroutine = null;
-        SubStatus = EAISubStatus.Fight;
     }
 
     public void OnUnitDead(MeteorUnit deadunit)

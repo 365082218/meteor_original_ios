@@ -240,7 +240,17 @@ DRAG*/
                     render.material.shader = Shader.Find("Custom/MeteorBlend4");//滤色，透明
                 else
                     render.material.shader = Shader.Find("Unlit/Texture");//普通不透明无光照
-                render.material.SetTexture("_MainTex", tex);
+                if (texture.Equals("AItem09"))
+                {
+                    render.enabled = false;
+                    particle.Stop();
+                    /* 应该是有一个地裂的粒子特效，但是这个特效参数没分析出来.
+                     *  tex = Resources.Load<Texture>("AItemParticle");
+                        render.material.SetTexture("_MainTex", tex);
+                     */
+                }
+                else
+                    render.material.SetTexture("_MainTex", tex);
                 render.material.SetColor("_Color", effect.frames[0].colorRGB);
                 render.material.SetColor("_TintColor", effect.frames[0].colorRGB);
                 render.material.SetFloat("_Intensity", effect.frames[0].TailFlags[9]);

@@ -167,6 +167,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
         toggleDisableJoyStick.onValueChanged.AddListener(OnDisableJoyStick);
         OnDisableJoyStick(toggleDisableJoyStick.isOn);
 
+        Control("ChangeLog").GetComponent<Text>().text = ResMng.LoadTextAsset("ChangeLog").text;
         InitLevel();
         mWindowStyle = WindowStyle.WS_Modal;
     }
