@@ -174,12 +174,15 @@ public class NewSystemWnd : Window<NewSystemWnd>
 
     void OnChangeSpeed(bool fast)
     {
-        if (MeteorManager.Instance.LocalPlayer != null)
+        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
-            if (fast)
-                MeteorManager.Instance.LocalPlayer.SpeedFast();
-            else
-                MeteorManager.Instance.LocalPlayer.SpeedSlow();
+            if (MeteorManager.Instance.LocalPlayer != null)
+            {
+                if (fast)
+                    MeteorManager.Instance.LocalPlayer.SpeedFast();
+                else
+                    MeteorManager.Instance.LocalPlayer.SpeedSlow();
+            }
         }
     }
 
