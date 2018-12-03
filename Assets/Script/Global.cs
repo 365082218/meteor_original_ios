@@ -50,7 +50,7 @@ public class Global
 
     public static ModelInfo GetCharacter(int id)
     {
-        return ModelMng.Instance.GetItem(id);
+        return ModelMng.Instance.GetItem(id + 1);
     }
 
     public static DateTime JSLongToDataTime(long longTime)
