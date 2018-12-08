@@ -64,6 +64,7 @@ public class Patch : MonoBehaviour {
         if (ConnectWnd.Exist)
             ConnectWnd.Instance.Close();
         SFXLoader.Instance.Init();
+        SFXLoader.Instance.PlayEffect(857, gameObject, true, true);
         //yield return new WaitForEndOfFrame();
         //toProgress = 30;
         //while (displayProgress < toProgress)

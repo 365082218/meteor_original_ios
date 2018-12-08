@@ -11,14 +11,35 @@ public class PickupItemAgent : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+		if (isWeapon)
+        {
+            startTick -= Time.deltaTime;
+            if (startTick < 0)
+            {
+                Destroy(gameObject);
+                isWeapon = false;
+            }
+        }
 	}
 
     string model;
+    bool isWeapon = false;
+    float startTick = 0;
+    static float delay = 60.0f;
     public void SetPickupItem(string des)
     {
         model = des;
+        WeaponBase[] weapons = WeaponMng.Instance.GetAllItem();
+        for (int i = 0; i < weapons.Length; i++)
+        {
+            if (weapons[i].WeaponL == model || weapons[i].WeaponR == model)
+            {
+                isWeapon = true;
+                break;
+            }
+        }
         WsGlobal.ShowMeteorObject(model, transform);
+        startTick = delay;
     }
 
     public void SetAsDrop()

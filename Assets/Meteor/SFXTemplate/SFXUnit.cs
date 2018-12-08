@@ -66,7 +66,7 @@ DRAG*/
         }
     }
     //原粒子系统是右手坐标系的，转移到左手坐标系后非常多问题，特别是父子关系以及，跟随和子物体旋转叠加
-    public void Init(SfxEffect effect, SFXEffectPlay parent, int index, float timePlayed = 0.0f)
+    public void Init(SfxEffect effect, SFXEffectPlay parent, int index, float timePlayed = 0.0f, bool preLoad = false)
     {
         playedTime = timePlayed;
         PlayDone = false;
@@ -328,6 +328,15 @@ DRAG*/
             damageBox.enabled = false;
         }
 
+        if (preLoad)
+        {
+            PlayDone = true;
+            if (parentSfx != null)
+                parentSfx.OnPlayDone(this);
+            else
+                Destroy(gameObject);
+            return;
+        }
         playCoroutine = StartCoroutine(PlayEffectFrame());
     }
 

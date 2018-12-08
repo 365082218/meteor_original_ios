@@ -2423,6 +2423,7 @@ public partial class MeteorUnit : MonoBehaviour
                         //Debug.LogError("targetPos:" + TargetPos);
                         posMng.ChangeAction(TargetPos, 0.1f);
                         charLoader.SetActionScale(dam.DefenseMove);
+                        //charLoader.SetActionRotation();
                         int realDamage = CalcDamage(attacker, attackdes);
                         AngryValue += realDamage / 35;//防御住伤害。则怒气增加
                     }
@@ -2616,6 +2617,7 @@ public partial class MeteorUnit : MonoBehaviour
                         //Debug.LogError("targetPos:" + TargetPos);
                         posMng.ChangeAction(TargetPos, 0.1f);
                         charLoader.SetActionScale(dam.DefenseMove);
+                        //charLoader.SetActionRotation(attacker.mPos - );
                         int realDamage = CalcDamage(attacker);
                         AngryValue += (realDamage / 35);//防御住伤害。则怒气增加 200CC = 100 ANG
                     }

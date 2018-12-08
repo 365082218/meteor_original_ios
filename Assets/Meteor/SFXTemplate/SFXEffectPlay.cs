@@ -86,7 +86,7 @@ public class SFXEffectPlay : MonoBehaviour {
 
     //character 对应d_base
     List<SfxEffect> audioList = new List<SfxEffect>();
-    public void Load(SfxFile effectFile, bool once = false)
+    public void Load(SfxFile effectFile, bool once = false, bool preload = false)
     {
         loop = !once;
         file = effectFile.strfile;
@@ -180,13 +180,13 @@ public class SFXEffectPlay : MonoBehaviour {
         foreach (var each in dic)
         {
             if (each.Value != null)
-                each.Value.Init(effectList[each.Key], this, each.Key, 0);
+                each.Value.Init(effectList[each.Key], this, each.Key, 0, preload);
         }
         if (audioList.Count != 0)
             audioPlayCorout = StartCoroutine(PlayAudioEffect());
     }
 
-    public void Load(SfxFile effectFile, float timePlayed)
+    public void Load(SfxFile effectFile, float timePlayed, bool preLoad = false)
     {
         loop = false;
         file = effectFile.strfile;
@@ -278,7 +278,7 @@ public class SFXEffectPlay : MonoBehaviour {
         foreach (var each in dic)
         {
             if (each.Value != null)
-                each.Value.Init(effectList[each.Key], this, each.Key, timePlayed);
+                each.Value.Init(effectList[each.Key], this, each.Key, timePlayed, preLoad);
         }
         if (audioList.Count != 0)
             audioPlayCorout = StartCoroutine(PlayAudioEffect());

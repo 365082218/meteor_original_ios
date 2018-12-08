@@ -366,12 +366,12 @@ public class SfxFile
         return true;
     }
 
-    public SFXEffectPlay Play(GameObject obj, bool once)
+    public SFXEffectPlay Play(GameObject obj, bool once, bool preLoad = false)
     {
         if (effectList.Count == 0)
             return null;
         SFXEffectPlay effectContainer = obj.AddComponent<SFXEffectPlay>();
-        effectContainer.Load(this, once);
+        effectContainer.Load(this, once, preLoad);
         return effectContainer;
     }
 
@@ -462,15 +462,15 @@ public class SFXLoader :Singleton<SFXLoader>{
     bool initList = false;
     List<string> key;
     int effIndex = 0;
-    public SFXEffectPlay PlayEffect(int idx, GameObject obj, bool once = true)
+    public SFXEffectPlay PlayEffect(int idx, GameObject obj, bool once = true, bool preload = false)
     {
         if (Eff.Length > idx)
-            return PlayEffect(Eff[idx], obj, once);
+            return PlayEffect(Eff[idx], obj, once, preload);
         return null;
     }
 
     //一些环境特效，例如风之类的音效.
-    public SFXEffectPlay PlayEffect(string file, GameObject obj, bool once = false)
+    public SFXEffectPlay PlayEffect(string file, GameObject obj, bool once = false, bool preload = false)
     {
         if (!EffectList.ContainsKey(file))
         {
@@ -480,7 +480,7 @@ public class SFXLoader :Singleton<SFXLoader>{
                 if (f.ParseFile(file))
                 {
                     EffectList.Add(file, f);
-                    return f.Play(obj, once);
+                    return f.Play(obj, once, preload);
                 }
                 else
                     Debug.LogError(string.Format("{0} parse error", file));
@@ -494,7 +494,7 @@ public class SFXLoader :Singleton<SFXLoader>{
         else
         {
             //Debug.LogError("effect file:" + file + " 455");
-            return EffectList[file].Play(obj, once);
+            return EffectList[file].Play(obj, once, preload);
         }
         return null;
     }
