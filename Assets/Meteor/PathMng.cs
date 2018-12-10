@@ -248,6 +248,8 @@ public class PathMng:Singleton<PathMng>
         return Vector3.zero;
     }
 
+    //这个不能仅判断距离，要分开判断，XZ距离，和H距离
+    //XZ距离+2H作为权重
     public int GetWayIndex(Vector3 now)
     {
         int ret = -1;
@@ -255,12 +257,17 @@ public class PathMng:Singleton<PathMng>
         for (int i = 0; i < Global.GLevelItem.wayPoint.Count; i++)
         {
             WayPoint way = Global.GLevelItem.wayPoint[i];
-            float dis = Vector3.Distance(way.pos, now);
+            Vector3 vecTarget = way.pos;
+            Vector3 vecSource = now;
+            float h = Mathf.Abs(vecTarget.y - now.y);
+            vecTarget.y = 0;
+            vecSource.y = 0;
+            float dis = Vector3.Distance(vecTarget, vecSource);
             //if (dis <= way.size)
             //    return i;
-            if (dis < min)
+            if ((dis + h) < min)
             {
-                min = dis;
+                min = dis + h;
                 ret = i;
             }
         }

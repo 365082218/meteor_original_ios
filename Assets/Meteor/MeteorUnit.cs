@@ -768,7 +768,11 @@ public partial class MeteorUnit : MonoBehaviour
                     GetWeaponType() != (int)EquipWeaponType.Gun &&
                     GetWeaponType() != (int)EquipWeaponType.Dart)
                 {
-                    FaceToTarget(GetLockedTarget());//抖动是因为招式忽略了角色间的碰撞,导致的离的太近
+                    MeteorUnit target = GetLockedTarget();
+                    float dis = Vector2.Distance(target.mPos2d, this.mPos2d);
+                    //小于一定距离后，不再改变朝向.否则一直抖动
+                    if (dis > 20)
+                        FaceToTarget(GetLockedTarget());//抖动是因为招式忽略了角色间的碰撞,导致的离的太近
                 }
             }
         }
@@ -1965,7 +1969,7 @@ public partial class MeteorUnit : MonoBehaviour
             MeteorUnit hitUnit = hit.gameObject.transform.root.GetComponent<MeteorUnit>();
             Vector3 vec = hitUnit.mPos - transform.position;
             vec.y = 0;
-            hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 30);
+            hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 100);
         }
         else if (hit.gameObject.transform.root.tag.Equals("SceneItemAgent"))
         {
@@ -2423,7 +2427,7 @@ public partial class MeteorUnit : MonoBehaviour
                         //Debug.LogError("targetPos:" + TargetPos);
                         posMng.ChangeAction(TargetPos, 0.1f);
                         charLoader.SetActionScale(dam.DefenseMove);
-                        //charLoader.SetActionRotation();
+                        charLoader.SetActionRotation(mPos - attacker.mPos);
                         int realDamage = CalcDamage(attacker, attackdes);
                         AngryValue += realDamage / 35;//防御住伤害。则怒气增加
                     }
@@ -2483,6 +2487,7 @@ public partial class MeteorUnit : MonoBehaviour
                             //被攻击后，防御相当与没有了.
                             posMng.OnChangeAction(directionAct);
                             charLoader.SetActionScale(dam.TargetMove);
+                            charLoader.SetActionRotation(mPos - attacker.mPos);
                         }
                     }
                 }
@@ -2536,6 +2541,7 @@ public partial class MeteorUnit : MonoBehaviour
                         }
                         posMng.OnChangeAction(directionAct);
                         charLoader.SetActionScale(dam.TargetMove);
+                        charLoader.SetActionRotation(mPos - attacker.mPos);
                     }
                 }
             }
@@ -2617,7 +2623,7 @@ public partial class MeteorUnit : MonoBehaviour
                         //Debug.LogError("targetPos:" + TargetPos);
                         posMng.ChangeAction(TargetPos, 0.1f);
                         charLoader.SetActionScale(dam.DefenseMove);
-                        //charLoader.SetActionRotation(attacker.mPos - );
+                        charLoader.SetActionRotation(this.mPos - attacker.mPos);
                         int realDamage = CalcDamage(attacker);
                         AngryValue += (realDamage / 35);//防御住伤害。则怒气增加 200CC = 100 ANG
                     }
@@ -2691,6 +2697,7 @@ public partial class MeteorUnit : MonoBehaviour
                             //被攻击后，防御相当与没有了.
                             posMng.OnChangeAction(directionAct);
                             charLoader.SetActionScale(dam.TargetMove);
+                            charLoader.SetActionRotation(mPos - attacker.mPos);
                         }
                     }
                 }
@@ -2760,6 +2767,7 @@ public partial class MeteorUnit : MonoBehaviour
                         }
                         posMng.OnChangeAction(directionAct);
                         charLoader.SetActionScale(dam.TargetMove);
+                        charLoader.SetActionRotation(mPos - attacker.mPos);
                     }
                 }
             }

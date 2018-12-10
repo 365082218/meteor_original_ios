@@ -76,6 +76,7 @@ public class MeteorAI {
 
     public EAIStatus Status { get; set; }
     public EAISubStatus SubStatus { get; set; }
+    float FollowRefreshTick = 0.0f;
     MeteorUnit owner;//自己
     MeteorUnit followTarget;//跟随目标
     public MeteorUnit killTarget;//无视视野
@@ -124,6 +125,7 @@ public class MeteorAI {
         ChangeWeaponTick -= Time.deltaTime;
         AIJumpDelay += Time.deltaTime;
         lookTick += Time.deltaTime;
+        FollowRefreshTick -= Time.deltaTime;
 
         //如果在硬直中
         if (owner.charLoader.IsInStraight())
@@ -328,7 +330,7 @@ public class MeteorAI {
                 {
                     NextFramePos = Path[targetIndex].pos - owner.mSkeletonPivot;
                     NextFramePos.y = 0;
-                    if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
+                    if (Vector3.SqrMagnitude(NextFramePos) <= Global.AttackRangeMinD)
                     {
                         NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                         float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(Path[targetIndex].pos - NextFramePos));
@@ -367,7 +369,7 @@ public class MeteorAI {
                 {
                     NextFramePos = owner.GetSceneItemTarget().transform.position - owner.mSkeletonPivot;
                     NextFramePos.y = 0;
-                    if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
+                    if (Vector3.SqrMagnitude(NextFramePos) <= Global.AttackRangeMinD)
                     {
                         NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                         float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(owner.GetSceneItemTarget().transform.position - NextFramePos));
@@ -597,7 +599,7 @@ public class MeteorAI {
                     NextFramePos = AttackTarget - owner.mSkeletonPivot;
                     NextFramePos.y = 0;
                     //33码距离内.
-                    if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
+                    if (Vector3.SqrMagnitude(NextFramePos) <= Global.AttackRangeMinD)
                     {
                         NextFramePos.y = 0;
                         NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
@@ -619,7 +621,7 @@ public class MeteorAI {
                     NextFramePos = Path[targetIndex].pos - owner.mSkeletonPivot;
                     NextFramePos.y = 0;
                     //33码距离内.
-                    if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
+                    if (Vector3.SqrMagnitude(NextFramePos) <= Global.AttackRangeMinD)
                     {
                         NextFramePos.y = 0;
                         NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
@@ -782,7 +784,7 @@ public class MeteorAI {
         {
             NextFramePos = TargetPos - owner.mSkeletonPivot;
             NextFramePos.y = 0;
-            if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
+            if (Vector3.SqrMagnitude(NextFramePos) <= Global.AttackRangeMinD)
             {
                 NextFramePos.y = 0;
                 NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
@@ -802,7 +804,7 @@ public class MeteorAI {
         {
             NextFramePos = Path[targetIndex].pos - owner.mSkeletonPivot;
             NextFramePos.y = 0;
-            if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
+            if (Vector3.SqrMagnitude(NextFramePos) <= Global.AttackRangeMinD)
             {
                 NextFramePos.y = 0;
                 NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
@@ -842,21 +844,6 @@ public class MeteorAI {
 
     void OnFightGotoTarget()
     {
-        //先查看与目标角色距离，在一定距离内结束此状态
-        if (Vector3.SqrMagnitude(fightTarget.mSkeletonPivot - owner.mSkeletonPivot) <= Global.AttackRange)
-        {
-            Stop();
-            ChangeState(EAIStatus.Fight);
-            return;
-        }
-
-        if (Vector3.SqrMagnitude(fightTarget.mPos2d - owner.mPos2d) <= 100)
-        {
-            Stop();
-            ChangeState(EAIStatus.Fight);
-            return;
-        }
-
         if (Path.Count == 0)
             RefreshPath(owner.mPos, fightTarget.mSkeletonPivot);
 
@@ -865,12 +852,42 @@ public class MeteorAI {
 
         //已经到达过最后一个寻路点.
         //检查这一帧是否会走过目标，因为跨步太大.【这一段有问题，只有离目标非常近的时候再判断才行，远的话，可能会绕路，导致下一帧距离目标的位置越来越远】
-        if (targetIndex < Path.Count && Path.Count > 1)
+
+        //仅有2个路点的路径，当
+        if (Path.Count == 2)
+        {
+            //Debug.LogWarning("可以从当前位置直接朝目标移动");
+            NextFramePos = fightTarget.mSkeletonPivot - owner.mSkeletonPivot;
+            NextFramePos.y = 0;
+            //33码距离内.
+            if (Vector3.SqrMagnitude(NextFramePos) <= Global.AttackRangeMinD)
+            {
+                //NextFramePos.y = 0;
+                //NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
+                //float s = GetAngleBetween((NextFramePos - owner.mSkeletonPivot).normalized, (fightTarget.mSkeletonPivot - NextFramePos).normalized);
+                //if (s < 0)
+                owner.controller.Input.AIMove(0, 0);
+                SubStatus = EAISubStatus.Fight;
+                return;
+            }
+            else
+            {
+                int random = Random.Range(0, 100);
+                if (AIJumpDelay >= 2.5f && random <= owner.Attr.Jump)
+                {
+                    AIJump();
+                    AIJumpDelay = 0.0f;
+                    return;
+                }
+            }
+        }
+        else
+        if (targetIndex < Path.Count && Path.Count > 2)
         {
             NextFramePos = Path[targetIndex].pos - owner.mSkeletonPivot;
             NextFramePos.y = 0;
-            //33码距离内.
-            if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
+            //35码距离内.
+            if (Vector3.SqrMagnitude(NextFramePos) <= Global.AttackRangeMinD)
             {
                 NextFramePos.y = 0;
                 NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
@@ -905,11 +922,49 @@ public class MeteorAI {
                 }
             }
         }
+        else if (Path.Count <= 1)
+        {
+            //直接面向目标,2者处于同一个路点.
+            NextFramePos = fightTarget.mSkeletonPivot - owner.mSkeletonPivot;
+            NextFramePos.y = 0;
+            //33码距离内.
+            if (Vector3.SqrMagnitude(NextFramePos) <= Global.AttackRangeMinD)
+            {
+                //NextFramePos.y = 0;
+                //NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
+                //float s = GetAngleBetween((NextFramePos - owner.mSkeletonPivot).normalized, (fightTarget.mSkeletonPivot - NextFramePos).normalized);
+                //if (s < 0)
+                owner.controller.Input.AIMove(0, 0);
+                SubStatus = EAISubStatus.Fight;
+                return;
+            }
+            else
+            {
+                int random = Random.Range(0, 100);
+                if (AIJumpDelay >= 2.5f && random <= owner.Attr.Jump)
+                {
+                    AIJump();
+                    AIJumpDelay = 0.0f;
+                    return;
+                }
+            }
+        }
 
-        if (targetIndex < Path.Count && Path.Count > 1)
+        if (targetIndex < Path.Count && Path.Count > 2)
             owner.FaceToTarget(Path[targetIndex].pos);
         else
+        {
+            NextFramePos = fightTarget.mSkeletonPivot - owner.mSkeletonPivot;
+            NextFramePos.y = 0;
+            //33码距离内.
+            if (Vector3.SqrMagnitude(NextFramePos) <= Global.AttackRangeMinD)
+            {
+                owner.controller.Input.AIMove(0, 0);
+                SubStatus = EAISubStatus.Fight;
+                return;
+            }
             owner.FaceToTarget(fightTarget.mSkeletonPivot);
+        }
         owner.controller.Input.AIMove(0, 1);
     }
 
@@ -1009,7 +1064,7 @@ public class MeteorAI {
                 }
                 float dis = Vector3.SqrMagnitude(owner.mSkeletonPivot - fightTarget.mSkeletonPivot);
                 //距离战斗目标不同，选择不同方式应对.
-                if (dis >= Global.AttackRange)
+                if (dis > Global.AttackRange)
                 {
                     //大部分几率是跑过去，走到跟前对打。
                     //小部分几率是切换远程武器打目标。
@@ -1117,7 +1172,7 @@ public class MeteorAI {
                         //主手远程武器 副手无武器。距离太近
                         if (dis < Global.AttackRangeMin)
                         {
-                            SubStatus = (EAISubStatus.FightLeave);
+                            SubStatus = EAISubStatus.FightLeave;
                             return;
                         }
                     }
@@ -1327,8 +1382,10 @@ public class MeteorAI {
     //1：在路线中
     //2：到达最终一个路点，朝角色走去.
     //3：离跟随目标距离较近，停止跟随，转为Wait状态.
+    //4: 目标一直在移动中，要一段时间刷新一次跟随路线.
     void OnFollow()
     {
+        Vector3 vec;
         //跟随目标为空
         if (followTarget == null)
         {
@@ -1349,15 +1406,30 @@ public class MeteorAI {
                     return;
                 }
 
+                vec = owner.mSkeletonPivot - followTarget.mSkeletonPivot;
+                vec.y = 0;
+                if (Vector3.SqrMagnitude(vec) <= Global.FollowDistanceEnd)
+                {
+                    owner.controller.Input.AIMove(0, 0);
+                    ChangeState(EAIStatus.Wait);
+                    return;
+                }
+
                 if (Path.Count == 0)
                     RefreshPath(owner.mSkeletonPivot, followTarget.mSkeletonPivot);
+                else if (FollowRefreshTick <= 0.0f)
+                {
+                    FollowRefreshTick = 10.0f;
+                    RefreshPath(owner.mSkeletonPivot, followTarget.mSkeletonPivot);
+                    return;
+                }
 
                 if (targetIndex >= Path.Count)
                 {
                     //朝角色走即可.
                     dis = Vector3.SqrMagnitude(followTarget.mSkeletonPivot - owner.mSkeletonPivot);
                     //不计算高度的距离.30码
-                    if (dis < 1000)
+                    if (dis < Global.AttackRangeMinD)
                     {
                         owner.controller.Input.AIMove(0, 0);
                         ChangeState(EAIStatus.Wait);
@@ -1375,7 +1447,7 @@ public class MeteorAI {
                     NextFramePos = Path[targetIndex].pos - owner.mSkeletonPivot;
                     NextFramePos.y = 0;
                     //33码距离内.
-                    if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
+                    if (Vector3.SqrMagnitude(NextFramePos) <= Global.AttackRangeMinD)
                     {
                         NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                         float s = GetAngleBetween((NextFramePos - owner.mSkeletonPivot).normalized, (Path[targetIndex].pos - NextFramePos).normalized);
@@ -1414,7 +1486,6 @@ public class MeteorAI {
                 }
                 break;
             case EAISubStatus.FollowSubRotateToTarget:
-                Vector3 vec;
                 if (targetIndex >= Path.Count)
                     vec = followTarget.mSkeletonPivot;
                 else
@@ -1428,6 +1499,7 @@ public class MeteorAI {
 
     void OnKill()
     {
+        Vector3 vec;
         switch (SubStatus)
         {
             case EAISubStatus.KillThink:
@@ -1441,6 +1513,17 @@ public class MeteorAI {
                     float dis = 0.0f;
                     dis = Vector3.SqrMagnitude(owner.mSkeletonPivot - killTarget.mSkeletonPivot);
                     if (dis < Global.AttackRange)//小于50码停止跟随，不需要计算路径
+                    {
+                        //FollowPath.Clear();
+                        //Debug.Log("stop follow until 35 meters");
+                        owner.controller.Input.AIMove(0, 0);
+                        ChangeState(EAIStatus.Wait);//开始寻找敌人
+                        return;
+                    }
+                    //桥上桥下，跟随抖动问题.
+                    vec = owner.mSkeletonPivot - killTarget.mSkeletonPivot;
+                    vec.y = 0;
+                    if (Vector3.SqrMagnitude(vec) < Global.AttackRange)//小于50码停止跟随，不需要计算路径
                     {
                         //FollowPath.Clear();
                         //Debug.Log("stop follow until 35 meters");
@@ -1462,7 +1545,7 @@ public class MeteorAI {
                         NextFramePos = Path[targetIndex].pos - owner.mSkeletonPivot;
                         NextFramePos.y = 0;
                         //33码距离内.
-                        if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
+                        if (Vector3.SqrMagnitude(NextFramePos) <= Global.AttackRangeMinD)
                         {
                             NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                             float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(Path[targetIndex].pos - NextFramePos));
@@ -1502,7 +1585,7 @@ public class MeteorAI {
                     {
                         NextFramePos = killTarget.mSkeletonPivot - owner.mSkeletonPivot;
                         NextFramePos.y = 0;
-                        if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
+                        if (Vector3.SqrMagnitude(NextFramePos) <= Global.AttackRangeMinD)
                         {
                             NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                             float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(killTarget.mSkeletonPivot - NextFramePos));
@@ -1526,7 +1609,6 @@ public class MeteorAI {
             case EAISubStatus.KillSubRotateToTarget:
                 if (KillRotateToTargetCoroutine == null)
                 {
-                    Vector3 vec;
                     if (targetIndex >= Path.Count)
                         vec = killTarget.mSkeletonPivot;
                     else
@@ -2514,7 +2596,7 @@ public class MeteorAI {
                 {
                     NextFramePos = PatrolPath[targetPatrolIndex].pos - owner.mSkeletonPivot;
                     NextFramePos.y = 0;
-                    if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
+                    if (Vector3.SqrMagnitude(NextFramePos) <= Global.AttackRangeMinD)
                     {
                         NextFramePos.y = 0;
                         NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
@@ -2538,7 +2620,7 @@ public class MeteorAI {
                 {
                     NextFramePos = Path[targetIndex].pos - owner.mSkeletonPivot;
                     NextFramePos.y = 0;
-                    if (Vector3.SqrMagnitude(NextFramePos) <= 1000)
+                    if (Vector3.SqrMagnitude(NextFramePos) <= Global.AttackRangeMinD)
                     {
                         NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * Time.deltaTime * 0.15f;
                         float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(Path[targetIndex].pos - NextFramePos));

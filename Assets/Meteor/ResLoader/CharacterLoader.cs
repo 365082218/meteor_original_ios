@@ -338,7 +338,15 @@ public class CharacterLoader : MonoBehaviour
     Vector3 lastDBasePos = Vector3.zero;//上一帧的d_base骨骼坐标.
     Vector3 nextDBasePos = Vector3.zero;//下一帧的d_base骨骼坐标.
 
+    Vector3 attackTarget;//受击后
     //设置动作位移的根骨骼移动比例,比如完整动作，会让角色Y轴移动10，那么比例为2时，这个动作就会让角色移动20，而帧数不变
+    public void SetActionRotation(Vector3 vec)
+    {
+        //在xz轴上动作的方向
+        vec.y = 0;
+        attackTarget = vec.normalized;
+    }
+
     float moveScale = 1.0f;
     public void SetActionScale(float scale)
     {
@@ -450,6 +458,10 @@ public class CharacterLoader : MonoBehaviour
                     }
                     else
                     {
+                        //if (attackTarget != Vector3.zero)
+                        //{
+                        //    vec = vec.sqrMagnitude * attackTarget;
+                        //}
                     }
                     moveDelta += vec;
                     //if (po.Idx == 151)
@@ -674,7 +686,10 @@ public class CharacterLoader : MonoBehaviour
                         }
                         else
                         {
-
+                            //if (attackTarget != Vector3.zero)
+                            //{
+                            //    vec = vec.sqrMagnitude * attackTarget;
+                            //}
                         }
                         moveDelta += vec;
                         //if (po.Idx == 151)
@@ -956,6 +971,7 @@ public class CharacterLoader : MonoBehaviour
             lastPosIdx = po.Idx;
 
         moveScale = 1.0f;
+        attackTarget = Vector3.zero;
         //重置速度
         bool isAttackPos = false;
         if (po == null)

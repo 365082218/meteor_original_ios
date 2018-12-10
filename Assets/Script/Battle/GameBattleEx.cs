@@ -1194,7 +1194,7 @@ public partial class GameBattleEx : MonoBehaviour {
                 wayPointList.Add(obj);
                 //BoxCollider capsule = obj.AddComponent<BoxCollider>();
                 //capsule.isTrigger = true;
-                //capsule.size = Vector3.one * (Global.GLevelItem.wayPoint[i].size);
+                //capsule.size = Vector3.one * (Global.GLevelItem.wayPoint[i].size) * 10;
                 //capsule.center = Vector3.zero;
                 obj.name = string.Format("WayPoint{0}", Global.GLevelItem.wayPoint[i].index);
 

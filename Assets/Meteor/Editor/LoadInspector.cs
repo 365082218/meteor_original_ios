@@ -2,6 +2,19 @@
 using System.Collections;
 using UnityEditor;
 
+[CustomEditor(typeof(PathFinder))]
+public class PathFinderInspector : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+        if (GUILayout.Button("FindPath"))
+        {
+            var obj = (PathFinder)target;
+            obj.FindPath();
+        }
+    }
+}
 
 [CustomEditor(typeof(SFXUnit))]
 public class SFXUnitInspector : Editor
