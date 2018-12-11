@@ -2652,7 +2652,7 @@ public partial class MeteorUnit : MonoBehaviour
                         //    else
                         //        lockTarget = attacker;
                         //}
-                        Debug.Log("受到:" + realDamage + " 点伤害");
+                        //Debug.Log("受到:" + realDamage + " 点伤害");
                         Attr.ReduceHp(realDamage);
                         if (charLoader != null)
                             charLoader.LockTime(dam.TargetValue);

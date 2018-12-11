@@ -2067,6 +2067,8 @@ public class MeteorAI {
         float radian = Vector3.Dot(vec1, vec2);
         float degree = Mathf.Acos(radian) * Mathf.Rad2Deg;
         //Debug.LogError("夹角:" + degree);
+        if (float.IsNaN(degree))
+            Debug.LogError("NAN");
         return degree;
     }
 

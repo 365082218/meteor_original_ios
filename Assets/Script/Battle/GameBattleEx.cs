@@ -1267,7 +1267,9 @@ public class ActionConfig
             else if (action[action.Count - 1].type == StackAction.SAY)
             {
                 MeteorUnit unit = U3D.GetUnit(id);//, action[action.Count - 1])
-                if (FightWnd.Exist)
+                if (unit == null)
+                    Debug.LogError("can not find unit:" + id);
+                if (FightWnd.Exist && unit != null)
                     FightWnd.Instance.InsertFightMessage(unit.name + " : " + action[action.Count - 1].text);
                 action.RemoveAt(action.Count - 1);
             }

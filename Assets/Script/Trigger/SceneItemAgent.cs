@@ -865,7 +865,7 @@ public class SceneItemAgent : MonoBehaviour {
         if (ItemInfo != null && (ItemInfo.IsItem()))
             if (root != null && root.gameObject.activeInHierarchy && ItemInfo.second.Length != 0)
                 return true;
-        if (ItemInfo != null && ItemInfo.IsFlag() && ItemInfo.second.Length != 0)
+        if (ItemInfo != null && ItemInfo.IsFlag())
             if (root != null)
                 return true;
         return false;
