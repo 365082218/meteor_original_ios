@@ -218,6 +218,12 @@ class ClientProxy
         Common.SendUpdateGameServer();
     }
 
+    //加入大厅，与服务器验证，否则一段时间内服务器关闭掉未验证客户端
+    public static void JoinLobbyRequest()
+    {
+        Common.SendJoinLobbyRequest();
+    }
+
     public static void JoinRoom(int roomId)
     {
         Common.SendJoinRoom(roomId);

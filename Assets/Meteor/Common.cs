@@ -317,6 +317,12 @@ public class Common
     //    Exec<RegData>(ClientProxy.sProxy, data, cb);
     //}
 
+    //加入游戏大厅
+    public static void SendJoinLobbyRequest()
+    {
+        Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ProtocolVeritify);
+    }
+
     public static void SendUpdateGameServer()
     {
         Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.GetRoomReq);

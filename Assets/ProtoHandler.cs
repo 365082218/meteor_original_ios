@@ -357,13 +357,27 @@ class ProtoHandler
             MainLobby.Instance.OnGetRoom(rsp);
     }
 
+    //与网关的协议版本号验证，包括客户端协议版本号，服务器协议版本号
+    //不向下兼容.
+    static void OnSecurityProtocolValidation(int result, string message)
+    {
+        if (result == 1)
+        {
+            ClientProxy.UpdateGameServer();//取得房间列表
+        }
+        else
+        {
+            U3D.PopupTip("当前版本与服务器版本不匹配，更新后才可联机");
+        }
+    }
+
     static void OnConnect(int result, string message)
     {
         //取得房间信息
         if (result == 1)
         {
             //Debug.LogError("connected");
-            ClientProxy.UpdateGameServer();
+            ClientProxy.JoinLobbyRequest();
         }
         else
         {
