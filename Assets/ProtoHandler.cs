@@ -377,7 +377,8 @@ class ProtoHandler
         if (result == 1)
         {
             //Debug.LogError("connected");
-            ClientProxy.JoinLobbyRequest();
+            ClientProxy.UpdateGameServer();//取得房间列表
+            //ClientProxy.JoinLobbyRequest();
         }
         else
         {

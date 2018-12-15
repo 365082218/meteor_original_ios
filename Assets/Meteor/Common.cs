@@ -320,7 +320,7 @@ public class Common
     //加入游戏大厅
     public static void SendJoinLobbyRequest()
     {
-        Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ProtocolVeritify);
+        //Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ProtocolVeritify);
     }
 
     public static void SendUpdateGameServer()
