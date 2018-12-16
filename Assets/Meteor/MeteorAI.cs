@@ -134,10 +134,8 @@ public class MeteorAI {
         if (owner.posMng.mActiveAction.Idx == CommonAction.Struggle || owner.posMng.mActiveAction.Idx == CommonAction.Struggle0)
         {
             if (struggleCoroutine == null)
-            {
                 struggleCoroutine = owner.StartCoroutine(ProcessStruggle());
-                return;
-            }
+            return;
         }
 
         //行为优先级 
@@ -1081,35 +1079,35 @@ public class MeteorAI {
                                 return;
                             }
                         }
-                        else
-                        {
-                            int random = Random.Range(0, 100);
-                            if (random >= (100 -  Global.SpecialWeaponProbability))
-                            {
-                                //直接使用当前武器开打，如果非面向，需要瞄准.
-                                if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.AimDegree)
-                                {
-                                    SubStatus = EAISubStatus.FightAim;
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                //切换武器，跑过去，开打
-                                if (ChangeWeaponTick <= 0.0f)
-                                {
-                                    owner.ChangeWeapon();
-                                    ChangeWeaponTick = 10.0f;
-                                    return;
-                                }
-                            }
-                        }
+                        //else
+                        //{
+                        //    int random = Random.Range(0, 100);
+                        //    if (random >= (100 -  Global.SpecialWeaponProbability))
+                        //    {
+                        //        //直接使用当前武器开打，如果非面向，需要瞄准.
+                        //        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.AimDegree)
+                        //        {
+                        //            SubStatus = EAISubStatus.FightAim;
+                        //            return;
+                        //        }
+                        //    }
+                        //    else
+                        //    {
+                        //        //切换武器，跑过去，开打
+                        //        if (ChangeWeaponTick <= 0.0f)
+                        //        {
+                        //            owner.ChangeWeapon();
+                        //            ChangeWeaponTick = 10.0f;
+                        //            return;
+                        //        }
+                        //    }
+                        //}
                     }
                     else if (U3D.IsSpecialWeapon(owner.Attr.Weapon2))
                     {
                         //副手是远程武器-.一定几率切换武器，再攻击.90几率切换到远程武器
                         int random = Random.Range(0, 100);
-                        if (random < Global.SpecialWeaponProbability)
+                        if (random > Global.SpecialWeaponProbability)
                         {
                             //切换武器，开打(不跑过去),换到武器2
                             //SubStatus = EAISubStatus.FightChangeWeapon;
@@ -1165,7 +1163,6 @@ public class MeteorAI {
                             ChangeWeaponTick = 10.0f;
                             return;
                         }
-
                     }
                     else
                     {

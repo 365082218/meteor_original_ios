@@ -519,7 +519,7 @@ public partial class GameBattleEx : MonoBehaviour {
                     //int gunAim = Random.Range(1, 101);//射击命中几率.
                     Vector3 vec;
                     if (unit.GetLockedTarget() != null)
-                        vec = (unit.GetLockedTarget().mSkeletonPivot + new Vector3(unit.Attr.Aim / 5, 0, unit.Attr.Aim / 5) - gun.transform.position).normalized;
+                        vec = (unit.GetLockedTarget().mSkeletonPivot + new Vector3((100 - unit.Attr.Aim) / 20, 0, (100 - unit.Attr.Aim) / 20) - gun.transform.position).normalized;
                     else
                         vec = -gun.transform.forward;
                     Ray r = new Ray(gun.transform.position, vec);

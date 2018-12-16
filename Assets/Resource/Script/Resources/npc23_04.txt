@@ -1,7 +1,7 @@
 local class = {}
 function npc23_04()
 	class.Name = "原冲";
-	class.Model = 6;
+	class.Model = 8;
 	class.Weapon = 55;
 	class.Weapon2 = 545;
 	class.Team = 2;
