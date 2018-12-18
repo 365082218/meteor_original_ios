@@ -94,7 +94,7 @@ public class LevelHelper : MonoBehaviour
 
         //设置主角属性
         U3D.InitPlayer(script);
-
+        U3D.InitPet();
         //把音频侦听移到角色
         Startup.ins.listener.enabled = false;
         Startup.ins.playerListener = MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();

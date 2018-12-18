@@ -10,6 +10,7 @@ public class MeteorManager {
     }
     static MeteorManager _Ins;
     public MeteorUnit LocalPlayer;//当前操纵着主英雄.
+    public PetController Pet;
     public List<MeteorUnit> UnitInfos = new List<MeteorUnit>();
     public List<MeteorUnit> DeadUnits = new List<MeteorUnit>();
     public List<MeteorUnit> LeavedUnits = new List<MeteorUnit>();//离场的NPC,设置禁用，取消激活游戏对象，但是可以查询

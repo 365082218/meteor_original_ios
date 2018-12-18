@@ -17,6 +17,7 @@ public enum WalkType
 
 public class PathMng:Singleton<PathMng>
 {
+
     #region 寻路缓存
     List<int> looked = new List<int>();
 
@@ -29,6 +30,14 @@ public class PathMng:Singleton<PathMng>
         FindPathCore(user, startPathIndex, endPathIndex, ref wp);
     }
 
+    public void FindPathForPet(PetController user, Vector3 source, Vector3 target, ref List<WayPoint> wp)
+    {
+        int startPathIndex = GetWayIndex(source);
+        int endPathIndex = GetWayIndex(target);
+        looked.Clear();
+        wp.Clear();
+        FindPathCoreForPet(user, startPathIndex, endPathIndex, ref wp);
+    }
     //public void FindPath(Vector3 now, MeteorUnit user, MeteorUnit target, ref List<WayPoint> wp)
     //{
     //    int startPathIndex = GetWayIndex(now);
@@ -182,6 +191,127 @@ public class PathMng:Singleton<PathMng>
         }
     }
 
+    //
+    void FindPathCoreForPet(PetController user, int start, int end, ref List<WayPoint> wp)
+    {
+        if (looked.Contains(start))
+            return;
+        //Debug.Log(string.Format("start:{0}:end:{1}", start, end));
+        looked.Add(start);
+        if (start == -1 || end == -1)
+            return;
+        if (start == end)
+        {
+            wp.Add(Global.GLevelItem.wayPoint[start]);
+            return;
+        }
+
+        if (Global.GLevelItem.DisableFindWay == 1)
+        {
+            List<WayPoint> direct = new List<WayPoint>();
+            wp.Add(Global.GLevelItem.wayPoint[start]);
+            wp.Add(Global.GLevelItem.wayPoint[end]);
+            return;
+        }
+
+        //从开始点，跑到最终点，最短线路？
+        if (Global.GLevelItem.wayPoint[start].link.ContainsKey(end))
+        {
+            wp.Add(Global.GLevelItem.wayPoint[start]);
+            wp.Add(Global.GLevelItem.wayPoint[end]);
+            return;
+        }
+        else
+        {
+            //深度优先递归.并非最短
+            //Dictionary<int, WayLength> ways = Global.GLevelItem.wayPoint[start].link;
+            //foreach (var each in ways)
+            //{
+            //    List<WayPoint> p = FindPathCore(each.Key, end);
+            //    if (p != null && p.Count != 0)
+            //    {
+            //        path.Add(Global.GLevelItem.wayPoint[start]);
+            //        for (int i = 0; i < p.Count; i++)
+            //            path.Add(p[i]);
+            //        return path;
+            //    }
+            //}
+
+            if (true)
+            {
+                //收集路径信息 层次
+                user.PathInfo.Clear();
+                PathNode no = user.nodeContainer[start];
+                no.wayPointIdx = start;
+                user.PathInfo.Add(0, new List<PathNode>() { no });
+                CollectPathInfoForPet(user, start, end);
+
+                //Debug.LogError(string.Format("寻路起始点:{0}-寻路终止点:{1}", start, end));
+                //foreach (var each in user.robot.PathInfo)
+                //{
+                //    Debug.Log(string.Format("layer:{0}", each.Key));
+                //    for (int i = 0; i < each.Value.Count; i++)
+                //        Debug.Log(string.Format("{0}", each.Value[i].wayPointIdx));
+                //}
+
+                //计算最短路径.从A-B，路径越少，越短，2边之和大于第3边
+                int target = end;
+                float tick = Time.timeSinceLevelLoad;
+                bool goOut = false;
+                while (true)
+                {
+                    if (Time.timeSinceLevelLoad - tick > 10.0f)
+                    {
+                        Debug.LogError("find path time up");
+                        Debug.DebugBreak();
+                        break;
+                    }
+
+                    bool find = false;
+                    foreach (var each in user.PathInfo)
+                    {
+                        for (int i = 0; i < each.Value.Count; i++)
+                        {
+                            if (each.Value[i].wayPointIdx == target)
+                            {
+                                find = true;
+                                if (wp.Count == 0)
+                                    wp.Add(Global.GLevelItem.wayPoint[target]);
+                                else
+                                    wp.Insert(0, Global.GLevelItem.wayPoint[target]);
+                                while (each.Value[i].parent != start)
+                                {
+                                    target = each.Value[i].parent;
+                                    break;
+                                }
+                                if (each.Value[i].parent == start)
+                                    goOut = true;
+                                //goOut = true;
+                                break;
+                            }
+                        }
+                        if (find)
+                            break;
+                    }
+
+                    if (!find)
+                    {
+                        Debug.LogError(string.Format("孤立的寻路点:{0},没有点可以走向他", target));
+                        if (wp.Count == 0)
+                            wp.Add(Global.GLevelItem.wayPoint[target]);
+                        else
+                            wp.Insert(0, Global.GLevelItem.wayPoint[target]);
+                        break;
+                    }
+
+                    if (goOut)
+                        break;
+                }
+                wp.Insert(0, Global.GLevelItem.wayPoint[start]);
+            }
+        }
+    }
+
     //查看之前层级是否已统计过该节点信息
     bool PathLayerExist(MeteorUnit user, int wayPoint)
     {
@@ -194,6 +324,52 @@ public class PathMng:Singleton<PathMng>
             }
         }
         return false;
+    }
+
+    bool PathLayerExistForPet(PetController user, int wayPoint)
+    {
+        foreach (var each in user.PathInfo)
+        {
+            for (int i = 0; i < each.Value.Count; i++)
+            {
+                if (each.Value[i].wayPointIdx == wayPoint)
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    void CollectPathInfoForPet(PetController pet, int start, int end, int layer = 1)
+    {
+        CollectPathLayerForPet(pet, start, end, layer);
+        while (pet.PathInfo.ContainsKey(layer))
+        {
+            int nextLayer = layer + 1;
+            for (int i = 0; i < pet.PathInfo[layer].Count; i++)
+            {
+                CollectPathLayerForPet(pet, pet.PathInfo[layer][i].wayPointIdx, end, nextLayer);
+            }
+            layer = nextLayer;
+        }
+    }
+
+    void CollectPathLayerForPet(PetController user, int start, int end, int layer = 1)
+    {
+        Dictionary<int, WayLength> ways = Global.GLevelItem.wayPoint[start].link;
+        foreach (var each in ways)
+        {
+            if (!PathLayerExistForPet(user, each.Key))
+            {
+                //之前的所有层次中并不包含此节点.
+                PathNode no = user.nodeContainer[each.Key];
+                no.wayPointIdx = each.Key;
+                no.parent = start;
+                if (user.PathInfo.ContainsKey(layer))
+                    user.PathInfo[layer].Add(no);
+                else
+                    user.PathInfo.Add(layer, new List<PathNode> { no });
+            }
+        }
     }
 
     //从起点开始 构造寻路树.

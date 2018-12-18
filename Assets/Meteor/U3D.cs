@@ -190,6 +190,17 @@ public class U3D : MonoBehaviour {
         return unit;
     }
 
+    public static void InitPet()
+    {
+        GameObject objPrefab = Resources.Load("Cat") as GameObject;
+        GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
+        //ins.transform.localScale = new Vector3(25, 25, 25);
+        MeteorManager.Instance.Pet = ins.GetComponent<PetController>();
+        MeteorManager.Instance.Pet.FollowTarget = MeteorManager.Instance.LocalPlayer;
+        ins.transform.position = MeteorManager.Instance.LocalPlayer.mPos + MeteorManager.Instance.LocalPlayer.transform.right * 35;
+        ins.transform.LookAt(MeteorManager.Instance.LocalPlayer.transform);
+    }
+
     public static MeteorUnit InitPlayer(LevelScriptBase script)
     {
         MonsterEx mon = SceneMng.InitPlayer(script);
