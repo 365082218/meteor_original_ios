@@ -192,6 +192,8 @@ public class U3D : MonoBehaviour {
 
     public static void InitPet()
     {
+        if (MeteorManager.Instance.Pet != null)
+            return;
         GameObject objPrefab = Resources.Load("Cat") as GameObject;
         GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
         //ins.transform.localScale = new Vector3(25, 25, 25);

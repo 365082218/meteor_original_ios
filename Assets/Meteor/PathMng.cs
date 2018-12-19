@@ -25,6 +25,7 @@ public class PathMng:Singleton<PathMng>
     {
         int startPathIndex = GetWayIndex(source);
         int endPathIndex = GetWayIndex(target);
+        user.robot.lastFollowTargetIndex = endPathIndex;
         looked.Clear();
         wp.Clear();
         FindPathCore(user, startPathIndex, endPathIndex, ref wp);
@@ -34,6 +35,7 @@ public class PathMng:Singleton<PathMng>
     {
         int startPathIndex = GetWayIndex(source);
         int endPathIndex = GetWayIndex(target);
+        user.lastFollowWayPointIdx = endPathIndex;
         looked.Clear();
         wp.Clear();
         FindPathCoreForPet(user, startPathIndex, endPathIndex, ref wp);

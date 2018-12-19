@@ -137,6 +137,7 @@ public class GameState
     public bool DisableLock;//无锁定
     public bool DisableParticle;//无粒子特效
     public bool DisableJoystick;//不显示摇杆.
+    public bool PetOn;//带宠物
     public List<ServerInfo> ServerList;
     public int defaultServerIdx;
 }
@@ -407,6 +408,8 @@ public class GameData:Singleton<GameData>
             gameStatus.ServerList = new List<ServerInfo>();//用户自定义的服务器列表.
             gameStatus.ServerList.Add(svr);
             gameStatus.defaultServerIdx = 0;//指向默认，修改仅设置该值.
+            gameStatus.PetOn = true;
+            gameStatus.DisableJoystick = true;
         }
         else
         {

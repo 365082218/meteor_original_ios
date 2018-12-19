@@ -15,6 +15,7 @@ public enum EAIStatus
     Wait,//，类似于Search
     Dodge,//逃跑
     Look,//四处看
+    Mew,//喵
     GetItem,//取得场景道具-最近的，可拾取的(未打碎的箱子不算在内)。
     AttackTarget,//攻击指定位置
 }
@@ -76,7 +77,7 @@ public class MeteorAI {
 
     public EAIStatus Status { get; set; }
     public EAISubStatus SubStatus { get; set; }
-    float FollowRefreshTick = 0.0f;
+    public int lastFollowTargetIndex = -1;
     MeteorUnit owner;//自己
     MeteorUnit followTarget;//跟随目标
     public MeteorUnit killTarget;//无视视野
@@ -125,8 +126,6 @@ public class MeteorAI {
         ChangeWeaponTick -= Time.deltaTime;
         AIJumpDelay += Time.deltaTime;
         lookTick += Time.deltaTime;
-        FollowRefreshTick -= Time.deltaTime;
-
         //如果在硬直中
         if (owner.charLoader.IsInStraight())
             return;
@@ -1402,7 +1401,7 @@ public class MeteorAI {
                     ChangeState(EAIStatus.Wait);
                     return;
                 }
-
+                
                 vec = owner.mSkeletonPivot - followTarget.mSkeletonPivot;
                 vec.y = 0;
                 if (Vector3.SqrMagnitude(vec) <= Global.FollowDistanceEnd)
@@ -1412,11 +1411,11 @@ public class MeteorAI {
                     return;
                 }
 
+                int cur = PathMng.Instance.GetWayIndex(followTarget.mSkeletonPivot);
                 if (Path.Count == 0)
                     RefreshPath(owner.mSkeletonPivot, followTarget.mSkeletonPivot);
-                else if (FollowRefreshTick <= 0.0f)
+                else if (lastFollowTargetIndex != cur)
                 {
-                    FollowRefreshTick = 10.0f;
                     RefreshPath(owner.mSkeletonPivot, followTarget.mSkeletonPivot);
                     return;
                 }

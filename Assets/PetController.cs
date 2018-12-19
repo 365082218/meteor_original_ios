@@ -31,7 +31,11 @@ public class PetController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         //Debug.Log("t:" + current.normalizedTime + " l:" + current.length);
+        UpdateMoveInput();
         ProcessGravity();
+
+        mewTick += Time.deltaTime;
+
         if (Status == EAIStatus.Wait)
         {
             if (FollowTarget != null)
@@ -47,26 +51,234 @@ public class PetController : MonoBehaviour {
         switch (Status)
         {
             case EAIStatus.Follow:
-                if (IsOnGround())
-                {
-                    if (FollowTarget != null)
-                    {
-                        checkTick -= Time.deltaTime;
-                        if (checkTick <= 0.0f)
-                        {
-                            if (Vector3.Distance(transform.position, FollowTarget.mPos) >= Global.FollowDistanceStart)
-                            {
-                                
-                                RefreshPath(transform.position, FollowTarget.mPos);
-                                checkTick = checkDelay;
-                            }
-                        }
-                    }
-
-                }
-            break;
+                OnFollow();
+                animator.SetBool("mew", false);
+                break;
+            case EAIStatus.Idle:
+                OnIdle();
+                animator.SetBool("mew", false);
+                break;
+            case EAIStatus.Wait:
+                OnWait();
+                animator.SetBool("mew", false);
+                break;
+            case EAIStatus.Mew:
+                OnMew();
+                break;
         }
         
+    }
+
+    void UpdateMoveInput()
+    {
+        direction.Normalize();
+        //跑的速度 1000 = 145M/S 按原来游戏计算
+        Vector2 runTrans = direction * MoveSpeed;
+        float x = runTrans.x * 0.085f, y = runTrans.y * 0.135f;
+        SetVelocity(y, x);
+    }
+
+    public void SetVelocity(float z, float x)
+    {
+        Vector3 vec = z * transform.forward + x * transform.right;
+        ImpluseVec.z = vec.z;
+        ImpluseVec.x = vec.x;
+    }
+
+    //跟随状态
+    //1：在路线中
+    //2：到达最终一个路点，朝角色走去.
+    //3：离跟随目标距离较近，停止跟随，转为Wait状态.
+    //4: 目标一直在移动中，要一段时间刷新一次跟随路线.
+
+    Vector2 direction = Vector2.zero;
+    void AIMove(float x, float z)
+    {
+        direction.x = x;
+        direction.y = z;
+    }
+
+    public void FaceToTarget(Vector3 target)
+    {
+        Vector3 vdiff = target - transform.position;
+        vdiff.y = 0;
+        transform.rotation = Quaternion.LookRotation(new Vector3(vdiff.x, 0, vdiff.z), Vector3.up);
+    }
+
+    float MoveSpeed = 50;
+    public int lastFollowWayPointIdx = -1;//上一次寻路时，目标所处与路点，如果该路点发生变化，则需要重新寻路，否则不需要
+    Vector3 NextFramePos = Vector3.zero;
+    int RotateRound = 0;
+    float AIJumpDelay = 0.0f;
+
+    //设置跳跃动画
+    void AIJump()
+    {
+        animator.SetBool("jump", true);
+    }
+
+    //计算夹角，不考虑Y轴
+    float GetAngleBetween(Vector3 first, Vector3 second)
+    {
+        if (first.x == second.x && first.z == second.z)
+            return 0;
+        first.y = 0;
+        second.y = 0;
+        float s = Vector3.Dot(first, second);
+        return s;//大于0，同方向，小于0 反方向
+    }
+
+    void OnFollow()
+    {
+        Vector3 vec;
+        //跟随目标为空
+        if (FollowTarget == null)
+        {
+            ChangeState(EAIStatus.Wait);
+            return;
+        }
+
+        float dis = 0.0f;
+        switch (SubStatus)
+        {
+            case EAISubStatus.FollowGotoTarget:
+                dis = Vector3.SqrMagnitude(transform.position - FollowTarget.mSkeletonPivot);
+                if (dis < Global.FollowDistanceEnd)
+                {
+                    AIMove(0, 0);
+                    ChangeState(EAIStatus.Wait);
+                    return;
+                }
+                //快速
+                if (dis > 200 * 200)
+                {
+                    MoveSpeed = 200; 
+                }
+                else
+                if (dis > 100 * 100)
+                {
+                    MoveSpeed = 100;
+                }
+                else
+                {
+                    MoveSpeed = 49;
+                }
+                vec = transform.position - FollowTarget.mSkeletonPivot;
+                vec.y = 0;
+                if (Vector3.SqrMagnitude(vec) <= Global.FollowDistanceEnd)
+                {
+                    AIMove(0, 0);
+                    ChangeState(EAIStatus.Wait);
+                    return;
+                }
+
+                int cur = PathMng.Instance.GetWayIndex(FollowTarget.mSkeletonPivot);
+                if (Path.Count == 0)
+                    RefreshPath(transform.position, FollowTarget.mSkeletonPivot);
+                else if (lastFollowWayPointIdx != cur)
+                {
+                    RefreshPath(transform.position, FollowTarget.mSkeletonPivot);
+                    return;
+                }
+
+                if (targetIndex >= Path.Count)
+                {
+                    //朝角色走即可.
+                    dis = Vector3.SqrMagnitude(FollowTarget.mSkeletonPivot - transform.position);
+                    //不计算高度的距离.30码
+                    if (dis < Global.AttackRangeMinD)
+                    {
+                        AIMove(0, 0);
+                        ChangeState(EAIStatus.Wait);
+                        return;
+                    }
+                    FaceToTarget(FollowTarget.mSkeletonPivot);
+                    AIMove(0, 1);
+                }
+                else
+                {
+                    if (curIndex == -1)
+                        targetIndex = 0;
+
+                    //检查这一帧是否会走过目标，因为跨步太大.
+                    NextFramePos = Path[targetIndex].pos - transform.position;
+                    NextFramePos.y = 0;
+                    //33码距离内.
+                    if (Vector3.SqrMagnitude(NextFramePos) <= Global.AttackRangeMinD)
+                    {
+                        NextFramePos = transform.position + NextFramePos.normalized * MoveSpeed * Time.deltaTime * 0.15f;
+                        float s = GetAngleBetween((NextFramePos - transform.position).normalized, (Path[targetIndex].pos - NextFramePos).normalized);
+                        if (s < 0)
+                        {
+                            //其他路点，到达后转向下一个路点.
+                            AIMove(0, 0);
+                            curIndex = targetIndex;
+                            targetIndex += 1;
+                            RotateRound = Random.Range(1, 3);
+                            SubStatus = EAISubStatus.FollowSubRotateToTarget;//到指定地点后旋转到目标.
+                            return;
+                        }
+                    }
+                    FaceToTarget(Path[targetIndex].pos);
+                    AIMove(0, 1);
+                    //模拟跳跃键，移动到下一个位置.还得按住上
+                    if (curIndex != -1)
+                    {
+                        if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && IsOnGround() && AIJumpDelay > 2.5f)
+                        {
+                            AIJump();
+                            AIJumpDelay = 0.0f;
+                            return;
+                        }
+                        //尝试几率跳跃，否则可能会被卡住.
+                        int random = Random.Range(0, 100);
+                        if (AIJumpDelay >= 2.5f && random < 2)
+                        {
+                            AIJump();
+                            AIJumpDelay = 0.0f;
+                            return;
+                        }
+                    };
+                    break;
+                }
+                break;
+            case EAISubStatus.FollowSubRotateToTarget:
+                if (targetIndex >= Path.Count)
+                    vec = FollowTarget.mSkeletonPivot;
+                else
+                    vec = Path[targetIndex].pos;
+                FaceToTarget(vec);
+                SubStatus = EAISubStatus.FollowGotoTarget;
+                break;
+        }
+    }
+
+    //原地不动-喵
+    float mewTick = 0.0f;
+    void OnWait()
+    {
+        if (mewTick >= 5.0f)
+        {
+            int mewChance = Random.Range(0, 100);
+            if (mewChance < 2)
+            {
+                mewTick = 0;//5秒内最多能进行一次四处看.
+                ChangeState(EAIStatus.Mew);
+            }
+        }
+    }
+
+    //空闲动画
+    float idleTick = 0.0f;
+    void OnIdle()
+    {
+        if (idleTick >= 0.2f)
+        {
+            ChangeState(EAIStatus.Wait);
+            idleTick = 0.0f;
+            return;
+        }
+        idleTick += Time.deltaTime;
     }
 
     //改变主状态，则清空寻路数据，否则不用.
@@ -76,6 +288,18 @@ public class PetController : MonoBehaviour {
         Path.Clear();
         if (type == EAIStatus.Follow)
             SubStatus = EAISubStatus.FollowGotoTarget;
+        else
+        {
+            animator.SetBool("walk", false);
+        }
+    }
+
+    //喵叫.
+    void OnMew()
+    {
+        animator.SetBool("mew", true);
+        SoundManager.Instance.PlaySound("cat.wav");
+        Status = EAIStatus.Wait;
     }
 
     public bool IgnoreGravity = false;
@@ -102,6 +326,11 @@ public class PetController : MonoBehaviour {
         v.z = ImpluseVec.z * Time.deltaTime;
         if (v != Vector3.zero)
             Move(v);
+        else
+        {
+            animator.SetBool("walk", false);
+            animator.SetFloat("speed", MoveSpeed);
+        }   
 
         if (!IsOnGround())
         {
@@ -123,6 +352,8 @@ public class PetController : MonoBehaviour {
         if (petController != null && petController.enabled)
         {
             CollisionFlags collisionFlags = petController.Move(trans);
+            animator.SetBool("walk", true);
+            animator.SetFloat("speed", MoveSpeed);
             UpdateFlags(collisionFlags);
         }
         else
@@ -168,7 +399,7 @@ public class PetController : MonoBehaviour {
         {
             if (MoveOnGroundEx || OnGround)
             {
-                animator.Play("tobituki1");
+                //animator.Play("tobituki1");
                 ResetYVelocity();
             }
         }

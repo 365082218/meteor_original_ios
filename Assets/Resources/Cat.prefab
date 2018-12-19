@@ -1776,8 +1776,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1912043861364624}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.197, y: 0, z: 0}
-  m_LocalScale: {x: 25, y: 25, z: 25}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 35, y: 35, z: 35}
   m_Children:
   - {fileID: 4271570100102316}
   - {fileID: 4767130874358220}
@@ -3379,6 +3379,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FollowTarget: {fileID: 0}
+  lastFollowWayPointIdx: -1
   IgnoreGravity: 0
   ImpluseVec: {x: 0, y: 0, z: 0}
   OnTouchWall: 0

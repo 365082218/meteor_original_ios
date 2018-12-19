@@ -167,6 +167,12 @@ public class NewSystemWnd : Window<NewSystemWnd>
         toggleDisableJoyStick.onValueChanged.AddListener(OnDisableJoyStick);
         OnDisableJoyStick(toggleDisableJoyStick.isOn);
 
+        //宠物猫
+        Toggle toggleDisableCat = Control("Cat").GetComponent<Toggle>();
+        toggleDisableCat.isOn = GameData.Instance.gameStatus.PetOn;
+        toggleDisableCat.onValueChanged.AddListener(OnDisableCat);
+        OnDisableCat(toggleDisableCat.isOn);
+
         Control("ChangeLog").GetComponent<Text>().text = ResMng.LoadTextAsset("ChangeLog").text;
         InitLevel();
         mWindowStyle = WindowStyle.WS_Modal;
@@ -182,6 +188,23 @@ public class NewSystemWnd : Window<NewSystemWnd>
                     MeteorManager.Instance.LocalPlayer.SpeedFast();
                 else
                     MeteorManager.Instance.LocalPlayer.SpeedSlow();
+            }
+        }
+    }
+
+    void OnDisableCat(bool disable)
+    {
+        GameData.Instance.gameStatus.PetOn = disable;
+        if (GameData.Instance.gameStatus.PetOn)
+        {
+            U3D.InitPet();
+        }
+        else
+        {
+            if (MeteorManager.Instance.Pet != null)
+            {
+                GameObject.Destroy(MeteorManager.Instance.Pet.gameObject);
+                MeteorManager.Instance.Pet = null;
             }
         }
     }
