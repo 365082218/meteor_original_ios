@@ -105,7 +105,7 @@ public class PetController : MonoBehaviour {
         transform.rotation = Quaternion.LookRotation(new Vector3(vdiff.x, 0, vdiff.z), Vector3.up);
     }
 
-    float MoveSpeed = 50;
+    public float MoveSpeed = 50;
     public int lastFollowWayPointIdx = -1;//上一次寻路时，目标所处与路点，如果该路点发生变化，则需要重新寻路，否则不需要
     Vector3 NextFramePos = Vector3.zero;
     int RotateRound = 0;
