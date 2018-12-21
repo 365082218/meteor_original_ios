@@ -1,0 +1,22 @@
+お買上げ頂きありがとうございました。
+
+１）まず最初に、
+本商品は、Meow Cat Pro に含まれる一部を抜粋した商品となります。
+
+DEMO/Scene/   の  Cats_amesyo.scene　
+DEMO/Scene/   の  Anime_demo_amesyo.scene
+
+を御覧下さい。
+上記シーンの各prefabは、DEMO/Demo_Prefab に収納しております。
+
+２）本商品には下記、1種類の猫モデルが収容されております。
+Cats/Model/ameshoA   = アメリカンショートヘアー
+にfbxが格納されております。
+
+３）本商品には３種類のテクスチャーが収容されております。
+
+４）本商品には　26種類のアニメーションが収容されております。
+
+７種類の猫種が全て入っているパッケージ（PROバージョン）はこちらです
+https://www.assetstore.unity3d.com/jp/#!/content/72861
+
