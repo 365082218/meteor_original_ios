@@ -1069,14 +1069,11 @@ public class MeteorAI {
                     if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
                     {
                         //主手是远程武器-.直接攻击,不处理，后续会处理到底是打还是啥.
-                        if (owner.Attr.Weapon2 == 0 || U3D.IsSpecialWeapon(owner.Attr.Weapon2))
+                        //站撸
+                        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.AimDegree)
                         {
-                            //站撸，因为只有远程武器？这个状态可能是丢掉武器发生的，应该算一个错误状态
-                            if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.AimDegree)
-                            {
-                                SubStatus = EAISubStatus.FightAim;
-                                return;
-                            }
+                            SubStatus = EAISubStatus.FightAim;
+                            return;
                         }
                         //else
                         //{
