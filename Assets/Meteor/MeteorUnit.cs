@@ -1535,6 +1535,9 @@ public partial class MeteorUnit : MonoBehaviour
         Vector3 vec = transform.position - hitPoint;
         vec.y = 0;
         SetWorldVelocity(Vector3.Normalize(vec) * 50 * scale);
+        //如果在墙壁处被推开
+        if (robot != null)
+            robot.ChangeState(EAIStatus.PushByWall);
         //WsGlobal.AddDebugLine(hitPoint, hitPoint + Vector3.Normalize(vec) * 30, Color.red, "pushDir", 10);
         //Debug.LogError("被墙壁推开");
         //RaycastHit hit;
@@ -1594,7 +1597,7 @@ public partial class MeteorUnit : MonoBehaviour
         {
             MoveOnGroundEx = hit.distance <= 4.8f;
             //Debug.Log(string.Format("distance:{0}", hit.distance));
-            Floating = hit.distance >= 8.0f;
+            Floating = hit.distance >= 12.0f;
         }
         else
             MoveOnGroundEx = false;
@@ -1967,7 +1970,7 @@ public partial class MeteorUnit : MonoBehaviour
             MeteorUnit hitUnit = hit.gameObject.transform.root.GetComponent<MeteorUnit>();
             Vector3 vec = hitUnit.mPos - transform.position;
             vec.y = 0;
-            hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 100);
+            hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 30);
         }
         else if (hit.gameObject.transform.root.tag.Equals("SceneItemAgent"))
         {
@@ -2317,7 +2320,7 @@ public partial class MeteorUnit : MonoBehaviour
             angle = 1.0f;
         else if (angle < -1.0f)
             angle = -1.0f;
-        float degree =  Mathf.Acos(angle) * Mathf.Rad2Deg;
+        float degree =  Mathf.Acos(Mathf.Clamp(angle, -1.0f, 1.0f)) * Mathf.Rad2Deg;
         //Debug.LogError("角度:" + degree);
         if (degree <= 45)
         {
@@ -2425,7 +2428,7 @@ public partial class MeteorUnit : MonoBehaviour
                         //Debug.LogError("targetPos:" + TargetPos);
                         posMng.ChangeAction(TargetPos, 0.1f);
                         charLoader.SetActionScale(dam.DefenseMove);
-                        charLoader.SetActionRotation(mPos - attacker.mPos);
+                        //charLoader.SetActionRotation(mPos - attacker.mPos);
                         int realDamage = CalcDamage(attacker, attackdes);
                         AngryValue += realDamage / 35;//防御住伤害。则怒气增加
                     }
@@ -2485,7 +2488,7 @@ public partial class MeteorUnit : MonoBehaviour
                             //被攻击后，防御相当与没有了.
                             posMng.OnChangeAction(directionAct);
                             charLoader.SetActionScale(dam.TargetMove);
-                            charLoader.SetActionRotation(mPos - attacker.mPos);
+                            //charLoader.SetActionRotation(mPos - attacker.mPos);
                         }
                     }
                 }
@@ -2539,7 +2542,7 @@ public partial class MeteorUnit : MonoBehaviour
                         }
                         posMng.OnChangeAction(directionAct);
                         charLoader.SetActionScale(dam.TargetMove);
-                        charLoader.SetActionRotation(mPos - attacker.mPos);
+                        //charLoader.SetActionRotation(mPos - attacker.mPos);
                     }
                 }
             }
@@ -2590,9 +2593,6 @@ public partial class MeteorUnit : MonoBehaviour
                 case 3: directionAct = dam.TargetPoseRight; break;
             }
 
-            //if (directionAct == dam.TargetPoseFront)
-            //    SFXLoader.Instance.PlayEffect("FrontHIT.ef", charLoader);
-
             if (attacker.Attr.IsPlayer && GameData.Instance.gameStatus.EnableGodMode)
             {
                 //一击必杀
@@ -2617,11 +2617,9 @@ public partial class MeteorUnit : MonoBehaviour
                         int TargetPos = GetGuardPose(direction);
                         string attackAudio = string.Format("W{0:D2}GD{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                        //TargetPos = 40 + ((int)idx - 1) * 4 + direction;
-                        //Debug.LogError("targetPos:" + TargetPos);
                         posMng.ChangeAction(TargetPos, 0.1f);
                         charLoader.SetActionScale(dam.DefenseMove);
-                        charLoader.SetActionRotation(this.mPos - attacker.mPos);
+                        //charLoader.SetActionRotation(this.mPos - attacker.mPos);
                         int realDamage = CalcDamage(attacker);
                         AngryValue += (realDamage / 35);//防御住伤害。则怒气增加 200CC = 100 ANG
                     }
@@ -2634,42 +2632,10 @@ public partial class MeteorUnit : MonoBehaviour
                         Option poseInfo = MenuResLoader.Instance.GetPoseInfo(dam.PoseIdx);
                         if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)
                             GetItem(poseInfo.first[0].flag[1]);
-                        //if (hurtRecord.ContainsKey(attacker))
-                        //    hurtRecord[attacker] += realDamage;
-                        //else
-                        //    hurtRecord.Add(attacker, realDamage);
-
-                        //当前打击者比当前目标伤害高，那么改去杀打击者.AI切换仇恨最深者
-                        //if (robot != null)
-                        //{
-                        //    if (lockTarget != null && hurtRecord.ContainsKey(lockTarget))
-                        //    {
-                        //        if (hurtRecord[lockTarget] < hurtRecord[attacker])
-                        //            lockTarget = attacker;
-                        //    }
-                        //    else
-                        //        lockTarget = attacker;
-                        //}
                         //Debug.Log("受到:" + realDamage + " 点伤害");
                         Attr.ReduceHp(realDamage);
                         if (charLoader != null)
                             charLoader.LockTime(dam.TargetValue);
-                        //EquipWeaponCode idx = EquipWeaponCode.Blade;
-                        //switch ((EquipWeaponType)attacker.GetWeaponType())
-                        //{
-                        //    case EquipWeaponType.Knife: idx = EquipWeaponCode.Knife; break;
-                        //    case EquipWeaponType.Sword: idx = EquipWeaponCode.Sword; break;
-                        //    case EquipWeaponType.Blade: idx = EquipWeaponCode.Blade; break;
-                        //    case EquipWeaponType.Lance: idx = EquipWeaponCode.Lance; break;
-                        //    case EquipWeaponType.Brahchthrust: idx = EquipWeaponCode.Brahchthrust; break;
-                        //    case EquipWeaponType.Gloves: idx = EquipWeaponCode.Gloves; break;
-                        //    case EquipWeaponType.Hammer: idx = EquipWeaponCode.Hammer; break;
-                        //    case EquipWeaponType.NinjaSword: idx = EquipWeaponCode.NinjaSword; break;
-                        //    case EquipWeaponType.HeavenLance: idx = EquipWeaponCode.HeavenLanceA; break;
-                        //    case EquipWeaponType.Gun: idx = EquipWeaponCode.Gun; break;
-                        //    case EquipWeaponType.Dart: idx = EquipWeaponCode.Dart; break;
-                        //    case EquipWeaponType.Guillotines: idx = EquipWeaponCode.Guillotines; break;
-                        //}
                         string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
                         AngryValue += (int)(realDamage * 10 / 73.0f);
@@ -2695,7 +2661,7 @@ public partial class MeteorUnit : MonoBehaviour
                             //被攻击后，防御相当与没有了.
                             posMng.OnChangeAction(directionAct);
                             charLoader.SetActionScale(dam.TargetMove);
-                            charLoader.SetActionRotation(mPos - attacker.mPos);
+                            //charLoader.SetActionRotation(mPos - attacker.mPos);
                         }
                     }
                 }
@@ -2704,22 +2670,6 @@ public partial class MeteorUnit : MonoBehaviour
                     int realDamage = CalcDamage(attacker);
                     //Debug.Log("受到:" + realDamage + " 点伤害" + " f:" + Time.frameCount);
                     Attr.ReduceHp(realDamage);
-                    //if (hurtRecord.ContainsKey(attacker))
-                    //    hurtRecord[attacker] += realDamage;
-                    //else
-                    //    hurtRecord.Add(attacker, realDamage);
-
-                    //当前打击者比当前目标伤害高，那么改去杀打击者,只针对AI
-                    //if (robot != null)
-                    //{
-                    //    if (lockTarget != null && hurtRecord.ContainsKey(lockTarget))
-                    //    {
-                    //        if (hurtRecord[lockTarget] < hurtRecord[attacker])
-                    //            lockTarget = attacker;
-                    //    }
-                    //    else
-                    //        lockTarget = attacker;
-                    //}
                     //处理招式打人后带毒
                     Option poseInfo = MenuResLoader.Instance.GetPoseInfo(dam.PoseIdx);
                     if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)//16受到此招式攻击会得到物品
@@ -2728,22 +2678,6 @@ public partial class MeteorUnit : MonoBehaviour
                     if (charLoader != null)
                         charLoader.LockTime(dam.TargetValue);
                     AngryValue += (int)((realDamage * 10) / 73.0f);
-                    //EquipWeaponCode idx = EquipWeaponCode.Blade;
-                    //switch ((EquipWeaponType)attacker.GetWeaponType())
-                    //{
-                    //    case EquipWeaponType.Knife: idx = EquipWeaponCode.Knife; break;
-                    //    case EquipWeaponType.Sword: idx = EquipWeaponCode.Sword; break;
-                    //    case EquipWeaponType.Blade: idx = EquipWeaponCode.Blade; break;
-                    //    case EquipWeaponType.Lance: idx = EquipWeaponCode.Lance; break;
-                    //    case EquipWeaponType.Brahchthrust: idx = EquipWeaponCode.Brahchthrust; break;
-                    //    case EquipWeaponType.Gloves: idx = EquipWeaponCode.Gloves; break;
-                    //    case EquipWeaponType.Hammer: idx = EquipWeaponCode.Hammer; break;
-                    //    case EquipWeaponType.NinjaSword: idx = EquipWeaponCode.NinjaSword; break;
-                    //    case EquipWeaponType.HeavenLance: idx = EquipWeaponCode.HeavenLanceA; break;
-                    //    case EquipWeaponType.Gun: idx = EquipWeaponCode.Gun; break;
-                    //    case EquipWeaponType.Dart: idx = EquipWeaponCode.Dart; break;
-                    //    case EquipWeaponType.Guillotines: idx = EquipWeaponCode.Guillotines; break;
-                    //}
                     string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                     SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
                     if (Attr.Dead)
@@ -2765,7 +2699,7 @@ public partial class MeteorUnit : MonoBehaviour
                         }
                         posMng.OnChangeAction(directionAct);
                         charLoader.SetActionScale(dam.TargetMove);
-                        charLoader.SetActionRotation(mPos - attacker.mPos);
+                        //charLoader.SetActionRotation(mPos - attacker.mPos);
                     }
                 }
             }

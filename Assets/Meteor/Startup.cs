@@ -145,7 +145,7 @@ public class Startup : MonoBehaviour {
         ClientProxy.Exit();
         Log.Uninit();
         FtpLog.Uninit();
-        GameData.Instance.SaveState();
+        //GameData.Instance.SaveState();
         GlobalUpdate.Instance.SaveCache();
     }
 

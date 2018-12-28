@@ -160,5 +160,10 @@ public class MeteorManager {
         LocalPlayer = null;
         UnitInstanceIdx = 0;
         SceneItemInstanceIdx = 0;
+        if (Pet != null)
+        {
+            GameObject.Destroy(Pet.gameObject);
+            Pet = null;
+        }
     }
 }

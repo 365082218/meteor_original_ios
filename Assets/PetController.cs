@@ -299,6 +299,8 @@ public class PetController : MonoBehaviour {
     {
         animator.SetBool("mew", true);
         SoundManager.Instance.PlaySound("cat.wav");
+        if (FollowTarget != null)
+            FaceToTarget(FollowTarget.transform.position);
         Status = EAIStatus.Wait;
     }
 
@@ -322,7 +324,7 @@ public class PetController : MonoBehaviour {
         float gScale = MeteorUnit.gGravity;
         Vector3 v;
         v.x = ImpluseVec.x * Time.deltaTime;
-        v.y = animator.GetBool("Jump") ? 0 : ImpluseVec.y * Time.deltaTime;
+        v.y = animator.GetBool("jump") ? 0 : ImpluseVec.y * Time.deltaTime;
         v.z = ImpluseVec.z * Time.deltaTime;
         if (v != Vector3.zero)
             Move(v);
@@ -363,7 +365,7 @@ public class PetController : MonoBehaviour {
     public bool IsOnGround()
     {
         bool ret = OnGround || MoveOnGroundEx;
-        return animator.GetBool("Jump") ? false : ret;
+        return animator.GetBool("jump") ? false : ret;
     }
 
     float floatTick = -1.0f;

@@ -143,6 +143,7 @@ public class MeteorInput
             else
                 mInputVector = Vector2.zero;
         }
+
         //如果正在旋转角色，且动作ID不是前跑，那么是无法移动的，原地旋转角色.
         //if (mOwner.posMng.Rotateing && mOwner.posMng.mActiveAction.Idx != CommonAction.Run)
         //    mInputVector = Vector2.zero;
@@ -2126,6 +2127,11 @@ public class MeteorController : MonoBehaviour {
         //行为树处理.
         if (GameBattleEx.Instance != null && !GameBattleEx.Instance.BattleFinished() && !Global.PauseAll)
             MeteorBehaviour.Instance.ProcessBehaviour(Owner);
+        else
+        {
+            //战斗结束，战斗暂停
+
+        }
     }
 
     //float mAdjustTime = 3.0f;
@@ -2173,6 +2179,5 @@ public class MeteorController : MonoBehaviour {
                 Input.mInputVector = Vector2.zero;
             }
         }
-        //CheckActionInput(Time.deltaTime);
     }
 }

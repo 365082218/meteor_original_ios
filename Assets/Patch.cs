@@ -36,7 +36,7 @@ public class Patch : MonoBehaviour {
         ClientProxy.Exit();
         Log.Uninit();
         FtpLog.Uninit();
-        GameData.Instance.SaveState();
+        //GameData.Instance.SaveState();
         //保存升级的临时数据.
         GlobalUpdate.Instance.SaveCache();
     }

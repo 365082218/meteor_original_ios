@@ -16,8 +16,9 @@ public enum EAIStatus
     Dodge,//逃跑
     Look,//四处看
     Mew,//喵
-    GetItem,//取得场景道具-最近的，可拾取的(未打碎的箱子不算在内)。
-    AttackTarget,//攻击指定位置
+    GetItem,//取得场景道具-最近的，可拾取的(未打碎的箱子不算在内).
+    AttackTarget,//攻击指定位置.
+    PushByWall,//被墙壁推挤.
 }
 
 public enum EAISubStatus
@@ -92,10 +93,10 @@ public class MeteorAI {
     //当前目标路径
     int pathIdx = -1;
     Vector3 TargetPos = Vector3.zero;
-    static readonly float ThinkDelay = 200;//思考延迟，每一帧这个延迟都会被配置里的Think减去一个数，减少到0时，就触发一次行为，否则返回
+    static readonly float ThinkDelay = 300;//单Think为50时,6帧一个行为检测
     // Update is called once per frame
     public void Update () {
-        ThinkCheckTick -= owner.Attr.Think;//
+        ThinkCheckTick -= owner.Attr.Think;
         //是否暂停AI。
         if (stoped)
             return;
@@ -134,9 +135,27 @@ public class MeteorAI {
         {
             if (struggleCoroutine == null)
                 struggleCoroutine = owner.StartCoroutine(ProcessStruggle());
+            else
+            {
+                if (waitStruggleDone != 0)
+                {
+                    waitStruggleDone--;
+                    return;
+                }
+                owner.StopCoroutine(struggleCoroutine);
+                struggleCoroutine = null;
+                waitStruggleDone = 10;
+            }
             return;
         }
 
+        if (Status == EAIStatus.PushByWall)
+        {
+            if (owner.OnTouchWall)
+                return;
+            else
+                ChangeState(EAIStatus.Idle);
+        }
         //行为优先级 
         //AI强制行为(攻击指定位置，Kill追杀（不论视野）攻击 ) > 战斗 > 跟随 > 巡逻 > 
         if (Status == EAIStatus.Patrol)
@@ -298,7 +317,7 @@ public class MeteorAI {
 
     public void OnChangeWeapon()
     {
-        
+        ChangeWeaponing = false;
     }
 
     //捡取场景道具
@@ -695,6 +714,7 @@ public class MeteorAI {
     //地面攻击.思考仅处理战斗状态
     float ThinkCheckTick = 0.0f;
     float ChangeWeaponTick = 0.0f;
+    bool ChangeWeaponing = false;
     void OnFightStatus()
     {
         switch (SubStatus)
@@ -971,6 +991,8 @@ public class MeteorAI {
         if (PlayWeaponPoseCorout != null || InputCorout != null)
             return;
 
+        if (ChangeWeaponing)
+            return;
         //攀爬时，可以跳跃-蹬开，但是无法出招
         if (owner.Climbing)
             return;
@@ -1075,29 +1097,6 @@ public class MeteorAI {
                             SubStatus = EAISubStatus.FightAim;
                             return;
                         }
-                        //else
-                        //{
-                        //    int random = Random.Range(0, 100);
-                        //    if (random >= (100 -  Global.SpecialWeaponProbability))
-                        //    {
-                        //        //直接使用当前武器开打，如果非面向，需要瞄准.
-                        //        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.AimDegree)
-                        //        {
-                        //            SubStatus = EAISubStatus.FightAim;
-                        //            return;
-                        //        }
-                        //    }
-                        //    else
-                        //    {
-                        //        //切换武器，跑过去，开打
-                        //        if (ChangeWeaponTick <= 0.0f)
-                        //        {
-                        //            owner.ChangeWeapon();
-                        //            ChangeWeaponTick = 10.0f;
-                        //            return;
-                        //        }
-                        //    }
-                        //}
                     }
                     else if (U3D.IsSpecialWeapon(owner.Attr.Weapon2))
                     {
@@ -1109,6 +1108,7 @@ public class MeteorAI {
                             //SubStatus = EAISubStatus.FightChangeWeapon;
                             if (ChangeWeaponTick <= 0.0f)
                             {
+                                ChangeWeaponing = true;
                                 owner.ChangeWeapon();
                                 ChangeWeaponTick = 10.0f;
                                 return;
@@ -1146,15 +1146,17 @@ public class MeteorAI {
                     {
                         //主手远程武器,副手近战武器
                         //1切换为近战武器，2跑远
-                        int random = Random.Range(1, (int)Global.AttackRange + 1);
-                        int limit = (int)(Global.AttackRange - (dis - 324));
-                        if (random < limit)
+                        int random = Random.Range(1, 100);
+                        int limit = 2;//%2几率跑远
+                        if (random <= limit)
                         {
                             SubStatus = (EAISubStatus.FightLeave);
                             return;
                         }
+                        //98%几率换武器打
                         if (ChangeWeaponTick <= 0.0f)
                         {
+                            ChangeWeaponing = true;
                             owner.ChangeWeapon();
                             ChangeWeaponTick = 10.0f;
                             return;
@@ -1170,7 +1172,6 @@ public class MeteorAI {
                         }
                     }
                 }
-
                 //使用近战武器，一定在攻击范围内。一次骰子判断所有概率.
                 int attack = Random.Range(0, 100);
                 if (attack < owner.Attr.Attack1)
@@ -1619,6 +1620,7 @@ public class MeteorAI {
         SubStatus = EAISubStatus.FollowGotoTarget;
     }
 
+    int waitStruggleDone = 0;//每次挣扎给10帧，10帧如果未完成此步骤，则重试
     Coroutine struggleCoroutine;
     EKeyList[] struggleKey = new EKeyList[5];
     IEnumerator ProcessStruggle()
@@ -1932,6 +1934,8 @@ public class MeteorAI {
     //如果attacker为空，则代表是非角色伤害了自己
     public void OnDamaged(MeteorUnit attacker)
     {
+        if (ChangeWeaponing)
+            ChangeWeaponing = false;
         //寻路数据要清空.
         Path.Clear();
         //受到非目标的攻击后，记下来，一会找他算账
@@ -2058,7 +2062,7 @@ public class MeteorAI {
         Vector3 vec2 = (vec - owner.mPos2d).normalized;
         vec2.y = 0;
         float radian = Vector3.Dot(vec1, vec2);
-        float degree = Mathf.Acos(radian) * Mathf.Rad2Deg;
+        float degree = Mathf.Acos(Mathf.Clamp(radian, -1.0f, 1.0f)) * Mathf.Rad2Deg;
         //Debug.LogError("夹角:" + degree);
         if (float.IsNaN(degree))
             Debug.LogError("NAN");
@@ -2089,7 +2093,7 @@ public class MeteorAI {
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
-        float angle = Mathf.Abs(Mathf.Acos(dot) * Mathf.Rad2Deg);
+        float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
@@ -2131,7 +2135,7 @@ public class MeteorAI {
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
-        float angle = Mathf.Abs(Mathf.Acos(dot) * Mathf.Rad2Deg);
+        float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
@@ -2174,7 +2178,7 @@ public class MeteorAI {
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
-        float angle = Mathf.Abs(Mathf.Acos(dot) * Mathf.Rad2Deg);
+        float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
@@ -2215,7 +2219,7 @@ public class MeteorAI {
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
-        float angle = Mathf.Abs(Mathf.Acos(dot) * Mathf.Rad2Deg);
+        float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
@@ -2257,7 +2261,7 @@ public class MeteorAI {
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
-        float angle = Mathf.Abs(Mathf.Acos(dot) * Mathf.Rad2Deg);
+        float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
@@ -2298,7 +2302,7 @@ public class MeteorAI {
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
-        float angle = Mathf.Abs(Mathf.Acos(dot) * Mathf.Rad2Deg);
+        float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
@@ -2341,7 +2345,7 @@ public class MeteorAI {
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
-        float angle = Mathf.Abs(Mathf.Acos(dot) * Mathf.Rad2Deg);
+        float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
@@ -2384,7 +2388,7 @@ public class MeteorAI {
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
-        float angle = Mathf.Abs(Mathf.Acos(dot) * Mathf.Rad2Deg);
+        float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);

@@ -298,8 +298,8 @@ public partial class GameBattleEx : MonoBehaviour {
     {
         for (int i = 0; i < colist.Count; i++)
         {
-            if (colist[i] == null)//协程中删除
-                continue;
+            //if (colist[i] == null)//协程中删除
+            //    continue;
             if (!colist[i].enabled)
                 continue;
             for (int j = 0; j < ondamaged.hitList.Count; j++)
@@ -317,8 +317,8 @@ public partial class GameBattleEx : MonoBehaviour {
     {
         for (int i = 0; i < colist.Count; i++)
         {
-            if (colist[i] == null)
-                continue;
+            //if (colist[i] == null)
+            //    continue;
             if (!colist[i].enabled)
                 continue;
             for (int j = 0; j < ondamaged.Count; j++)

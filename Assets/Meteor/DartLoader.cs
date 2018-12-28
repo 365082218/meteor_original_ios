@@ -6,6 +6,7 @@ using CoClass;
 public class DamageRecord
 {
     public MeteorUnit target;
+    public SceneItemAgent sceneitem;
     public float tick;
 }
 
@@ -19,7 +20,25 @@ public class DartLoader : MonoBehaviour {
         rig = GetComponent<Rigidbody>();
         rig.useGravity = true;
     }
-    
+
+    List<DamageRecord> deleteRec = new List<DamageRecord>();
+    private void Update()
+    {
+        deleteRec.Clear();
+        for (int i = 0; i < recordList.Count; i++)
+        {
+            recordList[i].tick -= Time.deltaTime;
+            if (recordList[i].tick <= 0)
+            {
+                deleteRec.Add(recordList[i]);
+            }
+        }
+        for (int i = 0; i < deleteRec.Count; i++)
+        {
+            recordList.Remove(deleteRec[i]);
+        }
+    }
+
     public AttackDes _attack;
     Vector3 _direction;
     public static float InitializeSpeed = 350.0f;
@@ -28,6 +47,7 @@ public class DartLoader : MonoBehaviour {
     float maxDistance = 5000;//最远射程
     Rigidbody rig;
     Coroutine fly;
+    List<DamageRecord> recordList = new List<DamageRecord>();
 
     public void LoadAttack(InventoryItem weapon, Vector3 forward, AttackDes att, MeteorUnit Owner)
     {
@@ -78,6 +98,7 @@ public class DartLoader : MonoBehaviour {
         dart.LoadAttack(weapon, forw, att, owner);
     }
 
+    //反复计算飞镖伤害问题
     public void OnTriggerEnter(Collider other)
     {
         if (other.transform.root.gameObject.layer == LayerMask.NameToLayer("Scene"))
@@ -86,7 +107,14 @@ public class DartLoader : MonoBehaviour {
             if (it != null)
             {
                 //Debug.Log("dart attack sceneitemagent");
+                if (recordList.Find(m => m.sceneitem.Equals(it)) != null)
+                    return;
                 it.OnDamage(owner, _attack);
+                DamageRecord record = new DamageRecord();
+                record.target = null;
+                record.sceneitem = it;
+                record.tick = 0.2f;
+                recordList.Add(record);
             }
             GameObject.Destroy(gameObject);
         }
@@ -101,14 +129,15 @@ public class DartLoader : MonoBehaviour {
             //部分关卡角色无阵营
             if (unit == owner)
                 return;
-            //if (rec.Find(m => m.target.Equals(unit)) != null)
-            //    return;
+            //反复进入.各个骨骼,不同的受击盒.
+            if (recordList.Find(m => m.target.Equals(unit)) != null)
+                return;
             //Debug.LogError("dart attack start");
             unit.OnAttack(owner, _attack);
-            //DamageRecord record = new DamageRecord();
-            //record.target = unit;
-            //record.tick = 0.2f;
-            //rec.Add(record);
+            DamageRecord record = new DamageRecord();
+            record.target = unit;
+            record.tick = 0.2f;
+            recordList.Add(record);
             GameObject.Destroy(gameObject);
             //Debug.LogError("dart attack end");
         }

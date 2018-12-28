@@ -6,8 +6,8 @@ using System.Collections.Generic;
 
 public class Global
 {
-    public static int ComboProbability = 5;//连几率
-    public static int SpecialWeaponProbability = 2;//2几率切换到远程武器，每次Think都有2%几率
+    public static int ComboProbability = 5;//连击率
+    public static int SpecialWeaponProbability = 98;//100-98=2几率切换到远程武器，每次Think都有2%几率
     public static float AimDegree = 45.0f;//夹角超过45度，需要进入瞄准
     public static readonly int CharacterMax = 20;//
     public static MeteorInput GMeteorInput = null;
@@ -39,7 +39,7 @@ public class Global
     public const int ANGRYMAX = 100;
     public const float AttackRangeMin = 31;//远程武器在距离35码内要离开目标，否则是很难攻击到目标的
     public const float AttackRangeMinD = 1000;//最小约31码
-    public const float AttackRange = 3600.0f;//近战攻击距离60 * 60最大
+    public const float AttackRange = 8100.0f;//90 * 90换近战武器
     public const float FollowDistanceEnd = 3600.0f;//结束跟随60
     public const float FollowDistanceStart = 6400.0f;//开始跟随80
     public const int BreakChange = 3;//3%爆气几率
