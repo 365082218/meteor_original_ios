@@ -970,7 +970,7 @@ public partial class MeteorUnit : MonoBehaviour
         v.y = IgnoreGravity ? 0 : ImpluseVec.y * Time.deltaTime;
         v.z = ImpluseVec.z * Time.deltaTime;
         v += charLoader.moveDelta;
-        if (v != Vector3.zero)
+        //if (v != Vector3.zero)
             Move(v);
 
         if (OnTouchWall)
@@ -1227,7 +1227,7 @@ public partial class MeteorUnit : MonoBehaviour
             transform.position = Vector3.zero;
             transform.rotation = Quaternion.identity;
         }
-        charLoader.LoadCharactor(UnitId);
+        charLoader.LoadCharactor(UnitId, Camp);
         try
         {
             posMng.Init(this);
@@ -1275,7 +1275,7 @@ public partial class MeteorUnit : MonoBehaviour
         UnitTopUI.Init(Attr, transform, Camp);
 
         InventoryItem itWeapon = GameData.Instance.MakeEquip(Attr.Weapon);
-        weaponLoader.EquipWeapon(itWeapon);
+        weaponLoader.EquipWeaponByItem(itWeapon, Camp);
 
         //换主角模型用
         if (updateModel)
@@ -1319,7 +1319,7 @@ public partial class MeteorUnit : MonoBehaviour
 
         InventoryItem toEquip = IndicatedWeapon;
         if (toEquip != null && weaponLoader != null)
-            weaponLoader.EquipWeapon(toEquip);
+            weaponLoader.EquipWeaponByItem(toEquip, Camp);
         if (OnEquipChanged != null)
             OnEquipChanged.Invoke(toEquip);
         IndicatedWeapon = null;
@@ -1371,7 +1371,7 @@ public partial class MeteorUnit : MonoBehaviour
         Attr.Weapon2 = weapon2;
         IndicatedWeapon = GameData.Instance.MakeEquip(Attr.Weapon);
         if (IndicatedWeapon != null && weaponLoader != null)
-            weaponLoader.EquipWeapon(IndicatedWeapon);
+            weaponLoader.EquipWeaponByItem(IndicatedWeapon, Camp);
         IndicatedWeapon = null;
     }
 
@@ -1388,7 +1388,7 @@ public partial class MeteorUnit : MonoBehaviour
             IndicatedWeapon = GameData.Instance.MakeEquip(Attr.Weapon);
         }
         if (IndicatedWeapon != null && weaponLoader != null)
-            weaponLoader.EquipWeapon(IndicatedWeapon);
+            weaponLoader.EquipWeaponByItem(IndicatedWeapon, Camp);
         IndicatedWeapon = null;
         //没有自动目标，攻击目标，不许计算自动/锁定目标，无转向
         if (Attr.IsPlayer && 
@@ -2064,19 +2064,19 @@ public partial class MeteorUnit : MonoBehaviour
         }
 
         //遍历受击盒根据攻击定义，生成相应的攻击盒。
-        for (int i = 0; i < hitList.Count; i++)
-        {
-            if (attack.bones.Contains(hitList[i].name))
-            {
-                GameBattleEx.Instance.AddDamageCollision(this, hitList[i]);
-            }
-        }
+        //for (int i = 0; i < hitList.Count; i++)
+        //{
+        //    if (attack.bones.Contains(hitList[i].name))
+        //    {
+        //        GameBattleEx.Instance.AddDamageCollision(this, hitList[i]);
+        //    }
+        //}
         //如果包含武器和特效.
-        if (attack.bones.Contains("weapon"))
-        {
-            for (int i = 0; i < weaponLoader.weaponDamage.Count; i++)
-                GameBattleEx.Instance.AddDamageCollision(this, weaponLoader.weaponDamage[i]);
-        }
+        //if (attack.bones.Contains("weapon"))
+        //{
+        //    for (int i = 0; i < weaponLoader.weaponDamage.Count; i++)
+        //        GameBattleEx.Instance.AddDamageCollision(this, weaponLoader.weaponDamage[i]);
+        //}
 
         if (attack.bones.Contains("effect"))
         {

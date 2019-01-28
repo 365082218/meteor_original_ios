@@ -812,7 +812,7 @@ public class WeaponWnd : Window<WeaponWnd>
     void ShowWeapon(int idx)
     {
         selectWeapon = idx;
-        wload.EquipWeapon(selectWeapon);
+        wload.EquipWeaponByCode(selectWeapon);
     }
 
     void ChangeWeaponCode()

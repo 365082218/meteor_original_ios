@@ -120,7 +120,7 @@ PlayerSettings:
     16:9: 1
     Others: 1
   bundleIdentifier: com.Idevgame.Meteor
-  bundleVersion: 0.0.7.9
+  bundleVersion: 0.1.6.0
   preloadedAssets: []
   metroInputSource: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -476,7 +476,7 @@ PlayerSettings:
   scriptingDefineSymbols:
     1: BUILD_PC;RAVEN_COMPILED
     4: NOLOG;RAVEN_COMPILED
-    7: RAVEN_COMPILED;DEBUG_DEV
+    7: 
     13: RAVEN_COMPILED
     14: RAVEN_COMPILED
     17: RAVEN_COMPILED

@@ -31,7 +31,7 @@ public class CharacterLoader : MonoBehaviour
     //根骨骼初始位置和旋转，用于RootMotion到上一级
     public Vector3 RootPos;
     public Quaternion RootQuat;
-    public void LoadCharactor(int id)
+    public void LoadCharactor(int id, EUnitCamp camp)
     {
         owner = GetComponent<MeteorUnit>();
         posMng = owner.posMng;
@@ -66,7 +66,7 @@ public class CharacterLoader : MonoBehaviour
         RootQuat = rootBone.localRotation;
         AmbLoader.Ins.LoadCharacterAmb(id);
         //GenerateBounds(skc.mesh, bo);
-        LoadBoxDef(id);
+        LoadBoxDef(id, camp);
     }
 
     //换算后，人物轴向朝Z的负方向，当武器挂载点OK后，可以把轴向调整为朝Z正方向，在之前会引起武器挂载点不对的问题
@@ -285,13 +285,15 @@ public class CharacterLoader : MonoBehaviour
     }
 
     //使用同一个攻击定义盒
-    void LoadBoxDef(int idx)
+    string[] boneLayers = {"Bone0", "Bone1", "Bone2", "Bone0"};
+    void LoadBoxDef(int idx, EUnitCamp camp)
     {
         idx = 0;
         TextAsset asset = Resources.Load<TextAsset>("boxdef0");
         if (asset == null)
             return;
         MemoryStream ms = new MemoryStream(asset.bytes);
+        string boneLayer = boneLayers[(int)camp];
         List<BoxColliderDef> boxdef = Serializer.Deserialize<List<BoxColliderDef>>(ms);
         for (int i = 0; i < bo.Count; i++)
         {
@@ -305,7 +307,7 @@ public class CharacterLoader : MonoBehaviour
                     bodef.isTrigger = true;
                     bodef.enabled = true;
                     owner.AddHitBox(bodef);//受击盒.固定的
-                    bo[i].gameObject.layer = LayerMask.NameToLayer("Bone");
+                    bo[i].gameObject.layer = LayerMask.NameToLayer(boneLayer);
                 }
             }
         }

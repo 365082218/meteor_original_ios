@@ -6,6 +6,7 @@ using System.Collections.Generic;
 public class FixedPlatformCtrl : MonoBehaviour {
 	public int Trigger = 0;
     [SerializeField] bool AllowShake = true;
+    public Rigidbody rigid = null;
     [HideInInspector] private AnimationCurve curve = null;
     [SerializeField] private FMCPlayer fmcPlayer = null;
     [SerializeField] private GMBLoader modelLoader = null;
@@ -17,6 +18,8 @@ public class FixedPlatformCtrl : MonoBehaviour {
     [SerializeField] private int StartPose;
     private void Awake()
     {
+        if (rigid == null)
+            rigid = gameObject.GetComponent<Rigidbody>();
         if (modelLoader != null)
             modelLoader.Load(model);
         if (fmcPlayer != null)
@@ -51,26 +54,30 @@ public class FixedPlatformCtrl : MonoBehaviour {
 	
 	}
 
+    Vector3 targetPosition;
     private void LateUpdate()
     {
         if (AllowShake)
         {
             float y = curve.Evaluate(Time.time);
-            transform.position = new Vector3(transform.position.x, initializeY + hScale * y, transform.position.z);
+            targetPosition.x = transform.position.x;
+            targetPosition.y = initializeY + hScale * y;
+            targetPosition.z = transform.position.z;
+            rigid.MovePosition(targetPosition);
         }
     }
 
-    public void OnTriggerEnter(Collider other)
-    {
-        MeteorUnit u = other.gameObject.GetComponent<MeteorUnit>();
-        if (u != null)
-        {
-            //Debug.LogError("OnTrigger:" + Trigger);
-            if (GameBattleEx.Instance != null)
-                GameBattleEx.Instance.OnSceneEvent(SceneEvent.EventEnter, u.InstanceId, gameObject);
-            //任意角色进来，都会触发掉落动画，之后其他角色进来无法再触发.
-            if (fmcPlayer != null)
-                this.enabled = false;
-        }
-    }
+    //public void OnCollisionEnter(Collision collision)
+    //{
+    //    MeteorUnit u = collision.gameObject.GetComponent<MeteorUnit>();
+    //    if (u != null)
+    //    {
+    //        //Debug.LogError("OnTrigger:" + Trigger);
+    //        if (GameBattleEx.Instance != null)
+    //            GameBattleEx.Instance.OnSceneEvent(SceneEvent.EventEnter, u.InstanceId, gameObject);
+    //        //任意角色进来，都会触发掉落动画，之后其他角色进来无法再触发.
+    //        if (fmcPlayer != null)
+    //            this.enabled = false;
+    //    }
+    //}
 }

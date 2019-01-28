@@ -99,7 +99,7 @@ public class MeteorUnitDebug : MeteorUnit
         if (posMng == null)
             posMng = new PoseStatus();
 
-        charLoader.LoadCharactor(UnitId);
+        charLoader.LoadCharactor(UnitId, Camp);
         posMng.Init(this);
         WeaponR = Global.ldaControlX("d_wpnR", charLoader.rootBone.gameObject).transform;
         WeaponL = Global.ldaControlX("d_wpnL", charLoader.rootBone.gameObject).transform;
@@ -145,7 +145,7 @@ public class MeteorUnitDebug : MeteorUnit
 
     void EquipChanged(InventoryItem it)
     {
-        weaponLoader.EquipWeapon(it);
+        weaponLoader.EquipWeaponByItem(it, Camp);
         WsGlobal.SetObjectLayer(gameObject, LayerMask.NameToLayer("3DUIPlayer"));
     }
 }
