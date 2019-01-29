@@ -7883,9 +7883,9 @@ Pose 300     #¤M­«½Ä©ü
     End         6153
     AttackType  1
     CheckFriend 0
-    DefenseValue     0.1
+    DefenseValue     0.5
     DefenseMove      3
-    TargetValue      0.1
+    TargetValue      0.5
     TargetMove       3
     TargetPose       109
     TargetPoseFront  109

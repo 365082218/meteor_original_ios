@@ -1116,12 +1116,12 @@ public class BattleStatusWnd: Window<BattleStatusWnd>
 
         Text Idx = ldaControl("Idx", obj).GetComponent<Text>();
         Text Name = ldaControl("Name", obj).GetComponent<Text>();
-        //Text Camp = ldaControl("Camp", obj).GetComponent<Text>();
+        Text Camp = ldaControl("Camp", obj).GetComponent<Text>();
         Text Killed = ldaControl("Killed", obj).GetComponent<Text>();
         Text Dead = ldaControl("Dead", obj).GetComponent<Text>();
         Idx.text = (id + 1).ToString();
         Name.text = name_;
-        //Camp.text = result.camp == 1 ""
+        Camp.text = U3D.GetCampStr(camp);
         Killed.text = killed.ToString();
         Dead.text = dead.ToString();
         MeteorUnit u = U3D.GetUnit(id);

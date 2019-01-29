@@ -98,6 +98,9 @@ public class FightWnd: Window<FightWnd>
         hpBar = ldaControl("HPBar", WndObject).gameObject.GetComponent<Image>();
         angryBar = ldaControl("AngryBar", WndObject).gameObject.GetComponent<Image>();
         hpLabel = ldaControl("HPLabel", WndObject).gameObject.GetComponent<Text>();
+        Global.ldaControlX("Status", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnStatusPress);
+        Global.ldaControlX("Status", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnStatusRelease);
+
         if (MeteorManager.Instance.LocalPlayer != null)
         {
             angryBar.fillAmount = 0.0f;
@@ -115,6 +118,20 @@ public class FightWnd: Window<FightWnd>
 #endif
     }
 
+
+    void OnStatusPress()
+    {
+        if (!BattleStatusWnd.Exist)
+            BattleStatusWnd.Instance.Open();
+    }
+
+    void OnStatusRelease()
+    {
+        if (BattleStatusWnd.Exist)
+        {
+            BattleStatusWnd.Instance.Close();
+        }
+    }
     //int currentPosIdx;
     //public void UpdatePoseStatus(int idx, int frame = 0)
     //{

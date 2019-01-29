@@ -122,16 +122,7 @@ public class LevelHelper : MonoBehaviour
             if (MeteorManager.Instance.UnitInfos[i] == MeteorManager.Instance.LocalPlayer)
                 continue;
             MeteorUnit unitLog = MeteorManager.Instance.UnitInfos[i];
-            U3D.InsertSystemMsg(GetCampStr(unitLog));
+            U3D.InsertSystemMsg(U3D.GetCampEnterLevelStr(unitLog));
         }
-    }
-
-    public static string GetCampStr(MeteorUnit unit)
-    {
-        if (unit.Camp == EUnitCamp.EUC_ENEMY)
-            return string.Format("{0} 选择蝴蝶, 进入战场", unit.name);
-        if (unit.Camp == EUnitCamp.EUC_FRIEND)
-            return string.Format("{0} 选择流星,进入战场", unit.name);
-        return string.Format("{0} 进入战场", unit.name);
     }
 }

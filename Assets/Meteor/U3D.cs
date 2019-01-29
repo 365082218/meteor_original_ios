@@ -118,7 +118,7 @@ public class U3D : MonoBehaviour {
         }
         
         
-        InsertSystemMsg(LevelHelper.GetCampStr(unit));
+        InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
         //找寻敌人攻击.因为这个并没有脚本模板
         unit.robot.ChangeState(EAIStatus.Wait);
         return;
@@ -186,7 +186,7 @@ public class U3D : MonoBehaviour {
             unit.transform.position = spawnPos;
             unit.transform.rotation = quat;
         }
-        U3D.InsertSystemMsg(LevelHelper.GetCampStr(unit));
+        U3D.InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
         return unit;
     }
 
@@ -263,7 +263,7 @@ public class U3D : MonoBehaviour {
             }
         }
         unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
-        U3D.InsertSystemMsg(LevelHelper.GetCampStr(unit));
+        U3D.InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
         return unit;
     }
 
@@ -273,7 +273,24 @@ public class U3D : MonoBehaviour {
         return target.InstanceId;
     }
 
-    
+    public static string GetCampStr(EUnitCamp Camp)
+    {
+        if (Camp == EUnitCamp.EUC_ENEMY)
+            return string.Format("{0}","蝴蝶");
+        if (Camp == EUnitCamp.EUC_FRIEND)
+            return string.Format("{0}", "流星");
+        return string.Format("{0}", "无");
+    }
+
+    public static string GetCampEnterLevelStr(MeteorUnit unit)
+    {
+        if (unit.Camp == EUnitCamp.EUC_ENEMY)
+            return string.Format("{0} 选择蝴蝶, 进入战场", unit.name);
+        if (unit.Camp == EUnitCamp.EUC_FRIEND)
+            return string.Format("{0} 选择流星,进入战场", unit.name);
+        return string.Format("{0} 进入战场", unit.name);
+    }
+
     public static void InsertSystemMsg(string msg)
     {
         if (!GameOverlayWnd.Exist)
@@ -460,6 +477,7 @@ public class U3D : MonoBehaviour {
     void OnLoadMainFinished(Action t)
     {
         MainWnd.Instance.Open();
+        GameData.Instance.SaveState();
         if (t != null)
             t.Invoke();
     }
@@ -732,6 +750,7 @@ public class U3D : MonoBehaviour {
 
     public static void LoadLevel(int id, LevelMode levelmode, GameMode gamemode)
     {
+        GameData.Instance.SaveState();
         uint profileTotalAllocate = Profiler.GetTotalAllocatedMemory();
         uint profileTotalReserved = Profiler.GetTotalReservedMemory();
         long gcTotal = System.GC.GetTotalMemory(false);

@@ -970,7 +970,7 @@ public partial class MeteorUnit : MonoBehaviour
         v.y = IgnoreGravity ? 0 : ImpluseVec.y * Time.deltaTime;
         v.z = ImpluseVec.z * Time.deltaTime;
         v += charLoader.moveDelta;
-        if (v != Vector3.zero)
+        //if (v != Vector3.zero)
             Move(v);
 
         if (OnTouchWall)
@@ -1904,6 +1904,14 @@ public partial class MeteorUnit : MonoBehaviour
         if (!Dead)
         {
             Dead = true;
+            if (killer == null)
+            {
+                GameOverlayWnd.Instance.InsertSystemMsg(string.Format("{0}死亡", name));
+            }
+            else
+            {
+                GameOverlayWnd.Instance.InsertSystemMsg(string.Format("{0}击败{1}", killer.name, name));
+            }
             posMng.ChangeAction(CommonAction.Dead);
             posMng.WaitPause();//等待这个动作完毕后，暂停播放
             posMng.OnDead();

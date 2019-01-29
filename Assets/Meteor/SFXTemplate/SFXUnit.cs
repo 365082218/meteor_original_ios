@@ -307,24 +307,24 @@ DRAG*/
         }
         if (effect.EffectName.StartsWith("Attack"))
         {
-            MeshCollider co = gameObject.AddComponent<MeshCollider>();
-            co.convex = true;
-            co.isTrigger = true;
-            damageBox = co;
-            //if (effect.EffectType == "SPHERE")
-            //{
-            //    SphereCollider sph = gameObject.AddComponent<SphereCollider>();
-            //    damageBox = sph;
-            //    //sph.radius = 1.0f;
-            //    //sph.center = Vector3.zero;
-            //}
-            //else
-            //{
-            //    BoxCollider bo = gameObject.AddComponent<BoxCollider>();
-            //    //bo.center = Vector3.zero;
-            //    //bo.size = Vector3.one;
-            //    damageBox = bo;
-            //}
+            if (effect.EffectType.ToUpper() == "BOX")
+            {
+                BoxCollider bo = gameObject.AddComponent<BoxCollider>();
+                bo.center = Vector3.zero;
+                bo.size = Vector3.one;
+                damageBox = bo;
+            }
+            else
+            {
+                //SphereCollider sph = gameObject.AddComponent<SphereCollider>();
+                //damageBox = sph;
+                //sph.radius = 1.0f;
+                //sph.center = Vector3.zero;
+                MeshCollider co = gameObject.AddComponent<MeshCollider>();
+                co.convex = true;
+                co.isTrigger = true;
+                damageBox = co;
+            }
             damageBox.enabled = false;
         }
 

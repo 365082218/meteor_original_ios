@@ -292,7 +292,7 @@ public class CameraFollow : MonoBehaviour {
             //有锁定目标
             //开启摄像机锁定系统
             cameraLookAt = (MeteorManager.Instance.LocalPlayer.mPos + MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + new Vector3(0, 25, 0);
-            CameraRadis = Vector3.Distance(MeteorManager.Instance.LocalPlayer.mPos, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + 50;
+            CameraRadis = Vector3.Distance(MeteorManager.Instance.LocalPlayer.mPos, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + 60;
             float dis = Vector3.Distance(new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, 0, MeteorManager.Instance.LocalPlayer.mPos.z), new Vector3(MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos.x, 0, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos.z));
             Vector3 vecDiff = MeteorManager.Instance.LocalPlayer.mPos - MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos;
             Vector3 vecForward = Vector3.Normalize(new Vector3(vecDiff.x, 0, vecDiff.z));
