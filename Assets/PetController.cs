@@ -152,12 +152,12 @@ public class PetController : MonoBehaviour {
                 //快速
                 if (dis > 200 * 200)
                 {
-                    MoveSpeed = 350; 
+                    MoveSpeed = 200; 
                 }
                 else
                 if (dis > 100 * 100)
                 {
-                    MoveSpeed = 85;
+                    MoveSpeed = 100;
                 }
                 else
                 {
