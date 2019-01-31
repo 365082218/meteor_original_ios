@@ -66,24 +66,49 @@ public class U3D : MonoBehaviour {
     public static int GetNormalWeapon(int i)
     {
         if (i < 0 || i >= weaponCode.Length)
-            return 5;
+            return 5;//默认是匕首
         return weaponCode[i];
     }
 
     //当前场景立即产生一个npc
     static int nextSpawnPoint = 0;
+    //七星，旋风，怒火，峨眉，蛇吻，碧血剑，战戟,斩铁,流星,乾坤刀,指虎,忍刀
     static int[] weaponCode = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 47, 51, 55 };
-    static int weaponIndex = 0;
-    public static void SpawnRobot(int idx, EUnitCamp camp)
+
+    static Dictionary<int, List<int>> weaponDict = new Dictionary<int, List<int>>();
+    public static void SpawnRobot(int idx, EUnitCamp camp, int weaponIndex = 0, int hpMax = 1000)
     {
         if (Global.GLevelMode != LevelMode.SinglePlayerTask)
         {
             U3D.PopupTip("联机无法添加机器人");
             return;
         }
-        MonsterEx mon = new MonsterEx();
-        mon.Weapon = weaponCode[weaponIndex % weaponCode.Length];
-        mon.Weapon2 = weaponCode[(weaponIndex + 1) % weaponCode.Length];
+        List<int> weaponList = null;
+        if (weaponDict.ContainsKey(weaponIndex))
+            weaponList = weaponDict[weaponIndex];
+        else
+            weaponList = new List<int>();
+        if (weaponList.Count == 0)
+        {
+            List<ItemBase> we = GameData.Instance.itemMng.GetFullRow();
+            for (int i = 0; i < we.Count; i++)
+            {
+                if (we[i].MainType == 1)
+                {
+                    if (we[i].SubType == (int)weaponIndex)
+                    {
+                        weaponList.Add(we[i].Idx);
+                    }
+                }
+            }
+            if (!weaponDict.ContainsKey(weaponIndex))
+                weaponDict.Add(weaponIndex, weaponList);
+        }
+
+        MonsterEx mon = new MonsterEx(hpMax * 10);
+        int k = Rand(weaponList.Count);
+        mon.Weapon = weaponList[k];
+        mon.Weapon2 = weaponList[(k + 1) % weaponList.Count];
         weaponIndex++;
         mon.IsPlayer = false;
 
@@ -100,20 +125,20 @@ public class U3D : MonoBehaviour {
         if (camp == EUnitCamp.EUC_FRIEND)
         {
             //朋友站左侧
-            unit.transform.position = MeteorManager.Instance.LocalPlayer.mPos - 35 * (Quaternion.AngleAxis(30, Vector3.up) * MeteorManager.Instance.LocalPlayer.transform.forward);
+            unit.transform.position = MeteorManager.Instance.LocalPlayer.mPos - 45 * (Quaternion.AngleAxis(U3D.Rand(90), Vector3.up) * MeteorManager.Instance.LocalPlayer.transform.forward);
             unit.FaceToTarget(MeteorManager.Instance.LocalPlayer);
             U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "player" });
         }
         else if (camp == EUnitCamp.EUC_ENEMY)
         {
             //敌人站右侧
-            unit.transform.position = MeteorManager.Instance.LocalPlayer.mPos - 35 * (Quaternion.AngleAxis(-30, Vector3.up) * MeteorManager.Instance.LocalPlayer.transform.forward);
+            unit.transform.position = MeteorManager.Instance.LocalPlayer.mPos - 45 * (Quaternion.AngleAxis(-U3D.Rand(90), Vector3.up) * MeteorManager.Instance.LocalPlayer.transform.forward);
             unit.FaceToTarget(MeteorManager.Instance.LocalPlayer);
         }
         else
         {
-            //其他人站正前方
-            unit.transform.position = MeteorManager.Instance.LocalPlayer.mPos - 35 * MeteorManager.Instance.LocalPlayer.transform.forward;
+            //其他人随机一圈站
+            unit.transform.position = MeteorManager.Instance.LocalPlayer.mPos - 45 * (Quaternion.AngleAxis(U3D.Rand(360), Vector3.up) * MeteorManager.Instance.LocalPlayer.transform.forward);
             unit.FaceToTarget(MeteorManager.Instance.LocalPlayer);
         }
         
@@ -121,6 +146,7 @@ public class U3D : MonoBehaviour {
         InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
         //找寻敌人攻击.因为这个并没有脚本模板
         unit.robot.ChangeState(EAIStatus.Wait);
+        
         return;
     }
 
@@ -1227,6 +1253,18 @@ public class U3D : MonoBehaviour {
             if (MeteorManager.Instance.UnitInfos[i].name == player)
                 return MeteorManager.Instance.UnitInfos[i].InstanceId;
         }
+
+        for (int i = 0; i < MeteorManager.Instance.DeadUnits.Count; i++)
+        {
+            if (MeteorManager.Instance.DeadUnits[i].name == player)
+                return MeteorManager.Instance.DeadUnits[i].InstanceId;
+        }
+
+        for (int i = 0; i < MeteorManager.Instance.LeavedUnits.Count; i++)
+        {
+            if (MeteorManager.Instance.LeavedUnits[i].name == player)
+                return MeteorManager.Instance.LeavedUnits[i].InstanceId;
+        }
         return -1;
     }
 
@@ -1424,8 +1462,24 @@ public class U3D : MonoBehaviour {
 
     public static int Rand(int n)
     {
-        return 0;
+        return UnityEngine.Random.Range(0, n);
     }
+
+    //单机下
+    public static void MoveNpc(string name, int spawnPoint)
+    {
+        if (Global.GLevelItem != null && Global.GLevelMode == LevelMode.SinglePlayerTask)
+        {
+            int id = GetChar(name);
+            if (id != -1)
+            {
+                MeteorUnit unit = GetUnit(id);
+                if (unit != null)
+                    unit.SetPosition(spawnPoint);
+            }
+        }
+    }
+
     public static void RemoveNPC(int id)
     {
         MeteorUnit unit = GetUnit(id);

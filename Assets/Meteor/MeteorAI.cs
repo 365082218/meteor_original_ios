@@ -176,15 +176,12 @@ public class MeteorAI {
 
         if (Status == EAIStatus.Fight)
         {
-            //目标可能离开范围.
+            //所有目标离开范围时.看有无追杀对象.
             if (owner.GetLockedTarget() == null)
             {
                 if (killTarget != null)
-                    fightTarget = killTarget;
-                else
-                if (lastAttacker != null)
                 {
-                    fightTarget = lastAttacker;
+                    fightTarget = killTarget;
                 }
                 else if (followTarget != null)
                 {
@@ -541,59 +538,103 @@ public class MeteorAI {
         owner.controller.Input.AIMove(0, 0);
     }
 
-    void TryAttack(int attack = 0)
+    //可能存在怒气不足，这个时候就会失败.
+    bool TryAttack(int attack = 0)
     {
         if (attack == 0)
             attack = Random.Range(0, owner.Attr.Attack1 + owner.Attr.Attack2 + owner.Attr.Attack3);
-        //已经在攻击招式中.后接招式挑选
-        //把可以使用的招式放到集合里，A类放普攻，B类放搓招， C类放绝招
-        ActionNode act = ActionInterrupt.Instance.GetActions(owner.posMng.mActiveAction.Idx);
-        if (act != null)
+        //仅仅是因为枪的待机姿势，没有设定可以接哪些姿势，导致这里要硬写.
+        if (owner.posMng.mActiveAction.Idx == CommonAction.GunIdle || owner.weaponLoader.WeaponType() == (int)EquipWeaponType.Gun)
         {
-            //int attack = Random.Range(0, 100);
-            //owner.Attr.Attack1 = 0;
-            //owner.Attr.Attack2 = 0;
-            //owner.Attr.Attack3 = 100;
-            //owner.AngryValue = 100;
-            if (attack < owner.Attr.Attack1)
+            //枪只有 A， 上A， 下A， 下上A， 下上上A
+            if (attack <= owner.Attr.Attack1)
             {
-                //普通攻击
-                //Debug.LogError("try attack 1");
-                ActionNode attack1 = ActionInterrupt.Instance.GetNormalNode(owner, act);
-                if (attack1 != null)
-                {
-                    TryPlayWeaponPose(attack1.KeyMap);
-                }
+                //普通攻击,A,上A,下A 枪的输入映射 5-206-普通攻击 6-207-上射击
+                if (attack > owner.Attr.Attack1 / 2)
+                    TryPlayWeaponPose(5);//5或6
+                else
+                    TryPlayWeaponPose(6);//5或6
             }
-            else if (attack < (owner.Attr.Attack1 + owner.Attr.Attack2))
+            else if (attack <= (owner.Attr.Attack1 + owner.Attr.Attack2))
             {
-                //Debug.LogError("try attack2");
-                //连招
-                List<ActionNode> attack2 = ActionInterrupt.Instance.GetSlashNode(owner, act);
-                if (attack2.Count != 0)
-                {
-                    TryPlayWeaponPose(attack2[Random.Range(0, attack2.Count)].KeyMap);
-                }
+                //重攻击,耗费气20 7-208-枪杀射击
+                if (owner.AngryValue >= 20)
+                    TryPlayWeaponPose(7);
+                else
+                    return false;
             }
-            else if (attack < (owner.Attr.Attack1 + owner.Attr.Attack2 + owner.Attr.Attack3))
+            else if (attack <= (owner.Attr.Attack1 + owner.Attr.Attack2 + owner.Attr.Attack3))
             {
-                //绝招
-                //Debug.LogError("try attack3");
-                ActionNode attack3 = ActionInterrupt.Instance.GetSkillNode(owner, act);
-                if (attack3 != null)
-                {
-                    TryPlayWeaponPose(attack3.KeyMap);
-                }
+                //绝招,SWWJ，SWJ
+                //owner.AddAngry(Global.ANGRYBURST);
+                if (owner.AngryValue == Global.ANGRYMAX)
+                    TryPlayWeaponPose(8);//火枪大招.
+                else if (owner.AngryValue >= Global.ANGRYBURST)
+                    TryPlayWeaponPose(147);//火枪小绝招
+                else
+                    return false;
             }
         }
         else
         {
-            if (owner.posMng.mActiveAction.Idx == CommonAction.GunIdle)
+            //已经在[攻击招式/预备姿势]中.后接招式挑选，类似140-148，蹲下是可以接所有招式的.所以火枪不仅仅走上面.
+            //把可以使用的招式放到集合里，A类放普攻，B类放搓招， C类放绝招
+            ActionNode act = ActionInterrupt.Instance.GetActions(owner.posMng.mActiveAction.Idx);
+            if (act != null)
             {
-                //枪只有 A， 上A， 下A， 下上A， 下上上A
-                ////Debug.LogError("shoot");
+                if (attack < owner.Attr.Attack1)
+                {
+                    //普通攻击
+                    ActionNode attack1 = ActionInterrupt.Instance.GetNormalNode(owner, act);
+                    if (attack1 != null)
+                    {
+                        TryPlayWeaponPose(attack1.KeyMap);
+                    }
+                    else
+                        return false;
+                }
+                else if (attack < (owner.Attr.Attack1 + owner.Attr.Attack2))
+                {
+                    //连招-有可能也是小绝招.如果怒气不足可能无法释放小绝.
+                    List<ActionNode> attack2 = ActionInterrupt.Instance.GetSlashNode(owner, act);
+                    if (attack2.Count != 0)
+                    {
+                        TryPlayWeaponPose(attack2[Random.Range(0, attack2.Count)].KeyMap);
+                    }
+                    else
+                        return false;
+                }
+                else if (attack < (owner.Attr.Attack1 + owner.Attr.Attack2 + owner.Attr.Attack3))
+                {
+                    //绝招.
+                    //怒气不足时，可能无法释放出
+                    if (owner.AngryValue == Global.ANGRYMAX)
+                    {
+                        ActionNode attack3 = ActionInterrupt.Instance.GetSkillNode(owner, act);
+                        if (attack3 != null)
+                        {
+                            TryPlayWeaponPose(attack3.KeyMap);
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        //无法释放大绝招，那么尝试释放连招或小绝招.
+                        List<ActionNode> attack2 = ActionInterrupt.Instance.GetSlashNode(owner, act);
+                        if (attack2.Count != 0)
+                        {
+                            TryPlayWeaponPose(attack2[Random.Range(0, attack2.Count)].KeyMap);
+                        }
+                        else
+                            return false;
+                    }
+                }
             }
         }
+        return true;
     }
 
     //攻击目标位置
@@ -1009,6 +1050,7 @@ public class MeteorAI {
             return;
         ThinkCheckTick = MeteorAI.ThinkDelay;
 
+        //控制火枪-飞镖射击频率,最迟要停一秒后才能再发射，远程武器
         if (owner.controller.Input.AcceptInput())
         {
             if (owner.posMng.IsAttackPose())
@@ -1064,6 +1106,12 @@ public class MeteorAI {
             }
             else
             {
+                //如果是远程武器，且距离上次攻击间隔不足一秒,返回等待下次
+                if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
+                {
+                    if (!owner.controller.Input.IsKeyQuiet())
+                        return;
+                }
                 //打印当前动作是啥，在多少帧-帧之间，是否能正常过渡到攻击动作.
                 //Debug.LogError(string.Format("pos:{0} frame:{1}", owner.posMng.mActiveAction.Idx, owner.charLoader.GetCurrentFrameIndex()));
 
@@ -1170,82 +1218,50 @@ public class MeteorAI {
                             SubStatus = EAISubStatus.FightLeave;
                             return;
                         }
+
+                        //角度相差太大，重新瞄准
+                        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.AimDegree)
+                        {
+                            SubStatus = EAISubStatus.FightAim;
+                            return;
+                        }
                     }
                 }
                 //使用近战武器，一定在攻击范围内。一次骰子判断所有概率.
                 int attack = Random.Range(0, 100);
+                bool attacked = false;
+                bool doother = false;
                 if (attack < owner.Attr.Attack1)
                 {
                     //判定攻击
                     if (fightTarget == null)
                         Debug.LogError("fightTarget == null");
-                    TryAttack(attack);
+                    attacked = TryAttack(attack);
                 }
                 else
                 {
                     //攻击的几率分开算，不能合并到一起，否则攻击几率太大.
-                    attack = Random.Range(0, 100);
-                    if (attack < owner.Attr.Attack2)
+                    if (attack < owner.Attr.Attack1 + owner.Attr.Attack2)
                     {
-                        TryAttack(owner.Attr.Attack1 + attack);
+                        attacked = TryAttack(attack);
                     }
                     else
                     {
-                        attack = Random.Range(0, 100);
-                        if (attack < owner.Attr.Attack3)
+                        if (attack < owner.Attr.Attack1 + owner.Attr.Attack2 + owner.Attr.Attack3)
                         {
-                            TryAttack(owner.Attr.Attack1 + owner.Attr.Attack2 + attack);
+                            attacked = TryAttack(attack);
                         }
                         else
                         {
-                            //判定防御
-                            int defence = Random.Range(0, 100);
-                            if (!U3D.IsSpecialWeapon(owner.Attr.Weapon) && defence < owner.Attr.Guard)
-                            {
-                                //远程武器无法防御.
-                                Stop();
-                                owner.Guard(true);
-                            }
-                            else
-                            {
-                                //判定闪躲
-                                int dodge = Random.Range(0, 100);
-                                if (dodge < owner.Attr.Dodge)
-                                {
-                                    //逃跑，在危险状态下
-                                    LeaveReset();
-                                    ChangeState(EAIStatus.Dodge);
-                                }
-                                else
-                                {
-                                    int jump = Random.Range(0, 100);
-                                    if (JumpCoroutine == null && jump < owner.Attr.Jump)
-                                    {
-                                        //最好不要带方向跳跃，否则可能跳到障碍物外被场景卡住
-                                        Stop();
-                                        AIJump();
-                                    }
-                                    else
-                                    {
-                                        int burst = Random.Range(0, 100);
-                                        //判断速冲.
-                                        if (burst < owner.Attr.Burst)
-                                            AIBurst((EKeyList.KL_KeyA) + attack % 4);
-                                        else
-                                        {
-                                            int pickup = Random.Range(0, 100);
-                                            if (pickup < owner.Attr.GetItem)
-                                            {
-                                                if (owner.GetSceneItemTarget() != null && owner.GetSceneItemTarget().CanPickup())
-                                                    ChangeState(EAIStatus.GetItem);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            //判定除了攻击外的其他动作概率.
+                            DoOtherAction();
+                            doother = false;
                         }
                     }
                 }
+
+                if (!attacked && !doother)
+                    DoOtherAction();
                 return;
             }
             //状态 - 残血[捡物品/逃跑(旋转、跑)]、攻击出招、闪躲、跳跃、防御、捡物品、
@@ -1263,6 +1279,54 @@ public class MeteorAI {
         }
     }
 
+    //除了攻击以外的概率
+    private void DoOtherAction()
+    {
+        int defence = Random.Range(0, 100);
+        if (!U3D.IsSpecialWeapon(owner.Attr.Weapon) && defence < owner.Attr.Guard)
+        {
+            //远程武器无法防御.
+            Stop();
+            owner.Guard(true);
+        }
+        else
+        {
+            //判定闪躲
+            int dodge = Random.Range(0, 100);
+            if (dodge < owner.Attr.Dodge)
+            {
+                //逃跑，在危险状态下
+                LeaveReset();
+                ChangeState(EAIStatus.Dodge);
+            }
+            else
+            {
+                int jump = Random.Range(0, 100);
+                if (JumpCoroutine == null && jump < owner.Attr.Jump)
+                {
+                    //最好不要带方向跳跃，否则可能跳到障碍物外被场景卡住
+                    Stop();
+                    AIJump();
+                }
+                else
+                {
+                    int burst = Random.Range(0, 100);
+                    //判断速冲.
+                    if (burst < owner.Attr.Burst)
+                        AIBurst((EKeyList.KL_KeyA) + defence % 4);
+                    else
+                    {
+                        int pickup = Random.Range(0, 100);
+                        if (pickup < owner.Attr.GetItem)
+                        {
+                            if (owner.GetSceneItemTarget() != null && owner.GetSceneItemTarget().CanPickup())
+                                ChangeState(EAIStatus.GetItem);
+                        }
+                    }
+                }
+            }
+        }
+    }
     //进入这个状态前，需要检查当前能否旋转.
     void OnFightAim()
     {
@@ -1277,7 +1341,7 @@ public class MeteorAI {
         {
             if (AttackRotateToTargetCoroutine == null)
             {
-                owner.posMng.ChangeAction(0);
+                //owner.posMng.ChangeAction(0);
                 AttackRotateToTargetCoroutine = owner.StartCoroutine(AttackRotateToTarget(fightTarget.mSkeletonPivot, EAISubStatus.Fight));
             }
         }
@@ -1501,7 +1565,7 @@ public class MeteorAI {
                 break;
             case EAISubStatus.KillGotoTarget:
                 if (killTarget == null)
-                    killTarget = owner.GetLockedTarget();
+                    killTarget = owner.GetKillTarget();
                 if (killTarget != null)
                 {
                     float dis = 0.0f;
@@ -1675,7 +1739,7 @@ public class MeteorAI {
     void OnWait()
     {
         
-        if (lookTick >= 5.0f)
+        if (lookTick >= 3.0f)
         {
             int lookChance = Random.Range(0, 100);
             if (lookChance < owner.Attr.Look)
@@ -1932,15 +1996,38 @@ public class MeteorAI {
     }
 
     //如果attacker为空，则代表是非角色伤害了自己
+    int lastCombo = 0;//最后谁一直打我，会导致我切换过去打他.
     public void OnDamaged(MeteorUnit attacker)
     {
         if (ChangeWeaponing)
             ChangeWeaponing = false;
         //寻路数据要清空.
         Path.Clear();
-        //受到非目标的攻击后，记下来，一会找他算账
-        if (lastAttacker != attacker && owner.GetLockedTarget() != attacker && attacker != null)
-            lastAttacker = attacker;
+        if (attacker == null)
+        {
+
+        }
+        else
+        {
+            if (lastAttacker != attacker)
+            {
+                //我在和A战斗，但这时B打我
+                if (owner.GetLockedTarget() != attacker)
+                    lastAttacker = attacker;
+                lastCombo = 0;
+            }
+            else
+            {
+                //遭遇同一个角色攻击数次,会导致切换目标.
+                lastCombo++;
+                if (lastCombo >= 3 && owner.GetLockedTarget() != lastAttacker)
+                {
+                    //切换目标规则是同一个敌方攻击你5次
+                    owner.SetLockedTarget(attacker);
+                }
+            }
+        }
+
         Stop();
         ResetAIKey();
         StopCoroutine();
@@ -2727,7 +2814,7 @@ public class MeteorAI {
 public class VirtualInput
 {
     public EKeyList key;
-    static bool InGroup(int [] group, int target)
+    static bool InGroup(int[] group, int target)
     {
         for (int i = 0; i < group.Length; i++)
         {
@@ -2761,7 +2848,7 @@ public class VirtualInput
             skill.Add(s);
             VirtualInput j = new VirtualInput();
             j.key = EKeyList.KL_Attack;
-            skill.Add(j); 
+            skill.Add(j);
             return skill;
         }
 
@@ -2802,7 +2889,7 @@ public class VirtualInput
             skill.Add(j);
             return skill;
         }
-        
+
         int[] slash4Ground = new int[] { 88, 40, 52, 68, 78, 94, 114, 140, 90 };//下下攻击
         int[] slash4Air = new int[] { 150, 133 };//下下攻击空中
         if (InGroup(slash4Ground, KeyMap) || InGroup(slash4Air, KeyMap))

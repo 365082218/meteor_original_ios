@@ -312,6 +312,10 @@ public class NetWorkBattle : MonoBehaviour {
             MeteorUnit unitLog = MeteorManager.Instance.UnitInfos[i];
             U3D.InsertSystemMsg(GetCampStr(unitLog));
         }
+
+        U3D.InsertSystemMsg("新回合开始计时");
+        if (FightWnd.Exist)
+            FightWnd.Instance.OnBattleStart();
     }
 
     public static string GetCampStr(MeteorUnit unit)

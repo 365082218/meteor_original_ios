@@ -179,7 +179,7 @@ public class GMCFile
         VerticesCount = int.Parse(array[1]);
         FacesCount = int.Parse(array[3]);
         mesh = new MeshUnit[SceneObjectsCount];
-        Debug.Log("face:" + FacesCount + " object count:" + SceneObjectsCount);
+        //Debug.Log("face:" + FacesCount + " object count:" + SceneObjectsCount);
         for (int k = 0; k < this.SceneObjectsCount; k++)
         {
             //Debug.Log("read object index:" + k);

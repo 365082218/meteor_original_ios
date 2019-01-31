@@ -91,7 +91,7 @@ public class MonsterEx
 
     public LuaTable sState;
 
-    public MonsterEx()
+    public MonsterEx(int HPMAX = 2000)
     {
         IsPlayer = false;
         //ScriptMng.ins.DoScript(Script);
@@ -103,16 +103,17 @@ public class MonsterEx
         Team = 2;
         View = 600;
         Think = 50;
-        Attack1 = 30;
-        Attack2 = 30;
-        Attack3 = 30;
+        //默认属性即为机器人属性.
+        Attack1 = 35;
+        Attack2 = 45;
+        Attack3 = 10;
         Guard = 30;
         GetItem = 30;
         Aim = 80;
         Burst = 30;
         Look = 30;
         Jump = 30;
-        HpMax = 2000;
+        HpMax = HPMAX;
         //SpawnPoint = 1;
         Speed = 1000;
         ActionSpeed = 1;

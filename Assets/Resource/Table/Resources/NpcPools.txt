@@ -1,8 +1,0 @@
-﻿序号	名称	地图	刷怪盒地点	绕Y轴角度	怪物属性ID	巡逻配置
-Idx	Name	LevelIdx	SpawnPoint	SpawnRotate	NpcId	PatrolIdx
-1	许大人	1	1	90	1	1
-						
-						
-						
-						
-						

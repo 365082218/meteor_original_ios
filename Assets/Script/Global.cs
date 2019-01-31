@@ -8,7 +8,7 @@ public class Global
 {
     public static int ComboProbability = 5;//连击率
     public static int SpecialWeaponProbability = 98;//100-98=2几率切换到远程武器，每次Think都有2%几率
-    public static float AimDegree = 45.0f;//夹角超过45度，需要进入瞄准
+    public static float AimDegree = 30.0f;//夹角超过30度，需要重新瞄准
     public static readonly int CharacterMax = 20;//
     public static MeteorInput GMeteorInput = null;
 	public static Level GLevelItem = null;
@@ -37,6 +37,7 @@ public class Global
     public const int LEVELSTART = 1;//初始关卡ID
     public static int LEVELMAX = 29;//最大关卡29
     public const int ANGRYMAX = 100;
+    public const int ANGRYBURST = 60;
     public const float AttackRangeMin = 31;//远程武器在距离35码内要离开目标，否则是很难攻击到目标的
     public const float AttackRangeMinD = 1000;//最小约31码
     public const float AttackRange = 8100.0f;//90 * 90换近战武器

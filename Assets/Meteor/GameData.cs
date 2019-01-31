@@ -408,8 +408,9 @@ public class GameData:Singleton<GameData>
             gameStatus.ServerList = new List<ServerInfo>();//用户自定义的服务器列表.
             gameStatus.ServerList.Add(svr);
             gameStatus.defaultServerIdx = 0;//指向默认，修改仅设置该值.
-            gameStatus.PetOn = true;
+            gameStatus.PetOn = false;
             gameStatus.DisableJoystick = true;
+            gameStatus.DisableParticle = true;
         }
         else
         {

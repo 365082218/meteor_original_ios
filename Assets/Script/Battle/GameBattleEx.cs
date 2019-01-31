@@ -168,6 +168,12 @@ public partial class GameBattleEx : MonoBehaviour {
                 return;
             }
         }
+
+        //在战斗中仅调用个别的面板的Update
+        if (FightWnd.Exist)
+        {
+            FightWnd.Instance.Update();
+        }
         //更新BUFF
         foreach (var each in BuffMng.Instance.BufDict)
             each.Value.Update();
@@ -413,7 +419,6 @@ public partial class GameBattleEx : MonoBehaviour {
                     MeteorManager.Instance.UnitInfos[i].Attr.OnStart();//AI脚本必须在所有角色都加载完毕后再调用
             }
         }
-        U3D.InsertSystemMsg("新回合开始计时");
         CheckGameMode();
     }
 
@@ -516,23 +521,45 @@ public partial class GameBattleEx : MonoBehaviour {
                 GameObject gun = unit.weaponLoader.GetGunTrans();
                 if (gun != null)
                 {
-                    //int gunAim = Random.Range(1, 101);//射击命中几率.
-                    Vector3 vec;
+                    Vector3 vec = Vector3.zero;
                     if (unit.GetLockedTarget() != null)
-                        vec = (unit.GetLockedTarget().mSkeletonPivot + new Vector3((100 - unit.Attr.Aim) / 20, 0, (100 - unit.Attr.Aim) / 20) - gun.transform.position).normalized;
+                    {
+                        Vector3 vecDir = (unit.GetLockedTarget().mSkeletonPivot - gun.transform.position);
+                        vec = vecDir;
+                        vec.y = 0;
+                        Vector3 vecShootEndPoint = unit.GetLockedTarget().mSkeletonPivot + Quaternion.AngleAxis(90, Vector3.up) * vec.normalized * unit.charController.radius;//角色某侧顶端
+                        float angle = Mathf.Acos(Mathf.Clamp(Vector3.Dot((vecShootEndPoint - gun.transform.position).normalized, vecDir.normalized), -1.0f, 1.0f)) * Mathf.Rad2Deg;
+                        float ratio = ((100.0f - unit.Attr.Aim) / 100.0f);//miss概率                                            //正负1倍角度一定可以射击命中.不在范围内一定不会命中.
+                        float angleRatio = UnityEngine.Random.Range(-angle * (1 + ratio), angle * (1 + ratio));
+                        vec = Quaternion.AngleAxis(angleRatio, Vector3.up) * (unit.GetLockedTarget().mSkeletonPivot - gun.transform.position).normalized;
+                    }
                     else
                         vec = -gun.transform.forward;
                     Ray r = new Ray(gun.transform.position, vec);
                     RaycastHit[] allHit = Physics.RaycastAll(r, 3000, 1 << LayerMask.NameToLayer("Bone") | 1 << LayerMask.NameToLayer("Scene") | 1 << LayerMask.NameToLayer("Monster") | 1 << LayerMask.NameToLayer("LocalPlayer"));
                     RaycastHit[] allHitSort = SortRaycastHit(allHit);
+                    bool showEffect = false;
                     //先排个序，从近到远
                     for (int i = 0; i < allHitSort.Length; i++)
                     {
                         if (allHitSort[i].transform.gameObject.layer == LayerMask.NameToLayer("Scene"))
                         {
-                            //SFXLoader.Instance.PlayEffect("gunshot", )
+                            //在指定位置播放一个特效.
+                            if (!showEffect)
+                            {
+                                SFXLoader.Instance.PlayEffect("GunHit.ef", allHitSort[i].point, true, false);
+                                showEffect = true;
+                            }
                             break;
                         }
+
+                        //在指定位置播放一个特效.
+                        if (!showEffect)
+                        {
+                            SFXLoader.Instance.PlayEffect("GunHit.ef", allHitSort[i].point, true, false);
+                            showEffect = true;
+                        }
+
                         MeteorUnit unitAttacked = allHitSort[i].transform.gameObject.GetComponentInParent<MeteorUnit>();
                         if (unitAttacked != null)
                         {
@@ -592,7 +619,8 @@ public partial class GameBattleEx : MonoBehaviour {
                                 forw = (Quaternion.AngleAxis(Random.Range(-35, 35), Vector3.up) * Quaternion.AngleAxis(Random.Range(-5, 5), Vector3.right) * -unit.transform.forward).normalized;//角色的面向
                             else
                             {
-                                Vector3 vec = unit.GetLockedTarget().mPos + new Vector3(Random.Range(-unit.Attr.Aim / 10, unit.Attr.Aim / 10), Random.Range(10, 38), Random.Range(-unit.Attr.Aim / 10, unit.Attr.Aim / 10));
+                                float k = Random.Range(-(100 - unit.Attr.Aim) / 3.0f, (100 - unit.Attr.Aim) / 3.0f);
+                                Vector3 vec = unit.GetLockedTarget().mPos + new Vector3(k, Random.Range(10, 38), k);
                                 float dis = Vector3.Distance(vec, vecSpawn);
                                 float vt = Mathf.Sqrt(2 * DartLoader.gspeed * dis + (DartLoader.InitializeSpeed * DartLoader.InitializeSpeed));
                                 float t = (vt - DartLoader.InitializeSpeed) / DartLoader.gspeed;

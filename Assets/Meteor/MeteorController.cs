@@ -558,8 +558,18 @@ public class MeteorInput
                 {
                     case 5:
                     case 6:
-                    case 7:
                         result = true;
+                        break;
+                    case 7:
+                        if (mOwner.Attr.IsPlayer && GameData.Instance.gameStatus.EnableInfiniteAngry)
+                            result = true;
+                        else if (mOwner.AngryValue < 20)
+                            result = false;
+                        else
+                        {
+                            mOwner.AngryValue -= 20;
+                            result = true;
+                        }
                         break;
                     case 8://大绝
                         if (mOwner.Attr.IsPlayer && GameData.Instance.gameStatus.EnableInfiniteAngry)
@@ -1921,6 +1931,7 @@ public class MeteorInput
     {
         if (mOwner.controller.InputLocked)
             return;
+        lastKeyHandler = Time.time;
         if (genFreq.ContainsKey(keyStatus.Key))
         {
             genFreq[keyStatus.Key]--;
@@ -1942,11 +1953,11 @@ public class MeteorInput
         OnKeyUp(KeyStates[(int)key]);
     }
 
-    
     public void OnKeyDown(KeyState keyStatus, bool isAI)
     {
         if (mOwner.controller.InputLocked && !isAI)
             return;
+        lastKeyHandler = Time.time;
         if (InputCore.OnKeyDown(keyStatus))
             InputCore.Reset();
         //任意的按下一个按键，
@@ -1960,6 +1971,7 @@ public class MeteorInput
 
     public void OnKeyUp(KeyState keyStatus)
     {
+        lastKeyHandler = Time.time;
         keyStatus.Pressed = 0;
         keyStatus.ReleasedTime = 0.0f;
         keyStatus.IsAI = false;
@@ -2067,6 +2079,13 @@ public class MeteorInput
     public bool HasInput(int key, int tp, float time)
     {
         return checkInputType((EKeyList)key, (EInputType)tp, time);
+    }
+
+    //按键有超过1S时间未被触发,无论是抬起还是按下.
+    float lastKeyHandler = 0.0f;
+    public bool IsKeyQuiet()
+    {
+        return (Time.time - lastKeyHandler >= 1.0f);
     }
 }
 

@@ -10,14 +10,7 @@ public class EffectPoolManager : MonoBehaviour
     {
         Instance = this;
     }
-
     Dictionary<string, ObjectPool> mEffectPools = new Dictionary<string, ObjectPool>();
-    public GameObject Spawn(int idx)
-    {
-        GameObject effect = Spawn(name);
-        return effect;
-    }
-
     public GameObject Spawn(string name)
     {
         ObjectPool objectPool;
@@ -42,4 +35,10 @@ public class EffectPoolManager : MonoBehaviour
         GameObject effect = objectPool.Spawn(true) as GameObject;
         return effect;
     }
+
+    ////该对象是否由复用池管理.
+    //bool CanResycle(string poolType, GameObject obj)
+    //{
+
+    //}
 }

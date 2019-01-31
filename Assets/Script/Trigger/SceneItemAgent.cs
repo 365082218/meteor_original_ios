@@ -458,6 +458,7 @@ public class SceneItemAgent : MonoBehaviour {
                 }
                 else if (k == "collision")
                 {
+                    //是否包含碰撞检测.1:阻碍角色，2:Trigger
                     GameObject obj = Global.ldaControlX(na, root.gameObject);
                     Collider[] co = obj.GetComponentsInChildren<Collider>(true);
                     int vv = int.Parse(v);
@@ -472,12 +473,17 @@ public class SceneItemAgent : MonoBehaviour {
                             c.enabled = enable;
                         }
                         co[q].isTrigger = vv == 0;
+                        if (property.attribute.ContainsKey("blockplayer") && property.attribute["blockplayer"] == 0)
+                        {
+                            co[q].isTrigger = vv == 1;
+                        }
                         //co[q].enabled = vv == 1;
                     }
                     property.attribute["collision"] = vv;
                 }
                 else if (k == "blockplayer")
                 {
+                    //不要阻碍角色-Trigger为1
                     GameObject obj = Global.ldaControlX(na, root.gameObject);
                     if (v == "no")
                     {
@@ -494,6 +500,7 @@ public class SceneItemAgent : MonoBehaviour {
                                 co[c].isTrigger = true;
                             co[c].enabled = true;
                         }
+                        property.attribute["blockplayer"] = 0;
                     }
                 }
                 else if (k == "billboard")

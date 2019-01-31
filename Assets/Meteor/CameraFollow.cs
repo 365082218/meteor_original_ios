@@ -422,20 +422,23 @@ public class CameraFollow : MonoBehaviour {
                 (1 << LayerMask.NameToLayer("Wall")) |
                 (1 << LayerMask.NameToLayer("Water"))))
             {
-                hitWall = true;
-                //Debug.LogError("hitWall" + wallHit.transform.name);
-                //摄像机与角色间有物件遮挡住角色，开始自动计算摄像机位置.
-                //Debug.LogError("camera linecast with:" + wallHit.transform.name);
-                newPos = wallHit.point + Vector3.Normalize(cameraLookAt - wallHit.point) * 5;
-                //if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
-                //1 << LayerMask.NameToLayer("Scene") |
-                //(1 << LayerMask.NameToLayer("Default")) |
-                //(1 << LayerMask.NameToLayer("Wall")) |
-                //(1 << LayerMask.NameToLayer("Water"))))
-                //{
-                //    m_Targets[2].position = wallHit.point;
-                //    Debug.LogError("?????");
-                //}
+                if (!wallHit.collider.isTrigger)
+                {
+                    hitWall = true;
+                    //Debug.LogError("hitWall" + wallHit.transform.name);
+                    //摄像机与角色间有物件遮挡住角色，开始自动计算摄像机位置.
+                    //Debug.LogError("camera linecast with:" + wallHit.transform.name);
+                    newPos = wallHit.point + Vector3.Normalize(cameraLookAt - wallHit.point) * 5;
+                    //if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
+                    //1 << LayerMask.NameToLayer("Scene") |
+                    //(1 << LayerMask.NameToLayer("Default")) |
+                    //(1 << LayerMask.NameToLayer("Wall")) |
+                    //(1 << LayerMask.NameToLayer("Water"))))
+                    //{
+                    //    m_Targets[2].position = wallHit.point;
+                    //    Debug.LogError("?????");
+                    //}
+                }
             }
 
             //由电影视角，切换到单人视角之间的动画.
@@ -510,8 +513,11 @@ public class CameraFollow : MonoBehaviour {
             (1 << LayerMask.NameToLayer("Wall")) |
             (1 << LayerMask.NameToLayer("Water"))))
         {
-            hit = wallHit.point + Vector3.Normalize(targetPos - wallHit.point);
-            return false;
+            if (!wallHit.collider.isTrigger)
+            {
+                hit = wallHit.point + Vector3.Normalize(targetPos - wallHit.point);
+                return false;
+            }
         }
         hit = pos;
         return true;

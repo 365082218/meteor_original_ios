@@ -195,7 +195,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
     void OnDisableCat(bool disable)
     {
         GameData.Instance.gameStatus.PetOn = disable;
-        if (GameData.Instance.gameStatus.PetOn)
+        if (GameData.Instance.gameStatus.PetOn && Global.GLevelItem.DisableFindWay == 0 && Global.GLevelItem != null && Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
             U3D.InitPet();
         }
@@ -279,7 +279,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
     {
         Close();
         GameBattleEx.Instance.Pause();
-        U3D.LoadLevel(levelId, LevelMode.SinglePlayerTask, GameMode.SIDOU);
+        U3D.LoadLevel(levelId, LevelMode.SinglePlayerTask, (GameMode)LevelMng.Instance.GetItem(levelId).LevelType);
     }
 
     void OnChangeVer(string ver)

@@ -563,12 +563,12 @@ public class MainWnd : Window<MainWnd>
         Control("PlayerSetting").GetComponent<Button>().onClick.AddListener(() => {
             OnSetting();
         });
-        Control("QuitGame").GetComponent<Button>().onClick.AddListener(()=> {
-            Application.Quit();
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-#endif
-        });
+//        Control("QuitGame").GetComponent<Button>().onClick.AddListener(()=> {
+//            Application.Quit();
+//#if UNITY_EDITOR
+//            UnityEditor.EditorApplication.isPlaying = false;
+//#endif
+//        });
         Control("ServerCfg").GetComponent<Button>().onClick.AddListener(()=> {
             if (ServerListWnd.Exist)
                 ServerListWnd.Instance.Close();
@@ -850,6 +850,10 @@ public class WeaponWnd : Window<WeaponWnd>
 public class RobotWnd : Window<RobotWnd>
 {
     public GameObject RobotRoot;
+    public int weaponIdx = 0;//0-长剑
+    public int campIdx = 1;//
+    public int hpIdx = 0;
+    int[] hpArray = { 1000, 500, 300, 250, 200, 100 };
     public override string PrefabName
     {
         get
@@ -870,68 +874,72 @@ public class RobotWnd : Window<RobotWnd>
         return base.OnClose();
     }
 
-    int pageIndex = 0;
-    private const int PageCount = 20;
-    int pageMax = 0;
-    int pageMin = 0;
     void Init()
     {
-        pageMax = 2;
         RobotRoot = Control("Page");
         Control("Close").GetComponent<Button>().onClick.AddListener(Close);
-        Control("PagePrev").GetComponent<Button>().onClick.AddListener(PrevPage);
-        Control("PageNext").GetComponent<Button>().onClick.AddListener(NextPage);
-        NextPage();
-    }
+        for (int i = 0; i < 12; i++)
+        {
+            int k = i;
+            Control(string.Format("Weapon{0}", i)).GetComponent<Toggle>().onValueChanged.AddListener((bool select) => 
+            {
+                if (select)
+                {
+                    weaponIdx = k;
+                }
+            });
+        }
+        for (int i = 0; i < 3; i++)
+        {
+            int k = i;
+            Control(string.Format("Camp{0}", i)).GetComponent<Toggle>().onValueChanged.AddListener((bool select) =>
+            {
+                if (select)
+                {
+                    campIdx = k;
+                }
+            });
+        }
 
-    void NextPage()
-    {
-        if (pageIndex == pageMax)
-            pageIndex = 1;
-        else
-            pageIndex += 1;
-        if (refresh != null)
-            GameBattleEx.Instance.StopCoroutine(refresh);
-        refresh = GameBattleEx.Instance.StartCoroutine(RefreshRobot(pageIndex));
-        Control("PageText").GetComponent<Text>().text = string.Format("{0:d2}/{1:d2}", pageIndex, pageMax);
-    }
-
-    void PrevPage()
-    {
-        if (pageIndex == 1)
-            pageIndex = pageMax;
-        else
-            pageIndex -= 1;
-        if (refresh != null)
-            GameBattleEx.Instance.StopCoroutine(refresh);
-        refresh = GameBattleEx.Instance.StartCoroutine(RefreshRobot(pageIndex));
-        Control("PageText").GetComponent<Text>().text = string.Format("{0:d2}/{1:d2}", pageIndex, pageMax);
+        for (int i = 0; i < 6; i++)
+        {
+            int k = i;
+            Control(string.Format("HP{0}", i)).GetComponent<Toggle>().onValueChanged.AddListener((bool select) =>
+            {
+                if (select)
+                {
+                    hpIdx = k;
+                }
+            });
+        } 
+        refresh = Startup.ins.StartCoroutine(RefreshRobot());
     }
 
     Coroutine refresh = null;
-    IEnumerator RefreshRobot(int page)
+    IEnumerator RefreshRobot()
     {
-        for (int i = 0; i < PageCount; i++)
+        for (int i = 0; i < 20; i++)
         {
-            AddRobot(i, page);
+            AddRobot(i);
             yield return 0;
         }
+        refresh = null;
     }
 
     Dictionary<int, GameObject> RobotList = new Dictionary<int, GameObject>();
-    void AddRobot(int Idx, int pageIdx)
+    void AddRobot(int Idx)
     {
         if (RobotList.ContainsKey(Idx))
         {
             RobotList[Idx].GetComponent<Button>().onClick.RemoveAllListeners();
-            RobotList[Idx].GetComponent<Button>().onClick.AddListener(() => { SpawnRobot(Idx, pageIdx == 1 ? EUnitCamp.EUC_ENEMY : EUnitCamp.EUC_FRIEND); });
-            RobotList[Idx].GetComponentInChildren<Text>().text = string.Format("{0}{1}", Global.GetCharacter(Idx).Name, pageIdx == 1 ? "[敌]" : "[友]");
+            RobotList[Idx].GetComponent<Button>().onClick.AddListener(() => { SpawnRobot(Idx, (EUnitCamp)campIdx); });
+            RobotList[Idx].GetComponentInChildren<Text>().text = string.Format("{0}", Global.GetCharacter(Idx).Name);
         }
         else
         {
             GameObject obj = GameObject.Instantiate(Resources.Load("GridItemBtn")) as GameObject;
-            obj.GetComponent<Button>().onClick.AddListener(() => { SpawnRobot(Idx, pageIdx == 1 ? EUnitCamp.EUC_ENEMY : EUnitCamp.EUC_FRIEND); });
-            obj.GetComponentInChildren<Text>().text = string.Format("{0}{1}", Global.GetCharacter(Idx).Name, pageIdx == 1 ? "[敌]" : "[友]");
+            obj.GetComponent<Button>().onClick.AddListener(() => { SpawnRobot(Idx, (EUnitCamp)campIdx); });
+            obj.GetComponentInChildren<Text>().text = string.Format("{0}", Global.GetCharacter(Idx).Name);
             obj.transform.SetParent(RobotRoot.transform);
             obj.gameObject.layer = RobotRoot.layer;
             obj.transform.localScale = Vector3.one;
@@ -943,7 +951,7 @@ public class RobotWnd : Window<RobotWnd>
 
     void SpawnRobot(int idx, EUnitCamp camp)
     {
-        U3D.SpawnRobot(idx, camp);
+        U3D.SpawnRobot(idx, camp, weaponIdx, hpArray[hpIdx]);
     }
 }
 

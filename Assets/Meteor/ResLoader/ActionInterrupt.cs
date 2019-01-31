@@ -64,6 +64,10 @@ public class CommonAction
     public const int Idle = 0;
     public const int GunReload = 212;//装载子弹
     public const int GunIdle = 213;//待发射子弹
+    public const int GunNormalShoot = 206;//枪普攻击
+    public const int GunHeavyShoot = 207;//枪重射击-不破防
+    public const int GunHeavyShootMax = 208;//枪杀射击-破防
+
     public const int Crouch = 10;//蹲着
     //蹲下 前右左后移动
     public const int CrouchForw = 145;
@@ -223,7 +227,7 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
                 {
                     case 5:
                     case 6:
-                    case 7:
+                    case 7://重射击
                     case 8://大绝
                     case 147://小绝
                     case 59://一般空踢
@@ -604,6 +608,52 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
         return action;
     }
 
+    public int GetSkillPose(MeteorUnit owner)
+    {
+        int result = 0;
+        switch (owner.GetWeaponType())
+        {
+            case (int)EquipWeaponType.Knife:
+                result = 259;
+                break;
+            case (int)EquipWeaponType.Dart:
+                result = 203;
+                break;
+            case (int)EquipWeaponType.Gun:
+                result = 216;
+                break;
+            case (int)EquipWeaponType.Brahchthrust:
+                result = 244;
+                break;
+            case (int)EquipWeaponType.Lance:
+                result = 293;
+                break;
+            case (int)EquipWeaponType.Blade:
+                result = 310;
+                break;
+            case (int)EquipWeaponType.Sword:
+                result = 368;
+                break;
+            case (int)EquipWeaponType.Gloves:
+                result = 421;
+                break;
+            case (int)EquipWeaponType.HeavenLance:
+                result = 451;
+                break;
+            case (int)EquipWeaponType.NinjaSword:
+                result = 474;
+                break;
+            case (int)EquipWeaponType.Hammer:
+                result = 325;
+                break;
+            case (int)EquipWeaponType.Guillotines:
+                result = 224;
+                break;
+            default:
+                break;
+        }
+        return result;
+    }
     //大绝招
     public ActionNode GetSkillNode(MeteorUnit owner, ActionNode source)
     {
@@ -687,7 +737,7 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
         }
 
         //跳跃
-        for (int i = 150; i <= 180; i++)
+        for (int i = 150; i < CommonAction.DCForw; i++)
         {
             ActionNode n = new ActionNode();
             n.ActionIdx = i;
@@ -707,14 +757,14 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
         }
 
         //远程武器双击方向滚动可以接任何招式-(处理远程武器大招-滚动完毕后再出招BUG)
-        //for (int i = CommonAction.DCForw; i <= CommonAction.DCBack; i++)
-        //{
-        //    ActionNode n = new ActionNode();
-        //    n.ActionIdx = i;
-        //    n.KeyMap = 0;
-        //    level0.Add(n);
-        //    Whole.Add(i, n);
-        //}
+        for (int i = CommonAction.DCForw; i <= CommonAction.DCBack; i++)
+        {
+            ActionNode n = new ActionNode();
+            n.ActionIdx = i;
+            n.KeyMap = 0;
+            level0.Add(n);
+            Whole.Add(i, n);
+        }
 
         int line = 1;
         string sV = "";

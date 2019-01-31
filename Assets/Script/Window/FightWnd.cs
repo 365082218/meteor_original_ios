@@ -360,14 +360,16 @@ public class FightWnd: Window<FightWnd>
             ctrl.PushMessage(text);
     }
 
+    public void OnBattleStart()
+    {
+        currentHP = nextHp = MeteorManager.Instance.LocalPlayer.Attr.hpCur;
+        hpBar.fillAmount = currentHP / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
+    }
+
     public void OnBattleEnd()
     {
-        if (updateValue != null)
-        {
-            MeteorManager.Instance.LocalPlayer.StopCoroutine(updateValue);
-            updateValue = null;
-        }
-        hpBar.fillAmount = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
+        Global.ldaControlX("Status", WndObject).SetActive(false);
+        //hpBar.fillAmount = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
     }
 
     //：生命值    112155/ 129373
@@ -467,37 +469,23 @@ public class FightWnd: Window<FightWnd>
     //    hideTargetInfo = null;
     //}
 
-    IEnumerator UpdateHPMP()
+    public void Update()
     {
-        float targetValueHp = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
-        float tick = 0.0f;
-        while (true)
+        if (currentHP != nextHp)
         {
-            if (!FightWnd.Exist)
-                yield break;
-            hpBar.fillAmount = Mathf.Lerp(hpBar.fillAmount, targetValueHp, tick);
-            tick += Time.deltaTime;
-            if (tick >= 1.0f)
-            {
-                updateValue = null;
-                yield break;
-            }
-            yield return 0;
+            currentHP = Mathf.MoveTowards(currentHP, nextHp, 1000f * Time.deltaTime);
+            hpBar.fillAmount = currentHP / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
         }
     }
 
-    Coroutine updateValue;
+    float nextHp = 0;
+    float currentHP = 0;
     public void UpdatePlayerInfo()
     {
         if (MeteorManager.Instance.LocalPlayer != null && MeteorManager.Instance.LocalPlayer.Attr.hpCur >= 0)
         {
-            if (updateValue != null)
-            {
-                Startup.ins.StopCoroutine(updateValue);
-                updateValue = null;
-            }
-            updateValue = Startup.ins.StartCoroutine(UpdateHPMP());
             hpLabel.text = ((int)(MeteorManager.Instance.LocalPlayer.Attr.hpCur / 10.0f)).ToString() + "/" + ((int)(MeteorManager.Instance.LocalPlayer.Attr.HpMax / 10.0f)).ToString();
+            nextHp = MeteorManager.Instance.LocalPlayer.Attr.hpCur;
             UpdateAngryBar();
         }
     }

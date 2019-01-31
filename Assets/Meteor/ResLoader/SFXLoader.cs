@@ -498,6 +498,40 @@ public class SFXLoader :Singleton<SFXLoader>{
         }
         return null;
     }
+
+    public SFXEffectPlay PlayEffect(string file, Vector3 position, bool once = false, bool preload = false)
+    {
+        GameObject obj = new GameObject(file);
+        obj.transform.position = position;
+        obj.transform.rotation = Quaternion.identity;
+        obj.transform.localScale = Vector3.one;
+        if (!EffectList.ContainsKey(file))
+        {
+            SfxFile f = new SfxFile();
+            try
+            {
+                if (f.ParseFile(file))
+                {
+                    EffectList.Add(file, f);
+                    return f.Play(obj, once, preload);
+                }
+                else
+                    Debug.LogError(string.Format("{0} parse error", file));
+            }
+            catch
+            {
+                Debug.LogError(string.Format("{0}  parse error", file));
+            }
+
+        }
+        else
+        {
+            //Debug.LogError("effect file:" + file + " 455");
+            return EffectList[file].Play(obj, once, preload);
+        }
+        return null;
+    }
+
     //target描述，此特效的主调者
     //timePlayed用于同步动作和特效。快速出招时，特效要加一个已经播放时间，否则特效跟不上动作的播放步骤
     public SFXEffectPlay PlayEffect(string file, CharacterLoader target, float timePlayed = 0.0f)

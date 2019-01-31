@@ -94,7 +94,7 @@ public class LevelHelper : MonoBehaviour
 
         //设置主角属性
         U3D.InitPlayer(script);
-        if (GameData.Instance.gameStatus.PetOn)
+        if (GameData.Instance.gameStatus.PetOn && lev.DisableFindWay == 0)
             U3D.InitPet();
         //把音频侦听移到角色
         Startup.ins.listener.enabled = false;
@@ -124,5 +124,9 @@ public class LevelHelper : MonoBehaviour
             MeteorUnit unitLog = MeteorManager.Instance.UnitInfos[i];
             U3D.InsertSystemMsg(U3D.GetCampEnterLevelStr(unitLog));
         }
+
+        U3D.InsertSystemMsg("新回合开始计时");
+        if (FightWnd.Exist)
+            FightWnd.Instance.OnBattleStart();
     }
 }

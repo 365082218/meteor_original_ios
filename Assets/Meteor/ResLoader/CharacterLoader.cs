@@ -658,7 +658,6 @@ public class CharacterLoader : MonoBehaviour
             for (int i = 0; i < bo.Count; i++)
             {
                 bo[i].localRotation = Quaternion.Slerp(lastStatus.BoneQuat[i], status.BoneQuat[i], timeRatio);
-
                 if (i == 0)
                     bo[i].localPosition = Vector3.Lerp(lastStatus.BonePos, status.BonePos, timeRatio);
             }
@@ -911,7 +910,13 @@ public class CharacterLoader : MonoBehaviour
         //if (po.Idx != 325)
         timePlayed = GetTimePlayed(curIndex);
         if (!string.IsNullOrEmpty(po.EffectID) && !string.Equals(po.EffectID, "0"))
+        {
             sfxEffect = SFXLoader.Instance.PlayEffect(string.Format("{0}.ef", po.EffectID), this, timePlayed);
+
+            //表明特效是由动作触发的,不在该动作中关闭特效的攻击盒时,特效攻击盒仍存在
+            //这种一般是特效出来后，在角色受到攻击前打开了特效的攻击盒，但角色受到攻击打断了动作，会立刻关闭攻击特效的攻击属性，这种应该是不对的.
+            //类似雷电斩，特效出来后只要攻击盒被打开过，一旦动作被打断，那么攻击特效会一直到特效完毕.
+        }
         effectPlayed = true;
     }
 

@@ -47,7 +47,7 @@ namespace SLua
             }
 
 #if !SLUA_STANDALONE
-            UnityEngine.Debug.Log(msg);
+            //UnityEngine.Debug.Log(msg);
 #else
             Console.WriteLine(msg);
 #endif

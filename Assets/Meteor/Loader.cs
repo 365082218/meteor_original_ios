@@ -283,7 +283,7 @@ public class Loader : MonoBehaviour {
                     string[] subtype = type.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     for (int t = 0; t < subtype.Length; t++)
                     {
-                        if (int.Parse(subtype[t]) == (int)GameMode.Normal)
+                        if (int.Parse(subtype[t]) == (int)Global.GGameMode)
                         {
                             active = true;
                             break;

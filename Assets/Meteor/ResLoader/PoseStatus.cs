@@ -483,8 +483,10 @@ public class PoseStatus
 
     public void ChangeAction(int idx = CommonAction.Idle, float time = 0.0f)
     {
+        //if (!_Self.Attr.IsPlayer && _Self.posMng != null && _Self.posMng.mActiveAction != null && _Self.posMng.mActiveAction.Idx == CommonAction.GunIdle && idx != CommonAction.GunIdle)
+        //    Debug.LogError("idx:" + idx);
         //if (_Self != null && _Self.Attr.IsPlayer && _Self.posMng != null && _Self.posMng.mActiveAction != null && _Self.posMng.mActiveAction.Idx + 1 == idx && idx > 150)
-        //    Debug.LogError("123");
+        //    
         //本局游戏已有结果,播放嘲讽动画.
         if (GameBattleEx.Instance != null && GameBattleEx.Instance.BattleFinished() && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle))
         {

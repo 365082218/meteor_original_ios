@@ -79,7 +79,18 @@ function sn1000_1()
 end
 
 function sn1000_2()
+	U3D.MoveNpc("player",12);
 	U3D.AddNPC("npc1000_2")
+	U3D.AddNPC("npc1000_2")
+	U3D.AddNPC("npc1000_2")
+	U3D.AddNPC("npc1000_2")
+	U3D.AddNPC("npc1000_2")
+	U3D.AddNPC("npc1000_2")
+	U3D.AddNPC("npc1000_2")
+	U3D.AddNPC("npc1000_2")
+	U3D.AddNPC("npc1000_2")
+	U3D.AddNPC("npc1000_2")
+	U3D.AddNPC("npc1000_7")
 end
 
 function sn1000_3()
@@ -87,7 +98,27 @@ function sn1000_3()
 end
 
 function sn1000_4()
+	U3D.MoveNpc("player",12);
 	U3D.AddNPC("npc1000_4")
+	U3D.AddNPC("npc1000_4")
+	U3D.AddNPC("npc1000_4")
+	U3D.AddNPC("npc1000_4")
+	U3D.AddNPC("npc1000_4")
+	U3D.AddNPC("npc1000_4")
+	U3D.AddNPC("npc1000_4")
+	U3D.AddNPC("npc1000_4")
+	U3D.AddNPC("npc1000_4")
+	U3D.AddNPC("npc1000_4")
+	U3D.AddNPC("npc1000_6")
+	U3D.AddNPC("npc1000_6")
+	U3D.AddNPC("npc1000_6")
+	U3D.AddNPC("npc1000_6")
+	U3D.AddNPC("npc1000_6")
+	U3D.AddNPC("npc1000_6")
+	U3D.AddNPC("npc1000_6")
+	U3D.AddNPC("npc1000_6")
+	U3D.AddNPC("npc1000_6")
+	U3D.AddNPC("npc1000_6")
 end
 
 function sn1000_5()

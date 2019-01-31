@@ -79,7 +79,10 @@ public class SFXEffectPlay : MonoBehaviour {
                 for (int i = 0; i < played.Count; i++)
                     Destroy(played[i].gameObject);
                 played.Clear();
-                Destroy(this);
+                if (owner == null)
+                    DestroyObject(gameObject);
+                else
+                    Destroy(this);
             }
         }
     }

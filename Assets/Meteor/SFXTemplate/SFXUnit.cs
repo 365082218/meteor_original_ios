@@ -293,7 +293,10 @@ DRAG*/
                 mRender.material.SetFloat("_v", effect.vSpeed);
             }
         }
-
+        else
+        {
+            mRender.enabled = false;
+        }
         //drag不知道有什么作用，可能只是定位用的挂载点
         if (effect.Hidden == 1 || meshIndex == 6)
         {
@@ -390,7 +393,7 @@ DRAG*/
             }
             if (playedTime < source.frames[0].startTime && mRender.enabled)
                 mRender.enabled = false;
-            else if (playedTime >= source.frames[0].startTime && !mRender.enabled && source.Hidden == 0 && EffectType != "DRAG")
+            else if (playedTime >= source.frames[0].startTime && !mRender.enabled && source.Hidden == 0 && EffectType != "DRAG" && tex != null)
                 mRender.enabled = true;
 
             while (playedTime < source.frames[0].startTime)

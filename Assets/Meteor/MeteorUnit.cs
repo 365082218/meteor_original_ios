@@ -279,49 +279,6 @@ public partial class MeteorUnit : MonoBehaviour
     [SerializeField]
     public MeteorAI robot;
     //按照角色的坐标围成一圈，每个30度 12个空位，距离50，其实应该按
-    //public Dictionary<int, MeteorUnit> SlotInfo = new Dictionary<int, MeteorUnit>();
-    //public Dictionary<int, GameObject> SlotFreePos = new Dictionary<int, GameObject>(); 
-    //群体AI处理角色站位.
-    public Vector3 GetFreePos(out int slot, MeteorUnit user)
-    {
-        int k = -1;
-        //如果已有该使用者，直接返回该使用者占用的位置.
-        //for (int i = 0; i < 12; i++)
-        //{
-        //    if (SlotInfo[i] == user)
-        //    {
-        //        slot = i;
-        //        k = slot;
-        //        Vector3 ret = transform.position + Quaternion.AngleAxis(k * 30, Vector3.up) * (Vector3.forward * 50);
-        //SlotFreePos[slot].GetComponentInChildren<MeshRenderer>().material.color = Color.red;
-        //Debug.LogError(string.Format("{0}的位置{1}已经被{2}占用", name, slot, user.name));
-        //        return ret;
-        //    }
-        //}
-        //没有该使用者占用一个空位
-        //for (int i = 0; i < 12; i++)
-        //{
-        //    if (SlotInfo[i] != null)
-        //        continue;
-        //    k = i;
-        //    SlotInfo[i] = user;
-
-        //    break;
-        //}
-
-        if (k != -1)
-        {
-            Vector3 ret = transform.position + Quaternion.AngleAxis(k * 30, Vector3.up) * (Vector3.forward * 50);
-            //没计算高度到地面是否有
-            slot = k;
-            //Debug.LogError(string.Format("{0}的位置{1}被{2}占用", name, slot, user.name));
-            return ret;
-        }
-
-        slot = -1;
-        return Vector3.zero;
-    }
-
     //指定的对象是否在自己视野内
     public bool Find(MeteorUnit unit)
     {
@@ -339,6 +296,17 @@ public partial class MeteorUnit : MonoBehaviour
                 return false;
         }
         return true;
+    }
+
+    //单机关卡设置位置到路点.
+    public void SetPosition(int spawnPoint)
+    {
+        //禁止寻路，代表场景无路点.只能用来联机.
+        if (Global.GLevelItem.DisableFindWay == 1)
+            return;
+        if (spawnPoint >= Global.GLevelItem.wayPoint.Count)
+            return;
+        transform.position = Global.GLevelItem.wayPoint[spawnPoint].pos;
     }
 
     public void AIPause(bool pause, float t = 0.0f)
@@ -515,6 +483,11 @@ public partial class MeteorUnit : MonoBehaviour
     public MeteorUnit GetLockedTarget()
     {
         return lockTarget;
+    }
+
+    public MeteorUnit GetKillTarget()
+    {
+        return killTarget;
     }
 
     public void SetLockedTarget(MeteorUnit target)
@@ -1022,7 +995,7 @@ public partial class MeteorUnit : MonoBehaviour
 
     public bool CanBurst()
     {
-        return (AngryValue == Global.ANGRYMAX);
+        return (AngryValue == Global.ANGRYBURST);
     }
 
     //专门用来播放左转，右转动画的，直接面对角色不要调用这个。
@@ -1139,12 +1112,12 @@ public partial class MeteorUnit : MonoBehaviour
         }
     }
 
+    MeteorUnit killTarget = null;
     public void KillTarget(MeteorUnit unit)
     {
         if (robot != null)
         {
-            robot.killTarget = unit;
-            SetLockedTarget(unit);
+            killTarget = unit;
             robot.ChangeState(EAIStatus.Kill);
         }
     }
@@ -1338,6 +1311,8 @@ public partial class MeteorUnit : MonoBehaviour
     public int CalcSpeed()
     {
         if (weaponLoader == null || weaponLoader.GetCurrentWeapon() == null || weaponLoader.GetCurrentWeapon().Info() == null)
+            return 100;
+        if (weaponLoader.GetCurrentWeapon().Info().Speed == 0)
             return 100;
         return weaponLoader.GetCurrentWeapon().Info().Speed;
     }
@@ -1614,7 +1589,7 @@ public partial class MeteorUnit : MonoBehaviour
                     posMng.ClimbFallTick += Time.deltaTime;
                     if (posMng.ClimbFallTick > PoseStatus.ClimbFallLimit)
                     {
-                        Debug.LogError("爬墙速度低于最低速度-爬墙落下");
+                        //Debug.LogError("爬墙速度低于最低速度-爬墙落下");
                         posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                         ProcessFall();
                         posMng.ClimbFallTick = 0.0f;
@@ -1622,7 +1597,7 @@ public partial class MeteorUnit : MonoBehaviour
                 }
                 else if (MoveOnGroundEx)
                 {
-                    Debug.LogError("爬墙碰到地面-落到地面");
+                    //Debug.LogError("爬墙碰到地面-落到地面");
                     posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                 }
                 else
@@ -1721,7 +1696,7 @@ public partial class MeteorUnit : MonoBehaviour
                             posMng.ClimbFallTick += Time.deltaTime;
                             if (posMng.ClimbFallTick > PoseStatus.ClimbFallLimit)
                             {
-                                Debug.LogError("爬墙速度低于最低速度-爬墙落下");
+                                //Debug.LogError("爬墙速度低于最低速度-爬墙落下");
                                 posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                                 ProcessFall();
                                 posMng.ClimbFallTick = 0.0f;
@@ -1729,7 +1704,7 @@ public partial class MeteorUnit : MonoBehaviour
                         }
                         else if (MoveOnGroundEx)
                         {
-                            Debug.LogError("爬墙碰到地面-落到地面");
+                            //Debug.LogError("爬墙碰到地面-落到地面");
                             posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                         }
                     }
@@ -3146,26 +3121,26 @@ public partial class MeteorUnit : MonoBehaviour
         return pose;
     }
 
-    Coroutine PlayWeaponPoseCorout;
-    void TryPlayWeaponPose(int KeyMap)
-    {
-        if (PlayWeaponPoseCorout != null)
-            return;
-        PlayWeaponPoseCorout = StartCoroutine(PlayWeaponPose(KeyMap));
-    }
+    //Coroutine PlayWeaponPoseCorout;
+    //void TryPlayWeaponPose(int KeyMap)
+    //{
+    //    if (PlayWeaponPoseCorout != null)
+    //        return;
+    //    PlayWeaponPoseCorout = StartCoroutine(PlayWeaponPose(KeyMap));
+    //}
 
-    IEnumerator PlayWeaponPose(int KeyMap)
-    {
-        List<VirtualInput> skill = VirtualInput.CalcPoseInput(KeyMap);
-        for (int i = 0; i < skill.Count; i++)
-        {
-            controller.Input.OnKeyDown(skill[i].key, true);
-            yield return 0;
-            controller.Input.OnKeyUp(skill[i].key);
-            yield return 0;
-        }
-        PlayWeaponPoseCorout = null;
-    }
+    //IEnumerator PlayWeaponPose(int KeyMap)
+    //{
+        //List<VirtualInput> skill = VirtualInput.CalcPoseInput(KeyMap);
+        //for (int i = 0; i < skill.Count; i++)
+        //{
+        //    controller.Input.OnKeyDown(skill[i].key, true);
+        //    yield return 0;
+        //    controller.Input.OnKeyUp(skill[i].key);
+        //    yield return 0;
+        //}
+        //PlayWeaponPoseCorout = null;
+    //}
 
     //0大绝，其他的就是pose号,仅主角用.
     public void PlaySkill(int skill = 0)
@@ -3173,24 +3148,18 @@ public partial class MeteorUnit : MonoBehaviour
         //技能0为当前武器绝招
         if (skill == 0)
         {
-            if (controller.Input.AcceptInput())
+            if (AngryValue >= 100 || (GameData.Instance.gameStatus.EnableInfiniteAngry && Attr.IsPlayer))
             {
-                if (AngryValue >= 100 || (GameData.Instance.gameStatus.EnableInfiniteAngry && Attr.IsPlayer))
+                //得到武器的大绝pose号码。
+                AngryValue -= Attr.IsPlayer ? (GameData.Instance.gameStatus.EnableInfiniteAngry ? 0 : 100) : 100;
+                int skillPose = ActionInterrupt.Instance.GetSkillPose(this);
+                if (skillPose != 0)
                 {
-                    //得到武器的大绝pose号码。
-                    AngryValue -= Attr.IsPlayer ? (GameData.Instance.gameStatus.EnableInfiniteAngry ? 0 : 100) : 100;
-                    ActionNode act = ActionInterrupt.Instance.GetActions(posMng.mActiveAction.Idx);
-                    ActionNode attack3 = ActionInterrupt.Instance.GetSkillNode(this, act);
-                    if (attack3 != null)
-                    {
-                        TryPlayWeaponPose(attack3.KeyMap);
-                    }
+                    posMng.ChangeAction(skillPose);
                 }
-                else if (Attr.IsPlayer)
-                    U3D.InsertSystemMsg("怒气不足");
             }
-            else
-                U3D.InsertSystemMsg("无法快速绝招");
+            else if (Attr.IsPlayer)
+                U3D.InsertSystemMsg("怒气不足");
         }
         else if (skill == 1)
         {

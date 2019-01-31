@@ -388,11 +388,11 @@ public class ScriptBase
 
     public static void Output(int i)
     {
-        //Debug.Log(i);
+        Debug.Log(i);
     }
     public static void Output(string s, int i = 0)
     {
-        //Debug.Log(s + i);
+        Debug.Log(s + i);
     }
 
     public static void AddNPC(string npc)
@@ -3730,7 +3730,7 @@ public class LevelScript_sn05: LevelScriptBase
 public class LevelScript_sn06: LevelScriptBase
 {
     int RoundTime = 15;
-    int PlayerSpawn = 5;
+    int PlayerSpawn = 12;
     int PlayerSpawnDir = 90;
     int PlayerWeapon = 5;
     int PlayerWeapon2 = 0;
@@ -7409,7 +7409,7 @@ public class LevelScript_sn21 : LevelScriptBase
 //22-威震八方
 public class LevelScript_sn22 : LevelScriptBase
 {
-    int RoundTime = 30;
+    int RoundTime = 60;
     int PlayerSpawn = 15;
     int PlayerSpawnDir = 84;
     int PlayerWeapon = 5;

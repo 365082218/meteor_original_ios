@@ -43,7 +43,7 @@ public enum FrameEvent
     ChangeWeapon0 = 412,//左打虎
     ChangeWeapon1 = 413,//右打虎
     ChangeWeaponPos6 = 523,//在第一个动作第一帧切换为拔刀
-    ChangeWeaponPos7 = 485,//最后一帧，切换为居合
+    ChangeWeaponPos7 = 486,//最后一帧，切换为居合
     ChangeWeaponPos8 = 487,//最后一帧，切换为居合
     ChangeWeaponPos449_0 = 449,//拔刀术，前
     ChangeWeaponPos450_0 = 450,//拔刀术，后

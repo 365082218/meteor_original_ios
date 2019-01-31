@@ -7,9 +7,9 @@ function npc02_01()
 	class.Team = 2;
 	class.View = 400;
 	class.Think = 40;
-	class.Attack1	= 50;
-	class.Attack2 = 30;
-	class.Attack3 = 0;
+	class.Attack1 = 20;
+	class.Attack2 = 40;
+	class.Attack3 = 20;
 	class.Guard =	20;
 	class.Dodge =	10;
 	class.Jump = 5;

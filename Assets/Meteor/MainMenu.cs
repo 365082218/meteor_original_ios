@@ -52,8 +52,8 @@ public class MainMenu : Window<MainMenu> {
     {
         if (select != null)
         {
-            //Log.LogInfo("u3d.loadlevel");
-            U3D.LoadLevel(select.ID, LevelMode.SinglePlayerTask, (GameMode)select.LevelType);
+            //单机全部是普通关卡对待.
+            U3D.LoadLevel(select.ID, LevelMode.SinglePlayerTask, GameMode.Normal);
         }
         else
             Log.WriteError("select == null");
