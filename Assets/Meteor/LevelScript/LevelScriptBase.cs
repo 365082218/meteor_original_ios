@@ -5716,7 +5716,7 @@ public class LevelScript_sn13 : LevelScriptBase
         if (g_counter % 20 == 0 && timer0 > 0 && GetGameTime() > timer0)
         {
             c = GetChar("冷燕");
-            if (c >= 0 && !IsPerforming(player))
+            if (c >= 0 && !IsPerforming(player) && !U3D.IsUnitDead(c))
             {
                 SetTarget(0, "char", player);
                 SetTarget(1, "char", c);
@@ -6902,7 +6902,7 @@ public class LevelScript_sn15 : LevelScriptBase
                 if (Distance(0, 1) < 80)
                 {
                     RemoveNPC(c);
-                    gameover = -1;
+                    gameover = 1;
                     timer0 = now + 3;
                     trg7 = 8;
                 }
@@ -7029,9 +7029,9 @@ public class LevelScript_sn15 : LevelScriptBase
         }
 
 
-        if ((gameover == 1 || gameover == -1) && now > timer0)
+        if ((gameover == 1) && now > timer0)
         {
-            GameOver(gameover);
+            GameOver(1);
             gameover = 2;
         }
         return 1;

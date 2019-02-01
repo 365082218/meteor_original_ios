@@ -69,7 +69,7 @@ public class FightWnd: Window<FightWnd>
     {
         LevelTalkRoot = Global.ldaControlX("LevelTalk", WndObject).transform;
         ctrl = LevelTalkRoot.GetComponent<AutoMsgCtrl>();
-        ctrl.SetConfig(1.5f, 1f);
+        ctrl.SetConfig(2.0f, 1.5f);
         FloatOpen = Control("FloatOpen");
         FloatOpen.GetComponent<Button>().onClick.AddListener(OnChangeActionBarStatus);
         actionStatusBarCtrl = Control("Slots").GetComponent<Animation>();
@@ -101,6 +101,7 @@ public class FightWnd: Window<FightWnd>
         Global.ldaControlX("Status", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnStatusPress);
         Global.ldaControlX("Status", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnStatusRelease);
 
+        Global.ldaControlX("Reborn", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnRebornClick);
         if (MeteorManager.Instance.LocalPlayer != null)
         {
             angryBar.fillAmount = 0.0f;
@@ -130,6 +131,15 @@ public class FightWnd: Window<FightWnd>
         if (BattleStatusWnd.Exist)
         {
             BattleStatusWnd.Instance.Close();
+        }
+    }
+
+    void OnRebornClick()
+    {
+        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+        {
+            if (MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle)
+                MeteorManager.Instance.LocalPlayer.posMng.ChangeAction(CommonAction.Reborn);
         }
     }
     //int currentPosIdx;

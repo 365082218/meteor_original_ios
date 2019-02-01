@@ -97,7 +97,7 @@ public partial class GameBattleEx : MonoBehaviour {
         if (NGUIJoystick.instance)
             NGUIJoystick.instance.Lock(true);
         //如果胜利，且不是最后一关，打开最新关标志.
-        if (result == 1 && GameData.Instance.gameStatus.Level < Global.LEVELMAX)
+        if (result == 1 && (Global.GLevelItem.FuBenID == GameData.Instance.gameStatus.Level) && Global.GLevelItem.FuBenID < Global.LEVELMAX)
         {
             GameData.Instance.gameStatus.Level++;
             GameData.Instance.SaveState();
@@ -323,8 +323,8 @@ public partial class GameBattleEx : MonoBehaviour {
     {
         for (int i = 0; i < colist.Count; i++)
         {
-            //if (colist[i] == null)
-            //    continue;
+            if (colist[i] == null || colist[i].gameObject == null)
+                continue;
             if (!colist[i].enabled)
                 continue;
             for (int j = 0; j < ondamaged.Count; j++)
@@ -486,32 +486,67 @@ public partial class GameBattleEx : MonoBehaviour {
         return hit;
     }
 
+    List<MeteorUnit> hitTarget = new List<MeteorUnit>();
+    List<SceneItemAgent> hitItem = new List<SceneItemAgent>();
     public void AddDamageCheck(MeteorUnit unit, AttackDes attackDef)
     {
         if (unit == null || unit.Dead)
             return;
+        hitTarget.Clear();
+        hitItem.Clear();
         if (unit.GetWeaponType() == (int)EquipWeaponType.Gun)
         {
             if (unit.Attr.IsPlayer)
             {
                 Ray r = CameraFollow.Ins.m_Camera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, DartLoader.MaxDistance));
-                RaycastHit[] allHit = Physics.RaycastAll(r, DartLoader.MaxDistance, 1 << LayerMask.NameToLayer("Bone") | 1 << LayerMask.NameToLayer("Scene") | 1 << LayerMask.NameToLayer("Monster") | 1 << LayerMask.NameToLayer("LocalPlayer"));
+                RaycastHit[] allHit = Physics.RaycastAll(r, DartLoader.MaxDistance, 1 << LayerMask.NameToLayer("Bone") | 1 << LayerMask.NameToLayer("Scene") | 1 << LayerMask.NameToLayer("Monster") | 1 << LayerMask.NameToLayer("LocalPlayer") | 1 << LayerMask.NameToLayer("Trigger"));
                 RaycastHit[] allHitSort = SortRaycastHit(allHit);
+                bool showEffect = false;
                 //先排个序，从近到远
                 for (int i = 0; i < allHitSort.Length; i++)
                 {
-                    if (allHitSort[i].transform.gameObject.layer == LayerMask.NameToLayer("Scene"))
+                    if (allHitSort[i].transform.root.gameObject.layer == LayerMask.NameToLayer("Scene"))
+                    {
+                        //主角可以击中
+                        GameObject other = allHitSort[i].transform.gameObject;
+                        SceneItemAgent it = other.GetComponentInParent<SceneItemAgent>();
+                        if (it != null)
+                        {
+                            //Debug.Log("dart attack sceneitemagent");
+                            if (!hitItem.Contains(it))
+                            {
+                                it.OnDamage(unit, attackDef);
+                                hitItem.Add(it);
+                            }
+                        }
+                        if (!showEffect)
+                        {
+                            SFXLoader.Instance.PlayEffect("GunHit.ef", allHitSort[i].point, true, false);
+                            showEffect = true;
+                        }
                         break;
+                    }
+
                     MeteorUnit unitAttacked = allHitSort[i].transform.gameObject.GetComponentInParent<MeteorUnit>();
                     if (unitAttacked != null)
                     {
-                        if (unit.SameCamp(unitAttacked))
-                            continue;
                         if (unit == unitAttacked)
+                            continue;
+                        if (unit.SameCamp(unitAttacked))
                             continue;
                         if (unitAttacked.Dead)
                             continue;
-                        unitAttacked.OnAttack(unit, attackDef);
+                        if (!hitTarget.Contains(unitAttacked))
+                        {
+                            //在指定位置播放一个特效.
+                            if (!showEffect)
+                            {
+                                SFXLoader.Instance.PlayEffect("GunHit.ef", allHitSort[i].point, true, false);
+                                showEffect = true;
+                            }
+                            unitAttacked.OnAttack(unit, attackDef);
+                            hitTarget.Add(unitAttacked);
+                        }
                     }
                 }
             }
@@ -542,7 +577,7 @@ public partial class GameBattleEx : MonoBehaviour {
                     //先排个序，从近到远
                     for (int i = 0; i < allHitSort.Length; i++)
                     {
-                        if (allHitSort[i].transform.gameObject.layer == LayerMask.NameToLayer("Scene"))
+                        if (allHitSort[i].transform.root.gameObject.layer == LayerMask.NameToLayer("Scene"))
                         {
                             //在指定位置播放一个特效.
                             if (!showEffect)
@@ -551,13 +586,6 @@ public partial class GameBattleEx : MonoBehaviour {
                                 showEffect = true;
                             }
                             break;
-                        }
-
-                        //在指定位置播放一个特效.
-                        if (!showEffect)
-                        {
-                            SFXLoader.Instance.PlayEffect("GunHit.ef", allHitSort[i].point, true, false);
-                            showEffect = true;
                         }
 
                         MeteorUnit unitAttacked = allHitSort[i].transform.gameObject.GetComponentInParent<MeteorUnit>();
@@ -569,7 +597,17 @@ public partial class GameBattleEx : MonoBehaviour {
                                 continue;
                             if (unitAttacked.Dead)
                                 continue;
-                            unitAttacked.OnAttack(unit, attackDef);
+                            if (!hitTarget.Contains(unitAttacked))
+                            {
+                                //在指定位置播放一个特效.
+                                if (!showEffect)
+                                {
+                                    SFXLoader.Instance.PlayEffect("GunHit.ef", allHitSort[i].point, true, false);
+                                    showEffect = true;
+                                }
+                                unitAttacked.OnAttack(unit, attackDef);
+                                hitTarget.Add(unitAttacked);
+                            }
                         }
                     }
                 }
@@ -1304,13 +1342,23 @@ public class ActionConfig
             else if (action[action.Count - 1].type == StackAction.SKILL)
             {
                 MeteorUnit unit = U3D.GetUnit(id);
-                unit.PlaySkill();
+                if (!unit.Dead)
+                    unit.PlaySkill();
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.Aggress)
             {
                 MeteorUnit unit = U3D.GetUnit(id);
-                unit.posMng.ChangeAction(CommonAction.Taunt);
+                if (!unit.Dead)
+                {
+                    //在攻击或防御中,无法嘲讽其他
+                    if (unit.posMng.IsAttackPose() || unit.posMng.IsHurtPose())
+                    {
+
+                    }
+                    else
+                        unit.posMng.ChangeAction(CommonAction.Taunt);
+                }
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.CROUCH)
@@ -1328,7 +1376,8 @@ public class ActionConfig
             {
                 MeteorUnit unit = U3D.GetUnit(id);
                 unit.controller.LockInput(action[action.Count - 1].param == 1);
-                unit.posMng.LinkAction(0);
+                if (!unit.Dead)
+                    unit.posMng.LinkAction(0);
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.GUARD)
@@ -1336,13 +1385,15 @@ public class ActionConfig
                 if (action[action.Count - 1].pause_time > 0)
                 {
                     MeteorUnit unit = U3D.GetUnit(id);
-                    unit.Guard(true);
+                    if (!unit.Dead)
+                        unit.Guard(true);
                     action[action.Count - 1].pause_time -= time;
                 }
                 else
                 {
                     MeteorUnit unit = U3D.GetUnit(id);
-                    unit.Guard(false);
+                    if (!unit.Dead)
+                        unit.Guard(false);
                     action.RemoveAt(action.Count - 1);
                 }
             }
@@ -1375,7 +1426,10 @@ public class ActionConfig
                 MeteorUnit unit = U3D.GetUnit(id);
                 MeteorUnit target = U3D.GetUnit(action[action.Count - 1].param);
                 if (unit != null && target != null)
-                    unit.FaceToTarget(target);
+                {
+                    if (!unit.Dead)
+                        unit.FaceToTarget(target);
+                }
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.Kill)
@@ -1390,7 +1444,7 @@ public class ActionConfig
             {
                 //攻击指定位置
                 MeteorUnit unit = U3D.GetUnit(id);
-                if (unit.robot != null)
+                if (unit.robot != null && !unit.Dead)
                 {
                     if (unit.robot.Status != EAIStatus.AttackTarget)
                     {
@@ -1398,9 +1452,14 @@ public class ActionConfig
                         unit.robot.AttackTarget = action[action.Count - 1].target;
                         unit.robot.ChangeState(EAIStatus.AttackTarget);
                     }
-
+                    //部分情况下，子状态不正确会导致很多奇怪的情况
+                    if (unit.robot.SubStatus != EAISubStatus.AttackGotoTarget && unit.robot.SubStatus != EAISubStatus.AttackTarget && unit.robot.SubStatus != EAISubStatus.AttackTargetSubRotateToTarget)
+                        unit.robot.SubStatus = EAISubStatus.AttackGotoTarget;
                     if (unit.robot.OnAttackTarget())
+                    {
                         action.RemoveAt(action.Count - 1);
+                        unit.robot.ChangeState(EAIStatus.Wait);
+                    }
                 }
             }
             else if (action[action.Count - 1].type == StackAction.Use)

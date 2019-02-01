@@ -92,6 +92,8 @@ public class GameState
         }
     }//无限气.
     public bool EnableItemName;//查看掉落武器的名称.-后续分支可能会加入武器装备养成元素.
+
+    //一击必杀
     bool _EnableGodMode;
     public bool EnableGodMode
     {
@@ -109,7 +111,26 @@ public class GameState
             }
             _EnableGodMode = value;
         }
-    }//一击必杀
+    }
+    //无敌
+    bool _GodLike;
+    public bool GodLike
+    {
+        get
+        {
+            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+                return false;
+            return _GodLike;
+        }
+        set
+        {
+            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            {
+                return;
+            }
+            _GodLike = value;
+        }
+    }
     public MyVector2 JoyAnchor;//摇杆坐标.
     public MyVector2 AxisSensitivity;//轴视角转向灵敏度
     public string MeteorVersion;
@@ -408,6 +429,7 @@ public class GameData:Singleton<GameData>
             gameStatus.ServerList = new List<ServerInfo>();//用户自定义的服务器列表.
             gameStatus.ServerList.Add(svr);
             gameStatus.defaultServerIdx = 0;//指向默认，修改仅设置该值.
+            gameStatus.GodLike = false;
             gameStatus.PetOn = false;
             gameStatus.DisableJoystick = true;
             gameStatus.DisableParticle = true;

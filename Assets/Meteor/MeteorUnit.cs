@@ -561,7 +561,6 @@ public partial class MeteorUnit : MonoBehaviour
                 index = i;
             }
         }
-
     }
 
     //选择一个敌方目标
@@ -856,7 +855,7 @@ public partial class MeteorUnit : MonoBehaviour
     public const float yLimitMax = 500;//最大向上速度
     public const float yClimbLimitMax = 180.0f;
     public const float yClimbEndLimit = -30.0f;//爬墙时,Y速度到达此速度，开始计时，时间到就从墙壁落下
-    public const float JumpLimit = 65f;
+    public const float JumpLimit = 68f;
     //角色跳跃高度74，是以脚趾算最低点，倒过来算出dbase,则需要减去差值。
     public bool IgnoreGravity = false;
     //物体动量(质量*速度)的改变,等于物体所受外力冲量的总和.这就是动量定理
@@ -999,8 +998,10 @@ public partial class MeteorUnit : MonoBehaviour
     }
 
     //专门用来播放左转，右转动画的，直接面对角色不要调用这个。
-    public void SetOrientation(float orient)
+    public void SetOrientation(float orient, bool ai = true)
     {
+        if (ai && posMng != null && posMng.onhurt)
+            return;
         Quaternion quat = Quaternion.identity;
         try
         {
@@ -1126,6 +1127,8 @@ public partial class MeteorUnit : MonoBehaviour
     {
         Vector3 vdiff = transform.position - target;
         vdiff.y = 0;
+        if (vdiff == Vector3.zero)
+            return;
         transform.rotation = Quaternion.LookRotation(new Vector3(vdiff.x, 0, vdiff.z), Vector3.up);
         if (this == MeteorManager.Instance.LocalPlayer)
         {
@@ -1415,7 +1418,7 @@ public partial class MeteorUnit : MonoBehaviour
 
     //处理上升途中的跳跃键，查看周围有无可伸腿踩的点，如果有，则判断方向，切换姿势，并给一个速度
     //面向左45，面向，面向右45，查看是否
-    public void ProcessJump2(bool minVelocity)
+    public void ProcessJump2()
     {
         if (Climbing)
         {
@@ -1423,18 +1426,18 @@ public partial class MeteorUnit : MonoBehaviour
             {
                 //倒跳
                 SetWorldVelocity(transform.forward * Jump2Velocity);
-                Jump(minVelocity, 1, CommonAction.JumpBack);
+                Jump2(JumpLimit / 3, CommonAction.JumpBack);
             }
             else if (posMng.mActiveAction.Idx == CommonAction.ClimbRight)
             {
                 //像右
                 SetWorldVelocity(-transform.right * Jump2Velocity);
-                Jump(minVelocity, 1, CommonAction.WallLeftJump);
+                Jump2(JumpLimit / 3, CommonAction.WallLeftJump);
             }
             else if (posMng.mActiveAction.Idx == CommonAction.ClimbLeft)
             {
                 SetWorldVelocity(transform.right * Jump2Velocity);
-                Jump(minVelocity, 1, CommonAction.WallRightJump);
+                Jump2(JumpLimit / 3, CommonAction.WallRightJump);
             }
         }
         else
@@ -1466,16 +1469,16 @@ public partial class MeteorUnit : MonoBehaviour
                 case -2:
                 case -1:
                     SetWorldVelocity(Vector3.Normalize(vec) * Jump2Velocity);
-                    Jump(minVelocity, 1, CommonAction.WallLeftJump);
+                    Jump2(JumpLimit / 2, CommonAction.WallLeftJump);
                     break;
                 case 0:
                     SetWorldVelocity(Vector3.Normalize(vec) * Jump2Velocity);
-                    Jump(minVelocity, 1, CommonAction.JumpBack);
+                    Jump2(JumpLimit / 2, CommonAction.JumpBack);
                     break;
                 case 1:
                 case 2:
                     SetWorldVelocity(Vector3.Normalize(vec) * Jump2Velocity);
-                    Jump(minVelocity, 1, CommonAction.WallRightJump);
+                    Jump2(JumpLimit / 2, CommonAction.WallRightJump);
                     break;
             }
         }
@@ -1488,18 +1491,18 @@ public partial class MeteorUnit : MonoBehaviour
         {
             //倒跳
             SetWorldVelocity(hitNormal * Jump2Velocity);
-            Jump(minVelocity, 1, CommonAction.JumpBack);
+            Jump2(JumpLimit / 2, CommonAction.JumpBack);
         }
         else if (posMng.mActiveAction.Idx == CommonAction.ClimbRight)
         {
             //像右
             SetWorldVelocity(Quaternion.AngleAxis(-45, Vector3.up) * hitNormal * Jump2Velocity);
-            Jump(minVelocity, 1, CommonAction.WallLeftJump);
+            Jump2(JumpLimit / 2, CommonAction.WallLeftJump);
         }
         else if (posMng.mActiveAction.Idx == CommonAction.ClimbLeft)
         {
             SetWorldVelocity(Quaternion.AngleAxis(45, Vector3.up) * hitNormal * Jump2Velocity);
-            Jump(minVelocity, 1, CommonAction.WallRightJump);
+            Jump2(JumpLimit / 2, CommonAction.WallRightJump);
         }
     }
 
@@ -1509,10 +1512,13 @@ public partial class MeteorUnit : MonoBehaviour
         //return;
         Vector3 vec = transform.position - hitPoint;
         vec.y = 0;
-        SetWorldVelocity(Vector3.Normalize(vec) * 50 * scale);
+        //恰好碰撞点，就是自己所处的坐标,把角色向前推一定距离.
+        if (vec == Vector3.zero)
+            vec = -transform.forward;
+        SetWorldVelocity(Vector3.Normalize(vec) * 30 * scale);
         //如果在墙壁处被推开
-        if (robot != null)
-            robot.ChangeState(EAIStatus.PushByWall);
+        //if (robot != null)
+        //    robot.ChangeState(EAIStatus.PushByWall);
         //WsGlobal.AddDebugLine(hitPoint, hitPoint + Vector3.Normalize(vec) * 30, Color.red, "pushDir", 10);
         //Debug.LogError("被墙壁推开");
         //RaycastHit hit;
@@ -1852,6 +1858,19 @@ public partial class MeteorUnit : MonoBehaviour
         return ret;
     }
 
+    //踏墙壁跳跃,y为正常跳跃高度倍数.
+    public void Jump2(float y, int act = CommonAction.Jump)
+    {
+        canControlOnAir = true;
+        OnGround = false;
+        ImpluseVec.y = CalcVelocity(y);
+        posMng.JumpTick = 0.0f;
+        posMng.CanAdjust = true;
+        posMng.CheckClimb = true;
+        posMng.ChangeAction(act, 0.1f);
+        charLoader.SetActionScale(y / JumpLimit);
+    }
+
     //给3个参数,Y轴完整跳跃的高度缩放(就是按下跳跃的压力缩放)，前方速度，右方速度
     public void Jump(bool Short, float ShortScale, int act = CommonAction.Jump)
     {
@@ -1860,24 +1879,90 @@ public partial class MeteorUnit : MonoBehaviour
         float jumpScale = Short ? (ShortScale * 0.32f) : 1.0f;
         float h = JumpLimit * jumpScale;
         ImpluseVec.y = CalcVelocity(h);
-        //ImpluseVec.y = 0.0f;
         posMng.JumpTick = 0.0f;
         posMng.CanAdjust = true;
         posMng.CheckClimb = true;
         posMng.ChangeAction(act, 0.1f);
         charLoader.SetActionScale(jumpScale);
-        //charLoader.SetActionQuickChange(jumpScale);
     }
 
     public void ReleaseDefence()
     {
         posMng.ChangeAction(CommonAction.Idle, 0.1f);
-    } 
+    }
+
+    MeteorUnit RebornTarget = null;
+    SFXEffectPlay RebornEffect = null;
+    public void SelectRebornTarget()
+    {
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            return;
+        RebornTarget = null;
+        float dis = 50;
+        int index = -1;
+        for (int i = 0; i < MeteorManager.Instance.DeadUnits.Count; i++)
+        {
+            MeteorUnit unit = MeteorManager.Instance.DeadUnits[i];
+            if (unit == this)
+                continue;
+            if (!SameCamp(unit))
+                continue;
+            if (!unit.Dead)
+                continue;
+            float d = Vector3.Distance(transform.position, MeteorManager.Instance.DeadUnits[i].transform.position);
+            if (dis > d)
+            {
+                dis = d;
+                index = i;
+            }
+        }
+        if (index >= 0 && index < MeteorManager.Instance.DeadUnits.Count)
+        {
+            RebornTarget = MeteorManager.Instance.DeadUnits[index];
+            RebornEffect = SFXLoader.Instance.PlayEffect("ReBorn.ef", RebornTarget.transform.position, true);
+        }
+    }
+    public void RebornFriend()
+    {
+        if (RebornTarget != null)
+        {
+            RebornTarget.OnReborn();
+            RebornTarget = null;
+        }
+        if (RebornEffect != null)
+        {
+            GameObject.Destroy(RebornEffect.gameObject);
+            RebornEffect = null;
+        }
+    }
+
+    //被复活.
+    public void OnReborn()
+    {
+        Dead = false;
+        posMng.WaitPause(false);
+        posMng.OnReborn();
+        EnableAI(true);
+        MeteorManager.Instance.UnitInfos.Add(this);
+        MeteorManager.Instance.DeadUnits.Remove(this);
+        Attr.OnReborn();
+        charController.enabled = true;
+        MeteorManager.Instance.PhysicalIgnore(this, false);
+        //闪现到出生点
+        if (Global.GLevelItem.DisableFindWay == 1)
+            return;
+        if (Attr.SpawnPoint < Global.GLevelItem.wayPoint.Count)
+            transform.position = Global.GLevelItem.wayPoint[Attr.SpawnPoint].pos;
+        else
+            transform.position = Global.GLevelItem.wayPoint[0].pos;
+    }
 
     public void OnDead(MeteorUnit killer = null)
     {
         if (!Dead)
         {
+            if (Attr.IsPlayer && GameData.Instance.gameStatus.GodLike)
+                return;
             Dead = true;
             if (killer == null)
             {
@@ -1887,7 +1972,7 @@ public partial class MeteorUnit : MonoBehaviour
             {
                 GameOverlayWnd.Instance.InsertSystemMsg(string.Format("{0}击败{1}", killer.name, name));
             }
-            posMng.ChangeAction(CommonAction.Dead);
+            posMng.ChangeAction(CommonAction.Dead, 0.1f);
             posMng.WaitPause();//等待这个动作完毕后，暂停播放
             posMng.OnDead();
             Attr.ReduceHp(Attr.hpCur);
@@ -2364,6 +2449,8 @@ public partial class MeteorUnit : MonoBehaviour
         if (robot != null)
             robot.OnDamaged(attacker);
 
+        if (Attr.IsPlayer && GameData.Instance.gameStatus.GodLike)
+            return;
         //任意受击，都会让角色退出持枪预备姿势
         SetGunReady(false);
         if (attacker == null)
@@ -2552,6 +2639,8 @@ public partial class MeteorUnit : MonoBehaviour
 
         //Debug.Log(string.Format("player:{0} attacked by:{1}", name, attacker == null ? "null": attacker.name));
         //任意受击，都会让角色退出持枪预备姿势
+        if (Attr.IsPlayer && GameData.Instance.gameStatus.GodLike)
+            return;
         SetGunReady(false);
         if (attacker == null)
         {

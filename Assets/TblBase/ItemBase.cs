@@ -50,6 +50,8 @@ public enum FrameEvent
     ChangeWeaponPose570_0 = 570,//勾魂锁-拔刀-持枪
     ChangeWeaponPose451_0 = 451,//居合-大招-切换为拔刀
     ChangeWeaponPose487_2 = 487,//乾坤大招完毕-最后一帧切换为收刀
+    RebornSelectFriend = 22,//运气出招第一帧播放复活特效.
+    RebornFriend = 34,//运气收招最后一帧复活同伴.
 }
 
 public class ActionEvent : Singleton<ActionEvent>
@@ -106,7 +108,7 @@ public class ActionEvent : Singleton<ActionEvent>
     {
         if (FirstEvents == null)
             FirstEvents = new List<int>() { (int)FrameEvent.ChangeWeaponPos2, (int)FrameEvent.ChangeWeaponPos3, (int)FrameEvent.ChangeWeaponPos5,(int)FrameEvent.ChangeWeaponPos4,
-            (int)FrameEvent.ChangeWeaponPos449_0, (int)FrameEvent.ChangeWeaponPos450_0,(int)FrameEvent.ChangeWeaponPos6, (int)FrameEvent.ChangeWeaponPose570_0,
+            (int)FrameEvent.ChangeWeaponPos449_0, (int)FrameEvent.ChangeWeaponPos450_0,(int)FrameEvent.ChangeWeaponPos6, (int)FrameEvent.ChangeWeaponPose570_0,(int)FrameEvent.RebornSelectFriend
              };
         if (!FirstEvents.Contains(Action))
             return;
@@ -136,6 +138,9 @@ public class ActionEvent : Singleton<ActionEvent>
             case FrameEvent.ChangeWeaponPose570_0:
                 owner.ChangeWeaponPos(0);
                 break;
+            case FrameEvent.RebornSelectFriend:
+                owner.SelectRebornTarget();
+                break;
         }
     }
     
@@ -157,7 +162,7 @@ public class ActionEvent : Singleton<ActionEvent>
         if (LastEvents == null)
         {
             LastEvents = new List<int>() { (int)FrameEvent.ChangeWeapon0, (int)FrameEvent.ChangeWeapon1, (int)FrameEvent.ChangeWeaponPos0, (int)FrameEvent.ChangeWeaponPos5,
-                (int)FrameEvent.ChangeWeaponPose570_0, (int)FrameEvent.ChangeWeaponPose451_0, (int)FrameEvent.ChangeWeaponPos7};
+                (int)FrameEvent.ChangeWeaponPose570_0, (int)FrameEvent.ChangeWeaponPose451_0, (int)FrameEvent.ChangeWeaponPos7, (int) FrameEvent.RebornFriend };
         }
 
         if (!LastEvents.Contains(Action))
@@ -195,6 +200,9 @@ public class ActionEvent : Singleton<ActionEvent>
                 break;
             case FrameEvent.ChangeWeaponPose451_0:
                 owner.ChangeWeaponPos(0);
+                break;
+            case FrameEvent.RebornFriend:
+                owner.RebornFriend();
                 break;
         }
     }

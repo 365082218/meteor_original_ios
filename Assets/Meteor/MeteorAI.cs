@@ -18,7 +18,7 @@ public enum EAIStatus
     Mew,//喵
     GetItem,//取得场景道具-最近的，可拾取的(未打碎的箱子不算在内).
     AttackTarget,//攻击指定位置.
-    PushByWall,//被墙壁推挤.
+    //PushByWall,//被墙壁推挤.
 }
 
 public enum EAISubStatus
@@ -120,6 +120,8 @@ public class MeteorAI {
             if (GameBattleEx.Instance.IsPerforming(owner.InstanceId))
             {
                 //Debug.Log(string.Format("unit:{0} IsPerforming", owner.name));
+                //检查是否在跌倒状态，该状态会打断角色的行为.
+                DoProcessStruggle();
                 return;
             }
         }
@@ -131,31 +133,15 @@ public class MeteorAI {
         if (owner.charLoader.IsInStraight())
             return;
         //如果处于跌倒状态.A处理从地面站立,僵直过后才能正常站立 B，在后面的逻辑中，决定是否用爆气解除跌倒状态
-        if (owner.posMng.mActiveAction.Idx == CommonAction.Struggle || owner.posMng.mActiveAction.Idx == CommonAction.Struggle0)
-        {
-            if (struggleCoroutine == null)
-                struggleCoroutine = owner.StartCoroutine(ProcessStruggle());
-            else
-            {
-                if (waitStruggleDone != 0)
-                {
-                    waitStruggleDone--;
-                    return;
-                }
-                owner.StopCoroutine(struggleCoroutine);
-                struggleCoroutine = null;
-                waitStruggleDone = 10;
-            }
-            return;
-        }
+        DoProcessStruggle();
 
-        if (Status == EAIStatus.PushByWall)
-        {
-            if (owner.OnTouchWall)
-                return;
-            else
-                ChangeState(EAIStatus.Idle);
-        }
+        //if (Status == EAIStatus.PushByWall)
+        //{
+        //    if (owner.OnTouchWall)
+        //        return;
+        //    else
+        //        ChangeState(EAIStatus.Idle);
+        //}
         //行为优先级 
         //AI强制行为(攻击指定位置，Kill追杀（不论视野）攻击 ) > 战斗 > 跟随 > 巡逻 > 
         if (Status == EAIStatus.Patrol)
@@ -286,6 +272,27 @@ public class MeteorAI {
 
     }
 
+    //处理倒地后的挣扎起身
+    void DoProcessStruggle()
+    {
+        if (owner.posMng.mActiveAction.Idx == CommonAction.Struggle || owner.posMng.mActiveAction.Idx == CommonAction.Struggle0)
+        {
+            if (struggleCoroutine == null)
+                struggleCoroutine = owner.StartCoroutine(ProcessStruggle());
+            else
+            {
+                if (waitStruggleDone != 0)
+                {
+                    waitStruggleDone--;
+                    return;
+                }
+                owner.StopCoroutine(struggleCoroutine);
+                struggleCoroutine = null;
+                waitStruggleDone = 15;
+            }
+            return;
+        }
+    }
     //逃跑
     void OnDodge()
     {
@@ -363,7 +370,7 @@ public class MeteorAI {
                     //模拟跳跃键，移动到下一个位置.还得按住上
                     if (curIndex != -1)
                     {
-                        if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
+                        if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround())
                         {
                             AIJump();
                             AIJumpDelay = 0.0f;
@@ -442,9 +449,10 @@ public class MeteorAI {
         }
         if (LookRotateToTargetCoroutine == null && owner.GetLockedTarget() == null)
         {
+            if (owner.posMng.mActiveAction.Idx != CommonAction.Idle)
+                return;
             float angle = Random.Range(-60, 60);
             Stop();//停止移动.
-            owner.posMng.ChangeAction();
             LookRotateToTargetCoroutine = owner.StartCoroutine(LookRotateToTarget(angle));
         }
     }
@@ -642,6 +650,7 @@ public class MeteorAI {
     {
         switch (SubStatus)
         {
+            default:
             case EAISubStatus.AttackGotoTarget:
                 if (Path.Count == 0)
                     RefreshPath(owner.mSkeletonPivot, AttackTarget);
@@ -698,7 +707,7 @@ public class MeteorAI {
                     //模拟跳跃键，移动到下一个位置.还得按住上
                     if (curIndex != -1)
                     {
-                        if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
+                        if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround())
                         {
                             AIJump();
                             AIJumpDelay = 0.0f;
@@ -882,7 +891,7 @@ public class MeteorAI {
             //模拟跳跃键，移动到下一个位置.还得按住上
             if (curIndex != -1)
             {
-                if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
+                if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround())
                 {
                     AIJump();
                     AIJumpDelay = 0.0f;
@@ -964,7 +973,7 @@ public class MeteorAI {
             //模拟跳跃键，移动到下一个位置.还得按住上
             if (curIndex != -1 && curIndex < Path.Count && targetIndex < Path.Count)
             {
-                if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
+                if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround())
                 {
                     AIJump();
                     AIJumpDelay = 0.0f;
@@ -1355,14 +1364,60 @@ public class MeteorAI {
     }
 
     //撞到墙壁.如果在移动到目标更远处时，切换为攻击状态，避免一直对着墙跑.
+    float touchLast = 0.0f;
+    const float touchWallLimit = 5.0f;
     public void CheckStatus()
     {
-        if (Status == EAIStatus.Fight && SubStatus == EAISubStatus.FightGotoPosition && owner.OnTouchWall)
+        if (owner.OnTouchWall)
+            touchLast += Time.deltaTime;
+        else
+            touchLast = 0.0f;
+
+        if (touchLast >= touchWallLimit)
         {
-            StopCoroutine();
-            Stop();
-            ResetAIKey();
-            ChangeState(EAIStatus.Wait);
+            Debug.Log("长时间靠墙壁引发完全重新寻路.");
+            if (Status == EAIStatus.Fight && (SubStatus == EAISubStatus.FightGotoPosition || SubStatus == EAISubStatus.FightGotoTarget))
+            {
+                StopCoroutine();
+                Stop();
+                ResetAIKey();
+                ChangeState(EAIStatus.Wait);
+                Path.Clear();
+            }
+            else if (Status == EAIStatus.Follow)
+            {
+                StopCoroutine();
+                Stop();
+                ResetAIKey();
+                ChangeState(EAIStatus.Wait);
+                Path.Clear();
+            }
+            else if (Status == EAIStatus.Patrol)
+            {
+                StopCoroutine();
+                Stop();
+                ResetAIKey();
+                ChangeState(EAIStatus.Wait);
+                curIndex = -1;
+                targetIndex = -1;
+            }
+            else if (Status == EAIStatus.GetItem)
+            {
+                StopCoroutine();
+                Stop();
+                ResetAIKey();
+                ChangeState(EAIStatus.Wait);
+                Path.Clear();
+            }
+            else if (Status == EAIStatus.AttackTarget)
+            {
+                StopCoroutine();
+                Stop();
+                ResetAIKey();
+                ChangeState(EAIStatus.Wait);
+                Path.Clear();
+            }
+            touchLast = 0.0f;
         }
     }
     //离开战斗目标。可能是拿的远程武器，也可能是状态不好要逃跑.
@@ -1501,6 +1556,11 @@ public class MeteorAI {
                     if (curIndex == -1)
                         targetIndex = 0;
 
+                    if (targetIndex < 0 || targetIndex >= Path.Count)
+                    {
+                        Debug.LogError("follow path idx error");
+                        return;
+                    }
                     //检查这一帧是否会走过目标，因为跨步太大.
                     NextFramePos = Path[targetIndex].pos - owner.mSkeletonPivot;
                     NextFramePos.y = 0;
@@ -1525,7 +1585,7 @@ public class MeteorAI {
                     //模拟跳跃键，移动到下一个位置.还得按住上
                     if (curIndex != -1)
                     {
-                        if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
+                        if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround())
                         {
                             AIJump();
                             AIJumpDelay = 0.0f;
@@ -1623,7 +1683,7 @@ public class MeteorAI {
                         //模拟跳跃键，移动到下一个位置.还得按住上
                         if (curIndex != -1)
                         {
-                            if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
+                            if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround())
                             {
                                 AIJump();
                                 AIJumpDelay = 0.0f;
@@ -1679,7 +1739,10 @@ public class MeteorAI {
 
     public void FollowTarget(int target)
     {
-        followTarget = U3D.GetUnit(target);
+        MeteorUnit want = U3D.GetUnit(target);
+        if (want != null && MeteorManager.Instance.LeavedUnits.Contains(want))
+            return;
+        followTarget = want;
         ChangeState(EAIStatus.Follow);
         SubStatus = EAISubStatus.FollowGotoTarget;
     }
@@ -1738,7 +1801,9 @@ public class MeteorAI {
     //原地不动-
     void OnWait()
     {
-        
+        //当动作不是待机时，不许进入四处看之类的状态.
+        if (owner.posMng.mActiveAction.Idx != CommonAction.Idle)
+            return;
         if (lookTick >= 3.0f)
         {
             int lookChance = Random.Range(0, 100);
@@ -2659,7 +2724,7 @@ public class MeteorAI {
                 //模拟跳跃键，移动到下一个位置.还得按住上
                 if (curPatrolIndex != -1)
                 {
-                    if (PathMng.Instance.GetWalkMethod(PatrolPath[curPatrolIndex].index, PatrolPath[targetPatrolIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
+                    if (PathMng.Instance.GetWalkMethod(PatrolPath[curPatrolIndex].index, PatrolPath[targetPatrolIndex].index) == WalkType.Jump && owner.IsOnGround())
                     {
                         AIJump();
                         AIJumpDelay = 0.0f;
@@ -2725,7 +2790,7 @@ public class MeteorAI {
                     //模拟跳跃键，移动到下一个位置.还得按住上
                     if (curIndex != -1)
                     {
-                        if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround() && AIJumpDelay > 2.5f)
+                        if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround())
                         {
                             AIJump();
                             AIJumpDelay = 0.0f;
@@ -2762,10 +2827,12 @@ public class MeteorAI {
             JumpCoroutine = owner.StartCoroutine(AIJumpCorout());
     }
 
+    //满距离跳跃.
     IEnumerator AIJumpCorout()
     {
         owner.controller.Input.OnKeyDown(EKeyList.KL_Jump, true);
-        for (int i = 0; i < 12; i++)
+        int k = AppInfo.Instance.GetWaitForNextInput();
+        for (int i = 0; i < k; i++)
             yield return 0;
         owner.controller.Input.OnKeyUp(EKeyList.KL_Jump);
         JumpCoroutine = null;

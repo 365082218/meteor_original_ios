@@ -375,7 +375,7 @@ public class CameraFollow : MonoBehaviour {
                 yRotate = Input.GetAxis("Mouse X");
 #endif
                 if (yRotate != 0)
-                    MeteorManager.Instance.LocalPlayer.SetOrientation(yRotate);
+                    MeteorManager.Instance.LocalPlayer.SetOrientation(yRotate, false);
             }
             float xRotate = 0;
 #if STRIP_KEYBOARD

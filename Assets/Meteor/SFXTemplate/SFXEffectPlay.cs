@@ -79,7 +79,7 @@ public class SFXEffectPlay : MonoBehaviour {
                 for (int i = 0; i < played.Count; i++)
                     Destroy(played[i].gameObject);
                 played.Clear();
-                if (owner == null)
+                if (owner == null && tag != "SceneItemAgent")
                     DestroyObject(gameObject);
                 else
                     Destroy(this);

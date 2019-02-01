@@ -15,13 +15,9 @@ public class ScriptInputWnd:Window<ScriptInputWnd>
         Control("DoScript").GetComponent<Button>().onClick.AddListener(() => {
             try
             {
-                if (scriptInput.text == "666")
-                {
-                    GameObject obj = GameObject.Instantiate(Resources.Load("Bullet")) as GameObject;
-                    result.text = "成功召唤滑稽王";
-                }
-                ScriptMng.ins.CallString(scriptInput.text);
-                result.text = "脚本成功执行";
+                if (!UseCheatCode(scriptInput.text))
+                    ScriptMng.ins.CallString(scriptInput.text);
+                result.text = "秘籍成功执行";
             }
             catch (Exception exp)
             {
@@ -30,5 +26,24 @@ public class ScriptInputWnd:Window<ScriptInputWnd>
         });
         result = Control("Result").GetComponent<Text>();
         return true;
+    }
+
+    //使用作弊码
+    bool UseCheatCode(string cheatcode)
+    {
+        bool ret = false;
+        if (CheatOK(cheatcode, "god"))
+        {
+            U3D.GodLike();
+            ret = true;
+        }
+        return ret;
+    }
+
+    bool CheatOK(string cheat, string code)
+    {
+        if (cheat.ToUpper() == code || cheat.ToLower() == code)
+            return true;
+        return false;
     }
 }

@@ -967,7 +967,7 @@ public class CharacterLoader : MonoBehaviour
         else
         {
             if (po != null && po.Link != 0)
-                //一些动作，默认连接其他动作，类似485,485最后一帧会收刀，收刀会切换武器为2
+                //一些动作，默认连接其他动作，类似,486第一帧会收刀，收刀会切换武器为2
                 ActionEvent.HandlerPoseAction(mOwner, po.Link);
         }
         //一些招式，动作结束会给使用者加上BUFF，另外一些招式，会让受击方得到BUFF

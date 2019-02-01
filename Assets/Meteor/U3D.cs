@@ -1664,5 +1664,18 @@ public class U3D : MonoBehaviour {
         GameData.Instance.gameStatus.Level = Global.LEVELMAX;
     }
 
-    
+    public static bool IsUnitDead(int instanceid)
+    {
+        MeteorUnit u = GetUnit(instanceid);
+        if (u)
+            return u.Dead;
+        return true;
+    }
+    //以下为脚本系统执行面板里能响应的操作
+    public static void GodLike()
+    {
+        GameData.Instance.gameStatus.GodLike = !GameData.Instance.gameStatus.GodLike;
+        U3D.InsertSystemMsg(GameData.Instance.gameStatus.GodLike ? "开启[无敌]" : "关闭[无敌]");
+    }
+
 }

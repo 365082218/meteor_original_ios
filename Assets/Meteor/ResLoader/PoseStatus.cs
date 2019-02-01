@@ -227,6 +227,11 @@ public class PoseStatus
         OnActionFinishedEvt += evt;
     }
 
+    public void ClearEvent()
+    {
+        OnActionFinishedEvt = null;
+    }
+
     //这个动作做完后，链接到其他动作上.
     public void LinkAction(int idx)
     {
@@ -309,7 +314,10 @@ public class PoseStatus
         {
             //死亡后接事件
             if (OnActionFinishedEvt != null)
+            {
                 OnActionFinishedEvt();//关闭碰撞盒
+                OnActionFinishedEvt = null;
+            }
         }
         else
         {
@@ -439,9 +447,15 @@ public class PoseStatus
     }
 
     bool waitPause = false;
-    public void WaitPause()
+    public void WaitPause(bool wait = true)
     {
-        waitPause = true;//等待
+        waitPause = wait;//等待
+    }
+
+    public void OnReborn()
+    {
+        CanControl = CanMove = true;
+        ClearEvent();
     }
 
     public void OnDead()
@@ -486,7 +500,7 @@ public class PoseStatus
         //if (!_Self.Attr.IsPlayer && _Self.posMng != null && _Self.posMng.mActiveAction != null && _Self.posMng.mActiveAction.Idx == CommonAction.GunIdle && idx != CommonAction.GunIdle)
         //    Debug.LogError("idx:" + idx);
         //if (_Self != null && _Self.Attr.IsPlayer && _Self.posMng != null && _Self.posMng.mActiveAction != null && _Self.posMng.mActiveAction.Idx + 1 == idx && idx > 150)
-        //    
+        //
         //本局游戏已有结果,播放嘲讽动画.
         if (GameBattleEx.Instance != null && GameBattleEx.Instance.BattleFinished() && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle))
         {

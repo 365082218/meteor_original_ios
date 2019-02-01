@@ -486,14 +486,14 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
             {
                 if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_Click, Time.deltaTime))
                 {
-                    Debug.LogError("ProcessTouchWallJump");
-                    Owner.ProcessTouchWallJump(false);
+                    //Debug.LogError("ProcessTouchWallJump");
+                    Owner.ProcessTouchWallJump(true);
                 }
             }
             else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_Click, Time.deltaTime))
             {
-                Debug.LogError("ProcessJump2");
-                Owner.ProcessJump2(false);
+                //Debug.LogError("ProcessJump2");
+                Owner.ProcessJump2();
             }
         }
         else if (posMng.mActiveAction.Idx >= CommonAction.Jump && posMng.mActiveAction.Idx <= CommonAction.WallLeftJump)
@@ -506,7 +506,7 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
             {
                 if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_Click, Time.deltaTime))
                 {
-                    Owner.ProcessJump2(true);
+                    Owner.ProcessJump2();
                 }
             }
         }
