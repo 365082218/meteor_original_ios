@@ -126,6 +126,10 @@ public class MeteorAI {
             }
         }
 
+        if (owner.OnTouchWall)
+            touchLast += Time.deltaTime;
+        else
+            touchLast = 0.0f;
         ChangeWeaponTick -= Time.deltaTime;
         AIJumpDelay += Time.deltaTime;
         lookTick += Time.deltaTime;
@@ -288,7 +292,7 @@ public class MeteorAI {
                 }
                 owner.StopCoroutine(struggleCoroutine);
                 struggleCoroutine = null;
-                waitStruggleDone = 15;
+                waitStruggleDone = 2 * AppInfo.Instance.GetWaitForNextInput();
             }
             return;
         }
@@ -1368,11 +1372,6 @@ public class MeteorAI {
     const float touchWallLimit = 5.0f;
     public void CheckStatus()
     {
-        if (owner.OnTouchWall)
-            touchLast += Time.deltaTime;
-        else
-            touchLast = 0.0f;
-
         if (touchLast >= touchWallLimit)
         {
             Debug.Log("长时间靠墙壁引发完全重新寻路.");
@@ -1440,7 +1439,7 @@ public class MeteorAI {
         {
             //Debug.LogError("fight leave");
             Stop();
-            TargetPos = PathMng.Instance.GetNearestWayPoint(fightTarget.mSkeletonPivot);
+            TargetPos = PathMng.Instance.GetNearestWayPoint(fightTarget.mSkeletonPivot, fightTarget);
             if (TargetPos == Vector3.zero)
             {
                 ChangeState(EAIStatus.Fight);
@@ -1528,7 +1527,7 @@ public class MeteorAI {
                     return;
                 }
 
-                int cur = PathMng.Instance.GetWayIndex(followTarget.mSkeletonPivot);
+                int cur = PathMng.Instance.GetWayIndex(followTarget.mSkeletonPivot, followTarget);
                 if (Path.Count == 0)
                     RefreshPath(owner.mSkeletonPivot, followTarget.mSkeletonPivot);
                 else if (lastFollowTargetIndex != cur)
@@ -1762,13 +1761,10 @@ public class MeteorAI {
             struggleKey[4] = EKeyList.KL_Jump;
         }
         int k = Random.Range(0, 5);
-        yield return 0;
         while (true)
         {
             yield return 0;
-            yield return 0;
             owner.controller.Input.OnKeyDown(struggleKey[k], true);
-            yield return 0;
             yield return 0;
             owner.controller.Input.OnKeyUp(struggleKey[k]);
             break;
@@ -2573,7 +2569,7 @@ public class MeteorAI {
     float AIJumpDelay = 0.0f;
     int GetPatrolIndex()
     {
-        int k = PathMng.Instance.GetWayIndex(owner.mSkeletonPivot);
+        int k = PathMng.Instance.GetWayIndex(owner.mSkeletonPivot, owner);
         for (int i = 0; i < PatrolPath.Count; i++)
         {
             if (PatrolPath[i].index == k)

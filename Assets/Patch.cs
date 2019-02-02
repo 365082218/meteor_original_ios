@@ -23,6 +23,8 @@ public class Patch : MonoBehaviour {
         ResMng.Reload();
         StartCoroutine(LoadData());
         Global.Init();//加载全局表.
+        SoundManager.Instance.SetMusicVolume(GameData.Instance.gameStatus.MusicVolume);
+        SoundManager.Instance.SetSoundVolume(GameData.Instance.gameStatus.SoundVolume);
     }
 	
 	// Update is called once per frame

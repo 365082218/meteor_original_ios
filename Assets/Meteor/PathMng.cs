@@ -23,8 +23,8 @@ public class PathMng:Singleton<PathMng>
 
     public void FindPath(MeteorUnit user, Vector3 source, Vector3 target, ref List<WayPoint> wp)
     {
-        int startPathIndex = GetWayIndex(source);
-        int endPathIndex = GetWayIndex(target);
+        int startPathIndex = GetWayIndex(source, user);
+        int endPathIndex = GetWayIndex(target, null);
         user.robot.lastFollowTargetIndex = endPathIndex;
         looked.Clear();
         wp.Clear();
@@ -33,8 +33,8 @@ public class PathMng:Singleton<PathMng>
 
     public void FindPathForPet(PetController user, Vector3 source, Vector3 target, ref List<WayPoint> wp)
     {
-        int startPathIndex = GetWayIndex(source);
-        int endPathIndex = GetWayIndex(target);
+        int startPathIndex = GetWayIndex(source, null);
+        int endPathIndex = GetWayIndex(target, null);
         user.lastFollowWayPointIdx = endPathIndex;
         looked.Clear();
         wp.Clear();
@@ -410,9 +410,9 @@ public class PathMng:Singleton<PathMng>
     }
 
     //得到当前位置所处路点临近的路点其中之一
-    public Vector3 GetNearestWayPoint(Vector3 vec)
+    public Vector3 GetNearestWayPoint(Vector3 vec, MeteorUnit target)
     {
-        int start = GetWayIndex(vec);
+        int start = GetWayIndex(vec, target);
         if (Global.GLevelItem.wayPoint.Count > start && start >= 0)
         {
             if (Global.GLevelItem.wayPoint[start].link != null)
@@ -426,10 +426,11 @@ public class PathMng:Singleton<PathMng>
         return Vector3.zero;
     }
 
-    //这个不能仅判断距离，要分开判断，XZ距离，和H距离
-    //XZ距离+2H作为权重
-    public int GetWayIndex(Vector3 now)
+    //这个不能仅判断距离，还要判断射线是否撞到墙壁.
+    List<WayPoint> CandidateList = new List<WayPoint>();
+    public int GetWayIndex(Vector3 now, MeteorUnit user)
     {
+        CandidateList.Clear();
         int ret = -1;
         float min = 10000.0f;
         for (int i = 0; i < Global.GLevelItem.wayPoint.Count; i++)
@@ -441,12 +442,30 @@ public class PathMng:Singleton<PathMng>
             vecTarget.y = 0;
             vecSource.y = 0;
             float dis = Vector3.Distance(vecTarget, vecSource);
-            //if (dis <= way.size)
-            //    return i;
             if ((dis + h) < min)
             {
                 min = dis + h;
                 ret = i;
+                if (CandidateList.Count < 5)
+                    CandidateList.Add(Global.GLevelItem.wayPoint[ret]);
+                else
+                {
+                    CandidateList.RemoveAt(0);
+                    CandidateList.Add(Global.GLevelItem.wayPoint[ret]);
+                }
+            }
+        }
+
+        //在最多5个候选节点里，找到最近的一个未被场景遮挡的.
+        if (user != null)
+        {
+            //玩家的所处于的位置.要看这个玩家和该路点间有无阻碍，有则不是符合的路点.
+            for (int i = CandidateList.Count - 1; i >= 0; i--)
+            {
+                if (user.PassThrough(CandidateList[i].pos))
+                {
+                    return Global.GLevelItem.wayPoint.IndexOf(CandidateList[i]);
+                }
             }
         }
         return ret;

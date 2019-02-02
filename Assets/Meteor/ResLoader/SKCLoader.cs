@@ -20,20 +20,24 @@ public class SkcLoader : Singleton<SkcLoader> {
     public SkcFile Load(int characterIdx)
     {
         string BoneCnt = "";
-        //if (Startup.ins != null && GameData.Instance.gameStatus != null)
-        //{
-        //    switch (GameData.Instance.gameStatus.Quality)
-        //    {
-        //        case 0:
-        //            BoneCnt = ""; break;
-        //        //case 1:
-        //        //    BoneCnt = "_800"; break;
-        //        //case 2:
-        //        //    BoneCnt = "_300"; break;
-                
-        //    }
-        //}
-        return Load("p" + characterIdx + BoneCnt + ".skc");
+        if (GameData.Instance != null)
+        {
+            switch (GameData.Instance.gameStatus.Quality)
+            {
+                case 0:
+                    BoneCnt = ""; break;
+                case 1:
+                    BoneCnt = "_800"; break;
+                case 2:
+                    BoneCnt = "_300"; break;
+            }
+
+            //如果选择 范旋-他300面的模型 骨骼权重最大是5，不好手动调整,用800面的代替
+            if (characterIdx == 16 && GameData.Instance.gameStatus.Quality == 2)
+                BoneCnt = "_800";
+        }
+        
+        return Load(string.Format("p{0}{1}.skc", characterIdx, BoneCnt));
     }
 }
 

@@ -261,6 +261,7 @@ public class SoundManager : Singleton<SoundManager>
         if (!enable)
             return;
         AudioClip clip = GetAudioClip(GetSoundIndex(clipname));
+        CurrentAudioSource.volume = AduioVolume;
         CurrentAudioSource.PlayOneShot(clip);
     }
 	
@@ -279,6 +280,8 @@ public class SoundManager : Singleton<SoundManager>
 	{
         if (CurrentMusicSource != null)
             CurrentMusicSource.volume = volume;
+        if (Menu.Instance != null)
+            Menu.Instance.menu.volume = volume;
         MusicVolume = volume;
 	}
 	
@@ -288,6 +291,9 @@ public class SoundManager : Singleton<SoundManager>
         AudioSource[] ASources = GameObject.FindObjectsOfType(typeof(AudioSource)) as AudioSource[];
 		for(int i = 0;i<ASources.Length;i++)
 		{
+            if (Menu.Instance != null)
+                if (ASources[i] == Menu.Instance.menu)
+                    continue;
 			if (ASources[i] != CurrentMusicSource)
                 ASources[i].volume = volume;
 		}

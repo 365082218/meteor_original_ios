@@ -135,6 +135,7 @@ public class GameState
     public MyVector2 AxisSensitivity;//轴视角转向灵敏度
     public string MeteorVersion;
     public int TargetFrame;//60-30
+    public bool ShowBlood;//显示敌方血量.
     public bool ShowWayPoint;//显示路点
     public bool EnableLog;//HIDEBUG日志
     bool _LevelDebug;
@@ -431,6 +432,8 @@ public class GameData:Singleton<GameData>
             gameStatus.defaultServerIdx = 0;//指向默认，修改仅设置该值.
             gameStatus.GodLike = false;
             gameStatus.PetOn = false;
+            gameStatus.ShowBlood = false;
+            gameStatus.Quality = 0;
             gameStatus.DisableJoystick = true;
             gameStatus.DisableParticle = true;
         }

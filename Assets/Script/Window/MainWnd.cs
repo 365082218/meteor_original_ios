@@ -522,6 +522,8 @@ public class NickName : Window<NickName>
         if (!string.IsNullOrEmpty(Nick.text))
         {
             GameData.Instance.gameStatus.NickName = Nick.text;
+            if (SettingWnd.Exist)
+                SettingWnd.Instance.OnRefresh(0, null);
             Close();
         }
         else
@@ -554,12 +556,23 @@ public class MainWnd : Window<MainWnd>
 	void Init()
 	{
         Control("Version").GetComponent<Text>().text = AppInfo.Instance.MeteorVersion;
+        //单机关卡-官方剧情
         Control("SinglePlayer").GetComponent<Button>().onClick.AddListener(()=> {
             OnSinglePlayer();
         });
+        //教学关卡-教导使用招式方式
+        Control("TeachingLevel").GetComponent<Button>().onClick.AddListener(() => {
+            OnTeachingLevel();
+        });
+        //创建房间-各种单机玩法
+        Control("CreateBattle").GetComponent<Button>().onClick.AddListener(() => {
+            OnTeachingLevel();
+        });
+        //多人游戏-联机
         Control("MultiplePlayer").GetComponent<Button>().onClick.AddListener(() => {
             OnlineGame();
         });
+        //设置面板
         Control("PlayerSetting").GetComponent<Button>().onClick.AddListener(() => {
             OnSetting();
         });
@@ -569,13 +582,17 @@ public class MainWnd : Window<MainWnd>
 //            UnityEditor.EditorApplication.isPlaying = false;
 //#endif
 //        });
-        Control("ServerCfg").GetComponent<Button>().onClick.AddListener(()=> {
-            if (ServerListWnd.Exist)
-                ServerListWnd.Instance.Close();
-            else
-                ServerListWnd.Instance.Open();
-        });
-        Control("UploadLog").GetComponent<Button>().onClick.AddListener(() => { FtpLog.UploadStart(); });
+        //Control("ServerCfg").GetComponent<Button>().onClick.AddListener(()=> {
+        //    if (ServerListWnd.Exist)
+        //        ServerListWnd.Instance.Close();
+        //    else
+        //        ServerListWnd.Instance.Open();
+        //});
+        if (GameData.Instance.gameStatus.GodLike)
+        {
+            Control("UploadLog").SetActive(true);
+            Control("UploadLog").GetComponent<Button>().onClick.AddListener(() => { FtpLog.UploadStart(); });
+        }
         ClientProxy.Exit();
     }
 
@@ -584,15 +601,23 @@ public class MainWnd : Window<MainWnd>
         MainMenu.Instance.Open();
     }
 
+    //教学关卡.
+    void OnTeachingLevel()
+    {
+        TeachMenu.Instance.Open();
+    }
+
     void OnlineGame()
     {
         MainLobby.Instance.Open();
         Close();
     }
 
+    //关卡外的设置面板和关卡内的设置面板并非同一个页面.
     void OnSetting()
     {
-        NickName.Instance.Open();
+        SettingWnd.Instance.Open();
+        //NickName.Instance.Open();
     }
 }
 

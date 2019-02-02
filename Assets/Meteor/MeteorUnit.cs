@@ -226,8 +226,8 @@ public class Buff
                     }
                     if (each.Key.Attr.IsPlayer)
                         FightWnd.Instance.UpdatePlayerInfo();
-                    //else if (each.Key == MeteorManager.Instance.LocalPlayer.GetLockedTarget())
-                    //    FightWnd.Instance.UpdateMonsterInfo(each.Key);
+                    else if (!each.Key.SameCamp(MeteorManager.Instance.LocalPlayer) && GameData.Instance.gameStatus.ShowBlood)
+                        FightWnd.Instance.UpdateMonsterInfo(each.Key);
                 }
                 break;
             case -1://状态，持续时间到了取消状态，且删除对象
@@ -1576,7 +1576,7 @@ public partial class MeteorUnit : MonoBehaviour
 
         if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene")))
         {
-            MoveOnGroundEx = hit.distance <= 4.8f;
+            MoveOnGroundEx = hit.distance <= 2f;
             //Debug.Log(string.Format("distance:{0}", hit.distance));
             Floating = hit.distance >= 12.0f;
         }
@@ -1635,9 +1635,9 @@ public partial class MeteorUnit : MonoBehaviour
                     floatTick = Time.timeSinceLevelLoad;
                 }
             }
-            else if (Floating && Time.timeSinceLevelLoad - floatTick >= 0.75f)
+            else if (Floating)
             {
-                //Debug.LogError("在地面-但是角色底部浮空推开");
+                //Debug.LogError(name + " 在地面-但是角色底部浮空推开");
                 ProcessFall(0.75f);
                 floatTick = Time.timeSinceLevelLoad;
             }
@@ -1758,7 +1758,7 @@ public partial class MeteorUnit : MonoBehaviour
                     posMng.mActiveAction.Idx == CommonAction.WalkBackward)
                 {
 
-                    //Debug.LogError("浮空-落地" + posMng.mActiveAction.Idx);
+                    //Debug.LogError(name + " 浮空-落地" + Time.frameCount);
                     //AddYVelocity(-100);//让他快速一点落地
                     posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
                     //看是否被物件推开
@@ -1775,8 +1775,8 @@ public partial class MeteorUnit : MonoBehaviour
             {
                 if ((posMng.mActiveAction.Idx >= CommonAction.Jump && posMng.mActiveAction.Idx <= CommonAction.JumpBackFall) || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
                 {
-                    posMng.ChangeAction(0, 0.1f);
-                    //Debug.LogError("接触地面切换到IDle");
+                    posMng.ChangeAction(0, 0f);
+                    //Debug.LogError(name + " 接触地面切换到IDle" + Time.frameCount);
                 }
                 ResetYVelocity();
             }
@@ -2038,6 +2038,9 @@ public partial class MeteorUnit : MonoBehaviour
             MeteorUnit hitUnit = hit.gameObject.transform.root.GetComponent<MeteorUnit>();
             Vector3 vec = hitUnit.mPos - transform.position;
             vec.y = 0;
+            //在防御中.不受推挤.
+            if (hitUnit.posMng != null && hitUnit.posMng.onDefence)
+                return;
             hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 30);
         }
         else if (hit.gameObject.transform.root.tag.Equals("SceneItemAgent"))
@@ -2061,6 +2064,16 @@ public partial class MeteorUnit : MonoBehaviour
                 robot.CheckStatus();
             }
         }
+    }
+
+    //由目标的脊椎骨看向目标，若有场景阻碍则返回false，否则表示可穿过
+    //该函数只能用来计算角色所处于的路点.
+    public bool PassThrough(Vector3 target)
+    {
+        RaycastHit ray = new RaycastHit();
+        if (Physics.Raycast(mSkeletonPivot, (target - mSkeletonPivot).normalized, out ray, Vector3.Distance(target, mSkeletonPivot), LayerMask.NameToLayer("Scene")))
+            return false;
+        return true;
     }
 
     public void WeaponReturned(int poseIdx)
@@ -2620,8 +2633,11 @@ public partial class MeteorUnit : MonoBehaviour
 
         if (FightWnd.Exist)
         {
+            //先飘血。
             if (Attr.IsPlayer)
                 FightWnd.Instance.UpdatePlayerInfo();
+            else if (GameData.Instance.gameStatus.ShowBlood && !SameCamp(MeteorManager.Instance.LocalPlayer))
+                FightWnd.Instance.UpdateMonsterInfo(this);
         }
     }
 
@@ -2781,6 +2797,8 @@ public partial class MeteorUnit : MonoBehaviour
             //先飘血。
             if (Attr.IsPlayer)
                 FightWnd.Instance.UpdatePlayerInfo();
+            else if (GameData.Instance.gameStatus.ShowBlood && !SameCamp(MeteorManager.Instance.LocalPlayer))
+                FightWnd.Instance.UpdateMonsterInfo(this);
         }
     }
 

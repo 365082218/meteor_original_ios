@@ -438,6 +438,10 @@ public class PoseStatus
                                     ChangeAction(CommonAction.Idle);
                             }
                         }
+                        else if (_Self.posMng.onhurt)
+                        {
+                            Debug.Log("目标受到伤害浮空");
+                        }
                         else
                             ChangeAction(CommonAction.JumpFall, 0.1f);
                     }

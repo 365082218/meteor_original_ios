@@ -65,6 +65,10 @@ public class FightWnd: Window<FightWnd>
     GameObject FloatOpen;
     GameObject Unlock;
     Image LockSprite;
+    GameObject TargetBlood;
+    Image TargetHp;
+    Text TargetHPLabel;
+    Text TargetName;
     void Init()
     {
         LevelTalkRoot = Global.ldaControlX("LevelTalk", WndObject).transform;
@@ -102,11 +106,18 @@ public class FightWnd: Window<FightWnd>
         Global.ldaControlX("Status", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnStatusRelease);
 
         Global.ldaControlX("Reborn", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnRebornClick);
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            Global.ldaControlX("Reborn", WndObject).SetActive(false);
         if (MeteorManager.Instance.LocalPlayer != null)
         {
             angryBar.fillAmount = 0.0f;
             UpdatePlayerInfo();
         }
+        TargetBlood = Control("TargetBlood");
+        TargetBlood.SetActive(false);
+        TargetHp = ldaControl("HPBar", TargetBlood).GetComponent<Image>();
+        TargetHPLabel = ldaControl("TargetHPLabel", TargetBlood).GetComponent<Text>();
+        TargetName = ldaControl("TargetName", TargetBlood).GetComponent<Text>();
         UpdateUIButton();
         if (NGUIJoystick.instance != null)
             NGUIJoystick.instance.SetAnchor(GameData.Instance.gameStatus.JoyAnchor);
@@ -385,57 +396,73 @@ public class FightWnd: Window<FightWnd>
     //：生命值    112155/ 129373
     //Coroutine hideTargetInfo;
     //Dictionary<Buff, GameObject> enemyBuffList = new Dictionary<Buff, GameObject>();
-    //MeteorUnit currentMonster;
-    //public void UpdateMonsterInfo(MeteorUnit mon)
-    //{
-    //    if (!targetInfo.activeInHierarchy)
-    //        targetInfo.SetActive(true);
+    MeteorUnit CurrentMonster;
+    public void UpdateMonsterInfo(MeteorUnit mon)
+    {
+        if (!GameData.Instance.gameStatus.ShowBlood)
+            return;
 
-    //    targetHp.fillAmount = (float)mon.Attr.hpCur / (float)mon.Attr.TotalHp;
-    //    targetHpInfo.text = ((int)(mon.Attr.hpCur / 10.0f)).ToString() + "/" + ((int)(mon.Attr.TotalHp / 10.0f)).ToString();
-    //    //targetTitleInfo.text = mon.name;
-    //    targetName.text = mon.name;
-    //    if (updateEnemyBuff != null)
-    //    {
-    //        GameBattleEx.Instance.StopCoroutine(updateEnemyBuff);
-    //        updateEnemyBuff = null;
-    //    }
-    //    foreach (var each in enemyBuffList)
-    //        GameObject.Destroy(each.Value);
-    //    enemyBuffList.Clear();
+        if (!TargetBlood.activeInHierarchy)
+            TargetBlood.SetActive(true);
 
-    //    if (!mon.Dead)
-    //    {
-    //        foreach (var each in BuffMng.Instance.BufDict)
-    //        {
-    //            if (!enemyBuffList.ContainsKey(each.Value) && each.Value.Units.ContainsKey(mon))
-    //            {
-    //                GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("BuffItem"));// new GameObject(buf.Iden);
-    //                obj.name = each.Value.Iden;
-    //                obj.transform.SetParent(TargetBuffPanel.transform);
-    //                obj.transform.localScale = Vector3.one;
-    //                obj.transform.localPosition = Vector3.zero;
-    //                obj.transform.localRotation = Quaternion.identity;
-    //                obj.layer = TargetBuffPanel.layer;
-    //                enemyBuffList.Add(each.Value, obj);
+        if (CurrentMonster == mon)
+        {
+            nextTargetHp = mon.Attr.hpCur;
+            TargetHPLabel.text = ((int)(mon.Attr.hpCur / 10.0f)).ToString() + "/" + ((int)(mon.Attr.TotalHp / 10.0f)).ToString();
+            CheckHideTarget = true;
+            TargetInfoLast = 5.0f;
+            return;
+        }
 
-    //                GameObject BuffImg = Control("BuffImg", enemyBuffList[each.Value]);
-    //                BuffImg.GetComponent<Image>().fillAmount = each.Value.Units[mon].refresh_tick / (each.Value.last_time / 10);
-    //                GameObject BuffLength = Control("BuffLength", enemyBuffList[each.Value]);
-    //                BuffLength.GetComponent<Text>().text = string.Format("{0:F1}", each.Value.Units[mon].refresh_tick);
+        CheckHideTarget = true;
+        TargetInfoLast = 5.0f;
+        TargetHp.fillAmount = (float)mon.Attr.hpCur / (float)mon.Attr.TotalHp;
+        TargetHPLabel.text = ((int)(mon.Attr.hpCur / 10.0f)).ToString() + "/" + ((int)(mon.Attr.TotalHp / 10.0f)).ToString();
+        //targetTitleInfo.text = mon.name;
+        currentTargetHp = mon.Attr.hpCur;
+        nextTargetHp = mon.Attr.hpCur;
+        TargetName.text = mon.name;
+        //if (updateEnemyBuff != null)
+        //{
+        //    GameBattleEx.Instance.StopCoroutine(updateEnemyBuff);
+        //    updateEnemyBuff = null;
+        //}
+        //foreach (var each in enemyBuffList)
+        //    GameObject.Destroy(each.Value);
+        //enemyBuffList.Clear();
 
-    //                GameObject BuffName = Control("BuffName", enemyBuffList[each.Value]);
-    //                BuffName.GetComponent<Text>().text = each.Value.Iden;
-    //            }
-    //        }
-    //        if (updateEnemyBuff == null)
-    //            updateEnemyBuff = GameBattleEx.Instance.StartCoroutine(UpdateEnemyBuff());
-    //    }
-    //    currentMonster = mon;
-    //    if (hideTargetInfo != null)
-    //        GameBattleEx.Instance.StopCoroutine(hideTargetInfo);
-    //    hideTargetInfo = GameBattleEx.Instance.StartCoroutine(HideTargetInfo());
-    //}
+        //if (!mon.Dead)
+        //{
+        //    foreach (var each in BuffMng.Instance.BufDict)
+        //    {
+        //        if (!enemyBuffList.ContainsKey(each.Value) && each.Value.Units.ContainsKey(mon))
+        //        {
+        //            GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("BuffItem"));// new GameObject(buf.Iden);
+        //            obj.name = each.Value.Iden;
+        //            obj.transform.SetParent(TargetBuffPanel.transform);
+        //            obj.transform.localScale = Vector3.one;
+        //            obj.transform.localPosition = Vector3.zero;
+        //            obj.transform.localRotation = Quaternion.identity;
+        //            obj.layer = TargetBuffPanel.layer;
+        //            enemyBuffList.Add(each.Value, obj);
+
+        //            GameObject BuffImg = Control("BuffImg", enemyBuffList[each.Value]);
+        //            BuffImg.GetComponent<Image>().fillAmount = each.Value.Units[mon].refresh_tick / (each.Value.last_time / 10);
+        //            GameObject BuffLength = Control("BuffLength", enemyBuffList[each.Value]);
+        //            BuffLength.GetComponent<Text>().text = string.Format("{0:F1}", each.Value.Units[mon].refresh_tick);
+
+        //            GameObject BuffName = Control("BuffName", enemyBuffList[each.Value]);
+        //            BuffName.GetComponent<Text>().text = each.Value.Iden;
+        //        }
+        //    }
+        //    if (updateEnemyBuff == null)
+        //        updateEnemyBuff = GameBattleEx.Instance.StartCoroutine(UpdateEnemyBuff());
+        //}
+        CurrentMonster = mon;
+        //if (hideTargetInfo != null)
+        //    GameBattleEx.Instance.StopCoroutine(hideTargetInfo);
+        //hideTargetInfo = GameBattleEx.Instance.StartCoroutine(HideTargetInfo());
+    }
 
     //Coroutine updateEnemyBuff;
     //IEnumerator UpdateEnemyBuff()
@@ -463,31 +490,40 @@ public class FightWnd: Window<FightWnd>
     //    }
     //}
 
-    //IEnumerator HideTargetInfo()
-    //{
-    //    yield return new WaitForSeconds(5.0f);
-    //    if (updateEnemyBuff != null)
-    //    {
-    //        GameBattleEx.Instance.StopCoroutine(updateEnemyBuff);
-    //        updateEnemyBuff = null;
-    //    }
-    //    foreach (var each in enemyBuffList)
-    //        GameObject.Destroy(each.Value);
-    //    enemyBuffList.Clear();
-    //    if (targetInfo != null)
-    //        targetInfo.SetActive(false);
-    //    hideTargetInfo = null;
-    //}
-
     public void Update()
     {
         if (currentHP != nextHp)
         {
             currentHP = Mathf.MoveTowards(currentHP, nextHp, 1000f * Time.deltaTime);
-            hpBar.fillAmount = currentHP / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
+            hpBar.fillAmount = currentHP / (float)MeteorManager.Instance.LocalPlayer.Attr.TotalHp;
+        }
+
+        if (currentTargetHp != nextTargetHp)
+        {
+            currentTargetHp = Mathf.MoveTowards(currentTargetHp, nextTargetHp, 1000f * Time.deltaTime);
+            TargetHp.fillAmount = currentTargetHp / CurrentMonster.Attr.TotalHp;
+        }
+
+        if (CheckHideTarget)
+        {
+            TargetInfoLast -= Time.deltaTime;
+            if (TargetInfoLast <= 0.0f)
+                HideTargetInfo();
         }
     }
 
+    void HideTargetInfo()
+    {
+        TargetBlood.SetActive(false);
+        CheckHideTarget = false;
+        CurrentMonster = null;
+        TargetInfoLast = 5.0f;
+    }
+
+    bool CheckHideTarget = false;
+    float TargetInfoLast = 10;
+    float nextTargetHp = 0;
+    float currentTargetHp = 0;
     float nextHp = 0;
     float currentHP = 0;
     public void UpdatePlayerInfo()

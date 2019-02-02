@@ -174,6 +174,31 @@ public class NewSystemWnd : Window<NewSystemWnd>
         OnDisableCat(toggleDisableCat.isOn);
 
         Control("ChangeLog").GetComponent<Text>().text = ResMng.LoadTextAsset("ChangeLog").text;
+
+        //把一些模式禁用，例如作弊之类的.
+        if (GameData.Instance.gameStatus.GodLike)
+        {
+
+        }
+        else
+        {
+            Control("ChangeModel").SetActive(false);
+            Control("UnlockAll").SetActive(false);
+            Control("Snow").SetActive(false);
+            Control("SpeedFast").SetActive(false);
+            Control("SpeedSlow").SetActive(false);
+            Control("EnableRobot").SetActive(false);
+            Control("EnableWeaponChoose").SetActive(false);
+            Control("EnableSFX").SetActive(false);
+            Control("EnableDebugStatus").SetActive(false);
+            Control("ShowWayPoint").SetActive(false);
+            Control("EnableInfiniteAngry").SetActive(false);
+            Control("EnableGodMode").SetActive(false);
+            Control("ShowLog").SetActive(false);
+            Control("ShowLevelDebugButton").SetActive(false);
+            Control("Cat").SetActive(false);
+        }
+
         InitLevel();
         mWindowStyle = WindowStyle.WS_Modal;
     }

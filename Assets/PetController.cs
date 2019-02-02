@@ -172,7 +172,7 @@ public class PetController : MonoBehaviour {
                     return;
                 }
 
-                int cur = PathMng.Instance.GetWayIndex(FollowTarget.mSkeletonPivot);
+                int cur = PathMng.Instance.GetWayIndex(FollowTarget.mSkeletonPivot, FollowTarget);
                 if (Path.Count == 0)
                     RefreshPath(transform.position, FollowTarget.mSkeletonPivot);
                 else if (lastFollowWayPointIdx != cur)
