@@ -137,7 +137,7 @@ public partial class GameBattleEx : MonoBehaviour {
     {
         while (true)
         {
-            if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+            if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
             {
                 if (IsTimeup())
                 {
@@ -159,7 +159,7 @@ public partial class GameBattleEx : MonoBehaviour {
         if (Global.PauseAll)
             return;
 
-        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+        if (Global.GLevelMode <= LevelMode.CreateWorld)
         {
             timeClock += Time.deltaTime;
             if (timeClock > (float)time)//时间超过，平局
@@ -204,7 +204,7 @@ public partial class GameBattleEx : MonoBehaviour {
             UnitActKeyDeleted.Clear();
         }
 
-        if (lev_script != null && Global.GLevelMode == LevelMode.SinglePlayerTask)
+        if (lev_script != null && Global.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             if (timeDelay >= 1.0f)
             {
@@ -349,26 +349,26 @@ public partial class GameBattleEx : MonoBehaviour {
     //    return false;
     //}
 
-    bool IsSelectAction(ref GameObject touched)
-    {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        LayerMask mask = 1 << LayerMask.NameToLayer("LocalPlayer") | 1 << LayerMask.NameToLayer("Trigger");
-        RaycastHit[] UISelection = Physics.RaycastAll(ray, 100, mask.value);
-        if (UISelection.Length != 0)
-        {
-            float fdisMin = float.MaxValue;
-            for (int i = 0; i < UISelection.Length; i++)
-            {
-                if (UISelection[i].distance <= fdisMin)
-                {
-                    fdisMin = UISelection[i].distance;
-                    touched = UISelection[i].collider.gameObject;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
+    //bool IsSelectAction(ref GameObject touched)
+    //{
+    //    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+    //    LayerMask mask = 1 << LayerMask.NameToLayer("LocalPlayer") | 1 << LayerMask.NameToLayer("Trigger");
+    //    RaycastHit[] UISelection = Physics.RaycastAll(ray, 100, mask.value);
+    //    if (UISelection.Length != 0)
+    //    {
+    //        float fdisMin = float.MaxValue;
+    //        for (int i = 0; i < UISelection.Length; i++)
+    //        {
+    //            if (UISelection[i].distance <= fdisMin)
+    //            {
+    //                fdisMin = UISelection[i].distance;
+    //                touched = UISelection[i].collider.gameObject;
+    //            }
+    //        }
+    //        return true;
+    //    }
+    //    return false;
+    //}
 
     public LevelScriptBase Script { get { return lev_script; } }
     LevelScriptBase lev_script;
@@ -378,14 +378,35 @@ public partial class GameBattleEx : MonoBehaviour {
     public void Init(Level lev, LevelScriptBase script)
     {
         Scene_OnCharacterEvent = Global.GScriptType.GetMethod("Scene_OnCharacterEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        if (Scene_OnCharacterEvent == null)
+        {
+            System.Type typeParent = Global.GScriptType.BaseType;
+            while (Scene_OnCharacterEvent == null && typeParent != null)
+            {
+                Scene_OnCharacterEvent = typeParent.GetMethod("Scene_OnCharacterEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                typeParent = typeParent.BaseType;
+            }
+        }
         Scene_OnEvent = Global.GScriptType.GetMethod("Scene_OnEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        if (Scene_OnEvent == null)
+        {
+            System.Type typeParent = Global.GScriptType.BaseType;
+            while (Scene_OnEvent == null && typeParent != null)
+            {
+                Scene_OnEvent = typeParent.GetMethod("Scene_OnEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                typeParent = typeParent.BaseType;
+            }
+        }
+
         lev_script = script;
         DisableCameraLock = GameData.Instance.gameStatus.DisableLock;
         //updateFn = ScriptMng.ins.GetFunc("OnUpdate");
         if (script != null)
         {
-            if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+            if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
                 time = script.GetRoundTime() * 60;
+            else if (Global.GLevelMode == LevelMode.CreateWorld)
+                time = Global.RoundTime * 60;
             else
                 time = 30 * 60;
         }
@@ -408,7 +429,7 @@ public partial class GameBattleEx : MonoBehaviour {
             RegisterCollision(sceneObjs[i]);
         }
 
-        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+        if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             if (lev_script != null)
                 lev_script.OnStart();
@@ -727,7 +748,7 @@ public partial class GameBattleEx : MonoBehaviour {
     public string GetTimeClock()
     {
         //600 = 10:00
-        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+        if (Global.GLevelMode <= LevelMode.CreateWorld)
         {
             int left = time - Mathf.FloorToInt(timeClock);
             if (left < 0)

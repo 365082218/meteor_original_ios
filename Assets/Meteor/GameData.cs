@@ -112,7 +112,9 @@ public class GameState
             _EnableGodMode = value;
         }
     }
-    //无敌
+
+    public bool Undead = false;
+    //调试作弊栏
     bool _GodLike;
     public bool GodLike
     {
@@ -431,6 +433,7 @@ public class GameData:Singleton<GameData>
             gameStatus.ServerList.Add(svr);
             gameStatus.defaultServerIdx = 0;//指向默认，修改仅设置该值.
             gameStatus.GodLike = false;
+            gameStatus.Undead = false;
             gameStatus.PetOn = false;
             gameStatus.ShowBlood = false;
             gameStatus.Quality = 0;

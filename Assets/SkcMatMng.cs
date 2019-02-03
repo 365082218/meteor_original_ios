@@ -19,34 +19,31 @@ public class SkcMatMng : MonoBehaviour {
             TargetGroup = Player300;
 
         //普通关卡和盟主模式,只有1个阵营的皮肤
-        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+        if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
         {
-            //if (Global.GGameMode == GameMode.Normal || Global.GGameMode == GameMode.MENGZHU)
+            if (camp == EUnitCamp.EUC_NONE || camp == EUnitCamp.EUC_KILLALL)
             {
-                if (camp == EUnitCamp.EUC_NONE || camp == EUnitCamp.EUC_KILLALL)
-                {
-                    Material[] mat = new Material[TargetGroup[id].PlayerCamp0.Length];
-                    for (int i = 0; i < TargetGroup[id].PlayerCamp0.Length; i++)
-                        mat[i] = TargetGroup[id].PlayerCamp0[i] as Material;
-                    return mat;
-                }
-                else if (camp == EUnitCamp.EUC_FRIEND)
-                {
-                    Material[] mat = new Material[TargetGroup[id].PlayerCamp0.Length];
-                    for (int i = 0; i < TargetGroup[id].PlayerCamp0.Length; i++)
-                        mat[i] = TargetGroup[id].PlayerCamp0[i] as Material;
-                    return mat;
-                }
-                else if (camp == EUnitCamp.EUC_ENEMY)
-                {
-                    Material[] mat = new Material[TargetGroup[id].PlayerCamp0.Length];
-                    for (int i = 0; i < TargetGroup[id].PlayerCamp0.Length; i++)
-                        mat[i] = TargetGroup[id].PlayerCamp0[i] as Material;
-                    return mat;
-                }
+                Material[] mat = new Material[TargetGroup[id].PlayerCamp0.Length];
+                for (int i = 0; i < TargetGroup[id].PlayerCamp0.Length; i++)
+                    mat[i] = TargetGroup[id].PlayerCamp0[i] as Material;
+                return mat;
+            }
+            else if (camp == EUnitCamp.EUC_FRIEND)
+            {
+                Material[] mat = new Material[TargetGroup[id].PlayerCamp0.Length];
+                for (int i = 0; i < TargetGroup[id].PlayerCamp0.Length; i++)
+                    mat[i] = TargetGroup[id].PlayerCamp0[i] as Material;
+                return mat;
+            }
+            else if (camp == EUnitCamp.EUC_ENEMY)
+            {
+                Material[] mat = new Material[TargetGroup[id].PlayerCamp0.Length];
+                for (int i = 0; i < TargetGroup[id].PlayerCamp0.Length; i++)
+                    mat[i] = TargetGroup[id].PlayerCamp0[i] as Material;
+                return mat;
             }
         }
-        else if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        else if (Global.GLevelMode > LevelMode.SinglePlayerTask && Global.GLevelMode <= LevelMode.MultiplyPlayer)
         {
             if (Global.GGameMode == GameMode.Normal || Global.GGameMode == GameMode.MENGZHU)
             {

@@ -278,7 +278,7 @@ public class Loader : MonoBehaviour {
             if (des.SceneItems[i].ContainsKey("ticket", out type))
             {
                 //剧情模式出现
-                if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+                if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
                 {
                     string[] subtype = type.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     for (int t = 0; t < subtype.Length; t++)
@@ -290,7 +290,7 @@ public class Loader : MonoBehaviour {
                         }
                     }
                 }
-                else if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+                else if (Global.GLevelMode > LevelMode.SinglePlayerTask && Global.GLevelMode <= LevelMode.MultiplyPlayer)
                 {
                     string[] subtype = type.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     for (int t = 0; t < subtype.Length; t++)

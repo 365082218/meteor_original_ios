@@ -186,7 +186,7 @@ class SceneMng
         LuaFunction onInit = mon.sState["OnInit"] as LuaFunction;
         onInit.call(mon.sState, unit.InstanceId);
         unit.SetGround(false);
-        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+        if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             if (Global.GLevelItem.DisableFindWay == 1)
             {
@@ -200,7 +200,7 @@ class SceneMng
                 unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
             }
         }
-        else if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        else if (Global.GLevelMode > LevelMode.SinglePlayerTask && Global.GLevelMode <= LevelMode.MultiplyPlayer)
         {
             if (Global.GGameMode == GameMode.Normal)
             {

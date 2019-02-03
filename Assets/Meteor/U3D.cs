@@ -63,11 +63,40 @@ public class U3D : MonoBehaviour {
         WeaponMng.Instance.ReLoad();
     }
 
-    public static int GetNormalWeapon(int i)
+    //通过EquipWeaponCode,得到指定类型的武器.用于在联机界面的武器选择时.
+    public static int GetWeaponByCode(int i)
     {
         if (i < 0 || i >= weaponCode.Length)
             return 5;//默认是匕首
         return weaponCode[i];
+    }
+
+    //通过EquipWeaponType,得到指定类型的武器.用于在
+    public static int GetWeaponByType(int weaponIndex)
+    {
+        List<int> weaponList = null;
+        if (weaponDict.ContainsKey(weaponIndex))
+            weaponList = weaponDict[weaponIndex];
+        else
+            weaponList = new List<int>();
+        if (weaponList.Count == 0)
+        {
+            List<ItemBase> we = GameData.Instance.itemMng.GetFullRow();
+            for (int i = 0; i < we.Count; i++)
+            {
+                if (we[i].MainType == 1)
+                {
+                    if (we[i].SubType == (int)weaponIndex)
+                    {
+                        weaponList.Add(we[i].Idx);
+                    }
+                }
+            }
+            if (!weaponDict.ContainsKey(weaponIndex))
+                weaponDict.Add(weaponIndex, weaponList);
+        }
+        int k = Rand(weaponList.Count);
+        return weaponList[k];
     }
 
     //当前场景立即产生一个npc
@@ -78,7 +107,7 @@ public class U3D : MonoBehaviour {
     static Dictionary<int, List<int>> weaponDict = new Dictionary<int, List<int>>();
     public static void SpawnRobot(int idx, EUnitCamp camp, int weaponIndex = 0, int hpMax = 1000)
     {
-        if (Global.GLevelMode != LevelMode.SinglePlayerTask)
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
         {
             U3D.PopupTip("联机无法添加机器人");
             return;
@@ -149,6 +178,8 @@ public class U3D : MonoBehaviour {
         
         return;
     }
+
+    
 
     public static void ChangePlayerModel(int model)
     {
@@ -240,16 +271,30 @@ public class U3D : MonoBehaviour {
         unit.Init(mon.Model, mon);
         MeteorManager.Instance.OnGenerateUnit(unit);
         unit.SetGround(false);
-        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+        if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
         {
-            if (Global.GLevelItem.wayPoint.Count == 0)
+            if (Global.GLevelItem.DisableFindWay == 1)
             {
-                unit.transform.position = Global.GLevelSpawn[mon.SpawnPoint];
+                //不许寻路，无寻路点的关卡，使用
+                bool setPosition = false;
+                if (script != null)
+                    setPosition = script.OnPlayerSpawn(unit);
+                if (!setPosition)
+                {
+                    unit.transform.position = Global.GLevelSpawn[mon.SpawnPoint >= Global.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
+                }
             }
             else
-                unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+            {
+                if (Global.GLevelItem.wayPoint.Count == 0)
+                {
+                    unit.transform.position = Global.GLevelSpawn[mon.SpawnPoint];
+                }
+                else
+                    unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+            }
         }
-        else if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        else if (Global.GLevelMode > LevelMode.SinglePlayerTask && Global.GLevelMode <= LevelMode.MultiplyPlayer)
         {
             if (Global.GGameMode == GameMode.Normal)
             {
@@ -1454,9 +1499,19 @@ public class U3D : MonoBehaviour {
     public static int SetTarget(int idx, string type, params int[] fun)
     {
         return 0;
-    }// type="char", "waypoint", "flag", "safe"
-    public static int Distance(int idx1, int idx2)
+    }
+    // type="char", "waypoint", "flag", "safe"
+    //获得2个角色的距离.
+    public static float Distance(int idx1, int idx2)
     {
+        if (Global.GLevelItem != null && Global.GLevelMode <= LevelMode.SinglePlayerTask)
+        {
+            MeteorUnit a = GetUnit(idx1);
+            MeteorUnit b = GetUnit(idx2);
+            if (a == null || b == null)
+                return 0;
+            return Vector3.Distance(a.transform.position, b.transform.position);
+        }
         return 0;
     }
 
@@ -1466,9 +1521,37 @@ public class U3D : MonoBehaviour {
     }
 
     //单机下
+    public static void RotateNpc(string name, float yRotate)
+    {
+        if (Global.GLevelItem != null && Global.GLevelMode <= LevelMode.SinglePlayerTask)
+        {
+            int id = GetChar(name);
+            if (id != -1)
+            {
+                MeteorUnit unit = GetUnit(id);
+                if (unit != null)
+                    unit.transform.rotation = Quaternion.Euler(0, yRotate, 0);
+            }
+        }
+    }
+
+    public static void MoveNpc(string name, Vector3 position)
+    {
+        if (Global.GLevelItem != null && Global.GLevelMode <= LevelMode.SinglePlayerTask)
+        {
+            int id = GetChar(name);
+            if (id != -1)
+            {
+                MeteorUnit unit = GetUnit(id);
+                if (unit != null)
+                    unit.SetPosition(position);
+            }
+        }
+    }
+
     public static void MoveNpc(string name, int spawnPoint)
     {
-        if (Global.GLevelItem != null && Global.GLevelMode == LevelMode.SinglePlayerTask)
+        if (Global.GLevelItem != null && Global.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             int id = GetChar(name);
             if (id != -1)
@@ -1671,11 +1754,53 @@ public class U3D : MonoBehaviour {
             return u.Dead;
         return true;
     }
+
+    public static bool AllEnemyDead()
+    {
+        bool alldead = true;
+        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        {
+            if (MeteorManager.Instance.UnitInfos[i] == MeteorManager.Instance.LocalPlayer)
+                continue;
+            if (!MeteorManager.Instance.UnitInfos[i].SameCamp(MeteorManager.Instance.LocalPlayer))
+            {
+                if (!MeteorManager.Instance.UnitInfos[i].Dead)
+                {
+                    alldead = false;
+                    break;
+                }
+            }
+        }
+        return alldead;
+    }
+
+    public static void OnPauseAI()
+    {
+        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        {
+            MeteorManager.Instance.UnitInfos[i].EnableAI(false);
+        }
+    }
+
+    public static void OnResumeAI()
+    {
+        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        {
+            MeteorManager.Instance.UnitInfos[i].EnableAI(true);
+        }
+    }
+
+    //战场上找到一个对象
+    public static GameObject Find(string name)
+    {
+        return GameObject.Find(name);
+    }
+
     //以下为脚本系统执行面板里能响应的操作
     public static void GodLike()
     {
         GameData.Instance.gameStatus.GodLike = !GameData.Instance.gameStatus.GodLike;
-        U3D.InsertSystemMsg(GameData.Instance.gameStatus.GodLike ? "开启[无敌]" : "关闭[无敌]");
+        U3D.InsertSystemMsg(GameData.Instance.gameStatus.GodLike ? "作弊[开]" : "作弊[关]");
     }
 
 }

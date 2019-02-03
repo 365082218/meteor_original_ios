@@ -245,6 +245,15 @@ public class SceneItemAgent : MonoBehaviour {
             else
             {
                 OnTouch = Global.GScriptType.GetMethod(name + "_OnTouch", BindingFlags.Instance | BindingFlags.NonPublic);
+                if (OnTouch == null)
+                {
+                    System.Type typeParent = Global.GScriptType.BaseType;
+                    while (typeParent != null && OnTouch == null)
+                    {
+                        OnTouch = typeParent.GetMethod(name + "_OnTouch", BindingFlags.Instance | BindingFlags.NonPublic);
+                        typeParent = typeParent.BaseType;
+                    }
+                }
                 syncTouched = true;
             }
 

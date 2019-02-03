@@ -299,11 +299,21 @@ public partial class MeteorUnit : MonoBehaviour
     }
 
     //单机关卡设置位置到路点.
+    public void SetPosition(Vector3 position)
+    {
+        transform.position = position;
+    }
+
     public void SetPosition(int spawnPoint)
     {
         //禁止寻路，代表场景无路点.只能用来联机.
         if (Global.GLevelItem.DisableFindWay == 1)
+        {
+            //不许寻路，无寻路点的关卡，使用
+            if (Global.GLevelSpawn != null && Global.GLevelSpawn.Length != 0)
+                transform.position = Global.GLevelSpawn[spawnPoint >= Global.GLevelSpawn.Length ? 0 : spawnPoint];
             return;
+        }
         if (spawnPoint >= Global.GLevelItem.wayPoint.Count)
             return;
         transform.position = Global.GLevelItem.wayPoint[spawnPoint].pos;
@@ -1161,13 +1171,13 @@ public partial class MeteorUnit : MonoBehaviour
         IgnoreGravity = true;
         IgnorePhysical = false;
         name = Attr.Name;
-        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+        if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
             gameObject.layer = Attr.IsPlayer ? LayerMask.NameToLayer("LocalPlayer") : LayerMask.NameToLayer("Monster");
         else
             gameObject.layer = LayerMask.NameToLayer("LocalPlayer");
 
         //单机模式下有ai
-        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+        if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
             robot = Attr.IsPlayer ? null : new MeteorAI(this);
         
         controller = gameObject.GetComponent<MeteorController>();
@@ -1576,13 +1586,15 @@ public partial class MeteorUnit : MonoBehaviour
 
         if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene")))
         {
-            MoveOnGroundEx = hit.distance <= 2f;
+            MoveOnGroundEx = hit.distance <= 4f;
             //Debug.Log(string.Format("distance:{0}", hit.distance));
             Floating = hit.distance >= 12.0f;
         }
         else
+        {
             MoveOnGroundEx = false;
-        
+            Floating = true;
+        }
         if (OnGround)
         {
             //检测脚底是否踩住地面了
@@ -1961,7 +1973,7 @@ public partial class MeteorUnit : MonoBehaviour
     {
         if (!Dead)
         {
-            if (Attr.IsPlayer && GameData.Instance.gameStatus.GodLike)
+            if (Attr.IsPlayer && GameData.Instance.gameStatus.Undead)
                 return;
             Dead = true;
             if (killer == null)
@@ -2462,7 +2474,7 @@ public partial class MeteorUnit : MonoBehaviour
         if (robot != null)
             robot.OnDamaged(attacker);
 
-        if (Attr.IsPlayer && GameData.Instance.gameStatus.GodLike)
+        if (Attr.IsPlayer && GameData.Instance.gameStatus.Undead)
             return;
         //任意受击，都会让角色退出持枪预备姿势
         SetGunReady(false);
@@ -2655,7 +2667,7 @@ public partial class MeteorUnit : MonoBehaviour
 
         //Debug.Log(string.Format("player:{0} attacked by:{1}", name, attacker == null ? "null": attacker.name));
         //任意受击，都会让角色退出持枪预备姿势
-        if (Attr.IsPlayer && GameData.Instance.gameStatus.GodLike)
+        if (Attr.IsPlayer && GameData.Instance.gameStatus.Undead)
             return;
         SetGunReady(false);
         if (attacker == null)

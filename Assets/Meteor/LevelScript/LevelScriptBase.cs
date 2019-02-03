@@ -1144,7 +1144,8 @@ public class LevelScriptBase:ScriptBase {
     public virtual int GetPlayerModel() { return 0; }
     public virtual string GetPlayerName() { return "孟星魂"; }
     public virtual string GetDesName() { return ""; }
-
+    public virtual bool OnPlayerSpawn(MeteorUnit unit) { return false; }//角色生成后调整
+    public virtual void Scene_OnCharacterEvent(int id, int evt) { }
     //负责关卡剧本等
     //额外呼叫怪物脚本
     public virtual void OnStart()
@@ -7425,9 +7426,9 @@ public class LevelScript_sn22 : LevelScriptBase
     int TeamDeathMatch = 5;
     int GameMod;
 
-    int EventEnter = 200;//进入门
-    int EventExit = 201;//离开门
-    int EventDeath = 202;//死亡事件
+    public int EventEnter = 200;//进入门
+    public int EventExit = 201;//离开门
+    public int EventDeath = 202;//死亡事件
 
     int[] g_CharacterArena = new int[17];
     int[] g_ArenaCharacters = new int[16];
@@ -7482,7 +7483,7 @@ public class LevelScript_sn22 : LevelScriptBase
         }
     }
 
-    void Scene_OnCharacterEvent(int id, int evt)
+    public override void Scene_OnCharacterEvent(int id, int evt)
     {
         int i;
         int arena;
@@ -7561,6 +7562,8 @@ public class LevelScript_sn22 : LevelScriptBase
             g_CharacterArena[characterid] = arena;
             MakeString(ref arenaname, "D_tpAD", arena + 1);
             Misc("transfer", characterid, arenaname);
+            if (Global.GLevelMode == LevelMode.Teach)
+                U3D.OnResumeAI();
             Output("transfer", characterid, "to", arena);
         }
     }
@@ -7576,6 +7579,8 @@ public class LevelScript_sn22 : LevelScriptBase
             g_CharacterArena[characterid] = -1;
             MakeString(ref arenaname, "D_tpAD", arena + 9);
             Misc("transfer", characterid, arenaname);
+            if (Global.GLevelMode == LevelMode.Teach)
+                U3D.OnPauseAI();
             Output("transfer", characterid, "from", arena);
         }
     }
@@ -8553,5 +8558,184 @@ public class LevelScript_sn1000 : LevelScriptBase
     public override void OnStart()
     {
         base.OnStart();
+    }
+}
+
+public class LevelScript_sn31 : LevelScript_sn22
+{
+    int RoundTime = 60;
+    int PlayerSpawn = 14;
+    int PlayerSpawnDir = 90;
+    int PlayerWeapon = 6;
+    int PlayerWeapon2 = 0;
+    int PlayerHP = 3000;
+    //"flat_roofR65" 巽 xun
+    //"flat_roofR65" 坎 kan
+    //"flat_roofR69" 艮 gen
+    //"flat_roofR69" 坤 kun
+    //"flat_roofR71" 兑 dui
+    //"flat_roofR72" 乾 qian
+    //"flat_roofR73" 离 li
+    //"flat_roofR74" 震 zhen
+    public override int GetRoundTime() { return RoundTime; }
+    public override int GetPlayerSpawn() { return PlayerSpawn; }
+    public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
+    public override int GetPlayerWeapon() { return PlayerWeapon; }
+    public override int GetPlayerWeapon2() { return PlayerWeapon2; }
+    public override int GetPlayerMaxHp() { return PlayerHP; }
+    public override bool OnPlayerSpawn(MeteorUnit unit)
+    {
+        Vector3 vec = Global.GLevelSpawn[14];
+        vec.x += 350;
+        vec.x += 65;
+        vec.y = unit.transform.position.y;
+        U3D.MoveNpc("player", vec);
+        U3D.RotateNpc("player", 90);
+        return true;
+    }
+
+    bool allocNpc = false;
+    public override void Scene_OnCharacterEvent(int id, int evt)
+    {
+        base.Scene_OnCharacterEvent(id, evt);
+        if (!allocNpc)
+        {
+            MeteorUnit unit = U3D.GetUnit(id);
+            //if ()
+        }
+    }
+
+    public override void OnStart()
+    {
+        for (int i = 1; i < 9; i++)
+        {
+            string s = string.Format("npc31_0{0}", i);
+            AddNPC(s);
+        }
+        AddNPC("npc31_13");
+        Vector3 vec = Global.GLevelSpawn[14];
+        vec.x += 375;
+        U3D.MoveNpc("高寄萍", vec);
+        U3D.RotateNpc("高寄萍", -90);
+
+        GameObject roof = U3D.Find("flat_roofR72");
+        vec = roof.transform.position;
+        vec.y += 50;
+        U3D.MoveNpc("叶翔", vec);//乾-教官-叶翔-剑
+        roof = U3D.Find("flat_roofR70");
+        vec = roof.transform.position;
+        vec.y += 50;
+        U3D.MoveNpc("石群", vec);//坤-教官-刀
+        roof = U3D.Find("flat_roofR65");
+        vec = roof.transform.position;
+        vec.y += 50;
+        U3D.MoveNpc("金枪李", vec);//乾-教官-长枪
+        roof = U3D.Find("flat_roofR66");
+        vec = roof.transform.position;
+        vec.y += 50;
+        U3D.MoveNpc("小何", vec);//乾-教官-匕首
+        roof = U3D.Find("flat_roofR69");
+        vec = roof.transform.position;
+        vec.y += 50;
+        U3D.MoveNpc("冷燕", vec);//双刺
+        roof = U3D.Find("flat_roofR71");
+        vec = roof.transform.position;
+        vec.y += 50;
+        U3D.MoveNpc("孙玉伯", vec);//坤-教官-孙玉伯-锤
+        roof = U3D.Find("flat_roofR73");
+        vec = roof.transform.position;
+        vec.y += 50;
+        U3D.MoveNpc("孙剑", vec);//指虎
+        roof = U3D.Find("flat_roofR74");
+        vec = roof.transform.position;
+        vec.y += 50;
+        U3D.MoveNpc("无名", vec);//忍刀
+        base.OnStart();
+    }
+
+    int trg0 = 0;
+    int t0 = 0;
+    /*
+    乾 qián    gièng、khiân khèn    kin4 Càn 건（geon）	けん（ken）
+    坤 kūn kuǒng、khun khûn    kwan1 Khôn    곤（gon）	こん（kon）
+    震 zhèn    cīng、chìn chṳ́n   zan3 Chấn    진（jin）	しん（shin）
+    巽 xùn sóng、sùn sun seon3 Tốn 손（son）	そん（son）
+    坎 kǎn kāng、khá khám    ham2 Khảm    감（gam）	かん（kan）
+    离 lí  liê、lî lì  lei4 Ly  이（i）	り（ri）
+    艮 gèn góng、kùn ken gan3 Cấn 간（gan）	ごん（gon）
+    兑 duì dō̤i、toē tui deoi3 Đoài    태（tae）	だ（da）
+    */
+    public override int OnUpdate()
+    {
+        int player = GetChar("player");
+        if (player < 0)
+        {
+            return 0;
+        }
+
+        int c;
+
+        if (trg0 == 0)
+        {
+            c = GetChar("高寄萍");
+            if (c >= 0)
+            {
+                if (U3D.Distance(player, c) <= 65)
+                {
+                    Perform(c, "say", "如果受伤了可以来我这里恢复,找一把喜欢的武器开始练习吧");
+                    Perform(c, "pause", 4);
+                    Perform(c, "say", "具体招式可查看出招表");
+                    Perform(c, "pause", 4);
+                    Perform(c, "say", "或者下上A，空中下上A，下上上A(绝招)");
+                    Perform(c, "pause", 4);
+                    Perform(c, "say", "只有基本的攻击和技能，一般是方向键+攻击");
+                    Perform(c, "pause", 4);
+                    Perform(c, "say", "关于[火枪],[飞镖],[飞轮]");
+                    Perform(c, "pause", 4);
+                    Perform(c, "say", "可以通过卦位外的传送门,进入到该武器的教学");
+                    Perform(c, "pause", 4);
+                    Perform(c, "say", "当你不清楚什么武器招式如何释放的时候");
+                    Perform(c, "pause", 4);
+                    Perform(c, "say", "里面的人会训练你各种武器相关的招式");
+                    Perform(c, "pause", 4);
+                    Perform(c, "say", "[重锤],[拳套],[忍刀],[双刺]");
+                    Perform(c, "pause", 4);
+                    Perform(c, "say", "分别代表了 [长剑],[大刀],[长枪],[匕首]");
+                    Perform(c, "pause", 4);
+                    Perform(c, "say", "星,这里有8个卦位！=.=");
+                    Perform(c, "faceto", player);
+                    trg0 = 1;
+                    PlayerPerform("block", 0);
+                    PlayerPerform("pause", 20);
+                    PlayerPerform("block", 1);
+                    t0 = GetGameTime();
+                }
+            }
+        }
+
+        if (trg0 == 1)
+        {
+            c = GetChar("高寄萍");
+            if (c >= 0)
+            {
+                if (GetGameTime() - t0 > 30 && GetHP(player) < (GetMaxHP(player) / 3) && U3D.Distance(player, c) <= 65)
+                {
+                    Perform(c, "say", "星,怎么受了这么重的伤！");
+                    PlayerPerform("use", 15);
+                    t0 = GetGameTime();
+                }
+            }
+
+            //如果所有人全部都打败
+            if (U3D.AllEnemyDead())
+            {
+                trg0 = 2;
+                GameOver(1);
+            }
+        }
+
+        //当玩家离开各个卦位时，停止AI
+
+        return 0;
     }
 }

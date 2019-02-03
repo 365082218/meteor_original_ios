@@ -21,7 +21,9 @@ public class WayPoint
 //决定了入口是从单机任务来，还是开房间，进房间
 public enum LevelMode
 {
+    Teach,//教学
     SinglePlayerTask,//剧情任务
+    CreateWorld,//单机-创建世界
     MultiplyPlayer,//联机-看GameMode
 }
 

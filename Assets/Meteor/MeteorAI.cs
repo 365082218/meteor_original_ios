@@ -5,6 +5,7 @@ using Idevgame.Util;
 
 public enum EAIStatus
 {
+    None,
     Idle,//不动.
     Fight,//包括所有战斗情况
     Kill,//强制杀死指定敌人，无视距离，一直跟随
@@ -23,6 +24,7 @@ public enum EAIStatus
 
 public enum EAISubStatus
 {
+    None,
     FightGotoTarget,//在打斗前，必须走到目标范围附近,就是朝目标移动
     FightGotoPosition,//朝目的地移动，需要寻路.
     FightSubRotateToTarget,//走到路点后，旋转朝向下一个路点.
@@ -63,8 +65,8 @@ public class MeteorAI {
     public MeteorAI(MeteorUnit user)
     {
         owner = user;
-        Status = EAIStatus.Idle;
-        SubStatus = EAISubStatus.SubStatusIdle;
+        Status = EAIStatus.None;
+        SubStatus = EAISubStatus.None;
         int count = Global.GLevelItem.wayPoint.Count;
         nodeContainer = new PathNode[count];
         ThinkCheckTick = MeteorAI.ThinkDelay;

@@ -124,6 +124,10 @@ public class NewSystemWnd : Window<NewSystemWnd>
         toggleEnableGodMode.isOn = GameData.Instance.gameStatus.EnableGodMode;
         toggleEnableGodMode.onValueChanged.AddListener(OnEnableGodMode);
 
+        Toggle toggleEnableUndead = Control("EnableUnDead").GetComponent<Toggle>();
+        toggleEnableUndead.isOn = GameData.Instance.gameStatus.Undead;
+        toggleEnableUndead.onValueChanged.AddListener(OnEnableUndead);
+
         Toggle toggleShowWayPoint = Control("ShowWayPoint").GetComponent<Toggle>();
         toggleShowWayPoint.isOn = GameData.Instance.gameStatus.ShowWayPoint;
         toggleShowWayPoint.onValueChanged.AddListener(OnShowWayPoint);
@@ -197,6 +201,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
             Control("ShowLog").SetActive(false);
             Control("ShowLevelDebugButton").SetActive(false);
             Control("Cat").SetActive(false);
+            Control("EnableUnDead").SetActive(false);
         }
 
         InitLevel();
@@ -205,7 +210,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
 
     void OnChangeSpeed(bool fast)
     {
-        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+        if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             if (MeteorManager.Instance.LocalPlayer != null)
             {
@@ -220,7 +225,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
     void OnDisableCat(bool disable)
     {
         GameData.Instance.gameStatus.PetOn = disable;
-        if (GameData.Instance.gameStatus.PetOn && Global.GLevelItem.DisableFindWay == 0 && Global.GLevelItem != null && Global.GLevelMode == LevelMode.SinglePlayerTask)
+        if (GameData.Instance.gameStatus.PetOn && Global.GLevelItem.DisableFindWay == 0 && Global.GLevelItem != null && Global.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             U3D.InitPet();
         }
@@ -372,6 +377,11 @@ public class NewSystemWnd : Window<NewSystemWnd>
             if (FightWnd.Exist)
                 FightWnd.Instance.ShowCameraBtn();
         }
+    }
+
+    void OnEnableUndead(bool on)
+    {
+        GameData.Instance.gameStatus.Undead = on;
     }
 
     void OnEnableGodMode(bool on)

@@ -6,6 +6,11 @@ using System.Collections.Generic;
 
 public class Global
 {
+    public static int RoundTime;
+    public static int MainWeapon;
+    public static int SubWeapon;
+    public static int PlayerLife;
+    public static int PlayerModel;
     public static int ComboProbability = 5;//连击率
     public static int SpecialWeaponProbability = 98;//100-98=2几率切换到远程武器，每次Think都有2%几率
     public static float AimDegree = 30.0f;//夹角超过30度，需要重新瞄准

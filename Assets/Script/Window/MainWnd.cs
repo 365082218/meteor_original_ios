@@ -37,31 +37,159 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
         return base.OnOpen();
     }
 
+    GameObject TemplateRoot;
+    GameMode gameMode = GameMode.MENGZHU;
+    int life = 500;
+    int MainWeaponCode = (int)EquipWeaponType.Knife;
+    int SubWeaponCode = (int)EquipWeaponType.Gloves;
+    int model = 0;//孟星魂
+    int roundTime = 15;//单轮时长.
+    int[] ConstRoundTime = {15, 30, 60};
     void Init()
     {
-        Control("CreateWorld").GetComponent<Button>().onClick.AddListener(() =>
+        Control("CreateWorld").GetComponent<Button>().onClick.AddListener(()=>
         {
-            OnCreateWorld();
+            OnEnterLevel();
         });
-        //Control("CreateRoom").GetComponent<Button>().onClick.AddListener(() =>
-        //{
-        //    OnCreateRoom();
-        //});
-        //Control("Refresh").GetComponent<Button>().onClick.AddListener(() =>
-        //{
-        //    OnRefresh();
-        //});
-        //Control("Close").GetComponent<Button>().onClick.AddListener(() =>
-        //{
-        //    OnGoback();
-        //});
-        //RoomRoot = Control("RoomRoot");
-        //ClientProxy.Init();
+        GameObject RuleGroup = Control("RuleGroup", WndObject);
+        Toggle rule0 = Control("0", RuleGroup).GetComponent<Toggle>();
+        Toggle rule1 = Control("1", RuleGroup).GetComponent<Toggle>();
+        rule0.isOn = true;
+        rule1.isOn = false;
+        rule0.onValueChanged.AddListener((bool select) => { if (select) gameMode = GameMode.MENGZHU; });
+        rule1.onValueChanged.AddListener((bool select) => { if (select) gameMode = GameMode.ANSHA; });
+
+        GameObject LifeGroup = Control("LifeGroup", WndObject);
+        Toggle Life0 = Control("0", LifeGroup).GetComponent<Toggle>();
+        Toggle Life1 = Control("1", LifeGroup).GetComponent<Toggle>();
+        Toggle Life2 = Control("2", LifeGroup).GetComponent<Toggle>();
+
+        Life0.isOn = false;
+        Life1.isOn = true;
+        Life2.isOn = false;
+        Life0.onValueChanged.AddListener((bool select) => { if (select) life = 500; });
+        Life1.onValueChanged.AddListener((bool select) => { if (select) life = 200; });
+        Life2.onValueChanged.AddListener((bool select) => { if (select) life = 100; });
+
+        GameObject MainWeaponGroup = Control("FirstWeapon", WndObject);
+        GameObject WeaponGroup = Control("WeaponGroup", MainWeaponGroup);
+        for (int i = 0; i <= 11; i++)
+        {
+            Toggle MainWeapon = Control(string.Format("{0}", i), WeaponGroup).GetComponent<Toggle>();
+            MainWeapon.onValueChanged.AddListener(OnMainWeaponSelected);
+        }
+
+        GameObject SubWeaponGroup = Control("SubWeapon", WndObject);
+        WeaponGroup = Control("WeaponGroup", SubWeaponGroup);
+        for (int i = 0; i <= 11; i++)
+        {
+            Toggle subWeapon = Control(string.Format("{0}", i), WeaponGroup).GetComponent<Toggle>();
+            subWeapon.onValueChanged.AddListener(OnSubWeaponSelected);
+        }
+
+        Control("Return").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            MainWnd.Instance.Open();
+            Close();
+        });
+
+        TemplateRoot = Control("WorldRoot", WndObject);
+        for (int i = 1; i <= LevelMng.Instance.GetAllItem().Length; i++)
+        {
+            Level lev = LevelMng.Instance.GetItem(i);
+            if (lev == null || lev.SceneMode == 1)
+                continue;
+            AddGridItem(lev, TemplateRoot.transform);
+            select = lev;
+        }
+        OnSelectLevel(select);
+
+        GameObject ModelGroup = Control("ModelGroup");
+        for (int i = 0; i < 20; i++)
+        {
+            Toggle modelTog = Control(string.Format("{0}", i), ModelGroup).GetComponent<Toggle>();
+            Text t = modelTog.GetComponentInChildren<Text>();
+            t.text = ModelMng.Instance.GetAllItem()[i].Name;
+            var k = i;
+            modelTog.onValueChanged.AddListener((bool select) => { if (select) model = k; });
+        }
+
+        GameObject TimeGroup = Control("GameTime", WndObject);
+        for (int i = 0; i < 3; i++)
+        {
+            Toggle TimeToggle = Control(string.Format("0", i), WndObject).GetComponent<Toggle>();
+            var k = i;
+            TimeToggle.onValueChanged.AddListener((bool selected) => { if (selected) roundTime = ConstRoundTime[k]; });
+        }
     }
 
-    void OnCreateWorld()
+    void OnMainWeaponSelected(bool select)
     {
+        if (select)
+        {
+            GameObject MainWeaponGroup = Control("FirstWeapon", WndObject);
+            GameObject WeaponGroup = Control("WeaponGroup", MainWeaponGroup);
+            for (int i = 0; i <= 11; i++)
+            {
+                Toggle MainWeapon = Control(string.Format("{0}", i), WeaponGroup).GetComponent<Toggle>();
+                if (MainWeapon.isOn)
+                {
+                    MainWeaponCode = i;
+                    break;
+                }
+                
+            }
+        }
+    }
 
+    void OnSubWeaponSelected(bool select)
+    {
+        if (select)
+        {
+            GameObject MainWeaponGroup = Control("SubWeapon", WndObject);
+            GameObject WeaponGroup = Control("WeaponGroup", MainWeaponGroup);
+            for (int i = 0; i <= 11; i++)
+            {
+                Toggle subWeapon = Control(string.Format("{0}", i), WeaponGroup).GetComponent<Toggle>();
+                if (subWeapon.isOn)
+                {
+                    SubWeaponCode = i;
+                    break;
+                }
+            }
+        }
+    }
+
+    Level select;
+    void OnSelectLevel(Level lev)
+    {
+        select = lev;
+        Control("Task").GetComponent<Text>().text = select.Name;
+    }
+
+    void OnEnterLevel()
+    {
+        if (select != null)
+        {
+            Global.MainWeapon = MainWeaponCode;
+            Global.SubWeapon = SubWeaponCode;
+            Global.PlayerLife = life;
+            Global.PlayerModel = model;
+            Global.RoundTime = roundTime;
+            U3D.LoadLevel(select.ID, LevelMode.CreateWorld, gameMode);
+        }
+    }
+
+    void AddGridItem(Level lev, Transform parent)
+    {
+        GameObject objPrefab = Resources.Load("LevelSelectItem", typeof(GameObject)) as GameObject;
+        GameObject obj = GameObject.Instantiate(objPrefab) as GameObject;
+        obj.transform.SetParent(parent);
+        obj.name = lev.Name;
+        obj.GetComponent<Button>().onClick.AddListener(() => { OnSelectLevel(lev); });
+        obj.GetComponentInChildren<Text>().text = lev.Name;
+        obj.transform.localPosition = Vector3.zero;
+        obj.transform.localScale = Vector3.one;
     }
 }
 
@@ -115,7 +243,7 @@ public class WeaponSelectWnd:Window<WeaponSelectWnd>
 
     void OnSelectWeapon()
     {
-        NetWorkBattle.Ins.weaponIdx = U3D.GetNormalWeapon(weaponIdx);
+        NetWorkBattle.Ins.weaponIdx = U3D.GetWeaponByCode(weaponIdx);
         NetWorkBattle.Ins.EnterLevel();
         Close();
     }
@@ -566,7 +694,7 @@ public class MainWnd : Window<MainWnd>
         });
         //创建房间-各种单机玩法
         Control("CreateBattle").GetComponent<Button>().onClick.AddListener(() => {
-            OnTeachingLevel();
+            OnCreateRoom();
         });
         //多人游戏-联机
         Control("MultiplePlayer").GetComponent<Button>().onClick.AddListener(() => {
@@ -604,7 +732,13 @@ public class MainWnd : Window<MainWnd>
     //教学关卡.
     void OnTeachingLevel()
     {
-        TeachMenu.Instance.Open();
+        U3D.LoadLevel(31, LevelMode.Teach, GameMode.SIDOU);
+    }
+
+    void OnCreateRoom()
+    {
+        WorldTemplateWnd.Instance.Open();
+        Close();
     }
 
     void OnlineGame()
