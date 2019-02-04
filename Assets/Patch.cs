@@ -68,7 +68,7 @@ public class Patch : MonoBehaviour {
             ConnectWnd.Instance.Close();
         SFXLoader.Instance.Init();
         GameObject sfx = new GameObject("preload");
-        SFXLoader.Instance.PlayEffect(857, sfx, true, true);
+        SFXLoader.Instance.PlayEffect("defup.ef", sfx, true, true);
         //yield return new WaitForEndOfFrame();
         //toProgress = 30;
         //while (displayProgress < toProgress)

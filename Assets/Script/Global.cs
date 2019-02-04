@@ -7,6 +7,7 @@ using System.Collections.Generic;
 public class Global
 {
     public static bool useShadowInterpolate = true;//是否使用影子跟随插值
+    public static int MaxPlayer;
     public static int RoundTime;
     public static int MainWeapon;
     public static int SubWeapon;

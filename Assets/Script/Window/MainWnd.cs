@@ -44,7 +44,10 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
     int SubWeaponCode = (int)EquipWeaponType.Gloves;
     int model = 0;//孟星魂
     int roundTime = 15;//单轮时长.
+    int maxPlayer = 2;
+    
     int[] ConstRoundTime = {15, 30, 60};
+    int[] ConstPlayer = {2, 4, 8, 12, 16};
     void Init()
     {
         Control("CreateWorld").GetComponent<Button>().onClick.AddListener(()=>
@@ -54,10 +57,10 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
         GameObject RuleGroup = Control("RuleGroup", WndObject);
         Toggle rule0 = Control("0", RuleGroup).GetComponent<Toggle>();
         Toggle rule1 = Control("1", RuleGroup).GetComponent<Toggle>();
-        rule0.isOn = true;
-        rule1.isOn = false;
-        rule0.onValueChanged.AddListener((bool select) => { if (select) gameMode = GameMode.MENGZHU; });
+        Toggle rule2 = Control("2", RuleGroup).GetComponent<Toggle>();
+        rule0.onValueChanged.AddListener((bool select) => { if (select) gameMode = GameMode.MENGZHU;});
         rule1.onValueChanged.AddListener((bool select) => { if (select) gameMode = GameMode.ANSHA; });
+        rule2.onValueChanged.AddListener((bool select) => { if (select) gameMode = GameMode.SIDOU; });
 
         GameObject LifeGroup = Control("LifeGroup", WndObject);
         Toggle Life0 = Control("0", LifeGroup).GetComponent<Toggle>();
@@ -117,9 +120,21 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
         GameObject TimeGroup = Control("GameTime", WndObject);
         for (int i = 0; i < 3; i++)
         {
-            Toggle TimeToggle = Control(string.Format("0", i), WndObject).GetComponent<Toggle>();
+            Toggle TimeToggle = Control(string.Format("{0}", i), TimeGroup).GetComponent<Toggle>();
             var k = i;
             TimeToggle.onValueChanged.AddListener((bool selected) => { if (selected) roundTime = ConstRoundTime[k]; });
+        }
+
+        GameObject PlayerGroup = Control("PlayerGroup", WndObject);
+        for (int i = 0; i <= 4; i++)
+        {
+            Toggle PlayerToggle = Control(string.Format("{0}", i), PlayerGroup).GetComponent<Toggle>();
+            var k = i;
+            PlayerToggle.onValueChanged.AddListener((bool selected) => 
+            {
+                if (selected)
+                    maxPlayer = ConstPlayer[k];
+            });
         }
     }
 
@@ -176,6 +191,7 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
             Global.PlayerLife = life;
             Global.PlayerModel = model;
             Global.RoundTime = roundTime;
+            Global.MaxPlayer = maxPlayer;
             U3D.LoadLevel(select.ID, LevelMode.CreateWorld, gameMode);
         }
     }

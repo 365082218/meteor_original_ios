@@ -77,6 +77,30 @@ public class LevelHelper : MonoBehaviour
         return System.Activator.CreateInstance(type) as LevelScriptBase;
     }
 
+    void SpawnAllRobot()
+    {
+        if (Global.GGameMode == GameMode.MENGZHU)
+        {
+            for (int i = 1; i < Global.MaxPlayer; i++)
+            {
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), EUnitCamp.EUC_KILLALL, U3D.GetRandomWeaponType(), Global.PlayerLife);
+            }
+        }
+        else if (Global.GGameMode == GameMode.ANSHA || Global.GGameMode == GameMode.SIDOU)
+        {
+            int FriendCount = Global.MaxPlayer / 2 - 1;
+            for (int i = 0; i < FriendCount; i++)
+            {
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), MeteorManager.Instance.LocalPlayer.Camp, U3D.GetRandomWeaponType(), Global.PlayerLife);
+            }
+
+            for (int i = FriendCount + 1; i < Global.MaxPlayer; i++)
+            {
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), U3D.GetAnotherCamp(MeteorManager.Instance.LocalPlayer.Camp), U3D.GetRandomWeaponType(), Global.PlayerLife);
+            }
+        }
+    }
+
     void OnLoadFinishedEx(Level lev)
     {
         SoundManager.Instance.Enable(true);
@@ -100,6 +124,10 @@ public class LevelHelper : MonoBehaviour
         Startup.ins.listener.enabled = false;
         Startup.ins.playerListener = MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
        
+        //创建房间模式的时候，创建随机NPC
+        if (Global.GLevelMode == LevelMode.CreateWorld)
+            SpawnAllRobot();
+
         //等脚本设置好物件的状态后，根据状态决定是否生成受击盒，攻击盒等.
         GameBattleEx.Instance.Init(lev, script);
 

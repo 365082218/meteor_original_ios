@@ -71,6 +71,7 @@ public partial class GameBattleEx : MonoBehaviour {
             //等待服务器再开一局.逻辑先不处理.
             return;
         }
+
         Global.PauseAll = true;
         ShowWayPoint(false);
         MeteorManager.Instance.LocalPlayer.controller.LockInput(true);
@@ -166,6 +167,20 @@ public partial class GameBattleEx : MonoBehaviour {
             {
                 GameOver(2);
                 return;
+            }
+        }
+
+        //检查盟主模式下的死亡单位，令其复活
+        if (Global.GGameMode == GameMode.MENGZHU)
+        {
+            MeteorManager.Instance.DeadUnitsClone.Clear();
+            for (int i = 0; i < MeteorManager.Instance.DeadUnits.Count; i++)
+            {
+                MeteorManager.Instance.DeadUnitsClone.Add(MeteorManager.Instance.DeadUnits[i]);
+            }
+            for (int i = 0; i < MeteorManager.Instance.DeadUnitsClone.Count; i++)
+            {
+                MeteorManager.Instance.DeadUnitsClone[i].RebornUpdate();
             }
         }
 
@@ -1017,12 +1032,13 @@ public partial class GameBattleEx : MonoBehaviour {
         public int killCount;
         public int id;
     }
+    
     Dictionary<string, BattleResultItem> battleResult = new Dictionary<string, BattleResultItem>();
     public Dictionary<string, BattleResultItem> BattleResult { get { return battleResult; } }
     public void OnUnitDead(MeteorUnit unit, MeteorUnit killer = null)
     {
         if (Scene_OnCharacterEvent != null)
-            Scene_OnCharacterEvent.Invoke(Global.GScript, new object[] { unit.InstanceId, EventDeath});
+            Scene_OnCharacterEvent.Invoke(Global.GScript, new object[] { unit.InstanceId, EventDeath });
         //无阵营的角色,杀死人，不统计信息
         if (killer != null && (killer.Camp == EUnitCamp.EUC_ENEMY || killer.Camp == EUnitCamp.EUC_FRIEND))
         {
@@ -1058,7 +1074,30 @@ public partial class GameBattleEx : MonoBehaviour {
 
         if (unit == MeteorManager.Instance.LocalPlayer)
         {
-            GameOver(0);
+            //如果是
+            if (Global.GLevelMode == LevelMode.CreateWorld)
+            {
+                if (Global.GGameMode == GameMode.MENGZHU)
+                {
+                    //等一段时间后复活.
+                }
+                else if (Global.GGameMode == GameMode.ANSHA)
+                {
+                    //检查是否是队长
+                    if (unit.IsLeader)
+                        GameOver(0);
+                }
+                else if (Global.GGameMode == GameMode.SIDOU)
+                {
+                    //检查双方是否有一边全部战败
+                    if (U3D.AllEnemyDead())
+                        GameOver(1);
+                    else if (U3D.AllFriendDead())
+                        GameOver(0);
+                }
+            }
+            else
+                GameOver(0);
             DropMng.Instance.Drop(unit);
             Unlock();
         }
@@ -1082,17 +1121,42 @@ public partial class GameBattleEx : MonoBehaviour {
             }
             if (unit == lockedTarget)
                 Unlock();
-            //检测关卡通关或者失败条件。
-            if (Global.GLevelItem.Pass == 1)//敌方阵营全死
+            if (Global.GLevelMode == LevelMode.SinglePlayerTask)
             {
-                int totalEnemy = U3D.GetEnemyCount();
-                if (totalEnemy == 0)
-                    GameOver(1);
+                //检测关卡通关或者失败条件。
+                if (Global.GLevelItem.Pass == 1)//敌方阵营全死
+                {
+                    int totalEnemy = U3D.GetEnemyCount();
+                    if (totalEnemy == 0)
+                        GameOver(1);
+                }
+                else if (Global.GLevelItem.Pass == 2)//敌方指定脚本角色死亡
+                {
+                    if (unit.Attr.NpcTemplate == Global.GLevelItem.Param)
+                        GameOver(1);
+                }
             }
-            else if (Global.GLevelItem.Pass == 2)//敌方指定脚本角色死亡
+            //如果是
+            else if (Global.GLevelMode == LevelMode.CreateWorld)
             {
-                if (unit.Attr.NpcTemplate == Global.GLevelItem.Param)
-                    GameOver(1);
+                if (Global.GGameMode == GameMode.MENGZHU)
+                {
+                    //等一段时间后复活.
+                }
+                else if (Global.GGameMode == GameMode.ANSHA)
+                {
+                    //检查是否是队长
+                    if (unit.IsLeader)
+                        GameOver(0);
+                }
+                else if (Global.GGameMode == GameMode.SIDOU)
+                {
+                    //检查双方是否有一边全部战败
+                    if (U3D.AllEnemyDead())
+                        GameOver(1);
+                    else if (U3D.AllFriendDead())
+                        GameOver(0);
+                }
             }
         }
     }

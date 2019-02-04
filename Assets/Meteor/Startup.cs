@@ -32,7 +32,7 @@ public class Startup : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        Random.InitState(19861013);
+        Random.InitState((int)System.DateTime.UtcNow.Ticks);
     }
     
     public void ShowFps(bool active)
@@ -78,7 +78,7 @@ public class Startup : MonoBehaviour {
     {
         MeteorManager.Instance.Clear();
         FightWnd.Instance.Close();
-        if (Global.GLevelMode == LevelMode.Teach)
+        if (Global.GLevelMode == LevelMode.Teach || Global.GLevelMode == LevelMode.CreateWorld)
             U3D.GoBack(() => { MainWnd.Instance.Open(); });
         else
             U3D.GoBack(() => { MainMenu.Instance.Open(); });

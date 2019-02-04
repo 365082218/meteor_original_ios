@@ -279,6 +279,8 @@ public partial class MeteorUnit : MonoBehaviour
     public WeaponLoader weaponLoader;
     public int wayIndex;
     public uint OnGroundTick = 0;
+    public float RebornTick = 0;//复活需要在死亡后多久间隔
+    public bool WaitReborn = false;//盟主模式-等待系统复活
     [SerializeField]
     public MeteorAI robot;
     //按照角色的坐标围成一圈，每个30度 12个空位，距离50，其实应该按
@@ -1957,7 +1959,7 @@ public partial class MeteorUnit : MonoBehaviour
     }
 
     //被复活.
-    public void OnReborn()
+    public void OnReborn(float max = 0.3f)
     {
         Dead = false;
         posMng.WaitPause(false);
@@ -1965,9 +1967,36 @@ public partial class MeteorUnit : MonoBehaviour
         EnableAI(true);
         MeteorManager.Instance.UnitInfos.Add(this);
         MeteorManager.Instance.DeadUnits.Remove(this);
-        Attr.OnReborn();
+        Attr.OnReborn(max);
         charController.enabled = true;
         MeteorManager.Instance.PhysicalIgnore(this, false);
+        if (Global.GLevelMode == LevelMode.CreateWorld)
+        {
+            if (Global.GGameMode == GameMode.MENGZHU)
+            {
+                //16个点
+                transform.position = Global.GLevelSpawn[Global.SpawnIndex];
+                Global.SpawnIndex++;
+                Global.SpawnIndex %= 16;
+            }
+            else if (Global.GGameMode == GameMode.ANSHA || Global.GGameMode == GameMode.SIDOU)
+            {
+                //2个队伍8个点.
+                if (Camp == EUnitCamp.EUC_FRIEND)
+                {
+                    transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
+                    Global.CampASpawnIndex++;
+                    Global.CampASpawnIndex %= 8;
+                }
+                else if (Camp == EUnitCamp.EUC_ENEMY)
+                {
+                    transform.position = Global.GCampASpawn[Global.CampBSpawnIndex];
+                    Global.CampBSpawnIndex++;
+                    Global.CampBSpawnIndex %= 8;
+                }
+            }
+            return;
+        }
         //闪现到出生点
         if (Global.GLevelItem.DisableFindWay == 1)
             return;
@@ -1977,6 +2006,20 @@ public partial class MeteorUnit : MonoBehaviour
             transform.position = Global.GLevelItem.wayPoint[0].pos;
     }
 
+    //盟主模式下的自动复活.
+    public void RebornUpdate()
+    {
+        RebornTick += Time.deltaTime;
+        if (RebornTick >= 5.0f)
+        {
+            OnReborn(1.0f);
+            RebornTick = 0.0f;
+        }
+    }
+
+    //暗杀模式，是否是队长，队长是一方阵营进入战场的第一个角色.
+    public bool IsLeader { get; set; }
+
     public void OnDead(MeteorUnit killer = null)
     {
         if (!Dead)
@@ -1984,6 +2027,15 @@ public partial class MeteorUnit : MonoBehaviour
             if (Attr.IsPlayer && GameData.Instance.gameStatus.Undead)
                 return;
             Dead = true;
+
+            //盟主模式，玩家在几秒后会复活.
+            //暗杀模式，需要队长去复活.
+            if (Global.GLevelMode == LevelMode.CreateWorld && (Global.GGameMode == GameMode.MENGZHU))
+            {
+                RebornTick = 0;
+                WaitReborn = true;
+            }
+
             if (killer == null)
             {
                 GameOverlayWnd.Instance.InsertSystemMsg(string.Format("{0}死亡", name));

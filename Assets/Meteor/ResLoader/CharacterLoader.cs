@@ -132,9 +132,9 @@ public class CharacterLoader : MonoBehaviour
             //    }
             //}
         }
-        //TryPlayEffect();
-        //ChangeAttack();
-        //ChangeWeaponTrail();
+        TryPlayEffect();
+        ChangeAttack();
+        ChangeWeaponTrail();
     }
 
     void GenerateBounds(Mesh me, List<Transform> bo)

@@ -13,6 +13,7 @@ public class MeteorManager {
     public PetController Pet;
     public List<MeteorUnit> UnitInfos = new List<MeteorUnit>();
     public List<MeteorUnit> DeadUnits = new List<MeteorUnit>();
+    public List<MeteorUnit> DeadUnitsClone = new List<MeteorUnit>();//备用的
     public List<MeteorUnit> LeavedUnits = new List<MeteorUnit>();//离场的NPC,设置禁用，取消激活游戏对象，但是可以查询
     public List<SceneItemAgent> SceneItems = new List<SceneItemAgent>();
     public List<GameObject> Coins = new List<GameObject>();
@@ -51,11 +52,26 @@ public class MeteorManager {
         ////让角色间无法穿透，待某个角色使出特殊技能时，关掉碰撞。
         //for (int i = 0; i < UnitInfos.Count; i++)
         //    UnitInfos[i].PhysicalIgnore(unit, false);
-        UnitInfos.Add(unit);
         if (Global.GLevelMode == LevelMode.MultiplyPlayer)
             unit.InstanceId = playerId;
         else
-            unit.InstanceId = UnitInstanceIdx++;
+        {
+            unit.InstanceId = UnitInstanceIdx;
+            if (IsFirstMember(unit))
+                unit.IsLeader = true;
+            UnitInstanceIdx++;
+        }
+        UnitInfos.Add(unit);
+    }
+
+    public bool IsFirstMember(MeteorUnit unit)
+    {
+        for (int i = 0; i < UnitInfos.Count; i++)
+        {
+            if (UnitInfos[i].Camp == unit.Camp)
+                return false;
+        }
+        return true;
     }
 
     public void OnDestroySceneItem(SceneItemAgent item)

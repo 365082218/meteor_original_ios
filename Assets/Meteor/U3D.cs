@@ -10,6 +10,7 @@ using System.IO;
 using CoClass;
 using UnityEngine.Profiling;
 using protocol;
+using System.Linq;
 
 [CustomLuaClassAttribute]
 public class U3D : MonoBehaviour {
@@ -61,6 +62,46 @@ public class U3D : MonoBehaviour {
         LoadingTipsManager.Instance.ReLoad();
         UnitMng.Instance.ReLoad();
         WeaponMng.Instance.ReLoad();
+    }
+
+    public static List<string> Nicks;
+    public static string GetRandomName()
+    {
+        if (Nicks != null && Nicks.Count != 0)
+        {
+            int index2 = UnityEngine.Random.Range(0, Nicks.Count);
+            string m = Nicks[index2];
+            Nicks.RemoveAt(index2);
+            return m;
+        }
+        TextAsset name = Resources.Load<TextAsset>("Name");
+        Nicks = name.text.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        int index = UnityEngine.Random.Range(0, Nicks.Count);
+        string n = Nicks[index];
+        Nicks.RemoveAt(index);
+        return n;
+    }
+
+    //取得某个种类的随机一把武器.
+    public static int GetRandomWeaponType()
+    {
+        int i = UnityEngine.Random.Range((int)EquipWeaponType.Sword, 1 + (int)EquipWeaponType.NinjaSword);
+        return i;
+    }
+
+    //取得随机英雄ID
+    public static int GetRandomUnitIdx()
+    {
+        return UnityEngine.Random.Range(0, ModelMng.Instance.GetAllItem().Length);
+    }
+
+    public static EUnitCamp GetAnotherCamp(EUnitCamp camp)
+    {
+        if (camp == EUnitCamp.EUC_ENEMY)
+            return EUnitCamp.EUC_FRIEND;
+        if (camp == EUnitCamp.EUC_FRIEND)
+            return EUnitCamp.EUC_ENEMY;
+        return EUnitCamp.EUC_KILLALL;
     }
 
     //通过EquipWeaponCode,得到指定类型的武器.用于在联机界面的武器选择时.
@@ -137,11 +178,10 @@ public class U3D : MonoBehaviour {
         int k = Rand(weaponList.Count);
         mon.Weapon = weaponList[k];
         mon.Weapon2 = weaponList[(k + 1) % weaponList.Count];
-        weaponIndex++;
         mon.IsPlayer = false;
 
         ModelInfo model = Global.GetCharacter(idx % Global.CharacterMax);
-        mon.name = model.Name;
+        mon.name = U3D.GetRandomName();
         GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
         GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
         MeteorUnit unit = ins.GetComponent<MeteorUnit>();
@@ -152,30 +192,41 @@ public class U3D : MonoBehaviour {
 
         if (camp == EUnitCamp.EUC_FRIEND)
         {
-            //朋友站左侧
             unit.transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
             Global.CampASpawnIndex++;
             Global.CampASpawnIndex %= 8;
-            U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "player" });
+            
         }
         else if (camp == EUnitCamp.EUC_ENEMY)
         {
-            //敌人站右侧
             unit.transform.position = Global.GCampBSpawn[Global.CampBSpawnIndex];
             Global.CampBSpawnIndex++;
             Global.CampBSpawnIndex %= 8;
-            U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "player" });
         }
         else
         {
-            //其他人随机一圈站
-            unit.transform.position = MeteorManager.Instance.LocalPlayer.mPos - 45 * (Quaternion.AngleAxis(U3D.Rand(360), Vector3.up) * MeteorManager.Instance.LocalPlayer.transform.forward);
-            unit.FaceToTarget(MeteorManager.Instance.LocalPlayer);
+            //16个点
+            unit.transform.position = Global.GLevelSpawn[Global.SpawnIndex];
+            Global.SpawnIndex++;
+            Global.SpawnIndex %= 16;
         }
         
         InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
         //找寻敌人攻击.因为这个并没有脚本模板
         unit.robot.ChangeState(EAIStatus.Wait);
+
+        if (Global.GGameMode == GameMode.MENGZHU)
+        {
+
+        }
+        else if (Global.GGameMode == GameMode.ANSHA)
+        {
+            U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "vip" });
+        }
+        else if (Global.GGameMode == GameMode.SIDOU)
+        {
+            U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "vip" });
+        }
         return;
     }
 
@@ -1108,33 +1159,13 @@ public class U3D : MonoBehaviour {
 
     public static MeteorUnit GetTeamLeader(EUnitCamp camp)
     {
-        if (camp == EUnitCamp.EUC_FRIEND)
-            return MeteorManager.Instance.LocalPlayer;
-        else if (camp == EUnitCamp.EUC_ENEMY)
+        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
         {
-            int hpMax = 0;
-            MeteorUnit ret = null;
-            for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+            if (MeteorManager.Instance.UnitInfos[i].Camp == camp)
             {
-                if (MeteorManager.Instance.UnitInfos[i].Camp == camp)
-                {
-                    if (ret != null)
-                    {
-                        if (hpMax < MeteorManager.Instance.UnitInfos[i].Attr.HpMax)
-                        {
-                            hpMax = MeteorManager.Instance.UnitInfos[i].Attr.HpMax;
-                            ret = MeteorManager.Instance.UnitInfos[i];
-                        }
-                    }
-                    else
-                        ret = MeteorManager.Instance.UnitInfos[i];
-                }
+                if (MeteorManager.Instance.UnitInfos[i].IsLeader)
+                    return MeteorManager.Instance.UnitInfos[i];
             }
-            return ret;
-        }
-        else
-        {
-            Debug.LogError("other camp has no vip");
         }
         return null;
     }
@@ -1755,6 +1786,25 @@ public class U3D : MonoBehaviour {
         if (u)
             return u.Dead;
         return true;
+    }
+
+    public static bool AllFriendDead()
+    {
+        bool alldead = true;
+        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        {
+            if (MeteorManager.Instance.UnitInfos[i] == MeteorManager.Instance.LocalPlayer)
+                continue;
+            if (MeteorManager.Instance.UnitInfos[i].SameCamp(MeteorManager.Instance.LocalPlayer))
+            {
+                if (!MeteorManager.Instance.UnitInfos[i].Dead)
+                {
+                    alldead = false;
+                    break;
+                }
+            }
+        }
+        return alldead;
     }
 
     public static bool AllEnemyDead()

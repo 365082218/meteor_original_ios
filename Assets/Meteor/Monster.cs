@@ -243,10 +243,10 @@ public class MonsterEx
         BuffDamage += damage;   
     }
 
-    public void OnReborn()
+    public void OnReborn(float max = 0.3f)
     {
         IsDead = false;
-        hpCur = Mathf.FloorToInt(HpMax * 0.5f);
+        hpCur = Mathf.FloorToInt(HpMax * max);
     }
 
     public void AddHP(int hp)
