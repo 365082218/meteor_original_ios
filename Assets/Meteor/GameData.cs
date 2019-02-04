@@ -138,6 +138,8 @@ public class GameState
     public string MeteorVersion;
     public int TargetFrame;//60-30
     public bool ShowBlood;//显示敌方血量.
+    public bool ShowFPS;//显示fps
+    public bool ShowSysMenu2;//显示左侧复活和战况
     public bool ShowWayPoint;//显示路点
     public bool EnableLog;//HIDEBUG日志
     bool _LevelDebug;

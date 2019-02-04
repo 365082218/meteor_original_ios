@@ -261,8 +261,11 @@ public partial class MeteorUnit : MonoBehaviour
     public virtual bool IsDebugUnit() { return false; }
     public int UnitId;
     public int InstanceId;
-    //public int Action;
-    //public int Frame;
+    public Vector3 ShadowPosition;//影子坐标-服务器
+    public Quaternion ShadowRotation;//影子旋转-服务器
+    public float ShadowDelta = 0.0f;
+    public bool ShadowSynced = false;//是否同步完影子位置
+    public bool ShadowUpdate = false;//影子是否更新位置
     public Transform WeaponL;//右手骨骼
     public Transform WeaponR;
     public Transform ROOTNull;
@@ -952,9 +955,14 @@ public partial class MeteorUnit : MonoBehaviour
         v.y = IgnoreGravity ? 0 : ImpluseVec.y * Time.deltaTime;
         v.z = ImpluseVec.z * Time.deltaTime;
         v += charLoader.moveDelta;
-        //if (v != Vector3.zero)
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        {
+            //联机避免抖动
+            if (v != Vector3.zero)
+                Move(v);
+        }
+        else
             Move(v);
-
         if (OnTouchWall)
             ProcessFriction(0.2f);//爬墙或者在墙面滑动，摩擦力是地面的0.2倍
 
@@ -1177,7 +1185,7 @@ public partial class MeteorUnit : MonoBehaviour
             gameObject.layer = LayerMask.NameToLayer("LocalPlayer");
 
         //单机模式下有ai
-        if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Global.GLevelMode <= LevelMode.CreateWorld)
             robot = Attr.IsPlayer ? null : new MeteorAI(this);
         
         controller = gameObject.GetComponent<MeteorController>();

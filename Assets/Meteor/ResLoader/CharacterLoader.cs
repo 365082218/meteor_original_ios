@@ -83,7 +83,6 @@ public class CharacterLoader : MonoBehaviour
 
     }
 
-    Vector3 vTmp = Vector3.zero;
     //旧的
     int netFrame = 0;
     int netPose = 0;
@@ -91,48 +90,51 @@ public class CharacterLoader : MonoBehaviour
     public void ChangeFrame(int pose, int frame)
     {
         Pause = false;
-        if (!PoseStatus.ActionList.ContainsKey(owner.UnitId))
-            return;
-        po = PoseStatus.ActionList[owner.UnitId][pose];
-        if (po.SourceIdx == 0 && (AmbLoader.CharCommon.Count <= frame || !AmbLoader.FrameBoneAni.ContainsKey(owner.UnitId)))
-            return;
-        if (po.SourceIdx == 1 && AmbLoader.FrameBoneAni[owner.UnitId].Count <= frame)
-            return;
         if (pose != netPose)
         {
+            if (!PoseStatus.ActionList.ContainsKey(owner.UnitId))
+                return;
+            po = PoseStatus.ActionList[owner.UnitId][pose];
+            if (po.SourceIdx == 0 && (AmbLoader.CharCommon.Count <= frame || !AmbLoader.FrameBoneAni.ContainsKey(owner.UnitId)))
+                return;
+            if (po.SourceIdx == 1 && AmbLoader.FrameBoneAni[owner.UnitId].Count <= frame)
+                return;
+
             lastPosIdx = netPose;
-            netPose = pose; 
+            netPose = pose;
             effectPlayed = false;
-        }
-        lastFrameIndex = curIndex;
-        curIndex = frame;
-        TryPlayEffect();
-        ChangeAttack();
-        ChangeWeaponTrail();
-        BoneStatus status = null;
-        if (po.SourceIdx == 0)
-            status = AmbLoader.CharCommon[frame];
-        else if (po.SourceIdx == 1)
-            status = AmbLoader.FrameBoneAni[owner.UnitId][frame];
+            lastFrameIndex = curIndex;
+            owner.posMng.ChangeAction(pose);
+            //lastFrameIndex = frame;
+            curIndex = frame;
+            //BoneStatus status = null;
+            //if (po.SourceIdx == 0)
+            //    status = AmbLoader.CharCommon[frame];
+            //else if (po.SourceIdx == 1)
+            //    status = AmbLoader.FrameBoneAni[owner.UnitId][frame];
 
+            //for (int i = 0; i < bo.Count; i++)
+            //{
+            //    bo[i].localRotation = status.BoneQuat[i];
+            //    if (i == 0)
+            //        bo[i].localPosition = status.BonePos;
+            //}
 
-        for (int i = 0; i < bo.Count; i++)
-        {
-            bo[i].localRotation = status.BoneQuat[i];
-            if (i == 0)
-                bo[i].localPosition = status.BonePos;
+            //for (int i = 0; i < dummy.Count; i++)
+            //{
+            //    if (i == 0)
+            //    {
+            //    }
+            //    else
+            //    {
+            //        dummy[i].localRotation = status.DummyQuat[i];
+            //        dummy[i].localPosition = status.DummyPos[i];
+            //    }
+            //}
         }
-        for (int i = 0; i < dummy.Count; i++)
-        {
-            if (i == 0)
-            {
-            }
-            else
-            {
-                dummy[i].localRotation = status.DummyQuat[i];
-                dummy[i].localPosition = status.DummyPos[i];
-            }
-        }
+        //TryPlayEffect();
+        //ChangeAttack();
+        //ChangeWeaponTrail();
     }
 
     void GenerateBounds(Mesh me, List<Transform> bo)

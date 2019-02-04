@@ -120,7 +120,7 @@ PlayerSettings:
     16:9: 1
     Others: 1
   bundleIdentifier: com.Idevgame.Meteor
-  bundleVersion: 0.0.7.9
+  bundleVersion: 0.2.1.0
   preloadedAssets: []
   metroInputSource: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -195,7 +195,7 @@ PlayerSettings:
   appleDeveloperTeamID: 
   iOSManualSigningProvisioningProfileID: 
   tvOSManualSigningProvisioningProfileID: 
-  appleEnableAutomaticSigning: 0
+  appleEnableAutomaticSigning: 1
   AndroidTargetDevice: 0
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 2800000, guid: 02fccc993207dd547aaa52b069fee0e2, type: 3}
@@ -475,7 +475,7 @@ PlayerSettings:
   webGLCompressionFormat: 1
   scriptingDefineSymbols:
     1: BUILD_PC;RAVEN_COMPILED
-    4: NOLOG;RAVEN_COMPILED
+    4: STRIP_KEYBOARD
     7: RAVEN_COMPILED;DEBUG_DEV
     13: RAVEN_COMPILED
     14: RAVEN_COMPILED

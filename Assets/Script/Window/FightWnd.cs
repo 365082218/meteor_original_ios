@@ -105,7 +105,7 @@ public class FightWnd: Window<FightWnd>
         Global.ldaControlX("Status", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnStatusPress);
         Global.ldaControlX("Status", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnStatusRelease);
 
-        Global.ldaControlX("SysMenu2", WndObject).SetActive(Global.GLevelMode != LevelMode.Teach);
+        Global.ldaControlX("SysMenu2", WndObject).SetActive(Global.GLevelMode != LevelMode.Teach && GameData.Instance.gameStatus.ShowSysMenu2);
         Global.ldaControlX("Reborn", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnRebornClick);
         if (Global.GLevelMode == LevelMode.MultiplyPlayer)
             Global.ldaControlX("Reborn", WndObject).SetActive(false);

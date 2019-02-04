@@ -19,6 +19,7 @@ public class Patch : MonoBehaviour {
 #endif
         GameData.Instance.LoadState();
         GameData.Instance.InitTable();
+        Startup.ins.ShowFps(GameData.Instance.gameStatus.ShowFPS);
         //清理数据
         ResMng.Reload();
         StartCoroutine(LoadData());

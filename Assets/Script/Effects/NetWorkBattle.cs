@@ -39,8 +39,10 @@ public class NetWorkBattle : MonoBehaviour {
 	
     public void OnPlayerUpdate(int t)
     {
+        //Debug.Log("server frame:" + t);
         tick = 0;
         gameTime = t;
+        waitSend = true;
     }
 
     public MeteorUnit GetNetPlayer(int id)
@@ -69,38 +71,71 @@ public class NetWorkBattle : MonoBehaviour {
     uint tick = 0;
     public bool TurnStarted = false;
     public bool waitReborn = false;
+    public bool waitSend = true;
     void Update () {
         if (bSync && RoomId != -1 && TurnStarted && MeteorManager.Instance.LocalPlayer != null && !waitReborn)
         {
-            frameIndex++;
-            tick++;
-            if (frameIndex % 2 == 0)
+            if (waitSend)
             {
-                frame.frameIndex = turn;
-                turn++;
-
-                SyncAttribute(frame.Players[0]);
-                Common.SyncFrame(frame);
-
-                if (MeteorManager.Instance.LocalPlayer.Dead)
+                frameIndex++;
+                tick++;
+                if (frameIndex % 5 == 0)
                 {
-                    //Debug.LogError("waitreborn hp:" + frame.Players[0].hp);
-                    
-                    waitReborn = true;
+                    frame.frameIndex = turn;
+                    turn++;
+                    waitSend = false;
+                    SyncAttribute(frame.Players[0]);
+                    Common.SyncFrame(frame);
+
+                    if (MeteorManager.Instance.LocalPlayer.Dead)
+                    {
+                        //Debug.LogError("waitreborn hp:" + frame.Players[0].hp);
+
+                        waitReborn = true;
+                    }
                 }
-            }
 
 
-            //36=3秒个turn内没收到服务器回复的同步信息，算作断开连接.
-            if (tick >= 360)
-            {
-                bSync = false;
-                ReconnectWnd.Instance.Open();
-                if (GameBattleEx.Instance != null)
-                    GameBattleEx.Instance.NetPause();
+                //36=3秒个turn内没收到服务器回复的同步信息，算作断开连接.
+                if (tick >= 360)
+                {
+                    bSync = false;
+                    ReconnectWnd.Instance.Open();
+                    if (GameBattleEx.Instance != null)
+                        GameBattleEx.Instance.NetPause();
+                }
+                
             }
+            if (Global.useShadowInterpolate)
+                SyncInterpolate();
         }
 	}
+
+    public void SyncInterpolate()
+    {
+        if (NetWorkBattle.Ins.TurnStarted && MeteorManager.Instance.LocalPlayer != null)
+        {
+            //在战场更新中,更新其他角色信息，自己的只上传.
+            //Debug.Log("SyncInterpolate:" + Time.frameCount);
+            for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+            {
+                MeteorUnit unit = MeteorManager.Instance.UnitInfos[i];
+                if (unit != null && unit != MeteorManager.Instance.LocalPlayer)
+                {
+                    //玩家同步所有属性
+                    if (unit.ShadowSynced)
+                        continue;
+                    //float next = Mathf.Clamp01(unit.ShadowDelta + 0.5f);
+                    //Debug.Log("同步角色位置:" + Time.frameCount);
+                    unit.ShadowDelta += 5 * Time.deltaTime;
+                    unit.transform.position = Vector3.Lerp(unit.transform.position, unit.ShadowPosition, unit.ShadowDelta);
+                    unit.transform.rotation = Quaternion.Slerp(unit.transform.rotation, unit.ShadowRotation, unit.ShadowDelta);
+                    if (unit.ShadowDelta >= 1.0f)
+                        unit.ShadowSynced = true;
+                }
+            }
+        }
+    }
 
     public void OnDisconnect()
     {
@@ -163,6 +198,7 @@ public class NetWorkBattle : MonoBehaviour {
 
     public void ApplyAttribute(MeteorUnit unit, Player_ p)
     {
+        //Debug.Log("sync:" + Time.frameCount);
         unit.AngryValue = p.angry;
         //MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx = ;
         //p.Camp = (int)EUnitCamp.EUC_KILLALL;
@@ -172,17 +208,32 @@ public class NetWorkBattle : MonoBehaviour {
         //p.id = (uint)MeteorManager.Instance.LocalPlayer.InstanceId;
         //p.model = MeteorManager.Instance.LocalPlayer.Attr.Model;
         //p.name = MeteorManager.Instance.LocalPlayer.name;
-        Vector3 vec;
-        vec.x = p.pos.x / 1000.0f;
-        vec.y = p.pos.y / 1000.0f;
-        vec.z = p.pos.z / 1000.0f;
-        unit.transform.position = vec;
-        Quaternion quat;
-        quat.w = p.rotation.w / 1000.0f;
-        quat.x = p.rotation.x / 1000.0f;
-        quat.y = p.rotation.y / 1000.0f;
-        quat.z = p.rotation.z / 1000.0f;
-        unit.transform.rotation = quat;
+
+        if (unit.ShadowDelta < 0.95f && unit.ShadowUpdate && Global.useShadowInterpolate)
+        {
+            //unit.ShadowDeltaRatio++;
+            //Debug.Log("调整插值比:" + unit.ShadowDeltaRatio);
+            unit.transform.position = unit.ShadowPosition;
+            unit.transform.rotation = unit.ShadowRotation;
+        }
+
+        unit.ShadowPosition.x = p.pos.x / 1000.0f;
+        unit.ShadowPosition.y = p.pos.y / 1000.0f;
+        unit.ShadowPosition.z = p.pos.z / 1000.0f;
+
+        unit.ShadowRotation.w = p.rotation.w / 1000.0f;
+        unit.ShadowRotation.x = p.rotation.x / 1000.0f;
+        unit.ShadowRotation.y = p.rotation.y / 1000.0f;
+        unit.ShadowRotation.z = p.rotation.z / 1000.0f;
+
+        unit.ShadowDelta = 0.0f;
+        unit.ShadowSynced = false;
+        unit.ShadowUpdate = true;
+        if (!Global.useShadowInterpolate)
+        {
+            unit.transform.position = unit.ShadowPosition;
+            unit.transform.rotation = unit.ShadowRotation;
+        }
         //p.SpawnPoint = MeteorManager.Instance.LocalPlayer.Attr.SpawnPoint;
         if (unit.Attr.Weapon != (int)p.weapon)
             unit.SyncWeapon((int)p.weapon, (int)p.weapon2);

@@ -385,13 +385,13 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
                 Owner.OnCrouch();
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease, Time.deltaTime) && Owner.IsOnGround())
             {
                 Jump(Owner, Input.mInputVector, Input.KeyStates[(int)EKeyList.KL_Jump].PressedTime / MeteorInput.ShortPressTime);
                 //Debug.LogError("jumpback");
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress, Time.deltaTime) && Owner.IsOnGround())
             {
                 Jump(Owner, Input.mInputVector);
             }
@@ -458,13 +458,13 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
                 {
                     posMng.ChangeAction(CommonAction.DCRight, 0.1f);
                 }
-                else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress, Time.deltaTime))
-                {
-                    Jump(Owner, Input.mInputVector);
-                }
                 else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease, Time.deltaTime))
                 {
                     Jump(Owner, Input.mInputVector, Input.KeyStates[(int)EKeyList.KL_Jump].PressedTime / MeteorInput.ShortPressTime);
+                }
+                else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress, Time.deltaTime))
+                {
+                    Jump(Owner, Input.mInputVector);
                 }
                 else if (Input.HasInput((int)EKeyList.KL_Defence, (int)EInputType.EIT_Click, Time.deltaTime))
                 {

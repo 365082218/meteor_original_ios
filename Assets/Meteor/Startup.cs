@@ -33,9 +33,11 @@ public class Startup : MonoBehaviour {
     // Use this for initialization
     void Start () {
         Random.InitState(19861013);
-#if !STRIP_LOGS
-        fpsCanvas.SetActive(true);
-#endif
+    }
+    
+    public void ShowFps(bool active)
+    {
+        fpsCanvas.SetActive(active);
     }
 
     // Update is called once per frame

@@ -318,7 +318,7 @@ public class MonsterEx
                 hpCur = HpMax = 1000;
             if (Global.GLevelMode == LevelMode.CreateWorld)
             {
-                HpMax = hpCur = Global.PlayerLife;
+                HpMax = hpCur = 10 * Global.PlayerLife;
                 Weapon = U3D.GetWeaponByType(Global.MainWeapon);
                 Weapon2 = U3D.GetWeaponByType(Global.SubWeapon);
                 Model = Global.PlayerModel;

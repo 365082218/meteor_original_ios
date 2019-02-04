@@ -8703,6 +8703,7 @@ public class LevelScript_sn31 : LevelScript_sn22
                     Perform(c, "say", "分别代表了 [长剑],[大刀],[长枪],[匕首]");
                     Perform(c, "pause", 4);
                     Perform(c, "say", "星,这里有8个卦位！=.=");
+                    Perform(c, "pause", 4);
                     Perform(c, "faceto", player);
                     trg0 = 1;
                     PlayerPerform("block", 0);

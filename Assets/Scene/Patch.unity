@@ -4265,6 +4265,7 @@ MonoBehaviour:
   gameTime: 0
   TurnStarted: 0
   waitReborn: 0
+  waitSend: 1
 --- !u!114 &2044160634
 MonoBehaviour:
   m_ObjectHideFlags: 0
