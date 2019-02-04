@@ -99,8 +99,6 @@ public class U3D : MonoBehaviour {
         return weaponList[k];
     }
 
-    //当前场景立即产生一个npc
-    static int nextSpawnPoint = 0;
     //七星，旋风，怒火，峨眉，蛇吻，碧血剑，战戟,斩铁,流星,乾坤刀,指虎,忍刀
     static int[] weaponCode = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 47, 51, 55 };
 
@@ -112,6 +110,7 @@ public class U3D : MonoBehaviour {
             U3D.PopupTip("联机无法添加机器人");
             return;
         }
+
         List<int> weaponList = null;
         if (weaponDict.ContainsKey(weaponIndex))
             weaponList = weaponDict[weaponIndex];
@@ -154,15 +153,18 @@ public class U3D : MonoBehaviour {
         if (camp == EUnitCamp.EUC_FRIEND)
         {
             //朋友站左侧
-            unit.transform.position = MeteorManager.Instance.LocalPlayer.mPos - 45 * (Quaternion.AngleAxis(U3D.Rand(90), Vector3.up) * MeteorManager.Instance.LocalPlayer.transform.forward);
-            unit.FaceToTarget(MeteorManager.Instance.LocalPlayer);
+            unit.transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
+            Global.CampASpawnIndex++;
+            Global.CampASpawnIndex %= 8;
             U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "player" });
         }
         else if (camp == EUnitCamp.EUC_ENEMY)
         {
             //敌人站右侧
-            unit.transform.position = MeteorManager.Instance.LocalPlayer.mPos - 45 * (Quaternion.AngleAxis(-U3D.Rand(90), Vector3.up) * MeteorManager.Instance.LocalPlayer.transform.forward);
-            unit.FaceToTarget(MeteorManager.Instance.LocalPlayer);
+            unit.transform.position = Global.GCampBSpawn[Global.CampBSpawnIndex];
+            Global.CampBSpawnIndex++;
+            Global.CampBSpawnIndex %= 8;
+            U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "player" });
         }
         else
         {
@@ -171,11 +173,9 @@ public class U3D : MonoBehaviour {
             unit.FaceToTarget(MeteorManager.Instance.LocalPlayer);
         }
         
-        
         InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
         //找寻敌人攻击.因为这个并没有脚本模板
         unit.robot.ChangeState(EAIStatus.Wait);
-        
         return;
     }
 
@@ -874,6 +874,8 @@ public class U3D : MonoBehaviour {
         BuffMng.Instance.Clear();
         MeteorManager.Instance.Clear();
         LevelScriptBase.Clear();
+        Global.CampASpawnIndex = 0;
+        Global.CampBSpawnIndex = 0;
 #if !STRIP_DBG_SETTING
         WSDebug.Ins.Clear();
 #endif
