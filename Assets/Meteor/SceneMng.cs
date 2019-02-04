@@ -192,15 +192,13 @@ class SceneMng
             {
                 //不许寻路，无寻路点的关卡，使用
                 unit.transform.position = Global.GLevelSpawn[mon.SpawnPoint >= Global.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
-                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
             }
             else
             {
                 unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
-                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
             }
         }
-        else if (Global.GLevelMode > LevelMode.SinglePlayerTask && Global.GLevelMode <= LevelMode.MultiplyPlayer)
+        else if (Global.GLevelMode == LevelMode.CreateWorld)
         {
             if (Global.GGameMode == GameMode.Normal)
             {
@@ -208,12 +206,10 @@ class SceneMng
                 {
                     //不许寻路，无寻路点的关卡，使用
                     unit.transform.position = Global.GLevelSpawn[mon.SpawnPoint >= Global.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
-                    unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
                 }
                 else
                 {
                     unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
-                    unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
                 }
             }
             else if (Global.GGameMode == GameMode.MENGZHU)
@@ -222,7 +218,6 @@ class SceneMng
                 unit.transform.position = Global.GLevelSpawn[Global.SpawnIndex];
                 Global.SpawnIndex++;
                 Global.SpawnIndex %= 16;
-                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
             }
             else if (Global.GGameMode == GameMode.ANSHA || Global.GGameMode == GameMode.SIDOU)
             {
@@ -245,6 +240,7 @@ class SceneMng
         unit.transform.rotation = new Quaternion(0, 0, 0, 1);
         //OnStart.call();
         U3D.InsertSystemMsg(unit.name + " 加入游戏");
+        mon.OnStart();
         return unit;
     }
     

@@ -720,12 +720,14 @@ public class MainWnd : Window<MainWnd>
         Control("PlayerSetting").GetComponent<Button>().onClick.AddListener(() => {
             OnSetting();
         });
-//        Control("QuitGame").GetComponent<Button>().onClick.AddListener(()=> {
-//            Application.Quit();
-//#if UNITY_EDITOR
-//            UnityEditor.EditorApplication.isPlaying = false;
-//#endif
-//        });
+        Control("Quit").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            GameData.Instance.SaveState();
+            Application.Quit();
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#endif
+        });
         //Control("ServerCfg").GetComponent<Button>().onClick.AddListener(()=> {
         //    if (ServerListWnd.Exist)
         //        ServerListWnd.Instance.Close();
