@@ -393,7 +393,8 @@ class ProtoHandler
     static void OnDisconnect()
     {
         NetWorkBattle.Ins.OnDisconnect();
-        U3D.GoBack();
+        if (!MainWnd.Exist)
+            U3D.GoBack();
     }
 
     static void OnSendComplete(int result, int sendFileCount)

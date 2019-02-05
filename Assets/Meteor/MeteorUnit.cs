@@ -1901,12 +1901,12 @@ public partial class MeteorUnit : MonoBehaviour
         OnGround = false;
         float jumpScale = Short ? (ShortScale * 0.32f) : 1.0f;
         float h = JumpLimit * jumpScale;
-        //ImpluseVec.y = CalcVelocity(h);
+        ImpluseVec.y = CalcVelocity(h);
         posMng.JumpTick = 0.0f;
         posMng.CanAdjust = true;
         posMng.CheckClimb = true;
         posMng.ChangeAction(act, 0.1f);
-        //charLoader.SetActionScale(jumpScale);
+        charLoader.SetActionScale(jumpScale);
     }
 
     public void ReleaseDefence()
@@ -2072,7 +2072,7 @@ public partial class MeteorUnit : MonoBehaviour
             {
                 GameOverlayWnd.Instance.InsertSystemMsg(string.Format("{0}击败{1}", killer.name, name));
             }
-            posMng.ChangeAction(CommonAction.Dead, 0.1f);
+            posMng.ChangeAction(CommonAction.Dead);
             posMng.WaitPause();//等待这个动作完毕后，暂停播放
             posMng.OnDead();
             Attr.ReduceHp(Attr.hpCur);
@@ -2609,7 +2609,7 @@ public partial class MeteorUnit : MonoBehaviour
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
                         //TargetPos = 40 + ((int)idx - 1) * 4 + direction;
                         //Debug.LogError("targetPos:" + TargetPos);
-                        posMng.ChangeAction(TargetPos, 0.1f);
+                        posMng.ChangeAction(TargetPos);
                         charLoader.SetActionScale(dam.DefenseMove);
                         //charLoader.SetActionRotation(mPos - attacker.mPos);
                         int realDamage = CalcDamage(attacker, attackdes);
@@ -2805,7 +2805,7 @@ public partial class MeteorUnit : MonoBehaviour
                         int TargetPos = GetGuardPose(direction);
                         string attackAudio = string.Format("W{0:D2}GD{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                        posMng.ChangeAction(TargetPos, 0.1f);
+                        posMng.ChangeAction(TargetPos);
                         charLoader.SetActionScale(dam.DefenseMove);
                         //charLoader.SetActionRotation(this.mPos - attacker.mPos);
                         int realDamage = CalcDamage(attacker);

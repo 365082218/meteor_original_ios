@@ -10,6 +10,14 @@ public enum SceneEvent
     EventDeath = 202,//死亡事件
 }
 
+public class BattleResultItem
+{
+    public int camp;
+    public int deadCount;
+    public int killCount;
+    public int id;
+}
+
 //负责战斗中相机的位置指定之类，主角色目标组作为摄像机 视锥体范围，参考Tank教程里的简单相机控制
 //负责战斗场景内位置间的寻路缓存
 public partial class GameBattleEx : MonoBehaviour {
@@ -1025,13 +1033,7 @@ public partial class GameBattleEx : MonoBehaviour {
                 Unlock();
         }
     }
-    public class BattleResultItem
-    {
-        public int camp;
-        public int deadCount;
-        public int killCount;
-        public int id;
-    }
+
     
     Dictionary<string, BattleResultItem> battleResult = new Dictionary<string, BattleResultItem>();
     public Dictionary<string, BattleResultItem> BattleResult { get { return battleResult; } }

@@ -1059,7 +1059,8 @@ public class CharacterLoader : MonoBehaviour
         if (curPos == CommonAction.Struggle || curPos == CommonAction.Struggle0)
         {
             //.LogError("0.5f straight");
-            LockTime(0.5f);
+            if (PoseStraight <= 0.6f)
+                LockTime(0.6f);
         }
     }
 

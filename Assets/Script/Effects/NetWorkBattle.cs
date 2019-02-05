@@ -154,7 +154,8 @@ public class NetWorkBattle : MonoBehaviour {
             TurnStarted = false;
             FrameIndex = ServerFrameIndex = 0;
             U3D.InsertSystemMsg("与服务器断开链接.");
-            U3D.GoBack();            
+            if (!MainWnd.Exist)
+                U3D.GoBack();            
         }
         bSync = false;
         RoomId = -1;

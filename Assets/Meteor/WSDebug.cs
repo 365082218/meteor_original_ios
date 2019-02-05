@@ -113,6 +113,8 @@ public class WSDebug : MonoBehaviour {
 
     private void OpenSubGUIDebug(int id)
     {
+        if (id >= GlobalDebuggableObjects.Count)
+            return;
         SelectedObject = GlobalDebuggableObjects[id];
 
         ClearAllButtons(false, true);

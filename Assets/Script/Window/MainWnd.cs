@@ -1266,35 +1266,55 @@ public class BattleStatusWnd: Window<BattleStatusWnd>
     }
 
     GameObject BattleResult;
-    GameObject BattleTitle;
+    //GameObject BattleTitle;
     Transform MeteorResult;
     Transform ButterflyResult;
+    Dictionary<string, BattleResultItem> battleResult = new Dictionary<string, BattleResultItem>();
     public void Init()
     {
+        //拷贝一份对战数据
+        battleResult.Clear();
+        foreach (var each in GameBattleEx.Instance.BattleResult)
+        {
+            battleResult.Add(each.Key, each.Value);
+        }
         MeteorResult = Control("MeteorResult").transform;
         ButterflyResult = Control("ButterflyResult").transform;
-        BattleResult = Global.ldaControlX("BattleResult", WndObject);
-        BattleTitle = Global.ldaControlX("BattleTitle", WndObject);
+        BattleResult = Global.ldaControlX("AllResult", WndObject);
+        Control("CampImage", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
+        Control("Title", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
+        Control("Result", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
+        Control("CampImage1", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
+        Control("Title1", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
+        Control("Result1", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
+        Control("CampImageAll", WndObject).SetActive(Global.GGameMode == GameMode.MENGZHU);
+        Control("TitleAll", WndObject).SetActive(Global.GGameMode == GameMode.MENGZHU);
+        Control("ResultAll", WndObject).SetActive(Global.GGameMode == GameMode.MENGZHU);
+        //BattleTitle = Global.ldaControlX("BattleTitle", WndObject);
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
         {
-            if (GameBattleEx.Instance.BattleResult.ContainsKey(MeteorManager.Instance.UnitInfos[i].name))
+            if (battleResult.ContainsKey(MeteorManager.Instance.UnitInfos[i].name))
             {
-                InsertPlayerResult(MeteorManager.Instance.UnitInfos[i].name, GameBattleEx.Instance.BattleResult[MeteorManager.Instance.UnitInfos[i].name]);
-                GameBattleEx.Instance.BattleResult.Remove(MeteorManager.Instance.UnitInfos[i].name);
+                InsertPlayerResult(MeteorManager.Instance.UnitInfos[i].name, battleResult[MeteorManager.Instance.UnitInfos[i].name]);
+                battleResult.Remove(MeteorManager.Instance.UnitInfos[i].name);
             }
-            else if (MeteorManager.Instance.UnitInfos[i].Camp == EUnitCamp.EUC_ENEMY || MeteorManager.Instance.UnitInfos[i].Camp == EUnitCamp.EUC_FRIEND)
+            else
                 InsertPlayerResult(MeteorManager.Instance.UnitInfos[i].name, MeteorManager.Instance.UnitInfos[i].InstanceId, 0, 0, MeteorManager.Instance.UnitInfos[i].Camp);
         }
 
-        foreach (var each in GameBattleEx.Instance.BattleResult)
+        foreach (var each in battleResult)
             InsertPlayerResult(each.Key, each.Value);
-        GameBattleEx.Instance.BattleResult.Clear();
     }
 
     void InsertPlayerResult(string name_, int id, int killed, int dead, EUnitCamp camp)
     {
-        GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem")); ;
-        obj.transform.SetParent(camp == EUnitCamp.EUC_FRIEND ? MeteorResult : ButterflyResult);
+        GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
+        if (Global.GGameMode == GameMode.MENGZHU)
+        {
+            obj.transform.SetParent(BattleResult.transform);
+        }
+        else
+            obj.transform.SetParent(camp == EUnitCamp.EUC_FRIEND ? MeteorResult : ButterflyResult);
         obj.layer = MeteorResult.gameObject.layer;
         obj.transform.localRotation = Quaternion.identity;
         obj.transform.localScale = Vector3.one;
@@ -1302,12 +1322,21 @@ public class BattleStatusWnd: Window<BattleStatusWnd>
 
         Text Idx = ldaControl("Idx", obj).GetComponent<Text>();
         Text Name = ldaControl("Name", obj).GetComponent<Text>();
-        Text Camp = ldaControl("Camp", obj).GetComponent<Text>();
+        if (Global.GGameMode == GameMode.MENGZHU)
+        {
+
+        }
+        else
+        {
+            Text Camp = ldaControl("Camp", obj).GetComponent<Text>();
+            Camp.text = U3D.GetCampStr(camp);
+        }
+            
         Text Killed = ldaControl("Killed", obj).GetComponent<Text>();
         Text Dead = ldaControl("Dead", obj).GetComponent<Text>();
         Idx.text = (id + 1).ToString();
         Name.text = name_;
-        Camp.text = U3D.GetCampStr(camp);
+        
         Killed.text = killed.ToString();
         Dead.text = dead.ToString();
         MeteorUnit u = U3D.GetUnit(id);
@@ -1331,10 +1360,15 @@ public class BattleStatusWnd: Window<BattleStatusWnd>
         }
     }
 
-    void InsertPlayerResult(string name_, GameBattleEx.BattleResultItem result)
+    void InsertPlayerResult(string name_, BattleResultItem result)
     {
-        GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem")); ;
-        obj.transform.SetParent(result.camp == 1 ? MeteorResult : ButterflyResult);
+        GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
+        if (Global.GGameMode == GameMode.MENGZHU)
+        {
+            obj.transform.SetParent(BattleResult.transform);
+        }
+        else
+            obj.transform.SetParent(result.camp == (int)EUnitCamp.EUC_FRIEND ? MeteorResult : ButterflyResult);
         obj.layer = MeteorResult.gameObject.layer;
         obj.transform.localRotation = Quaternion.identity;
         obj.transform.localScale = Vector3.one;
@@ -1342,7 +1376,15 @@ public class BattleStatusWnd: Window<BattleStatusWnd>
 
         Text Idx = ldaControl("Idx", obj).GetComponent<Text>();
         Text Name = ldaControl("Name", obj).GetComponent<Text>();
-        //Text Camp = ldaControl("Camp", obj).GetComponent<Text>();
+        if (Global.GGameMode == GameMode.MENGZHU)
+        {
+
+        }
+        else
+        {
+            Text Camp = ldaControl("Camp", obj).GetComponent<Text>();
+            Camp.text = U3D.GetCampStr((EUnitCamp)result.camp);
+        }
         Text Killed = ldaControl("Killed", obj).GetComponent<Text>();
         Text Dead = ldaControl("Dead", obj).GetComponent<Text>();
         Idx.text = (result.id + 1).ToString();
@@ -1385,6 +1427,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
         return base.OnClose();
     }
 
+    GameObject BattleResultAll;
     GameObject BattleResult;
     GameObject BattleTitle;
     Transform MeteorResult;
@@ -1404,36 +1447,44 @@ public class BattleResultWnd : Window<BattleResultWnd>
             }
         }
         yield return new WaitForSeconds(1.5f);
-        string mat = "";
-        Text txt;
-        switch (result)
+        if (Global.GGameMode == GameMode.MENGZHU)
         {
-            case -1:
-            case 0:
-                mat = "BattleLose";
-                txt = Control("ButterflyWin").GetComponent<Text>();
-                U3D.InsertSystemMsg("蝴蝶阵营 获胜");
-                txt.text = "1";
-                break;
-            case 1:
-                mat = "BattleWin";
-                txt = Control("MeteorWin").GetComponent<Text>();
-                U3D.InsertSystemMsg("流星阵营 获胜");
-                txt.text = "1";
-                break;
-            case 2:
-                mat = "BattleNone";
-                U3D.InsertSystemMsg("和局");
-                break;
-
+            U3D.InsertSystemMsg("回合结束");
         }
-        BattleResult.GetComponent<Image>().material = Resources.Load<Material>(mat);
-        BattleResult.SetActive(true);
-        BattleTitle.SetActive(true);
+        else
+        {
+            string mat = "";
+            Text txt;
+            switch (result)
+            {
+                case -1:
+                case 0:
+                    mat = "BattleLose";
+                    txt = Control("ButterflyWin").GetComponent<Text>();
+                    U3D.InsertSystemMsg("蝴蝶阵营 获胜");
+                    txt.text = "1";
+                    break;
+                case 1:
+                    mat = "BattleWin";
+                    txt = Control("MeteorWin").GetComponent<Text>();
+                    U3D.InsertSystemMsg("流星阵营 获胜");
+                    txt.text = "1";
+                    break;
+                case 2:
+                    mat = "BattleNone";
+                    U3D.InsertSystemMsg("和局");
+                    break;
+
+            }
+            BattleResult.GetComponent<Image>().material = Resources.Load<Material>(mat);
+            BattleResult.SetActive(true);
+            BattleTitle.SetActive(true);
+        }
     }
 
     public void Init()
     {
+        Game.Instance.CloseDbg();
         MeteorResult = Control("MeteorResult").transform;
         ButterflyResult = Control("ButterflyResult").transform;
         BattleResult = Global.ldaControlX("BattleResult", WndObject);
@@ -1447,6 +1498,18 @@ public class BattleResultWnd : Window<BattleResultWnd>
             }
             Startup.ins.PlayEndMovie();
         });
+
+        BattleResultAll = Global.ldaControlX("AllResult", WndObject);
+        Control("CampImage", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
+        Control("Title", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
+        Control("Result", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
+        Control("CampImage1", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
+        Control("Title1", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
+        Control("Result1", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
+        Control("CampImageAll", WndObject).SetActive(Global.GGameMode == GameMode.MENGZHU);
+        Control("TitleAll", WndObject).SetActive(Global.GGameMode == GameMode.MENGZHU);
+        Control("ResultAll", WndObject).SetActive(Global.GGameMode == GameMode.MENGZHU);
+
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
         {
             if (GameBattleEx.Instance.BattleResult.ContainsKey(MeteorManager.Instance.UnitInfos[i].name))
@@ -1454,7 +1517,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
                 InsertPlayerResult(MeteorManager.Instance.UnitInfos[i].name, GameBattleEx.Instance.BattleResult[MeteorManager.Instance.UnitInfos[i].name]);
                 GameBattleEx.Instance.BattleResult.Remove(MeteorManager.Instance.UnitInfos[i].name);
             }
-            else if (MeteorManager.Instance.UnitInfos[i].Camp == EUnitCamp.EUC_ENEMY || MeteorManager.Instance.UnitInfos[i].Camp == EUnitCamp.EUC_FRIEND)
+            else
                 InsertPlayerResult(MeteorManager.Instance.UnitInfos[i].name, MeteorManager.Instance.UnitInfos[i].InstanceId, 0, 0, MeteorManager.Instance.UnitInfos[i].Camp);
         }
 
@@ -1465,8 +1528,14 @@ public class BattleResultWnd : Window<BattleResultWnd>
 
     void InsertPlayerResult(string name_, int id, int killed, int dead, EUnitCamp camp)
     {
-        GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem")); ;
-        obj.transform.SetParent(camp ==  EUnitCamp.EUC_FRIEND ? MeteorResult : ButterflyResult);
+        GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
+        if (Global.GGameMode == GameMode.MENGZHU)
+        {
+            obj.transform.SetParent(BattleResultAll.transform);
+        }
+        else
+            obj.transform.SetParent(camp == EUnitCamp.EUC_FRIEND ? MeteorResult : ButterflyResult);
+        //obj.transform.SetParent(camp ==  EUnitCamp.EUC_FRIEND ? MeteorResult : ButterflyResult);
         obj.layer = MeteorResult.gameObject.layer;
         obj.transform.localRotation = Quaternion.identity;
         obj.transform.localScale = Vector3.one;
@@ -1474,6 +1543,15 @@ public class BattleResultWnd : Window<BattleResultWnd>
 
         Text Idx = ldaControl("Idx", obj).GetComponent<Text>();
         Text Name = ldaControl("Name", obj).GetComponent<Text>();
+        if (Global.GGameMode == GameMode.MENGZHU)
+        {
+
+        }
+        else
+        {
+            Text Camp = ldaControl("Camp", obj).GetComponent<Text>();
+            Camp.text = U3D.GetCampStr(camp);
+        }
         //Text Camp = ldaControl("Camp", obj).GetComponent<Text>();
         Text Killed = ldaControl("Killed", obj).GetComponent<Text>();
         Text Dead = ldaControl("Dead", obj).GetComponent<Text>();
@@ -1503,10 +1581,15 @@ public class BattleResultWnd : Window<BattleResultWnd>
         }
     }
 
-    void InsertPlayerResult(string name_, GameBattleEx.BattleResultItem result)
+    void InsertPlayerResult(string name_, BattleResultItem result)
     {
-        GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem")); ;
-        obj.transform.SetParent(result.camp == 1 ? MeteorResult : ButterflyResult);
+        GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
+        if (Global.GGameMode == GameMode.MENGZHU)
+        {
+            obj.transform.SetParent(BattleResultAll.transform);
+        }
+        else
+            obj.transform.SetParent(result.camp == (int)EUnitCamp.EUC_FRIEND ? MeteorResult : ButterflyResult);
         obj.layer = MeteorResult.gameObject.layer;
         obj.transform.localRotation = Quaternion.identity;
         obj.transform.localScale = Vector3.one;
@@ -1514,12 +1597,19 @@ public class BattleResultWnd : Window<BattleResultWnd>
 
         Text Idx = ldaControl("Idx", obj).GetComponent<Text>();
         Text Name = ldaControl("Name", obj).GetComponent<Text>();
-        //Text Camp = ldaControl("Camp", obj).GetComponent<Text>();
         Text Killed = ldaControl("Killed", obj).GetComponent<Text>();
         Text Dead = ldaControl("Dead", obj).GetComponent<Text>();
         Idx.text = (result.id + 1).ToString();
         Name.text = name_;
-        //Camp.text = result.camp == 1 ""
+        if (Global.GGameMode == GameMode.MENGZHU)
+        {
+
+        }
+        else
+        {
+            Text Camp = ldaControl("Camp", obj).GetComponent<Text>();
+            Camp.text = U3D.GetCampStr((EUnitCamp)result.camp);
+        }
         Killed.text = result.killCount.ToString();
         Dead.text = result.deadCount.ToString();
         MeteorUnit u = U3D.GetUnit(result.id);

@@ -455,6 +455,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
 
     void OnClickClose()
     {
+        GameData.Instance.SaveState();
         GameBattleEx.Instance.Resume();
         base.Close();
     }
@@ -484,6 +485,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
 
     void OnClickBack()
     {
+        GameData.Instance.SaveState();
         GameBattleEx.Instance.Pause();
         GameBattleEx.Instance.StopAllCoroutines();
         SoundManager.Instance.StopAll();

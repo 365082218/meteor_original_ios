@@ -8722,6 +8722,7 @@ public class LevelScript_sn31 : LevelScript_sn22
                 if (GetGameTime() - t0 > 30 && GetHP(player) < (GetMaxHP(player) / 2) && U3D.Distance(player, c) <= 65)
                 {
                     Perform(c, "say", "星,怎么受了这么重的伤！");
+                    Perform(c, "faceto", player);
                     PlayerPerform("use", 15);
                     t0 = GetGameTime();
                 }
