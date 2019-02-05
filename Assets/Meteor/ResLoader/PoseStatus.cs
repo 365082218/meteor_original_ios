@@ -347,16 +347,16 @@ public class PoseStatus
                             if (mActiveAction.Next != null)
                                 ChangeAction(mActiveAction.Link, mActiveAction.Next.Time);
                             else
-                                ChangeAction(mActiveAction.Link);
+                                ChangeAction(mActiveAction.Link, 0.1f);
                         }
                         else
                         {
                             if (!_Self.GunReady)
                             {
                                 if (mActiveAction.Next != null)
-                                    ChangeAction(CommonAction.Idle, 0.1f);
+                                    ChangeAction(CommonAction.Idle, mActiveAction.Next.Time);
                                 else
-                                    ChangeAction(CommonAction.Idle);
+                                    ChangeAction(CommonAction.Idle, 0.1f);
                             }
                             else
                             {
@@ -364,7 +364,7 @@ public class PoseStatus
                                 if (mActiveAction.Next != null)
                                     ChangeAction(CommonAction.GunIdle, mActiveAction.Next.Time);
                                 else
-                                    ChangeAction(CommonAction.GunIdle);
+                                    ChangeAction(CommonAction.GunIdle, 0.1f);
                             }
                         }
                     }
@@ -378,7 +378,7 @@ public class PoseStatus
                     if (mActiveAction.Next != null)
                         ChangeAction(LinkInput[mActiveAction.Idx], mActiveAction.Next.Time);//
                     else
-                        ChangeAction(LinkInput[mActiveAction.Idx]);
+                        ChangeAction(LinkInput[mActiveAction.Idx], 0.1f);//ok
                     LinkInput.Clear();
                 }
                 else
@@ -388,7 +388,7 @@ public class PoseStatus
                         if (mActiveAction.Next != null)
                             ChangeAction(mActiveAction.Link, mActiveAction.Next.Time);
                         else
-                            ChangeAction(mActiveAction.Link);
+                            ChangeAction(mActiveAction.Link, 0.1f);//OK
                     }
                     else
                     {
@@ -428,14 +428,14 @@ public class PoseStatus
                                 if (mActiveAction.Next != null)
                                     ChangeAction(ReadyAction, mActiveAction.Next.Time);
                                 else
-                                    ChangeAction(ReadyAction);
+                                    ChangeAction(ReadyAction, 0.1f);
                             }
                             else
                             {
                                 if (mActiveAction.Next != null)
                                     ChangeAction(CommonAction.Idle, mActiveAction.Next.Time);
                                 else
-                                    ChangeAction(CommonAction.Idle);
+                                    ChangeAction(CommonAction.Idle, 0.1f);
                             }
                         }
                         else if (_Self.posMng.onhurt)

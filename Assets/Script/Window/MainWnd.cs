@@ -739,6 +739,7 @@ public class MainWnd : Window<MainWnd>
             Control("UploadLog").SetActive(true);
             Control("UploadLog").GetComponent<Button>().onClick.AddListener(() => { FtpLog.UploadStart(); });
         }
+        Game.Instance.CloseDbg();
         ClientProxy.Exit();
     }
 

@@ -6,6 +6,8 @@ using System.Collections.Generic;
 
 public class Global
 {
+    public static float FPS = 1.0f / 30.0f;//动画设计帧率
+    public static float gGravity = 978.0f;
     public static bool useShadowInterpolate = true;//是否使用影子跟随插值
     public static int MaxPlayer;
     public static int RoundTime;

@@ -75,7 +75,9 @@ public class U3D : MonoBehaviour {
             return m;
         }
         TextAsset name = Resources.Load<TextAsset>("Name");
-        Nicks = name.text.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        string s = name.text.Replace("\r\n", ",");
+        s = s.Replace(" ", ",");
+        Nicks = s.Split(new char[] { ','}, StringSplitOptions.RemoveEmptyEntries).ToList();
         int index = UnityEngine.Random.Range(0, Nicks.Count);
         string n = Nicks[index];
         Nicks.RemoveAt(index);
@@ -211,7 +213,7 @@ public class U3D : MonoBehaviour {
             Global.SpawnIndex %= 16;
         }
         
-        InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
+        //InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
         //找寻敌人攻击.因为这个并没有脚本模板
         unit.robot.ChangeState(EAIStatus.Wait);
 

@@ -864,7 +864,8 @@ public partial class MeteorUnit : MonoBehaviour
     public const float Jump2Velocity = 160;//蹬腿反弹速度
     public const float JumpVelocityForward = 180.0f;//向前跳跃速度
     public const float JumpVelocityOther = 100.0f;//其他方向上的速度
-    public const float gGravity = 980.0f;//971.4f;//向上0.55秒，向下0.45秒
+    
+    //public const float gGravity = 980.0f;//971.4f;//向上0.55秒，向下0.45秒
     public const float groundFriction = 2000.0f;//地面摩擦力，在地面不是瞬间停止下来的。
     public const float yLimitMin = -500f;//最大向下速度
     public const float yLimitMax = 500;//最大向上速度
@@ -940,7 +941,7 @@ public partial class MeteorUnit : MonoBehaviour
         //计算运动方向
         //角色forward指向人物背面
         //根据角色状态计算重力大小，在墙壁，空中，以及空中水平轴的阻力
-        float gScale = gGravity;
+        float gScale = Global.gGravity;
         //跳跃起身与墙壁碰撞.重力模拟为墙壁摩擦
         //if (OnTouchWall)
         //{
@@ -1258,8 +1259,8 @@ public partial class MeteorUnit : MonoBehaviour
         charController = gameObject.GetComponent<CharacterController>();
         if (charController == null)
             charController = gameObject.AddComponent<CharacterController>();
-        charController.center = new Vector3(0, Info.Pivot, 0);
-        charController.height = Info.Height;
+        charController.center = new Vector3(0, 16, 0);
+        charController.height = 32;
         charController.radius = 9.0f;//不这么大碰不到寻路点.
         charController.stepOffset = 7.6f;
 
@@ -1874,7 +1875,7 @@ public partial class MeteorUnit : MonoBehaviour
 
     public float CalcVelocity(float h)
     {
-        float ret = gGravity * Mathf.Sqrt(2 * h / gGravity);
+        float ret = Global.gGravity * Mathf.Sqrt(2 * h / Global.gGravity);
         if (ret > yLimitMax)
             ret = yLimitMax;
         return ret;
@@ -1900,12 +1901,12 @@ public partial class MeteorUnit : MonoBehaviour
         OnGround = false;
         float jumpScale = Short ? (ShortScale * 0.32f) : 1.0f;
         float h = JumpLimit * jumpScale;
-        ImpluseVec.y = CalcVelocity(h);
+        //ImpluseVec.y = CalcVelocity(h);
         posMng.JumpTick = 0.0f;
         posMng.CanAdjust = true;
         posMng.CheckClimb = true;
         posMng.ChangeAction(act, 0.1f);
-        charLoader.SetActionScale(jumpScale);
+        //charLoader.SetActionScale(jumpScale);
     }
 
     public void ReleaseDefence()
@@ -1961,15 +1962,6 @@ public partial class MeteorUnit : MonoBehaviour
     //被复活.
     public void OnReborn(float max = 0.3f)
     {
-        Dead = false;
-        posMng.WaitPause(false);
-        posMng.OnReborn();
-        EnableAI(true);
-        MeteorManager.Instance.UnitInfos.Add(this);
-        MeteorManager.Instance.DeadUnits.Remove(this);
-        Attr.OnReborn(max);
-        charController.enabled = true;
-        MeteorManager.Instance.PhysicalIgnore(this, false);
         if (Global.GLevelMode == LevelMode.CreateWorld)
         {
             if (Global.GGameMode == GameMode.MENGZHU)
@@ -1995,15 +1987,43 @@ public partial class MeteorUnit : MonoBehaviour
                     Global.CampBSpawnIndex %= 8;
                 }
             }
-            return;
         }
-        //闪现到出生点
-        if (Global.GLevelItem.DisableFindWay == 1)
-            return;
-        if (Attr.SpawnPoint < Global.GLevelItem.wayPoint.Count)
-            transform.position = Global.GLevelItem.wayPoint[Attr.SpawnPoint].pos;
-        else
-            transform.position = Global.GLevelItem.wayPoint[0].pos;
+        else if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+        {
+            //闪现到出生点
+            if (Global.GLevelItem.DisableFindWay != 1)
+            {
+                if (Attr.SpawnPoint < Global.GLevelItem.wayPoint.Count)
+                    transform.position = Global.GLevelItem.wayPoint[Attr.SpawnPoint].pos;
+                else
+                    transform.position = Global.GLevelItem.wayPoint[0].pos;
+            }
+            else
+            {
+                if (Camp == EUnitCamp.EUC_FRIEND)
+                {
+                    transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
+                    Global.CampASpawnIndex++;
+                    Global.CampASpawnIndex %= 8;
+                }
+                else if (Camp == EUnitCamp.EUC_ENEMY)
+                {
+                    transform.position = Global.GCampASpawn[Global.CampBSpawnIndex];
+                    Global.CampBSpawnIndex++;
+                    Global.CampBSpawnIndex %= 8;
+                }
+            }
+        }
+        Dead = false;
+        posMng.WaitPause(false);
+        posMng.OnReborn();
+        EnableAI(true);
+        MeteorManager.Instance.UnitInfos.Add(this);
+        MeteorManager.Instance.DeadUnits.Remove(this);
+        Attr.OnReborn(max);
+        AngryValue = 0;
+        charController.enabled = true;
+        MeteorManager.Instance.PhysicalIgnore(this, false);
     }
 
     //盟主模式下的自动复活.
@@ -2013,6 +2033,14 @@ public partial class MeteorUnit : MonoBehaviour
         if (RebornTick >= 5.0f)
         {
             OnReborn(1.0f);
+            if (Attr.IsPlayer)
+            {
+                if (FightWnd.Exist)
+                {
+                    FightWnd.Instance.UpdatePlayerInfo();
+                    FightWnd.Instance.OnBattleStart();
+                }
+            }
             RebornTick = 0.0f;
         }
     }

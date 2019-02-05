@@ -49,8 +49,8 @@ public class ModelInfo:ITableItem
     }
     public string Name;
     public int ModelId;
-    public float Height;
-    public float Pivot;
+    //public float Height;
+    //public float Pivot;
 }
 
 public class ModelMng : TableManager<ModelInfo, ModelMng>

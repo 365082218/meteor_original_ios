@@ -116,6 +116,17 @@ public class MeteorAI {
             return;
         }
 
+        if (owner.OnTouchWall)
+            touchLast += Time.deltaTime;
+        else
+            touchLast = 0.0f;
+        ChangeWeaponTick -= Time.deltaTime;
+        AIJumpDelay += Time.deltaTime;
+        lookTick += Time.deltaTime;
+        //如果在硬直中
+        if (owner.charLoader.IsInStraight())
+            return;
+
         //如果玩家正在进行一些动作，或者预定义行为，则不运行AI。
         if (GameBattleEx.Instance != null)
         {
@@ -128,16 +139,6 @@ public class MeteorAI {
             }
         }
 
-        if (owner.OnTouchWall)
-            touchLast += Time.deltaTime;
-        else
-            touchLast = 0.0f;
-        ChangeWeaponTick -= Time.deltaTime;
-        AIJumpDelay += Time.deltaTime;
-        lookTick += Time.deltaTime;
-        //如果在硬直中
-        if (owner.charLoader.IsInStraight())
-            return;
         //如果处于跌倒状态.A处理从地面站立,僵直过后才能正常站立 B，在后面的逻辑中，决定是否用爆气解除跌倒状态
         DoProcessStruggle();
 

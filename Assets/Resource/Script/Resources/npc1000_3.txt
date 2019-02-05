@@ -18,7 +18,7 @@ function npc1000_3()
 	class.Aim = 50;
 	class.GetItem = 0;
 	class.Spawn = 0;
-	class.HP = 1000;
+	class.HP = 100000;
 	class.g_selfAddr = 0;
 	class.g_self = 0;
 	return class;
@@ -30,6 +30,4 @@ end
 
 function class:OnStart()
 	class.g_self = GetSelf(class.g_selfAddr);
-	ChangeBehavior(class.g_self, "wait");
-	Perform(class.g_self, "guard", 99999);
 end

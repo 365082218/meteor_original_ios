@@ -714,19 +714,6 @@ public class CharacterLoader : MonoBehaviour
         if (po != null)
         {
             moveDelta = Vector3.zero;
-            //if (PoseStraight > 0.0f)
-            //{
-                //PoseStraight -= Time.deltaTime;
-                //检查僵直是否过期.
-                //if (PoseStraight <= 0.0f && loop)
-                //{
-                //    if (owner.IsOnGround())
-                //    {
-                //        loop = false;
-                //        curIndex = po.LoopEnd;
-                //    }
-                //}
-            //}
             if (blendTime == 0.0f)
             {
                 lastFramePlayedTimes += Time.deltaTime;
@@ -735,13 +722,13 @@ public class CharacterLoader : MonoBehaviour
                     PoseStraight -= Time.deltaTime;
 
                 float speedScale = owner.ActionSpeed * GetSpeedScale();
-                float fps = FPS / speedScale;
+                float fps = Global.FPS / speedScale;
                 while (lastFramePlayedTimes >= fps)
                 {
                     PlayNextKeyFrame();
                     lastFramePlayedTimes -= fps;
                     speedScale = GetSpeedScale();
-                    fps = FPS / speedScale;
+                    fps = Global.FPS / speedScale;
                 }
 
                 if (lastFramePlayedTimes < fps && lastFramePlayedTimes > 0)
@@ -897,7 +884,7 @@ public class CharacterLoader : MonoBehaviour
                     break;
                 }
             }
-            frameCost += FPS / speedScale ;
+            frameCost += Global.FPS / speedScale ;
         }
         return frameCost;
     }
@@ -1067,6 +1054,13 @@ public class CharacterLoader : MonoBehaviour
         }
 
         curPos = pos.Idx;
+        //.Log("idx:" + pos.Idx);
+        //如果是倒地动作，僵直为0.5f
+        if (curPos == CommonAction.Struggle || curPos == CommonAction.Struggle0)
+        {
+            //.LogError("0.5f straight");
+            LockTime(0.5f);
+        }
     }
 
     public void GetCurrentSnapShot()

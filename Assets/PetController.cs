@@ -321,7 +321,7 @@ public class PetController : MonoBehaviour {
         //计算运动方向
         //角色forward指向人物背面
         //根据角色状态计算重力大小，在墙壁，空中，以及空中水平轴的阻力
-        float gScale = MeteorUnit.gGravity;
+        float gScale = Global.gGravity;
         Vector3 v;
         v.x = ImpluseVec.x * Time.deltaTime;
         v.y = animator.GetBool("jump") ? 0 : ImpluseVec.y * Time.deltaTime;

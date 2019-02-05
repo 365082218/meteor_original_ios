@@ -111,7 +111,7 @@ public class ExplosionObject01 : MonoBehaviour {
         if (Physics.Raycast(targetPos, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene")))
             endPoint = hit.point + EGroundHeight * Vector3.up;
         float h = Mathf.Abs((endPoint.y + EGroundHeight) - (position.y + 50));
-        float t = Mathf.Sqrt(2 * h / (MeteorUnit.gGravity / 10));
+        float t = Mathf.Sqrt(2 * h / (Global.gGravity / 10));
         EObject.AddComponent<ParaCurve>().Init(endPoint, t, () => { OnComplete(EObject); });
         CFX_AutoRotate rotate = EObject.AddComponent<CFX_AutoRotate>();
         rotate.rotation = new Vector3(Random.Range(180, 360), Random.Range(180, 360), Random.Range(180, 360));
