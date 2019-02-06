@@ -18,6 +18,10 @@ public class SettingWnd : Window<SettingWnd> {
             MainWnd.Instance.Open();
             Close();
         });
+        Control("Server").GetComponent<Button>().onClick.AddListener(()=>
+        {
+            ServerListWnd.Instance.Open();
+        });
         Control("Nick").GetComponentInChildren<Text>().text = GameData.Instance.gameStatus.NickName;
         Control("Nick").GetComponent<Button>().onClick.AddListener(
             () =>

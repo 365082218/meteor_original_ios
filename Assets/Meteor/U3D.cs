@@ -1795,8 +1795,6 @@ public class U3D : MonoBehaviour {
         bool alldead = true;
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
         {
-            if (MeteorManager.Instance.UnitInfos[i] == MeteorManager.Instance.LocalPlayer)
-                continue;
             if (MeteorManager.Instance.UnitInfos[i].SameCamp(MeteorManager.Instance.LocalPlayer))
             {
                 if (!MeteorManager.Instance.UnitInfos[i].Dead)
@@ -1814,8 +1812,6 @@ public class U3D : MonoBehaviour {
         bool alldead = true;
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
         {
-            if (MeteorManager.Instance.UnitInfos[i] == MeteorManager.Instance.LocalPlayer)
-                continue;
             if (!MeteorManager.Instance.UnitInfos[i].SameCamp(MeteorManager.Instance.LocalPlayer))
             {
                 if (!MeteorManager.Instance.UnitInfos[i].Dead)
