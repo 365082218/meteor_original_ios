@@ -22,6 +22,11 @@ public class SettingWnd : Window<SettingWnd> {
         {
             ServerListWnd.Instance.Open();
         });
+
+        Control("ChangeLog").GetComponent<Text>().text = ResMng.LoadTextAsset("ChangeLog").text;
+        Control("AppVerText").GetComponent<Text>().text = AppInfo.Instance.AppVersion();
+        Control("MeteorVerText").GetComponent<Text>().text = AppInfo.Instance.MeteorVersion;
+
         Control("Nick").GetComponentInChildren<Text>().text = GameData.Instance.gameStatus.NickName;
         Control("Nick").GetComponent<Button>().onClick.AddListener(
             () =>

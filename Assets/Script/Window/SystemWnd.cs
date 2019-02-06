@@ -151,8 +151,8 @@ public class NewSystemWnd : Window<NewSystemWnd>
         Control("ChangeV107").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("1.07"); });
         //Control("Ver108").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer(108); });
         Control("ChangeV907").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("9.07"); });
-        Control("AppVerText").GetComponent<Text>().text = AppInfo.Instance.AppVersion();
-        Control("MeteorVerText").GetComponent<Text>().text = AppInfo.Instance.MeteorVersion;
+
+
         Control("ChangeModel").GetComponent<Button>().onClick.AddListener(() => { ModelWnd.Instance.Open(); });
         Control("UnlockAll").GetComponent<Button>().onClick.AddListener(() => { U3D.UnlockLevel(); });
 
@@ -177,7 +177,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
         toggleDisableCat.onValueChanged.AddListener(OnDisableCat);
         OnDisableCat(toggleDisableCat.isOn);
 
-        Control("ChangeLog").GetComponent<Text>().text = ResMng.LoadTextAsset("ChangeLog").text;
+        
 
         //把一些模式禁用，例如作弊之类的.
         if (GameData.Instance.gameStatus.GodLike)

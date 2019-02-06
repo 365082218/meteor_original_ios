@@ -18,7 +18,7 @@ public class AppInfo:Singleton<AppInfo>
     {
         string sVersion = PlayerPrefs.GetString(versionKey);
         if (string.IsNullOrEmpty(sVersion))
-            PlayerPrefs.SetString(versionKey, "0.2.3.0");
+            PlayerPrefs.SetString(versionKey, "0.2.4.0");
         return PlayerPrefs.GetString(versionKey);
     }
 
