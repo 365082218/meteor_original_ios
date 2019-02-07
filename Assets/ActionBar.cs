@@ -27,7 +27,7 @@ public class ActionBar : MonoBehaviour {
     {
         switch (id)
         {
-            case 1:
+            case 4:
                 MeteorManager.Instance.LocalPlayer.PlaySkill();
                 break;
             case 2:
@@ -40,7 +40,7 @@ public class ActionBar : MonoBehaviour {
                 if (MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle)
                     MeteorManager.Instance.LocalPlayer.posMng.ChangeAction(CommonAction.Taunt);
                 break;
-            case 4:
+            case 1:
                 //装死，要看状态机
                 if (MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle)
                     MeteorManager.Instance.LocalPlayer.posMng.ChangeAction(CommonAction.Dead);

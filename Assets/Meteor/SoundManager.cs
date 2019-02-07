@@ -194,8 +194,12 @@ public class SoundManager : Singleton<SoundManager>
         Vector3 listenerPos = position;
         MeteorUnit localPlayer = MeteorManager.Instance.LocalPlayer;
         if (localPlayer != null)
-            listenerPos = localPlayer.transform.position;
-
+        {
+            if (CameraFree.Ins != null)
+                listenerPos = CameraFree.Ins.transform.position;
+            else
+                listenerPos = localPlayer.transform.position;
+        }
         // clip sound too far.仅在2D音效下，判断距离是否超越范围，打击音效只有播放或者不播放，没有3D效果
         float distance = MathUtility.DistanceMax(listenerPos, position);
         if (!D3Audio && distance > FadeDistance)

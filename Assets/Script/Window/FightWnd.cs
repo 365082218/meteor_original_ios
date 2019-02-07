@@ -148,10 +148,22 @@ public class FightWnd: Window<FightWnd>
 
     void OnRebornClick()
     {
-        if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
         {
-            if (MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle)
+            if (MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle ||
+                MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Run ||
+                MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
                 MeteorManager.Instance.LocalPlayer.posMng.ChangeAction(CommonAction.Reborn);
+        }
+        else if (Global.GLevelMode == LevelMode.CreateWorld)
+        {
+            if (Global.GGameMode == GameMode.ANSHA)
+            {
+                if (MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle || 
+                    MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Run ||
+                    MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
+                    MeteorManager.Instance.LocalPlayer.posMng.ChangeAction(CommonAction.Reborn);
+            }
         }
     }
     //int currentPosIdx;

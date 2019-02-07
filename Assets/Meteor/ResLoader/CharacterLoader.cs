@@ -814,7 +814,7 @@ public class CharacterLoader : MonoBehaviour
             owner.ChangeNextWeapon();
             loop = false;
         }
-        else if (po.Idx == CommonAction.FallOnGround)
+        else if (po.Idx == CommonAction.JumpFallOnGround)
         {
             mOwner.IgnoreGravitys(false);
             if (mOwner.IsOnGround()) posMng.ChangeAction(0, 0.1f);
@@ -1061,6 +1061,12 @@ public class CharacterLoader : MonoBehaviour
             //.LogError("0.5f straight");
             if (PoseStraight <= 0.6f)
                 LockTime(0.6f);
+        }
+
+        //当从100切换到118时，要把Y的速度重置为0，否则下落很快，导致连招接不上
+        if (curPos == CommonAction.Fall && lastPosIdx == CommonAction.BeHurted100)
+        {
+            mOwner.SetVelocityY(0);
         }
     }
 

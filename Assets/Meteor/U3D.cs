@@ -91,6 +91,21 @@ public class U3D : MonoBehaviour {
         return i;
     }
 
+    public static int GetNormalWeaponType()
+    {
+        List<int> s = new List<int>();
+        for (int i = 0; i <= 11; i++)
+        {
+            s.Add(i);
+        }
+        //去掉远程武器
+        s.Remove(2);
+        s.Remove(3);
+        s.Remove(6);
+        int k = UnityEngine.Random.Range(0, s.Count);
+        return s[k];
+    }
+
     //取得随机英雄ID
     public static int GetRandomUnitIdx()
     {
@@ -217,9 +232,11 @@ public class U3D : MonoBehaviour {
         //找寻敌人攻击.因为这个并没有脚本模板
         unit.robot.ChangeState(EAIStatus.Wait);
 
+        unit.Attr.GetItem = 0;
+        unit.Attr.View = 5000;//视野给大一点
         if (Global.GGameMode == GameMode.MENGZHU)
         {
-            unit.Attr.View = 5000;//视野给大一点
+            
         }
         else if (Global.GGameMode == GameMode.ANSHA)
         {

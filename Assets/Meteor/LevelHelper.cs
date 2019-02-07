@@ -83,7 +83,7 @@ public class LevelHelper : MonoBehaviour
         {
             for (int i = 1; i < Global.MaxPlayer; i++)
             {
-                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), EUnitCamp.EUC_KILLALL, U3D.GetRandomWeaponType(), Global.PlayerLife);
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), EUnitCamp.EUC_KILLALL, GameData.Instance.gameStatus.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.PlayerLife);
             }
         }
         else if (Global.GGameMode == GameMode.ANSHA || Global.GGameMode == GameMode.SIDOU)
@@ -91,12 +91,12 @@ public class LevelHelper : MonoBehaviour
             int FriendCount = Global.MaxPlayer / 2 - 1;
             for (int i = 0; i < FriendCount; i++)
             {
-                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), MeteorManager.Instance.LocalPlayer.Camp, U3D.GetRandomWeaponType(), Global.PlayerLife);
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), MeteorManager.Instance.LocalPlayer.Camp, GameData.Instance.gameStatus.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.PlayerLife);
             }
 
             for (int i = FriendCount + 1; i < Global.MaxPlayer; i++)
             {
-                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), U3D.GetAnotherCamp(MeteorManager.Instance.LocalPlayer.Camp), U3D.GetRandomWeaponType(), Global.PlayerLife);
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), U3D.GetAnotherCamp(MeteorManager.Instance.LocalPlayer.Camp), GameData.Instance.gameStatus.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.PlayerLife);
             }
         }
     }

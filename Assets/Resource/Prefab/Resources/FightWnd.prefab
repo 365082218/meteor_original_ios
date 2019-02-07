@@ -1582,7 +1582,7 @@ GameObject:
   - component: {fileID: 114914761089220122}
   - component: {fileID: 114303769586519472}
   m_Layer: 5
-  m_Name: Slot 1
+  m_Name: Slot 4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1758,7 +1758,7 @@ GameObject:
   - component: {fileID: 114094679340029350}
   - component: {fileID: 114142830535750766}
   m_Layer: 5
-  m_Name: Slot 4
+  m_Name: Slot 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4080,7 +4080,7 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 1
+          m_IntArgument: 4
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -5266,7 +5266,7 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 4
+          m_IntArgument: 1
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -8537,7 +8537,7 @@ RectTransform:
   - {fileID: 224010954738695892}
   - {fileID: 224159483209212210}
   m_Father: {fileID: 224644671995269554}
-  m_RootOrder: 3
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -8898,7 +8898,7 @@ RectTransform:
   - {fileID: 224040193561773468}
   - {fileID: 224859217145763514}
   m_Father: {fileID: 224644671995269554}
-  m_RootOrder: 0
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -8971,10 +8971,10 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 224556381573317296}
+  - {fileID: 224307434809488214}
   - {fileID: 224734067590920874}
   - {fileID: 224503243425779754}
-  - {fileID: 224307434809488214}
+  - {fileID: 224556381573317296}
   m_Father: {fileID: 224110203920233716}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

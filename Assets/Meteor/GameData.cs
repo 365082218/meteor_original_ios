@@ -75,6 +75,7 @@ public class GameState
     public int Model;//创建单机时的角色模型
     public int RoundTime;//创建单机时的单轮时长
     public int MaxPlayer;//创建单机时的初始角色个数
+    public bool DisallowSpecialWeapon;//创建房间时禁用远程武器
     public string NickName;
     public bool useJoystickOrKeyBoard;//是否使用外设摇杆
     public bool EnableDebugSFX;//战斗UI调试特效是否显示
@@ -458,6 +459,7 @@ public class GameData:Singleton<GameData>
             gameStatus.Model = 0;
             gameStatus.Life = 200;
             gameStatus.GameMode = (int)GameMode.MENGZHU;
+            gameStatus.DisallowSpecialWeapon = true;
         }
         else
         {

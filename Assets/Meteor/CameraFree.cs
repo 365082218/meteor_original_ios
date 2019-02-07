@@ -30,11 +30,13 @@ public class CameraFree : MonoBehaviour {
     MeteorUnit Target;
     public void Init(MeteorUnit target)
     {
+        GameObject.Destroy(Startup.ins.playerListener);
+        Startup.ins.playerListener = gameObject.AddComponent<AudioListener>();
         Target = target;
         animationPlay = false;
         animationTick = 0.0f;
-        followHeight = 6;
-        followDistance = 55.0f;
+        followHeight = 10;
+        followDistance = 85.0f;
         BodyHeight = 30;
         m_MinSize = 60;
         LookAtAngle = 10.0f;

@@ -140,6 +140,11 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
                     GameData.Instance.gameStatus.MaxPlayer = ConstPlayer[k];
             });
         }
+
+        GameObject DisallowGroup = Control("DisallowGroup", WndObject);
+        Toggle DisallowToggle = Control("0", DisallowGroup).GetComponent<Toggle>();
+        DisallowToggle.isOn = GameData.Instance.gameStatus.DisallowSpecialWeapon;
+        DisallowToggle.onValueChanged.AddListener((bool selected) => { GameData.Instance.gameStatus.DisallowSpecialWeapon = selected; });
     }
 
     void OnMainWeaponSelected(bool select)

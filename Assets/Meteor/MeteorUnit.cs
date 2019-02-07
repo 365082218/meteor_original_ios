@@ -1868,10 +1868,10 @@ public partial class MeteorUnit : MonoBehaviour
         ImpluseVec.z = vec.z;
     }
 
-    //public void SetVelocity(Vector3 velocityD)
-    //{
-    //    SetVelocity(new Vector2(velocityD.z, velocityD.x));
-    //}
+    public void SetVelocityY(float y)
+    {
+        ImpluseVec.y = y;
+    }
 
     //设置世界坐标系的速度,z向人物面前，x向人物右侧
     public void SetJumpVelocity(Vector2 velocityM)
@@ -2673,7 +2673,7 @@ public partial class MeteorUnit : MonoBehaviour
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
                         //TargetPos = 40 + ((int)idx - 1) * 4 + direction;
                         //Debug.LogError("targetPos:" + TargetPos);
-                        posMng.ChangeAction(TargetPos);
+                        posMng.OnChangeAction(TargetPos);
                         charLoader.SetActionScale(dam.DefenseMove);
                         //charLoader.SetActionRotation(mPos - attacker.mPos);
                         int realDamage = CalcDamage(attacker, attackdes);
@@ -2869,7 +2869,7 @@ public partial class MeteorUnit : MonoBehaviour
                         int TargetPos = GetGuardPose(direction);
                         string attackAudio = string.Format("W{0:D2}GD{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                        posMng.ChangeAction(TargetPos);
+                        posMng.OnChangeAction(TargetPos);
                         charLoader.SetActionScale(dam.DefenseMove);
                         //charLoader.SetActionRotation(this.mPos - attacker.mPos);
                         int realDamage = CalcDamage(attacker);

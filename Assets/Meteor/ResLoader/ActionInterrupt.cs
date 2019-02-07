@@ -44,6 +44,7 @@ public class CommonAction
     public const int RendaoReady = 404;
     public const int WaitWeaponReturn = 219;//等待飞轮回来
     public const int AttackActStart = 200;
+    public const int BeHurted100 = 100;//受击被击到空中
     public const int BeHurted109 = 109;//受击低着头循环
     public const int BeHurted110 = 110;//受击抱着肚子
     public const int BeHurted111 = 111;//打的地面上翻滚
@@ -117,7 +118,7 @@ public class CommonAction
     public const int JumpBackFall = 158;//后跳回落
     public const int WallRightJump = 159;//接触墙壁时按跳右蹬腿
     public const int WallLeftJump = 160;//接触墙壁时按跳左蹬腿
-    public const int FallOnGround = 180;//落到地面时,跳回落动画还未播放完毕则播放撞击效果的落地.
+    //public const int FallOnGround = 180;//落到地面时,跳回落动画还未播放完毕则播放撞击效果的落地.
     public const int Defence = 1000;//虚拟动作，因为与武器有关联
     public const int Attack = 1001;//虚拟动作，因为与武器类型有关联，攻击类的不需要自己控制，读character.act，
     //只有攀爬
