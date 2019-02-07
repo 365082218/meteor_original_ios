@@ -7,6 +7,7 @@ public enum EAIStatus
 {
     None,
     Idle,//不动.
+    RebornFriend,//复活队友.
     Fight,//包括所有战斗情况
     Kill,//强制杀死指定敌人，无视距离，一直跟随
     Guard,//防御
@@ -96,6 +97,7 @@ public class MeteorAI {
     int pathIdx = -1;
     Vector3 TargetPos = Vector3.zero;
     static readonly float ThinkDelay = 300;//单Think为50时,6帧一个行为检测
+    float RebornDelay = 30.0f;
     // Update is called once per frame
     public void Update () {
         ThinkCheckTick -= owner.Attr.Think;
@@ -120,6 +122,7 @@ public class MeteorAI {
             touchLast += Time.deltaTime;
         else
             touchLast = 0.0f;
+        RebornDelay -= Time.deltaTime;
         ChangeWeaponTick -= Time.deltaTime;
         AIJumpDelay += Time.deltaTime;
         lookTick += Time.deltaTime;
@@ -151,6 +154,15 @@ public class MeteorAI {
         //}
         //行为优先级 
         //AI强制行为(攻击指定位置，Kill追杀（不论视野）攻击 ) > 战斗 > 跟随 > 巡逻 > 
+        
+        //找到身旁是否有死亡队友，
+        if (Global.GGameMode == GameMode.ANSHA && owner.IsLeader && RebornDelay <= 0)
+        {
+            //如果50码以内有死亡队友.且当前在前进/待机/预备动作
+            if (CanChangeToRebornStatus())
+                ChangeState(EAIStatus.RebornFriend);
+        }
+
         if (Status == EAIStatus.Patrol)
         {
             //巡逻状态如果找到了敌人，与敌人搏斗.
@@ -244,6 +256,9 @@ public class MeteorAI {
 
         switch (Status)
         {
+            case EAIStatus.RebornFriend:
+                OnRebornFriend();
+                break;
             case EAIStatus.Fight:
                 OnFightStatus();
                 break;
@@ -277,6 +292,16 @@ public class MeteorAI {
         }
 
 
+    }
+
+    bool CanChangeToRebornStatus()
+    {
+        if (owner.posMng.mActiveAction.Idx == CommonAction.Idle || owner.posMng.mActiveAction.Idx <= 10 || owner.posMng.mActiveAction.Idx == CommonAction.Run || owner.posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
+        {
+            if (owner.HasRebornTarget())
+                return true;
+        }
+        return false;
     }
 
     //处理倒地后的挣扎起身
@@ -766,6 +791,13 @@ public class MeteorAI {
                 break;
         }
         return false;
+    }
+
+    void OnRebornFriend()
+    {
+        owner.posMng.ChangeAction(CommonAction.Reborn);
+        ChangeState(EAIStatus.Wait);
+        RebornDelay = 30.0f;
     }
 
     //地面攻击.思考仅处理战斗状态
@@ -1902,6 +1934,8 @@ public class MeteorAI {
             SubStatus = EAISubStatus.SubStatusWait;
         else if (type == EAIStatus.Fight)
             SubStatus = EAISubStatus.Fight;
+        else if (type == EAIStatus.RebornFriend)
+            SubStatus = EAISubStatus.SubStatusWait;
     }
 
     void StopCoroutine()

@@ -1374,6 +1374,31 @@ public partial class MeteorUnit : MonoBehaviour
         IndicatedWeapon = null;
     }
 
+    //丢掉主武器，切换到武器2
+    public void DropAndChangeWeapon()
+    {
+        if (Attr.Weapon2 != 0)
+        {
+            if (weaponLoader != null)
+                weaponLoader.UnEquipWeapon();
+            int weapon = Attr.Weapon;
+            Attr.Weapon = Attr.Weapon2;
+            Attr.Weapon2 = 0;
+            IndicatedWeapon = GameData.Instance.MakeEquip(Attr.Weapon);
+        }
+        if (IndicatedWeapon != null && weaponLoader != null)
+            weaponLoader.EquipWeapon(IndicatedWeapon);
+        IndicatedWeapon = null;
+        //没有自动目标，攻击目标，不许计算自动/锁定目标，无转向
+        if (Attr.IsPlayer &&
+            (GetWeaponType() == (int)EquipWeaponType.Gun ||
+             GetWeaponType() == (int)EquipWeaponType.Dart ||
+             GetWeaponType() == (int)EquipWeaponType.Guillotines))
+            GameBattleEx.Instance.Unlock();
+        if (robot != null)
+            robot.OnChangeWeapon();
+    }
+
     public void ChangeNextWeapon()
     {
         //Debug.Log("ChangeNextWeapon");
@@ -1916,10 +1941,48 @@ public partial class MeteorUnit : MonoBehaviour
 
     MeteorUnit RebornTarget = null;
     SFXEffectPlay RebornEffect = null;
+    public bool HasRebornTarget()
+    {
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            return false;
+        //创建房间-盟主-死斗-无法复活队友
+        if (Global.GLevelMode == LevelMode.CreateWorld)
+        {
+            if (Global.GGameMode == GameMode.MENGZHU || Global.GGameMode == GameMode.SIDOU)
+                return false;
+        }
+        RebornTarget = null;
+        float dis = 50;
+        int index = -1;
+        for (int i = 0; i < MeteorManager.Instance.DeadUnits.Count; i++)
+        {
+            MeteorUnit unit = MeteorManager.Instance.DeadUnits[i];
+            if (unit == this)
+                continue;
+            if (!SameCamp(unit))
+                continue;
+            if (!unit.Dead)
+                continue;
+            float d = Vector3.Distance(transform.position, MeteorManager.Instance.DeadUnits[i].transform.position);
+            if (dis > d)
+            {
+                dis = d;
+                index = i;
+            }
+        }
+        return index != -1;
+    }
+
     public void SelectRebornTarget()
     {
         if (Global.GLevelMode == LevelMode.MultiplyPlayer)
             return;
+        //创建房间-盟主-死斗-无法复活队友
+        if (Global.GLevelMode == LevelMode.CreateWorld)
+        {
+            if (Global.GGameMode == GameMode.MENGZHU || Global.GGameMode == GameMode.SIDOU)
+                return;
+        }
         RebornTarget = null;
         float dis = 50;
         int index = -1;
@@ -1945,6 +2008,7 @@ public partial class MeteorUnit : MonoBehaviour
             RebornEffect = SFXLoader.Instance.PlayEffect("ReBorn.ef", RebornTarget.transform.position, true);
         }
     }
+
     public void RebornFriend()
     {
         if (RebornTarget != null)

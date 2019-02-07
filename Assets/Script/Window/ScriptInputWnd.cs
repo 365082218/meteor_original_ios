@@ -35,6 +35,9 @@ public class ScriptInputWnd:Window<ScriptInputWnd>
         if (CheatOK(cheatcode, "god"))
         {
             U3D.GodLike();
+            if (NewSystemWnd.Exist)
+                NewSystemWnd.Instance.Close();
+            NewSystemWnd.Instance.Open();
             ret = true;
         }
         return ret;

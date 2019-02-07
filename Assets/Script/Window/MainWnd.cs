@@ -38,18 +38,12 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
     }
 
     GameObject TemplateRoot;
-    GameMode gameMode = GameMode.MENGZHU;
-    int life = 500;
-    int MainWeaponCode = (int)EquipWeaponType.Knife;
-    int SubWeaponCode = (int)EquipWeaponType.Gloves;
-    int model = 0;//孟星魂
-    int roundTime = 15;//单轮时长.
-    int maxPlayer = 2;
     
     int[] ConstRoundTime = {15, 30, 60};
     int[] ConstPlayer = {2, 4, 8, 12, 16};
     void Init()
     {
+
         Control("CreateWorld").GetComponent<Button>().onClick.AddListener(()=>
         {
             OnEnterLevel();
@@ -58,27 +52,32 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
         Toggle rule0 = Control("0", RuleGroup).GetComponent<Toggle>();
         Toggle rule1 = Control("1", RuleGroup).GetComponent<Toggle>();
         Toggle rule2 = Control("2", RuleGroup).GetComponent<Toggle>();
-        rule0.onValueChanged.AddListener((bool select) => { if (select) gameMode = GameMode.MENGZHU;});
-        rule1.onValueChanged.AddListener((bool select) => { if (select) gameMode = GameMode.ANSHA; });
-        rule2.onValueChanged.AddListener((bool select) => { if (select) gameMode = GameMode.SIDOU; });
+        rule0.isOn = GameData.Instance.gameStatus.GameMode == (int)GameMode.MENGZHU;
+        rule1.isOn = GameData.Instance.gameStatus.GameMode == (int)GameMode.ANSHA;
+        rule2.isOn = GameData.Instance.gameStatus.GameMode == (int)GameMode.SIDOU;
+
+        rule0.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.GameMode = (int)GameMode.MENGZHU;});
+        rule1.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.GameMode = (int)GameMode.ANSHA; });
+        rule2.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.GameMode = (int)GameMode.SIDOU; });
 
         GameObject LifeGroup = Control("LifeGroup", WndObject);
         Toggle Life0 = Control("0", LifeGroup).GetComponent<Toggle>();
         Toggle Life1 = Control("1", LifeGroup).GetComponent<Toggle>();
         Toggle Life2 = Control("2", LifeGroup).GetComponent<Toggle>();
 
-        Life0.isOn = false;
-        Life1.isOn = true;
-        Life2.isOn = false;
-        Life0.onValueChanged.AddListener((bool select) => { if (select) life = 500; });
-        Life1.onValueChanged.AddListener((bool select) => { if (select) life = 200; });
-        Life2.onValueChanged.AddListener((bool select) => { if (select) life = 100; });
+        Life0.isOn = GameData.Instance.gameStatus.Life == 500;
+        Life1.isOn = GameData.Instance.gameStatus.Life == 200;
+        Life2.isOn = GameData.Instance.gameStatus.Life == 100;
+        Life0.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Life = 500; });
+        Life1.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Life = 200; });
+        Life2.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Life = 100; });
 
         GameObject MainWeaponGroup = Control("FirstWeapon", WndObject);
         GameObject WeaponGroup = Control("WeaponGroup", MainWeaponGroup);
         for (int i = 0; i <= 11; i++)
         {
             Toggle MainWeapon = Control(string.Format("{0}", i), WeaponGroup).GetComponent<Toggle>();
+            MainWeapon.isOn = GameData.Instance.gameStatus.Weapon0 == i;
             MainWeapon.onValueChanged.AddListener(OnMainWeaponSelected);
         }
 
@@ -87,11 +86,13 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
         for (int i = 0; i <= 11; i++)
         {
             Toggle subWeapon = Control(string.Format("{0}", i), WeaponGroup).GetComponent<Toggle>();
+            subWeapon.isOn = GameData.Instance.gameStatus.Weapon1 == i;
             subWeapon.onValueChanged.AddListener(OnSubWeaponSelected);
         }
 
         Control("Return").GetComponent<Button>().onClick.AddListener(() =>
         {
+            GameData.Instance.SaveState();
             MainWnd.Instance.Open();
             Close();
         });
@@ -103,8 +104,8 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
             if (lev == null || lev.SceneMode == 1)
                 continue;
             AddGridItem(lev, TemplateRoot.transform);
-            select = lev;
         }
+        select = LevelMng.Instance.GetItem(GameData.Instance.gameStatus.LevelTemplate);
         OnSelectLevel(select);
 
         GameObject ModelGroup = Control("ModelGroup");
@@ -114,7 +115,8 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
             Text t = modelTog.GetComponentInChildren<Text>();
             t.text = ModelMng.Instance.GetAllItem()[i].Name;
             var k = i;
-            modelTog.onValueChanged.AddListener((bool select) => { if (select) model = k; });
+            modelTog.isOn = GameData.Instance.gameStatus.Model == i;
+            modelTog.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Model = k; });
         }
 
         GameObject TimeGroup = Control("GameTime", WndObject);
@@ -122,7 +124,8 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
         {
             Toggle TimeToggle = Control(string.Format("{0}", i), TimeGroup).GetComponent<Toggle>();
             var k = i;
-            TimeToggle.onValueChanged.AddListener((bool selected) => { if (selected) roundTime = ConstRoundTime[k]; });
+            TimeToggle.isOn = GameData.Instance.gameStatus.RoundTime == ConstRoundTime[k];
+            TimeToggle.onValueChanged.AddListener((bool selected) => { if (selected) GameData.Instance.gameStatus.RoundTime = ConstRoundTime[k]; });
         }
 
         GameObject PlayerGroup = Control("PlayerGroup", WndObject);
@@ -130,10 +133,11 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
         {
             Toggle PlayerToggle = Control(string.Format("{0}", i), PlayerGroup).GetComponent<Toggle>();
             var k = i;
+            PlayerToggle.isOn = GameData.Instance.gameStatus.MaxPlayer == ConstPlayer[k];
             PlayerToggle.onValueChanged.AddListener((bool selected) => 
             {
                 if (selected)
-                    maxPlayer = ConstPlayer[k];
+                    GameData.Instance.gameStatus.MaxPlayer = ConstPlayer[k];
             });
         }
     }
@@ -149,7 +153,7 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
                 Toggle MainWeapon = Control(string.Format("{0}", i), WeaponGroup).GetComponent<Toggle>();
                 if (MainWeapon.isOn)
                 {
-                    MainWeaponCode = i;
+                    GameData.Instance.gameStatus.Weapon0 = i;
                     break;
                 }
                 
@@ -168,7 +172,7 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
                 Toggle subWeapon = Control(string.Format("{0}", i), WeaponGroup).GetComponent<Toggle>();
                 if (subWeapon.isOn)
                 {
-                    SubWeaponCode = i;
+                    GameData.Instance.gameStatus.Weapon1 = i;
                     break;
                 }
             }
@@ -179,6 +183,7 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
     void OnSelectLevel(Level lev)
     {
         select = lev;
+        GameData.Instance.gameStatus.LevelTemplate = lev.ID;
         Control("Task").GetComponent<Text>().text = select.Name;
     }
 
@@ -186,13 +191,13 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
     {
         if (select != null)
         {
-            Global.MainWeapon = MainWeaponCode;
-            Global.SubWeapon = SubWeaponCode;
-            Global.PlayerLife = life;
-            Global.PlayerModel = model;
-            Global.RoundTime = roundTime;
-            Global.MaxPlayer = maxPlayer;
-            U3D.LoadLevel(select.ID, LevelMode.CreateWorld, gameMode);
+            Global.MainWeapon = GameData.Instance.gameStatus.Weapon0;
+            Global.SubWeapon = GameData.Instance.gameStatus.Weapon1;
+            Global.PlayerLife = GameData.Instance.gameStatus.Life;
+            Global.PlayerModel = GameData.Instance.gameStatus.Model;
+            Global.RoundTime = GameData.Instance.gameStatus.RoundTime;
+            Global.MaxPlayer = GameData.Instance.gameStatus.MaxPlayer;
+            U3D.LoadLevel(select.ID, LevelMode.CreateWorld, (GameMode)GameData.Instance.gameStatus.GameMode);
         }
     }
 

@@ -1042,7 +1042,7 @@ public partial class GameBattleEx : MonoBehaviour {
         if (Scene_OnCharacterEvent != null)
             Scene_OnCharacterEvent.Invoke(Global.GScript, new object[] { unit.InstanceId, EventDeath });
         //无阵营的角色,杀死人，不统计信息
-        if (killer != null && (killer.Camp == EUnitCamp.EUC_ENEMY || killer.Camp == EUnitCamp.EUC_FRIEND))
+        if (killer != null)
         {
             //统计杀人计数
             if (!battleResult.ContainsKey(killer.name))
@@ -1058,7 +1058,7 @@ public partial class GameBattleEx : MonoBehaviour {
                 battleResult[killer.name].killCount += 1;
         }
 
-        if (unit != null && (unit.Camp == EUnitCamp.EUC_ENEMY || unit.Camp == EUnitCamp.EUC_FRIEND))
+        if (unit != null)
         {
             //统计被杀次数
             if (!battleResult.ContainsKey(unit.name))
@@ -1096,6 +1096,12 @@ public partial class GameBattleEx : MonoBehaviour {
                         GameOver(1);
                     else if (U3D.AllFriendDead())
                         GameOver(0);
+                    else
+                    {
+                        //用一个自由相机，拍摄场上PK的几个人
+                        InitFreeCamera();
+                        EnableFollowCamera(false);
+                    }
                 }
             }
             else
@@ -1149,7 +1155,7 @@ public partial class GameBattleEx : MonoBehaviour {
                 {
                     //检查是否是队长
                     if (unit.IsLeader)
-                        GameOver(0);
+                        GameOver(1);
                 }
                 else if (Global.GGameMode == GameMode.SIDOU)
                 {
@@ -1161,6 +1167,38 @@ public partial class GameBattleEx : MonoBehaviour {
                 }
             }
         }
+    }
+
+    public void EnableFollowCamera(bool enable)
+    {
+        CameraFollow.Ins.GetComponent<Camera>().enabled = enable;
+        CameraFollow.Ins.enabled = enable;
+    }
+
+    public void InitFreeCamera()
+    {
+        if (CameraFree.Ins == null)
+        {
+            GameObject FreeCamera = GameObject.Instantiate(Resources.Load("CameraFreeEx")) as GameObject;
+            
+        }
+        CameraFree.Ins.GetComponent<Camera>().enabled = true;
+        CameraFree.Ins.enabled = true;
+        //找一个正在打斗的目标，随便谁都行
+        MeteorUnit watchTarget = null;
+        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        {
+            if (MeteorManager.Instance.UnitInfos[i].Dead)
+                continue;
+            if (watchTarget == null)
+                watchTarget = MeteorManager.Instance.UnitInfos[i];
+            if (MeteorManager.Instance.UnitInfos[i].GetLockedTarget() != null)
+            {
+                watchTarget = MeteorManager.Instance.UnitInfos[i];
+                break;
+            }
+        }
+        CameraFree.Ins.Init(watchTarget);
     }
 
     public void ChangeLockStatus()

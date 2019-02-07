@@ -219,15 +219,21 @@ public class U3D : MonoBehaviour {
 
         if (Global.GGameMode == GameMode.MENGZHU)
         {
-
+            unit.Attr.View = 5000;//视野给大一点
         }
         else if (Global.GGameMode == GameMode.ANSHA)
         {
-            U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "vip" });
+            if (unit.IsLeader)
+                U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "enemyvip" });
+            else
+                U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "vip" });
         }
         else if (Global.GGameMode == GameMode.SIDOU)
         {
-            U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "vip" });
+            if (unit.IsLeader)
+                U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "enemyvip" });
+            else
+                U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "vip" });
         }
         return;
     }

@@ -40,7 +40,7 @@ public class DropMng:Singleton<DropMng>{
         //ExplosionObject01.iTweenExplosion01(1, ref obj, player.transform.position);
         ExplosionObject01.DropItem(trigget, player.mPos, -player.transform.forward);
         //如果角色拥有第二武器，那么第一武器扔掉时，切换到第二武器
-        player.ChangeNextWeapon();
+        player.DropAndChangeWeapon();
 
         //扔掉Flag道具
         if (player.GetFlag)
