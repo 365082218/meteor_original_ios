@@ -6,7 +6,7 @@ function npc31_06()
 	class.Weapon2 = 0;
 	class.Team = 2;
 	class.View = 400;
-	class.Think = 50;
+	class.Think = 100;
 	class.Attack1 = 35;
 	class.Attack2 = 45;
 	class.Attack3 = 10;

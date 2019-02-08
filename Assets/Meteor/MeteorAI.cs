@@ -2059,11 +2059,7 @@ public class MeteorAI {
     {
         owner.controller.Input.OnKeyDown(key, true);
         yield return 0;
-        yield return 0;
-        yield return 0;
         owner.controller.Input.OnKeyUp(key);
-        yield return 0;
-        yield return 0;
         yield return 0;
         InputCorout = null;
     }

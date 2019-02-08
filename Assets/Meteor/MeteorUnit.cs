@@ -1015,7 +1015,7 @@ public partial class MeteorUnit : MonoBehaviour
 
     public bool CanBurst()
     {
-        return (AngryValue == Global.ANGRYBURST);
+        return (AngryValue >= Global.ANGRYBURST);
     }
 
     //专门用来播放左转，右转动画的，直接面对角色不要调用这个。
@@ -1453,10 +1453,10 @@ public partial class MeteorUnit : MonoBehaviour
 
     public void DoBreakOut()
     {
-        if (AngryValue >= 60 || (Attr.IsPlayer && GameData.Instance.gameStatus.EnableInfiniteAngry))
+        if (AngryValue >= 60 || GameData.Instance.gameStatus.EnableInfiniteAngry)
         {
             posMng.ChangeAction(CommonAction.BreakOut);
-            AngryValue -= Attr.IsPlayer ? (GameData.Instance.gameStatus.EnableInfiniteAngry ? 0 : 60) : 60;
+            AngryValue -= GameData.Instance.gameStatus.EnableInfiniteAngry ? 0 : 60;
             if (Attr.IsPlayer)
                 FightWnd.Instance.UpdateAngryBar();
         }
@@ -3419,10 +3419,10 @@ public partial class MeteorUnit : MonoBehaviour
         //技能0为当前武器绝招
         if (skill == 0)
         {
-            if (AngryValue >= 100 || (GameData.Instance.gameStatus.EnableInfiniteAngry && Attr.IsPlayer))
+            if (AngryValue >= 100 || GameData.Instance.gameStatus.EnableInfiniteAngry)
             {
                 //得到武器的大绝pose号码。
-                AngryValue -= Attr.IsPlayer ? (GameData.Instance.gameStatus.EnableInfiniteAngry ? 0 : 100) : 100;
+                AngryValue -= GameData.Instance.gameStatus.EnableInfiniteAngry ? 0 : 100;
                 int skillPose = ActionInterrupt.Instance.GetSkillPose(this);
                 if (skillPose != 0)
                 {

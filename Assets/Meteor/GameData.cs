@@ -122,7 +122,24 @@ public class GameState
         }
     }
 
-    public bool Undead = false;
+    bool _Undead = false;
+    public bool Undead
+    {
+        get
+        {
+            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+                return false;
+            return _Undead;
+        }
+        set
+        {
+            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            {
+                return;
+            }
+            _Undead = value;
+        }
+    }
     //调试作弊栏
     bool _GodLike;
     public bool GodLike

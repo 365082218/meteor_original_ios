@@ -17,6 +17,11 @@ public class ScriptInputWnd:Window<ScriptInputWnd>
             {
                 if (!UseCheatCode(scriptInput.text))
                     ScriptMng.ins.CallString(scriptInput.text);
+                else
+                {
+                    Close();
+                    return;
+                }
                 result.text = "秘籍成功执行";
             }
             catch (Exception exp)
