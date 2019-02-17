@@ -2336,7 +2336,8 @@ public partial class MeteorUnit : MonoBehaviour
         {
             for (int i = 0; i < sfxList.Count; i++)
             {
-                GameBattleEx.Instance.AddDamageCollision(this, sfxList[i].damageBox);
+                if (!sfxList[i].PlayDone)
+                    GameBattleEx.Instance.AddDamageCollision(this, sfxList[i].damageBox);
             }
         }
 

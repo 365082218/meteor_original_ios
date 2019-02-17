@@ -16630,7 +16630,7 @@ Pose 540     #§Ô¤MÀ£¨î¥X©Û
   Start      15846
   End        15868
   EffectType 0
-  EffectID   0
+  EffectID   Pos540
   link       541
   Blend
   {
@@ -16683,7 +16683,7 @@ Pose 541     #§Ô¤MÀ£¨îªì½ò
   Start      15869
   End        15921
   EffectType 0
-  EffectID   0
+  EffectID   Pos541
   link       543
   Action
   {

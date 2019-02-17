@@ -951,7 +951,7 @@ public partial class GameBattleEx : MonoBehaviour {
             return;
         }
         MeteorUnit player = MeteorManager.Instance.LocalPlayer;
-        float angleMax = Mathf.Cos(75 * Mathf.Deg2Rad);//cos值越大，角度越小
+        float angleMax = 75;//cos值越大，角度越小
         float autoAngle = 0.0f;//自动目标与主角的夹角
         float autoDis = 180.0f;//自动目标与主角的距离，距离近，优先
         MeteorUnit wantRotation = null;//夹角最小的
@@ -975,23 +975,25 @@ public partial class GameBattleEx : MonoBehaviour {
             if (Mathf.Abs(vec.y) >= 75 && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
                 continue;
             vec.y = 0;
-            float d = Vector3.Magnitude(vec);
-            if (d < autoDis)
-            {
-                autoDis = d;
-                wantDis = MeteorManager.Instance.UnitInfos[i];
-            }
+            //先判断夹角是否在限制范围内.
             vec = Vector3.Normalize(vec);
-            float angle = Vector3.Dot(vecPlayer, vec);
+            float angle = Mathf.Acos(Vector3.Dot(vecPlayer.normalized, vec)) * Mathf.Rad2Deg;
             //角度小于75则可以成为自动对象.
-            if (angle > angleMax)
+            if (angle < angleMax)
             {
                 angleMax = angle;
                 wantRotation = MeteorManager.Instance.UnitInfos[i];
+                float d = Vector3.Magnitude(vec);
+                if (d < autoDis)
+                {
+                    autoDis = d;
+                    wantDis = MeteorManager.Instance.UnitInfos[i];
+                }
+
+                //保存自动对象 与主角的角度
+                if (autoTarget == MeteorManager.Instance.UnitInfos[i])
+                    autoAngle = angle;
             }
-            //保存自动对象 与主角的角度
-            if (autoTarget == MeteorManager.Instance.UnitInfos[i])
-                autoAngle = angle;
         }
 
         //如果更近距离有与角色正方向夹角较大的其他敌方，优先选择近距离的敌人。
@@ -1006,12 +1008,13 @@ public partial class GameBattleEx : MonoBehaviour {
                 autoEffect = null;
             }
             autoTarget = wantRotation;
+            //Debug.Log("切换目标");
             autoEffect = SFXLoader.Instance.PlayEffect("Track.ef", autoTarget.gameObject);
             return;
         }
 
         //如果当前的自动目标存在，且夹角超过75度，即在主角背后，那么自动目标清空
-        if (autoTarget != null && autoAngle < Mathf.Cos(75 * Mathf.Deg2Rad) && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
+        if (autoTarget != null && autoAngle > 90 && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
         {
             autoEffect.OnPlayAbort();
             autoTarget = null;
