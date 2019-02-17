@@ -25,7 +25,7 @@ public partial class GameBattleEx : MonoBehaviour {
     public CameraFollow m_CameraControl;
     int time = 1000;//秒
     float timeClock = 0.0f;
-    const float ViewLimit = 160000;//400码，自动解除锁定.
+    const float ViewLimit = 90000;//300码，自动解除锁定.
     static GameBattleEx _Ins;
     public static GameBattleEx Instance { get { return _Ins; } }
     // Use this for initialization
@@ -673,11 +673,7 @@ public partial class GameBattleEx : MonoBehaviour {
                     if (unit.Attr.IsPlayer)
                     {
                         Vector3 vec = CameraFollow.Ins.m_Camera.ScreenToWorldPoint(new Vector3(Screen.width / 2, (Screen.height) / 2, DartLoader.MaxDistance));
-                        float dis = Vector3.Distance(vec, vecSpawn);
-                        float vt = Mathf.Sqrt(2 * DartLoader.gspeed * dis + (DartLoader.InitializeSpeed * DartLoader.InitializeSpeed));
-                        float t = (vt - DartLoader.InitializeSpeed) /DartLoader.gspeed;
-                        float h = t * t * 0.5f * Mathf.Abs(Physics.gravity.y);
-                        forw = (vec + Vector3.up * h - vecSpawn).normalized;
+                        forw = (vec - vecSpawn).normalized;
                     }
                     else
                     {
@@ -703,11 +699,7 @@ public partial class GameBattleEx : MonoBehaviour {
                             {
                                 float k = Random.Range(-(100 - unit.Attr.Aim) / 3.0f, (100 - unit.Attr.Aim) / 3.0f);
                                 Vector3 vec = unit.GetLockedTarget().mPos + new Vector3(k, Random.Range(10, 38), k);
-                                float dis = Vector3.Distance(vec, vecSpawn);
-                                float vt = Mathf.Sqrt(2 * DartLoader.gspeed * dis + (DartLoader.InitializeSpeed * DartLoader.InitializeSpeed));
-                                float t = (vt - DartLoader.InitializeSpeed) / DartLoader.gspeed;
-                                float h = t * t * 0.5f * Mathf.Abs(Physics.gravity.y);
-                                forw = (vec + Vector3.up * h - vecSpawn).normalized;
+                                forw = (vec - vecSpawn).normalized;
                             }
                             //要加一点随机，否则每次都打一个位置不正常
                         }

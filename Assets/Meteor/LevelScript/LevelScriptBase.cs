@@ -388,11 +388,11 @@ public class ScriptBase
 
     public static void Output(int i)
     {
-        Debug.Log(i);
+        //Debug.Log(i);
     }
     public static void Output(string s, int i = 0)
     {
-        Debug.Log(s + i);
+        //Debug.Log(s + i);
     }
 
     public static void AddNPC(string npc)

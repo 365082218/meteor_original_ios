@@ -369,7 +369,7 @@ public partial class MeteorUnit : MonoBehaviour
     public static float SpeedMin = 0.01f;
 
 
-    public float ActionSpeed { get { return Attr.ActionSpeed * ActionSpeedScale; } }
+    public float ActionSpeed { get { return ActionSpeedScale; } }
     //MoveSpeed
     public float GetMoveSpeedScale()
     {
@@ -637,6 +637,13 @@ public partial class MeteorUnit : MonoBehaviour
         return canControlOnAir;
     }
 
+    //是否精确在地面，由控制器返回在地面标识
+    public bool IsOnGroundEx()
+    {
+        bool ret = OnGround;
+        return posMng.Jump ? false : ret;
+    }
+
     public bool IsOnGround()
     {
         bool ret = OnGround || MoveOnGroundEx;
@@ -867,8 +874,8 @@ public partial class MeteorUnit : MonoBehaviour
     
     //public const float gGravity = 980.0f;//971.4f;//向上0.55秒，向下0.45秒
     public const float groundFriction = 2000.0f;//地面摩擦力，在地面不是瞬间停止下来的。
-    public const float yLimitMin = -500f;//最大向下速度
-    public const float yLimitMax = 500;//最大向上速度
+    public const float yLimitMin = -700f;//最大向下速度
+    public const float yLimitMax = 700;//最大向上速度
     public const float yClimbLimitMax = 180.0f;
     public const float yClimbEndLimit = -30.0f;//爬墙时,Y速度到达此速度，开始计时，时间到就从墙壁落下
     public const float JumpLimit = 68f;
@@ -969,7 +976,7 @@ public partial class MeteorUnit : MonoBehaviour
         if (OnTouchWall)
             ProcessFriction(0.2f);//爬墙或者在墙面滑动，摩擦力是地面的0.2倍
 
-        if (!IsOnGround())
+        if (!IsOnGroundEx())
         {
             if (IgnoreGravity)
             {
@@ -1353,6 +1360,8 @@ public partial class MeteorUnit : MonoBehaviour
 
     public int GetNextWeaponType()
     {
+        if (Attr.Weapon2 == 0)
+            return -1;
         if (Attr != null)
             return GameData.Instance.MakeEquip(Attr.Weapon2).Info().SubType;
         return -1;
@@ -2542,13 +2551,20 @@ public partial class MeteorUnit : MonoBehaviour
         //(((武器攻击力 + buff攻击力) x 招式攻击力） / 100) - （敌方武器防御力 + 敌方buff防御力） / 10
         //你的攻击力，和我的防御力之间的计算
         //attacker.damage.PoseIdx;
+        //以匕首259作为示例，普通武器防具
+        //匕首武器攻击=90
+        //BUFF无
+        //招式259，怒意-大招 伤害900
+        //普通武器防御 15
+        //BUFF防御0
+        //(90 * 900 / 100 - 15); 810 - 15 = 795 / 10 = 79.5;
         int WeaponDef = CalcDef();
         int BuffDef = Attr.CalcBuffDef();
         AttackDes atk = des == null ? attacker.damage : des;
         int WeaponDamage = attacker.CalcDamage();
         int PoseDamage = MenuResLoader.Instance.FindOpt(atk.PoseIdx, 3).second[0].flag[6];
         int BuffDamage = attacker.Attr.CalcBuffDamage();
-        int realDamage = Mathf.Abs(Mathf.CeilToInt(((WeaponDamage + BuffDamage) * PoseDamage) / 100.0f - (WeaponDef + BuffDef)));
+        int realDamage = Mathf.Abs(Mathf.CeilToInt(((WeaponDamage * (1.0f + BuffDamage / 100.0f)) * PoseDamage) / 100.0f - (WeaponDef * (1.0f + BuffDef / 100.0f))));
         return realDamage;
     }
 
@@ -2623,8 +2639,6 @@ public partial class MeteorUnit : MonoBehaviour
             NGUICameraJoystick.instance.ResetJoystick();//防止受到攻击时还可以移动视角
 
         //Debug.Log(string.Format("player:{0} attacked by:{1}", name, attacker == null ? "null" : attacker.name));
-        if (robot != null)
-            robot.OnDamaged(attacker);
 
         if (Attr.IsPlayer && GameData.Instance.gameStatus.Undead)
             return;
@@ -2652,7 +2666,8 @@ public partial class MeteorUnit : MonoBehaviour
                 //一击必杀
                 string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                 SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-
+                if (robot != null)
+                    robot.OnDamaged(attacker);
                 Attr.ReduceHp(Attr.HpMax);
                 if (Attr.Dead)
                     OnDead(attacker);
@@ -2677,7 +2692,7 @@ public partial class MeteorUnit : MonoBehaviour
                         charLoader.SetActionScale(dam.DefenseMove);
                         //charLoader.SetActionRotation(mPos - attacker.mPos);
                         int realDamage = CalcDamage(attacker, attackdes);
-                        AngryValue += realDamage / 35;//防御住伤害。则怒气增加
+                        AngryValue += realDamage / 30;//防御住伤害。则怒气增加
                     }
                     else if (dam._AttackType == 1)
                     {
@@ -2713,6 +2728,8 @@ public partial class MeteorUnit : MonoBehaviour
                         string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
                         AngryValue += (int)((realDamage * 10) / 73.0f);
+                        if (robot != null)
+                            robot.OnDamaged(attacker);
                         if (Attr.Dead)
                             OnDead(attacker);
                         else
@@ -2770,6 +2787,8 @@ public partial class MeteorUnit : MonoBehaviour
                     AngryValue += (int)((realDamage * 10) / 73.0f);
                     string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                     SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
+                    if (robot != null)
+                        robot.OnDamaged(attacker);
                     if (Attr.Dead)
                         OnDead(attacker);
                     else
@@ -2814,9 +2833,6 @@ public partial class MeteorUnit : MonoBehaviour
         if (NGUICameraJoystick.instance != null && Attr.IsPlayer)
             NGUICameraJoystick.instance.ResetJoystick();//防止受到攻击时还可以移动视角
 
-        if (robot != null)
-            robot.OnDamaged(attacker);
-
         //Debug.Log(string.Format("player:{0} attacked by:{1}", name, attacker == null ? "null": attacker.name));
         //任意受击，都会让角色退出持枪预备姿势
         if (Attr.IsPlayer && GameData.Instance.gameStatus.Undead)
@@ -2824,6 +2840,8 @@ public partial class MeteorUnit : MonoBehaviour
         SetGunReady(false);
         if (attacker == null)
         {
+            if (robot != null)
+                robot.OnDamaged(attacker);
             //环境伤害.
             Attr.ReduceHp(buffDamage);
             if (Attr.Dead)
@@ -2850,7 +2868,8 @@ public partial class MeteorUnit : MonoBehaviour
                 //一击必杀
                 string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                 SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-
+                if (robot != null)
+                    robot.OnDamaged(attacker);
                 Attr.ReduceHp(Attr.HpMax);
                 if (Attr.Dead)
                     OnDead(attacker);
@@ -2873,7 +2892,7 @@ public partial class MeteorUnit : MonoBehaviour
                         charLoader.SetActionScale(dam.DefenseMove);
                         //charLoader.SetActionRotation(this.mPos - attacker.mPos);
                         int realDamage = CalcDamage(attacker);
-                        AngryValue += (realDamage / 35);//防御住伤害。则怒气增加 200CC = 100 ANG
+                        AngryValue += (realDamage / 30);//防御住伤害。则怒气增加 200CC = 100 ANG
                     }
                     else if (dam._AttackType == 1)
                     {
@@ -2891,6 +2910,8 @@ public partial class MeteorUnit : MonoBehaviour
                         string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
                         AngryValue += (int)(realDamage * 10 / 73.0f);
+                        if (robot != null)
+                            robot.OnDamaged(attacker);
                         if (Attr.Dead)
                             OnDead(attacker);
                         else
@@ -2908,12 +2929,8 @@ public partial class MeteorUnit : MonoBehaviour
                             {
                                 //不是主角打就记录伤害，谁伤害高，就去追着谁打。
                             }
-                            //播放相应特效-音效 0飞镖1
-
-                            //被攻击后，防御相当与没有了.
                             posMng.OnChangeAction(directionAct);
                             charLoader.SetActionScale(dam.TargetMove);
-                            //charLoader.SetActionRotation(mPos - attacker.mPos);
                         }
                     }
                 }
@@ -2932,6 +2949,8 @@ public partial class MeteorUnit : MonoBehaviour
                     AngryValue += (int)((realDamage * 10) / 73.0f);
                     string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                     SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
+                    if (robot != null)
+                        robot.OnDamaged(attacker);
                     if (Attr.Dead)
                         OnDead(attacker);
                     else
@@ -2947,11 +2966,9 @@ public partial class MeteorUnit : MonoBehaviour
                         }
                         else
                         {
-                            //不是主角打就记录伤害，谁伤害高，就去追着谁打。
                         }
                         posMng.OnChangeAction(directionAct);
                         charLoader.SetActionScale(dam.TargetMove);
-                        //charLoader.SetActionRotation(mPos - attacker.mPos);
                     }
                 }
             }

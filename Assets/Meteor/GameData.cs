@@ -310,8 +310,6 @@ public class GameData:Singleton<GameData>
     public void Resume()
     {
         pause = false;
-        if (MeteorManager.Instance.LocalPlayer != null)
-            MeteorManager.Instance.LocalPlayer.controller.LockInput(false);
         if (NGUIJoystick.instance != null)
             NGUIJoystick.instance.Lock(false);
     }
@@ -445,7 +443,7 @@ public class GameData:Singleton<GameData>
             gameStatus.NickName = "昱泉杀手";
             gameStatus.JoyAnchor = new MyVector2(390,340);
             gameStatus.AxisSensitivity = new MyVector2(0.5f, 0.5f);
-            gameStatus.MeteorVersion = "9.07";
+            gameStatus.MeteorVersion = "1.07";
 #if UNITY_STANDALONE_WIN
             gameStatus.TargetFrame = 120;//PC上120帧
 #else

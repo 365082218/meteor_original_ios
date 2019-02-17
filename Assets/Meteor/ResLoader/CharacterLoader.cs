@@ -718,7 +718,7 @@ public class CharacterLoader : MonoBehaviour
             {
                 lastFramePlayedTimes += Time.deltaTime;
 
-                if (checkStaright && PoseStraight > 0.0f && owner.IsOnGround() && startCount)
+                if (checkStaright && PoseStraight > 0.0f && startCount)
                     PoseStraight -= Time.deltaTime;
 
                 float speedScale = owner.ActionSpeed * GetSpeedScale();
@@ -737,6 +737,8 @@ public class CharacterLoader : MonoBehaviour
             else
             {
                 playedTime += Time.deltaTime;
+                if (checkStaright && PoseStraight > 0.0f && startCount)
+                    PoseStraight -= Time.deltaTime;
                 //TryPlayEffect();
                 ChangeWeaponTrail();
 
@@ -1058,9 +1060,8 @@ public class CharacterLoader : MonoBehaviour
         //如果是倒地动作，僵直为0.5f
         if (curPos == CommonAction.Struggle || curPos == CommonAction.Struggle0)
         {
-            //.LogError("0.5f straight");
-            if (PoseStraight <= 0.6f)
-                LockTime(0.6f);
+            if (PoseStraight <= 0.3f)
+                LockTime(0.3f);
         }
 
         //当从100切换到118时，要把Y的速度重置为0，否则下落很快，导致连招接不上

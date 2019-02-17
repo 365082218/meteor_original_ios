@@ -14,7 +14,7 @@ public class ClientVersion
 public class AppInfo:Singleton<AppInfo>
 {
     public const string versionKey = "APPVERSION";
-    public string localVer = "0.2.6.0";
+    public string localVer = "0.2.7.0";
     public bool VersionIsGraterThan(string save)
     {
         string [] local = localVer.Split(new char[] { '.' });
@@ -46,7 +46,7 @@ public class AppInfo:Singleton<AppInfo>
     {
         PlayerPrefs.SetString(versionKey, v);
     }
-    public const int Version = 20190208;
+    public const int Version = 20190217;
     public const int ProtocolVersion = 1;//对战协议版本，在网络初始化后，如果服务器协议版本与此数字相等，则可以进行联机对战，否则需要更新到最新版本
     public string MeteorVersion = "9.07";
 

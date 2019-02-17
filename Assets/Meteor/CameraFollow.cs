@@ -22,6 +22,8 @@ public class CameraFollow : MonoBehaviour {
     public float followDistance = 50;//在角色身后多远
     public float followHeight = 0;//离跟随点多高。
     public float m_MinSize = 55;//fov最小55
+    public float f_speedMax = 150.0f;//移动速度最大限制
+    public float f_eulerMax = 60.0f;//角速度最大值
     [HideInInspector]
     public Camera m_Camera;
     public Vector3 cameraLookAt = Vector3.zero;
@@ -176,9 +178,9 @@ public class CameraFollow : MonoBehaviour {
                 else
                 {
                     //当锁定目标丢失，或者死亡时.从双人视角转换为单人视角的摄像机过渡动画.
-                    newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime);
-                    newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
-                    newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime);
+                    newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime, f_speedMax);
+                    newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime, f_speedMax);
+                    newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime, f_speedMax);
                     transform.position = newPos;
                     if (cameraLookAt != Vector3.zero)
                     {
@@ -195,9 +197,9 @@ public class CameraFollow : MonoBehaviour {
             }
             else
             {
-                newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime);
-                newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
-                newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime);
+                newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime, f_speedMax);
+                newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime, f_speedMax);
+                newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime, f_speedMax);
                 transform.position = newPos;
                 //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                 //transform.rotation = to;
@@ -251,7 +253,8 @@ public class CameraFollow : MonoBehaviour {
         currentEulerVelocityZ = 0;
     }
 
-    public float SmoothDampTime = 0.1f;//平滑到稳定所需时间.
+    public float SmoothDampTime = 0.15f;//平滑到稳定所需时间.
+    public float SmoothDampYTime = 0.1f;//垂直平滑到稳定所需时间
     public float LookAtAngle = 0.0f;//朝目标俯视角度
     public float BodyHeight = 10.0f;//目标脊椎往上多少
 
@@ -372,7 +375,7 @@ public class CameraFollow : MonoBehaviour {
                 //Debug.LogError(string.Format("deltaLast.x:{0}", NGUICameraJoystick.instance.deltaLast.x));
                 yRotate = NGUICameraJoystick.instance.deltaLast.x * GameData.Instance.gameStatus.AxisSensitivity.x;
 #else
-                yRotate = Input.GetAxis("Mouse X");
+                yRotate = Input.GetAxis("Mouse X") * 5;
 #endif
                 if (yRotate != 0)
                     MeteorManager.Instance.LocalPlayer.SetOrientation(yRotate, false);
@@ -381,7 +384,7 @@ public class CameraFollow : MonoBehaviour {
 #if STRIP_KEYBOARD
             xRotate = NGUICameraJoystick.instance.deltaLast.y * GameData.Instance.gameStatus.AxisSensitivity.y;
 #else
-            xRotate = Input.GetAxis("Mouse Y");
+            xRotate = Input.GetAxis("Mouse Y") * 2;
 #endif
             if (xRotate != 0.0f)
             {
@@ -452,9 +455,10 @@ public class CameraFollow : MonoBehaviour {
                 else
                 {
                     //当锁定目标丢失，或者死亡时.从双人视角转换为单人视角的摄像机过渡动画.
-                    newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime);
-                    newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
-                    newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime);
+                    animationTick += Time.deltaTime;
+                    newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime, f_speedMax);
+                    newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime, f_speedMax);
+                    newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime, f_speedMax);
                     transform.position = newPos;
                     transform.LookAt(cameraLookAt);
                     Vector3 vec = transform.eulerAngles;
@@ -469,35 +473,21 @@ public class CameraFollow : MonoBehaviour {
             else
             {
                 //只有高度是缓动的，其他轴上都是即刻
-                if (xRotate != 0.0f || yRotate != 0.0f)
-                {
-                    //当旋转视角时，视角即刻到位，以免晃动.
-                    transform.position = newPos;
-                    transform.LookAt(cameraLookAt);
-                    Vector3 vec = transform.eulerAngles;
-                    vec.z = 0;
-                    transform.eulerAngles = vec;
-                    return;
-                }
-                else
-                {
-                    //没被墙壁阻隔，可以缓动Y
-                    if (smooth && !hitWall)
-                        newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
+                //没被墙壁阻隔，可以缓动Y
+                if (smooth && !hitWall)
+                    newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, 0.1f);
 
-                    transform.position = newPos;
-                    //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
-                    //transform.rotation = to;
-                    Vector3 vec = transform.eulerAngles;
-                    transform.LookAt(cameraLookAt);
-                    
-                    vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
-                    vec.y = transform.eulerAngles.y;
-                    //vec.y = Mathf.SmoothDampAngle(vec.y, transform.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
-                    vec.z = 0;
-                    transform.eulerAngles = vec;
-                    return;
-                }
+                transform.position = newPos;
+                //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
+                //transform.rotation = to;
+                Vector3 vec = transform.eulerAngles;
+                transform.LookAt(cameraLookAt);
+
+                vec.x = transform.eulerAngles.x;
+                vec.y = transform.eulerAngles.y;
+                //vec.y = Mathf.SmoothDampAngle(vec.y, transform.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
+                vec.z = 0;
+                transform.eulerAngles = vec;
             }
         }
     }

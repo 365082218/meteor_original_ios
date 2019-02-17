@@ -214,46 +214,20 @@ public class CameraFree : MonoBehaviour {
 
             newPos = vecTarget;
             //整个视角都是缓动的
-            newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime);
-            newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
-            newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime);
+            newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime, 150);
+            newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime, 150);
+            newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime, 150);
             transform.position = newPos;
             //摄像机朝向观察目标,平滑的旋转视角
             Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
             Vector3 vec = to.eulerAngles;
-            vec.x = Mathf.SmoothDampAngle(transform.eulerAngles.x, to.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
-            vec.y = Mathf.SmoothDampAngle(transform.eulerAngles.y, to.eulerAngles.y, ref currentEulerVelocityY, SmoothDampTime);
+            vec.x = Mathf.SmoothDampAngle(transform.eulerAngles.x, to.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime, 60);
+            vec.y = Mathf.SmoothDampAngle(transform.eulerAngles.y, to.eulerAngles.y, ref currentEulerVelocityY, SmoothDampTime, 60);
             vec.z = 0;
             transform.eulerAngles = vec;
         }
         else
         {
-            float yRotate = 0.0f;
-            float xRotate = 0;
-            if (xRotate != 0.0f)
-            {
-                //根据参数调整高度，和距离.
-                //最高俯仰75度。
-                lastAngle -= xRotate;//鼠标往上，是仰视，往下是俯视
-                if (lastAngle >= angleMax)
-                {
-                    lastAngle = angleMax;
-                    followDistance = Mathf.Abs(fRadis * Mathf.Cos(lastAngle * Mathf.Deg2Rad));
-                    followHeight = Mathf.Abs(fRadis * Mathf.Sin(lastAngle * Mathf.Deg2Rad));
-                }
-                else if (lastAngle <= angleMin)
-                {
-                    lastAngle = angleMin;
-                    followDistance = Mathf.Abs(fRadis * Mathf.Cos(lastAngle * Mathf.Deg2Rad));
-                    followHeight = -Mathf.Abs(fRadis * Mathf.Sin(lastAngle * Mathf.Deg2Rad));
-                }
-                else
-                {
-                    followDistance = Mathf.Abs(fRadis * Mathf.Cos(lastAngle * Mathf.Deg2Rad));
-                    followHeight = lastAngle == 0.0f ? 0 : (lastAngle / Mathf.Abs(lastAngle)) * Mathf.Abs(fRadis * Mathf.Sin(lastAngle * Mathf.Deg2Rad));
-                }
-            }
-
             cameraLookAt.x = Target.mPos.x;
             cameraLookAt.y = Target.transform.position.y + BodyHeight;//朝向焦点
             cameraLookAt.z = Target.mPos.z;
@@ -270,19 +244,7 @@ public class CameraFree : MonoBehaviour {
                 if (!wallHit.collider.isTrigger)
                 {
                     hitWall = true;
-                    //Debug.LogError("hitWall" + wallHit.transform.name);
-                    //摄像机与角色间有物件遮挡住角色，开始自动计算摄像机位置.
-                    //Debug.LogError("camera linecast with:" + wallHit.transform.name);
                     newPos = wallHit.point + Vector3.Normalize(cameraLookAt - wallHit.point) * 5;
-                    //if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
-                    //1 << LayerMask.NameToLayer("Scene") |
-                    //(1 << LayerMask.NameToLayer("Default")) |
-                    //(1 << LayerMask.NameToLayer("Wall")) |
-                    //(1 << LayerMask.NameToLayer("Water"))))
-                    //{
-                    //    m_Targets[2].position = wallHit.point;
-                    //    Debug.LogError("?????");
-                    //}
                 }
             }
 
@@ -296,6 +258,7 @@ public class CameraFree : MonoBehaviour {
                 }
                 else
                 {
+                    animationTick += Time.deltaTime;
                     //当锁定目标丢失，或者死亡时.从双人视角转换为单人视角的摄像机过渡动画.
                     newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime);
                     newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
@@ -303,9 +266,6 @@ public class CameraFree : MonoBehaviour {
                     transform.position = newPos;
                     transform.LookAt(cameraLookAt);
                     Vector3 vec = transform.eulerAngles;
-                    //vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
-                    //vec.y = transform.eulerAngles.y;
-                    //vec.y = Mathf.SmoothDampAngle(vec.y, transform.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
                     vec.z = 0;
                     transform.eulerAngles = vec;
                     return;
@@ -313,36 +273,18 @@ public class CameraFree : MonoBehaviour {
             }
             else
             {
-                //只有高度是缓动的，其他轴上都是即刻
-                if (xRotate != 0.0f || yRotate != 0.0f)
-                {
-                    //当旋转视角时，视角即刻到位，以免晃动.
-                    transform.position = newPos;
-                    transform.LookAt(cameraLookAt);
-                    Vector3 vec = transform.eulerAngles;
-                    vec.z = 0;
-                    transform.eulerAngles = vec;
-                    return;
-                }
-                else
-                {
-                    //没被墙壁阻隔，可以缓动Y
-                    if (smooth && !hitWall)
-                        newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
 
-                    transform.position = newPos;
-                    //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
-                    //transform.rotation = to;
-                    Vector3 vec = transform.eulerAngles;
-                    transform.LookAt(cameraLookAt);
+                //没被墙壁阻隔，可以缓动Y
+                if (smooth && !hitWall)
+                    newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
+                transform.position = newPos;
+                Vector3 vec = transform.eulerAngles;
+                transform.LookAt(cameraLookAt);
                     
-                    vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
-                    vec.y = transform.eulerAngles.y;
-                    //vec.y = Mathf.SmoothDampAngle(vec.y, transform.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
-                    vec.z = 0;
-                    transform.eulerAngles = vec;
-                    return;
-                }
+                vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
+                vec.y = transform.eulerAngles.y;
+                vec.z = 0;
+                transform.eulerAngles = vec;
             }
         }
     }

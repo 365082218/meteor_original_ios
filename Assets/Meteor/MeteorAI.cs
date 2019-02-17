@@ -409,12 +409,12 @@ public class MeteorAI {
                             return;
                         }
                         //尝试几率跳跃，否则可能会被卡住.
-                        int random = Random.Range(0, 100);
-                        if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
-                        {
-                            AIJump();
-                            AIJumpDelay = 0.0f;
-                        }
+                        //int random = Random.Range(0, 100);
+                        //if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
+                        //{
+                        //    AIJump();
+                        //    AIJumpDelay = 0.0f;
+                        //}
                     }
                 }
                 else
@@ -746,13 +746,13 @@ public class MeteorAI {
                             return false;
                         }
                         //尝试几率跳跃，否则可能会被卡住.
-                        int random = Random.Range(0, 100);
-                        if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
-                        {
-                            AIJump();
-                            AIJumpDelay = 0.0f;
-                            return false;
-                        }
+                        //int random = Random.Range(0, 100);
+                        //if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
+                        //{
+                        //    AIJump();
+                        //    AIJumpDelay = 0.0f;
+                        //    return false;
+                        //}
                     }
                 }
                 break;
@@ -937,13 +937,13 @@ public class MeteorAI {
                     return;
                 }
                 //尝试几率跳跃，否则可能会被卡住.
-                int random = Random.Range(0, 100);
-                if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
-                {
-                    AIJump();
-                    AIJumpDelay = 0.0f;
-                    return;
-                }
+                //int random = Random.Range(0, 100);
+                //if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
+                //{
+                //    AIJump();
+                //    AIJumpDelay = 0.0f;
+                //    return;
+                //}
             }
         }
     }
@@ -1019,13 +1019,13 @@ public class MeteorAI {
                     return;
                 }
                 //尝试几率跳跃，否则可能会被卡住.
-                int random = Random.Range(0, 100);
-                if (AIJumpDelay >= 2.5f && random <= owner.Attr.Jump)
-                {
-                    AIJump();
-                    AIJumpDelay = 0.0f;
-                    return;
-                }
+                //int random = Random.Range(0, 100);
+                //if (AIJumpDelay >= 1.0f && random <= owner.Attr.Jump)
+                //{
+                //    AIJump();
+                //    AIJumpDelay = 0.0f;
+                //    return;
+                //}
             }
         }
         else if (Path.Count <= 1)
@@ -1626,13 +1626,13 @@ public class MeteorAI {
                             return;
                         }
                         //尝试几率跳跃，否则可能会被卡住.
-                        int random = Random.Range(0, 100);
-                        if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
-                        {
-                            AIJump();
-                            AIJumpDelay = 0.0f;
-                            return;
-                        }
+                        //int random = Random.Range(0, 100);
+                        //if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
+                        //{
+                        //    AIJump();
+                        //    AIJumpDelay = 0.0f;
+                        //    return;
+                        //}
                     };
                     break;
                 }
@@ -1724,13 +1724,13 @@ public class MeteorAI {
                                 return;
                             }
                             //尝试几率跳跃，否则可能会被卡住.
-                            int random = Random.Range(0, 100);
-                            if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
-                            {
-                                AIJump();
-                                AIJumpDelay = 0.0f;
-                                return;
-                            }
+                            //int random = Random.Range(0, 100);
+                            //if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
+                            //{
+                            //    AIJump();
+                            //    AIJumpDelay = 0.0f;
+                            //    return;
+                            //}
                         }
                     }
                     else
@@ -2760,12 +2760,12 @@ public class MeteorAI {
                     }
 
                     //尝试几率跳跃，否则可能会被卡住.
-                    int random = Random.Range(0, 100);
-                    if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
-                    {
-                        AIJump();
-                        AIJumpDelay = 0.0f;
-                    }
+                    //int random = Random.Range(0, 100);
+                    //if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
+                    //{
+                    //    AIJump();
+                    //    AIJumpDelay = 0.0f;
+                    //}
                 }
                 break;
             case EAISubStatus.PatrolGotoFirstPoint:
@@ -2826,13 +2826,13 @@ public class MeteorAI {
                             return;
                         }
                         //尝试几率跳跃，否则可能会被卡住.
-                        int random = Random.Range(0, 100);
-                        if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
-                        {
-                            AIJump();
-                            AIJumpDelay = 0.0f;
-                            return;
-                        }
+                        //int random = Random.Range(0, 100);
+                        //if (AIJumpDelay >= 2.5f && random < owner.Attr.Jump)
+                        //{
+                        //    AIJump();
+                        //    AIJumpDelay = 0.0f;
+                        //    return;
+                        //}
                     }
                 }
                 break;

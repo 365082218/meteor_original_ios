@@ -18,7 +18,7 @@ public class DartLoader : MonoBehaviour {
     private void Awake()
     {
         rig = GetComponent<Rigidbody>();
-        rig.useGravity = true;
+        rig.useGravity = false;
     }
 
     List<DamageRecord> deleteRec = new List<DamageRecord>();

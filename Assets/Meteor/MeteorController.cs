@@ -2096,7 +2096,6 @@ public class MeteorController : MonoBehaviour {
     PoseStatus posMng;
     bool mInputLocked = false;
     public bool InputLocked { get { return mInputLocked; } set { mInputLocked = value; } }
-    public Vector3 CameraLookAtOffset = new Vector3(0, 1, 0);
     public MeteorUnit Owner { get { return mOwner; } }
 
     void Start()
@@ -2124,7 +2123,6 @@ public class MeteorController : MonoBehaviour {
             if (Owner.robot != null)
                 Owner.robot.Update();
         }
-
         CheckActionInput(Time.deltaTime);
         if (Input != null)
             Input.Update(Time.deltaTime);
@@ -2140,9 +2138,17 @@ public class MeteorController : MonoBehaviour {
         //一些按键不限定当前POSE，类似解锁
         if (Owner.Attr.IsPlayer && Input.HasInput((int)EKeyList.KL_KeyQ, (int)EInputType.EIT_Click, Time.deltaTime))
             GameBattleEx.Instance.ChangeLockStatus();
-        //无需考虑当前动作的处理
+        //无需考虑当前动作的处理,无需考虑硬直
         if (Input.HasInput((int)EKeyList.KL_DropWeapon, (int)EInputType.EIT_Click, Time.deltaTime))
             Owner.DropWeapon();
+        else if (Input.HasInput((int)EKeyList.KL_BreakOut, (int)EInputType.EIT_Click, Time.deltaTime))
+        {
+            Owner.DoBreakOut();
+            return;
+        }
+        //硬直中不允许其他姿势的控制.
+        if (Owner.charLoader.IsInStraight())
+            return;
         //行为树处理.
         if (GameBattleEx.Instance != null && !GameBattleEx.Instance.BattleFinished() && !Global.PauseAll)
             MeteorBehaviour.Instance.ProcessBehaviour(Owner);

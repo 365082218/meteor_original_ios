@@ -110,6 +110,13 @@ public class InputItem
     {
         if (mOwner != null)
         {
+            //在硬直中
+            if (mOwner.charLoader.IsInStraight())
+            {
+                Debug.LogError("in straight:" + mOwner.charLoader.PoseStraight);
+                targetPose = -1;
+                return false;
+            }
             //技能中的动作，不许接输入
             if (mOwner.IsPlaySkill)
             {

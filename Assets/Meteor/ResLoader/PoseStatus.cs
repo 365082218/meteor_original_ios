@@ -440,7 +440,7 @@ public class PoseStatus
                         }
                         else if (_Self.posMng.onhurt)
                         {
-                            Debug.Log("目标受到伤害浮空");
+                            //Debug.Log("目标受到伤害浮空");
                         }
                         else
                             ChangeAction(CommonAction.JumpFall, 0.1f);
@@ -482,7 +482,7 @@ public class PoseStatus
     public void OnChangeAction(int idx)
     {
         //如果是一些倒地动作，动作播放完之后还需要固定长时间才能起身
-        ChangeAction(idx);
+        ChangeAction(idx, 0.1f);
     }
 
     bool IsSkillStartPose(int pose)

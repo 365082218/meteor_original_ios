@@ -61,7 +61,7 @@ public class MonsterEx
     public int hpCur;
     public int mpCur;
     public int Speed;
-    public int ActionSpeed;
+    //public int ActionSpeed;
     public int Crit;
     public int View;
     public int Think;
@@ -116,7 +116,7 @@ public class MonsterEx
         HpMax = HPMAX;
         //SpawnPoint = 1;
         Speed = 1000;
-        ActionSpeed = 1;
+        //ActionSpeed = 1;
         hpCur = HpMax;
         AngryValue = 0;
     }
