@@ -13,6 +13,11 @@ public class ScriptInputWnd:Window<ScriptInputWnd>
         scriptInput = Control("InputField").GetComponent<InputField>();
         Control("Close").GetComponent<Button>().onClick.AddListener(() => { Close(); });
         Control("DoScript").GetComponent<Button>().onClick.AddListener(() => {
+            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            {
+                result.text = "联机禁用此功能";
+                return;
+            }
             try
             {
                 if (!UseCheatCode(scriptInput.text))

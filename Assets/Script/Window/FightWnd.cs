@@ -104,11 +104,19 @@ public class FightWnd: Window<FightWnd>
         hpLabel = ldaControl("HPLabel", WndObject).gameObject.GetComponent<Text>();
         Global.ldaControlX("Status", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnStatusPress);
         Global.ldaControlX("Status", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnStatusRelease);
-
+        Global.ldaControlX("Chat", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnChatClick);
         Global.ldaControlX("SysMenu2", WndObject).SetActive(Global.GLevelMode != LevelMode.Teach && GameData.Instance.gameStatus.ShowSysMenu2);
         Global.ldaControlX("Reborn", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnRebornClick);
+        //联机屏蔽按键-多人游戏
         if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        {
             Global.ldaControlX("Reborn", WndObject).SetActive(false);
+        }
+        else
+        {
+            //非联机屏蔽按键-单人游戏
+            Global.ldaControlX("Chat", WndObject).SetActive(false);
+        }
         if (MeteorManager.Instance.LocalPlayer != null)
         {
             angryBar.fillAmount = 0.0f;
@@ -131,6 +139,13 @@ public class FightWnd: Window<FightWnd>
 #endif
     }
 
+    void OnChatClick()
+    {
+        if (!ChatWnd.Exist)
+            ChatWnd.Instance.Open();
+        else
+            ChatWnd.Instance.Close();
+    }
 
     void OnStatusPress()
     {
@@ -403,6 +418,7 @@ public class FightWnd: Window<FightWnd>
     public void OnBattleEnd()
     {
         Global.ldaControlX("Status", WndObject).SetActive(false);
+        Global.ldaControlX("Chat", WndObject).SetActive(false);
         //hpBar.fillAmount = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
     }
 

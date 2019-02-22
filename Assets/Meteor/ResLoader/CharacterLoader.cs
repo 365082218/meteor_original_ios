@@ -1060,8 +1060,8 @@ public class CharacterLoader : MonoBehaviour
         //如果是倒地动作，僵直为0.5f
         if (curPos == CommonAction.Struggle || curPos == CommonAction.Struggle0)
         {
-            if (PoseStraight <= 0.3f)
-                LockTime(0.3f);
+            if (PoseStraight <= 0.2f)
+                LockTime(0.2f);
         }
 
         //当从100切换到118时，要把Y的速度重置为0，否则下落很快，导致连招接不上

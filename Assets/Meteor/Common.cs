@@ -242,17 +242,9 @@ public class Common
         //Exec<RBase>(ClientProxy.sProxy, req);
     }
 
-    public static void SendChatMessage(uint user, SimpleMessage message)
+    public static void SendChatMessage(string message)
     {
-        //message.cmd = (short)CmdAction.ChatReq;
-        //Exec<SimpleMessage>(ClientProxy.sProxy, message);
-    }
-
-    public static void SendHeartBeat()
-    {
-        RBase rb = new RBase();
-        rb.cmd = (short)CmdAction.HeartReq;
-        //Exec<RBase>(ClientProxy.sProxy, rb);
+        //Exec<chat>(ClientProxy.sProxy, message);
     }
 
     public static void Exec(Socket s, int msg)
@@ -358,10 +350,10 @@ public class Common
         Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.EnterLevelReq, req);
     }
 
-    public static void SyncFrame(KeyFrame k)
-    {
-        Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.KeyFrameReq, k);
-    }
+    //public static void SyncFrame(KeyFrame k)
+    //{
+    //    Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.KeyFrameReq, k);
+    //}
 
     //public static void SendEnterMap(EntryPoint ept)
     //{

@@ -10,6 +10,44 @@ using protocol;
 using Idevgame.Util;
 using System.Net;
 
+public class ChatWnd : Window<ChatWnd>
+{
+    public override string PrefabName
+    {
+        get
+        {
+            return "ChatWnd";
+        }
+    }
+
+    protected override bool OnOpen()
+    {
+        Init();
+        return base.OnOpen();
+    }
+
+    InputField inputChat;
+    void Init()
+    {
+        inputChat = Control("ChatText", WndObject).GetComponent<InputField>();
+        Control("Send", WndObject).GetComponent<Button>().onClick.AddListener(() => {
+            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            {
+                string chatMessage = inputChat.text;
+                if (string.IsNullOrEmpty(inputChat.text))
+                {
+                    U3D.PopupTip("无法发送内容为空的语句");
+                    return;
+                }
+                Common.SendChatMessage(chatMessage);
+            }
+        });
+        Control("Close", WndObject).GetComponent<Button>().onClick.AddListener(() => {
+            Close();
+        });
+    }
+}
+
 public class GunShootUI:Window<GunShootUI>
 {
     public override string PrefabName
@@ -43,7 +81,6 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
     int[] ConstPlayer = {2, 4, 8, 12, 16};
     void Init()
     {
-
         Control("CreateWorld").GetComponent<Button>().onClick.AddListener(()=>
         {
             OnEnterLevel();

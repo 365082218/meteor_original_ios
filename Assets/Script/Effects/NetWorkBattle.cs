@@ -65,7 +65,7 @@ public class NetWorkBattle : MonoBehaviour {
         return "不明身份者";
     }
     //等待服务器帧同步.
-    KeyFrame frame = new KeyFrame();
+    //KeyFrame frame = new KeyFrame();
     uint frameIndex = 0;
     uint turn = 0;
     uint tick = 0;
@@ -81,11 +81,11 @@ public class NetWorkBattle : MonoBehaviour {
                 tick++;
                 if (frameIndex % 5 == 0)
                 {
-                    frame.frameIndex = turn;
+                    //frame.frameIndex = turn;
                     turn++;
                     waitSend = false;
-                    SyncAttribute(frame.Players[0]);
-                    Common.SyncFrame(frame);
+                    //SyncAttribute(frame.Players[0]);
+                    //Common.SyncFrame(frame);
 
                     if (MeteorManager.Instance.LocalPlayer.Dead)
                     {
@@ -245,10 +245,10 @@ public class NetWorkBattle : MonoBehaviour {
     public void OnEnterLevelSucessed()
     {
         FrameIndex = 0;
-        frame.Players.Clear();
+        //frame.Players.Clear();
         Player_ p = new Player_();
         SyncAttribute(p);
-        frame.Players.Add(p);
+        //frame.Players.Add(p);
         bSync = true;
         TurnStarted = true;//进入战场后才开始同步角色数据
     }

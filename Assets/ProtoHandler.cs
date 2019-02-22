@@ -79,16 +79,16 @@ class ProtoHandler
                             OnLeaveRoomRsp rspL = ProtoBuf.Serializer.Deserialize<OnLeaveRoomRsp>(ms);
                             OnLeaveRoomRsp_(rspL);
                             break;
-                        case (int)MeteorMsg.MsgType.SyncInput:
-                            ms = new MemoryStream(each.Value);
-                            InputReq InputRsp = ProtoBuf.Serializer.Deserialize<InputReq>(ms);
-                            OnSyncInputRsp(InputRsp);
-                            break;
-                        case (int)MeteorMsg.MsgType.SyncKeyFrame:
-                            ms = new MemoryStream(each.Value);
-                            KeyFrame KeyFrameRsp = ProtoBuf.Serializer.Deserialize<KeyFrame>(ms);
-                            OnSyncKeyFrame(KeyFrameRsp);
-                            break;
+                        //case (int)MeteorMsg.MsgType.SyncInput:
+                        //    ms = new MemoryStream(each.Value);
+                        //    InputReq InputRsp = ProtoBuf.Serializer.Deserialize<InputReq>(ms);
+                        //    OnSyncInputRsp(InputRsp);
+                        //    break;
+                        //case (int)MeteorMsg.MsgType.SyncKeyFrame:
+                        //    ms = new MemoryStream(each.Value);
+                        //    KeyFrame KeyFrameRsp = ProtoBuf.Serializer.Deserialize<KeyFrame>(ms);
+                        //    OnSyncKeyFrame(KeyFrameRsp);
+                        //    break;
                         case (int)MeteorMsg.MsgType.UserDeadSB2C:
                             //Debug.LogError("OnUserDead");
                             ms = new MemoryStream(each.Value);
@@ -198,37 +198,37 @@ class ProtoHandler
 
     //同步关键帧，全部角色的属性，都设置一次
     //在进入房间后开始接收此消息，有可能玩家还没进入战场，因为要选择角色和武器.
-    static void OnSyncKeyFrame(KeyFrame frame)
-    {
-        if (NetWorkBattle.Ins.RoomId == -1)
-        {
-            Debug.LogError("退出房间后仍收到同步消息");
-            return;
-        }
-        if (!NetWorkBattle.Ins.bSync && NetWorkBattle.Ins.TurnStarted)
-        {
-            NetWorkBattle.Ins.bSync = true;
-            if (ReconnectWnd.Exist)
-                ReconnectWnd.Instance.Close();
-            if (GameBattleEx.Instance)
-                GameBattleEx.Instance.Resume();
-        }
+    //static void OnSyncKeyFrame(KeyFrame frame)
+    //{
+    //    if (NetWorkBattle.Ins.RoomId == -1)
+    //    {
+    //        Debug.LogError("退出房间后仍收到同步消息");
+    //        return;
+    //    }
+    //    if (!NetWorkBattle.Ins.bSync && NetWorkBattle.Ins.TurnStarted)
+    //    {
+    //        NetWorkBattle.Ins.bSync = true;
+    //        if (ReconnectWnd.Exist)
+    //            ReconnectWnd.Instance.Close();
+    //        if (GameBattleEx.Instance)
+    //            GameBattleEx.Instance.Resume();
+    //    }
 
-        if (NetWorkBattle.Ins.TurnStarted && MeteorManager.Instance.LocalPlayer != null)
-        {
-            //在战场更新中,更新其他角色信息，自己的只上传.
-            for (int i = 0; i < frame.Players.Count; i++)
-            {
-                MeteorUnit unit = NetWorkBattle.Ins.GetNetPlayer((int)frame.Players[i].id);
-                if (unit != null && unit.InstanceId != MeteorManager.Instance.LocalPlayer.InstanceId)
-                {
-                    //玩家同步所有属性
-                    NetWorkBattle.Ins.ApplyAttribute(unit, frame.Players[i]);
-                }
-            }
-        }
-        NetWorkBattle.Ins.OnPlayerUpdate((int)frame.frameIndex);
-    }
+    //    if (NetWorkBattle.Ins.TurnStarted && MeteorManager.Instance.LocalPlayer != null)
+    //    {
+    //        //在战场更新中,更新其他角色信息，自己的只上传.
+    //        for (int i = 0; i < frame.Players.Count; i++)
+    //        {
+    //            MeteorUnit unit = NetWorkBattle.Ins.GetNetPlayer((int)frame.Players[i].id);
+    //            if (unit != null && unit.InstanceId != MeteorManager.Instance.LocalPlayer.InstanceId)
+    //            {
+    //                //玩家同步所有属性
+    //                NetWorkBattle.Ins.ApplyAttribute(unit, frame.Players[i]);
+    //            }
+    //        }
+    //    }
+    //    NetWorkBattle.Ins.OnPlayerUpdate((int)frame.frameIndex);
+    //}
 
     //同步服务端发来的其他玩家的按键
     static void OnSyncInputRsp(InputReq rsp)
