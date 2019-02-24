@@ -247,6 +247,11 @@ public class Common
         //Exec<chat>(ClientProxy.sProxy, message);
     }
 
+    public static void SendAudioMessage(float [] data)
+    {
+
+    }
+
     public static void Exec(Socket s, int msg)
     {
         if (s != null && s.Connected)
@@ -318,6 +323,14 @@ public class Common
     public static void SendUpdateGameServer()
     {
         Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.GetRoomReq);
+    }
+
+    public static void SendAutoLogin()
+    {
+        ProtocolVerifyReq req = new ProtocolVerifyReq();
+        req.protocol = AppInfo.ProtocolVersion;
+        req.data = AppInfo.Instance.AppVersion();
+        Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ProtocolVerify, req);
     }
 
     public static void SendRebornRequest(int playerid)

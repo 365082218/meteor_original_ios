@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: Noise_Plazma_000
-  m_Shader: {fileID: 4800000, guid: 76d6b30f7ec31b04c856490b9ceb57c0, type: 3}
+  m_Shader: {fileID: 4800000, guid: 6fd12e1dbaea24b4e99fa3926ba97f88, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_CustomRenderQueue: -1
@@ -36,7 +36,7 @@ Material:
     - first:
         name: _MainTex
       second:
-        m_Texture: {fileID: 2800000, guid: 02b9afb025018344094c15e3b1044517, type: 3}
+        m_Texture: {fileID: 2800000, guid: b794b72c2e010da4993d5dc73adfdb0c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
@@ -58,7 +58,7 @@ Material:
     m_Colors:
     - first:
         name: _Color
-      second: {r: 0.3037018, g: 0, b: 0.3897059, a: 1}
+      second: {r: 1, g: 1, b: 1, a: 1}
     - first:
         name: _ColorAnimate
       second: {r: 1, g: 1, b: 1, a: 1}

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System;
 using UnityEngine.UI;
-public class FightWnd: Window<FightWnd>
+public class FightWnd : Window<FightWnd>
 {
     public override string PrefabName { get { return "FightWnd"; } }
     protected override bool OnOpen()
@@ -30,7 +30,7 @@ public class FightWnd: Window<FightWnd>
 
     void ObjectInit()
     {
-        
+
     }
 
     Text timeLabel;
@@ -86,10 +86,10 @@ public class FightWnd: Window<FightWnd>
         Global.ldaControlX("ChangeWeapon", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnChangeWeaponPress);
         Global.ldaControlX("ChangeWeapon", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnChangeWeaponRelease);
         Global.ldaControlX("BreakOut", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnBreakOut);
-        Global.ldaControlX("WeaponSelect", WndObject).GetComponentInChildren<Button>().onClick.AddListener(()=> { U3D.OpenWeaponWnd(); });
-        Global.ldaControlX("SceneName", WndObject).GetComponent<Button>().onClick.AddListener(()=> { OpenMiniMap(); });
+        Global.ldaControlX("WeaponSelect", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenWeaponWnd(); });
+        Global.ldaControlX("SceneName", WndObject).GetComponent<Button>().onClick.AddListener(() => { OpenMiniMap(); });
         Global.ldaControlX("SceneName", WndObject).GetComponentInChildren<Text>().text = Global.GLevelItem.Name;
-        Global.ldaControlX("System", WndObject).GetComponentInChildren<Button>().onClick.AddListener(()=> { U3D.OpenSystemWnd(); });
+        Global.ldaControlX("System", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSystemWnd(); });
         Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnCrouchPress);
         Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnCrouchRelease);
         Global.ldaControlX("Drop", WndObject).GetComponent<Button>().onClick.AddListener(OnClickDrop);
@@ -105,7 +105,10 @@ public class FightWnd: Window<FightWnd>
         Global.ldaControlX("Status", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnStatusPress);
         Global.ldaControlX("Status", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnStatusRelease);
         Global.ldaControlX("Chat", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnChatClick);
-        Global.ldaControlX("SysMenu2", WndObject).SetActive(Global.GLevelMode != LevelMode.Teach && GameData.Instance.gameStatus.ShowSysMenu2);
+        Global.ldaControlX("SysMenu2", WndObject).SetActive(
+            (Global.GLevelMode == LevelMode.CreateWorld && GameData.Instance.gameStatus.ShowSysMenu2) ||
+            (Global.GLevelMode == LevelMode.SinglePlayerTask &&  GameData.Instance.gameStatus.ShowSysMenu2) ||
+            (Global.GLevelMode == LevelMode.MultiplyPlayer));
         Global.ldaControlX("Reborn", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnRebornClick);
         //联机屏蔽按键-多人游戏
         if (Global.GLevelMode == LevelMode.MultiplyPlayer)
@@ -115,7 +118,7 @@ public class FightWnd: Window<FightWnd>
         else
         {
             //非联机屏蔽按键-单人游戏
-            Global.ldaControlX("Chat", WndObject).SetActive(false);
+            Global.ldaControlX("Chat", WndObject).SetActive(true);
         }
         if (MeteorManager.Instance.LocalPlayer != null)
         {
@@ -131,6 +134,7 @@ public class FightWnd: Window<FightWnd>
         if (NGUIJoystick.instance != null)
             NGUIJoystick.instance.SetAnchor(GameData.Instance.gameStatus.JoyAnchor);
 
+        GameBattleEx.Instance.RegisterHandler(Update);
 #if (UNITY_EDITOR || UNITY_STANDALONE_WIN) && !STRIP_KEYBOARD
         Control("ClickPanel").SetActive(false);
         Control("JoyArrow").SetActive(false);
@@ -385,7 +389,8 @@ public class FightWnd: Window<FightWnd>
 
     protected override bool OnClose()
     {
-        //buffList.Clear();
+        if (GameBattleEx.Instance)
+            GameBattleEx.Instance.DeletesHandler(Update);
         return base.OnClose();
     }
 

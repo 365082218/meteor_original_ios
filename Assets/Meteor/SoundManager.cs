@@ -336,4 +336,20 @@ public class SoundManager : Singleton<SoundManager>
     {
         enable = e;
     }
+
+    bool Muted = false;
+    public void Mute(bool mute)
+    {
+        Muted = mute;
+        if (mute)
+        {
+            SetMusicVolume(0);
+            SetSoundVolume(0);
+        }
+        else
+        {
+            SetMusicVolume(GameData.Instance.gameStatus.MusicVolume);
+            SetSoundVolume(GameData.Instance.gameStatus.SoundVolume);
+        }
+    }
 }

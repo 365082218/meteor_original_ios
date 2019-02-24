@@ -12,22 +12,23 @@ public class Main : MonoBehaviour {
 #if LOCALHOST
     private static string strHost = "127.0.0.1";
 #else
-    private static string strHost = "www.idevgame.com";
+    public static string strHost = "www.idevgame.com";
 #endif
-    private static string strPort = "80";
-	private static string strProjectUrl = "meteor";
+    public static string strPort = "80";
+	public static string strProjectUrl = "meteor";
 #if UNITY_ANDROID
-    private static string strPlatform { get { return RuntimePlatform.Android.ToString(); } }
+    public static string strPlatform { get { return RuntimePlatform.Android.ToString(); } }
 #elif UNITY_IOS
     private static string strPlatform { get { return RuntimePlatform.IPhonePlayer.ToString(); } }
 #else
     private static string strPlatform { get { return RuntimePlatform.WindowsPlayer.ToString(); } }
 #endif
-    private static string strVFileName = "Version.json.zip";
+    public static string strVFileName = "Version.json.zip";
+    public static string strNewVersionName = "SVersion.json";
     public static string strVerFile = "Version.json";
     //版本仓库地址
     //http://{192.168.14.163}:{80}/{meteor}/{iphone}/Version.json.zip
-    private static string strVFile = "http://{0}:{1}/{2}/{3}/{4}";
+    public static string strVFile = "http://{0}:{1}/{2}/{3}/{4}";
 	//更新仓库版本路径
 	//http://{192.168.14.163}:{80}/{meteor}/{iphone}/{0.0.0.1_0.0.0.2.zip}
 	private static string strDirectoryBase = "http://{0}:{1}/{2}/{3}/{4}/{5}";

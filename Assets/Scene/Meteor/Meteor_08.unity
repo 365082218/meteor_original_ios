@@ -2942,7 +2942,6 @@ GameObject:
   - component: {fileID: 1247270922}
   - component: {fileID: 1247270921}
   - component: {fileID: 1247270920}
-  - component: {fileID: 1247270919}
   m_Layer: 10
   m_Name: Plane01
   m_TagString: Untagged
@@ -2963,20 +2962,6 @@ Transform:
   m_Father: {fileID: 2010015460}
   m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!64 &1247270919
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1247270917}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Convex: 0
-  m_InflateMesh: 0
-  m_SkinWidth: 0.01
-  m_Mesh: {fileID: 25701074}
 --- !u!64 &1247270920
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -3925,10 +3910,10 @@ MeshCollider:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1882299789}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Convex: 0
+  m_Convex: 1
   m_InflateMesh: 0
   m_SkinWidth: 0.01
   m_Mesh: {fileID: 264280526}
@@ -4747,7 +4732,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2108232348
 Transform:
   m_ObjectHideFlags: 0

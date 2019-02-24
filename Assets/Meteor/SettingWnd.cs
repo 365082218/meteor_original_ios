@@ -2,6 +2,8 @@
 using System.Collections;
 using System;
 using UnityEngine.UI;
+using UnityEngine.Networking;
+
 public class SettingWnd : Window<SettingWnd> {
     public override string PrefabName{get{return "SettingWnd"; }}
     protected override bool OnOpen()
@@ -11,6 +13,8 @@ public class SettingWnd : Window<SettingWnd> {
             MainWnd.Instance.Close();
         return base.OnOpen();
     }
+
+    Coroutine Update;
     void Init()
     {
         Control("Return").GetComponent<Button>().onClick.AddListener(() => {
@@ -68,6 +72,56 @@ public class SettingWnd : Window<SettingWnd> {
         Toggle ShowSysMenu2 = Control("ShowSysMenu2").GetComponent<Toggle>();
         ShowSysMenu2.isOn = GameData.Instance.gameStatus.ShowSysMenu2;
         ShowSysMenu2.onValueChanged.AddListener((bool selected) => { GameData.Instance.gameStatus.ShowSysMenu2 = selected; });
+
+        if (Application.internetReachability == NetworkReachability.NotReachable)
+        {
+            //Debug.Log("1");
+        }
+        else if (Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork)
+        {
+            //Debug.Log("2");
+        }
+        else
+        if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
+        {
+            Update = Startup.ins.StartCoroutine(UpdateAppInfo());
+        }
+    }
+
+    IEnumerator UpdateAppInfo()
+    {
+        UnityWebRequest vFile = new UnityWebRequest();
+        vFile.url = string.Format(Main.strVFile, Main.strHost, Main.strPort, Main.strProjectUrl, Main.strPlatform, Main.strNewVersionName);
+        vFile.timeout = 2;
+        DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
+        vFile.downloadHandler = dH;
+        yield return vFile.Send();
+        if (vFile.isError || vFile.responseCode != 200)
+        {
+            Debug.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
+            vFile.Dispose();
+            Update = null;
+            yield break;
+        }
+
+        LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
+        string serverVersion = js["newVersion"].ToString();
+        Debug.Log(serverVersion);
+        if (AppInfo.Instance.AppVersionIsSmallThan(serverVersion))
+        {
+            //需要更新，设置好服务器版本号，设置好下载链接
+            Control("NewVersionSep", WndObject).SetActive(true);
+            Control("NewVersion", WndObject).GetComponent<Text>().text = string.Format("最新版本号:{0}", serverVersion);
+            Control("NewVersion", WndObject).SetActive(true);
+            Control("GetNewVersion", WndObject).GetComponent<LinkLabel>().URL = string.Format(Main.strVFile, Main.strHost, Main.strPort, Main.strProjectUrl, Main.strPlatform, "Meteor" + serverVersion + ".apk");
+            Control("GetNewVersion", WndObject).SetActive(true);
+            Control("Flag", WndObject).SetActive(true);
+        }
+        else
+        {
+            //Debug.Log("无需更新");
+        }
+        Update = null;
     }
 
     void OnMusicVolumeChange(float vo)
@@ -108,5 +162,15 @@ public class SettingWnd : Window<SettingWnd> {
         {
             Control("Nick").GetComponentInChildren<Text>().text = GameData.Instance.gameStatus.NickName;
         }
+    }
+
+    protected override bool OnClose()
+    {
+        if (Update != null)
+        {
+            Startup.ins.StopCoroutine(Update);
+            Update = null;
+        }
+        return base.OnClose();
     }
 }

@@ -15,7 +15,14 @@ public class AppInfo:Singleton<AppInfo>
 {
     public const string versionKey = "APPVERSION";
     public string localVer = "0.2.8.0";
-    public bool VersionIsGraterThan(string save)
+    //返回本地版本号是否大于指定版本号，本地版本号即localVer;
+    public bool VersionIsEqual(string s)
+    {
+        if (localVer == s)
+            return true;
+        return false;
+    }
+    private bool VersionIsGraterThan(string save)
     {
         string [] local = localVer.Split(new char[] { '.' });
         string[] vsave = save.Split(new char[] { '.' });
@@ -27,6 +34,20 @@ public class AppInfo:Singleton<AppInfo>
                 return nlocal > nsave;
         }
         return true;
+    }
+
+    public bool AppVersionIsSmallThan(string server)
+    {
+        string[] local = AppVersion().Split(new char[] { '.' });
+        string[] vsave = server.Split(new char[] { '.' });
+        for (int i = 0; i < local.Length; i++)
+        {
+            int nlocal = int.Parse(local[i]);
+            int nsave = int.Parse(vsave[i]);
+            if (nlocal != nsave)
+                return nlocal < nsave;
+        }
+        return false;
     }
 
     public string AppVersion()
@@ -46,8 +67,8 @@ public class AppInfo:Singleton<AppInfo>
     {
         PlayerPrefs.SetString(versionKey, v);
     }
-    public const int Version = 20190218;
-    public const int ProtocolVersion = 1;//对战协议版本，在网络初始化后，如果服务器协议版本与此数字相等，则可以进行联机对战，否则需要更新到最新版本
+
+    public const int ProtocolVersion = 20190224;//对战协议版本，在网络初始化后，如果服务器协议版本与此数字相等，则可以进行联机对战，否则需要更新到最新版本
     public string MeteorVersion = "1.07";
 
     public int GetWaitForNextInput()

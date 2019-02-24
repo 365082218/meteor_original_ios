@@ -26,11 +26,22 @@ public class ChatWnd : Window<ChatWnd>
         return base.OnOpen();
     }
 
+    protected override bool OnClose()
+    {
+        if (Microphone.IsRecording(null))
+        {
+            Record();
+        }
+        return base.OnClose();
+    }
+
+    
     InputField inputChat;
+    LitJson.JsonData jsData;
     void Init()
     {
         inputChat = Control("ChatText", WndObject).GetComponent<InputField>();
-        Control("Send", WndObject).GetComponent<Button>().onClick.AddListener(() => {
+        Control("SendShortMsg", WndObject).GetComponent<Button>().onClick.AddListener(() => {
             if (Global.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 string chatMessage = inputChat.text;
@@ -42,9 +53,119 @@ public class ChatWnd : Window<ChatWnd>
                 Common.SendChatMessage(chatMessage);
             }
         });
-        Control("Close", WndObject).GetComponent<Button>().onClick.AddListener(() => {
+        Control("CloseQuickMsg", WndObject).GetComponent<Button>().onClick.AddListener(() => {
             Close();
         });
+        Control("CloseShortMsg", WndObject).GetComponent<Button>().onClick.AddListener(() => {
+            Close();
+        });
+        Control("CloseAudioMsg", WndObject).GetComponent<Button>().onClick.AddListener(() => {
+            Close();
+        });
+        if (jsData == null)
+        {
+            TextAsset text = ResMng.Load("MsgTable") as TextAsset;
+            jsData = LitJson.JsonMapper.ToObject(text.text);
+        }
+        for (int i = 0; i < 6; i++)
+        {
+            string strQuick = jsData[string.Format("Msg{0}", i)].ToString();
+            Control(i.ToString(), WndObject).GetComponentInChildren<Text>().text = strQuick;
+            int j = i;
+            Control(i.ToString(), WndObject).GetComponent<Button>().onClick.AddListener(()=> { SendQuickMsg(j); });
+        }
+        Control("Record", WndObject).GetComponent<Button>().onClick.AddListener(()=> { Record(); });
+        Control("SendAudio", WndObject).GetComponent<Button>().onClick.AddListener(() => { SendAudioMsg(); });
+        GameObject objListen = Control("Listen", WndObject);
+        source = objListen.GetComponent<AudioSource>();
+        Listen = objListen.GetComponent<Button>();
+        Listen.onClick.AddListener(() => {
+            if (MicChat.clip != null)
+                source.PlayOneShot(MicChat.clip);
+            Debug.Log("play clip");
+        });
+        CountDown = Control("CountDown", WndObject);
+    }
+
+    void SendQuickMsg(int i)
+    {
+        Common.SendChatMessage(jsData[string.Format("Msg{0}", i)].ToString());
+    }
+
+    void SendAudioMsg()
+    {
+        if (!recording && audioData != null && audioData.Length != 0 && Listen != null && Listen.IsActive())
+        {
+            Common.SendAudioMessage(audioData);
+        }
+    }
+
+    bool recording = false;
+    float[] audioData;
+    AudioSource source;
+    Button Listen;
+    GameObject CountDown;
+    float RecordTick = 0;
+    void Record()
+    {
+        if (recording)
+        {
+            SoundManager.Instance.Mute(false);
+            int length = MicChat.GetClipDataLength();
+            audioData = new float[length];
+            MicChat.StopRecord(audioData);
+            recording = false;
+            CountDown.SetActive(false);
+            if (audioData != null && audioData.Length != 0)
+                Listen.gameObject.SetActive(true);
+            Control("Record", WndObject).GetComponentInChildren<Text>().text = "录音";
+            if (GameBattleEx.Instance)
+                GameBattleEx.Instance.DeletesHandler(Update);
+            return;
+        }
+        else
+        {
+            //把音效和音乐全部静止
+            SoundManager.Instance.Mute(true);
+            MicChat.StartRecord();
+            recording = true;
+            Control("Record", WndObject).GetComponentInChildren<Text>().text = "停止";
+            if (Listen == null)
+            {
+                GameObject objListen = Control("Listen", WndObject);
+                Listen = objListen.GetComponent<Button>();
+                objListen.SetActive(false);
+            }
+            else
+            {
+                Listen.gameObject.SetActive(false);
+            }
+            CountDown.SetActive(true);
+            GameBattleEx.Instance.RegisterHandler(Update);
+            RecordTick = 0;
+            nSeconds = Mathf.CeilToInt(MicChat.MaxLength - RecordTick);
+            CountDown.GetComponentInChildren<Text>().text = string.Format("录制中{0}", nSeconds);
+        }
+    }
+
+    int nSeconds = 0;
+    void Update()
+    {
+        Debug.Log("chatwnd update");
+        RecordTick += Time.deltaTime;
+        if (RecordTick > 10.0)
+        {
+            Record();
+        }
+        else
+        {
+            int i = Mathf.CeilToInt(MicChat.MaxLength - RecordTick);
+            if (nSeconds != i)
+            {
+                nSeconds = i;
+                CountDown.GetComponentInChildren<Text>().text = string.Format("录制中{0}", nSeconds);
+            }
+        }
     }
 }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using CoClass;
+using System;
 
 public enum SceneEvent
 {
@@ -163,8 +164,30 @@ public partial class GameBattleEx : MonoBehaviour {
     GameObject SelectTarget;
     float timeDelay = 1;
     List<int> UnitActKeyDeleted = new List<int>();
+    List<Action> UpdateHandler = new List<Action>();
+    List<Action> DeleteHandler = new List<Action>();
+    public void DeletesHandler(Action fun)
+    {
+        if (!DeleteHandler.Contains(fun))
+            DeleteHandler.Add(fun);
+    }
+    public void RegisterHandler(Action fun)
+    {
+        if (!UpdateHandler.Contains(fun))
+            UpdateHandler.Add(fun);
+    }
 	// Update is called once per frame
 	void Update () {
+        for (int i = 0; i < DeleteHandler.Count; i++)
+        {
+            if (UpdateHandler.Contains(DeleteHandler[i]))
+                UpdateHandler.Remove(DeleteHandler[i]);
+        }
+        DeleteHandler.Clear();
+        for (int i = 0; i < UpdateHandler.Count; i++)
+        {
+              UpdateHandler[i].Invoke();
+        }
         if (Global.PauseAll)
             return;
 
@@ -192,11 +215,6 @@ public partial class GameBattleEx : MonoBehaviour {
             }
         }
 
-        //在战斗中仅调用个别的面板的Update
-        if (FightWnd.Exist)
-        {
-            FightWnd.Instance.Update();
-        }
         //更新BUFF
         foreach (var each in BuffMng.Instance.BufDict)
             each.Value.Update();
@@ -681,7 +699,7 @@ public partial class GameBattleEx : MonoBehaviour {
                         if (unit.GetLockedTarget() == null)
                         {
                             //角色的面向 + 一定随机
-                            forw = (Quaternion.AngleAxis(Random.Range(-35, 35), Vector3.up)  * Quaternion.AngleAxis(Random.Range(-5, 5), Vector3.right)  * - unit.transform.forward).normalized;
+                            forw = (Quaternion.AngleAxis(UnityEngine.Random.Range(-35, 35), Vector3.up)  * Quaternion.AngleAxis(UnityEngine.Random.Range(-5, 5), Vector3.right)  * - unit.transform.forward).normalized;
                         }
                         else
                         {
@@ -694,11 +712,11 @@ public partial class GameBattleEx : MonoBehaviour {
                             }
 
                             if (u == null)
-                                forw = (Quaternion.AngleAxis(Random.Range(-35, 35), Vector3.up) * Quaternion.AngleAxis(Random.Range(-5, 5), Vector3.right) * -unit.transform.forward).normalized;//角色的面向
+                                forw = (Quaternion.AngleAxis(UnityEngine.Random.Range(-35, 35), Vector3.up) * Quaternion.AngleAxis(UnityEngine.Random.Range(-5, 5), Vector3.right) * -unit.transform.forward).normalized;//角色的面向
                             else
                             {
-                                float k = Random.Range(-(100 - unit.Attr.Aim) / 3.0f, (100 - unit.Attr.Aim) / 3.0f);
-                                Vector3 vec = unit.GetLockedTarget().mPos + new Vector3(k, Random.Range(10, 38), k);
+                                float k = UnityEngine.Random.Range(-(100 - unit.Attr.Aim) / 3.0f, (100 - unit.Attr.Aim) / 3.0f);
+                                Vector3 vec = unit.GetLockedTarget().mPos + new Vector3(k, UnityEngine.Random.Range(10, 38), k);
                                 forw = (vec - vecSpawn).normalized;
                             }
                             //要加一点随机，否则每次都打一个位置不正常

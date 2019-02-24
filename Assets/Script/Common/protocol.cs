@@ -177,7 +177,10 @@ namespace protocol
       OnPlayerFetchInput = 148,
             
       [global::ProtoBuf.ProtoEnum(Name=@"OnPlayerReConnect", Value=149)]
-      OnPlayerReConnect = 149
+      OnPlayerReConnect = 149,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"AudioChat", Value=150)]
+      AudioChat = 150
     }
   
     private global::ProtoBuf.IExtension extensionObject;
@@ -1405,6 +1408,37 @@ namespace protocol
       get { return _chatMessage; }
       set { _chatMessage = value; }
     }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"AudioChatMsg")]
+  public partial class AudioChatMsg : global::ProtoBuf.IExtensible
+  {
+    public AudioChatMsg() {}
+    
+    private uint _playerId;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"playerId", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public uint playerId
+    {
+      get { return _playerId; }
+      set { _playerId = value; }
+    }
+    private uint _type;
+    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"type", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public uint type
+    {
+      get { return _type; }
+      set { _type = value; }
+    }
+    private readonly global::System.Collections.Generic.List<float> _audio_data = new global::System.Collections.Generic.List<float>();
+    [global::ProtoBuf.ProtoMember(3, Name=@"audio_data", DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
+    public global::System.Collections.Generic.List<float> audio_data
+    {
+      get { return _audio_data; }
+    }
+  
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
