@@ -22,11 +22,12 @@ public class SettingWnd : Window<SettingWnd> {
             MainWnd.Instance.Open();
             Close();
         });
-        Control("Server").GetComponent<Button>().onClick.AddListener(()=>
-        {
-            ServerListWnd.Instance.Open();
-        });
 
+        Control("DeleteState").GetComponent<Button>().onClick.AddListener(() => {
+            GameData.Instance.ResetState();
+            SettingWnd.Instance.Close();
+            SettingWnd.Instance.Open();
+        });
         Control("ChangeLog").GetComponent<Text>().text = ResMng.LoadTextAsset("ChangeLog").text;
         Control("AppVerText").GetComponent<Text>().text = AppInfo.Instance.AppVersion();
         Control("MeteorVerText").GetComponent<Text>().text = AppInfo.Instance.MeteorVersion;

@@ -3,9 +3,12 @@ using UnityEngine;
 using System.Xml;
 using System.Collections;
 using System.Collections.Generic;
+using CoClass;
 
 public class Global
 {
+    public static ServerInfo Server;//当前选择的服务器
+    public static List<ServerInfo> Servers = new List<ServerInfo>();
     public static float FPS = 1.0f / 30.0f;//动画设计帧率
     public static float gGravity = 750;
     public static bool useShadowInterpolate = true;//是否使用影子跟随插值
@@ -57,6 +60,26 @@ public class Global
     public static void Init()
     {
         Global.LEVELMAX = U3D.GetMaxLevel();
+    }
+
+    public static void OnServiceChanged(int i, CoClass.ServerInfo Info)
+    {
+        if (Servers == null)
+            return;
+        if (i == -1)
+        {
+            if (Global.Servers.Contains(Info))
+            {
+                Global.Servers.Remove(Info);
+                if (Server == Info)
+                    Server = Global.Servers[0];
+            }
+        }
+        else if (i == 1)
+        {
+            if (!Global.Servers.Contains(Info))
+                Global.Servers.Add(Info);
+        }
     }
 
     public static ModelInfo GetCharacter(int id)

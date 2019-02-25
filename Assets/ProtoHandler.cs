@@ -374,15 +374,15 @@ class ProtoHandler
             MainLobby.Instance.OnGetRoom(rsp);
     }
 
+    static int retryNum = 3;
     static void OnConnect(int result, string message)
     {
         //取得房间信息
         if (result == 1)
         {
-            //Debug.LogError("connected");
+            retryNum = 3;
+            Debug.Log("connected AutoLogin");
             ClientProxy.AutoLogin();//验证客户端的合法性
-            
-            //ClientProxy.JoinLobbyRequest();
         }
         else
         {
@@ -390,6 +390,12 @@ class ProtoHandler
             //Debug.LogError("disconnected");
             U3D.PopupTip(message);
             NetWorkBattle.Ins.OnDisconnect();
+            retryNum--;
+            if (retryNum <= 0)
+            {
+                ClientProxy.Exit();//重试3次，等待切换服务器再激活链接服务器的定时器.
+                retryNum = 3;
+            }
         }
     }
 

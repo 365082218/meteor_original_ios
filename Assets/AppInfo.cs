@@ -69,7 +69,7 @@ public class AppInfo:Singleton<AppInfo>
     }
 
     public const int ProtocolVersion = 20190224;//对战协议版本，在网络初始化后，如果服务器协议版本与此数字相等，则可以进行联机对战，否则需要更新到最新版本
-    public string MeteorVersion = "1.07";
+    public string MeteorVersion = "9.07";
 
     public int GetWaitForNextInput()
     {

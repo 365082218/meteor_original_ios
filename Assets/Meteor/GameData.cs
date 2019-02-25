@@ -190,8 +190,7 @@ public class GameState
     public bool DisableParticle;//无粒子特效
     public bool DisableJoystick;//不显示摇杆.
     public bool PetOn;//带宠物
-    public List<ServerInfo> ServerList;
-    public int defaultServerIdx;
+    public List<ServerInfo> ServerList;//自定义服务器
 }
 
 public class GameData:Singleton<GameData>
@@ -443,21 +442,19 @@ public class GameData:Singleton<GameData>
             gameStatus.NickName = "昱泉杀手";
             gameStatus.JoyAnchor = new MyVector2(390,340);
             gameStatus.AxisSensitivity = new MyVector2(0.5f, 0.5f);
-            gameStatus.MeteorVersion = "1.07";
+            gameStatus.MeteorVersion = "9.07";
 #if UNITY_STANDALONE_WIN
             gameStatus.TargetFrame = 120;//PC上120帧
 #else
             gameStatus.TargetFrame = 60;
 #endif
             ServerInfo svr = new ServerInfo();
-            svr.Idx = 0;
             svr.ServerName = "www.idevgame.com";
             svr.ServerHost = "www.idevgame.com";
             svr.ServerPort = 7200;
             svr.type = 0;
             gameStatus.ServerList = new List<ServerInfo>();//用户自定义的服务器列表.
             gameStatus.ServerList.Add(svr);
-            gameStatus.defaultServerIdx = 0;//指向默认，修改仅设置该值.
             gameStatus.GodLike = false;
             gameStatus.Undead = false;
             gameStatus.PetOn = false;
@@ -482,16 +479,12 @@ public class GameData:Singleton<GameData>
             if (gameStatus.ServerList == null || gameStatus.ServerList.Count == 0)
             {
                 ServerInfo svr = new ServerInfo();
-                svr.Idx = 0;
                 svr.ServerName = "www.idevgame.com";
                 svr.ServerPort = 7200;
                 svr.type = 0;
                 gameStatus.ServerList = new List<ServerInfo>();//用户自定义的服务器列表.
                 gameStatus.ServerList.Add(svr);
             }
-
-            if (gameStatus.defaultServerIdx > gameStatus.ServerList.Count)
-                gameStatus.defaultServerIdx = 0;
         }
         
         AppInfo.Instance.MeteorVersion = gameStatus.MeteorVersion;

@@ -64,6 +64,10 @@ class ClientProxy
             return;
         }
 
+        //被关闭了的.
+        if (sProxy == null)
+            return;
+
         result.Message = (int)LocalMsgType.Connect;
         result.Result = 1;
         ProtoHandler.PostMessage(result);
@@ -144,6 +148,7 @@ class ClientProxy
         }
     }
 
+    //把从联机获取的服务器列表和本地自定义的服务器列表合并.
     static void InitServerCfg()
     {
         if (server == null)
@@ -151,17 +156,15 @@ class ClientProxy
             try
             {
                 int port = 0;
-                if (GameData.Instance.gameStatus.defaultServerIdx >= GameData.Instance.gameStatus.ServerList.Count)
-                    GameData.Instance.gameStatus.defaultServerIdx = 0;
-                port = GameData.Instance.gameStatus.ServerList[GameData.Instance.gameStatus.defaultServerIdx].ServerPort;
-                if (GameData.Instance.gameStatus.ServerList[GameData.Instance.gameStatus.defaultServerIdx].type == 1)
+                port = Global.Server.ServerPort;
+                if (Global.Server.type == 1)
                 {
-                    IPAddress address = IPAddress.Parse(GameData.Instance.gameStatus.ServerList[GameData.Instance.gameStatus.defaultServerIdx].ServerIP);
+                    IPAddress address = IPAddress.Parse(Global.Server.ServerIP);
                     server = new IPEndPoint(address, port);
                 }
                 else
                 {
-                    IPAddress[] addr = Dns.GetHostAddresses(GameData.Instance.gameStatus.ServerList[GameData.Instance.gameStatus.defaultServerIdx].ServerHost);
+                    IPAddress[] addr = Dns.GetHostAddresses(Global.Server.ServerHost);
                     if (addr.Length != 0)
                         server = new IPEndPoint(addr[0], port);
                 }
@@ -221,11 +224,6 @@ class ClientProxy
     public static void AutoLogin()
     {
         Common.SendAutoLogin();
-    }
-    //加入大厅，与服务器验证，否则一段时间内服务器关闭掉未验证客户端
-    public static void JoinLobbyRequest()
-    {
-        Common.SendJoinLobbyRequest();
     }
 
     public static void JoinRoom(int roomId)

@@ -25,10 +25,12 @@ public class Main : MonoBehaviour {
 #endif
     public static string strVFileName = "Version.json.zip";
     public static string strNewVersionName = "SVersion.json";
+    public static string strServices = "Services.json";
     public static string strVerFile = "Version.json";
     //版本仓库地址
     //http://{192.168.14.163}:{80}/{meteor}/{iphone}/Version.json.zip
     public static string strVFile = "http://{0}:{1}/{2}/{3}/{4}";
+    public static string strSFile = "http://{0}:{1}/{2}/{3}";
 	//更新仓库版本路径
 	//http://{192.168.14.163}:{80}/{meteor}/{iphone}/{0.0.0.1_0.0.0.2.zip}
 	private static string strDirectoryBase = "http://{0}:{1}/{2}/{3}/{4}/{5}";

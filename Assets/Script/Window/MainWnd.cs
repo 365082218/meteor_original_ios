@@ -9,6 +9,7 @@ using System;
 using protocol;
 using Idevgame.Util;
 using System.Net;
+using UnityEngine.Networking;
 
 public class ChatWnd : Window<ChatWnd>
 {
@@ -503,6 +504,11 @@ public class MainLobby : Window<MainLobby>
 
     protected override bool OnClose()
     {
+        if (Update != null)
+        {
+            Startup.ins.StopCoroutine(Update);
+            Update = null;
+        }
         return base.OnClose();
     }
 
@@ -556,10 +562,15 @@ public class MainLobby : Window<MainLobby>
         SelectRoomId = (int)id;
     }
 
+    void OnSelectService()
+    {
+        Control("Server").GetComponent<Text>().text = string.Format("服务器:{0}        IP:{1}        端口:{2}", Global.Server.ServerName,
+            ClientProxy.server == null ? "还未取得" : ClientProxy.server.Address.ToString(), ClientProxy.server == null ? "还未取得" : ClientProxy.server.Port.ToString());
+    }
+
+    Coroutine Update;//更新服务器列表的协程.
     void Init()
     {
-        ClientProxy.Init();
-
         Control("JoinRoom").GetComponent<Button>().onClick.AddListener(() =>
         {
             OnJoinRoom();
@@ -577,13 +588,84 @@ public class MainLobby : Window<MainLobby>
             OnGoback();
         });
 
-        Control("Server").GetComponent<Text>().text = string.Format("服务器:{0}        IP:{1}        端口:{2}", GameData.Instance.gameStatus.ServerList[GameData.Instance.gameStatus.defaultServerIdx].ServerName,
-            ClientProxy.server == null ? "还未取得": ClientProxy.server.Address.ToString(), ClientProxy.server == null ? "还未取得": ClientProxy.server.Port.ToString());
         RoomRoot = Control("RoomRoot");
         Control("Version").GetComponent<Text>().text = GameData.Instance.gameStatus.MeteorVersion;
+        Update = Startup.ins.StartCoroutine(UpdateServiceList());
     }
 
+    GameObject serverRoot;
+    IEnumerator UpdateServiceList()
+    {
+        UnityWebRequest vFile = new UnityWebRequest();
+        vFile.url = string.Format(Main.strSFile, Main.strHost, Main.strPort, Main.strProjectUrl, Main.strServices);
+        vFile.timeout = 2;
+        DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
+        vFile.downloadHandler = dH;
+        yield return vFile.Send();
+        if (vFile.isError || vFile.responseCode != 200 || string.IsNullOrEmpty(dH.text))
+        {
+            Debug.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
+            vFile.Dispose();
+            Update = null;
+            yield break;
+        }
 
+        Global.Servers.Clear();
+        LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
+        for (int i = 0; i < js["services"].Count; i++)
+        {
+            ServerInfo s = new ServerInfo();
+            if (!int.TryParse(js["services"][i]["port"].ToString(), out s.ServerPort))
+                continue;
+            if (!int.TryParse(js["services"][i]["type"].ToString(), out s.type))
+                continue;
+            if (s.type == 0)
+                s.ServerHost = js["services"][i]["addr"].ToString();
+            else
+                s.ServerIP = js["services"][i]["addr"].ToString();
+            s.ServerName = js["services"][i]["name"].ToString();
+            Global.Servers.Add(s);
+        }
+        Update = null;
+
+        //合并所有服务器到全局变量里
+        for (int i = 0; i < GameData.Instance.gameStatus.ServerList.Count; i++)
+            Global.Servers.Add(GameData.Instance.gameStatus.ServerList[i]);
+
+        //拉取到服务器列表后
+        Control("Servercfg").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            ServerListWnd.Instance.Open();
+        });
+
+        Global.Server = Global.Servers[0];
+        GameObject Services = Control("Services", WndObject);
+        serverRoot = Control("Content", Services);
+        for (int i = 0; i < Global.Servers.Count; i++)
+        {
+            InsertServerItem(Global.Servers[i]);
+        }
+        OnSelectService();
+        ClientProxy.Init();
+    }
+
+    void InsertServerItem(ServerInfo svr)
+    {
+        GameObject btn = GameObject.Instantiate(ResMng.Load("ButtonNormal")) as GameObject;
+        btn.transform.SetParent(serverRoot.transform);
+        btn.transform.localScale = Vector3.one;
+        btn.transform.localPosition = Vector3.zero;
+        btn.transform.localRotation = Quaternion.identity;
+        btn.GetComponent<Button>().onClick.AddListener(() => {
+            if (Global.Server == svr)
+                return;
+            ClientProxy.Exit();
+            Global.Server = svr;
+            ClientProxy.Init();
+            OnSelectService();
+        });
+        btn.GetComponentInChildren<Text>().text = svr.ServerName;
+    }
 
     void OnGoback()
     {
@@ -653,25 +735,21 @@ public class ServerListWnd:Window<ServerListWnd>
         }
         GameObject defaultServer = Control("SelectListItem");
         Text text = Control("Text", defaultServer).GetComponent<Text>();
-        //设置为当前服务器.
-        Control("Default").GetComponent<Button>().onClick.AddListener(()=> {
-            GameData.Instance.gameStatus.defaultServerIdx = selectServerId;
-            text.text = GameData.Instance.gameStatus.ServerList[selectServerId].ServerName;
-            text.text += string.Format(":{0}", GameData.Instance.gameStatus.ServerList[selectServerId].ServerPort);
-        });
-
         Control("Delete").GetComponent<Button>().onClick.AddListener(()=> {
             //不能删除默认
-            if (selectServerId < serverList.Count && selectServerId != 0 && selectServerId < GameData.Instance.gameStatus.ServerList.Count)
+            if (selectServer != null)
             {
-                GameObject.Destroy(serverList[selectServerId]);
-                serverList.RemoveAt(selectServerId);
-                GameData.Instance.gameStatus.ServerList.RemoveAt(selectServerId);
-                for (int i = selectServerId; i < GameData.Instance.gameStatus.ServerList.Count; i++)
-                    GameData.Instance.gameStatus.ServerList[i].Idx--;
-                selectServerId--;
+                int selectServerId = GameData.Instance.gameStatus.ServerList.IndexOf(selectServer);
+                if (selectServerId != -1)
+                {
+                    GameObject.Destroy(serverList[selectServerId]);
+                    serverList.RemoveAt(selectServerId);
+                    Global.OnServiceChanged(-1, GameData.Instance.gameStatus.ServerList[selectServerId]);
+                    GameData.Instance.gameStatus.ServerList.RemoveAt(selectServerId);
+                }
                 if (selectServerId >= serverList.Count)
                     selectServerId = 0;
+                selectServer = GameData.Instance.gameStatus.ServerList[selectServerId];
                 selectedBtn = null;
             }
         });
@@ -683,12 +761,12 @@ public class ServerListWnd:Window<ServerListWnd>
                 AddHostWnd.Instance.Open();
         });
 
-        text.text = GameData.Instance.gameStatus.ServerList[GameData.Instance.gameStatus.defaultServerIdx].ServerName + string.Format(":{0}", GameData.Instance.gameStatus.ServerList[GameData.Instance.gameStatus.defaultServerIdx].ServerPort);
+        text.text = Global.Server.ServerName + string.Format(":{0}", Global.Server.ServerPort);
     }
 
     List<GameObject> serverList = new List<GameObject>();
     Button selectedBtn;
-    int selectServerId;
+    ServerInfo selectServer;
     public void InsertServerItem(ServerInfo server, GameObject prefab)
     {
         GameObject host = GameObject.Instantiate(prefab, ServerListRoot.transform);
@@ -699,11 +777,11 @@ public class ServerListWnd:Window<ServerListWnd>
         host.transform.SetParent(ServerListRoot.transform);
         Control("Text", host).GetComponent<Text>().text = server.ServerName + string.Format(":{0}", server.ServerPort);
         Button btn = host.GetComponent<Button>();
-        btn.onClick.AddListener(() => { OnSelectServer(server.Idx, btn); });
+        btn.onClick.AddListener(() => { OnSelectServer(server, btn); });
         serverList.Add(host);
     }
 
-    void OnSelectServer(int id, Button btn)
+    void OnSelectServer(ServerInfo svr, Button btn)
     {
         if (selectedBtn != null)
         {
@@ -712,7 +790,7 @@ public class ServerListWnd:Window<ServerListWnd>
         }
         btn.image.color = new Color(144.0f / 255.0f, 104.0f / 255.0f, 104.0f / 255.0f, 104.0f / 255.0f);
         selectedBtn = btn;
-        selectServerId = id;
+        selectServer = svr;
     }
 }
 
@@ -786,10 +864,10 @@ public class AddHostWnd:Window<AddHostWnd>
                 info.ServerPort = port;
                 info.ServerName = string.IsNullOrEmpty(serverName.text) ? serverHost.text : serverName.text;
                 info.ServerHost = serverHost.text;
-                info.Idx = GameData.Instance.gameStatus.ServerList.Count;
                 GameData.Instance.gameStatus.ServerList.Add(info);
                 if (ServerListWnd.Exist)
                     ServerListWnd.Instance.OnRefresh(ServerListWnd.ADD, info);
+                Global.OnServiceChanged(1, info);
                 Close();
             }
         });
