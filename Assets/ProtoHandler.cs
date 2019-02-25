@@ -403,7 +403,7 @@ class ProtoHandler
     static void OnDisconnect()
     {
         NetWorkBattle.Ins.OnDisconnect();
-        if (!MainWnd.Exist)
+        if (!MainWnd.Exist && GameBattleEx.Instance != null)
             U3D.GoBack();
     }
 

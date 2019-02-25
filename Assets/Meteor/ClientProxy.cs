@@ -107,7 +107,8 @@ class ClientProxy
                 msg.Message = (int)LocalMsgType.DisConnect;
                 msg.Result = 1;
                 ProtoHandler.PostMessage(msg);
-                sProxy.Close();
+                if (sProxy.Connected)
+                    sProxy.Close();
                 proxy.Reset();
                 if (tConn != null)
                     tConn.Change(5000, 5000);
