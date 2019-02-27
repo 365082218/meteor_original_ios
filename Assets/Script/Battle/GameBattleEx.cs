@@ -176,8 +176,9 @@ public partial class GameBattleEx : MonoBehaviour {
         if (!UpdateHandler.Contains(fun))
             UpdateHandler.Add(fun);
     }
-	// Update is called once per frame
-	void Update () {
+
+    public void NetUpdate()
+    {
         for (int i = 0; i < DeleteHandler.Count; i++)
         {
             if (UpdateHandler.Contains(DeleteHandler[i]))
@@ -186,7 +187,7 @@ public partial class GameBattleEx : MonoBehaviour {
         DeleteHandler.Clear();
         for (int i = 0; i < UpdateHandler.Count; i++)
         {
-              UpdateHandler[i].Invoke();
+            UpdateHandler[i].Invoke();
         }
         if (Global.PauseAll)
             return;
@@ -259,6 +260,13 @@ public partial class GameBattleEx : MonoBehaviour {
             lev_script.Scene_OnIdle();//每一帧调用一次场景物件更新.
         RefreshAutoTarget();
         CollisionCheck();
+    }
+
+	// Update is called once per frame
+	void Update () {
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            return;
+        NetUpdate();
     }
 
     //每一个攻击盒，与所有受击盒碰撞测试.

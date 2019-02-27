@@ -685,11 +685,16 @@ public partial class MeteorUnit : MonoBehaviour
     int GameFrame = 0;
     private float AccumilatedTime = 0f;
     private float FrameLength = 0.05f; //50 miliseconds
+    public void NetUpdate()
+    {
+
+    }
     void Update()
     {
         if (IsDebugUnit())
             return;
-
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            return;
         if (Climbing)
             ClimbingTime += Time.deltaTime;
         else

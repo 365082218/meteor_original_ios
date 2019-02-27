@@ -4,8 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-//Meteor_KeyBoard_Input
-[Serializable]
+/// <summary>
+/// 在帧同步上传阶段采集本地输入，在帧同步下载阶段转发输入到本地输入
+/// </summary>
+public class MeteorNetInput
+{
+
+}
+
 public class MeteorInput
 {
     public KeyState[] KeyStates = new KeyState[(int)EKeyList.KL_Max];
@@ -2089,9 +2095,10 @@ public class MeteorInput
     }
 }
 
-//控制输入，以及摄像机的调整.
+//控制角色输入
 public class MeteorController : MonoBehaviour {
     public MeteorInput Input;
+    public MeteorNetInput NetInput;//网络输入层
     MeteorUnit mOwner;
     PoseStatus posMng;
     bool mInputLocked = false;
@@ -2114,10 +2121,17 @@ public class MeteorController : MonoBehaviour {
         }
     }
 
+    //由NetWorkBattle驱动.按顺序来的.
+    public void NetUpdate()
+    {
+
+    }
+
     private void Update()
     {
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer && Owner != MeteorManager.Instance.LocalPlayer)
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
             return;
+
         if (!Global.PauseAll)
         {
             if (Owner.robot != null)

@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class NetWorkBattle : MonoBehaviour {
 
+    private float mLogicTempTime = 0;
     //在房间的玩家.
     Dictionary<int, protocol.Player_> playerInfo = new Dictionary<int, Player_>();
     Dictionary<int, MeteorUnit> player = new Dictionary<int, MeteorUnit>();
@@ -69,6 +70,7 @@ public class NetWorkBattle : MonoBehaviour {
     uint frameIndex = 0;
     uint turn = 0;
     uint tick = 0;
+    public int TurnFrame = 5;
     public bool TurnStarted = false;
     public bool waitReborn = false;
     public bool waitSend = true;
@@ -77,13 +79,23 @@ public class NetWorkBattle : MonoBehaviour {
         {
             if (waitSend)
             {
+                mLogicTempTime += Time.deltaTime;
+                if (mLogicTempTime > 0.02f)
+                {
+                    for (int i = 0; i < mFastForwardSpeed; i++)
+                    {
+                        GameTurn();
+                        mLogicTempTime = 0;
+                    }
+                }
+
                 frameIndex++;
                 tick++;
-                if (frameIndex % 5 == 0)
+                if (frameIndex % TurnFrame == 0)
                 {
-                    //frame.frameIndex = turn;
                     turn++;
                     waitSend = false;
+                    SyncInput();
                     //SyncAttribute(frame.Players[0]);
                     //Common.SyncFrame(frame);
 
@@ -110,6 +122,36 @@ public class NetWorkBattle : MonoBehaviour {
                 SyncInterpolate();
         }
 	}
+
+    private int mFastForwardSpeed = 1;
+    public void SetFaseForward(int tValue)
+    {
+        mFastForwardSpeed = tValue;
+    }
+
+    private int GameFrameInTurn = 0;
+    void GameTurn()
+    {
+        if (GameFrameInTurn == 0)
+        {
+            List<GameMessage> list = null;
+            if (GameManager.Instance.LockFrameTurn(ref list))
+            {
+                if (list != null)
+                    _UdpReciveManager.MsgHandle(list);
+                GameFrameInTurn++;
+            }
+        }
+        else
+        {
+            GameManager.Instance.UpdateEvent();
+
+            if (GameFrameInTurn == 2)
+                GameFrameInTurn = 0;
+            else
+                GameFrameInTurn++;
+        }
+    }
 
     public void SyncInterpolate()
     {
@@ -260,7 +302,13 @@ public class NetWorkBattle : MonoBehaviour {
         PlayerId = playerid;
     }
 
-    //同步全部的输入.
+    //本地采集的5帧的输入，上传到服务器.
+    public void SyncInput()
+    {
+
+    }
+
+    //同步从服务器发送来的全体输入.顺序是从玩家ID小到大
     public void OnSyncInput()
     {
         ServerFrameIndex++;

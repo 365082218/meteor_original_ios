@@ -67,18 +67,7 @@ public class SceneItemAgent : MonoBehaviour {
         while (true)
         {
             float y = curve.Evaluate(Time.time);
-            //if (up)
-            //{
                 transform.position = new Vector3(transform.position.x, initializeY + 5 * y, transform.position.z);
-                //if (transform.position.y >= initializeY + yHeight)
-                //    up = false;
-            //}
-            //else
-            //{
-            //    transform.position = new Vector3(transform.position.x, transform.position.y - 5 * Time.deltaTime, transform.position.z);
-            //    if (transform.position.y <= initializeY - yHeight)
-            //        up = true;
-            //}
             transform.Rotate(new Vector3(0, 90 * Time.deltaTime, 0));
             yield return 0;
         }
@@ -96,7 +85,9 @@ public class SceneItemAgent : MonoBehaviour {
 
     float refresh_tick;
     bool Refresh;
-	void Update () {
+
+    public void NetUpdate()
+    {
         if (MethodOnIdle != null)
             MethodOnIdle.Invoke(GameBattleEx.Instance.Script, new object[] { InstanceId });
         else if (OnIdle != null)
@@ -109,6 +100,12 @@ public class SceneItemAgent : MonoBehaviour {
                 OnRefresh();
             }
         }
+    }
+
+	void Update () {
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            return;
+        NetUpdate();
     }
 
     public void OnPickup(MeteorUnit unit)
@@ -696,7 +693,6 @@ public class SceneItemAgent : MonoBehaviour {
     //受击框
     public void RefreshCollision()
     {
-        //BoxCollider box = GetComponent<BoxCollider>();
         collisions.Clear();
         if (MethodOnAttack != null || OnAttackCallBack != null)
         {
@@ -709,32 +705,6 @@ public class SceneItemAgent : MonoBehaviour {
                     collisions.Add(co[i]);
             }
         }
-        //AABBVector bound = new AABBVector();
-        //if (co.Length > 1)
-        //{
-        //    bound.min = co[0].bounds.min;
-        //    bound.max = co[0].bounds.max;
-        //}
-        //for (int i = 1; i < co.Length; i++)
-        //{
-        //    if (bound.min.x > co[i].bounds.min.x)
-        //        bound.min.x = co[i].bounds.min.x;
-        //    if (bound.min.y > co[i].bounds.min.y)
-        //        bound.min.y = co[i].bounds.min.y;
-        //    if (bound.min.z > co[i].bounds.min.z)
-        //        bound.min.z = co[i].bounds.min.z;
-        //    if (bound.max.x < co[i].bounds.max.x)
-        //        bound.max.x = co[i].bounds.max.x;
-        //    if (bound.max.y < co[i].bounds.max.y)
-        //        bound.max.y = co[i].bounds.max.y;
-        //    if (bound.max.z < co[i].bounds.max.z)
-        //        bound.max.z = co[i].bounds.max.z;
-        //}
-        //if (box == null)
-        //    box = gameObject.AddComponent<BoxCollider>();
-        //box.center = (bound.max - bound.min) / 4;
-        //box.size = bound.max - bound.min;
-        //box.isTrigger = true;
     }
 
     //场景物件按照0点防御来算.

@@ -7,6 +7,13 @@ using CoClass;
 
 public class Global
 {
+    //网络和单机的时间不一致
+    public static float TimeDelta()
+    {
+        if (GLevelMode == LevelMode.MultiplyPlayer)
+            return 0.02f;
+        return Time.deltaTime;
+    }
     public static ServerInfo Server;//当前选择的服务器
     public static List<ServerInfo> Servers = new List<ServerInfo>();
     public static float FPS = 1.0f / 30.0f;//动画设计帧率
