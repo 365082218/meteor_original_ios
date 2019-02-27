@@ -129,28 +129,9 @@ public class NetWorkBattle : MonoBehaviour {
         mFastForwardSpeed = tValue;
     }
 
-    private int GameFrameInTurn = 0;
     void GameTurn()
     {
-        if (GameFrameInTurn == 0)
-        {
-            List<GameMessage> list = null;
-            if (GameManager.Instance.LockFrameTurn(ref list))
-            {
-                if (list != null)
-                    _UdpReciveManager.MsgHandle(list);
-                GameFrameInTurn++;
-            }
-        }
-        else
-        {
-            GameManager.Instance.UpdateEvent();
 
-            if (GameFrameInTurn == 2)
-                GameFrameInTurn = 0;
-            else
-                GameFrameInTurn++;
-        }
     }
 
     public void SyncInterpolate()

@@ -255,6 +255,10 @@ class SceneMng
             root.transform.localScale = Vector3.one;
         }
         root.AddComponent<GameBattleEx>();
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            root.AddComponent<NetSync>();
+        else
+            root.AddComponent<LocalSync>();
     }
 
     public static MonsterEx InitMon(string Script)
