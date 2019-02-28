@@ -95,11 +95,11 @@ public class MeteorUnitDebug : MeteorUnit
             Attr = MeteorManager.Instance.LocalPlayer.Attr;
         charLoader = GetComponent<CharacterLoader>();
         if (charLoader == null)
-            charLoader = gameObject.AddComponent<CharacterLoader>();
+            charLoader = new CharacterLoader();
         if (posMng == null)
             posMng = new PoseStatus();
 
-        charLoader.LoadCharactor(UnitId);
+        charLoader.LoadCharactor(UnitId, transform);
         posMng.Init(this);
         WeaponR = Global.ldaControlX("d_wpnR", charLoader.rootBone.gameObject).transform;
         WeaponL = Global.ldaControlX("d_wpnL", charLoader.rootBone.gameObject).transform;

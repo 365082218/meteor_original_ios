@@ -238,27 +238,11 @@ public class UIMoveInspector : Editor
 [CustomEditor(typeof(CharacterLoader))]
 public class CharacterLoaderInspector : Editor
 {
-    string source = "source idx";
-    string frame = "frame idx";
-    string pos = "Pos Id";
+    
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
-        CharacterLoader myTarget = (CharacterLoader)target;
-        source = GUILayout.TextField(source);
-        frame = GUILayout.TextField(frame);
-        if (GUILayout.Button("PlayFrame"))
-        {
-            if (!string.IsNullOrEmpty(source) && !string.IsNullOrEmpty(frame))
-                myTarget.ChangeFrame(int.Parse(source), int.Parse(frame));
-        }
-
-        pos = GUILayout.TextField(pos);
-        if (GUILayout.Button("PlayPos"))
-        {
-            if (!string.IsNullOrEmpty(pos))
-                myTarget.posMng.ChangeActionSingle(int.Parse(pos));
-        }
+       
     }
 }
 
@@ -282,23 +266,42 @@ public class PoseStatusDebugInspector : Editor
 [CustomEditor(typeof(MeteorUnit))]
 public class MeteorUnitInspector : Editor
 {
-    string pos = "Weapon Id";
+    string WeaponId = "Weapon Id";
     string ModelId = "Model Id";
+    string source = "source idx";
+    string frame = "frame idx";
+    string pos = "Pos Id";
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
         MeteorUnit myTarget = (MeteorUnit)target;
-        pos = GUILayout.TextField(pos);
-        if (GUILayout.Button("EquipWeapon"))
-        {
-            //if (!string.IsNullOrEmpty(pos))
-            //    myTarget.EquipWeapon(null);
-        }
+        //WeaponId = GUILayout.TextField(WeaponId);
+        //if (GUILayout.Button("EquipWeapon"))
+        //{
+        //    if (!string.IsNullOrEmpty(WeaponId))
+        //        myTarget.EquipWeapon(null);
+        //}
         ModelId = GUILayout.TextField(ModelId);
         if (GUILayout.Button("Init"))
         {
             if (!string.IsNullOrEmpty(ModelId))
                 myTarget.Init(int.Parse(ModelId));
+        }
+
+        CharacterLoader loader = myTarget.charLoader;
+        source = GUILayout.TextField(source);
+        frame = GUILayout.TextField(frame);
+        if (GUILayout.Button("PlayFrame"))
+        {
+            if (!string.IsNullOrEmpty(source) && !string.IsNullOrEmpty(frame))
+                loader.ChangeFrame(int.Parse(source), int.Parse(frame));
+        }
+
+        pos = GUILayout.TextField(pos);
+        if (GUILayout.Button("PlayPos"))
+        {
+            if (!string.IsNullOrEmpty(pos))
+                myTarget.posMng.ChangeActionSingle(int.Parse(pos));
         }
     }
 }

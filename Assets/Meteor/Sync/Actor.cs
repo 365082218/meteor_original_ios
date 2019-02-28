@@ -1,16 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+public interface INetUpdate
+{
+    void NetUpdate();
+}
 
-public class LocalActor{
-    ILocalUpdate Target;
+public class Actor{
+    INetUpdate Target;
     public void Update()
     {
         if (Target != null)
-            Target.LocalUpdate();
+            Target.NetUpdate();
     }
 
-    public void Attach(ILocalUpdate Attach)
+    public void Attach(INetUpdate Attach)
     {
         Target = Attach;
     }

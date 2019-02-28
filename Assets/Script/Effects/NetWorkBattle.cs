@@ -75,64 +75,53 @@ public class NetWorkBattle : MonoBehaviour {
     public bool waitReborn = false;
     public bool waitSend = true;
     void Update () {
-        if (bSync && RoomId != -1 && TurnStarted && MeteorManager.Instance.LocalPlayer != null && !waitReborn)
-        {
-            if (waitSend)
-            {
-                mLogicTempTime += Time.deltaTime;
-                if (mLogicTempTime > 0.02f)
-                {
-                    for (int i = 0; i < mFastForwardSpeed; i++)
-                    {
-                        GameTurn();
-                        mLogicTempTime = 0;
-                    }
-                }
+        //if (bSync && RoomId != -1 && TurnStarted && MeteorManager.Instance.LocalPlayer != null && !waitReborn)
+        //{
+        //    if (waitSend)
+        //    {
+        //        mLogicTempTime += Time.deltaTime;
+        //        if (mLogicTempTime > 0.02f)
+        //        {
+        //            for (int i = 0; i < mFastForwardSpeed; i++)
+        //            {
+        //                GameTurn();
+        //                mLogicTempTime = 0;
+        //            }
+        //        }
 
-                frameIndex++;
-                tick++;
-                if (frameIndex % TurnFrame == 0)
-                {
-                    turn++;
-                    waitSend = false;
-                    SyncInput();
-                    //SyncAttribute(frame.Players[0]);
-                    //Common.SyncFrame(frame);
+        //        frameIndex++;
+        //        tick++;
+        //        if (frameIndex % TurnFrame == 0)
+        //        {
+        //            turn++;
+        //            waitSend = false;
+        //            SyncInput();
+        //            //SyncAttribute(frame.Players[0]);
+        //            //Common.SyncFrame(frame);
 
-                    if (MeteorManager.Instance.LocalPlayer.Dead)
-                    {
-                        //Debug.LogError("waitreborn hp:" + frame.Players[0].hp);
+        //            if (MeteorManager.Instance.LocalPlayer.Dead)
+        //            {
+        //                //Debug.LogError("waitreborn hp:" + frame.Players[0].hp);
 
-                        waitReborn = true;
-                    }
-                }
+        //                waitReborn = true;
+        //            }
+        //        }
 
 
-                //36=3秒个turn内没收到服务器回复的同步信息，算作断开连接.
-                if (tick >= 360)
-                {
-                    bSync = false;
-                    ReconnectWnd.Instance.Open();
-                    if (GameBattleEx.Instance != null)
-                        GameBattleEx.Instance.NetPause();
-                }
+        //        //36=3秒个turn内没收到服务器回复的同步信息，算作断开连接.
+        //        if (tick >= 360)
+        //        {
+        //            bSync = false;
+        //            ReconnectWnd.Instance.Open();
+        //            if (GameBattleEx.Instance != null)
+        //                GameBattleEx.Instance.NetPause();
+        //        }
                 
-            }
-            if (Global.useShadowInterpolate)
-                SyncInterpolate();
-        }
+        //    }
+        //    if (Global.useShadowInterpolate)
+        //        SyncInterpolate();
+        //}
 	}
-
-    private int mFastForwardSpeed = 1;
-    public void SetFaseForward(int tValue)
-    {
-        mFastForwardSpeed = tValue;
-    }
-
-    void GameTurn()
-    {
-
-    }
 
     public void SyncInterpolate()
     {

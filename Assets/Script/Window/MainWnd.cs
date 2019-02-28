@@ -489,6 +489,27 @@ public class RoleSelectWnd: Window<RoleSelectWnd>
     }
 }
 
+//比赛面板
+public class MatchWnd:Window<MatchWnd>
+{
+    public override string PrefabName { get { return "MatchWnd"; } }
+    protected override bool OnOpen()
+    {
+        Init();
+        return base.OnOpen();
+    }
+
+    protected override bool OnClose()
+    {
+        return base.OnClose();
+    }
+
+    void Init()
+    {
+
+    }
+}
+
 public class MainLobby : Window<MainLobby>
 {
     public override string PrefabName { get { return "MainLobby"; } }
@@ -583,6 +604,10 @@ public class MainLobby : Window<MainLobby>
         {
             OnRefresh();
         });
+        Control("EnterQueue").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            OnEnterQueue();
+        });
         Control("Close").GetComponent<Button>().onClick.AddListener(() =>
         {
             OnGoback();
@@ -591,6 +616,13 @@ public class MainLobby : Window<MainLobby>
         RoomRoot = Control("RoomRoot");
         Control("Version").GetComponent<Text>().text = GameData.Instance.gameStatus.MeteorVersion;
         Update = Startup.ins.StartCoroutine(UpdateServiceList());
+    }
+
+    void OnEnterQueue()
+    {
+        MatchWnd.Instance.Open();
+        if (MainLobby.Exist)
+            MainLobby.Instance.Close();
     }
 
     GameObject serverRoot;

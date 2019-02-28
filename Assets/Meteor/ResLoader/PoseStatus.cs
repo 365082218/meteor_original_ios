@@ -18,8 +18,6 @@ public class PoseStatus
         ActionList.Clear();
     }
     MeteorUnit _Self;
-    public Transform FollowBone;
-    public float FollowBoneScale = 1.0f;
     int UnitId;
     public bool CanMove;
     public bool CanControl;
@@ -156,7 +154,7 @@ public class PoseStatus
         CheckClimb = false;
         CanAdjust = true;
         ClimbFallTick = 0.0f;
-        load = owner.GetComponent<CharacterLoader>();
+        load = owner.charLoader;
         UnitId = _Self == null ? 0 : _Self.UnitId;
         CanMove = true;
         if (!PosFile.ContainsKey(UnitId))
@@ -250,7 +248,7 @@ public class PoseStatus
             int curIndex = load.GetCurrentFrameIndex();
             for (int i = 0; i < mActiveAction.ActionList.Count; i++)
             {
-                if (mActiveAction.ActionList[i].Type == "Blend")
+                if (mActiveAction.ActionList[i].Type.Equals("Blend"))
                 {
                     act = mActiveAction.ActionList[i];
                     //在可切换帧范围内
@@ -308,8 +306,6 @@ public class PoseStatus
     public bool playResultAction = false;
     public void OnActionFinished()
     {
-        //if (_Self.Attr.IsPlayer)
-        //    Debug.Log("onaction finished");
         if (waitPause)
         {
             //死亡后接事件

@@ -20,7 +20,7 @@ public enum PoseEvt
 //读取skc文件并且绘制骨骼，有一定问题，那个原始模型和骨骼是右手坐标系的
 //如果什么都不改，那么最后左右腿是互换了。但是改了半天，左右手坐标系并不好转换
 //负责处理动画帧的播放
-public class CharacterLoader : MonoBehaviour
+public class CharacterLoader
 {
     SkinnedMeshRenderer rend;//绘制顶点UV,贴图，骨骼权重
     //Material[] mat;
@@ -31,12 +31,14 @@ public class CharacterLoader : MonoBehaviour
     //根骨骼初始位置和旋转，用于RootMotion到上一级
     public Vector3 RootPos;
     public Quaternion RootQuat;
-    public void LoadCharactor(int id)
+    public Transform Target;
+    public void LoadCharactor(int id, Transform Tri)
     {
-        owner = GetComponent<MeteorUnit>();
+        Target = Tri;
+        owner = Target.GetComponent<MeteorUnit>();
         posMng = owner.posMng;
         Skin = new GameObject();
-        Skin.transform.SetParent(transform);
+        Skin.transform.SetParent(Target);
         Skin.transform.localRotation = Quaternion.identity;
         Skin.transform.localScale = Vector3.one;
         Skin.transform.localPosition = Vector3.zero;
@@ -57,8 +59,8 @@ public class CharacterLoader : MonoBehaviour
         else
             Skin.layer = LayerMask.NameToLayer("Monster");
 
-        bnc.GenerateBone(transform, ref bo, ref dummy, ref bindPos, ref rootBone);
-        WsGlobal.SetObjectLayer(gameObject, Skin.layer);
+        bnc.GenerateBone(Target, ref bo, ref dummy, ref bindPos, ref rootBone);
+        WsGlobal.SetObjectLayer(Target.gameObject, Skin.layer);
         rend.bones = bo.ToArray();
         rend.sharedMesh.bindposes = bindPos.ToArray();
         rend.rootBone = rootBone;
@@ -329,10 +331,6 @@ public class CharacterLoader : MonoBehaviour
         return PoseStraight > 0;
     }
 
-    void Start()
-    {
-    }
-    // Update is called once per frame
     public float FPS = 1.0f / 30.0f;
     int lastFrameIndex = 1;
     int lastSource = 1;
@@ -451,7 +449,7 @@ public class CharacterLoader : MonoBehaviour
                 if (lastPosIdx == po.Idx)
                 {
                     Vector3 targetPos = status.DummyPos[i];
-                    Vector3 vec = transform.rotation * (targetPos - lastDBasePos) * moveScale;
+                    Vector3 vec = Target.rotation * (targetPos - lastDBasePos) * moveScale;
                     if (IgnoreActionMoves)
                     {
                         vec.x = 0;
@@ -678,7 +676,7 @@ public class CharacterLoader : MonoBehaviour
                     if (lastPosIdx == po.Idx)
                     {
                         Vector3 targetPos = Vector3.Lerp(lastStatus.DummyPos[i], status.DummyPos[i], timeRatio);
-                        Vector3 vec = transform.rotation * (targetPos - lastDBasePos) * moveScale;
+                        Vector3 vec = Target.rotation * (targetPos - lastDBasePos) * moveScale;
                         if (IgnoreActionMoves)
                         {
                             vec.x = 0;

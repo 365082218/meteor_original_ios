@@ -71,7 +71,7 @@ public class BuffContainer
     public SFXEffectPlay effect;
 }
 
-public class Buff
+public class Buff: INetUpdate
 {
     public EBUFF_Type type;
     public int Id;//12是蛊毒，
@@ -198,7 +198,7 @@ public class Buff
     }
 
     List<MeteorUnit> unitRemoved = new List<MeteorUnit>();
-    public void Update()
+    public void NetUpdate()
     {
         unitRemoved.Clear();
         switch (refresh_type)
@@ -254,9 +254,15 @@ public class Buff
             //    FightWnd.Instance.UpdateMonsterInfo(unitRemoved[i]);
         }
     }
+    public void Update()
+    {
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            return;
+        NetUpdate();
+    }
 }
 
-public partial class MeteorUnit : MonoBehaviour
+public partial class MeteorUnit : MonoBehaviour, INetUpdate
 {
     public virtual bool IsDebugUnit() { return false; }
     public int UnitId;
@@ -667,11 +673,6 @@ public partial class MeteorUnit : MonoBehaviour
 #endif
     }
 
-    // Use this for initialization
-    void Start()
-    {
-        //rig.velocity;
-    }
 
     // Update is called once per frame
     List<MeteorUnit> keyM = new List<MeteorUnit>();
@@ -687,14 +688,6 @@ public partial class MeteorUnit : MonoBehaviour
     private float FrameLength = 0.05f; //50 miliseconds
     public void NetUpdate()
     {
-
-    }
-    void Update()
-    {
-        if (IsDebugUnit())
-            return;
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
-            return;
         if (Climbing)
             ClimbingTime += Time.deltaTime;
         else
@@ -754,6 +747,7 @@ public partial class MeteorUnit : MonoBehaviour
             touchDelay.Remove(removedT[i]);
 
         charLoader.CharacterUpdate();
+        controller.NetUpdate();
         if (robot != null)
             RefreshTarget();
         ProcessGravity();
@@ -775,7 +769,14 @@ public partial class MeteorUnit : MonoBehaviour
                 }
             }
         }
-
+    }
+    void Update()
+    {
+        if (IsDebugUnit())
+            return;
+        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            return;
+        NetUpdate();
     }
 
     //private void LateUpdate()
@@ -1203,11 +1204,9 @@ public partial class MeteorUnit : MonoBehaviour
         if (Global.GLevelMode <= LevelMode.CreateWorld)
             robot = Attr.IsPlayer ? null : new MeteorAI(this);
         
-        controller = gameObject.GetComponent<MeteorController>();
         if (controller == null)
-            controller = gameObject.AddComponent<MeteorController>();
+            controller = new MeteorController();
 
-        charLoader = GetComponent<CharacterLoader>();
         if (updateModel)
         {
             //把伤害盒子去掉，把受击盒子去掉
@@ -1220,14 +1219,17 @@ public partial class MeteorUnit : MonoBehaviour
             if (flag)
                 flagEffect.OnPlayAbort();
 
-            GameObject.Destroy(charLoader.rootBone.parent.gameObject);
-            GameObject.Destroy(charLoader.Skin.gameObject);
-            GameObject.DestroyImmediate(charLoader);
-            charLoader = null;
+            if (charLoader != null)
+            {
+                GameObject.Destroy(charLoader.rootBone.parent.gameObject);
+                GameObject.Destroy(charLoader.Skin.gameObject);
+                GameObject.DestroyImmediate(charLoader.Target);
+                charLoader = null;
+            }
         }
 
         if (charLoader == null)
-            charLoader = gameObject.AddComponent<CharacterLoader>();
+            charLoader = new CharacterLoader();
         if (posMng == null)
             posMng = new PoseStatus();
 
@@ -1236,7 +1238,7 @@ public partial class MeteorUnit : MonoBehaviour
             transform.position = Vector3.zero;
             transform.rotation = Quaternion.identity;
         }
-        charLoader.LoadCharactor(UnitId);
+        charLoader.LoadCharactor(UnitId, transform);
         try
         {
             posMng.Init(this);
@@ -1278,7 +1280,7 @@ public partial class MeteorUnit : MonoBehaviour
 
         posMng.ChangeAction();
         if (controller != null)
-            controller.Init();
+            controller.Init(this);
 
         UnitTopUI = (GameObject.Instantiate(Resources.Load("UnitTopUI")) as GameObject).GetComponentInChildren<UnitTopUI>();
         UnitTopUI.Init(Attr, transform, Camp);
@@ -3463,5 +3465,11 @@ public partial class MeteorUnit : MonoBehaviour
         {
             //当前武器小技能2
         }
+    }
+
+    public void OnNetInput(protocol.InputFrame inputs)
+    {
+        //controller.Input.Update();
+        //inputs.w;
     }
 }

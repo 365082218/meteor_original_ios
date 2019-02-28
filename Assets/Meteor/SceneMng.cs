@@ -257,8 +257,6 @@ class SceneMng
         root.AddComponent<GameBattleEx>();
         if (Global.GLevelMode == LevelMode.MultiplyPlayer)
             root.AddComponent<NetSync>();
-        else
-            root.AddComponent<LocalSync>();
     }
 
     public static MonsterEx InitMon(string Script)

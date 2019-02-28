@@ -379,7 +379,7 @@ public class SfxFile
     {
         if (effectList.Count == 0)
             return null;
-        SFXEffectPlay effectContainer = character.gameObject.AddComponent<SFXEffectPlay>();
+        SFXEffectPlay effectContainer = character.Target.gameObject.AddComponent<SFXEffectPlay>();
         effectContainer.Load(this, timePlayed);
         return effectContainer;
     }

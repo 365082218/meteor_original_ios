@@ -123,9 +123,8 @@ public class MeteorInput
         mInputVector = Vector2.zero;
     }
 
-    public void Update(float deltaTime)
+    public void NetUpdate()
     {
-        //if (!NGUIJoystick.instance.ArrowPressed) mLastInputVector = Vector2.zero;
         if (!Global.PauseAll)
         {
             if (!mOwner.controller.InputLocked)
@@ -157,13 +156,13 @@ public class MeteorInput
         {
             InputCore.Update();
             //主角色，扫描硬件信息
-            UpdateKeyStatus(deltaTime);
+            UpdateKeyStatus();
         }
-        UpdateMoveInput(deltaTime);
+        UpdateMoveInput();
     }
 
     //使用摇杆的时候不要读取硬件信息。
-    void UpdateKeyStatus(float deltaTime)
+    void UpdateKeyStatus()
     {
         //不能在循环中处理按键的抬起和按下，必须先缓存一份干净的数据
         //然后扫描输入，处理一些非法输入，再用处理后的合法输入，做最后状态的刷新。
@@ -171,8 +170,8 @@ public class MeteorInput
         for (int idx = 0; idx < KeyStates.Length; idx++)
         {
             KeyState keyStatus = KeyStates[idx];
-            keyStatus.PressedTime += deltaTime;
-            keyStatus.ReleasedTime += deltaTime;
+            keyStatus.PressedTime += Global.TimeDelta();
+            keyStatus.ReleasedTime += Global.TimeDelta();
 
             //底下做的是与键盘同步，多输入设备会让其他设备的输出,被键盘状态刷新掉
             if (string.IsNullOrEmpty(keyStatus.AxisName))
@@ -1983,7 +1982,7 @@ public class MeteorInput
         keyStatus.IsAI = false;
     }
 
-    void UpdateMoveInput(float deltaTime)
+    void UpdateMoveInput()
     {
         Vector2 direction = mInputVector;//摇杆
         if (direction == Vector2.zero)
@@ -2096,22 +2095,16 @@ public class MeteorInput
 }
 
 //控制角色输入
-public class MeteorController : MonoBehaviour {
+public class MeteorController {
     public MeteorInput Input;
-    public MeteorNetInput NetInput;//网络输入层
     MeteorUnit mOwner;
     PoseStatus posMng;
     bool mInputLocked = false;
     public bool InputLocked { get { return mInputLocked; } set { mInputLocked = value; } }
     public MeteorUnit Owner { get { return mOwner; } }
-
-    void Start()
+    public void Init(MeteorUnit Target)
     {
-    }
-
-    public void Init()
-    {
-        mOwner = GetComponent<MeteorUnit>();
+        mOwner = Target;
         if (mOwner != null)
         {
             posMng = mOwner.posMng;
@@ -2124,11 +2117,6 @@ public class MeteorController : MonoBehaviour {
     //由NetWorkBattle驱动.按顺序来的.
     public void NetUpdate()
     {
-
-    }
-
-    private void Update()
-    {
         if (Global.GLevelMode == LevelMode.MultiplyPlayer)
             return;
 
@@ -2139,7 +2127,7 @@ public class MeteorController : MonoBehaviour {
         }
         CheckActionInput(Time.deltaTime);
         if (Input != null)
-            Input.Update(Time.deltaTime);
+            Input.NetUpdate();
     }
 
     //普通功能的状态转换，不涉及
