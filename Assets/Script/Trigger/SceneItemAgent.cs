@@ -66,7 +66,7 @@ public class SceneItemAgent : MonoBehaviour {
     {
         while (true)
         {
-            float y = curve.Evaluate(Time.time);
+            float y = curve.Evaluate(Global.Instance.GameTime());
                 transform.position = new Vector3(transform.position.x, initializeY + 5 * y, transform.position.z);
             transform.Rotate(new Vector3(0, 90 * Time.deltaTime, 0));
             yield return 0;
@@ -103,7 +103,7 @@ public class SceneItemAgent : MonoBehaviour {
     }
 
 	void Update () {
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             return;
         NetUpdate();
     }
@@ -241,10 +241,10 @@ public class SceneItemAgent : MonoBehaviour {
             }
             else
             {
-                OnTouch = Global.GScriptType.GetMethod(name + "_OnTouch", BindingFlags.Instance | BindingFlags.NonPublic);
+                OnTouch = Global.Instance.GScriptType.GetMethod(name + "_OnTouch", BindingFlags.Instance | BindingFlags.NonPublic);
                 if (OnTouch == null)
                 {
-                    System.Type typeParent = Global.GScriptType.BaseType;
+                    System.Type typeParent = Global.Instance.GScriptType.BaseType;
                     while (typeParent != null && OnTouch == null)
                     {
                         OnTouch = typeParent.GetMethod(name + "_OnTouch", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -255,7 +255,7 @@ public class SceneItemAgent : MonoBehaviour {
             }
 
             if (OnTouch != null)
-                OnTouch.Invoke(Global.GScript, new object[] { 0, unit.InstanceId });
+                OnTouch.Invoke(Global.Instance.GScript, new object[] { 0, unit.InstanceId });
         }
     }
 
@@ -390,7 +390,7 @@ public class SceneItemAgent : MonoBehaviour {
                 LoadCustom(fIns.SceneItems[i].name, fIns.SceneItems[i].custom);
 
             //雪人不能合并材质，不然没法动画
-            if (Global.GLevelItem.Scene != "Meteor_21")
+            if (Global.Instance.GLevelItem.Scene != "Meteor_21")
             {
                 if (name.StartsWith("D_Item") || name.StartsWith("D_RJug") || name.StartsWith("D_itRJug") || name.StartsWith("D_BBox") ||
                     name.StartsWith("D_BBBox") || name.StartsWith("D_Box"))

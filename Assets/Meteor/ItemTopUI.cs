@@ -20,7 +20,7 @@ public class ItemTopUI : MonoBehaviour {
 	
 	// Update is called once per frame
 	void LateUpdate () {
-        if (Global.PauseAll)
+        if (Global.Instance.PauseAll)
             return;
         float unitDis = Vector3.Distance(transform.position, MeteorManager.Instance.LocalPlayer.transform.position);
         if (unitDis <= ViewLimit)

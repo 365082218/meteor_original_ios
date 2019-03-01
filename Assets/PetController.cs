@@ -16,7 +16,7 @@ public class PetController : MonoBehaviour {
         petController = this.GetComponent<CharacterController>();
         animator = this.GetComponent<Animator>();
         current = animator.GetCurrentAnimatorStateInfo(0);
-        int count = Global.GLevelItem.wayPoint.Count;
+        int count = Global.Instance.GLevelItem.wayPoint.Count;
         nodeContainer = new PathNode[count];
         for (int i = 0; i < count; i++)
             nodeContainer[i] = new PathNode();
@@ -321,7 +321,7 @@ public class PetController : MonoBehaviour {
         //计算运动方向
         //角色forward指向人物背面
         //根据角色状态计算重力大小，在墙壁，空中，以及空中水平轴的阻力
-        float gScale = Global.gGravity;
+        float gScale = Global.Instance.gGravity;
         Vector3 v;
         v.x = ImpluseVec.x * Time.deltaTime;
         v.y = animator.GetBool("jump") ? 0 : ImpluseVec.y * Time.deltaTime;

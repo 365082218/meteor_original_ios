@@ -87,13 +87,13 @@ public class GameState
     {
         get
         {
-            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
                 return false;
             return _EnableInfiniteAngry;
         }
         set
         {
-            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 return;
             }
@@ -108,13 +108,13 @@ public class GameState
     {
         get
         {
-            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
                 return false;
             return _EnableGodMode;
         }
         set
         {
-            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 return;
             }
@@ -127,13 +127,13 @@ public class GameState
     {
         get
         {
-            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
                 return false;
             return _Undead;
         }
         set
         {
-            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 return;
             }
@@ -146,13 +146,13 @@ public class GameState
     {
         get
         {
-            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
                 return false;
             return _GodLike;
         }
         set
         {
-            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 return;
             }
@@ -173,13 +173,13 @@ public class GameState
     {
         get
         {
-            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
                 return false;
             return _LevelDebug;
         }
         set
         {
-            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 return;
             }

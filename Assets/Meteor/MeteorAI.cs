@@ -68,7 +68,7 @@ public class MeteorAI {
         owner = user;
         Status = EAIStatus.None;
         SubStatus = EAISubStatus.None;
-        int count = Global.GLevelItem.wayPoint.Count;
+        int count = Global.Instance.GLevelItem.wayPoint.Count;
         nodeContainer = new PathNode[count];
         ThinkCheckTick = MeteorAI.ThinkDelay;
         for (int i = 0; i < count; i++)
@@ -156,7 +156,7 @@ public class MeteorAI {
         //AI强制行为(攻击指定位置，Kill追杀（不论视野）攻击 ) > 战斗 > 跟随 > 巡逻 > 
         
         //找到身旁是否有死亡队友，
-        if (Global.GGameMode == GameMode.ANSHA && owner.IsLeader && RebornDelay <= 0)
+        if (Global.Instance.GGameMode == GameMode.ANSHA && owner.IsLeader && RebornDelay <= 0)
         {
             //如果50码以内有死亡队友.且当前在前进/待机/预备动作
             if (CanChangeToRebornStatus())
@@ -1110,7 +1110,7 @@ public class MeteorAI {
                     //如果是远程武器，先检查角度是否相差过大.过大先调整角度
                     if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
                     {
-                        if (GetAngleBetween(fightTarget.mPos) >= Global.AimDegree)
+                        if (GetAngleBetween(fightTarget.mPos) >= Global.Instance.AimDegree)
                         {
                             //停止连击，方向需要调整
                             return;
@@ -1119,7 +1119,7 @@ public class MeteorAI {
                     }
                     //近战武器，在可输入帧，每一帧30几率接前一招出招，如果这个输入帧大于50帧，基本就可以连上去
                     int chance = Random.Range(0, 100);
-                    if (chance < Global.ComboProbability)
+                    if (chance < Global.Instance.ComboProbability)
                     {
                         //UnityEngine.Debug.LogError(string.Format("{0}:chance attack", chance));
                         TryAttack();
@@ -1188,7 +1188,7 @@ public class MeteorAI {
                     {
                         //主手是远程武器-.直接攻击,不处理，后续会处理到底是打还是啥.
                         //站撸
-                        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.AimDegree)
+                        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.Instance.AimDegree)
                         {
                             SubStatus = EAISubStatus.FightAim;
                             return;
@@ -1198,7 +1198,7 @@ public class MeteorAI {
                     {
                         //副手是远程武器-.一定几率切换武器，再攻击.90几率切换到远程武器
                         int random = Random.Range(0, 100);
-                        if (random > Global.SpecialWeaponProbability)
+                        if (random > Global.Instance.SpecialWeaponProbability)
                         {
                             //切换武器，开打(不跑过去),换到武器2
                             //SubStatus = EAISubStatus.FightChangeWeapon;
@@ -1232,7 +1232,7 @@ public class MeteorAI {
                     {
                         //主手近战武器，副手远程武器
                         //无需处理，使用近战武器攻击就好。
-                        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.AimDegree)
+                        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.Instance.AimDegree)
                         {
                             SubStatus = EAISubStatus.FightAim;
                             return;
@@ -1268,7 +1268,7 @@ public class MeteorAI {
                         }
 
                         //角度相差太大，重新瞄准
-                        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.AimDegree)
+                        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.Instance.AimDegree)
                         {
                             SubStatus = EAISubStatus.FightAim;
                             return;
@@ -1385,7 +1385,7 @@ public class MeteorAI {
             return;
         }
 
-        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.AimDegree)
+        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Global.Instance.AimDegree)
         {
             if (AttackRotateToTargetCoroutine == null)
             {
@@ -2156,7 +2156,7 @@ public class MeteorAI {
             patrolData.Add(path[i]);
         List<WayPoint> PathTmp = new List<WayPoint>();
         for (int i = 0; i < path.Count; i++)
-            PathTmp.Add(Global.GLevelItem.wayPoint[path[i]]);
+            PathTmp.Add(Global.Instance.GLevelItem.wayPoint[path[i]]);
 
         //计算从第一个点到最后一个点的完整路径，放到完整巡逻点钟
         List<int> idx = new List<int>();
@@ -2181,7 +2181,7 @@ public class MeteorAI {
         }
         PatrolPath.Clear();
         for (int i = 0; i < idx.Count; i++)
-            PatrolPath.Add(Global.GLevelItem.wayPoint[idx[i]]);
+            PatrolPath.Add(Global.Instance.GLevelItem.wayPoint[idx[i]]);
         curPatrolIndex = -1;
         targetPatrolIndex = -1;
         curIndex = -1;

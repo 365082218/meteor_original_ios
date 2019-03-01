@@ -43,7 +43,7 @@ public class ChatWnd : Window<ChatWnd>
     {
         inputChat = Control("ChatText", WndObject).GetComponent<InputField>();
         Control("SendShortMsg", WndObject).GetComponent<Button>().onClick.AddListener(() => {
-            if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 string chatMessage = inputChat.text;
                 if (string.IsNullOrEmpty(inputChat.text))
@@ -355,12 +355,12 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
     {
         if (select != null)
         {
-            Global.MainWeapon = GameData.Instance.gameStatus.Weapon0;
-            Global.SubWeapon = GameData.Instance.gameStatus.Weapon1;
-            Global.PlayerLife = GameData.Instance.gameStatus.Life;
-            Global.PlayerModel = GameData.Instance.gameStatus.Model;
-            Global.RoundTime = GameData.Instance.gameStatus.RoundTime;
-            Global.MaxPlayer = GameData.Instance.gameStatus.MaxPlayer;
+            Global.Instance.MainWeapon = GameData.Instance.gameStatus.Weapon0;
+            Global.Instance.SubWeapon = GameData.Instance.gameStatus.Weapon1;
+            Global.Instance.PlayerLife = GameData.Instance.gameStatus.Life;
+            Global.Instance.PlayerModel = GameData.Instance.gameStatus.Model;
+            Global.Instance.RoundTime = GameData.Instance.gameStatus.RoundTime;
+            Global.Instance.MaxPlayer = GameData.Instance.gameStatus.MaxPlayer;
             U3D.LoadLevel(select.ID, LevelMode.CreateWorld, (GameMode)GameData.Instance.gameStatus.GameMode);
         }
     }
@@ -585,7 +585,7 @@ public class MainLobby : Window<MainLobby>
 
     void OnSelectService()
     {
-        Control("Server").GetComponent<Text>().text = string.Format("服务器:{0}        IP:{1}        端口:{2}", Global.Server.ServerName,
+        Control("Server").GetComponent<Text>().text = string.Format("服务器:{0}        IP:{1}        端口:{2}", Global.Instance.Server.ServerName,
             ClientProxy.server == null ? "还未取得" : ClientProxy.server.Address.ToString(), ClientProxy.server == null ? "还未取得" : ClientProxy.server.Port.ToString());
     }
 
@@ -642,7 +642,7 @@ public class MainLobby : Window<MainLobby>
             yield break;
         }
 
-        Global.Servers.Clear();
+        Global.Instance.Servers.Clear();
         LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
         for (int i = 0; i < js["services"].Count; i++)
         {
@@ -656,13 +656,13 @@ public class MainLobby : Window<MainLobby>
             else
                 s.ServerIP = js["services"][i]["addr"].ToString();
             s.ServerName = js["services"][i]["name"].ToString();
-            Global.Servers.Add(s);
+            Global.Instance.Servers.Add(s);
         }
         Update = null;
 
         //合并所有服务器到全局变量里
         for (int i = 0; i < GameData.Instance.gameStatus.ServerList.Count; i++)
-            Global.Servers.Add(GameData.Instance.gameStatus.ServerList[i]);
+            Global.Instance.Servers.Add(GameData.Instance.gameStatus.ServerList[i]);
 
         //拉取到服务器列表后
         Control("Servercfg").GetComponent<Button>().onClick.AddListener(() =>
@@ -670,12 +670,12 @@ public class MainLobby : Window<MainLobby>
             ServerListWnd.Instance.Open();
         });
 
-        Global.Server = Global.Servers[0];
+        Global.Instance.Server = Global.Instance.Servers[0];
         GameObject Services = Control("Services", WndObject);
         serverRoot = Control("Content", Services);
-        for (int i = 0; i < Global.Servers.Count; i++)
+        for (int i = 0; i < Global.Instance.Servers.Count; i++)
         {
-            InsertServerItem(Global.Servers[i]);
+            InsertServerItem(Global.Instance.Servers[i]);
         }
         OnSelectService();
         ClientProxy.Init();
@@ -689,10 +689,10 @@ public class MainLobby : Window<MainLobby>
         btn.transform.localPosition = Vector3.zero;
         btn.transform.localRotation = Quaternion.identity;
         btn.GetComponent<Button>().onClick.AddListener(() => {
-            if (Global.Server == svr)
+            if (Global.Instance.Server == svr)
                 return;
             ClientProxy.Exit();
-            Global.Server = svr;
+            Global.Instance.Server = svr;
             ClientProxy.Init();
             OnSelectService();
         });
@@ -776,7 +776,7 @@ public class ServerListWnd:Window<ServerListWnd>
                 {
                     GameObject.Destroy(serverList[selectServerId]);
                     serverList.RemoveAt(selectServerId);
-                    Global.OnServiceChanged(-1, GameData.Instance.gameStatus.ServerList[selectServerId]);
+                    Global.Instance.OnServiceChanged(-1, GameData.Instance.gameStatus.ServerList[selectServerId]);
                     GameData.Instance.gameStatus.ServerList.RemoveAt(selectServerId);
                 }
                 if (selectServerId >= serverList.Count)
@@ -793,7 +793,7 @@ public class ServerListWnd:Window<ServerListWnd>
                 AddHostWnd.Instance.Open();
         });
 
-        text.text = Global.Server.ServerName + string.Format(":{0}", Global.Server.ServerPort);
+        text.text = Global.Instance.Server.ServerName + string.Format(":{0}", Global.Instance.Server.ServerPort);
     }
 
     List<GameObject> serverList = new List<GameObject>();
@@ -899,7 +899,7 @@ public class AddHostWnd:Window<AddHostWnd>
                 GameData.Instance.gameStatus.ServerList.Add(info);
                 if (ServerListWnd.Exist)
                     ServerListWnd.Instance.OnRefresh(ServerListWnd.ADD, info);
-                Global.OnServiceChanged(1, info);
+                Global.Instance.OnServiceChanged(1, info);
                 Close();
             }
         });
@@ -1389,13 +1389,13 @@ public class RobotWnd : Window<RobotWnd>
         {
             RobotList[Idx].GetComponent<Button>().onClick.RemoveAllListeners();
             RobotList[Idx].GetComponent<Button>().onClick.AddListener(() => { SpawnRobot(Idx, (EUnitCamp)campIdx); });
-            RobotList[Idx].GetComponentInChildren<Text>().text = string.Format("{0}", Global.GetCharacter(Idx).Name);
+            RobotList[Idx].GetComponentInChildren<Text>().text = string.Format("{0}", Global.Instance.GetCharacter(Idx).Name);
         }
         else
         {
             GameObject obj = GameObject.Instantiate(Resources.Load("GridItemBtn")) as GameObject;
             obj.GetComponent<Button>().onClick.AddListener(() => { SpawnRobot(Idx, (EUnitCamp)campIdx); });
-            obj.GetComponentInChildren<Text>().text = string.Format("{0}", Global.GetCharacter(Idx).Name);
+            obj.GetComponentInChildren<Text>().text = string.Format("{0}", Global.Instance.GetCharacter(Idx).Name);
             obj.transform.SetParent(RobotRoot.transform);
             obj.gameObject.layer = RobotRoot.layer;
             obj.transform.localScale = Vector3.one;
@@ -1559,15 +1559,15 @@ public class BattleStatusWnd: Window<BattleStatusWnd>
         MeteorResult = Control("MeteorResult").transform;
         ButterflyResult = Control("ButterflyResult").transform;
         BattleResult = Global.ldaControlX("AllResult", WndObject);
-        Control("CampImage", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
-        Control("Title", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
-        Control("Result", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
-        Control("CampImage1", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
-        Control("Title1", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
-        Control("Result1", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
-        Control("CampImageAll", WndObject).SetActive(Global.GGameMode == GameMode.MENGZHU);
-        Control("TitleAll", WndObject).SetActive(Global.GGameMode == GameMode.MENGZHU);
-        Control("ResultAll", WndObject).SetActive(Global.GGameMode == GameMode.MENGZHU);
+        Control("CampImage", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
+        Control("Title", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
+        Control("Result", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
+        Control("CampImage1", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
+        Control("Title1", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
+        Control("Result1", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
+        Control("CampImageAll", WndObject).SetActive(Global.Instance.GGameMode == GameMode.MENGZHU);
+        Control("TitleAll", WndObject).SetActive(Global.Instance.GGameMode == GameMode.MENGZHU);
+        Control("ResultAll", WndObject).SetActive(Global.Instance.GGameMode == GameMode.MENGZHU);
         //BattleTitle = Global.ldaControlX("BattleTitle", WndObject);
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
         {
@@ -1587,7 +1587,7 @@ public class BattleStatusWnd: Window<BattleStatusWnd>
     void InsertPlayerResult(string name_, int id, int killed, int dead, EUnitCamp camp)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
-        if (Global.GGameMode == GameMode.MENGZHU)
+        if (Global.Instance.GGameMode == GameMode.MENGZHU)
         {
             obj.transform.SetParent(BattleResult.transform);
         }
@@ -1600,7 +1600,7 @@ public class BattleStatusWnd: Window<BattleStatusWnd>
 
         Text Idx = ldaControl("Idx", obj).GetComponent<Text>();
         Text Name = ldaControl("Name", obj).GetComponent<Text>();
-        if (Global.GGameMode == GameMode.MENGZHU)
+        if (Global.Instance.GGameMode == GameMode.MENGZHU)
         {
 
         }
@@ -1641,7 +1641,7 @@ public class BattleStatusWnd: Window<BattleStatusWnd>
     void InsertPlayerResult(string name_, BattleResultItem result)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
-        if (Global.GGameMode == GameMode.MENGZHU)
+        if (Global.Instance.GGameMode == GameMode.MENGZHU)
         {
             obj.transform.SetParent(BattleResult.transform);
         }
@@ -1654,7 +1654,7 @@ public class BattleStatusWnd: Window<BattleStatusWnd>
 
         Text Idx = ldaControl("Idx", obj).GetComponent<Text>();
         Text Name = ldaControl("Name", obj).GetComponent<Text>();
-        if (Global.GGameMode == GameMode.MENGZHU)
+        if (Global.Instance.GGameMode == GameMode.MENGZHU)
         {
 
         }
@@ -1725,7 +1725,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
             }
         }
         yield return new WaitForSeconds(1.5f);
-        if (Global.GGameMode == GameMode.MENGZHU)
+        if (Global.Instance.GGameMode == GameMode.MENGZHU)
         {
             U3D.InsertSystemMsg("回合结束");
         }
@@ -1778,15 +1778,15 @@ public class BattleResultWnd : Window<BattleResultWnd>
         });
 
         BattleResultAll = Global.ldaControlX("AllResult", WndObject);
-        Control("CampImage", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
-        Control("Title", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
-        Control("Result", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
-        Control("CampImage1", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
-        Control("Title1", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
-        Control("Result1", WndObject).SetActive(Global.GGameMode != GameMode.MENGZHU);
-        Control("CampImageAll", WndObject).SetActive(Global.GGameMode == GameMode.MENGZHU);
-        Control("TitleAll", WndObject).SetActive(Global.GGameMode == GameMode.MENGZHU);
-        Control("ResultAll", WndObject).SetActive(Global.GGameMode == GameMode.MENGZHU);
+        Control("CampImage", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
+        Control("Title", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
+        Control("Result", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
+        Control("CampImage1", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
+        Control("Title1", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
+        Control("Result1", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
+        Control("CampImageAll", WndObject).SetActive(Global.Instance.GGameMode == GameMode.MENGZHU);
+        Control("TitleAll", WndObject).SetActive(Global.Instance.GGameMode == GameMode.MENGZHU);
+        Control("ResultAll", WndObject).SetActive(Global.Instance.GGameMode == GameMode.MENGZHU);
 
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
         {
@@ -1807,7 +1807,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
     void InsertPlayerResult(string name_, int id, int killed, int dead, EUnitCamp camp)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
-        if (Global.GGameMode == GameMode.MENGZHU)
+        if (Global.Instance.GGameMode == GameMode.MENGZHU)
         {
             obj.transform.SetParent(BattleResultAll.transform);
         }
@@ -1821,7 +1821,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
 
         Text Idx = ldaControl("Idx", obj).GetComponent<Text>();
         Text Name = ldaControl("Name", obj).GetComponent<Text>();
-        if (Global.GGameMode == GameMode.MENGZHU)
+        if (Global.Instance.GGameMode == GameMode.MENGZHU)
         {
 
         }
@@ -1862,7 +1862,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
     void InsertPlayerResult(string name_, BattleResultItem result)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
-        if (Global.GGameMode == GameMode.MENGZHU)
+        if (Global.Instance.GGameMode == GameMode.MENGZHU)
         {
             obj.transform.SetParent(BattleResultAll.transform);
         }
@@ -1879,7 +1879,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
         Text Dead = ldaControl("Dead", obj).GetComponent<Text>();
         Idx.text = (result.id + 1).ToString();
         Name.text = name_;
-        if (Global.GGameMode == GameMode.MENGZHU)
+        if (Global.Instance.GGameMode == GameMode.MENGZHU)
         {
 
         }

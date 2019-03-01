@@ -60,7 +60,7 @@ public class ScriptBase
     public static int GameCallBack(string key, int Value)
     {
         if (key == "mod")
-            return (int)Global.GGameMode;
+            return (int)Global.Instance.GGameMode;
         if (key == "end")
             GameOver(Value);
         return Value;
@@ -244,8 +244,8 @@ public class ScriptBase
         Vector3 vec = Vector3.zero;
         if (style == "waypoint")
         {
-            if (Global.GLevelItem != null && Global.GLevelItem.wayPoint.Count > param)
-                vec = Global.GLevelItem.wayPoint[param].pos;
+            if (Global.Instance.GLevelItem != null && Global.Instance.GLevelItem.wayPoint.Count > param)
+                vec = Global.Instance.GLevelItem.wayPoint[param].pos;
         }
         else if (style == "char")
         {
@@ -1150,10 +1150,10 @@ public class LevelScriptBase:ScriptBase {
     //额外呼叫怪物脚本
     public virtual void OnStart()
     {
-        if (Global.GLevelItem != null && (!string.IsNullOrEmpty(Global.GLevelItem.StartScript)))
+        if (Global.Instance.GLevelItem != null && (!string.IsNullOrEmpty(Global.Instance.GLevelItem.StartScript)))
         {
             if (ScriptMng.ins != null)
-                ScriptMng.ins.CallFunc(Global.GLevelItem.StartScript);
+                ScriptMng.ins.CallFunc(Global.Instance.GLevelItem.StartScript);
         }
     }
 
@@ -7562,7 +7562,7 @@ public class LevelScript_sn22 : LevelScriptBase
             g_CharacterArena[characterid] = arena;
             MakeString(ref arenaname, "D_tpAD", arena + 1);
             Misc("transfer", characterid, arenaname);
-            if (Global.GLevelMode == LevelMode.Teach)
+            if (Global.Instance.GLevelMode == LevelMode.Teach)
                 U3D.OnResumeAI();
             Output("transfer", characterid, "to", arena);
         }
@@ -7579,7 +7579,7 @@ public class LevelScript_sn22 : LevelScriptBase
             g_CharacterArena[characterid] = -1;
             MakeString(ref arenaname, "D_tpAD", arena + 9);
             Misc("transfer", characterid, arenaname);
-            if (Global.GLevelMode == LevelMode.Teach)
+            if (Global.Instance.GLevelMode == LevelMode.Teach)
                 U3D.OnPauseAI();
             Output("transfer", characterid, "from", arena);
         }
@@ -8585,7 +8585,7 @@ public class LevelScript_sn31 : LevelScript_sn22
     public override int GetPlayerMaxHp() { return PlayerHP; }
     public override bool OnPlayerSpawn(MeteorUnit unit)
     {
-        Vector3 vec = Global.GLevelSpawn[14];
+        Vector3 vec = Global.Instance.GLevelSpawn[14];
         vec.x += 350;
         vec.x += 65;
         vec.y = unit.transform.position.y;
@@ -8613,7 +8613,7 @@ public class LevelScript_sn31 : LevelScript_sn22
             AddNPC(s);
         }
         AddNPC("npc31_13");
-        Vector3 vec = Global.GLevelSpawn[14];
+        Vector3 vec = Global.Instance.GLevelSpawn[14];
         vec.x += 375;
         U3D.MoveNpc("高寄萍", vec);
         U3D.RotateNpc("高寄萍", -90);

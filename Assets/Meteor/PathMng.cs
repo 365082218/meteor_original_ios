@@ -51,11 +51,11 @@ public class PathMng:Singleton<PathMng>
 
     public WalkType GetWalkMethod(int start, int end)
     {
-        if (Global.GLevelItem.wayPoint.Count > start && Global.GLevelItem.wayPoint.Count > end)
+        if (Global.Instance.GLevelItem.wayPoint.Count > start && Global.Instance.GLevelItem.wayPoint.Count > end)
         {
-            if (Global.GLevelItem.wayPoint[start].link.ContainsKey(end))
+            if (Global.Instance.GLevelItem.wayPoint[start].link.ContainsKey(end))
             {
-                return (WalkType)Global.GLevelItem.wayPoint[start].link[end].mode;
+                return (WalkType)Global.Instance.GLevelItem.wayPoint[start].link[end].mode;
             }
             //else
             //    Debug.LogError(string.Format("{0}-{1} can not link", start, end));
@@ -83,23 +83,23 @@ public class PathMng:Singleton<PathMng>
             return;
         if (start == end)
         {
-            wp.Add(Global.GLevelItem.wayPoint[start]);
+            wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
             return;
         }
 
-        if (Global.GLevelItem.DisableFindWay == 1)
+        if (Global.Instance.GLevelItem.DisableFindWay == 1)
         {
             List<WayPoint> direct = new List<WayPoint>();
-            wp.Add(Global.GLevelItem.wayPoint[start]);
-            wp.Add(Global.GLevelItem.wayPoint[end]);
+            wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
+            wp.Add(Global.Instance.GLevelItem.wayPoint[end]);
             return;
         }
 
         //从开始点，跑到最终点，最短线路？
-        if (Global.GLevelItem.wayPoint[start].link.ContainsKey(end))
+        if (Global.Instance.GLevelItem.wayPoint[start].link.ContainsKey(end))
         {
-            wp.Add(Global.GLevelItem.wayPoint[start]);
-            wp.Add(Global.GLevelItem.wayPoint[end]);
+            wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
+            wp.Add(Global.Instance.GLevelItem.wayPoint[end]);
             return;
         }
         else
@@ -157,9 +157,9 @@ public class PathMng:Singleton<PathMng>
                             {
                                 find = true;
                                 if (wp.Count == 0)
-                                    wp.Add(Global.GLevelItem.wayPoint[target]);
+                                    wp.Add(Global.Instance.GLevelItem.wayPoint[target]);
                                 else
-                                    wp.Insert(0, Global.GLevelItem.wayPoint[target]);
+                                    wp.Insert(0, Global.Instance.GLevelItem.wayPoint[target]);
                                 while (each.Value[i].parent != start)
                                 {
                                     target = each.Value[i].parent;
@@ -179,16 +179,16 @@ public class PathMng:Singleton<PathMng>
                     {
                         Debug.LogError(string.Format("孤立的寻路点:{0},没有点可以走向他", target));
                         if (wp.Count == 0)
-                            wp.Add(Global.GLevelItem.wayPoint[target]);
+                            wp.Add(Global.Instance.GLevelItem.wayPoint[target]);
                         else
-                            wp.Insert(0, Global.GLevelItem.wayPoint[target]);
+                            wp.Insert(0, Global.Instance.GLevelItem.wayPoint[target]);
                         break;
                     }
 
                     if (goOut)
                         break;
                 }
-                wp.Insert(0, Global.GLevelItem.wayPoint[start]);
+                wp.Insert(0, Global.Instance.GLevelItem.wayPoint[start]);
             }
         }
     }
@@ -204,23 +204,23 @@ public class PathMng:Singleton<PathMng>
             return;
         if (start == end)
         {
-            wp.Add(Global.GLevelItem.wayPoint[start]);
+            wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
             return;
         }
 
-        if (Global.GLevelItem.DisableFindWay == 1)
+        if (Global.Instance.GLevelItem.DisableFindWay == 1)
         {
             List<WayPoint> direct = new List<WayPoint>();
-            wp.Add(Global.GLevelItem.wayPoint[start]);
-            wp.Add(Global.GLevelItem.wayPoint[end]);
+            wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
+            wp.Add(Global.Instance.GLevelItem.wayPoint[end]);
             return;
         }
 
         //从开始点，跑到最终点，最短线路？
-        if (Global.GLevelItem.wayPoint[start].link.ContainsKey(end))
+        if (Global.Instance.GLevelItem.wayPoint[start].link.ContainsKey(end))
         {
-            wp.Add(Global.GLevelItem.wayPoint[start]);
-            wp.Add(Global.GLevelItem.wayPoint[end]);
+            wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
+            wp.Add(Global.Instance.GLevelItem.wayPoint[end]);
             return;
         }
         else
@@ -278,9 +278,9 @@ public class PathMng:Singleton<PathMng>
                             {
                                 find = true;
                                 if (wp.Count == 0)
-                                    wp.Add(Global.GLevelItem.wayPoint[target]);
+                                    wp.Add(Global.Instance.GLevelItem.wayPoint[target]);
                                 else
-                                    wp.Insert(0, Global.GLevelItem.wayPoint[target]);
+                                    wp.Insert(0, Global.Instance.GLevelItem.wayPoint[target]);
                                 while (each.Value[i].parent != start)
                                 {
                                     target = each.Value[i].parent;
@@ -300,16 +300,16 @@ public class PathMng:Singleton<PathMng>
                     {
                         Debug.LogError(string.Format("孤立的寻路点:{0},没有点可以走向他", target));
                         if (wp.Count == 0)
-                            wp.Add(Global.GLevelItem.wayPoint[target]);
+                            wp.Add(Global.Instance.GLevelItem.wayPoint[target]);
                         else
-                            wp.Insert(0, Global.GLevelItem.wayPoint[target]);
+                            wp.Insert(0, Global.Instance.GLevelItem.wayPoint[target]);
                         break;
                     }
 
                     if (goOut)
                         break;
                 }
-                wp.Insert(0, Global.GLevelItem.wayPoint[start]);
+                wp.Insert(0, Global.Instance.GLevelItem.wayPoint[start]);
             }
         }
     }
@@ -357,7 +357,7 @@ public class PathMng:Singleton<PathMng>
 
     void CollectPathLayerForPet(PetController user, int start, int end, int layer = 1)
     {
-        Dictionary<int, WayLength> ways = Global.GLevelItem.wayPoint[start].link;
+        Dictionary<int, WayLength> ways = Global.Instance.GLevelItem.wayPoint[start].link;
         foreach (var each in ways)
         {
             if (!PathLayerExistForPet(user, each.Key))
@@ -392,7 +392,7 @@ public class PathMng:Singleton<PathMng>
     //收集从起点到终点经过的所有层级路点,一旦遇见最近层级的终点就结束，用于计算最短路径.
     void CollectPathLayer(MeteorUnit user, int start, int end, int layer = 1)
     {
-        Dictionary<int, WayLength> ways = Global.GLevelItem.wayPoint[start].link;
+        Dictionary<int, WayLength> ways = Global.Instance.GLevelItem.wayPoint[start].link;
         foreach (var each in ways)
         {
             if (!PathLayerExist(user, each.Key))
@@ -413,14 +413,14 @@ public class PathMng:Singleton<PathMng>
     public Vector3 GetNearestWayPoint(Vector3 vec, MeteorUnit target)
     {
         int start = GetWayIndex(vec, target);
-        if (Global.GLevelItem.wayPoint.Count > start && start >= 0)
+        if (Global.Instance.GLevelItem.wayPoint.Count > start && start >= 0)
         {
-            if (Global.GLevelItem.wayPoint[start].link != null)
+            if (Global.Instance.GLevelItem.wayPoint[start].link != null)
             {
-                List<int> ret = Global.GLevelItem.wayPoint[start].link.Keys.ToList();
+                List<int> ret = Global.Instance.GLevelItem.wayPoint[start].link.Keys.ToList();
                 int k = Random.Range(0, ret.Count);
                 if (ret.Count != 0)
-                    return Global.GLevelItem.wayPoint[ret[k]].pos;
+                    return Global.Instance.GLevelItem.wayPoint[ret[k]].pos;
             }
         }
         return Vector3.zero;
@@ -433,9 +433,9 @@ public class PathMng:Singleton<PathMng>
         CandidateList.Clear();
         int ret = -1;
         float min = 10000.0f;
-        for (int i = 0; i < Global.GLevelItem.wayPoint.Count; i++)
+        for (int i = 0; i < Global.Instance.GLevelItem.wayPoint.Count; i++)
         {
-            WayPoint way = Global.GLevelItem.wayPoint[i];
+            WayPoint way = Global.Instance.GLevelItem.wayPoint[i];
             Vector3 vecTarget = way.pos;
             Vector3 vecSource = now;
             float h = Mathf.Abs(vecTarget.y - now.y);
@@ -447,11 +447,11 @@ public class PathMng:Singleton<PathMng>
                 min = dis + h;
                 ret = i;
                 if (CandidateList.Count < 5)
-                    CandidateList.Add(Global.GLevelItem.wayPoint[ret]);
+                    CandidateList.Add(Global.Instance.GLevelItem.wayPoint[ret]);
                 else
                 {
                     CandidateList.RemoveAt(0);
-                    CandidateList.Add(Global.GLevelItem.wayPoint[ret]);
+                    CandidateList.Add(Global.Instance.GLevelItem.wayPoint[ret]);
                 }
             }
         }
@@ -464,7 +464,7 @@ public class PathMng:Singleton<PathMng>
             {
                 if (user.PassThrough(CandidateList[i].pos))
                 {
-                    return Global.GLevelItem.wayPoint.IndexOf(CandidateList[i]);
+                    return Global.Instance.GLevelItem.wayPoint.IndexOf(CandidateList[i]);
                 }
             }
         }

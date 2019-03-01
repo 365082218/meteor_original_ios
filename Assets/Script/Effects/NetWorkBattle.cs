@@ -222,7 +222,7 @@ public class NetWorkBattle : MonoBehaviour {
         //p.model = MeteorManager.Instance.LocalPlayer.Attr.Model;
         //p.name = MeteorManager.Instance.LocalPlayer.name;
 
-        if (unit.ShadowDelta < 0.95f && unit.ShadowUpdate && Global.useShadowInterpolate)
+        if (unit.ShadowDelta < 0.95f && unit.ShadowUpdate && Global.Instance.useShadowInterpolate)
         {
             //unit.ShadowDeltaRatio++;
             //Debug.Log("调整插值比:" + unit.ShadowDeltaRatio);
@@ -242,7 +242,7 @@ public class NetWorkBattle : MonoBehaviour {
         unit.ShadowDelta = 0.0f;
         unit.ShadowSynced = false;
         unit.ShadowUpdate = true;
-        if (!Global.useShadowInterpolate)
+        if (!Global.Instance.useShadowInterpolate)
         {
             unit.transform.position = unit.ShadowPosition;
             unit.transform.rotation = unit.ShadowRotation;
@@ -294,9 +294,9 @@ public class NetWorkBattle : MonoBehaviour {
     public void Load(List<SceneItem_> sceneItems, List<Player_> players)
     {
         Level lev = LevelMng.Instance.GetItem(LevelId);
-        Global.GLevelItem = lev;
-        Global.GLevelMode = LevelMode.MultiplyPlayer;
-        Global.GGameMode = GameMode.MENGZHU;//所有场景道具都不加载，这部分物件的属性需要同步.
+        Global.Instance.GLevelItem = lev;
+        Global.Instance.GLevelMode = LevelMode.MultiplyPlayer;
+        Global.Instance.GGameMode = GameMode.MENGZHU;//所有场景道具都不加载，这部分物件的属性需要同步.
         LoadingWnd.Instance.Open();
         StartCoroutine(LoadAsync(lev, sceneItems, players));
     }
@@ -331,7 +331,7 @@ public class NetWorkBattle : MonoBehaviour {
         Type type = Type.GetType(string.Format("LevelScript_{0}", sn));
         if (type == null)
             return null;
-        Global.GScriptType = type;
+        Global.Instance.GScriptType = type;
         return System.Activator.CreateInstance(type) as LevelScriptBase;
     }
 
@@ -345,7 +345,7 @@ public class NetWorkBattle : MonoBehaviour {
             return;
         }
 
-        Global.GScript = script;
+        Global.Instance.GScript = script;
         SceneMng.OnLoad();//
         //加载场景配置数据
         SceneMng.OnEnterNetLevel(sceneItems, lev.ID);//原版功能不加载其他存档数据.

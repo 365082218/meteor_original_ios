@@ -90,7 +90,7 @@ public class CameraFollow : MonoBehaviour {
     public bool Smooth = true;
     public void ForceUpdate()
     {
-        if (MeteorManager.Instance.LocalPlayer != null && !Global.PauseAll)
+        if (MeteorManager.Instance.LocalPlayer != null && !Global.Instance.PauseAll)
             CameraSmoothFollow(Smooth);
         else
         {
@@ -119,7 +119,7 @@ public class CameraFollow : MonoBehaviour {
 
     void LateUpdate()
     {
-        if (MeteorManager.Instance.LocalPlayer != null && !Global.PauseAll)
+        if (MeteorManager.Instance.LocalPlayer != null && !Global.Instance.PauseAll)
         {
             CameraSmoothFollow(Smooth);
         }

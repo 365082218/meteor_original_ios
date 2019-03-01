@@ -125,7 +125,7 @@ public class MeteorInput
 
     public void NetUpdate()
     {
-        if (!Global.PauseAll)
+        if (!Global.Instance.PauseAll)
         {
             if (!mOwner.controller.InputLocked)
             {
@@ -170,8 +170,8 @@ public class MeteorInput
         for (int idx = 0; idx < KeyStates.Length; idx++)
         {
             KeyState keyStatus = KeyStates[idx];
-            keyStatus.PressedTime += Global.TimeDelta();
-            keyStatus.ReleasedTime += Global.TimeDelta();
+            keyStatus.PressedTime += Global.Instance.TimeDelta();
+            keyStatus.ReleasedTime += Global.Instance.TimeDelta();
 
             //底下做的是与键盘同步，多输入设备会让其他设备的输出,被键盘状态刷新掉
             if (string.IsNullOrEmpty(keyStatus.AxisName))
@@ -2110,17 +2110,17 @@ public class MeteorController {
             posMng = mOwner.posMng;
             Input = new MeteorInput(mOwner, this);
             if (Owner.Attr.IsPlayer)
-                Global.GMeteorInput = Input;
+                Global.Instance.GMeteorInput = Input;
         }
     }
 
     //由NetWorkBattle驱动.按顺序来的.
     public void NetUpdate()
     {
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             return;
 
-        if (!Global.PauseAll)
+        if (!Global.Instance.PauseAll)
         {
             if (Owner.robot != null)
                 Owner.robot.Update();
@@ -2152,7 +2152,7 @@ public class MeteorController {
         if (Owner.charLoader.IsInStraight())
             return;
         //行为树处理.
-        if (GameBattleEx.Instance != null && !GameBattleEx.Instance.BattleFinished() && !Global.PauseAll)
+        if (GameBattleEx.Instance != null && !GameBattleEx.Instance.BattleFinished() && !Global.Instance.PauseAll)
             MeteorBehaviour.Instance.ProcessBehaviour(Owner);
         else
         {

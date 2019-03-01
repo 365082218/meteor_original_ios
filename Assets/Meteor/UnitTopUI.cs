@@ -16,7 +16,7 @@ public class UnitTopUI : MonoBehaviour {
 	
 	// Update is called once per frame
 	void LateUpdate () {
-        if (Global.PauseAll)
+        if (Global.Instance.PauseAll)
             return;
         if (owner == null)
             return;

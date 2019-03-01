@@ -21,7 +21,7 @@ public class ModelWnd:Window<ModelWnd>
 
     IEnumerator LoadModels()
     {
-        for (int i = 0; i < Global.CharacterMax; i++)
+        for (int i = 0; i < Global.Instance.CharacterMax; i++)
         {
             AddModel(i);
             yield return 0;
@@ -32,7 +32,7 @@ public class ModelWnd:Window<ModelWnd>
     {
         UIFunCtrl obj = (GameObject.Instantiate(Resources.Load("UIFuncItem")) as GameObject).GetComponent<UIFunCtrl>();
         obj.SetEvent(ChangeModel, Idx);
-        obj.SetText(Global.GetCharacter(Idx).Name);
+        obj.SetText(Global.Instance.GetCharacter(Idx).Name);
         obj.transform.SetParent(GridViewRoot.transform);
         obj.gameObject.layer = GridViewRoot.layer;
         obj.transform.localScale = Vector3.one;
@@ -210,7 +210,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
 
     void OnChangeSpeed(bool fast)
     {
-        if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             if (MeteorManager.Instance.LocalPlayer != null)
             {
@@ -225,7 +225,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
     void OnDisableCat(bool disable)
     {
         GameData.Instance.gameStatus.PetOn = disable;
-        if (GameData.Instance.gameStatus.PetOn && Global.GLevelItem.DisableFindWay == 0 && Global.GLevelItem != null && Global.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (GameData.Instance.gameStatus.PetOn && Global.Instance.GLevelItem.DisableFindWay == 0 && Global.Instance.GLevelItem != null && Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             U3D.InitPet();
         }
@@ -256,9 +256,9 @@ public class NewSystemWnd : Window<NewSystemWnd>
         GameData.Instance.gameStatus.DisableParticle = disable;
         if (disable)
         {
-            if (Global.GScript != null)
+            if (Global.Instance.GScript != null)
             {
-                Global.GScript.CleanSceneParticle();
+                Global.Instance.GScript.CleanSceneParticle();
             }
             
         }
@@ -432,8 +432,8 @@ public class NewSystemWnd : Window<NewSystemWnd>
 
     void OnSnow()
     {
-        if (Global.GScript != null)
-            Global.GScript.Snow();
+        if (Global.Instance.GScript != null)
+            Global.Instance.GScript.Snow();
     }
 
     void OnDoScript()
@@ -449,8 +449,8 @@ public class NewSystemWnd : Window<NewSystemWnd>
     void OnResetPosition()
     {
         //如果在PVP里，是不能这样的。PVP没有寻路，且使用的路点是场景des文件里的user01-user16等
-        if (MeteorManager.Instance.LocalPlayer != null && !MeteorManager.Instance.LocalPlayer.Dead && Global.GLevelItem != null)
-            MeteorManager.Instance.LocalPlayer.transform.position = Global.GLevelItem.wayPoint[0].pos;
+        if (MeteorManager.Instance.LocalPlayer != null && !MeteorManager.Instance.LocalPlayer.Dead && Global.Instance.GLevelItem != null)
+            MeteorManager.Instance.LocalPlayer.transform.position = Global.Instance.GLevelItem.wayPoint[0].pos;
     }
 
     void OnClickClose()
@@ -497,7 +497,7 @@ public class NewSystemWnd : Window<NewSystemWnd>
         if (GameOverlayWnd.Exist)
             GameOverlayWnd.Instance.ClearSystemMsg();
         //离开副本
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             ClientProxy.LeaveLevel();
         U3D.GoBack();
     }

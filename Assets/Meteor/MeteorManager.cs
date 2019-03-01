@@ -52,7 +52,7 @@ public class MeteorManager {
         ////让角色间无法穿透，待某个角色使出特殊技能时，关掉碰撞。
         //for (int i = 0; i < UnitInfos.Count; i++)
         //    UnitInfos[i].PhysicalIgnore(unit, false);
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             unit.InstanceId = playerId;
         else
         {

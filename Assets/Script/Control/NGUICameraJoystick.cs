@@ -62,7 +62,7 @@ public class NGUICameraJoystick : MonoBehaviour
     {
         //if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
         //    return;
-        if (Global.PauseAll)
+        if (Global.Instance.PauseAll)
             return;
         if (enabled && gameObject.activeSelf)
         {

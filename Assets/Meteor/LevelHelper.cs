@@ -73,30 +73,30 @@ public class LevelHelper : MonoBehaviour
         Type type = Type.GetType(string.Format("LevelScript_{0}", sn));
         if (type == null)
             return null;
-        Global.GScriptType = type;
+        Global.Instance.GScriptType = type;
         return System.Activator.CreateInstance(type) as LevelScriptBase;
     }
 
     void SpawnAllRobot()
     {
-        if (Global.GGameMode == GameMode.MENGZHU)
+        if (Global.Instance.GGameMode == GameMode.MENGZHU)
         {
-            for (int i = 1; i < Global.MaxPlayer; i++)
+            for (int i = 1; i < Global.Instance.MaxPlayer; i++)
             {
-                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), EUnitCamp.EUC_KILLALL, GameData.Instance.gameStatus.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.PlayerLife);
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), EUnitCamp.EUC_KILLALL, GameData.Instance.gameStatus.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.Instance.PlayerLife);
             }
         }
-        else if (Global.GGameMode == GameMode.ANSHA || Global.GGameMode == GameMode.SIDOU)
+        else if (Global.Instance.GGameMode == GameMode.ANSHA || Global.Instance.GGameMode == GameMode.SIDOU)
         {
-            int FriendCount = Global.MaxPlayer / 2 - 1;
+            int FriendCount = Global.Instance.MaxPlayer / 2 - 1;
             for (int i = 0; i < FriendCount; i++)
             {
-                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), MeteorManager.Instance.LocalPlayer.Camp, GameData.Instance.gameStatus.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.PlayerLife);
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), MeteorManager.Instance.LocalPlayer.Camp, GameData.Instance.gameStatus.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.Instance.PlayerLife);
             }
 
-            for (int i = FriendCount + 1; i < Global.MaxPlayer; i++)
+            for (int i = FriendCount + 1; i < Global.Instance.MaxPlayer; i++)
             {
-                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), U3D.GetAnotherCamp(MeteorManager.Instance.LocalPlayer.Camp), GameData.Instance.gameStatus.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.PlayerLife);
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), U3D.GetAnotherCamp(MeteorManager.Instance.LocalPlayer.Camp), GameData.Instance.gameStatus.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.Instance.PlayerLife);
             }
         }
     }
@@ -111,7 +111,7 @@ public class LevelHelper : MonoBehaviour
             return;
         }
 
-        Global.GScript = script;
+        Global.Instance.GScript = script;
         SceneMng.OnLoad();//
         //加载场景配置数据
         SceneMng.OnEnterLevel(script, lev.ID);//原版功能不加载其他存档数据.
@@ -125,7 +125,7 @@ public class LevelHelper : MonoBehaviour
         Startup.ins.playerListener = MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
        
         //创建房间模式的时候，创建随机NPC
-        if (Global.GLevelMode == LevelMode.CreateWorld)
+        if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
             SpawnAllRobot();
 
         //等脚本设置好物件的状态后，根据状态决定是否生成受击盒，攻击盒等.

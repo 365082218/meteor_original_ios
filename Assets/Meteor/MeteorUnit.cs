@@ -256,7 +256,7 @@ public class Buff: INetUpdate
     }
     public void Update()
     {
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             return;
         NetUpdate();
     }
@@ -318,16 +318,16 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
     public void SetPosition(int spawnPoint)
     {
         //禁止寻路，代表场景无路点.只能用来联机.
-        if (Global.GLevelItem.DisableFindWay == 1)
+        if (Global.Instance.GLevelItem.DisableFindWay == 1)
         {
             //不许寻路，无寻路点的关卡，使用
-            if (Global.GLevelSpawn != null && Global.GLevelSpawn.Length != 0)
-                transform.position = Global.GLevelSpawn[spawnPoint >= Global.GLevelSpawn.Length ? 0 : spawnPoint];
+            if (Global.Instance.GLevelSpawn != null && Global.Instance.GLevelSpawn.Length != 0)
+                transform.position = Global.Instance.GLevelSpawn[spawnPoint >= Global.Instance.GLevelSpawn.Length ? 0 : spawnPoint];
             return;
         }
-        if (spawnPoint >= Global.GLevelItem.wayPoint.Count)
+        if (spawnPoint >= Global.Instance.GLevelItem.wayPoint.Count)
             return;
-        transform.position = Global.GLevelItem.wayPoint[spawnPoint].pos;
+        transform.position = Global.Instance.GLevelItem.wayPoint[spawnPoint].pos;
     }
 
     public void AIPause(bool pause, float t = 0.0f)
@@ -344,7 +344,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
     Vector3 pos2 = Vector3.zero;
     public Vector3 mPos2d { get { pos2 = transform.position; pos2.y = 0; return pos2; } }
     public Vector3 mPos { get { return transform.position; } }
-    public Vector3 mSkeletonPivot { get { return transform.position + Global.BodyHeight; } }
+    public Vector3 mSkeletonPivot { get { return transform.position + Global.Instance.BodyHeight; } }
     public bool Crouching { get { return posMng.mActiveAction.Idx == CommonAction.Crouch || (posMng.mActiveAction.Idx >= CommonAction.CrouchForw && posMng.mActiveAction.Idx <= CommonAction.CrouchBack); } }
     public bool Climbing { get { return posMng.mActiveAction.Idx == CommonAction.ClimbLeft || posMng.mActiveAction.Idx == CommonAction.ClimbRight || posMng.mActiveAction.Idx == CommonAction.ClimbUp; } }
     public bool ClimbJumping { get { return posMng.mActiveAction.Idx == CommonAction.WallRightJump || posMng.mActiveAction.Idx == CommonAction.WallLeftJump; } }
@@ -774,7 +774,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
     {
         if (IsDebugUnit())
             return;
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             return;
         NetUpdate();
     }
@@ -954,7 +954,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
         //计算运动方向
         //角色forward指向人物背面
         //根据角色状态计算重力大小，在墙壁，空中，以及空中水平轴的阻力
-        float gScale = Global.gGravity;
+        float gScale = Global.Instance.gGravity;
         //跳跃起身与墙壁碰撞.重力模拟为墙壁摩擦
         //if (OnTouchWall)
         //{
@@ -971,7 +971,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
         v.y = IgnoreGravity ? 0 : ImpluseVec.y * Time.deltaTime;
         v.z = ImpluseVec.z * Time.deltaTime;
         v += charLoader.moveDelta;
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
             //联机避免抖动
             if (v != Vector3.zero)
@@ -1195,13 +1195,13 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
         IgnoreGravity = true;
         IgnorePhysical = false;
         name = Attr.Name;
-        if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
             gameObject.layer = Attr.IsPlayer ? LayerMask.NameToLayer("LocalPlayer") : LayerMask.NameToLayer("Monster");
         else
             gameObject.layer = LayerMask.NameToLayer("LocalPlayer");
 
         //单机模式下有ai
-        if (Global.GLevelMode <= LevelMode.CreateWorld)
+        if (Global.Instance.GLevelMode <= LevelMode.CreateWorld)
             robot = Attr.IsPlayer ? null : new MeteorAI(this);
         
         if (controller == null)
@@ -1916,7 +1916,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
 
     public float CalcVelocity(float h)
     {
-        float ret = Global.gGravity * Mathf.Sqrt(2 * h / Global.gGravity);
+        float ret = Global.Instance.gGravity * Mathf.Sqrt(2 * h / Global.Instance.gGravity);
         if (ret > yLimitMax)
             ret = yLimitMax;
         return ret;
@@ -1959,12 +1959,12 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
     SFXEffectPlay RebornEffect = null;
     public bool HasRebornTarget()
     {
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             return false;
         //创建房间-盟主-死斗-无法复活队友
-        if (Global.GLevelMode == LevelMode.CreateWorld)
+        if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
         {
-            if (Global.GGameMode == GameMode.MENGZHU || Global.GGameMode == GameMode.SIDOU)
+            if (Global.Instance.GGameMode == GameMode.MENGZHU || Global.Instance.GGameMode == GameMode.SIDOU)
                 return false;
         }
         RebornTarget = null;
@@ -1991,12 +1991,12 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
 
     public void SelectRebornTarget()
     {
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             return;
         //创建房间-盟主-死斗-无法复活队友
-        if (Global.GLevelMode == LevelMode.CreateWorld)
+        if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
         {
-            if (Global.GGameMode == GameMode.MENGZHU || Global.GGameMode == GameMode.SIDOU)
+            if (Global.Instance.GGameMode == GameMode.MENGZHU || Global.Instance.GGameMode == GameMode.SIDOU)
                 return;
         }
         RebornTarget = null;
@@ -2042,55 +2042,55 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
     //被复活.
     public void OnReborn(float max = 0.3f)
     {
-        if (Global.GLevelMode == LevelMode.CreateWorld)
+        if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
         {
-            if (Global.GGameMode == GameMode.MENGZHU)
+            if (Global.Instance.GGameMode == GameMode.MENGZHU)
             {
                 //16个点
-                transform.position = Global.GLevelSpawn[Global.SpawnIndex];
-                Global.SpawnIndex++;
-                Global.SpawnIndex %= 16;
+                transform.position = Global.Instance.GLevelSpawn[Global.Instance.SpawnIndex];
+                Global.Instance.SpawnIndex++;
+                Global.Instance.SpawnIndex %= 16;
             }
-            else if (Global.GGameMode == GameMode.ANSHA || Global.GGameMode == GameMode.SIDOU)
+            else if (Global.Instance.GGameMode == GameMode.ANSHA || Global.Instance.GGameMode == GameMode.SIDOU)
             {
                 //2个队伍8个点.
                 if (Camp == EUnitCamp.EUC_FRIEND)
                 {
-                    transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
-                    Global.CampASpawnIndex++;
-                    Global.CampASpawnIndex %= 8;
+                    transform.position = Global.Instance.GCampASpawn[Global.Instance.CampASpawnIndex];
+                    Global.Instance.CampASpawnIndex++;
+                    Global.Instance.CampASpawnIndex %= 8;
                 }
                 else if (Camp == EUnitCamp.EUC_ENEMY)
                 {
-                    transform.position = Global.GCampASpawn[Global.CampBSpawnIndex];
-                    Global.CampBSpawnIndex++;
-                    Global.CampBSpawnIndex %= 8;
+                    transform.position = Global.Instance.GCampASpawn[Global.Instance.CampBSpawnIndex];
+                    Global.Instance.CampBSpawnIndex++;
+                    Global.Instance.CampBSpawnIndex %= 8;
                 }
             }
         }
-        else if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+        else if (Global.Instance.GLevelMode == LevelMode.SinglePlayerTask)
         {
             //闪现到出生点
-            if (Global.GLevelItem.DisableFindWay != 1)
+            if (Global.Instance.GLevelItem.DisableFindWay != 1)
             {
-                if (Attr.SpawnPoint < Global.GLevelItem.wayPoint.Count)
-                    transform.position = Global.GLevelItem.wayPoint[Attr.SpawnPoint].pos;
+                if (Attr.SpawnPoint < Global.Instance.GLevelItem.wayPoint.Count)
+                    transform.position = Global.Instance.GLevelItem.wayPoint[Attr.SpawnPoint].pos;
                 else
-                    transform.position = Global.GLevelItem.wayPoint[0].pos;
+                    transform.position = Global.Instance.GLevelItem.wayPoint[0].pos;
             }
             else
             {
                 if (Camp == EUnitCamp.EUC_FRIEND)
                 {
-                    transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
-                    Global.CampASpawnIndex++;
-                    Global.CampASpawnIndex %= 8;
+                    transform.position = Global.Instance.GCampASpawn[Global.Instance.CampASpawnIndex];
+                    Global.Instance.CampASpawnIndex++;
+                    Global.Instance.CampASpawnIndex %= 8;
                 }
                 else if (Camp == EUnitCamp.EUC_ENEMY)
                 {
-                    transform.position = Global.GCampASpawn[Global.CampBSpawnIndex];
-                    Global.CampBSpawnIndex++;
-                    Global.CampBSpawnIndex %= 8;
+                    transform.position = Global.Instance.GCampASpawn[Global.Instance.CampBSpawnIndex];
+                    Global.Instance.CampBSpawnIndex++;
+                    Global.Instance.CampBSpawnIndex %= 8;
                 }
             }
         }
@@ -2138,7 +2138,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
 
             //盟主模式，玩家在几秒后会复活.
             //暗杀模式，需要队长去复活.
-            if (Global.GLevelMode == LevelMode.CreateWorld && (Global.GGameMode == GameMode.MENGZHU))
+            if (Global.Instance.GLevelMode == LevelMode.CreateWorld && (Global.Instance.GGameMode == GameMode.MENGZHU))
             {
                 RebornTick = 0;
                 WaitReborn = true;

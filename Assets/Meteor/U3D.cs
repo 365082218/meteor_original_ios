@@ -163,7 +163,7 @@ public class U3D : MonoBehaviour {
     static Dictionary<int, List<int>> weaponDict = new Dictionary<int, List<int>>();
     public static void SpawnRobot(int idx, EUnitCamp camp, int weaponIndex = 0, int hpMax = 1000)
     {
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
             U3D.PopupTip("联机无法添加机器人");
             return;
@@ -197,7 +197,7 @@ public class U3D : MonoBehaviour {
         mon.Weapon2 = weaponList[(k + 1) % weaponList.Count];
         mon.IsPlayer = false;
 
-        ModelInfo model = Global.GetCharacter(idx % Global.CharacterMax);
+        ModelInfo model = Global.Instance.GetCharacter(idx % Global.Instance.CharacterMax);
         mon.name = U3D.GetRandomName();
         GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
         GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
@@ -209,23 +209,23 @@ public class U3D : MonoBehaviour {
 
         if (camp == EUnitCamp.EUC_FRIEND)
         {
-            unit.transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
-            Global.CampASpawnIndex++;
-            Global.CampASpawnIndex %= 8;
+            unit.transform.position = Global.Instance.GCampASpawn[Global.Instance.CampASpawnIndex];
+            Global.Instance.CampASpawnIndex++;
+            Global.Instance.CampASpawnIndex %= 8;
             
         }
         else if (camp == EUnitCamp.EUC_ENEMY)
         {
-            unit.transform.position = Global.GCampBSpawn[Global.CampBSpawnIndex];
-            Global.CampBSpawnIndex++;
-            Global.CampBSpawnIndex %= 8;
+            unit.transform.position = Global.Instance.GCampBSpawn[Global.Instance.CampBSpawnIndex];
+            Global.Instance.CampBSpawnIndex++;
+            Global.Instance.CampBSpawnIndex %= 8;
         }
         else
         {
             //16个点
-            unit.transform.position = Global.GLevelSpawn[Global.SpawnIndex];
-            Global.SpawnIndex++;
-            Global.SpawnIndex %= 16;
+            unit.transform.position = Global.Instance.GLevelSpawn[Global.Instance.SpawnIndex];
+            Global.Instance.SpawnIndex++;
+            Global.Instance.SpawnIndex %= 16;
         }
         
         //InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
@@ -234,18 +234,18 @@ public class U3D : MonoBehaviour {
 
         unit.Attr.GetItem = 0;
         unit.Attr.View = 5000;//视野给大一点
-        if (Global.GGameMode == GameMode.MENGZHU)
+        if (Global.Instance.GGameMode == GameMode.MENGZHU)
         {
             
         }
-        else if (Global.GGameMode == GameMode.ANSHA)
+        else if (Global.Instance.GGameMode == GameMode.ANSHA)
         {
             if (unit.IsLeader)
                 U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "enemyvip" });
             else
                 U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "vip" });
         }
-        else if (Global.GGameMode == GameMode.SIDOU)
+        else if (Global.Instance.GGameMode == GameMode.SIDOU)
         {
             if (unit.IsLeader)
                 U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "enemyvip" });
@@ -259,10 +259,10 @@ public class U3D : MonoBehaviour {
 
     public static void ChangePlayerModel(int model)
     {
-        Global.PauseAll = true;
+        Global.Instance.PauseAll = true;
         MeteorManager.Instance.LocalPlayer.controller.InputLocked = true;
         MeteorManager.Instance.LocalPlayer.Init(model, MeteorManager.Instance.LocalPlayer.Attr, true);
-        Global.PauseAll = false;
+        Global.Instance.PauseAll = false;
         MeteorManager.Instance.LocalPlayer.controller.InputLocked = false;
     }
 
@@ -288,29 +288,29 @@ public class U3D : MonoBehaviour {
         unit.Init(mon.Model, mon);
         MeteorManager.Instance.OnGenerateUnit(unit, (int)player.id);
         unit.SetGround(false);
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
-            if (Global.GGameMode == GameMode.Normal)
+            if (Global.Instance.GGameMode == GameMode.Normal)
             {
-                unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                unit.transform.position = Global.Instance.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.Instance.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.Instance.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
                 unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
             }
-            else if (Global.GGameMode == GameMode.MENGZHU)
+            else if (Global.Instance.GGameMode == GameMode.MENGZHU)
             {
                 //16个点
-                unit.transform.position = Global.GLevelSpawn[mon.SpawnPoint];
+                unit.transform.position = Global.Instance.GLevelSpawn[mon.SpawnPoint];
                 unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
             }
-            else if (Global.GGameMode == GameMode.ANSHA || Global.GGameMode == GameMode.SIDOU)
+            else if (Global.Instance.GGameMode == GameMode.ANSHA || Global.Instance.GGameMode == GameMode.SIDOU)
             {
                 //2个队伍8个点.必须带阵营.
                 if (unit.Camp == EUnitCamp.EUC_FRIEND)
                 {
-                    unit.transform.position = Global.GCampASpawn[mon.SpawnPoint];
+                    unit.transform.position = Global.Instance.GCampASpawn[mon.SpawnPoint];
                 }
                 else if (unit.Camp == EUnitCamp.EUC_ENEMY)
                 {
-                    unit.transform.position = Global.GCampASpawn[mon.SpawnPoint];
+                    unit.transform.position = Global.Instance.GCampASpawn[mon.SpawnPoint];
                 }
             }
         }
@@ -347,9 +347,9 @@ public class U3D : MonoBehaviour {
         unit.Init(mon.Model, mon);
         MeteorManager.Instance.OnGenerateUnit(unit);
         unit.SetGround(false);
-        if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
         {
-            if (Global.GLevelItem.DisableFindWay == 1)
+            if (Global.Instance.GLevelItem.DisableFindWay == 1)
             {
                 //不许寻路，无寻路点的关卡，使用
                 bool setPosition = false;
@@ -357,55 +357,55 @@ public class U3D : MonoBehaviour {
                     setPosition = script.OnPlayerSpawn(unit);
                 if (!setPosition)
                 {
-                    unit.transform.position = Global.GLevelSpawn[mon.SpawnPoint >= Global.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
+                    unit.transform.position = Global.Instance.GLevelSpawn[mon.SpawnPoint >= Global.Instance.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
                 }
             }
             else
             {
-                if (Global.GLevelItem.wayPoint.Count == 0)
+                if (Global.Instance.GLevelItem.wayPoint.Count == 0)
                 {
-                    unit.transform.position = Global.GLevelSpawn[mon.SpawnPoint];
+                    unit.transform.position = Global.Instance.GLevelSpawn[mon.SpawnPoint];
                 }
                 else
-                    unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                    unit.transform.position = Global.Instance.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.Instance.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.Instance.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
             }
         }
-        else if (Global.GLevelMode > LevelMode.SinglePlayerTask && Global.GLevelMode <= LevelMode.MultiplyPlayer)
+        else if (Global.Instance.GLevelMode > LevelMode.SinglePlayerTask && Global.Instance.GLevelMode <= LevelMode.MultiplyPlayer)
         {
-            if (Global.GGameMode == GameMode.Normal)
+            if (Global.Instance.GGameMode == GameMode.Normal)
             {
-                if (Global.GLevelItem.DisableFindWay == 1)
+                if (Global.Instance.GLevelItem.DisableFindWay == 1)
                 {
                     //不许寻路，无寻路点的关卡，使用
-                    unit.transform.position = Global.GLevelSpawn[mon.SpawnPoint >= Global.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
+                    unit.transform.position = Global.Instance.GLevelSpawn[mon.SpawnPoint >= Global.Instance.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
                 }
                 else
                 {
-                    unit.transform.position = Global.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                    unit.transform.position = Global.Instance.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.Instance.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.Instance.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
                 }
             }
-            else if (Global.GGameMode == GameMode.MENGZHU)
+            else if (Global.Instance.GGameMode == GameMode.MENGZHU)
             {
                 //16个点
-                unit.transform.position = Global.GLevelSpawn[Global.SpawnIndex];
-                Global.SpawnIndex++;
-                Global.SpawnIndex %= 16;
+                unit.transform.position = Global.Instance.GLevelSpawn[Global.Instance.SpawnIndex];
+                Global.Instance.SpawnIndex++;
+                Global.Instance.SpawnIndex %= 16;
                 unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
             }
-            else if (Global.GGameMode == GameMode.ANSHA || Global.GGameMode == GameMode.SIDOU)
+            else if (Global.Instance.GGameMode == GameMode.ANSHA || Global.Instance.GGameMode == GameMode.SIDOU)
             {
                 //2个队伍8个点.
                 if (unit.Camp == EUnitCamp.EUC_FRIEND)
                 {
-                    unit.transform.position = Global.GCampASpawn[Global.CampASpawnIndex];
-                    Global.CampASpawnIndex++;
-                    Global.CampASpawnIndex %= 8;
+                    unit.transform.position = Global.Instance.GCampASpawn[Global.Instance.CampASpawnIndex];
+                    Global.Instance.CampASpawnIndex++;
+                    Global.Instance.CampASpawnIndex %= 8;
                 }
                 else if (unit.Camp == EUnitCamp.EUC_ENEMY)
                 {
-                    unit.transform.position = Global.GCampASpawn[Global.CampBSpawnIndex];
-                    Global.CampBSpawnIndex++;
-                    Global.CampBSpawnIndex %= 8;
+                    unit.transform.position = Global.Instance.GCampASpawn[Global.Instance.CampBSpawnIndex];
+                    Global.Instance.CampBSpawnIndex++;
+                    Global.Instance.CampBSpawnIndex %= 8;
                 }
             }
         }
@@ -584,7 +584,7 @@ public class U3D : MonoBehaviour {
     //返回到主目录
     public static void GoBack(Action t = null)
     {
-        Global.GLevelItem = null;
+        Global.Instance.GLevelItem = null;
         if (loadMain != null)
         {
             ins.StopCoroutine(loadMain);
@@ -596,7 +596,7 @@ public class U3D : MonoBehaviour {
     //修改版本号后回到Startup重新加载资源
     public static void ReStart()
     {
-        Global.GLevelItem = null;
+        Global.Instance.GLevelItem = null;
         if (loadMain != null)
         {
             ins.StopCoroutine(loadMain);
@@ -718,7 +718,7 @@ public class U3D : MonoBehaviour {
 
     public static void OpenSystemWnd()
     {
-        if (Global.GLevelItem != null)
+        if (Global.Instance.GLevelItem != null)
         {
             NewSystemWnd.Instance.DoModal();
             if (NGUIJoystick.instance != null)
@@ -916,9 +916,9 @@ public class U3D : MonoBehaviour {
         ClearLevelData();
         Log.Write("ClearLevelData");
         Level lev = LevelMng.Instance.GetItem(id);
-        Global.GLevelItem = lev;
-        Global.GLevelMode = levelmode;
-        Global.GGameMode = gamemode;
+        Global.Instance.GLevelItem = lev;
+        Global.Instance.GLevelMode = levelmode;
+        Global.Instance.GGameMode = gamemode;
         Log.Write("Global.GLevelItem = lev;");
         LoadingWnd.Instance.Open();
         Log.Write("LoadingWnd.Instance.Open();");
@@ -950,8 +950,8 @@ public class U3D : MonoBehaviour {
         BuffMng.Instance.Clear();
         MeteorManager.Instance.Clear();
         LevelScriptBase.Clear();
-        Global.CampASpawnIndex = 0;
-        Global.CampBSpawnIndex = 0;
+        Global.Instance.CampASpawnIndex = 0;
+        Global.Instance.CampBSpawnIndex = 0;
 #if !STRIP_DBG_SETTING
         WSDebug.Ins.Clear();
 #endif
@@ -1309,7 +1309,7 @@ public class U3D : MonoBehaviour {
             {
                 //乱跑.可能是一段时间在主角附近找一个4层路点，然后跑到该路点去，到达之后，重复重复再重复.
                 MeteorUnit un = GetUnit(id);
-                Debug.Log(string.Format("level:{0} player:{1} run", Global.GLevelItem.ID, un.name));
+                Debug.Log(string.Format("level:{0} player:{1} run", Global.Instance.GLevelItem.ID, un.name));
             }
         }
     }
@@ -1562,7 +1562,7 @@ public class U3D : MonoBehaviour {
     //获得2个角色的距离.
     public static float Distance(int idx1, int idx2)
     {
-        if (Global.GLevelItem != null && Global.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Global.Instance.GLevelItem != null && Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             MeteorUnit a = GetUnit(idx1);
             MeteorUnit b = GetUnit(idx2);
@@ -1581,7 +1581,7 @@ public class U3D : MonoBehaviour {
     //单机下
     public static void RotateNpc(string name, float yRotate)
     {
-        if (Global.GLevelItem != null && Global.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Global.Instance.GLevelItem != null && Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             int id = GetChar(name);
             if (id != -1)
@@ -1595,7 +1595,7 @@ public class U3D : MonoBehaviour {
 
     public static void MoveNpc(string name, Vector3 position)
     {
-        if (Global.GLevelItem != null && Global.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Global.Instance.GLevelItem != null && Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             int id = GetChar(name);
             if (id != -1)
@@ -1609,7 +1609,7 @@ public class U3D : MonoBehaviour {
 
     public static void MoveNpc(string name, int spawnPoint)
     {
-        if (Global.GLevelItem != null && Global.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Global.Instance.GLevelItem != null && Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             int id = GetChar(name);
             if (id != -1)
@@ -1802,7 +1802,7 @@ public class U3D : MonoBehaviour {
 
     public static void UnlockLevel()
     {
-        GameData.Instance.gameStatus.Level = Global.LEVELMAX;
+        GameData.Instance.gameStatus.Level = Global.Instance.LEVELMAX;
     }
 
     public static bool IsUnitDead(int instanceid)

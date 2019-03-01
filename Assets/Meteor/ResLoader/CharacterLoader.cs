@@ -720,13 +720,13 @@ public class CharacterLoader
                     PoseStraight -= Time.deltaTime;
 
                 float speedScale = owner.ActionSpeed * GetSpeedScale();
-                float fps = Global.FPS / speedScale;
+                float fps = Global.Instance.FPS / speedScale;
                 while (lastFramePlayedTimes >= fps)
                 {
                     PlayNextKeyFrame();
                     lastFramePlayedTimes -= fps;
                     speedScale = GetSpeedScale();
-                    fps = Global.FPS / speedScale;
+                    fps = Global.Instance.FPS / speedScale;
                 }
 
                 if (lastFramePlayedTimes < fps && lastFramePlayedTimes > 0)
@@ -884,7 +884,7 @@ public class CharacterLoader
                     break;
                 }
             }
-            frameCost += Global.FPS / speedScale ;
+            frameCost += Global.Instance.FPS / speedScale ;
         }
         return frameCost;
     }

@@ -23,7 +23,7 @@ public class Patch : MonoBehaviour {
         //清理数据
         ResMng.Reload();
         StartCoroutine(LoadData());
-        Global.Init();//加载全局表.
+        Global.Instance.Init();//加载全局表.
         SoundManager.Instance.SetMusicVolume(GameData.Instance.gameStatus.MusicVolume);
         SoundManager.Instance.SetSoundVolume(GameData.Instance.gameStatus.SoundVolume);
     }

@@ -75,13 +75,13 @@ public partial class GameBattleEx : MonoBehaviour {
         if (Result != -10)
             return;
 
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
             //等待服务器再开一局.逻辑先不处理.
             return;
         }
 
-        Global.PauseAll = true;
+        Global.Instance.PauseAll = true;
         ShowWayPoint(false);
         MeteorManager.Instance.LocalPlayer.controller.LockInput(true);
         GameObject.Destroy(Startup.ins.playerListener);
@@ -107,7 +107,7 @@ public partial class GameBattleEx : MonoBehaviour {
         if (NGUIJoystick.instance)
             NGUIJoystick.instance.Lock(true);
         //如果胜利，且不是最后一关，打开最新关标志.
-        if (result == 1 && (Global.GLevelItem.FuBenID == GameData.Instance.gameStatus.Level) && Global.GLevelItem.FuBenID < Global.LEVELMAX)
+        if (result == 1 && (Global.Instance.GLevelItem.FuBenID == GameData.Instance.gameStatus.Level) && Global.Instance.GLevelItem.FuBenID < Global.Instance.LEVELMAX)
         {
             GameData.Instance.gameStatus.Level++;
             GameData.Instance.SaveState();
@@ -147,7 +147,7 @@ public partial class GameBattleEx : MonoBehaviour {
     {
         while (true)
         {
-            if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
+            if (Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
             {
                 if (IsTimeup())
                 {
@@ -189,10 +189,10 @@ public partial class GameBattleEx : MonoBehaviour {
         {
             UpdateHandler[i].Invoke();
         }
-        if (Global.PauseAll)
+        if (Global.Instance.PauseAll)
             return;
 
-        if (Global.GLevelMode <= LevelMode.CreateWorld)
+        if (Global.Instance.GLevelMode <= LevelMode.CreateWorld)
         {
             timeClock += Time.deltaTime;
             if (timeClock > (float)time)//时间超过，平局
@@ -203,7 +203,7 @@ public partial class GameBattleEx : MonoBehaviour {
         }
 
         //检查盟主模式下的死亡单位，令其复活
-        if (Global.GGameMode == GameMode.MENGZHU)
+        if (Global.Instance.GGameMode == GameMode.MENGZHU)
         {
             MeteorManager.Instance.DeadUnitsClone.Clear();
             for (int i = 0; i < MeteorManager.Instance.DeadUnits.Count; i++)
@@ -246,7 +246,7 @@ public partial class GameBattleEx : MonoBehaviour {
             UnitActKeyDeleted.Clear();
         }
 
-        if (lev_script != null && Global.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (lev_script != null && Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             if (timeDelay >= 1.0f)
             {
@@ -264,7 +264,7 @@ public partial class GameBattleEx : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             return;
         NetUpdate();
     }
@@ -426,20 +426,20 @@ public partial class GameBattleEx : MonoBehaviour {
     int EventDeath = 202;
     public void Init(Level lev, LevelScriptBase script)
     {
-        Scene_OnCharacterEvent = Global.GScriptType.GetMethod("Scene_OnCharacterEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        Scene_OnCharacterEvent = Global.Instance.GScriptType.GetMethod("Scene_OnCharacterEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         if (Scene_OnCharacterEvent == null)
         {
-            System.Type typeParent = Global.GScriptType.BaseType;
+            System.Type typeParent = Global.Instance.GScriptType.BaseType;
             while (Scene_OnCharacterEvent == null && typeParent != null)
             {
                 Scene_OnCharacterEvent = typeParent.GetMethod("Scene_OnCharacterEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
                 typeParent = typeParent.BaseType;
             }
         }
-        Scene_OnEvent = Global.GScriptType.GetMethod("Scene_OnEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        Scene_OnEvent = Global.Instance.GScriptType.GetMethod("Scene_OnEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         if (Scene_OnEvent == null)
         {
-            System.Type typeParent = Global.GScriptType.BaseType;
+            System.Type typeParent = Global.Instance.GScriptType.BaseType;
             while (Scene_OnEvent == null && typeParent != null)
             {
                 Scene_OnEvent = typeParent.GetMethod("Scene_OnEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
@@ -452,10 +452,10 @@ public partial class GameBattleEx : MonoBehaviour {
         //updateFn = ScriptMng.ins.GetFunc("OnUpdate");
         if (script != null)
         {
-            if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
+            if (Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
                 time = script.GetRoundTime() * 60;
-            else if (Global.GLevelMode == LevelMode.CreateWorld)
-                time = Global.RoundTime * 60;
+            else if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
+                time = Global.Instance.RoundTime * 60;
             else
                 time = 30 * 60;
         }
@@ -478,7 +478,7 @@ public partial class GameBattleEx : MonoBehaviour {
             RegisterCollision(sceneObjs[i]);
         }
 
-        if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             if (lev_script != null)
                 lev_script.OnStart();
@@ -494,7 +494,7 @@ public partial class GameBattleEx : MonoBehaviour {
 
     void CheckGameMode()
     {
-        if (Global.GGameMode == GameMode.ANSHA)
+        if (Global.Instance.GGameMode == GameMode.ANSHA)
         {
             MeteorUnit uEnemy = U3D.GetTeamLeader(EUnitCamp.EUC_ENEMY);
             SFXLoader.Instance.PlayEffect("vipblue.ef", MeteorManager.Instance.LocalPlayer.gameObject, false);
@@ -789,7 +789,7 @@ public partial class GameBattleEx : MonoBehaviour {
     public string GetTimeClock()
     {
         //600 = 10:00
-        if (Global.GLevelMode <= LevelMode.CreateWorld)
+        if (Global.Instance.GLevelMode <= LevelMode.CreateWorld)
         {
             int left = time - Mathf.FloorToInt(timeClock);
             if (left < 0)
@@ -800,7 +800,7 @@ public partial class GameBattleEx : MonoBehaviour {
             t = string.Format("{0:D2}:{1:D2}", minute, seconds);
             return t;
         }
-        else if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        else if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
             int left = Mathf.FloorToInt(NetWorkBattle.Ins.gameTime / 1000);
             if (left < 0)
@@ -832,14 +832,14 @@ public partial class GameBattleEx : MonoBehaviour {
             NGUICameraJoystick.instance.Lock(true);
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
             MeteorManager.Instance.UnitInfos[i].EnableAI(false);
-        Global.PauseAll = true;
+        Global.Instance.PauseAll = true;
     }
 
     //全部AI暂停，游戏时间停止，任何依据时间做动画的物件，全部要停止.
     public void Pause()
     {
         //联机时不许暂停
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             return;
 
         NetPause();
@@ -857,7 +857,7 @@ public partial class GameBattleEx : MonoBehaviour {
             NGUICameraJoystick.instance.Lock(false);
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
             MeteorManager.Instance.UnitInfos[i].EnableAI(true);
-        Global.PauseAll = false;
+        Global.Instance.PauseAll = false;
     }
 
     public MeteorUnit lockedTarget;
@@ -1061,7 +1061,7 @@ public partial class GameBattleEx : MonoBehaviour {
     public void OnUnitDead(MeteorUnit unit, MeteorUnit killer = null)
     {
         if (Scene_OnCharacterEvent != null)
-            Scene_OnCharacterEvent.Invoke(Global.GScript, new object[] { unit.InstanceId, EventDeath });
+            Scene_OnCharacterEvent.Invoke(Global.Instance.GScript, new object[] { unit.InstanceId, EventDeath });
         //无阵营的角色,杀死人，不统计信息
         if (killer != null)
         {
@@ -1098,19 +1098,19 @@ public partial class GameBattleEx : MonoBehaviour {
         if (unit == MeteorManager.Instance.LocalPlayer)
         {
             //如果是
-            if (Global.GLevelMode == LevelMode.CreateWorld)
+            if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
             {
-                if (Global.GGameMode == GameMode.MENGZHU)
+                if (Global.Instance.GGameMode == GameMode.MENGZHU)
                 {
                     //等一段时间后复活.
                 }
-                else if (Global.GGameMode == GameMode.ANSHA)
+                else if (Global.Instance.GGameMode == GameMode.ANSHA)
                 {
                     //检查是否是队长
                     if (unit.IsLeader)
                         GameOver(0);
                 }
-                else if (Global.GGameMode == GameMode.SIDOU)
+                else if (Global.Instance.GGameMode == GameMode.SIDOU)
                 {
                     //检查双方是否有一边全部战败
                     if (U3D.AllEnemyDead())
@@ -1150,35 +1150,35 @@ public partial class GameBattleEx : MonoBehaviour {
             }
             if (unit == lockedTarget)
                 Unlock();
-            if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+            if (Global.Instance.GLevelMode == LevelMode.SinglePlayerTask)
             {
                 //检测关卡通关或者失败条件。
-                if (Global.GLevelItem.Pass == 1)//敌方阵营全死
+                if (Global.Instance.GLevelItem.Pass == 1)//敌方阵营全死
                 {
                     int totalEnemy = U3D.GetEnemyCount();
                     if (totalEnemy == 0)
                         GameOver(1);
                 }
-                else if (Global.GLevelItem.Pass == 2)//敌方指定脚本角色死亡
+                else if (Global.Instance.GLevelItem.Pass == 2)//敌方指定脚本角色死亡
                 {
-                    if (unit.Attr.NpcTemplate == Global.GLevelItem.Param)
+                    if (unit.Attr.NpcTemplate == Global.Instance.GLevelItem.Param)
                         GameOver(1);
                 }
             }
             //如果是
-            else if (Global.GLevelMode == LevelMode.CreateWorld)
+            else if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
             {
-                if (Global.GGameMode == GameMode.MENGZHU)
+                if (Global.Instance.GGameMode == GameMode.MENGZHU)
                 {
                     //等一段时间后复活.
                 }
-                else if (Global.GGameMode == GameMode.ANSHA)
+                else if (Global.Instance.GGameMode == GameMode.ANSHA)
                 {
                     //检查是否是队长
                     if (unit.IsLeader)
                         GameOver(1);
                 }
-                else if (Global.GGameMode == GameMode.SIDOU)
+                else if (Global.Instance.GGameMode == GameMode.SIDOU)
                 {
                     //检查双方是否有一边全部战败
                     if (U3D.AllEnemyDead())
@@ -1400,24 +1400,24 @@ public partial class GameBattleEx : MonoBehaviour {
         {
             if (wayArrowList.Count != 0 || wayPointList.Count != 0)
                 return;
-            for (int i = 0; i < Global.GLevelItem.wayPoint.Count; i++)
+            for (int i = 0; i < Global.Instance.GLevelItem.wayPoint.Count; i++)
             {
-                GameObject obj = WsGlobal.AddDebugLine(Global.GLevelItem.wayPoint[i].pos - 2 * Vector3.up, Global.GLevelItem.wayPoint[i].pos + 2 * Vector3.up, Color.red, "WayPoint" + i, float.MaxValue, true);
+                GameObject obj = WsGlobal.AddDebugLine(Global.Instance.GLevelItem.wayPoint[i].pos - 2 * Vector3.up, Global.Instance.GLevelItem.wayPoint[i].pos + 2 * Vector3.up, Color.red, "WayPoint" + i, float.MaxValue, true);
                 wayPointList.Add(obj);
                 //BoxCollider capsule = obj.AddComponent<BoxCollider>();
                 //capsule.isTrigger = true;
                 //capsule.size = Vector3.one * (Global.GLevelItem.wayPoint[i].size) * 10;
                 //capsule.center = Vector3.zero;
-                obj.name = string.Format("WayPoint{0}", Global.GLevelItem.wayPoint[i].index);
+                obj.name = string.Format("WayPoint{0}", Global.Instance.GLevelItem.wayPoint[i].index);
 
-                foreach (var each in  Global.GLevelItem.wayPoint[i].link)
+                foreach (var each in  Global.Instance.GLevelItem.wayPoint[i].link)
                 {
                     GameObject objArrow = GameObject.Instantiate(Resources.Load("PathArrow")) as GameObject;
-                    objArrow.transform.position = Global.GLevelItem.wayPoint[i].pos;
-                    Vector3 vec = Global.GLevelItem.wayPoint[each.Key].pos - Global.GLevelItem.wayPoint[i].pos;
+                    objArrow.transform.position = Global.Instance.GLevelItem.wayPoint[i].pos;
+                    Vector3 vec = Global.Instance.GLevelItem.wayPoint[each.Key].pos - Global.Instance.GLevelItem.wayPoint[i].pos;
                     objArrow.transform.forward = vec.normalized;
                     objArrow.transform.localScale = new Vector3(30, 30, vec.magnitude / 2.2f);
-                    objArrow.name = string.Format("Way{0}->Way{1}", Global.GLevelItem.wayPoint[each.Key].index, Global.GLevelItem.wayPoint[i].index);
+                    objArrow.name = string.Format("Way{0}->Way{1}", Global.Instance.GLevelItem.wayPoint[each.Key].index, Global.Instance.GLevelItem.wayPoint[i].index);
                     wayArrowList.Add(objArrow);
                 }
             }
@@ -1429,7 +1429,7 @@ public partial class GameBattleEx : MonoBehaviour {
     public void OnSceneEvent(SceneEvent evt, int unit, GameObject trigger)
     {
         if (Scene_OnEvent != null)
-            Scene_OnEvent.Invoke(Global.GScript, new object[] { trigger, unit, (int)evt});
+            Scene_OnEvent.Invoke(Global.Instance.GScript, new object[] { trigger, unit, (int)evt});
     }
 }
 

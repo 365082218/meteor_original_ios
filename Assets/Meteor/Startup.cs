@@ -42,7 +42,7 @@ public class Startup : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        if (GameBattleEx.Instance != null && !GameBattleEx.Instance.BattleFinished() && Global.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (GameBattleEx.Instance != null && !GameBattleEx.Instance.BattleFinished() && Global.Instance.GLevelMode <= LevelMode.CreateWorld)
         {
             if (Input.GetKeyUp(KeyCode.Escape))
             {
@@ -78,7 +78,7 @@ public class Startup : MonoBehaviour {
     {
         MeteorManager.Instance.Clear();
         FightWnd.Instance.Close();
-        if (Global.GLevelMode == LevelMode.Teach || Global.GLevelMode == LevelMode.CreateWorld)
+        if (Global.Instance.GLevelMode == LevelMode.Teach || Global.Instance.GLevelMode == LevelMode.CreateWorld)
             U3D.GoBack(() => { MainWnd.Instance.Open(); });
         else
             U3D.GoBack(() => { MainMenu.Instance.Open(); });

@@ -58,7 +58,7 @@ public class CameraFree : MonoBehaviour {
     public bool Smooth = true;
     public void ForceUpdate()
     {
-        if (Target != null && !Global.PauseAll)
+        if (Target != null && !Global.Instance.PauseAll)
             CameraSmoothFollow(Smooth);
     }
 
@@ -71,7 +71,7 @@ public class CameraFree : MonoBehaviour {
                 RefreshTarget();
             }
         }
-        if (Target != null && !Global.PauseAll)
+        if (Target != null && !Global.Instance.PauseAll)
         {
             CameraSmoothFollow(Smooth);
         }

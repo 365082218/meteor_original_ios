@@ -80,15 +80,15 @@ public class NGUIJoystick : MonoBehaviour
             target = transform;
         direction = 140.0f / UIHelper.WorldToScreenModify;
         reactiveRange = direction * 0.8f;
-        wKey.OnPress.AddListener(() => { Global.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyW); JoyCollider.enabled = false; });
-        sKey.OnPress.AddListener(() => { Global.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyS); JoyCollider.enabled = false; });
-        aKey.OnPress.AddListener(() => { Global.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyA); JoyCollider.enabled = false; });
-        dKey.OnPress.AddListener(() => { Global.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyD); JoyCollider.enabled = false; });
+        wKey.OnPress.AddListener(() => { Global.Instance.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyW); JoyCollider.enabled = false; });
+        sKey.OnPress.AddListener(() => { Global.Instance.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyS); JoyCollider.enabled = false; });
+        aKey.OnPress.AddListener(() => { Global.Instance.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyA); JoyCollider.enabled = false; });
+        dKey.OnPress.AddListener(() => { Global.Instance.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyD); JoyCollider.enabled = false; });
 
-        wKey.OnRelease.AddListener(() => { Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW); if (!GameData.Instance.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
-        sKey.OnRelease.AddListener(() => { Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS); if (!GameData.Instance.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
-        aKey.OnRelease.AddListener(() => { Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA); if (!GameData.Instance.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
-        dKey.OnRelease.AddListener(() => { Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD); if (!GameData.Instance.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
+        wKey.OnRelease.AddListener(() => { Global.Instance.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW); if (!GameData.Instance.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
+        sKey.OnRelease.AddListener(() => { Global.Instance.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS); if (!GameData.Instance.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
+        aKey.OnRelease.AddListener(() => { Global.Instance.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA); if (!GameData.Instance.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
+        dKey.OnRelease.AddListener(() => { Global.Instance.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD); if (!GameData.Instance.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
 
         //if (wKey != null)
         //    wKey.SetKeyActive(false);
@@ -211,12 +211,12 @@ public class NGUIJoystick : MonoBehaviour
         //sKey.SetKeyActive(false);
         //aKey.SetKeyActive(false);
         //dKey.SetKeyActive(false);
-        if (Global.GMeteorInput != null)
+        if (Global.Instance.GMeteorInput != null)
         {
-            Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW);
-            Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS);
-            Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA);
-            Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD);
+            Global.Instance.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW);
+            Global.Instance.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS);
+            Global.Instance.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA);
+            Global.Instance.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD);
         }
     }
 
@@ -420,8 +420,8 @@ public class NGUIJoystick : MonoBehaviour
         JoyCollider.radius = 55;
         target.localPosition = Vector3.zero;
         background.gameObject.SetActive(false);
-        if (Global.GMeteorInput != null)
-            Global.GMeteorInput.ResetJoy();
+        if (Global.Instance.GMeteorInput != null)
+            Global.Instance.GMeteorInput.ResetJoy();
         mDelta = Vector2.zero;
         mLastFingerId = -2;
         mJoyPressed = false;

@@ -19,7 +19,7 @@ public class SkcMatMng : MonoBehaviour {
             TargetGroup = Player300;
 
         //普通关卡和盟主模式,只有1个阵营的皮肤
-        if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             if (camp == EUnitCamp.EUC_NONE || camp == EUnitCamp.EUC_KILLALL)
             {
@@ -43,9 +43,9 @@ public class SkcMatMng : MonoBehaviour {
                 return mat;
             }
         }
-        else if (Global.GLevelMode > LevelMode.SinglePlayerTask && Global.GLevelMode <= LevelMode.MultiplyPlayer)
+        else if (Global.Instance.GLevelMode > LevelMode.SinglePlayerTask && Global.Instance.GLevelMode <= LevelMode.MultiplyPlayer)
         {
-            if (Global.GGameMode == GameMode.Normal || Global.GGameMode == GameMode.MENGZHU)
+            if (Global.Instance.GGameMode == GameMode.Normal || Global.Instance.GGameMode == GameMode.MENGZHU)
             {
                 if (camp == EUnitCamp.EUC_NONE || camp == EUnitCamp.EUC_KILLALL)
                 {
@@ -69,7 +69,7 @@ public class SkcMatMng : MonoBehaviour {
                     return mat;
                 }
             }
-            else if (Global.GGameMode == GameMode.ANSHA || Global.GGameMode == GameMode.SIDOU)
+            else if (Global.Instance.GGameMode == GameMode.ANSHA || Global.Instance.GGameMode == GameMode.SIDOU)
             {
                 if (camp == EUnitCamp.EUC_NONE || camp == EUnitCamp.EUC_KILLALL)
                 {

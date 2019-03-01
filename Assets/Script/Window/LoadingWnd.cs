@@ -20,8 +20,8 @@ public class LoadingWnd : Window<LoadingWnd>, LoadingUI
 		
 
         Material loadingTexture = null;
-        if (!string.IsNullOrEmpty(Global.GLevelItem.BgTexture))
-            loadingTexture = Resources.Load<Material>(Global.GLevelItem.BgTexture) as Material;
+        if (!string.IsNullOrEmpty(Global.Instance.GLevelItem.BgTexture))
+            loadingTexture = Resources.Load<Material>(Global.Instance.GLevelItem.BgTexture) as Material;
         else
             loadingTexture = Resources.Load<Material>("Scene10") as Material;
         if (loadingTexture != null)

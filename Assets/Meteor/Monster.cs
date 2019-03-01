@@ -316,12 +316,12 @@ public class MonsterEx
             HpMax = hpCur = (int)(double)script.GetPlayerMaxHp();
             if (HpMax == 0)
                 hpCur = HpMax = 1000;
-            if (Global.GLevelMode == LevelMode.CreateWorld)
+            if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
             {
-                HpMax = hpCur = 10 * Global.PlayerLife;
-                Weapon = U3D.GetWeaponByType(Global.MainWeapon);
-                Weapon2 = U3D.GetWeaponByType(Global.SubWeapon);
-                Model = Global.PlayerModel;
+                HpMax = hpCur = 10 * Global.Instance.PlayerLife;
+                Weapon = U3D.GetWeaponByType(Global.Instance.MainWeapon);
+                Weapon2 = U3D.GetWeaponByType(Global.Instance.SubWeapon);
+                Model = Global.Instance.PlayerModel;
                 name = ModelMng.Instance.GetAllItem()[Model].Name;
             }
         } 

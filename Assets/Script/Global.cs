@@ -7,54 +7,83 @@ using CoClass;
 
 public class Global
 {
+    public static Global _Instance;
+    public static Global Instance
+    {
+        get
+        {
+            if (_Instance == null)
+                _Instance = new Global();
+            return _Instance;
+        }
+    }
+
+    public void NetUpdate()
+    {
+        Frame++;
+    }
+
+    private int Frame = 0;
+    public int FrameIndex
+    {
+        get
+        {
+            return Frame;
+        }
+    }
+    public float GameTime()
+    {
+        return FrameIndex * 0.02f;
+    }
+
     //网络和单机的时间不一致
-    public static float TimeDelta()
+    public float TimeDelta()
     {
         if (GLevelMode == LevelMode.MultiplyPlayer)
             return 0.02f;
         return Time.deltaTime;
     }
-    public static ServerInfo Server;//当前选择的服务器
-    public static List<ServerInfo> Servers = new List<ServerInfo>();
-    public static float FPS = 1.0f / 30.0f;//动画设计帧率
-    public static float gGravity = 750;
-    public static bool useShadowInterpolate = true;//是否使用影子跟随插值
-    public static int MaxPlayer;
-    public static int RoundTime;
-    public static int MainWeapon;
-    public static int SubWeapon;
-    public static int PlayerLife;
-    public static int PlayerModel;
-    public static int ComboProbability = 5;//连击率
-    public static int SpecialWeaponProbability = 98;//100-98=2几率切换到远程武器，每次Think都有2%几率
-    public static float AimDegree = 30.0f;//夹角超过30度，需要重新瞄准
-    public static readonly int CharacterMax = 20;//
-    public static MeteorInput GMeteorInput = null;
-	public static Level GLevelItem = null;
-    public static LevelMode GLevelMode;//建立房间时选择的类型，从主界面进，都是Normal
-    public static GameMode GGameMode;//游戏玩法类型
-    public static Vector3[] GLevelSpawn;
-    public static Vector3[] GCampASpawn;
-    public static Vector3[] GCampBSpawn;
-    public static int CampASpawnIndex;
-    public static int CampBSpawnIndex;
-    public static int SpawnIndex;
-    public static LevelScriptBase GScript;
-    public static Type GScriptType;
-    public static System.Random Rand = new System.Random((int)DateTime.Now.ToFileTime());
-    static bool mPauseAll ;
-    public static Vector3 BodyHeight = new Vector3(0, 28, 0);
-    public static bool PauseAll
+
+    public ServerInfo Server;//当前选择的服务器
+    public List<ServerInfo> Servers = new List<ServerInfo>();
+    public float FPS = 1.0f / 30.0f;//动画设计帧率
+    public float gGravity = 750;
+    public bool useShadowInterpolate = true;//是否使用影子跟随插值
+    public int MaxPlayer;
+    public int RoundTime;
+    public int MainWeapon;
+    public int SubWeapon;
+    public int PlayerLife;
+    public int PlayerModel;
+    public int ComboProbability = 5;//连击率
+    public int SpecialWeaponProbability = 98;//100-98=2几率切换到远程武器，每次Think都有2%几率
+    public float AimDegree = 30.0f;//夹角超过30度，需要重新瞄准
+    public readonly int CharacterMax = 20;//
+    public MeteorInput GMeteorInput = null;
+	public Level GLevelItem = null;
+    public LevelMode GLevelMode;//建立房间时选择的类型，从主界面进，都是Normal
+    public GameMode GGameMode;//游戏玩法类型
+    public Vector3[] GLevelSpawn;
+    public Vector3[] GCampASpawn;
+    public Vector3[] GCampBSpawn;
+    public int CampASpawnIndex;
+    public int CampBSpawnIndex;
+    public int SpawnIndex;
+    public LevelScriptBase GScript;
+    public Type GScriptType;
+    public System.Random Rand = new System.Random((int)DateTime.Now.ToFileTime());
+    bool mPauseAll ;
+    public Vector3 BodyHeight = new Vector3(0, 28, 0);
+    public bool PauseAll
     {
         get { return mPauseAll; }
         set { mPauseAll = value; }
     }
-    public static bool PauseMosterAI = false;
-	public static bool PauseProtection = false;
+
     public const float ClimbLimit = 1.5f;//爬墙持续提供向上的力
     public const float JumpTimeLimit = 0.15f;//最少要跳跃这么久之后才能攀爬
     public const int LEVELSTART = 1;//初始关卡ID
-    public static int LEVELMAX = 29;//最大关卡29
+    public int LEVELMAX = 29;//最大关卡29
     public const int ANGRYMAX = 100;
     public const int ANGRYBURST = 60;
     public const float AttackRangeMin = 31;//远程武器在距离35码内要离开目标，否则是很难攻击到目标的
@@ -64,32 +93,32 @@ public class Global
     public const float FollowDistanceStart = 6400.0f;//开始跟随80
     public const int BreakChange = 3;//3%爆气几率
 
-    public static void Init()
+    public void Init()
     {
-        Global.LEVELMAX = U3D.GetMaxLevel();
+        LEVELMAX = U3D.GetMaxLevel();
     }
 
-    public static void OnServiceChanged(int i, CoClass.ServerInfo Info)
+    public void OnServiceChanged(int i, CoClass.ServerInfo Info)
     {
         if (Servers == null)
             return;
         if (i == -1)
         {
-            if (Global.Servers.Contains(Info))
+            if (Servers.Contains(Info))
             {
-                Global.Servers.Remove(Info);
+                Servers.Remove(Info);
                 if (Server == Info)
-                    Server = Global.Servers[0];
+                    Server = Servers[0];
             }
         }
         else if (i == 1)
         {
-            if (!Global.Servers.Contains(Info))
-                Global.Servers.Add(Info);
+            if (!Servers.Contains(Info))
+                Servers.Add(Info);
         }
     }
 
-    public static ModelInfo GetCharacter(int id)
+    public ModelInfo GetCharacter(int id)
     {
         return ModelMng.Instance.GetItem(id);
     }

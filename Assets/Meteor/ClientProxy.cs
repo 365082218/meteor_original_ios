@@ -157,15 +157,15 @@ class ClientProxy
             try
             {
                 int port = 0;
-                port = Global.Server.ServerPort;
-                if (Global.Server.type == 1)
+                port = Global.Instance.Server.ServerPort;
+                if (Global.Instance.Server.type == 1)
                 {
-                    IPAddress address = IPAddress.Parse(Global.Server.ServerIP);
+                    IPAddress address = IPAddress.Parse(Global.Instance.Server.ServerIP);
                     server = new IPEndPoint(address, port);
                 }
                 else
                 {
-                    IPAddress[] addr = Dns.GetHostAddresses(Global.Server.ServerHost);
+                    IPAddress[] addr = Dns.GetHostAddresses(Global.Instance.Server.ServerHost);
                     if (addr.Length != 0)
                         server = new IPEndPoint(addr[0], port);
                 }

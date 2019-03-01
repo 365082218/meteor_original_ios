@@ -278,24 +278,24 @@ public class Loader : MonoBehaviour {
             if (des.SceneItems[i].ContainsKey("ticket", out type))
             {
                 //剧情模式出现
-                if (Global.GLevelMode <= LevelMode.SinglePlayerTask)
+                if (Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
                 {
                     string[] subtype = type.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     for (int t = 0; t < subtype.Length; t++)
                     {
-                        if (int.Parse(subtype[t]) == (int)Global.GGameMode)
+                        if (int.Parse(subtype[t]) == (int)Global.Instance.GGameMode)
                         {
                             active = true;
                             break;
                         }
                     }
                 }
-                else if (Global.GLevelMode > LevelMode.SinglePlayerTask && Global.GLevelMode <= LevelMode.MultiplyPlayer)
+                else if (Global.Instance.GLevelMode > LevelMode.SinglePlayerTask && Global.Instance.GLevelMode <= LevelMode.MultiplyPlayer)
                 {
                     string[] subtype = type.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                     for (int t = 0; t < subtype.Length; t++)
                     {
-                        if (int.Parse(subtype[t]) == (int)Global.GGameMode)
+                        if (int.Parse(subtype[t]) == (int)Global.Instance.GGameMode)
                         {
                             active = true;
                             break;

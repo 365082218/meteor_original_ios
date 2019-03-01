@@ -88,7 +88,7 @@ public class FightWnd : Window<FightWnd>
         Global.ldaControlX("BreakOut", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnBreakOut);
         Global.ldaControlX("WeaponSelect", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenWeaponWnd(); });
         Global.ldaControlX("SceneName", WndObject).GetComponent<Button>().onClick.AddListener(() => { OpenMiniMap(); });
-        Global.ldaControlX("SceneName", WndObject).GetComponentInChildren<Text>().text = Global.GLevelItem.Name;
+        Global.ldaControlX("SceneName", WndObject).GetComponentInChildren<Text>().text = Global.Instance.GLevelItem.Name;
         Global.ldaControlX("System", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSystemWnd(); });
         Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnCrouchPress);
         Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnCrouchRelease);
@@ -106,12 +106,12 @@ public class FightWnd : Window<FightWnd>
         Global.ldaControlX("Status", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnStatusRelease);
         Global.ldaControlX("Chat", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnChatClick);
         Global.ldaControlX("SysMenu2", WndObject).SetActive(
-            (Global.GLevelMode == LevelMode.CreateWorld && GameData.Instance.gameStatus.ShowSysMenu2) ||
-            (Global.GLevelMode == LevelMode.SinglePlayerTask &&  GameData.Instance.gameStatus.ShowSysMenu2) ||
-            (Global.GLevelMode == LevelMode.MultiplyPlayer));
+            (Global.Instance.GLevelMode == LevelMode.CreateWorld && GameData.Instance.gameStatus.ShowSysMenu2) ||
+            (Global.Instance.GLevelMode == LevelMode.SinglePlayerTask &&  GameData.Instance.gameStatus.ShowSysMenu2) ||
+            (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer));
         Global.ldaControlX("Reborn", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnRebornClick);
         //联机屏蔽按键-多人游戏
-        if (Global.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
             Global.ldaControlX("Reborn", WndObject).SetActive(false);
         }
@@ -167,16 +167,16 @@ public class FightWnd : Window<FightWnd>
 
     void OnRebornClick()
     {
-        if (Global.GLevelMode == LevelMode.SinglePlayerTask)
+        if (Global.Instance.GLevelMode == LevelMode.SinglePlayerTask)
         {
             if (MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle ||
                 MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Run ||
                 MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
                 MeteorManager.Instance.LocalPlayer.posMng.ChangeAction(CommonAction.Reborn);
         }
-        else if (Global.GLevelMode == LevelMode.CreateWorld)
+        else if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
         {
-            if (Global.GGameMode == GameMode.ANSHA)
+            if (Global.Instance.GGameMode == GameMode.ANSHA)
             {
                 if (MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle || 
                     MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Run ||
@@ -261,8 +261,8 @@ public class FightWnd : Window<FightWnd>
 
     void OnAttackPress()
     {
-        if (Global.GMeteorInput == null || Global.PauseAll) return;
-        Global.GMeteorInput.OnKeyDown(EKeyList.KL_Attack, false);//也可看作普攻
+        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
+        Global.Instance.GMeteorInput.OnKeyDown(EKeyList.KL_Attack, false);//也可看作普攻
     }
 
     public void OnChangeLock(bool locked)
@@ -272,7 +272,7 @@ public class FightWnd : Window<FightWnd>
 
     void OnClickChangeLock()
     {
-        if (Global.GMeteorInput == null || Global.PauseAll) return;
+        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
         //远程武器禁止切换锁定状态
         int weaponEquiped = MeteorManager.Instance.LocalPlayer.GetWeaponType();
         if (weaponEquiped == (int)EquipWeaponType.Gun || weaponEquiped == (int)EquipWeaponType.Dart || weaponEquiped == (int)EquipWeaponType.Guillotines)
@@ -294,14 +294,14 @@ public class FightWnd : Window<FightWnd>
         if (MeteorManager.Instance.LocalPlayer.Dead)
             return;
 
-        if (Global.GMeteorInput == null || Global.PauseAll) return;
-            Global.GMeteorInput.OnKeyDown(EKeyList.KL_Crouch);
+        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
+            Global.Instance.GMeteorInput.OnKeyDown(EKeyList.KL_Crouch);
     }
 
     void OnCrouchRelease()
     {
-        if (Global.GMeteorInput == null || Global.PauseAll) return;
-            Global.GMeteorInput.OnKeyUp(EKeyList.KL_Crouch);
+        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
+            Global.Instance.GMeteorInput.OnKeyUp(EKeyList.KL_Crouch);
     }
 
     void OnChangeWeaponPress()
@@ -309,8 +309,8 @@ public class FightWnd : Window<FightWnd>
         if (MeteorManager.Instance.LocalPlayer.Dead)
             return;
 
-        if (Global.GMeteorInput == null || Global.PauseAll) return;
-            Global.GMeteorInput.OnKeyDown(EKeyList.KL_ChangeWeapon);
+        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
+            Global.Instance.GMeteorInput.OnKeyDown(EKeyList.KL_ChangeWeapon);
     }
 
     void OnChangeWeaponRelease()
@@ -318,22 +318,22 @@ public class FightWnd : Window<FightWnd>
         if (MeteorManager.Instance.LocalPlayer.Dead)
             return;
 
-        if (Global.GMeteorInput == null || Global.PauseAll) return;
-            Global.GMeteorInput.OnKeyUp(EKeyList.KL_ChangeWeapon);
+        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
+            Global.Instance.GMeteorInput.OnKeyUp(EKeyList.KL_ChangeWeapon);
     }
 
     void OnAttackRelease()
     {
-        if (Global.GMeteorInput == null || Global.PauseAll) return;
-        Global.GMeteorInput.OnKeyUp(EKeyList.KL_Attack);
+        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
+        Global.Instance.GMeteorInput.OnKeyUp(EKeyList.KL_Attack);
     }
 
     void OnDefencePress()
     {
         if (MeteorManager.Instance.LocalPlayer.Dead)
             return;
-        if (Global.GMeteorInput == null || Global.PauseAll) return;
-            Global.GMeteorInput.OnKeyDown(EKeyList.KL_Defence, true);//不要被键盘状态同步，否则按下马上就抬起，那么防御姿势就消失了
+        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
+            Global.Instance.GMeteorInput.OnKeyDown(EKeyList.KL_Defence, true);//不要被键盘状态同步，否则按下马上就抬起，那么防御姿势就消失了
         
     }
 
@@ -341,8 +341,8 @@ public class FightWnd : Window<FightWnd>
     {
         if (MeteorManager.Instance.LocalPlayer.Dead)
             return;
-        if (Global.GMeteorInput == null || Global.PauseAll) return;
-            Global.GMeteorInput.OnKeyUp(EKeyList.KL_Defence);
+        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
+            Global.Instance.GMeteorInput.OnKeyUp(EKeyList.KL_Defence);
     }
 
     void OnJumpPress()
@@ -350,25 +350,25 @@ public class FightWnd : Window<FightWnd>
         //if (!MeteorManager.Instance.LocalPlayer.posMng.CanJump)
         //    return;
 
-        if (Global.GMeteorInput == null || Global.PauseAll) return;
-        Global.GMeteorInput.OnKeyDown(EKeyList.KL_Jump, false);//
+        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
+        Global.Instance.GMeteorInput.OnKeyDown(EKeyList.KL_Jump, false);//
     }
 
     void OnJumpRelease()
     {
-        if (Global.GMeteorInput == null || Global.PauseAll) return;
-        Global.GMeteorInput.OnKeyUp(EKeyList.KL_Jump);
+        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
+        Global.Instance.GMeteorInput.OnKeyUp(EKeyList.KL_Jump);
     }
 
     //按爆气.
     public void OnBreakOut()
     {
         //Debug.Log("OnBreakOut");
-        if (Global.GMeteorInput == null || Global.PauseAll)
+        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll)
             return;
         if (MeteorManager.Instance.LocalPlayer.AngryValue >= 60 || GameData.Instance.gameStatus.EnableInfiniteAngry)
         {
-            Global.GMeteorInput.OnKeyDown(EKeyList.KL_BreakOut, false);
+            Global.Instance.GMeteorInput.OnKeyDown(EKeyList.KL_BreakOut, false);
             //Debug.Log("OnKeyDown");
         }
     }
