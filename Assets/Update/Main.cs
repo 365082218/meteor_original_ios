@@ -25,6 +25,7 @@ public class Main : MonoBehaviour {
 #endif
     public static string strVFileName = "Version.json.zip";
     public static string strNewVersionName = "SVersion.json";
+    public static string strPlugins = "Plugins.json";
     public static string strServices = "Services.json";
     public static string strVerFile = "Version.json";
     //版本仓库地址

@@ -15,6 +15,7 @@ public class SettingWnd : Window<SettingWnd> {
     }
 
     Coroutine Update;
+    Coroutine PluginUpdate;
     void Init()
     {
         Control("Return").GetComponent<Button>().onClick.AddListener(() => {
@@ -86,6 +87,7 @@ public class SettingWnd : Window<SettingWnd> {
         if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
         {
             Update = Startup.ins.StartCoroutine(UpdateAppInfo());
+            PluginUpdate = Startup.ins.StartCoroutine(UpdatePluginInfo());
         }
     }
 
@@ -123,6 +125,85 @@ public class SettingWnd : Window<SettingWnd> {
             //Debug.Log("无需更新");
         }
         Update = null;
+    }
+
+    IEnumerator UpdatePluginInfo()
+    {
+        UnityWebRequest vFile = new UnityWebRequest();
+        vFile.url = string.Format(Main.strVFile, Main.strHost, Main.strPort, Main.strProjectUrl, Main.strPlatform, Main.strPlugins);
+        vFile.timeout = 2;
+        DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
+        vFile.downloadHandler = dH;
+        yield return vFile.Send();
+        if (vFile.isError || vFile.responseCode != 200)
+        {
+            Debug.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
+            vFile.Dispose();
+            Update = null;
+            yield break;
+        }
+
+        LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
+        for (int i = 0; i < js["Scene"].Count; i++)
+        {
+            //ServerInfo s = new ServerInfo();
+            //if (!int.TryParse(js["services"][i]["port"].ToString(), out s.ServerPort))
+            //    continue;
+            //if (!int.TryParse(js["services"][i]["type"].ToString(), out s.type))
+            //    continue;
+            //if (s.type == 0)
+            //    s.ServerHost = js["services"][i]["addr"].ToString();
+            //else
+            //    s.ServerIP = js["services"][i]["addr"].ToString();
+            //s.ServerName = js["services"][i]["name"].ToString();
+            //Global.Instance.Servers.Add(s);
+        }
+
+        for (int i = 0; i < js["Weapon"].Count; i++)
+        {
+            //ServerInfo s = new ServerInfo();
+            //if (!int.TryParse(js["services"][i]["port"].ToString(), out s.ServerPort))
+            //    continue;
+            //if (!int.TryParse(js["services"][i]["type"].ToString(), out s.type))
+            //    continue;
+            //if (s.type == 0)
+            //    s.ServerHost = js["services"][i]["addr"].ToString();
+            //else
+            //    s.ServerIP = js["services"][i]["addr"].ToString();
+            //s.ServerName = js["services"][i]["name"].ToString();
+            //Global.Instance.Servers.Add(s);
+        }
+
+        for (int i = 0; i < js["Model"].Count; i++)
+        {
+            //ServerInfo s = new ServerInfo();
+            //if (!int.TryParse(js["services"][i]["port"].ToString(), out s.ServerPort))
+            //    continue;
+            //if (!int.TryParse(js["services"][i]["type"].ToString(), out s.type))
+            //    continue;
+            //if (s.type == 0)
+            //    s.ServerHost = js["services"][i]["addr"].ToString();
+            //else
+            //    s.ServerIP = js["services"][i]["addr"].ToString();
+            //s.ServerName = js["services"][i]["name"].ToString();
+            //Global.Instance.Servers.Add(s);
+        }
+
+        for (int i = 0; i < js["Npc"].Count; i++)
+        {
+            //Global.Instance.Servers.Add(s);
+        }
+
+        for (int i = 0; i < js["Dlc"].Count; i++)
+        {
+            for (int j = 0; j < js["Dlc"][i]["Level"].Count; j++)
+            {
+
+            }
+            //Global.Instance.Servers.Add(s);
+        }
+
+        PluginUpdate = null;
     }
 
     void OnMusicVolumeChange(float vo)
@@ -171,6 +252,11 @@ public class SettingWnd : Window<SettingWnd> {
         {
             Startup.ins.StopCoroutine(Update);
             Update = null;
+        }
+        if (PluginUpdate != null)
+        {
+            Startup.ins.StopCoroutine(PluginUpdate);
+            PluginUpdate = null;
         }
         return base.OnClose();
     }
