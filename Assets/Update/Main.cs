@@ -14,7 +14,6 @@ public class Main : MonoBehaviour {
 #else
     public static string strHost = "www.idevgame.com";
 #endif
-    public static string strPort = "80";
 	public static string strProjectUrl = "meteor";
 #if UNITY_ANDROID
     public static string strPlatform { get { return RuntimePlatform.Android.ToString(); } }
@@ -29,15 +28,9 @@ public class Main : MonoBehaviour {
     public static string strServices = "Services.json";
     public static string strVerFile = "Version.json";
     //版本仓库地址
-    //http://{192.168.14.163}:{80}/{meteor}/{iphone}/Version.json.zip
-    public static string strVFile = "http://{0}:{1}/{2}/{3}/{4}";
-    public static string strSFile = "http://{0}:{1}/{2}/{3}";
-	//更新仓库版本路径
-	//http://{192.168.14.163}:{80}/{meteor}/{iphone}/{0.0.0.1_0.0.0.2.zip}
-	private static string strDirectoryBase = "http://{0}:{1}/{2}/{3}/{4}/{5}";
-	private static string strUpdateFile;
-	private static string strClientVer = "0.0.0.0";
-	private static string strServerVer;
+    public static string strSourcePath = "http://{0}/{1}/{2}";//域名+项目名称+指定文件
+    public static string strVFile = "http://{0}/{1}/{2}/{3}";
+    public static string strSFile = "http://{0}/{1}/{2}";
 	public static HttpClient UpdateClient = null;
     void OnApplicationQuit()
     {
@@ -90,9 +83,9 @@ public class Main : MonoBehaviour {
         else
 		if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
         {
-            Log.WriteError("download:" + string.Format(strVFile, strHost, strPort, strProjectUrl, strPlatform, strVFileName));
+            Log.WriteError("download:" + string.Format(strVFile, strHost, strProjectUrl, strPlatform, strVFileName));
             UnityWebRequest vFile = new UnityWebRequest();
-            vFile.url = string.Format(strVFile, strHost, strPort, strProjectUrl, strPlatform, strVFileName);
+            vFile.url = string.Format(strVFile, strHost, strProjectUrl, strPlatform, strVFileName);
             vFile.timeout = 2;
             DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
             vFile.downloadHandler = dH;
@@ -254,7 +247,7 @@ public class Main : MonoBehaviour {
 	{
         UpdateClient = HttpManager.Instance.Alloc();
         StartCoroutine(UpdateProgress());
-        UpdateClient.AddRequest(string.Format(strVFile, strHost, strPort, strProjectUrl, strPlatform, zipInfo.File.strFile), zipInfo.File.strLocalPath, 
+        UpdateClient.AddRequest(string.Format(strVFile, strHost, strProjectUrl, strPlatform, zipInfo.File.strFile), zipInfo.File.strLocalPath, 
             (ref HttpRequest req)=> 
             {
                 zipInfo.File.Loadbytes = req.loadBytes;

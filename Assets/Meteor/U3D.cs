@@ -862,7 +862,7 @@ public class U3D : MonoBehaviour {
         }
     }
 
-    static void SaveLastLevelData()
+    public static void SaveLastLevelData()
     {
         //if (GameData.MainRole.lastLevel != 0)
         //{
@@ -898,30 +898,19 @@ public class U3D : MonoBehaviour {
     public static void LoadLevel(int id, LevelMode levelmode, GameMode gamemode)
     {
         GameData.Instance.SaveState();
-        uint profileTotalAllocate = Profiler.GetTotalAllocatedMemory();
-        uint profileTotalReserved = Profiler.GetTotalReservedMemory();
-        long gcTotal = System.GC.GetTotalMemory(false);
-        Log.Write("profile totalAllocate:" + profileTotalAllocate + " profile TotalReserved:" + profileTotalReserved + " gc totalAllocate:" + gcTotal);
-        Log.Write("start load level:" + id);
         if (FightWnd.Exist)
             FightWnd.Instance.Close();
-        //if (StateWnd.Exist)
-        //    StateWnd.Instance.Close();
         WindowMng.CloseAll();
-        Log.Write("WindowMng.CloseAll();");
         //暂时不允许使用声音管理器，在切换场景时不允许播放
         SoundManager.Instance.StopAll();
         SoundManager.Instance.Enable(false);
         SaveLastLevelData();
         ClearLevelData();
-        Log.Write("ClearLevelData");
         Level lev = LevelMng.Instance.GetItem(id);
         Global.Instance.GLevelItem = lev;
         Global.Instance.GLevelMode = levelmode;
         Global.Instance.GGameMode = gamemode;
-        Log.Write("Global.GLevelItem = lev;");
         LoadingWnd.Instance.Open();
-        Log.Write("LoadingWnd.Instance.Open();");
         Resources.UnloadUnusedAssets();
         GC.Collect();
         if (!string.IsNullOrEmpty(lev.sceneItems))
@@ -939,7 +928,13 @@ public class U3D : MonoBehaviour {
         Log.Write("helper.load end");
     }
 
-    static void ClearLevelData()
+    //加载资料片内得关卡关卡.
+    public static void LoadDlcLevel(int dlcIdx, int levelIdx)
+    {
+        DlcMng.Instance.PlayDlc(dlcIdx, levelIdx);
+    }
+
+    public static void ClearLevelData()
     {
         SFXLoader.Instance.Effect.Clear();
         DesLoader.Instance.Refresh();

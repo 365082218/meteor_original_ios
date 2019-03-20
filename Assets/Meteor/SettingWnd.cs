@@ -94,7 +94,7 @@ public class SettingWnd : Window<SettingWnd> {
     IEnumerator UpdateAppInfo()
     {
         UnityWebRequest vFile = new UnityWebRequest();
-        vFile.url = string.Format(Main.strVFile, Main.strHost, Main.strPort, Main.strProjectUrl, Main.strPlatform, Main.strNewVersionName);
+        vFile.url = string.Format(Main.strVFile, Main.strHost, Main.strProjectUrl, Main.strPlatform, Main.strNewVersionName);
         vFile.timeout = 2;
         DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
         vFile.downloadHandler = dH;
@@ -116,7 +116,7 @@ public class SettingWnd : Window<SettingWnd> {
             Control("NewVersionSep", WndObject).SetActive(true);
             Control("NewVersion", WndObject).GetComponent<Text>().text = string.Format("最新版本号:{0}", serverVersion);
             Control("NewVersion", WndObject).SetActive(true);
-            Control("GetNewVersion", WndObject).GetComponent<LinkLabel>().URL = string.Format(Main.strVFile, Main.strHost, Main.strPort, Main.strProjectUrl, Main.strPlatform, "Meteor" + serverVersion + ".apk");
+            Control("GetNewVersion", WndObject).GetComponent<LinkLabel>().URL = string.Format(Main.strVFile, Main.strHost, Main.strProjectUrl, Main.strPlatform, "Meteor" + serverVersion + ".apk");
             Control("GetNewVersion", WndObject).SetActive(true);
             Control("Flag", WndObject).SetActive(true);
         }
@@ -130,7 +130,7 @@ public class SettingWnd : Window<SettingWnd> {
     IEnumerator UpdatePluginInfo()
     {
         UnityWebRequest vFile = new UnityWebRequest();
-        vFile.url = string.Format(Main.strVFile, Main.strHost, Main.strPort, Main.strProjectUrl, Main.strPlatform, Main.strPlugins);
+        vFile.url = string.Format(Main.strSourcePath, Main.strHost, Main.strProjectUrl, Main.strPlugins);
         vFile.timeout = 2;
         DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
         vFile.downloadHandler = dH;
@@ -196,10 +196,10 @@ public class SettingWnd : Window<SettingWnd> {
 
         for (int i = 0; i < js["Dlc"].Count; i++)
         {
-            for (int j = 0; j < js["Dlc"][i]["Level"].Count; j++)
-            {
+            //for (int j = 0; j < js["Dlc"][i]["Level"].Count; j++)
+            //{
 
-            }
+            //}
             //Global.Instance.Servers.Add(s);
         }
 

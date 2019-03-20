@@ -629,7 +629,7 @@ public class MainLobby : Window<MainLobby>
     IEnumerator UpdateServiceList()
     {
         UnityWebRequest vFile = new UnityWebRequest();
-        vFile.url = string.Format(Main.strSFile, Main.strHost, Main.strPort, Main.strProjectUrl, Main.strServices);
+        vFile.url = string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, Main.strServices);
         vFile.timeout = 2;
         DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
         vFile.downloadHandler = dH;

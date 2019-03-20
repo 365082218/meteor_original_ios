@@ -5,6 +5,7 @@ using ProtoBuf;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Collections;
+using System.Reflection;
 
 public class Startup : MonoBehaviour {
     public static Startup ins;
@@ -27,6 +28,17 @@ public class Startup : MonoBehaviour {
         ins = this;
         DontDestroyOnLoad(gameObject);
         Application.targetFrameRate = 60;
+        //Assembly ass = Assembly.LoadFile(Application.persistentDataPath + "/dlc01.dll");
+        //Module[] m = ass.GetModules();
+        //System.Type[] t = ass.GetTypes();
+        //for (int i = 0; i < t.Length; i++)
+        //{
+        //    if (t[i].BaseType == typeof(LevelScriptBase))
+        //    {
+        //        LevelScriptBase l = System.Activator.CreateInstance(t[i]) as LevelScriptBase;
+        //        l.OnStart();
+        //    }
+        //}
         //Debug.LogError(string.Format("GameStart Meteor Version:{0}", AppInfo.Instance.AppVersion()));
     }
 

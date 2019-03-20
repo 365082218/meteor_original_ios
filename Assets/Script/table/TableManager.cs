@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Reflection;
+using System.Linq;
 
 public interface ITableItem
 {
@@ -42,27 +43,27 @@ public abstract class TableManager<T, U> : Singleton<U>, ITableManager where T :
     public object TableData { get { return mItemArray; } }
 
     // the data arrays.
-    T[] mItemArray;
+    List<T> mItemArray;
     Dictionary<int, int> mKeyItemMap = new Dictionary<int, int>();
 
     // constructor.
     internal TableManager()
     {
         // load from excel txt file.
-        mItemArray = TableParser.Parse<T>(TableName());
+        mItemArray = TableParser.Parse<T>(TableName()).ToList();
 
         // build the key-value map.
-        for (int i = 0; i < mItemArray.Length; i++)
+        for (int i = 0; i < mItemArray.Count; i++)
 			mKeyItemMap[mItemArray[i].Key()] = i;
     }
 
 
 	public virtual void ReLoad()
 	{
-		mItemArray = TableParser.Parse<T>(TableName());
+		mItemArray = TableParser.Parse<T>(TableName()).ToList();
 		
 		// build the key-value map.
-		for (int i = 0; i < mItemArray.Length; i++)
+		for (int i = 0; i < mItemArray.Count; i++)
 			mKeyItemMap[mItemArray[i].Key()] = i;
 	}
     // get a item base the key.
@@ -77,6 +78,13 @@ public abstract class TableManager<T, U> : Singleton<U>, ITableManager where T :
     // get the item array.
 	public T[] GetAllItem()
 	{
-		return mItemArray;
+		return mItemArray.ToArray();
 	}
+
+    //当外挂加载一项新配置时.
+    public void InsertItem(T item)
+    {
+        mItemArray.Add(item);
+        mKeyItemMap[item.Key()] = mItemArray.Count - 1;
+    }
 }

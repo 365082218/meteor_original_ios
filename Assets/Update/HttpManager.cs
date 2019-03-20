@@ -595,6 +595,7 @@ public class HttpManager{
         {
             clients[i].Quit();
         }
+        clients.Clear();
 	}
 
     public HttpClient Alloc()
