@@ -29,11 +29,11 @@ public class HttpRequest
         loadBytes = 0;
         totalBytes = src.Totalbytes;
 		strLocalPath = strLocal;
-        Source = src;
+        //Source = src;
         fs = null;
 	}
     public FileStream fs;
-    public UpdateFile Source;
+    //public UpdateFile Source;
 	public HttpClient.OnReceivedDataDelegate OnReceivedData;
 	public string strfile;
 	public long cbstart;

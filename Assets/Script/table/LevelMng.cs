@@ -51,6 +51,7 @@ public class ModelInfo:ITableItem
     public int ModelId;
     //public float Height;
     //public float Pivot;
+    public string Path;//资源路径,安装
 }
 
 public class ModelMng : TableManager<ModelInfo, ModelMng>

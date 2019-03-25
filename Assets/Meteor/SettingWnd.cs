@@ -3,6 +3,7 @@ using System.Collections;
 using System;
 using UnityEngine.UI;
 using UnityEngine.Networking;
+using System.Collections.Generic;
 
 public class SettingWnd : Window<SettingWnd> {
     public override string PrefabName{get{return "SettingWnd"; }}
@@ -16,6 +17,8 @@ public class SettingWnd : Window<SettingWnd> {
 
     Coroutine Update;
     Coroutine PluginUpdate;
+    GameObject PluginRoot;
+    List<GameObject> Install = new List<GameObject>();
     void Init()
     {
         Control("Return").GetComponent<Button>().onClick.AddListener(() => {
@@ -74,7 +77,8 @@ public class SettingWnd : Window<SettingWnd> {
         Toggle ShowSysMenu2 = Control("ShowSysMenu2").GetComponent<Toggle>();
         ShowSysMenu2.isOn = GameData.Instance.gameStatus.ShowSysMenu2;
         ShowSysMenu2.onValueChanged.AddListener((bool selected) => { GameData.Instance.gameStatus.ShowSysMenu2 = selected; });
-
+        GameObject pluginTab = Control("PluginTab", WndObject);
+        PluginRoot = Control("Content", pluginTab);
         if (Application.internetReachability == NetworkReachability.NotReachable)
         {
             //Debug.Log("1");
@@ -174,19 +178,23 @@ public class SettingWnd : Window<SettingWnd> {
             //Global.Instance.Servers.Add(s);
         }
 
+        ModelPlugin.Instance.ClearModel();
         for (int i = 0; i < js["Model"].Count; i++)
         {
-            //ServerInfo s = new ServerInfo();
-            //if (!int.TryParse(js["services"][i]["port"].ToString(), out s.ServerPort))
-            //    continue;
-            //if (!int.TryParse(js["services"][i]["type"].ToString(), out s.type))
-            //    continue;
-            //if (s.type == 0)
-            //    s.ServerHost = js["services"][i]["addr"].ToString();
-            //else
-            //    s.ServerIP = js["services"][i]["addr"].ToString();
-            //s.ServerName = js["services"][i]["name"].ToString();
-            //Global.Instance.Servers.Add(s);
+            int modelIndex = int.Parse(js["Model"][i]["Idx"].ToString());
+            Debug.LogError(modelIndex + js["Model"][i]["name"].ToString());
+            ModelItem Info = new ModelItem();
+            Info.ModelId = modelIndex;
+            Info.Name = js["Model"][i]["name"].ToString();
+            Info.Path = js["Model"][i]["zip"].ToString();
+            Info.IcoPath = Info.Path.Substring(0,  Info.Path.Length - 4) + ".jpg";
+            ModelPlugin.Instance.AddModel(Info);
+        }
+
+        CleanModelList();
+        for (int i = 0; i < ModelPlugin.Instance.Models.Count; i++)
+        {
+            InsertModel(ModelPlugin.Instance.Models[i]);
         }
 
         for (int i = 0; i < js["Npc"].Count; i++)
@@ -258,6 +266,41 @@ public class SettingWnd : Window<SettingWnd> {
             Startup.ins.StopCoroutine(PluginUpdate);
             PluginUpdate = null;
         }
+
+        for (int i = 0; i < Install.Count; i++)
+        {
+            GameObject.Destroy(Install[i]);
+        }
+
+        Install.Clear();
         return base.OnClose();
     }
+
+    void CleanModelList()
+    {
+        for (int i = 0; i < Install.Count; i++)
+        {
+            GameObject.Destroy(Install[i]);
+        }
+
+        Install.Clear();
+    }
+
+    GameObject prefabPluginWnd;
+    void InsertModel(ModelItem item)
+    {
+        if (prefabPluginWnd == null)
+            prefabPluginWnd = ResMng.Load("PluginWnd") as GameObject;
+        GameObject insert = GameObject.Instantiate(prefabPluginWnd);
+        insert.transform.SetParent(PluginRoot.transform);
+        insert.transform.localPosition = Vector3.zero;
+        insert.transform.localScale = Vector3.one;
+        insert.transform.localRotation = Quaternion.identity;
+        PluginCtrl ctrl = insert.GetComponent<PluginCtrl>();
+        if (ctrl != null)
+        {
+            ctrl.AttachModel(item);
+        }
+    }
+
 }
