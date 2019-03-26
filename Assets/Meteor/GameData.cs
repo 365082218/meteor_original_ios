@@ -82,7 +82,26 @@ public class GameState
     public bool EnableDebugStatus;//角色头顶的信息条显示 动作 帧 状态 属性 等信息
     public bool EnableWeaponChoose;//战斗UI控制面板是否显示按钮
     public bool EnableDebugRobot;//调试角色按钮。
-    bool _EnableInfiniteAngry;
+    public bool _EnableInfiniteAngry;
+    public List<ModelItem> pluginModel;
+    public void RegisterModel(ModelItem item)
+    {
+        if (pluginModel == null)
+            pluginModel = new List<ModelItem>();
+        pluginModel.Add(item);
+    }
+
+    public bool IsModelInstalled(ModelItem item)
+    {
+        if (pluginModel == null)
+            return false;
+        for (int i = 0; i < pluginModel.Count; i++)
+        {
+            if (pluginModel[i].ModelId == item.ModelId)
+                return true;
+        }
+        return false;
+    }
     public bool EnableInfiniteAngry
     {
         get
@@ -428,6 +447,8 @@ public class GameData:Singleton<GameData>
             {
                 gameStatus = null;
             }
+            if (gameStatus.MeteorVersion == null)
+                gameStatus = null;
             save.Close();
             save = null;
         }
