@@ -452,7 +452,8 @@ public class GameData:Singleton<GameData>
             {
                 gameStatus = null;
             }
-            if (gameStatus.MeteorVersion == null)
+
+            if (gameStatus != null && gameStatus.MeteorVersion == null)
                 gameStatus = null;
             save.Close();
             save = null;
