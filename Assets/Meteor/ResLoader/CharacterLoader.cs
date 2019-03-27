@@ -1044,7 +1044,7 @@ public class CharacterLoader
         if (po.SourceIdx == 0)
             lastDBasePos = AmbLoader.CharCommon[curIndex].DummyPos[0];
         else if (po.SourceIdx == 1)
-            lastDBasePos = AmbLoader.FrameBoneAni[owner.UnitId][curIndex].DummyPos[0];
+            lastDBasePos = AmbLoader.FrameBoneAni[owner.UnitId >= Global.MaxModel ? 0 : owner.UnitId][curIndex].DummyPos[0];
 
         if (lastPosIdx != 0)
         {

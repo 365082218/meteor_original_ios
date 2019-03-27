@@ -1189,8 +1189,6 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
 
         tag = "meteorUnit";
         UnitId = modelIdx;
-
-        ModelInfo Info = ModelMng.Instance.GetItem(UnitId);
         Attr = mon;
         IgnoreGravity = true;
         IgnorePhysical = false;
@@ -1223,7 +1221,6 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
             {
                 GameObject.Destroy(charLoader.rootBone.parent.gameObject);
                 GameObject.Destroy(charLoader.Skin.gameObject);
-                GameObject.DestroyImmediate(charLoader.Target);
                 charLoader = null;
             }
         }

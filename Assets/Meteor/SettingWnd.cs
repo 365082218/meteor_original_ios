@@ -187,6 +187,8 @@ public class SettingWnd : Window<SettingWnd> {
             Info.ModelId = modelIndex;
             Info.Name = js["Model"][i]["name"].ToString();
             Info.Path = js["Model"][i]["zip"].ToString();
+            if (js["Model"][i]["desc"] != null)
+                Info.Desc = js["Model"][i]["desc"].ToString();
             Info.IcoPath = Info.Path.Substring(0,  Info.Path.Length - 4) + ".jpg";
             ModelPlugin.Instance.AddModel(Info);
         }

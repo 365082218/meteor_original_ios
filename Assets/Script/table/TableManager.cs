@@ -88,3 +88,51 @@ public abstract class TableManager<T, U> : Singleton<U>, ITableManager where T :
         mKeyItemMap[item.Key()] = mItemArray.Count - 1;
     }
 }
+
+//Ex用于在构造函数外加载
+public abstract class TableManagerEx<T, U> : Singleton<U>, ITableManager where T : ITableItem
+{
+    // abstract functions need tobe implements.
+    public abstract string TableName();
+    public object TableData { get { return mItemArray; } }
+
+    // the data arrays.
+    List<T> mItemArray;
+    Dictionary<int, int> mKeyItemMap = new Dictionary<int, int>();
+
+    // constructor.
+    internal TableManagerEx()
+    {
+    }
+
+
+    public virtual void ReLoad()
+    {
+        mItemArray = TableParser.Parse<T>(TableName()).ToList();
+
+        // build the key-value map.
+        for (int i = 0; i < mItemArray.Count; i++)
+            mKeyItemMap[mItemArray[i].Key()] = i;
+    }
+    // get a item base the key.
+    public T GetItem(int key)
+    {
+        int itemIndex;
+        if (mKeyItemMap.TryGetValue(key, out itemIndex))
+            return mItemArray[itemIndex];
+        return default(T);
+    }
+
+    // get the item array.
+    public T[] GetAllItem()
+    {
+        return mItemArray.ToArray();
+    }
+
+    //当外挂加载一项新配置时.
+    public void InsertItem(T item)
+    {
+        mItemArray.Add(item);
+        mKeyItemMap[item.Key()] = mItemArray.Count - 1;
+    }
+}

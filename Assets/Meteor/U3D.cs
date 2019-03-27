@@ -197,13 +197,12 @@ public class U3D : MonoBehaviour {
         mon.Weapon2 = weaponList[(k + 1) % weaponList.Count];
         mon.IsPlayer = false;
 
-        ModelInfo model = Global.Instance.GetCharacter(idx % Global.Instance.CharacterMax);
         mon.name = U3D.GetRandomName();
         GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
         GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
         MeteorUnit unit = ins.GetComponent<MeteorUnit>();
         unit.Camp = camp;
-        unit.Init(model.ModelId, mon);
+        unit.Init(idx, mon);
         MeteorManager.Instance.OnGenerateUnit(unit);
         unit.SetGround(false);
 
@@ -255,7 +254,33 @@ public class U3D : MonoBehaviour {
         return;
     }
 
-    
+    public static Chapter GetPluginChapter(int dlc)
+    {
+        Chapter Target = null;
+        for (int i = 0; i < GameData.Instance.gameStatus.pluginChapter.Count; i++)
+        {
+            if (GameData.Instance.gameStatus.pluginChapter[i].ChapterId == dlc)
+            {
+                Target = GameData.Instance.gameStatus.pluginChapter[i];
+                break;
+            }
+        }
+        return Target;
+    }
+
+    public static ModelItem GetPluginModel(int model)
+    {
+        ModelItem Target = null;
+        for (int i = 0; i < GameData.Instance.gameStatus.pluginModel.Count; i++)
+        {
+            if (GameData.Instance.gameStatus.pluginModel[i].ModelId == model)
+            {
+                Target = GameData.Instance.gameStatus.pluginModel[i];
+                break;
+            }
+        }
+        return Target;
+    }
 
     public static void ChangePlayerModel(int model)
     {

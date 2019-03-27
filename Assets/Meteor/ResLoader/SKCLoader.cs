@@ -2,9 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.IO;
+using UnityEngine.UI;
 
 public class SkcLoader : Singleton<SkcLoader> {
     static Dictionary<string, SkcFile> SkcFile = new Dictionary<string, global::SkcFile>();
+    static Dictionary<int, SkcFile> PluginSkcFile = new Dictionary<int, global::SkcFile>();
     public SkcFile Load(string file)
     {
         if (SkcFile.ContainsKey(file))
@@ -14,6 +17,18 @@ public class SkcLoader : Singleton<SkcLoader> {
         if (f.error)
             return null;
         SkcFile[file] = f;
+        return f;
+    }
+
+    public SkcFile LoadPluginModel(int modelIdx)
+    {
+        if (PluginSkcFile.ContainsKey(modelIdx))
+            return PluginSkcFile[modelIdx];
+        SkcFile f = new global::SkcFile();
+        f.LoadModel(modelIdx);
+        if (f.error)
+            return null;
+        PluginSkcFile.Add(modelIdx, f);
         return f;
     }
 
@@ -39,6 +54,10 @@ public class SkcLoader : Singleton<SkcLoader> {
                     BoneCnt = "_800";
             }
         }
+
+        if (characterIdx >= Global.MaxModel)
+            return LoadPluginModel(characterIdx);
+
         return Load(string.Format("p{0}{1}.skc", characterIdx, BoneCnt));
     }
 }
@@ -72,6 +91,26 @@ public class SkcFile
     public Mesh mesh;
     ParseError errorno = ParseError.None;
     public bool error { get { return errorno != ParseError.None; } }
+
+    //加载外接式模型
+    public void LoadModel(int model)
+    {
+        ModelItem Target = U3D.GetPluginModel(model);
+        string skc = "";
+        for (int i = 0; i < Target.resPath.Length; i++)
+        {
+            if (Target.resPath[i].ToLower().EndsWith(".skc"))
+            {
+                skc = Target.resPath[i];
+                break;
+            }
+        }
+        if (!System.IO.File.Exists(skc))
+            errorno = ParseError.Miss;
+        string text = System.IO.File.ReadAllText(skc);
+        Parse(text);
+    }
+
     public void Load(string file)
     {
         TextAsset assets = Resources.Load<TextAsset>(file);
@@ -81,9 +120,16 @@ public class SkcFile
             return;
         }
 
+        Parse(assets.text);
+    }
+
+    void Parse(string textSkc)
+    {
+        //预处理，把\t转换为空格
+        textSkc = textSkc.Replace("\t", " ");
         try
         {
-            string[] line = assets.text.Split(new char[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
+            string[] line = textSkc.Split(new char[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < line.Length; i++)
             {
                 if (string.IsNullOrEmpty(line[i]))
@@ -318,46 +364,91 @@ public class SkcFile
         return line.Length - 1;
     }
 
+    public static Texture2D GetTexrtureFromPlugin(int roleIdx, string imgPath)
+    {
+        ModelItem Target = null;
+        Target = U3D.GetPluginModel(roleIdx);
+        for (int i = 0; i < Target.resPath.Length; i++)
+        {
+            int idx = Target.resPath[i].LastIndexOf("/");
+            string name = Target.resPath[i].Substring(idx + 1);
+            idx = name.LastIndexOf(".");
+            name = name.Substring(0, idx);
+            if (name == imgPath)
+                return GetTexrture2DFromPath(Target.resPath[i]);
+        }
+        return null;
+    }
+
+    public static Texture2D GetTexrture2DFromPath(string imgPath)
+    {
+        //读取文件
+        FileStream fs = new FileStream(imgPath, FileMode.Open, FileAccess.Read);
+        int byteLength = (int)fs.Length;
+        byte[] imgBytes = new byte[byteLength];
+        fs.Read(imgBytes, 0, byteLength);
+        fs.Close();
+        fs.Dispose();
+        //转化为Texture2D
+        Texture2D t2d = new Texture2D(0, 0);
+        t2d.LoadImage(imgBytes);
+        t2d.Apply();
+        return t2d;
+    }
+
     //0-19内的材质是3个，20-27的是单个
     public Material[] Material(int roleIdx, EUnitCamp camp)
     {
-        //return new UnityEngine.Material[0];
-        if (Game.Instance != null && Game.Instance.SkcMng != null)
-            return Game.Instance.SkcMng.GetPlayerMat(roleIdx, camp);
-        //使用预先设置好的材质球，降低DC和Batch
-        Material[] ret = new Material[materials.Length];
-        string strTexture = "";
-        string strIndex = "";
-        //if (camp == EUnitCamp.EUC_KILLALL)
-        //    strIndex = "01";
-        //if (camp == EUnitCamp.EUC_FRIEND)
-            strIndex = "01";//非联机模式,只有1皮肤
-        //else
-            //strIndex = "01";
-        //else if (camp == EUnitCamp.EUC_ENEMY)
-        //    strIndex = "03";
-
-        for (int i = 0; i < materials.Length; i++)
+        if (roleIdx >= Global.MaxModel)
         {
-            //if (materials[i].TwoSide)
-            //    ret[i] = new Material(Shader.Find("Shader Forge/DoubleSideTexture"));
-            //else
-            ret[i] = new Material(ShaderMng.Find("AlphaTexture"));
-            //根据阵营决定贴图序号
-            if (roleIdx > 19)
-                ret[i].SetTexture("_MainTex", Resources.Load<Texture>(materials[i].Texture));
-            else
+            Material[] ret = new Material[materials.Length];
+            for (int i = 0; i < materials.Length; i++)
             {
-                string[] str = materials[i].Texture.Split('b');
-                if (str.Length == 2)
-                    strTexture = str[0] + "b" + strIndex;
-                else
-                    strTexture = materials[i].Texture;
-                ret[i].SetTexture("_MainTex", Resources.Load<Texture>(strTexture));
+                ret[i] = new Material(ShaderMng.Find("AlphaTexture"));
+                ret[i].SetTexture("_MainTex", SkcFile.GetTexrtureFromPlugin(roleIdx, materials[i].Texture));
+                ret[i].SetColor("_Color", materials[i].Diffuse);
             }
-            ret[i].SetColor("_Color", materials[i].Diffuse);
+            return ret;
         }
-        return ret;
+        else
+        {
+            if (Game.Instance != null && Game.Instance.SkcMng != null)
+                return Game.Instance.SkcMng.GetPlayerMat(roleIdx, camp);
+            //使用预先设置好的材质球，降低DC和Batch
+            Material[] ret = new Material[materials.Length];
+            string strTexture = "";
+            string strIndex = "";
+            //if (camp == EUnitCamp.EUC_KILLALL)
+            //    strIndex = "01";
+            //if (camp == EUnitCamp.EUC_FRIEND)
+            strIndex = "01";//非联机模式,只有1皮肤
+                            //else
+                            //strIndex = "01";
+                            //else if (camp == EUnitCamp.EUC_ENEMY)
+                            //    strIndex = "03";
+
+            for (int i = 0; i < materials.Length; i++)
+            {
+                //if (materials[i].TwoSide)
+                //    ret[i] = new Material(Shader.Find("Shader Forge/DoubleSideTexture"));
+                //else
+                ret[i] = new Material(ShaderMng.Find("AlphaTexture"));
+                //根据阵营决定贴图序号
+                if (roleIdx > 19)
+                    ret[i].SetTexture("_MainTex", Resources.Load<Texture>(materials[i].Texture));
+                else
+                {
+                    string[] str = materials[i].Texture.Split('b');
+                    if (str.Length == 2)
+                        strTexture = str[0] + "b" + strIndex;
+                    else
+                        strTexture = materials[i].Texture;
+                    ret[i].SetTexture("_MainTex", Resources.Load<Texture>(strTexture));
+                }
+                ret[i].SetColor("_Color", materials[i].Diffuse);
+            }
+            return ret;
+        }
     }
 }
 

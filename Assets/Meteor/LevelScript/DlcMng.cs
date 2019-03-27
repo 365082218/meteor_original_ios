@@ -4,6 +4,17 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
+public class DlcLevelMng:TableManagerEx<Level, DlcLevelMng>
+{
+    string levText;
+    public DlcLevelMng(string lev)
+    {
+        levText = lev;
+        ReLoad();
+    }
+    public override string TableName() { return levText; }
+}
+
 //资料片管理器
 public class DlcMng:Singleton<DlcMng> {
     Dictionary<int, Module> Plgins = new Dictionary<int, Module>();
@@ -32,6 +43,14 @@ public class DlcMng:Singleton<DlcMng> {
     {
         return null;
     }
+
+    //取得资料片内所有关卡资料.
+    public Level[] GetDlcLevel(int idx)
+    {
+        Chapter cha = U3D.GetPluginChapter(idx);
+        return cha.LoadAll();
+    }
+
     //打开资料片中指定关卡
     public void PlayDlc(int dlcIdx, int levelIdx)
     {

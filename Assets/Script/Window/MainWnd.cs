@@ -982,6 +982,9 @@ public class MainWnd : Window<MainWnd>
         Control("SinglePlayer").GetComponent<Button>().onClick.AddListener(()=> {
             OnSinglePlayer();
         });
+        Control("DlcLevel").GetComponent<Button>().onClick.AddListener(() => {
+            OnDlcWnd();
+        });
         //教学关卡-教导使用招式方式
         Control("TeachingLevel").GetComponent<Button>().onClick.AddListener(() => {
             OnTeachingLevel();
@@ -1024,6 +1027,11 @@ public class MainWnd : Window<MainWnd>
     void OnSinglePlayer()
     {
         MainMenu.Instance.Open();
+    }
+
+    void OnDlcWnd()
+    {
+        DlcWnd.Instance.Open();
     }
 
     //教学关卡.
@@ -1389,13 +1397,13 @@ public class RobotWnd : Window<RobotWnd>
         {
             RobotList[Idx].GetComponent<Button>().onClick.RemoveAllListeners();
             RobotList[Idx].GetComponent<Button>().onClick.AddListener(() => { SpawnRobot(Idx, (EUnitCamp)campIdx); });
-            RobotList[Idx].GetComponentInChildren<Text>().text = string.Format("{0}", Global.Instance.GetCharacter(Idx).Name);
+            RobotList[Idx].GetComponentInChildren<Text>().text = string.Format("{0}", Global.Instance.GetCharacter(Idx));
         }
         else
         {
             GameObject obj = GameObject.Instantiate(Resources.Load("GridItemBtn")) as GameObject;
             obj.GetComponent<Button>().onClick.AddListener(() => { SpawnRobot(Idx, (EUnitCamp)campIdx); });
-            obj.GetComponentInChildren<Text>().text = string.Format("{0}", Global.Instance.GetCharacter(Idx).Name);
+            obj.GetComponentInChildren<Text>().text = string.Format("{0}", Global.Instance.GetCharacter(Idx));
             obj.transform.SetParent(RobotRoot.transform);
             obj.gameObject.layer = RobotRoot.layer;
             obj.transform.localScale = Vector3.one;

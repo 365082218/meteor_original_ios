@@ -246,7 +246,9 @@ namespace LitJson
         public JsonData this[string prop_name] {
             get {
                 EnsureDictionary ();
-                return inst_object[prop_name];
+                if (inst_object.ContainsKey(prop_name))
+                    return inst_object[prop_name];
+                return null;
             }
 
             set {

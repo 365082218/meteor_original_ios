@@ -21,9 +21,25 @@ public class ModelWnd:Window<ModelWnd>
 
     IEnumerator LoadModels()
     {
-        for (int i = 0; i < Global.Instance.CharacterMax; i++)
+        List<int> allModel = new List<int>();
+        for (int i = 0; i < 20; i++)
         {
-            AddModel(i);
+            allModel.Add(i);
+        }
+
+        if (GameData.Instance.gameStatus.pluginModel != null)
+        {
+            for (int i = 0; i < GameData.Instance.gameStatus.pluginModel.Count; i++)
+            {
+                GameData.Instance.gameStatus.pluginModel[i].Check();
+                if (GameData.Instance.gameStatus.pluginModel[i].Installed)
+                    allModel.Add(GameData.Instance.gameStatus.pluginModel[i].ModelId);
+            }
+        }
+
+        for (int i = 0; i < allModel.Count; i++)
+        {
+            AddModel(allModel[i]);
             yield return 0;
         }
     }
@@ -32,7 +48,7 @@ public class ModelWnd:Window<ModelWnd>
     {
         UIFunCtrl obj = (GameObject.Instantiate(Resources.Load("UIFuncItem")) as GameObject).GetComponent<UIFunCtrl>();
         obj.SetEvent(ChangeModel, Idx);
-        obj.SetText(Global.Instance.GetCharacter(Idx).Name);
+        obj.SetText(Global.Instance.GetCharacter(Idx));
         obj.transform.SetParent(GridViewRoot.transform);
         obj.gameObject.layer = GridViewRoot.layer;
         obj.transform.localScale = Vector3.one;

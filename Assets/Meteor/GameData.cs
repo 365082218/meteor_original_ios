@@ -83,7 +83,8 @@ public class GameState
     public bool EnableWeaponChoose;//战斗UI控制面板是否显示按钮
     public bool EnableDebugRobot;//调试角色按钮。
     public bool _EnableInfiniteAngry;
-    public List<ModelItem> pluginModel;
+    public List<ModelItem> pluginModel = new List<ModelItem>();
+    public List<Chapter> pluginChapter = new List<Chapter>();
     public void RegisterModel(ModelItem item)
     {
         if (pluginModel == null)
@@ -98,7 +99,11 @@ public class GameState
         for (int i = 0; i < pluginModel.Count; i++)
         {
             if (pluginModel[i].ModelId == item.ModelId)
-                return true;
+            {
+                //找到了指定的模型插件，判定模型的资源是否存在
+                pluginModel[i].Check();
+                return pluginModel[i].Installed;
+            }
         }
         return false;
     }

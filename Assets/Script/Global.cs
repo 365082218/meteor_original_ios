@@ -58,7 +58,6 @@ public class Global
     public int ComboProbability = 5;//连击率
     public int SpecialWeaponProbability = 98;//100-98=2几率切换到远程武器，每次Think都有2%几率
     public float AimDegree = 30.0f;//夹角超过30度，需要重新瞄准
-    public readonly int CharacterMax = 20;//
     public MeteorInput GMeteorInput = null;
 	public Level GLevelItem = null;
     public LevelMode GLevelMode;//建立房间时选择的类型，从主界面进，都是Normal
@@ -74,6 +73,7 @@ public class Global
     public System.Random Rand = new System.Random((int)DateTime.Now.ToFileTime());
     bool mPauseAll ;
     public Vector3 BodyHeight = new Vector3(0, 28, 0);
+    public Chapter Chapter;
     public bool PauseAll
     {
         get { return mPauseAll; }
@@ -92,7 +92,7 @@ public class Global
     public const float FollowDistanceEnd = 3600.0f;//结束跟随60
     public const float FollowDistanceStart = 6400.0f;//开始跟随80
     public const int BreakChange = 3;//3%爆气几率
-
+    public const int MaxModel = 20;//内置角色模型20个
     public void Init()
     {
         LEVELMAX = U3D.GetMaxLevel();
@@ -118,9 +118,13 @@ public class Global
         }
     }
 
-    public ModelInfo GetCharacter(int id)
+    public string GetCharacter(int id)
     {
-        return ModelMng.Instance.GetItem(id);
+        if (id >= Global.MaxModel)
+        {
+            return U3D.GetPluginModel(id).Name;
+        }
+        return ModelMng.Instance.GetItem(id).Name;
     }
 
     public static DateTime JSLongToDataTime(long longTime)
