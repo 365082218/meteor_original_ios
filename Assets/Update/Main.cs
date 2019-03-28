@@ -64,6 +64,8 @@ public class Main : MonoBehaviour {
         UnityEngine.SceneManagement.SceneManager.LoadScene("Startup");
     }
 	
+    //这个是热更新打包系统支持的更新，由每一次新打包与上次打包的文件对比组成的
+    //这个热更新系统不好维护，仅支持一些资源文件的更新等
 	IEnumerator CheckNeedUpdate()
 	{
         //仅在局域网下可用

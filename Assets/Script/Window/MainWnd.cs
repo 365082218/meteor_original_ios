@@ -1009,12 +1009,6 @@ public class MainWnd : Window<MainWnd>
             UnityEditor.EditorApplication.isPlaying = false;
 #endif
         });
-        //Control("ServerCfg").GetComponent<Button>().onClick.AddListener(()=> {
-        //    if (ServerListWnd.Exist)
-        //        ServerListWnd.Instance.Close();
-        //    else
-        //        ServerListWnd.Instance.Open();
-        //});
         if (GameData.Instance.gameStatus.GodLike)
         {
             Control("UploadLog").SetActive(true);

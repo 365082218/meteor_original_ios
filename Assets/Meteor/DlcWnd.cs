@@ -26,16 +26,19 @@ public class DlcWnd : Window<DlcWnd> {
             Close();
         });
 
-        for (int i = 0; i <= GameData.Instance.gameStatus.pluginChapter.Count; i++)
+        if (GameData.Instance.gameStatus.pluginChapter != null)
         {
-            Chapter lev = GameData.Instance.gameStatus.pluginChapter[i];
-            if (lev == null)
-                continue;
-            lev.Check();
-            if (!lev.Installed)
-                continue;
-            AddGridItem(lev, rootMenu.transform);
-            select = lev;
+            for (int i = 0; i <= GameData.Instance.gameStatus.pluginChapter.Count; i++)
+            {
+                Chapter lev = GameData.Instance.gameStatus.pluginChapter[i];
+                if (lev == null)
+                    continue;
+                lev.Check();
+                if (!lev.Installed)
+                    continue;
+                AddGridItem(lev, rootMenu.transform);
+                select = lev;
+            }
         }
         OnSelectChapter(select);
     }
@@ -46,6 +49,7 @@ public class DlcWnd : Window<DlcWnd> {
         if (lev == null)
         {
             //还未安装任何资料片，要下载资料片需要在主界面-设置-模组内安装对应的资料片
+
             return;
         }
         Texture2D tex = new Texture2D(0, 0);
