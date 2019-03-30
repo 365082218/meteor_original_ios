@@ -59,7 +59,7 @@ public class Global
     public int SpecialWeaponProbability = 98;//100-98=2几率切换到远程武器，每次Think都有2%几率
     public float AimDegree = 30.0f;//夹角超过30度，需要重新瞄准
     public MeteorInput GMeteorInput = null;
-	public Level GLevelItem = null;
+	public Level GLevelItem = null;//普通关卡
     public LevelMode GLevelMode;//建立房间时选择的类型，从主界面进，都是Normal
     public GameMode GGameMode;//游戏玩法类型
     public Vector3[] GLevelSpawn;
@@ -116,6 +116,17 @@ public class Global
             if (!Servers.Contains(Info))
                 Servers.Add(Info);
         }
+    }
+
+    public Level[] GetAllLevel()
+    {
+        return null;
+    }
+
+    public Level GetLevel(int id)
+    {
+        LevelMng.Instance.GetItem(id);
+        return null;
     }
 
     public string GetCharacter(int id)

@@ -4,6 +4,7 @@ using System;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Collections.Generic;
+using System.Net;
 
 public class SettingWnd : Window<SettingWnd> {
     public override string PrefabName{get{return "SettingWnd"; }}
@@ -142,11 +143,33 @@ public class SettingWnd : Window<SettingWnd> {
         if (vFile.isError || vFile.responseCode != 200)
         {
             Debug.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
+            Control("Warning").SetActive(true);
             vFile.Dispose();
             Update = null;
+            //显示出存档中保存得
+            DlcMng.Instance.ClearModel();
+            for (int i = 0; i < GameData.Instance.gameStatus.pluginModel.Count; i++)
+            {
+                DlcMng.Instance.Models.Add(GameData.Instance.gameStatus.pluginModel[i]);
+            }
+            for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
+            {
+                InsertModel(DlcMng.Instance.Models[i]);
+            }
+
+            DlcMng.Instance.ClearDlc();
+            for (int i = 0; i < GameData.Instance.gameStatus.pluginChapter.Count; i++)
+            {
+                DlcMng.Instance.Dlcs.Add(GameData.Instance.gameStatus.pluginChapter[i]);
+            }
+            for (int i = 0; i < DlcMng.Instance.Dlcs.Count; i++)
+            {
+                InsertDlc(DlcMng.Instance.Dlcs[i]);
+            }
             yield break;
         }
-
+        Control("Warning").SetActive(false);
+        CleanModelList();
         LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
         for (int i = 0; i < js["Scene"].Count; i++)
         {
@@ -178,7 +201,7 @@ public class SettingWnd : Window<SettingWnd> {
             //Global.Instance.Servers.Add(s);
         }
 
-        ModelPlugin.Instance.ClearModel();
+        DlcMng.Instance.ClearModel();
         for (int i = 0; i < js["Model"].Count; i++)
         {
             int modelIndex = int.Parse(js["Model"][i]["Idx"].ToString());
@@ -189,28 +212,68 @@ public class SettingWnd : Window<SettingWnd> {
             Info.Path = js["Model"][i]["zip"].ToString();
             if (js["Model"][i]["desc"] != null)
                 Info.Desc = js["Model"][i]["desc"].ToString();
-            Info.IcoPath = Info.Path.Substring(0,  Info.Path.Length - 4) + ".jpg";
-            ModelPlugin.Instance.AddModel(Info);
+            DlcMng.Instance.AddModel(Info);
         }
 
-        CleanModelList();
-        for (int i = 0; i < ModelPlugin.Instance.Models.Count; i++)
+        
+        for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
         {
-            InsertModel(ModelPlugin.Instance.Models[i]);
+            InsertModel(DlcMng.Instance.Models[i]);
         }
 
-        for (int i = 0; i < js["Npc"].Count; i++)
-        {
-            //Global.Instance.Servers.Add(s);
-        }
+        WebClient web = new WebClient();
+        web.DownloadFile(string.Format(Main.strSourcePath, Main.strHost, Main.strProjectUrl, @"Npc\Npc.zip"), Application.persistentDataPath + @"\Plugins\Npc\Npc.zip");
+        ZipUtility.UnzipFile(Application.persistentDataPath + @"\Plugins\Npc\Npc.zip", Application.persistentDataPath + @"\Plugins\Npc\", null, new UnzipCallbackEx(0));
 
+        DlcMng.Instance.ClearDlc();
         for (int i = 0; i < js["Dlc"].Count; i++)
         {
-            //for (int j = 0; j < js["Dlc"][i]["Level"].Count; j++)
-            //{
+            Chapter c = new Chapter();
+            c.Installed = false;
+            c.ChapterId = int.Parse(js["Dlc"][i]["Idx"].ToString());
+            c.Name = js["Dlc"][i]["name"].ToString();
+            c.Path = js["Dlc"][i]["zip"].ToString();
+            if (js["Dlc"][i]["desc"] != null)
+                c.Desc = js["Dlc"][i]["desc"].ToString();
+            if (js["Dlc"][i]["reference"] != null)
+            {
+                Dependence dep = new Dependence();
+                for (int j = 0; j < js["Dlc"][i]["reference"].Count; j++)
+                {
+                    if (js["Dlc"][i]["reference"][j]["Scene"] != null)
+                    {
+                        dep.scene = new List<int>();
+                        for (int l = 0; l < js["Dlc"][i]["reference"][j]["Scene"].Count; l++)
+                        {
+                            dep.scene.Add(int.Parse(js["Dlc"][i]["reference"][j]["Scene"][l].ToString()));
+                        }
+                    }
+                    if (js["Dlc"][i]["reference"][j]["Model"] != null)
+                    {
+                        dep.model = new List<int>();
+                        for (int l = 0; l < js["Dlc"][i]["reference"][j]["Model"].Count; l++)
+                        {
+                            dep.model.Add(int.Parse(js["Dlc"][i]["reference"][j]["Model"][l].ToString()));
+                        }
+                    }
 
-            //}
-            //Global.Instance.Servers.Add(s);
+                    if (js["Dlc"][i]["reference"][j]["Weapon"] != null)
+                    {
+                        dep.weapon = new List<int>();
+                        for (int l = 0; l < js["Dlc"][i]["reference"][j]["Weapon"].Count; l++)
+                        {
+                            dep.weapon.Add(int.Parse(js["Dlc"][i]["reference"][j]["Weapon"][l].ToString()));
+                        }
+                    }
+                }
+                c.Res = dep;
+            }
+            DlcMng.Instance.AddDlc(c);
+        }
+
+        for (int i = 0; i < DlcMng.Instance.Dlcs.Count; i++)
+        {
+            InsertDlc(DlcMng.Instance.Dlcs[i]);
         }
 
         PluginUpdate = null;
@@ -302,6 +365,22 @@ public class SettingWnd : Window<SettingWnd> {
         if (ctrl != null)
         {
             ctrl.AttachModel(item);
+        }
+    }
+
+    void InsertDlc(Chapter item)
+    {
+        if (prefabPluginWnd == null)
+            prefabPluginWnd = ResMng.Load("PluginWnd") as GameObject;
+        GameObject insert = GameObject.Instantiate(prefabPluginWnd);
+        insert.transform.SetParent(PluginRoot.transform);
+        insert.transform.localPosition = Vector3.zero;
+        insert.transform.localScale = Vector3.one;
+        insert.transform.localRotation = Quaternion.identity;
+        PluginCtrl ctrl = insert.GetComponent<PluginCtrl>();
+        if (ctrl != null)
+        {
+            ctrl.AttachDlc(item);
         }
     }
 

@@ -7,6 +7,7 @@ public class DlcWnd : Window<DlcWnd> {
     public override string PrefabName { get { return "DlcWnd"; } }
     GameObject rootMenu;
     Image background;
+    GameObject warningWnd;
     protected override bool OnOpen()
     {
         Init();
@@ -25,10 +26,11 @@ public class DlcWnd : Window<DlcWnd> {
             MainWnd.Instance.Open();
             Close();
         });
-
+        warningWnd = Control("WarningWnd");
+        
         if (GameData.Instance.gameStatus.pluginChapter != null)
         {
-            for (int i = 0; i <= GameData.Instance.gameStatus.pluginChapter.Count; i++)
+            for (int i = 0; i < GameData.Instance.gameStatus.pluginChapter.Count; i++)
             {
                 Chapter lev = GameData.Instance.gameStatus.pluginChapter[i];
                 if (lev == null)
@@ -49,9 +51,15 @@ public class DlcWnd : Window<DlcWnd> {
         if (lev == null)
         {
             //还未安装任何资料片，要下载资料片需要在主界面-设置-模组内安装对应的资料片
-
+            warningWnd.SetActive(true);
+            WndObject.GetComponentInChildren<EnhanceScrollView>().enabled = false;
             return;
         }
+        else
+        {
+            warningWnd.SetActive(false);
+        }
+
         Texture2D tex = new Texture2D(0, 0);
         if (!string.IsNullOrEmpty(lev.Preview))
         {
@@ -79,7 +87,9 @@ public class DlcWnd : Window<DlcWnd> {
             DlcLevelSelect.Instance.Open();
         }
         else
-            Log.WriteError("select == null");
+        {
+            U3D.PopupTip("请先在设置-模组中安装资料片");
+        }
     }
 
     void AddGridItem(Chapter lev, Transform parent)

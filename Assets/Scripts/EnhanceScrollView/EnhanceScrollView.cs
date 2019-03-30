@@ -96,7 +96,7 @@ public class EnhanceScrollView : MonoBehaviour
 	/// 滚动视图中的目标列表。
 	/// </summary>
 	public List<EnhanceItem> listEnhanceItems;
-
+    public GameObject itemPrefab;
 	/// <summary>
 	/// 滚动视图中的目标排序列表。
 	/// </summary>
@@ -132,33 +132,42 @@ public class EnhanceScrollView : MonoBehaviour
     {
     }
 
-    void Start()
+    //当插入了所有子项后
+    public void Reload()
     {
+        listEnhanceItems.Clear();
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            EnhanceItem item = transform.GetChild(i).GetComponent<EnhanceItem>();
+            if (item != null && item != itemPrefab)
+                listEnhanceItems.Add(item);
+        }
+
         canChangeItem = true;//是否可以改变目标
         int count = listEnhanceItems.Count;//滚动目标数量
-		dFactor = (Mathf.RoundToInt((1f / count) * 10000f)) * 0.0001f;//保留四位小数
-		//中心id赋值
+        dFactor = (Mathf.RoundToInt((1f / count) * 10000f)) * 0.0001f;//保留四位小数
+                                                                      //中心id赋值
         mCenterIndex = count / 2;
         if (count % 2 == 0)
             mCenterIndex = count / 2 - 1;
         int index = 0;
-		//反序遍历滚动视图中的目标列表
-		for (int i = count - 1; i >= 0; i--)
-		{
-			//初始化视图中的项
-			listEnhanceItems[i].CurveOffSetIndex = i;
-			listEnhanceItems[i].CenterOffSet = dFactor * (mCenterIndex - index);//设置曲线中心偏移
-			listEnhanceItems[i].SetSelectState(false);//设置未选中状态
-			listEnhanceItems[i].SetScrollView(this);
-			GameObject obj = listEnhanceItems[i].gameObject;
-			UDragEnhanceView script = obj.GetComponent<UDragEnhanceView>();
-			if (script != null)
-				script.SetScrollView(this);//设置滚动视图
-			index++;
-		}
+        //反序遍历滚动视图中的目标列表
+        for (int i = count - 1; i >= 0; i--)
+        {
+            //初始化视图中的项
+            listEnhanceItems[i].CurveOffSetIndex = i;
+            listEnhanceItems[i].CenterOffSet = dFactor * (mCenterIndex - index);//设置曲线中心偏移
+            listEnhanceItems[i].SetSelectState(false);//设置未选中状态
+            listEnhanceItems[i].SetScrollView(this);
+            GameObject obj = listEnhanceItems[i].gameObject;
+            UDragEnhanceView script = obj.GetComponent<UDragEnhanceView>();
+            if (script != null)
+                script.SetScrollView(this);//设置滚动视图
+            index++;
+        }
 
         // set the center item with startCenterIndex
-		// 根据传入的初始被选中项id设置被选中物体(该物体在中心高亮提高显示)
+        // 根据传入的初始被选中项id设置被选中物体(该物体在中心高亮提高显示)
         if (startCenterIndex < 0 || startCenterIndex >= count)//初始id合法性判断
         {
             Debug.LogError("## startCenterIndex < 0 || startCenterIndex >= listEnhanceItems.Count  out of index ##");
@@ -166,16 +175,21 @@ public class EnhanceScrollView : MonoBehaviour
         }
 
         // sorted items
-		//对项目排序
+        //对项目排序
         listSortedItems = new List<EnhanceItem>(listEnhanceItems.ToArray());
-		//设置总宽度
+        //设置总宽度
         totalHorizontalWidth = cellWidth * count;
-		//设置当前中心项
+        //设置当前中心项
         curCenterItem = listEnhanceItems[startCenterIndex];
-		//设置当前水平值
+        //设置当前水平值
         curHorizontalValue = 0.5f - curCenterItem.CenterOffSet;
-		//插值渐变到目标值
+        //插值渐变到目标值
         LerpTweenToTarget(0f, curHorizontalValue, false);
+    }
+
+    void Start()
+    {
+        
     }
 
     void Update()

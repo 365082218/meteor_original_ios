@@ -42,6 +42,7 @@ public class ScriptMng:MonoBehaviour
         if (f != null)
             f.call();
     }
+
     //主状态上.加载脚本后，运行以main为名称的函数
     public void CallScript(string script)
 	{
@@ -84,6 +85,15 @@ public class ScriptMng:MonoBehaviour
     //加载脚本后，运行以script为名称的函数
     public object DoScript(string script)
     {
+        //查找模组中是否存在该NPC模板.
+        if (GameData.Instance.gameStatus.pluginNpc != null)
+        {
+            for (int i = 0; i < GameData.Instance.gameStatus.pluginNpc.Count; i++)
+            {
+                if (GameData.Instance.gameStatus.pluginNpc[i].npcTemplate == script)
+                    return svr.dofile(GameData.Instance.gameStatus.pluginNpc[i].filePath);
+            }
+        }
         return svr.dofile(script);
     }
 

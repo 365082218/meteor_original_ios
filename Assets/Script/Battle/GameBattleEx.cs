@@ -107,7 +107,7 @@ public partial class GameBattleEx : MonoBehaviour {
         if (NGUIJoystick.instance)
             NGUIJoystick.instance.Lock(true);
         //如果胜利，且不是最后一关，打开最新关标志.
-        if (result == 1 && (Global.Instance.GLevelItem.FuBenID == GameData.Instance.gameStatus.Level) && Global.Instance.GLevelItem.FuBenID < Global.Instance.LEVELMAX)
+        if (result == 1 && (Global.Instance.GLevelItem.ID == GameData.Instance.gameStatus.Level) && Global.Instance.GLevelItem.ID < Global.Instance.LEVELMAX)
         {
             GameData.Instance.gameStatus.Level++;
             GameData.Instance.SaveState();
@@ -424,7 +424,7 @@ public partial class GameBattleEx : MonoBehaviour {
     System.Reflection.MethodInfo Scene_OnCharacterEvent;
     System.Reflection.MethodInfo Scene_OnEvent;
     int EventDeath = 202;
-    public void Init(Level lev, LevelScriptBase script)
+    public void Init(LevelScriptBase script)
     {
         Scene_OnCharacterEvent = Global.Instance.GScriptType.GetMethod("Scene_OnCharacterEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         if (Scene_OnCharacterEvent == null)

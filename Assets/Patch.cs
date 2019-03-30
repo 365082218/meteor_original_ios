@@ -138,6 +138,7 @@ public class Patch : MonoBehaviour {
         AppDomain.CurrentDomain.UnhandledException += UncaughtException;
         ResMng.LoadScene("Menu");
         SceneManager.LoadScene("Menu");
+        DlcMng.Instance.Init();
     }
 
     void UncaughtException(object sender, UnhandledExceptionEventArgs e)

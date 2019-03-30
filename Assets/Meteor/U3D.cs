@@ -439,6 +439,28 @@ public class U3D : MonoBehaviour {
         return unit;
     }
 
+    public static string GetDefaultFile(string Path, int type, bool local)
+    {
+        string suffix = "";
+        switch (type)
+        {
+            case 0:
+                suffix = ".jpg";
+                break;
+            case 1:
+                suffix = ".dll";
+                break;
+            case 2:
+                suffix = ".txt";
+                break;
+        }
+
+
+        if (local)
+            return Application.persistentDataPath + @"\Plugins\" + Path.Substring(0, Path.Length - 4) + suffix;//.zip => .png
+        return Path.Substring(0, Path.Length - 4) + suffix;
+    }
+
     public static int AddNPC(string script)
     {
         MeteorUnit target = SceneMng.Spawn(script);

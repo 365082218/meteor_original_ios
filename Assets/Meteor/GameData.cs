@@ -85,11 +85,19 @@ public class GameState
     public bool _EnableInfiniteAngry;
     public List<ModelItem> pluginModel = new List<ModelItem>();
     public List<Chapter> pluginChapter = new List<Chapter>();
+    public List<NpcTemplate> pluginNpc = new List<NpcTemplate>();
     public void RegisterModel(ModelItem item)
     {
         if (pluginModel == null)
             pluginModel = new List<ModelItem>();
         pluginModel.Add(item);
+    }
+
+    public void RegisterDlc(Chapter dlc)
+    {
+        if (pluginChapter == null)
+            pluginChapter = new List<Chapter>();
+        pluginChapter.Add(dlc);
     }
 
     public bool IsModelInstalled(ModelItem item)
@@ -107,6 +115,23 @@ public class GameState
         }
         return false;
     }
+
+    public bool IsDlcInstalled(Chapter dlc)
+    {
+        if (pluginChapter == null)
+            return false;
+        for (int i = 0; i < pluginChapter.Count; i++)
+        {
+            if (pluginChapter[i].ChapterId == dlc.ChapterId)
+            {
+                //找到了指定的模型插件，判定模型的资源是否存在
+                pluginChapter[i].Check();
+                return pluginChapter[i].Installed;
+            }
+        }
+        return false;
+    }
+
     public bool EnableInfiniteAngry
     {
         get

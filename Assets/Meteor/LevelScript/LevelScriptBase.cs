@@ -182,6 +182,11 @@ public class ScriptBase
         return false;
     }
 
+    public bool IsUnitDead(int unit)
+    {
+        return U3D.IsUnitDead(unit);
+    }
+
     public static void RemoveNPC(int id)
     {
         U3D.RemoveNPC(id);
@@ -5717,7 +5722,7 @@ public class LevelScript_sn13 : LevelScriptBase
         if (g_counter % 20 == 0 && timer0 > 0 && GetGameTime() > timer0)
         {
             c = GetChar("冷燕");
-            if (c >= 0 && !IsPerforming(player) && !U3D.IsUnitDead(c))
+            if (c >= 0 && !IsPerforming(player) && !IsUnitDead(c))
             {
                 SetTarget(0, "char", player);
                 SetTarget(1, "char", c);

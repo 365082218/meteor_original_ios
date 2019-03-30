@@ -77,4 +77,44 @@ public class DlcMng:Singleton<DlcMng> {
         helper.Load(levelIdx);
         Log.Write("helper.load end");
     }
+
+    //初始化各个路径.
+    public void Init()
+    {
+        if (!System.IO.Directory.Exists(Application.persistentDataPath + @"\Plugins\Model\"))
+            System.IO.Directory.CreateDirectory(Application.persistentDataPath + @"\Plugins\Model\");
+
+        if (!System.IO.Directory.Exists(Application.persistentDataPath + @"\Plugins\Dlc\"))
+            System.IO.Directory.CreateDirectory(Application.persistentDataPath + @"\Plugins\Dlc\");
+
+        //下载NPC定义文件，用于DLC内得关卡脚本加载NPC时使用
+        if (!System.IO.Directory.Exists(Application.persistentDataPath + @"\Plugins\Npc\"))
+            System.IO.Directory.CreateDirectory(Application.persistentDataPath + @"\Plugins\Npc\");
+    }
+
+    public List<ModelItem> Models = new List<ModelItem>();
+    public void ClearModel()
+    {
+        Models.Clear();
+    }
+
+    //加入从json里获取到得一项资源
+    public void AddModel(ModelItem Info)
+    {
+        Debug.Log("增加外部角色:" + Info.Name);
+        Models.Add(Info);
+    }
+
+
+    //资料片
+    public List<Chapter> Dlcs = new List<Chapter>();
+    public void ClearDlc()
+    {
+        Dlcs.Clear();
+    }
+
+    public void AddDlc(Chapter cha)
+    {
+        Dlcs.Add(cha);
+    }
 }

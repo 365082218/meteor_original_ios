@@ -84,17 +84,10 @@ class SceneMng
         }
     }
 
-    //指明进入一张地图,地图上所有的道具，建筑，陷阱，传送门，Npc,怪物,障碍物都需要保存下来，以便下次进入场景恢复
-    public static void OnEnterLevel(LevelScriptBase levelScript, int level)
+    public static void OnEnterLevel(LevelScriptBase levelScript, string sceneItems)
     {
         if (levelScript == null)
             return;
-        Level lev = LevelMng.Instance.GetItem(level);
-        string sceneItems = lev.sceneItems;
-        string items = levelScript.GetDesName();
-        if (!string.IsNullOrEmpty(items))
-            sceneItems = items;
-
         if (Loader.Instance != null)
         {
             Loader.Instance.LoadFixedScene(sceneItems);
@@ -141,7 +134,7 @@ class SceneMng
         objWayPoint.transform.rotation = Quaternion.identity;
         objWayPoint.transform.localScale = Vector3.one;
         objWayPoint.layer = LayerMask.NameToLayer("WayPoint");
-        for (int i = 0;i < Global.Instance.GLevelItem.wayPoint.Count; i++)
+        for (int i = 0; i < Global.Instance.GLevelItem.wayPoint.Count; i++)
         {
             GameObject wayPoint = new GameObject(string.Format("WayPoint{0}", i));
             wayPoint.tag = "WayPoint";
@@ -157,6 +150,20 @@ class SceneMng
             WayPointTrigger trigger = wayPoint.AddComponent<WayPointTrigger>();
             trigger.WayIndex = i;
         }
+    }
+
+    //指明进入一张地图,地图上所有的道具，建筑，陷阱，传送门，Npc,怪物,障碍物都需要保存下来，以便下次进入场景恢复
+    public static void OnEnterLevel(LevelScriptBase levelScript, int level)
+    {
+        if (levelScript == null)
+            return;
+        Level lev = LevelMng.Instance.GetItem(level);
+        string sceneItems = lev.sceneItems;
+        string items = levelScript.GetDesName();
+        if (!string.IsNullOrEmpty(items))
+            sceneItems = items;
+
+        OnEnterLevel(levelScript, sceneItems);
     }
 
     //生成指定怪物,这个是从脚本入口来的，是正式关卡中生成NPC的

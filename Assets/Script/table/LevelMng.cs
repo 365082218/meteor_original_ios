@@ -65,12 +65,10 @@ public class Level : ITableItem
 	public SmartInt ID
 	{
 		get
-		{return FuBenID;}
+		{return Id;}
 	}
-	public SmartInt FuBenID;
+	public int Id;
 	public string Scene;
-    public string SceneDebug;
-    
     public string Name;
     List<WayPoint> wayPoints;
     //23关卡前使用旧版本的WP文件，23关卡后使用场景里设置的出生点.
@@ -103,9 +101,10 @@ public class Level : ITableItem
     public string BgTexture;
     public string Param;//通过参数
     public int Pass;//通关条件
-    public string Des;
-    public string Chapter;
-    public int SceneMode;
+    public int Template;//能否单机创建-作为场景模板 1能-即可在创建房间里创建
+    //public string Des;
+    //public string Comment;
+    public int DesType;//读取*.des的种类 0-原作 1-新des 2-不读取des
     public int DisableFindWay;//禁止寻路
 };
 
