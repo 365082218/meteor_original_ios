@@ -4,13 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-[ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
-public class ClientVersion
-{
-    public int Version;//存档版本
-    public string strVersion;//软件版本
-}
-
 public class AppInfo:Singleton<AppInfo>
 {
     public const string versionKey = "APPVERSION";
@@ -38,6 +31,8 @@ public class AppInfo:Singleton<AppInfo>
 
     public bool AppVersionIsSmallThan(string server)
     {
+        if (string.IsNullOrEmpty(server))
+            return false;
         string[] local = AppVersion().Split(new char[] { '.' });
         string[] vsave = server.Split(new char[] { '.' });
         for (int i = 0; i < local.Length; i++)

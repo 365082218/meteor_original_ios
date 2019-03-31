@@ -132,14 +132,16 @@ public class EnhanceScrollView : MonoBehaviour
     {
     }
 
+    System.Action<Chapter> OnSelect;
     //当插入了所有子项后
-    public void Reload()
+    public void Reload(System.Action<Chapter> c = null)
     {
+        OnSelect = c;
         listEnhanceItems.Clear();
         for (int i = 0; i < transform.childCount; i++)
         {
             EnhanceItem item = transform.GetChild(i).GetComponent<EnhanceItem>();
-            if (item != null && item != itemPrefab)
+            if (item != null && item.transform != itemPrefab.transform)
                 listEnhanceItems.Add(item);
         }
 
@@ -411,6 +413,12 @@ public class EnhanceScrollView : MonoBehaviour
         {
             CurItemName = curCenterItem.name;
         }
+
+        if (mDic.ContainsKey(curCenterItem.gameObject))
+        {
+            if (OnSelect != null)
+                OnSelect(mDic[curCenterItem.gameObject]);
+        }
     }
 
     // Get the evaluate value to set item's scale
@@ -477,6 +485,10 @@ public class EnhanceScrollView : MonoBehaviour
 			listSortedItems[i].RealIndex = i;
 		}
     }
-	#endregion
-
+    #endregion
+    Dictionary<GameObject, Chapter> mDic = new Dictionary<GameObject, Chapter>();
+    public void RegisterOnSelect(GameObject obj, Chapter chapter)
+    {
+        mDic[obj] = chapter;
+    }
 }

@@ -1208,17 +1208,19 @@ return dumpstack
 			return 2;
 		}
 
-		public object doFile(string fn)
+		public object doFile(string file, string function = "")
 		{
-			byte[] bytes = loadFile(fn);
+            if (string.IsNullOrEmpty(function))
+                function = file;
+            byte[] bytes = loadFile(file);
 			if (bytes == null)
 			{
-				Logger.LogError(string.Format("Can't find {0}", fn));
+				Logger.LogError(string.Format("Can't find {0}", file));
 				return null;
 			}
 
 			object obj;
-			if (doBuffer(bytes, "@" + fn, out obj))
+			if (doBuffer(bytes, "@" + function, out obj))
 				return obj;
 			return null;
 		}
@@ -1277,17 +1279,22 @@ return dumpstack
 		{
 			try {
 				byte[] bytes;
-				if (loaderDelegate != null)
+
+                if (System.IO.File.Exists(fn))
+                {
+                    bytes = System.IO.File.ReadAllBytes(fn);
+                    return bytes;
+                }
+
+                if (loaderDelegate != null)
 					bytes = loaderDelegate (fn);
-				else {
+				else
+                {
+
 #if !SLUA_STANDALONE
-					fn = fn.Replace (".", "/");
-
+                    fn = fn.Replace (".", "/");
 					TextAsset asset = null;
-
 #if UNITY_EDITOR
-
-
 					if (SLuaSetting.Instance.jitType == JITBUILDTYPE.none) {
 						asset = (TextAsset)Resources.Load (fn);
 					}

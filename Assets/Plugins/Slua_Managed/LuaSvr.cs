@@ -244,11 +244,13 @@ namespace SLua
 			return null;
 		}
 
-        public object dofile(string classes)
+        public object dofile(string filepath, string classes = "")
         {
-            if (classes != null)
+            if (string.IsNullOrEmpty(classes))
+                classes = filepath;
+            if (filepath != null)
             {
-                mainState.doFile(classes);
+                mainState.doFile(filepath, classes);
                 return mainState.run(classes);
             }
             return null;

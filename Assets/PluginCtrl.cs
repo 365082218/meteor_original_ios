@@ -137,7 +137,7 @@ public class PluginCtrl : MonoBehaviour {
             for (int i = 0; i < files.Length; i++)
             {
                 Debug.Log(files[i]);
-                Target.resPath[i] = files[i];
+                Target.resPath[i] = files[i].Replace("\\", "/");
             }
             Target.Installed = true;
             GameData.Instance.gameStatus.RegisterModel(Target);
@@ -212,7 +212,7 @@ public class PluginCtrl : MonoBehaviour {
                 byte[] array = System.IO.File.ReadAllBytes(it.Preview);
                 Texture2D tex = new Texture2D(0, 0);
                 tex.LoadImage(array);
-                Preview.overrideSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+                Preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
             }
         }
         else
@@ -238,7 +238,7 @@ public class PluginCtrl : MonoBehaviour {
                     }
                     Texture2D tex = new Texture2D(200, 150);
                     tex.LoadImage(bitIcon);
-                    Preview.overrideSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+                    Preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
                 }
                 preview.Dispose();
                 preview = null;
@@ -247,10 +247,10 @@ public class PluginCtrl : MonoBehaviour {
             {
 
             }
-            Title.text = it.Name;
-            Desc.text = it.Desc ?? "";
-            Progress.fillAmount = 0;
         }
+        Title.text = it.Name;
+        Desc.text = it.Desc ?? "";
+        Progress.fillAmount = 0;
     }
 
     public void AttachDlc(Chapter chapter)
@@ -268,7 +268,7 @@ public class PluginCtrl : MonoBehaviour {
                 byte[] array = System.IO.File.ReadAllBytes(Chapter.Preview);
                 Texture2D tex = new Texture2D(0, 0);
                 tex.LoadImage(array);
-                Preview.overrideSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+                Preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
             }
         }
         else
@@ -283,7 +283,7 @@ public class PluginCtrl : MonoBehaviour {
                     System.IO.File.WriteAllBytes(Chapter.Preview, bitIcon);
                     Texture2D tex = new Texture2D(200, 150);
                     tex.LoadImage(bitIcon);
-                    Preview.overrideSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+                    Preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
                 }
                 preview.Dispose();
                 preview = null;
@@ -292,10 +292,10 @@ public class PluginCtrl : MonoBehaviour {
             {
 
             }
-            Title.text = Chapter.Name;
-            Desc.text = Chapter.Desc ?? "";
-            Progress.fillAmount = 0;
         }
+        Title.text = Chapter.Name;
+        Desc.text = Chapter.Desc ?? "";
+        Progress.fillAmount = 0;
     }
 }
 

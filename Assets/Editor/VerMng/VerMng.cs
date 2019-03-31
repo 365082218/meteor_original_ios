@@ -374,7 +374,7 @@ public class VerMng : EditorWindow{
             File.Copy(GetPlatformPath(Target) + "/" + update.strVersion + "/" + update_files[i].Iden, baseDir.FullName + "/" + update_files[i].Iden);
         }
 
-        //打包PUK
+        //打包UPK,LZMA压缩比例比ZIP高很多，所以这里选择用7Z
         string upk = System.IO.Path.GetTempPath() + string.Format("{0}_{1}.upk", old.strVersion, update.strVersion);
         string zip = string.Format("{0}_{1}.zip", old.strVersion, update.strVersion);
         UPKPacker.PackFolder(baseDir.FullName, upk);

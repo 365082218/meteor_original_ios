@@ -7,8 +7,11 @@ using UnityEngine;
 [ProtoContract]
 public class Dependence
 {
+    [ProtoMember(1)]
     public List<int> scene;
+    [ProtoMember(2)]
     public List<int> model;
+    [ProtoMember(3)]
     public List<int> weapon;
 }
 
@@ -47,11 +50,18 @@ public class Chapter
             return localPath;
         }
     }//本地存储路径，由
+    public string Dll
+    {
+        get
+        {
+            return U3D.GetDefaultFile(Path, 1, true, true);
+        }
+    }
     public string webPreview
     {
         get
         {
-            return U3D.GetDefaultFile(Path, 0, false);
+            return U3D.GetDefaultFile(Path, 0, false, false);
         }
     }
 
@@ -59,7 +69,7 @@ public class Chapter
     {
         get
         {
-            return U3D.GetDefaultFile(Path, 0, true);
+            return U3D.GetDefaultFile(Path, 0, true, false);
         }
     }
 
@@ -67,14 +77,17 @@ public class Chapter
     public Level[] LoadAll()
     {
         //level.txt
-        DlcLevelMng l = new DlcLevelMng(U3D.GetDefaultFile(Path, 2, true));
-        return l.GetAllItem();
+        if (mLevel == null)
+            mLevel = new DlcLevelMng(U3D.GetDefaultFile(Path, 2, true, true));
+        return mLevel.GetAllItem();
     }
 
+    DlcLevelMng mLevel;
     public Level GetItem(int id)
     {
-        DlcLevelMng l = new DlcLevelMng(U3D.GetDefaultFile(Path, 2, true));
-        return l.GetItem(id);
+        if (mLevel == null)
+            mLevel = new DlcLevelMng(U3D.GetDefaultFile(Path, 2, true, true));
+        return mLevel.GetItem(id);
     }
 
     [ProtoMember(8)]
@@ -92,6 +105,11 @@ public class Chapter
         }
     }
     
+    //加载资料片内得关卡关卡.
+    public void LoadLevel(int levelIdx)
+    {
+        DlcMng.Instance.PlayDlc(this, levelIdx);
+    }
 }
 
 //外接得模型
@@ -141,15 +159,16 @@ public class ModelItem
     {
         get
         {
-            return U3D.GetDefaultFile(Path, 0, false);
+            return U3D.GetDefaultFile(Path, 0, false, false);
         }
     }
 
+    //预览图都在zip文件同一级，压缩包内的文件在解压出的文件夹下
     public string Preview
     {
         get
         {
-            return U3D.GetDefaultFile(Path, 0, true);
+            return U3D.GetDefaultFile(Path, 0, true, false);
         }
     }
 }

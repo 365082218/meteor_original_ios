@@ -95,7 +95,12 @@ public class SkcFile
     //加载外接式模型
     public void LoadModel(int model)
     {
-        ModelItem Target = U3D.GetPluginModel(model);
+        ModelItem Target = DlcMng.GetPluginModel(model);
+        if (Target == null)
+        {
+            Debug.LogError("cannot load model:" + model);
+            return;
+        }
         string skc = "";
         for (int i = 0; i < Target.resPath.Length; i++)
         {
@@ -367,7 +372,7 @@ public class SkcFile
     public static Texture2D GetTexrtureFromPlugin(int roleIdx, string imgPath)
     {
         ModelItem Target = null;
-        Target = U3D.GetPluginModel(roleIdx);
+        Target = DlcMng.GetPluginModel(roleIdx);
         for (int i = 0; i < Target.resPath.Length; i++)
         {
             int idx = Target.resPath[i].LastIndexOf("/");

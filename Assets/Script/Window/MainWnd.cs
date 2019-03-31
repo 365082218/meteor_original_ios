@@ -616,7 +616,10 @@ public class MainLobby : Window<MainLobby>
 
         RoomRoot = Control("RoomRoot");
         Control("Version").GetComponent<Text>().text = GameData.Instance.gameStatus.MeteorVersion;
-        Update = Startup.ins.StartCoroutine(UpdateServiceList());
+        if (Global.Instance.Servers.Count == 0)
+            Update = Startup.ins.StartCoroutine(UpdateServiceList());
+        else
+            OnGetServerListDone();
     }
 
     void OnEnterQueue()
@@ -665,6 +668,11 @@ public class MainLobby : Window<MainLobby>
         for (int i = 0; i < GameData.Instance.gameStatus.ServerList.Count; i++)
             Global.Instance.Servers.Add(GameData.Instance.gameStatus.ServerList[i]);
 
+        OnGetServerListDone();
+    }
+
+    void OnGetServerListDone()
+    {
         //拉取到服务器列表后
         Control("Servercfg").GetComponent<Button>().onClick.AddListener(() =>
         {

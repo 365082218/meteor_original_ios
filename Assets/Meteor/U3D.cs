@@ -254,34 +254,6 @@ public class U3D : MonoBehaviour {
         return;
     }
 
-    public static Chapter GetPluginChapter(int dlc)
-    {
-        Chapter Target = null;
-        for (int i = 0; i < GameData.Instance.gameStatus.pluginChapter.Count; i++)
-        {
-            if (GameData.Instance.gameStatus.pluginChapter[i].ChapterId == dlc)
-            {
-                Target = GameData.Instance.gameStatus.pluginChapter[i];
-                break;
-            }
-        }
-        return Target;
-    }
-
-    public static ModelItem GetPluginModel(int model)
-    {
-        ModelItem Target = null;
-        for (int i = 0; i < GameData.Instance.gameStatus.pluginModel.Count; i++)
-        {
-            if (GameData.Instance.gameStatus.pluginModel[i].ModelId == model)
-            {
-                Target = GameData.Instance.gameStatus.pluginModel[i];
-                break;
-            }
-        }
-        return Target;
-    }
-
     public static void ChangePlayerModel(int model)
     {
         Global.Instance.PauseAll = true;
@@ -439,7 +411,7 @@ public class U3D : MonoBehaviour {
         return unit;
     }
 
-    public static string GetDefaultFile(string Path, int type, bool local)
+    public static string GetDefaultFile(string Path, int type, bool local, bool inzipPath)
     {
         string suffix = "";
         switch (type)
@@ -455,9 +427,13 @@ public class U3D : MonoBehaviour {
                 break;
         }
 
-
+        string shortDir = "";
+        int k = Path.LastIndexOf('/');
+        shortDir = Path.Substring(0, k);
+        string shortName = Path.Substring(k);
+        shortName = shortName.Substring(0, shortName.Length - 4);
         if (local)
-            return Application.persistentDataPath + @"\Plugins\" + Path.Substring(0, Path.Length - 4) + suffix;//.zip => .png
+            return Application.persistentDataPath + @"\Plugins\" + shortDir + @"\" + (inzipPath ? shortName + @"\" + shortName: shortName) + suffix;//.zip => .png
         return Path.Substring(0, Path.Length - 4) + suffix;
     }
 
@@ -942,6 +918,7 @@ public class U3D : MonoBehaviour {
         NetWorkBattle.Ins.Load(sceneItems, players);
     }
 
+    //走内置关卡.
     public static void LoadLevel(int id, LevelMode levelmode, GameMode gamemode)
     {
         GameData.Instance.SaveState();
@@ -966,19 +943,16 @@ public class U3D : MonoBehaviour {
             int number = 0;
             if (int.TryParse(num, out number))
             {
-                //Debug.Log("b" + number);
-                PlayMovie("b" + number);
+                if (number >= 0 && number <= 9)
+                {
+                    string movie = string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, "mmv/" + "b" + number + ".mv");
+                    U3D.PlayMovie(movie);
+                }
             }
         }
         LevelHelper helper = ins.gameObject.AddComponent<LevelHelper>();
-        helper.Load(id);
+        helper.Load();
         Log.Write("helper.load end");
-    }
-
-    //加载资料片内得关卡关卡.
-    public static void LoadDlcLevel(int dlcIdx, int levelIdx)
-    {
-        DlcMng.Instance.PlayDlc(dlcIdx, levelIdx);
     }
 
     public static void ClearLevelData()
@@ -1718,7 +1692,8 @@ public class U3D : MonoBehaviour {
 
     public static void PlayMovie(string movie)
     {
-        //Handheld.PlayFullScreenMovie(movie, Color.black, FullScreenMovieControlMode.CancelOnInput, FullScreenMovieScalingMode.AspectFit);
+        Debug.Log("PlayMovie:" + movie);
+        Handheld.PlayFullScreenMovie(movie, Color.black, FullScreenMovieControlMode.CancelOnInput, FullScreenMovieScalingMode.AspectFit);
     }
 
     public static int GetEnemyCount()

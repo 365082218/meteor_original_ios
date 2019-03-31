@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using DG.Tweening;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,8 +7,10 @@ using UnityEngine.UI;
 public class DlcWnd : Window<DlcWnd> {
     public override string PrefabName { get { return "DlcWnd"; } }
     GameObject rootMenu;
+    EnhanceScrollView rootCtrl;
     Image background;
     GameObject warningWnd;
+    GameObject descPanel;
     protected override bool OnOpen()
     {
         Init();
@@ -17,7 +20,9 @@ public class DlcWnd : Window<DlcWnd> {
     }
     void Init()
     {
+        descPanel = Control("DescRoot");
         rootMenu = Control("Content");
+        rootCtrl = rootMenu.GetComponent<EnhanceScrollView>();
         background = Control("Background").GetComponent<Image>();
         Control("Yes").GetComponent<Button>().onClick.AddListener(() => {
             OnEnterChapter();
@@ -41,13 +46,21 @@ public class DlcWnd : Window<DlcWnd> {
                 AddGridItem(lev, rootMenu.transform);
                 select = lev;
             }
+            rootCtrl.Reload(OnSelectChapter);
         }
         OnSelectChapter(select);
     }
 
     Chapter select;
+    Sequence seq = null;
     void OnSelectChapter(Chapter lev)
     {
+        if (seq != null)
+        {
+            if (!seq.IsComplete())
+                seq.Kill();
+        }
+
         if (lev == null)
         {
             //还未安装任何资料片，要下载资料片需要在主界面-设置-模组内安装对应的资料片
@@ -60,21 +73,12 @@ public class DlcWnd : Window<DlcWnd> {
             warningWnd.SetActive(false);
         }
 
-        Texture2D tex = new Texture2D(0, 0);
-        if (!string.IsNullOrEmpty(lev.Preview))
-        {
-            if (System.IO.File.Exists(lev.Preview))
-            {
-                System.IO.FileStream fs = System.IO.File.OpenRead(lev.Preview);
-                byte[] bitPreview = new byte[fs.Length];
-                fs.Read(bitPreview, 0, (int)fs.Length);
-                tex.LoadImage(bitPreview);
-                background.overrideSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
-            }
-        }
-
         select = lev;
-        Control("Task").GetComponent<Text>().text = select.Name;
+        Control("Title", descPanel).GetComponent<Text>().text = select.Name;
+        Control("Desc", descPanel).GetComponent<Text>().text = select.Desc;
+        descPanel.GetComponent<RectTransform>().anchoredPosition = new Vector2(-450, -250);//.position = 0;
+        descPanel.GetComponent<CanvasGroup>().alpha = 0;
+        seq = descPanel.Fade(1.0f, 250);
         //写上该剧本得剧情概述
     }
 
@@ -84,7 +88,13 @@ public class DlcWnd : Window<DlcWnd> {
         {
             //普通关卡对待.
             Global.Instance.Chapter = select;
-            DlcLevelSelect.Instance.Open();
+            string tip = "";
+            if (!DlcMng.Instance.CheckDependence(Global.Instance.Chapter, out tip))
+                DlcLevelSelect.Instance.Open();
+            else
+            {
+                U3D.PopupTip("Dlc依赖\n" + tip);
+            }
         }
         else
         {
@@ -94,13 +104,23 @@ public class DlcWnd : Window<DlcWnd> {
 
     void AddGridItem(Chapter lev, Transform parent)
     {
-        GameObject objPrefab = Resources.Load("LevelSelectItem", typeof(GameObject)) as GameObject;
-        GameObject obj = GameObject.Instantiate(objPrefab) as GameObject;
+        GameObject obj = GameObject.Instantiate(rootCtrl.itemPrefab) as GameObject;
         obj.transform.SetParent(parent);
         obj.name = lev.Name;
-        obj.GetComponent<Button>().onClick.AddListener(() => { OnSelectChapter(lev); });
-        obj.GetComponentInChildren<Text>().text = lev.Name;
+        //obj.GetComponent<Button>().onClick.AddListener(() => { OnSelectChapter(lev); });
+        Texture2D tex = new Texture2D(0, 0);
+        if (System.IO.File.Exists(lev.Preview))
+        {
+            byte[] bit = System.IO.File.ReadAllBytes(lev.Preview);
+            if (bit != null && bit.Length != 0)
+            {
+                tex.LoadImage(bit);
+                obj.GetComponentInChildren<Image>().sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+            }
+        }
         obj.transform.localPosition = Vector3.zero;
         obj.transform.localScale = Vector3.one;
+        obj.SetActive(true);
+        rootCtrl.RegisterOnSelect(obj, lev);
     }
 }

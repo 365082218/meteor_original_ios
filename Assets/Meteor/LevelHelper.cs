@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using System.Reflection;
 
 //for loadingui updateui
 public interface LoadingUI
@@ -19,19 +20,17 @@ public class LevelHelper : MonoBehaviour
         public int gate;
     }
 
-    public void Load(int id)
+    public void Load()
     {
-        StartCoroutine(LoadLevelAsync(id));
+        StartCoroutine(LoadLevelAsync());
     }
 
-    IEnumerator LoadLevelAsync(int levelId)
+    IEnumerator LoadLevelAsync()
     {
         int displayProgress = 0;
         int toProgress = 0;
-        //WSLog.LogInfo("LoadLevelAsync");
         yield return 0;
-        Level lev = LevelMng.Instance.GetItem(levelId);
-        //WSLog.LogInfo("Load Scene Async:" + lev.Scene);
+        Level lev = Global.Instance.GLevelItem;
         ResMng.LoadScene(lev.Scene);
         mAsync = SceneManager.LoadSceneAsync(lev.Scene);
         mAsync.allowSceneActivation = false;
@@ -70,9 +69,28 @@ public class LevelHelper : MonoBehaviour
 
     LevelScriptBase GetLevelScript(string sn)
     {
-        Type type = Type.GetType(string.Format("LevelScript_{0}", sn));
+        string typeIden = string.Format("LevelScript_{0}", sn);
+        Type type = Type.GetType(typeIden);
         if (type == null)
-            return null;
+        {
+            //尝试在chapter的dll里加载
+            Assembly ass = Assembly.LoadFile(Global.Instance.Chapter.Dll);
+            Type[] t = ass.GetTypes();
+            for (int i = 0; i < t.Length; i++)
+            {
+                if (t[i].Name == typeIden)
+                {
+                    //LevelScriptBase l = System.Activator.CreateInstance(t[i]) as LevelScriptBase;
+                    type = t[i];
+                    break;
+                }
+            }
+            if (type == null)
+            {
+                Debug.LogError(string.Format("GameStart Meteor Version:{0}", AppInfo.Instance.AppVersion()));
+                return null;
+            }
+        }
         Global.Instance.GScriptType = type;
         return System.Activator.CreateInstance(type) as LevelScriptBase;
     }

@@ -248,8 +248,6 @@ public class GameData:Singleton<GameData>
     public TblMng<ItemBase> itemMng = TblMng<ItemBase>.Instance.GetTable();
     public TblMng<ActionBase> actionMng = TblMng<ActionBase>.Instance.GetTable();
     public TblMng<InputBase> inputMng = TblMng<InputBase>.Instance.GetTable();
-
-    public ClientVersion clientVersion;
     public GameState gameStatus;
 
     //必须放在这里，因为其成员会初始化表格类数据

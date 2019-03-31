@@ -127,7 +127,7 @@ public class DlcLevelSelect : Window<DlcLevelSelect>
         if (select != null)
         {
             //单机全部是普通关卡对待.
-            U3D.LoadLevel(select.ID, LevelMode.SinglePlayerTask, GameMode.Normal);
+            Global.Instance.Chapter.LoadLevel(select.ID);
         }
         else
             Log.WriteError("select == null");

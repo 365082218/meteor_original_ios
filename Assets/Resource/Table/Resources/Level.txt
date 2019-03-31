@@ -1,5 +1,5 @@
 ﻿关卡编号	地图名称	场景版本	禁止寻路	关卡名称	关卡类型	剧本C#类名	额外初始怪物脚本	场景读取原流星des gmb文件初始化地图	背景音乐	预览图	关卡胜利条件	胜利条件参数
-FuBenID	Scene	Template	DisableFindWay	Name	LevelType	LevelScript	StartScript	sceneItems	BgmName	BgTexture	Pass	Param
+Id	Scene	Template	DisableFindWay	Name	LevelType	LevelScript	StartScript	sceneItems	BgmName	BgTexture	Pass	Param
 1	Meteor_14	1	0	炎硫岛	5	sn14		sn14	S1	scene1	1	
 2	Meteor_01	1	0	钟乳洞	5	sn01		sn01	S2	scene2	1	
 3	Meteor_03	1	0	一线天	2	sn03		sn03	S3	scene3		

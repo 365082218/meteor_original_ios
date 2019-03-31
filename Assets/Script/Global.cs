@@ -7,7 +7,7 @@ using CoClass;
 
 public class Global
 {
-    public static Global _Instance;
+    private static Global _Instance;
     public static Global Instance
     {
         get
@@ -49,6 +49,7 @@ public class Global
     public float FPS = 1.0f / 30.0f;//动画设计帧率
     public float gGravity = 750;
     public bool useShadowInterpolate = true;//是否使用影子跟随插值
+    public bool PluginUpdated = false;//是否已成功更新过资料片配置文件
     public int MaxPlayer;
     public int RoundTime;
     public int MainWeapon;
@@ -133,7 +134,7 @@ public class Global
     {
         if (id >= Global.MaxModel)
         {
-            return U3D.GetPluginModel(id).Name;
+            return DlcMng.GetPluginModel(id).Name;
         }
         return ModelMng.Instance.GetItem(id).Name;
     }

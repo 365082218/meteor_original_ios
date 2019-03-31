@@ -91,7 +91,7 @@ public class ScriptMng:MonoBehaviour
             for (int i = 0; i < GameData.Instance.gameStatus.pluginNpc.Count; i++)
             {
                 if (GameData.Instance.gameStatus.pluginNpc[i].npcTemplate == script)
-                    return svr.dofile(GameData.Instance.gameStatus.pluginNpc[i].filePath);
+                    return svr.dofile(GameData.Instance.gameStatus.pluginNpc[i].filePath, script);
             }
         }
         return svr.dofile(script);

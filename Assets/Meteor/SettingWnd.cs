@@ -33,6 +33,15 @@ public class SettingWnd : Window<SettingWnd> {
             SettingWnd.Instance.Close();
             SettingWnd.Instance.Open();
         });
+        Control("DeletePlugins").GetComponent<Button>().onClick.AddListener(() => {
+            GameData.Instance.gameStatus.pluginChapter.Clear();
+            GameData.Instance.gameStatus.pluginModel.Clear();
+            GameData.Instance.gameStatus.pluginNpc.Clear();
+            Global.Instance.PluginUpdated = false;
+            GameData.Instance.SaveState();
+            SettingWnd.Instance.Close();
+            SettingWnd.Instance.Open();
+        });
         Control("ChangeLog").GetComponent<Text>().text = ResMng.LoadTextAsset("ChangeLog").text;
         Control("AppVerText").GetComponent<Text>().text = AppInfo.Instance.AppVersion();
         Control("MeteorVerText").GetComponent<Text>().text = AppInfo.Instance.MeteorVersion;
@@ -80,6 +89,17 @@ public class SettingWnd : Window<SettingWnd> {
         ShowSysMenu2.onValueChanged.AddListener((bool selected) => { GameData.Instance.gameStatus.ShowSysMenu2 = selected; });
         GameObject pluginTab = Control("PluginTab", WndObject);
         PluginRoot = Control("Content", pluginTab);
+        if (AppInfo.Instance.AppVersionIsSmallThan(GameConfig.Instance.newVersion))
+        {
+            //需要更新，设置好服务器版本号，设置好下载链接
+            Control("NewVersionSep", WndObject).SetActive(true);
+            Control("NewVersion", WndObject).GetComponent<Text>().text = string.Format("最新版本号:{0}", GameConfig.Instance.newVersion);
+            Control("NewVersion", WndObject).SetActive(true);
+            Control("GetNewVersion", WndObject).GetComponent<LinkLabel>().URL = GameConfig.Instance.apkUrl;
+            Control("GetNewVersion", WndObject).SetActive(true);
+            Control("Flag", WndObject).SetActive(true);
+        }
+
         if (Application.internetReachability == NetworkReachability.NotReachable)
         {
             //Debug.Log("1");
@@ -91,192 +111,170 @@ public class SettingWnd : Window<SettingWnd> {
         else
         if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
         {
-            Update = Startup.ins.StartCoroutine(UpdateAppInfo());
             PluginUpdate = Startup.ins.StartCoroutine(UpdatePluginInfo());
         }
     }
 
-    IEnumerator UpdateAppInfo()
-    {
-        UnityWebRequest vFile = new UnityWebRequest();
-        vFile.url = string.Format(Main.strVFile, Main.strHost, Main.strProjectUrl, Main.strPlatform, Main.strNewVersionName);
-        vFile.timeout = 2;
-        DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
-        vFile.downloadHandler = dH;
-        yield return vFile.Send();
-        if (vFile.isError || vFile.responseCode != 200)
-        {
-            Debug.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
-            vFile.Dispose();
-            Update = null;
-            yield break;
-        }
-
-        LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
-        string serverVersion = js["newVersion"].ToString();
-        Debug.Log(serverVersion);
-        if (AppInfo.Instance.AppVersionIsSmallThan(serverVersion))
-        {
-            //需要更新，设置好服务器版本号，设置好下载链接
-            Control("NewVersionSep", WndObject).SetActive(true);
-            Control("NewVersion", WndObject).GetComponent<Text>().text = string.Format("最新版本号:{0}", serverVersion);
-            Control("NewVersion", WndObject).SetActive(true);
-            Control("GetNewVersion", WndObject).GetComponent<LinkLabel>().URL = string.Format(Main.strVFile, Main.strHost, Main.strProjectUrl, Main.strPlatform, "Meteor" + serverVersion + ".apk");
-            Control("GetNewVersion", WndObject).SetActive(true);
-            Control("Flag", WndObject).SetActive(true);
-        }
-        else
-        {
-            //Debug.Log("无需更新");
-        }
-        Update = null;
-    }
-
     IEnumerator UpdatePluginInfo()
     {
-        UnityWebRequest vFile = new UnityWebRequest();
-        vFile.url = string.Format(Main.strSourcePath, Main.strHost, Main.strProjectUrl, Main.strPlugins);
-        vFile.timeout = 2;
-        DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
-        vFile.downloadHandler = dH;
-        yield return vFile.Send();
-        if (vFile.isError || vFile.responseCode != 200)
+        if (!Global.Instance.PluginUpdated)
         {
-            Debug.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
-            Control("Warning").SetActive(true);
-            vFile.Dispose();
-            Update = null;
-            //显示出存档中保存得
-            DlcMng.Instance.ClearModel();
-            for (int i = 0; i < GameData.Instance.gameStatus.pluginModel.Count; i++)
+            UnityWebRequest vFile = new UnityWebRequest();
+            vFile.url = string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, Main.strPlugins);
+            vFile.timeout = 2;
+            DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
+            vFile.downloadHandler = dH;
+            yield return vFile.Send();
+            if (vFile.isError || vFile.responseCode != 200)
             {
-                DlcMng.Instance.Models.Add(GameData.Instance.gameStatus.pluginModel[i]);
+                Debug.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
+                Control("Warning").SetActive(true);
+                vFile.Dispose();
+                Update = null;
+                //显示出存档中保存得DLC信息
+                DlcMng.Instance.ClearModel();
+                for (int i = 0; i < GameData.Instance.gameStatus.pluginModel.Count; i++)
+                {
+                    DlcMng.Instance.Models.Add(GameData.Instance.gameStatus.pluginModel[i]);
+                }
+                for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
+                {
+                    InsertModel(DlcMng.Instance.Models[i]);
+                }
+
+                DlcMng.Instance.ClearDlc();
+                for (int i = 0; i < GameData.Instance.gameStatus.pluginChapter.Count; i++)
+                {
+                    DlcMng.Instance.Dlcs.Add(GameData.Instance.gameStatus.pluginChapter[i]);
+                }
+                for (int i = 0; i < DlcMng.Instance.Dlcs.Count; i++)
+                {
+                    InsertDlc(DlcMng.Instance.Dlcs[i]);
+                }
+                yield break;
             }
+
+            Control("Warning").SetActive(false);
+            CleanModelList();
+            LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
+            for (int i = 0; i < js["Scene"].Count; i++)
+            {
+                //ServerInfo s = new ServerInfo();
+                //if (!int.TryParse(js["services"][i]["port"].ToString(), out s.ServerPort))
+                //    continue;
+                //if (!int.TryParse(js["services"][i]["type"].ToString(), out s.type))
+                //    continue;
+                //if (s.type == 0)
+                //    s.ServerHost = js["services"][i]["addr"].ToString();
+                //else
+                //    s.ServerIP = js["services"][i]["addr"].ToString();
+                //s.ServerName = js["services"][i]["name"].ToString();
+                //Global.Instance.Servers.Add(s);
+            }
+
+            for (int i = 0; i < js["Weapon"].Count; i++)
+            {
+                //ServerInfo s = new ServerInfo();
+                //if (!int.TryParse(js["services"][i]["port"].ToString(), out s.ServerPort))
+                //    continue;
+                //if (!int.TryParse(js["services"][i]["type"].ToString(), out s.type))
+                //    continue;
+                //if (s.type == 0)
+                //    s.ServerHost = js["services"][i]["addr"].ToString();
+                //else
+                //    s.ServerIP = js["services"][i]["addr"].ToString();
+                //s.ServerName = js["services"][i]["name"].ToString();
+                //Global.Instance.Servers.Add(s);
+            }
+
+            DlcMng.Instance.ClearModel();
+            for (int i = 0; i < js["Model"].Count; i++)
+            {
+                int modelIndex = int.Parse(js["Model"][i]["Idx"].ToString());
+                Debug.LogError(modelIndex + js["Model"][i]["name"].ToString());
+                ModelItem Info = new ModelItem();
+                Info.ModelId = modelIndex;
+                Info.Name = js["Model"][i]["name"].ToString();
+                Info.Path = js["Model"][i]["zip"].ToString();
+                if (js["Model"][i]["desc"] != null)
+                    Info.Desc = js["Model"][i]["desc"].ToString();
+                DlcMng.Instance.AddModel(Info);
+            }
+
+
             for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
             {
                 InsertModel(DlcMng.Instance.Models[i]);
             }
 
+            WebClient web = new WebClient();
+            web.DownloadFile(string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, @"Npc\Npc.zip"), Application.persistentDataPath + @"\Plugins\Npc\Npc.zip");
+            ZipUtility.UnzipFile(Application.persistentDataPath + @"\Plugins\Npc\Npc.zip", Application.persistentDataPath + @"\Plugins\Npc\", null, new UnzipCallbackEx(0));
+
             DlcMng.Instance.ClearDlc();
-            for (int i = 0; i < GameData.Instance.gameStatus.pluginChapter.Count; i++)
+            for (int i = 0; i < js["Dlc"].Count; i++)
             {
-                DlcMng.Instance.Dlcs.Add(GameData.Instance.gameStatus.pluginChapter[i]);
+                Chapter c = new Chapter();
+                c.Installed = false;
+                c.ChapterId = int.Parse(js["Dlc"][i]["Idx"].ToString());
+                c.Name = js["Dlc"][i]["name"].ToString();
+                c.Path = js["Dlc"][i]["zip"].ToString();
+                if (js["Dlc"][i]["desc"] != null)
+                    c.Desc = js["Dlc"][i]["desc"].ToString();
+                if (js["Dlc"][i]["reference"] != null)
+                {
+                    Dependence dep = new Dependence();
+                    for (int j = 0; j < js["Dlc"][i]["reference"].Count; j++)
+                    {
+                        if (js["Dlc"][i]["reference"][j]["Scene"] != null)
+                        {
+                            dep.scene = new List<int>();
+                            for (int l = 0; l < js["Dlc"][i]["reference"][j]["Scene"].Count; l++)
+                            {
+                                dep.scene.Add(int.Parse(js["Dlc"][i]["reference"][j]["Scene"][l].ToString()));
+                            }
+                        }
+                        if (js["Dlc"][i]["reference"][j]["Model"] != null)
+                        {
+                            dep.model = new List<int>();
+                            for (int l = 0; l < js["Dlc"][i]["reference"][j]["Model"].Count; l++)
+                            {
+                                dep.model.Add(int.Parse(js["Dlc"][i]["reference"][j]["Model"][l].ToString()));
+                            }
+                        }
+
+                        if (js["Dlc"][i]["reference"][j]["Weapon"] != null)
+                        {
+                            dep.weapon = new List<int>();
+                            for (int l = 0; l < js["Dlc"][i]["reference"][j]["Weapon"].Count; l++)
+                            {
+                                dep.weapon.Add(int.Parse(js["Dlc"][i]["reference"][j]["Weapon"][l].ToString()));
+                            }
+                        }
+                    }
+                    c.Res = dep;
+                }
+                DlcMng.Instance.AddDlc(c);
+            }
+
+            for (int i = 0; i < DlcMng.Instance.Dlcs.Count; i++)
+            {
+                InsertDlc(DlcMng.Instance.Dlcs[i]);
+            }
+            Global.Instance.PluginUpdated = true;
+            PluginUpdate = null;
+        }
+        else
+        {
+            for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
+            {
+                InsertModel(DlcMng.Instance.Models[i]);
             }
             for (int i = 0; i < DlcMng.Instance.Dlcs.Count; i++)
             {
                 InsertDlc(DlcMng.Instance.Dlcs[i]);
             }
-            yield break;
         }
-        Control("Warning").SetActive(false);
-        CleanModelList();
-        LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
-        for (int i = 0; i < js["Scene"].Count; i++)
-        {
-            //ServerInfo s = new ServerInfo();
-            //if (!int.TryParse(js["services"][i]["port"].ToString(), out s.ServerPort))
-            //    continue;
-            //if (!int.TryParse(js["services"][i]["type"].ToString(), out s.type))
-            //    continue;
-            //if (s.type == 0)
-            //    s.ServerHost = js["services"][i]["addr"].ToString();
-            //else
-            //    s.ServerIP = js["services"][i]["addr"].ToString();
-            //s.ServerName = js["services"][i]["name"].ToString();
-            //Global.Instance.Servers.Add(s);
-        }
-
-        for (int i = 0; i < js["Weapon"].Count; i++)
-        {
-            //ServerInfo s = new ServerInfo();
-            //if (!int.TryParse(js["services"][i]["port"].ToString(), out s.ServerPort))
-            //    continue;
-            //if (!int.TryParse(js["services"][i]["type"].ToString(), out s.type))
-            //    continue;
-            //if (s.type == 0)
-            //    s.ServerHost = js["services"][i]["addr"].ToString();
-            //else
-            //    s.ServerIP = js["services"][i]["addr"].ToString();
-            //s.ServerName = js["services"][i]["name"].ToString();
-            //Global.Instance.Servers.Add(s);
-        }
-
-        DlcMng.Instance.ClearModel();
-        for (int i = 0; i < js["Model"].Count; i++)
-        {
-            int modelIndex = int.Parse(js["Model"][i]["Idx"].ToString());
-            Debug.LogError(modelIndex + js["Model"][i]["name"].ToString());
-            ModelItem Info = new ModelItem();
-            Info.ModelId = modelIndex;
-            Info.Name = js["Model"][i]["name"].ToString();
-            Info.Path = js["Model"][i]["zip"].ToString();
-            if (js["Model"][i]["desc"] != null)
-                Info.Desc = js["Model"][i]["desc"].ToString();
-            DlcMng.Instance.AddModel(Info);
-        }
-
-        
-        for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
-        {
-            InsertModel(DlcMng.Instance.Models[i]);
-        }
-
-        WebClient web = new WebClient();
-        web.DownloadFile(string.Format(Main.strSourcePath, Main.strHost, Main.strProjectUrl, @"Npc\Npc.zip"), Application.persistentDataPath + @"\Plugins\Npc\Npc.zip");
-        ZipUtility.UnzipFile(Application.persistentDataPath + @"\Plugins\Npc\Npc.zip", Application.persistentDataPath + @"\Plugins\Npc\", null, new UnzipCallbackEx(0));
-
-        DlcMng.Instance.ClearDlc();
-        for (int i = 0; i < js["Dlc"].Count; i++)
-        {
-            Chapter c = new Chapter();
-            c.Installed = false;
-            c.ChapterId = int.Parse(js["Dlc"][i]["Idx"].ToString());
-            c.Name = js["Dlc"][i]["name"].ToString();
-            c.Path = js["Dlc"][i]["zip"].ToString();
-            if (js["Dlc"][i]["desc"] != null)
-                c.Desc = js["Dlc"][i]["desc"].ToString();
-            if (js["Dlc"][i]["reference"] != null)
-            {
-                Dependence dep = new Dependence();
-                for (int j = 0; j < js["Dlc"][i]["reference"].Count; j++)
-                {
-                    if (js["Dlc"][i]["reference"][j]["Scene"] != null)
-                    {
-                        dep.scene = new List<int>();
-                        for (int l = 0; l < js["Dlc"][i]["reference"][j]["Scene"].Count; l++)
-                        {
-                            dep.scene.Add(int.Parse(js["Dlc"][i]["reference"][j]["Scene"][l].ToString()));
-                        }
-                    }
-                    if (js["Dlc"][i]["reference"][j]["Model"] != null)
-                    {
-                        dep.model = new List<int>();
-                        for (int l = 0; l < js["Dlc"][i]["reference"][j]["Model"].Count; l++)
-                        {
-                            dep.model.Add(int.Parse(js["Dlc"][i]["reference"][j]["Model"][l].ToString()));
-                        }
-                    }
-
-                    if (js["Dlc"][i]["reference"][j]["Weapon"] != null)
-                    {
-                        dep.weapon = new List<int>();
-                        for (int l = 0; l < js["Dlc"][i]["reference"][j]["Weapon"].Count; l++)
-                        {
-                            dep.weapon.Add(int.Parse(js["Dlc"][i]["reference"][j]["Weapon"][l].ToString()));
-                        }
-                    }
-                }
-                c.Res = dep;
-            }
-            DlcMng.Instance.AddDlc(c);
-        }
-
-        for (int i = 0; i < DlcMng.Instance.Dlcs.Count; i++)
-        {
-            InsertDlc(DlcMng.Instance.Dlcs[i]);
-        }
-
-        PluginUpdate = null;
     }
 
     void OnMusicVolumeChange(float vo)

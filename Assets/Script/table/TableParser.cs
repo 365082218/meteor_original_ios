@@ -106,7 +106,11 @@ public static class TableParser
     public static T[] Parse<T>(string name)
     {
 		string[] lines;
-		string strText = Resources.Load<TextAsset>(name).text;
+        string strText = "";
+        if (File.Exists(name))
+            strText = File.ReadAllText(name);
+		else
+            strText = Resources.Load<TextAsset>(name).text;
 		if (strText == null)
 		{
 			Debug.LogError("无法加载表格文件：" + name);

@@ -22,16 +22,15 @@ public class Main : MonoBehaviour {
 #else
     private static string strPlatform { get { return RuntimePlatform.WindowsPlayer.ToString(); } }
 #endif
-    public static string strVFileName = "Version.json.zip";
-    public static string strNewVersionName = "SVersion.json";
+    public static string strVFileName = "Version.zip";
+    public static string strNewVersionName = "Global.json";
     public static string strPlugins = "Plugins.json";
     public static string strServices = "Services.json";
     public static string strVerFile = "Version.json";
     //版本仓库地址
-    public static string strSourcePath = "http://{0}/{1}/{2}";//域名+项目名称+指定文件
-    public static string strVFile = "http://{0}/{1}/{2}/{3}";
-    public static string strSFile = "http://{0}/{1}/{2}";
-	public static HttpClient UpdateClient = null;
+    public static string strVFile = "http://{0}/{1}/{2}/{3}";//域名+项目+平台+指定文件
+    public static string strSFile = "http://{0}/{1}/{2}";//域名+项目名称+指定文件
+    public static HttpClient UpdateClient = null;
     void OnApplicationQuit()
     {
         //主线程阻塞到下载线程结束.
@@ -85,7 +84,7 @@ public class Main : MonoBehaviour {
         else
 		if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
         {
-            Log.WriteError("download:" + string.Format(strVFile, strHost, strProjectUrl, strPlatform, strVFileName));
+            Debug.LogError("download:" + string.Format(strVFile, strHost, strProjectUrl, strPlatform, strVFileName));
             UnityWebRequest vFile = new UnityWebRequest();
             vFile.url = string.Format(strVFile, strHost, strProjectUrl, strPlatform, strVFileName);
             vFile.timeout = 2;
@@ -94,7 +93,7 @@ public class Main : MonoBehaviour {
             yield return vFile.Send();
             if (vFile.isError || vFile.responseCode != 200)
             {
-                Log.WriteError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
+                Debug.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
                 vFile.Dispose();
                 GameStart();
                 yield break;
@@ -106,8 +105,9 @@ public class Main : MonoBehaviour {
                     File.Delete(ResMng.GetResPath() + "/" + strVFileName);
                 if (File.Exists(ResMng.GetResPath() + "/" + strVerFile))
                     File.Delete(ResMng.GetResPath() + "/" + strVerFile);
+                Debug.Log(ResMng.GetResPath() + "/" + strVFileName);
                 File.WriteAllBytes(ResMng.GetResPath() + "/" + strVFileName, vFile.downloadHandler.data);
-                LZMAHelper.DeCompressFile(ResMng.GetResPath() + "/" + strVFileName, ResMng.GetResPath() + "/" + strVerFile);
+                ZipUtility.UnzipFile(ResMng.GetResPath() + "/" + strVFileName, ResMng.GetResPath() + "/");
                 vFile.Dispose();
             }
             else

@@ -28,18 +28,6 @@ public class Startup : MonoBehaviour {
         ins = this;
         DontDestroyOnLoad(gameObject);
         Application.targetFrameRate = 60;
-        //Assembly ass = Assembly.LoadFile(Application.persistentDataPath + "/dlc01.dll");
-        //Module[] m = ass.GetModules();
-        //System.Type[] t = ass.GetTypes();
-        //for (int i = 0; i < t.Length; i++)
-        //{
-        //    if (t[i].BaseType == typeof(LevelScriptBase))
-        //    {
-        //        LevelScriptBase l = System.Activator.CreateInstance(t[i]) as LevelScriptBase;
-        //        l.OnStart();
-        //    }
-        //}
-        //Debug.LogError(string.Format("GameStart Meteor Version:{0}", AppInfo.Instance.AppVersion()));
     }
 
     // Use this for initialization
@@ -73,16 +61,19 @@ public class Startup : MonoBehaviour {
 
     public void PlayEndMovie()
     {
-        //if (!string.IsNullOrEmpty(Global.GLevelItem.sceneItems))
-        //{
-        //    string num = Global.GLevelItem.sceneItems.Substring(2);
-        //    int number = 0;
-        //    if (int.TryParse(num, out number))
-        //    {
-        //        Debug.Log("v" + number);
-        //        U3D.PlayMovie("v" + number);
-        //    }
-        //}
+        if (!string.IsNullOrEmpty(Global.Instance.GLevelItem.sceneItems))
+        {
+            string num = Global.Instance.GLevelItem.sceneItems.Substring(2);
+            int number = 0;
+            if (int.TryParse(num, out number))
+            {
+                if (number >= 0 && number <= 9)
+                {
+                    string movie = string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, "mmv/" + "v" + number + ".mv");
+                    U3D.PlayMovie(movie);
+                }
+            }
+        }
         GotoMenu();
     }
 

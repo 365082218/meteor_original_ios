@@ -7,6 +7,11 @@ using UnityEngine;
 public class DlcLevelMng:TableManagerEx<Level, DlcLevelMng>
 {
     string levText;
+    public DlcLevelMng()
+    {
+
+    }
+
     public DlcLevelMng(string lev)
     {
         levText = lev;
@@ -17,56 +22,26 @@ public class DlcLevelMng:TableManagerEx<Level, DlcLevelMng>
 
 //资料片管理器
 public class DlcMng:Singleton<DlcMng> {
-    Dictionary<int, Module> Plgins = new Dictionary<int, Module>();
-    Module currentSelect = null;
-    public void SelectDlc(int dlcIdx)
-    {
-        if (Plgins.ContainsKey(dlcIdx))
-            currentSelect = Plgins[dlcIdx];
-    }
-
-    public LevelScriptBase GetLevelScript(int lv)
-    {
-        if (currentSelect != null)
-        {
-            Type type = currentSelect.GetType(string.Format("LevelScript_{0}", lv));
-            if (type == null)
-                return null;
-            Global.Instance.GScriptType = type;
-            return System.Activator.CreateInstance(type) as LevelScriptBase;
-        }
-        return null;
-    }
-
-    //得到资料片内指定关卡资料
-    public Level GetLevelItem(int level)
-    {
-        return null;
-    }
-
     //取得资料片内所有关卡资料.
     public Level[] GetDlcLevel(int idx)
     {
-        Chapter cha = U3D.GetPluginChapter(idx);
+        Chapter cha = GetPluginChapter(idx);
         return cha.LoadAll();
     }
 
     //打开资料片中指定关卡
-    public void PlayDlc(int dlcIdx, int levelIdx)
+    public void PlayDlc(Chapter chapter, int levelIdx)
     {
-        
         GameData.Instance.SaveState();
         if (FightWnd.Exist)
             FightWnd.Instance.Close();
-        //if (StateWnd.Exist)
-        //    StateWnd.Instance.Close();
         WindowMng.CloseAll();
         //暂时不允许使用声音管理器，在切换场景时不允许播放
         SoundManager.Instance.StopAll();
         SoundManager.Instance.Enable(false);
         U3D.SaveLastLevelData();
         U3D.ClearLevelData();
-        Level lev = DlcMng.Instance.GetLevelItem(levelIdx);
+        Level lev = chapter.GetItem(levelIdx);
         Global.Instance.GLevelItem = lev;
         Global.Instance.GLevelMode = LevelMode.SinglePlayerTask;
         Global.Instance.GGameMode = GameMode.Normal;
@@ -74,7 +49,7 @@ public class DlcMng:Singleton<DlcMng> {
         Resources.UnloadUnusedAssets();
         GC.Collect();
         LevelHelper helper = U3D.ins.gameObject.AddComponent<LevelHelper>();
-        helper.Load(levelIdx);
+        helper.Load();
         Log.Write("helper.load end");
     }
 
@@ -116,5 +91,109 @@ public class DlcMng:Singleton<DlcMng> {
     public void AddDlc(Chapter cha)
     {
         Dlcs.Add(cha);
+    }
+
+    public bool CheckDependence(Chapter chapter, out string tip)
+    {
+        tip = "";
+        if (chapter.Res == null)
+            return false;
+
+        if (chapter.Res.model != null)
+        {
+            for (int i = 0; i < chapter.Res.model.Count; i++)
+            {
+                ModelItem m = GetPluginModel(chapter.Res.model[i]);
+                if (m == null)
+                {
+                    m = FindModel(chapter.Res.model[i]);
+                    tip = "需要先安装模型[" + m.Name + "-" + chapter.Res.model[i] + "]";
+                    return true;
+                }
+
+                m.Check();
+                if (!m.Installed)
+                {
+                    tip = "需要先安装模型[" + m.Name + "-" + chapter.Res.model[i] + "]";
+                    return true;
+                }
+            }
+        }
+
+        if (chapter.Res.scene != null)
+        {
+            //地图暂时无效.
+            for (int i = 0; i < chapter.Res.scene.Count; i++)
+            {
+
+            }
+        }
+
+        if (chapter.Res.weapon != null)
+        {
+            //武器暂时无效.
+            for (int i = 0; i < chapter.Res.weapon.Count; i++)
+            {
+
+            }
+        }
+
+        return false;
+    }
+
+    public static Chapter GetPluginChapter(int dlc)
+    {
+        Chapter Target = null;
+        for (int i = 0; i < GameData.Instance.gameStatus.pluginChapter.Count; i++)
+        {
+            if (GameData.Instance.gameStatus.pluginChapter[i].ChapterId == dlc)
+            {
+                Target = GameData.Instance.gameStatus.pluginChapter[i];
+                break;
+            }
+        }
+        return Target;
+    }
+
+    public static ModelItem GetPluginModel(int model)
+    {
+        ModelItem Target = null;
+        for (int i = 0; i < GameData.Instance.gameStatus.pluginModel.Count; i++)
+        {
+            if (GameData.Instance.gameStatus.pluginModel[i].ModelId == model)
+            {
+                Target = GameData.Instance.gameStatus.pluginModel[i];
+                break;
+            }
+        }
+        return Target;
+    }
+
+    public Chapter FindChapter(int dlc)
+    {
+        Chapter Target = null;
+        for (int i = 0; i < Dlcs.Count; i++)
+        {
+            if (Dlcs[i].ChapterId == dlc)
+            {
+                Target = Dlcs[i];
+                break;
+            }
+        }
+        return Target;
+    }
+
+    public ModelItem FindModel(int model)
+    {
+        ModelItem Target = null;
+        for (int i = 0; i < Models.Count; i++)
+        {
+            if (Models[i].ModelId == model)
+            {
+                Target = Models[i];
+                break;
+            }
+        }
+        return Target;
     }
 }
