@@ -10,7 +10,7 @@ public class DropMng:Singleton<DropMng>{
         if (mainWeapon == 0)
             return;
         ItemBase ib = GameData.Instance.itemMng.GetRowByIdx(mainWeapon) as ItemBase;
-        WeaponBase wb = WeaponMng.Instance.GetItem(ib.UnitId);
+        WeaponBase wb = U3D.GetWeaponProperty(ib.UnitId);
         GameObject trigget = CreateTriggerObj(wb.WeaponR, player.transform, -player.transform.forward);
         //obj.Add(trigget);
         //ExplosionObject01.iTweenExplosion01(1, ref obj, player.transform.position);
