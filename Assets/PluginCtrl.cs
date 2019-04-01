@@ -248,7 +248,7 @@ public class PluginCtrl : MonoBehaviour {
 
             }
         }
-        Title.text = it.Name;
+        Title.text = string.Format("「角色模型-{0}」", it.Name);
         Desc.text = it.Desc ?? "";
         Progress.fillAmount = 0;
     }
@@ -293,7 +293,7 @@ public class PluginCtrl : MonoBehaviour {
 
             }
         }
-        Title.text = Chapter.Name;
+        Title.text = string.Format("「剧本-{0}」", Chapter.Name);
         Desc.text = Chapter.Desc ?? "";
         Progress.fillAmount = 0;
     }
@@ -338,7 +338,7 @@ public class UnzipCallbackEx: ZipUtility.UnzipCallback
     void OnScanNpcFiles()
     {
         GameData.Instance.gameStatus.pluginNpc.Clear();
-        string[] files = System.IO.Directory.GetFiles(Application.persistentDataPath + @"\Plugins\Npc\");
+        string[] files = System.IO.Directory.GetFiles(Application.persistentDataPath + @"\Plugins\Def\Npc\");
         for (int i = 0; i < files.Length; i++)
         {
             System.IO.FileInfo fi = new System.IO.FileInfo(files[i]);
@@ -349,6 +349,9 @@ public class UnzipCallbackEx: ZipUtility.UnzipCallback
             template.filePath = fi.FullName;
             GameData.Instance.gameStatus.pluginNpc.Add(template);
         }
+
+        PluginItemMng.Instance.ReLoad();
+        PluginWeaponMng.Instance.ReLoad();
         GameData.Instance.SaveState();
     }
 }

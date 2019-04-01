@@ -93,7 +93,7 @@ public class Main : MonoBehaviour {
             yield return vFile.Send();
             if (vFile.isError || vFile.responseCode != 200)
             {
-                Debug.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
+                Debug.LogError(string.Format("update version file:{0} error:{1} or responseCode:{2}", vFile.url, vFile.error, vFile.responseCode));
                 vFile.Dispose();
                 GameStart();
                 yield break;

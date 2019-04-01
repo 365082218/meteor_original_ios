@@ -2,8 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class ItemBase : TblBase
+public class ItemBase : TblBase, ITableItem
 {
+    public int Key() { return Idx; }
     public override string TableName { get { return "Item"; } }
     public int Idx;
     public string Name;

@@ -21,7 +21,7 @@ public class DropMng:Singleton<DropMng>{
     public void DropWeapon2(int weaponId)
     {
         MeteorUnit player = MeteorManager.Instance.LocalPlayer;
-        WeaponBase wb = WeaponMng.Instance.GetItem(weaponId);
+        WeaponBase wb = U3D.GetWeaponProperty(weaponId);
         string des = wb.WeaponR;
         GameObject trigget = CreateTriggerObj(des, player.transform, -player.transform.forward);
         ExplosionObject01.DropItem(trigget, player.mPos, -player.transform.forward);
@@ -34,7 +34,7 @@ public class DropMng:Singleton<DropMng>{
         //一定爆出角色主武器，有Flag爆出Flag,并且这个Flag，会持续一定时间，若无人拾取，则会重置Flag归位.
         int mainWeapon = player.Attr.Weapon;
         ItemBase ib = GameData.Instance.itemMng.GetRowByIdx(mainWeapon) as ItemBase;
-        WeaponBase wb = WeaponMng.Instance.GetItem(ib.UnitId);
+        WeaponBase wb = U3D.GetWeaponProperty(ib.UnitId);
         GameObject trigget = CreateTriggerObj(wb.WeaponR, player.transform, -player.transform.forward);
         //obj.Add(trigget);
         //ExplosionObject01.iTweenExplosion01(1, ref obj, player.transform.position);

@@ -16,10 +16,10 @@ public class UnitBase : ITableItem
     public int Key() { return ID; }
 };
 
-public class UnitMng : TableManager<UnitBase, UnitMng>
-{
-    public override string TableName() { return "UnitBase"; }
-}
+//public class UnitMng : TableManager<UnitBase, UnitMng>
+//{
+//    public override string TableName() { return "UnitBase"; }
+//}
 
 [ProtoBuf.ProtoContract(ImplicitFields = ProtoBuf.ImplicitFields.AllFields)]
 public class WeaponBase : ITableItem
@@ -40,4 +40,16 @@ public class WeaponBase : ITableItem
 public class WeaponMng : TableManager<WeaponBase, WeaponMng>
 {
     public override string TableName() { return "Weapon"; }
+}
+
+//外接的武器定义
+public class PluginWeaponMng: TableManagerEx<WeaponBase, PluginWeaponMng>
+{
+    public override string TableName() { return Application.persistentDataPath + @"\Plugins\Def\Weapon.txt"; }
+}
+
+//外接的物品定义
+public class PluginItemMng:TableManagerEx<ItemBase, PluginItemMng>
+{
+    public override string TableName() { return Application.persistentDataPath + @"\Plugins\Def\Item.txt"; }
 }

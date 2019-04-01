@@ -1097,7 +1097,7 @@ public class PlayerWnd:Window<PlayerWnd>
         objPlayer.transform.localScale = Vector3.one;
         d.gameObject.layer = obj.gameObject.layer;
         d.Init(MeteorManager.Instance.LocalPlayer.UnitId, LayerMask.NameToLayer("3DUIPlayer"));
-        WeaponBase weaponProperty = WeaponMng.Instance.GetItem(MeteorManager.Instance.LocalPlayer.weaponLoader.GetCurrentWeapon().Info().UnitId);
+        WeaponBase weaponProperty = U3D.GetWeaponProperty(MeteorManager.Instance.LocalPlayer.weaponLoader.GetCurrentWeapon().Info().UnitId);
         d.weaponLoader.StrWeaponR = weaponProperty.WeaponR;
         d.weaponLoader.StrWeaponL = weaponProperty.WeaponL;
         //d.weaponLoader.EquipWeapon();

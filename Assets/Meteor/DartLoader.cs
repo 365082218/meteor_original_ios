@@ -163,7 +163,7 @@ public class DartLoader : MonoBehaviour {
         if (item.Info().MainType == (int)EquipType.Weapon)
         {
             float scale = 2.0f;
-            WeaponBase weaponProperty = WeaponMng.Instance.GetItem(item.Info().UnitId);
+            WeaponBase weaponProperty = U3D.GetWeaponProperty(item.Info().UnitId);
             string weaponR = "";
             weaponR = weaponProperty.WeaponR;
 

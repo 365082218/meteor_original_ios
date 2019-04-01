@@ -60,7 +60,7 @@ public class U3D : MonoBehaviour {
         //底下这种架构不好，要一个个调用，非常麻烦的，暂时这样
         LevelMng.Instance.ReLoad();
         LoadingTipsManager.Instance.ReLoad();
-        UnitMng.Instance.ReLoad();
+        //UnitMng.Instance.ReLoad();
         WeaponMng.Instance.ReLoad();
     }
 
@@ -1893,4 +1893,18 @@ public class U3D : MonoBehaviour {
         U3D.InsertSystemMsg(GameData.Instance.gameStatus.GodLike ? "作弊[开]" : "作弊[关]");
     }
 
+    public static WeaponBase GetWeaponProperty(int weaponIdx)
+    {
+        WeaponBase w = WeaponMng.Instance.GetItem(weaponIdx);
+        if (w == null)
+            w = PluginWeaponMng.Instance.GetItem(weaponIdx);
+        if (w == null)
+            Debug.LogError("can not find weapon:" + weaponIdx);
+        return w;
+    }
+
+    public static ItemBase GetItemProperty(int item)
+    {
+        return GameData.Instance.FindItemByIdx(item);
+    }
 }

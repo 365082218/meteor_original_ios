@@ -35,6 +35,7 @@ public class DlcWnd : Window<DlcWnd> {
         
         if (GameData.Instance.gameStatus.pluginChapter != null)
         {
+            int insertCount = 0;
             for (int i = 0; i < GameData.Instance.gameStatus.pluginChapter.Count; i++)
             {
                 Chapter lev = GameData.Instance.gameStatus.pluginChapter[i];
@@ -44,9 +45,12 @@ public class DlcWnd : Window<DlcWnd> {
                 if (!lev.Installed)
                     continue;
                 AddGridItem(lev, rootMenu.transform);
+                insertCount++;
                 select = lev;
             }
-            rootCtrl.Reload(OnSelectChapter);
+
+            if (insertCount != 0)
+                rootCtrl.Reload(OnSelectChapter);
         }
         OnSelectChapter(select);
     }

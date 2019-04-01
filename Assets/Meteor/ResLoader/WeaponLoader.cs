@@ -167,14 +167,14 @@ public class WeaponLoader : MonoBehaviour {
         if (weaponModel == null)
         {
             weaponModel = GameData.Instance.MakeEquip(unitid);
-            WeaponBase weaponProperty = WeaponMng.Instance.GetItem(weaponModel.Info().UnitId);
+            WeaponBase weaponProperty = U3D.GetWeaponProperty(weaponModel.Info().UnitId);
             EquipWeapon(weaponModel, true);
         }
         else
         {
             UnEquipWeapon();
             weaponModel = GameData.Instance.MakeEquip(unitid);
-            WeaponBase weaponProperty = WeaponMng.Instance.GetItem(weaponModel.Info().UnitId);
+            WeaponBase weaponProperty = U3D.GetWeaponProperty(weaponModel.Info().UnitId);
             EquipWeapon(weaponModel, true);
         }
 
@@ -199,7 +199,7 @@ public class WeaponLoader : MonoBehaviour {
                     scale = (item.extra == null ? item.Info().Size : item.Info().Size * (1 + item.extra.SizePercent / 100.0f));
                 else
                     scale = (item.extra == null ? 1 : (1 + item.extra.SizePercent / 100.0f));
-                WeaponBase weaponProperty = WeaponMng.Instance.GetItem(item.Info().UnitId);
+                WeaponBase weaponProperty = U3D.GetWeaponProperty(item.Info().UnitId);
                 
 
                 string weaponL = "";

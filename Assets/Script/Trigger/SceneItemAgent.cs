@@ -122,14 +122,14 @@ public class SceneItemAgent : MonoBehaviour {
                     return;
                 //相同武器，不能捡
                 ItemBase ib0 = GameData.Instance.FindItemByIdx(unit.Attr.Weapon);
-                WeaponBase wb0 = WeaponMng.Instance.GetItem(ib0.UnitId);
+                WeaponBase wb0 = U3D.GetWeaponProperty(ib0.UnitId);
                 if (wb0 != null && wb0.WeaponR == ItemInfo.model)
                     return;
 
                 if (unit.Attr.Weapon2 != 0)
                 {
                     ItemBase ib1 = GameData.Instance.FindItemByIdx(unit.Attr.Weapon2);
-                    WeaponBase wb1 = WeaponMng.Instance.GetItem(ib1.UnitId);
+                    WeaponBase wb1 = U3D.GetWeaponProperty(ib1.UnitId);
                     if (wb1 != null && wb1.WeaponR == ItemInfo.model)
                         return;
                 }
@@ -189,7 +189,7 @@ public class SceneItemAgent : MonoBehaviour {
             if (ItemInfoEx.MainType == 1)
             {
                 string weaponModel = "";
-                WeaponBase wp = WeaponMng.Instance.GetItem(ItemInfoEx.UnitId);
+                WeaponBase wp = U3D.GetWeaponProperty(ItemInfoEx.UnitId);
                 if (wp != null)
                     weaponModel = wp.WeaponR;
                 //满武器，不能捡
@@ -197,14 +197,14 @@ public class SceneItemAgent : MonoBehaviour {
                     return;
                 //相同武器，不能捡
                 ItemBase ib0 = GameData.Instance.FindItemByIdx(unit.Attr.Weapon);
-                WeaponBase wb0 = WeaponMng.Instance.GetItem(ib0.UnitId);
+                WeaponBase wb0 = U3D.GetWeaponProperty(ib0.UnitId);
                 if (wb0 != null && wb0.WeaponR == weaponModel)
                     return;
 
                 if (unit.Attr.Weapon2 != 0)
                 {
                     ItemBase ib1 = GameData.Instance.FindItemByIdx(unit.Attr.Weapon2);
-                    WeaponBase wb1 = WeaponMng.Instance.GetItem(ib1.UnitId);
+                    WeaponBase wb1 = U3D.GetWeaponProperty(ib1.UnitId);
                     if (wb1 != null && wb1.WeaponR == weaponModel)
                         return;
                 }
@@ -368,7 +368,7 @@ public class SceneItemAgent : MonoBehaviour {
                     {
                         if (its[i].MainType == 1)
                         {
-                            WeaponBase weapon = WeaponMng.Instance.GetItem(its[i].UnitId);
+                            WeaponBase weapon = U3D.GetWeaponProperty(its[i].UnitId);
                             if (weapon.WeaponR == s)
                             {
                                 ItemInfoEx = its[i];

@@ -56,6 +56,8 @@ public enum LanguageType
     En,
 }
 
+
+
 //整个游戏只有一份的开关状态.就是整个
 [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
 public class GameState
@@ -324,23 +326,23 @@ public class GameData:Singleton<GameData>
 
 
     //创建初始物品
-    public List<uint> MakeDefaultItems()
-    {
-        //初始物品包含,300金币,装备直接填到表里即可.
-        List<uint> items = new List<uint>();
-        List<InventoryItem> it = new List<InventoryItem>();
-        List<ItemBase> tbl = itemMng.GetFullRow();
-        for (int i = 0; i < tbl.Count; i++)
-        {
-            if (tbl[i].MainType != (int)UnitType.Equip)
-                continue;
-            it = MakeItems(tbl[i].Idx, 1);
-            for (int j = 0; j < it.Count; j++)
-                items.Add(it[j].ItemId);
-        }
+    //public List<uint> MakeDefaultItems()
+    //{
+    //    //初始物品包含,300金币,装备直接填到表里即可.
+    //    List<uint> items = new List<uint>();
+    //    List<InventoryItem> it = new List<InventoryItem>();
+    //    List<ItemBase> tbl = itemMng.GetFullRow();
+    //    for (int i = 0; i < tbl.Count; i++)
+    //    {
+    //        if (tbl[i].MainType != (int)UnitType.Equip)
+    //            continue;
+    //        it = MakeItems(tbl[i].Idx, 1);
+    //        for (int j = 0; j < it.Count; j++)
+    //            items.Add(it[j].ItemId);
+    //    }
 
-        return items;
-    }
+    //    return items;
+    //}
 
 
     //暂停所有与游戏有关的定时器，以及
@@ -440,7 +442,10 @@ public class GameData:Singleton<GameData>
     
     public ItemBase FindItemByIdx(int itemid)
     {
-        return itemMng.GetRowByIdx(itemid) as ItemBase ;
+        object obj = itemMng.GetRowByIdx(itemid);
+        if (obj == null)
+            obj = PluginItemMng.Instance.GetItem(itemid);
+        return obj as ItemBase ;
     }
 
     string state_path_;
@@ -577,6 +582,20 @@ public class GameData:Singleton<GameData>
                 break;
             }
         }
+
+        if (unitId == -1)
+        {
+            WeaponBase[] wItems2 = PluginWeaponMng.Instance.GetAllItem();
+            for (int i = 0; i < wItems2.Length; i++)
+            {
+                if (wItems2[i].WeaponR == model)
+                {
+                    unitId = wItems2[i].ID;
+                    break;
+                }
+            }
+        }
+
         List<ItemBase> items = itemMng.GetFullRow();
         for (int i = 0; i < items.Count; i++)
         {

@@ -207,9 +207,10 @@ public class SettingWnd : Window<SettingWnd> {
                 InsertModel(DlcMng.Instance.Models[i]);
             }
 
-            WebClient web = new WebClient();
-            web.DownloadFile(string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, @"Npc\Npc.zip"), Application.persistentDataPath + @"\Plugins\Npc\Npc.zip");
-            ZipUtility.UnzipFile(Application.persistentDataPath + @"\Plugins\Npc\Npc.zip", Application.persistentDataPath + @"\Plugins\Npc\", null, new UnzipCallbackEx(0));
+            //更新定义文件
+            WebClient webDef = new WebClient();
+            webDef.DownloadFile(string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, @"Def\Def.zip"), Application.persistentDataPath + @"\Plugins\Def.zip");
+            ZipUtility.UnzipFile(Application.persistentDataPath + @"\Plugins\Def.zip", Application.persistentDataPath + @"\Plugins\Def\", null, new UnzipCallbackEx(0));
 
             DlcMng.Instance.ClearDlc();
             for (int i = 0; i < js["Dlc"].Count; i++)

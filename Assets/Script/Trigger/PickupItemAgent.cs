@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -29,10 +30,20 @@ public class PickupItemAgent : MonoBehaviour {
     public void SetPickupItem(string des)
     {
         model = des;
+        List<WeaponBase> allWeapons = new List<WeaponBase>();
         WeaponBase[] weapons = WeaponMng.Instance.GetAllItem();
+        WeaponBase[] weapons2 = PluginWeaponMng.Instance.GetAllItem();
         for (int i = 0; i < weapons.Length; i++)
         {
-            if (weapons[i].WeaponL == model || weapons[i].WeaponR == model)
+            allWeapons.Add(weapons[i]);
+        }
+        for (int i = 0; i < weapons2.Length; i++)
+        {
+            allWeapons.Add(weapons2[i]);
+        }
+        for (int i = 0; i < allWeapons.Count; i++)
+        {
+            if (allWeapons[i].WeaponL == model || allWeapons[i].WeaponR == model)
             {
                 isWeapon = true;
                 break;
@@ -111,14 +122,14 @@ public class PickupItemAgent : MonoBehaviour {
                 return;
             //相同武器，不能捡
             ItemBase ib0 = GameData.Instance.FindItemByIdx(unit.Attr.Weapon);
-            WeaponBase wb0 = WeaponMng.Instance.GetItem(ib0.UnitId);
+            WeaponBase wb0 = U3D.GetWeaponProperty(ib0.UnitId);
             if (wb0 != null && wb0.WeaponR == model)
                 return;
 
             if (unit.Attr.Weapon2 != 0)
             {
                 ItemBase ib1 = GameData.Instance.FindItemByIdx(unit.Attr.Weapon2);
-                WeaponBase wb1 = WeaponMng.Instance.GetItem(ib1.UnitId);
+                WeaponBase wb1 = U3D.GetWeaponProperty(ib1.UnitId);
                 if (wb1 != null && wb1.WeaponR == model)
                     return;
             }
