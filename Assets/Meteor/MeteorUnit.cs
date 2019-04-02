@@ -879,7 +879,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
     public const float JumpVelocityOther = 100.0f;//其他方向上的速度
     
     //public const float gGravity = 980.0f;//971.4f;//向上0.55秒，向下0.45秒
-    public const float groundFriction = 2000.0f;//地面摩擦力，在地面不是瞬间停止下来的。
+    public const float groundFriction = 3000.0f;//地面摩擦力，在地面不是瞬间停止下来的。
     public const float yLimitMin = -700f;//最大向下速度
     public const float yLimitMax = 700;//最大向上速度
     public const float yClimbLimitMax = 180.0f;
@@ -978,9 +978,13 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
                 Move(v);
         }
         else
-            Move(v);
+        {
+            if (v != Vector3.zero)
+                Move(v);
+        }
+
         if (OnTouchWall)
-            ProcessFriction(0.2f);//爬墙或者在墙面滑动，摩擦力是地面的0.2倍
+            ProcessFriction(0.3f);//爬墙或者在墙面滑动，摩擦力是地面的0.2倍
 
         if (!IsOnGroundEx())
         {
@@ -1000,7 +1004,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
             if (OnGround || OnTopGround)//如果在地面，或者顶到天花板，那么应用摩擦力.
                 ProcessFriction();
             else if (MoveOnGroundEx)
-                ProcessFriction(0.8f);//没贴着地面，还是要有摩擦力，否则房顶滑动太厉害
+                ProcessFriction(0.9f);//没贴着地面，还是要有摩擦力，否则房顶滑动太厉害
         }
     }
 
@@ -1610,7 +1614,8 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
         //}
     }
 
-    float floatTick = -1.0f;
+    float floatTick = -1.0f;//浮空时刻
+    float groundTick = -1.0f;//贴地面时刻
     void UpdateFlags(CollisionFlags flag)
     {
         if ((flag & CollisionFlags.Sides) != 0)
@@ -1633,7 +1638,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
         bool Floating = false;
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene")))
+        if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene") | 1 << LayerMask.NameToLayer("Trigger")))
         {
             MoveOnGroundEx = hit.distance <= 4f;
             //Debug.Log(string.Format("distance:{0}", hit.distance));
@@ -1821,7 +1826,9 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
 
                     //Debug.LogError(name + " 浮空-落地" + Time.frameCount);
                     //AddYVelocity(-100);//让他快速一点落地
-                    posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
+                    //与落地的间隔超过0.3S再切换动作，否则就会抽搐
+                    if (groundTick + 0.3f < Time.timeSinceLevelLoad)
+                        posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
                     //看是否被物件推开
                     ProcessFall();
                     floatTick = Time.timeSinceLevelLoad;
@@ -1838,6 +1845,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
                 {
                     posMng.ChangeAction(0, 0f);
                     //Debug.LogError(name + " 接触地面切换到IDle" + Time.frameCount);
+                    groundTick = Time.timeSinceLevelLoad;
                 }
                 ResetYVelocity();
             }

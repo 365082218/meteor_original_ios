@@ -342,8 +342,6 @@ public class UnzipCallbackEx: ZipUtility.UnzipCallback
         for (int i = 0; i < files.Length; i++)
         {
             System.IO.FileInfo fi = new System.IO.FileInfo(files[i]);
-            if (fi.Extension == ".zip")
-                continue;
             NpcTemplate template = new NpcTemplate();
             template.npcTemplate = fi.Name.Substring(0, fi.Name.Length - fi.Extension.Length);
             template.filePath = fi.FullName;

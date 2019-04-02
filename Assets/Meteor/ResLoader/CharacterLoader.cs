@@ -606,7 +606,7 @@ public class CharacterLoader
                 }
             }
 
-            if (curIndex > po.LoopEnd)
+            if (curIndex >= po.LoopEnd)
             {
                 startCount = true;
                 LoopCount ++;
@@ -863,9 +863,9 @@ public class CharacterLoader
                 return;
             //if (PoseStraight <= 0.0f)
             //{
-                if (mOwner.IsOnGround() && LoopCount > 1)
-                    loop = false;
-
+            //Debug.Log("check:" + Time.frameCount);
+            if (mOwner.IsOnGround() && LoopCount > 1)
+                loop = false;
             //}
         }
     }

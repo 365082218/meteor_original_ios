@@ -114,13 +114,13 @@ public static class TableParser
 		if (strText == null)
 		{
 			Debug.LogError("无法加载表格文件：" + name);
-			return null;
-		}
+            return new T[0];
+        }
 
 		if (strText.Length == 0)
 		{
 			Debug.LogError("无法加载表格文件：" + name);
-			return null;
+			return new T[0];
 		}
 		// try parse the table lines.
 		lines = strText.Trim().Split("\n\r".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
@@ -128,7 +128,7 @@ public static class TableParser
         if (lines.Length < 3)
         {
             Debug.LogError("表格文件行数错误，【1】属性名称【2】变量名称【3-...】值：" + name);
-            return null;
+            return new T[0];
         }
 
         // fetch all of the field infos.

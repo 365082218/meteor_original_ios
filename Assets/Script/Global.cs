@@ -47,7 +47,7 @@ public class Global
     public ServerInfo Server;//当前选择的服务器
     public List<ServerInfo> Servers = new List<ServerInfo>();
     public float FPS = 1.0f / 30.0f;//动画设计帧率
-    public float gGravity = 750;
+    public float gGravity = 1000;
     public bool useShadowInterpolate = true;//是否使用影子跟随插值
     public bool PluginUpdated = false;//是否已成功更新过资料片配置文件
     public int MaxPlayer;

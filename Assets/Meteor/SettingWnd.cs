@@ -17,8 +17,17 @@ public class SettingWnd : Window<SettingWnd> {
     }
 
     Coroutine Update;
+    Coroutine PluginPageUpdate;//插件翻页
+    Coroutine GamePageUpdate;//游戏推荐页翻页
     Coroutine PluginUpdate;
     GameObject PluginRoot;
+    GameObject GameRoot;
+    int gamePage;
+    int gamePageMax;
+    const int pluginPerPage = 12;//一页最大插件数量
+    int pluginPage;//当前插件页
+    int pageMax;//最大页
+    int pluginCount;//插件数量
     List<GameObject> Install = new List<GameObject>();
     void Init()
     {
@@ -88,7 +97,13 @@ public class SettingWnd : Window<SettingWnd> {
         ShowSysMenu2.isOn = GameData.Instance.gameStatus.ShowSysMenu2;
         ShowSysMenu2.onValueChanged.AddListener((bool selected) => { GameData.Instance.gameStatus.ShowSysMenu2 = selected; });
         GameObject pluginTab = Control("PluginTab", WndObject);
+        GameObject gameTab = Control("GameTab", WndObject);
+        Control("PluginPrev").GetComponent<Button>().onClick.AddListener(OnPrevPagePlugin);
+        Control("PluginNext").GetComponent<Button>().onClick.AddListener(OnNextPagePlugin);
+        Control("GamePrev").GetComponent<Button>().onClick.AddListener(OnPrevPageGame);
+        Control("GameNext").GetComponent<Button>().onClick.AddListener(OnNextPageGame);
         PluginRoot = Control("Content", pluginTab);
+        GameRoot = Control("Content", gameTab);
         if (AppInfo.Instance.AppVersionIsSmallThan(GameConfig.Instance.newVersion))
         {
             //需要更新，设置好服务器版本号，设置好下载链接
@@ -100,18 +115,31 @@ public class SettingWnd : Window<SettingWnd> {
             Control("Flag", WndObject).SetActive(true);
         }
 
-        if (Application.internetReachability == NetworkReachability.NotReachable)
+        UITab [] tabs = WndObject.GetComponentsInChildren<UITab>();
+        for (int i = 0; i < tabs.Length; i++)
         {
-            //Debug.Log("1");
+            tabs[i].onValueChanged.AddListener(OnTabShow);
         }
-        else if (Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork)
+        
+    }
+
+    void OnTabShow(bool show)
+    {
+        if (Control("PluginTab", WndObject).activeInHierarchy && show)
         {
-            //Debug.Log("2");
+            if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
+            {
+                PluginUpdate = Startup.ins.StartCoroutine(UpdatePluginInfo());//下载插件信息，显示插件
+            }
         }
-        else
-        if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
+        else if (Control("GameTab", WndObject).activeInHierarchy && show)
         {
-            PluginUpdate = Startup.ins.StartCoroutine(UpdatePluginInfo());
+            GamePageUpdate = Startup.ins.StartCoroutine(GamePageRefresh());
+            if (PluginUpdate != null)
+            {
+                Startup.ins.StopCoroutine(PluginUpdate);
+                PluginUpdate = null;
+            }
         }
     }
 
@@ -131,30 +159,37 @@ public class SettingWnd : Window<SettingWnd> {
                 Control("Warning").SetActive(true);
                 vFile.Dispose();
                 Update = null;
+                pluginCount = 0;
                 //显示出存档中保存得DLC信息
                 DlcMng.Instance.ClearModel();
                 for (int i = 0; i < GameData.Instance.gameStatus.pluginModel.Count; i++)
                 {
                     DlcMng.Instance.Models.Add(GameData.Instance.gameStatus.pluginModel[i]);
                 }
-                for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
-                {
-                    InsertModel(DlcMng.Instance.Models[i]);
-                }
-
+                //for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
+                //{
+                //InsertModel(DlcMng.Instance.Models[i]);
+                //}
+                pluginCount = DlcMng.Instance.Models.Count;
                 DlcMng.Instance.ClearDlc();
                 for (int i = 0; i < GameData.Instance.gameStatus.pluginChapter.Count; i++)
                 {
                     DlcMng.Instance.Dlcs.Add(GameData.Instance.gameStatus.pluginChapter[i]);
                 }
-                for (int i = 0; i < DlcMng.Instance.Dlcs.Count; i++)
-                {
-                    InsertDlc(DlcMng.Instance.Dlcs[i]);
-                }
+                pluginCount += DlcMng.Instance.Dlcs.Count;
+                //for (int i = 0; i < DlcMng.Instance.Dlcs.Count; i++)
+                //{
+                //    InsertDlc(DlcMng.Instance.Dlcs[i]);
+                //}
+                pluginPage = 0;
+                pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
+                DlcMng.Instance.CollectAll();
+                PluginPageUpdate = Startup.ins.StartCoroutine(PluginPageRefresh());
                 yield break;
             }
 
             Control("Warning").SetActive(false);
+            pluginCount = 0;
             CleanModelList();
             LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
             for (int i = 0; i < js["Scene"].Count; i++)
@@ -201,11 +236,11 @@ public class SettingWnd : Window<SettingWnd> {
                 DlcMng.Instance.AddModel(Info);
             }
 
-
-            for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
-            {
-                InsertModel(DlcMng.Instance.Models[i]);
-            }
+            pluginCount += DlcMng.Instance.Models.Count;
+            //for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
+            //{
+            //    InsertModel(DlcMng.Instance.Models[i]);
+            //}
 
             //更新定义文件
             WebClient webDef = new WebClient();
@@ -258,24 +293,112 @@ public class SettingWnd : Window<SettingWnd> {
                 DlcMng.Instance.AddDlc(c);
             }
 
-            for (int i = 0; i < DlcMng.Instance.Dlcs.Count; i++)
-            {
-                InsertDlc(DlcMng.Instance.Dlcs[i]);
-            }
+            pluginCount += DlcMng.Instance.Dlcs.Count;
+            //for (int i = 0; i < DlcMng.Instance.Dlcs.Count; i++)
+            //{
+            //    InsertDlc(DlcMng.Instance.Dlcs[i]);
+            //}
+            pluginPage = 0;
+            pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
+            DlcMng.Instance.CollectAll();
+            PluginPageUpdate = Startup.ins.StartCoroutine(PluginPageRefresh());
             Global.Instance.PluginUpdated = true;
             PluginUpdate = null;
         }
         else
         {
-            for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
-            {
-                InsertModel(DlcMng.Instance.Models[i]);
-            }
-            for (int i = 0; i < DlcMng.Instance.Dlcs.Count; i++)
-            {
-                InsertDlc(DlcMng.Instance.Dlcs[i]);
-            }
+            if (PluginPageUpdate != null)
+                Startup.ins.StopCoroutine(PluginPageUpdate);
+            pluginCount = DlcMng.Instance.Models.Count + DlcMng.Instance.Dlcs.Count;
+            pluginPage = 0;
+            pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
+            PluginPageUpdate = Startup.ins.StartCoroutine(PluginPageRefresh());
+            //for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
+            //{
+            //    InsertModel(DlcMng.Instance.Models[i]);
+            //}
+            //for (int i = 0; i < DlcMng.Instance.Dlcs.Count; i++)
+            //{
+            //    InsertDlc(DlcMng.Instance.Dlcs[i]);
+            //}
         }
+    }
+
+    void OnPrevPageGame()
+    {
+        if (gamePage != 0)
+            gamePage--; 
+        if (GamePageUpdate != null)
+            Startup.ins.StopCoroutine(GamePageUpdate);
+        GamePageUpdate = Startup.ins.StartCoroutine(GamePageRefresh());
+    }
+
+    void OnNextPageGame()
+    {
+        if (gamePage < gamePageMax - 1)
+            gamePage++;
+        if (GamePageUpdate != null)
+            Startup.ins.StopCoroutine(GamePageUpdate);
+        GamePageUpdate = Startup.ins.StartCoroutine(GamePageRefresh());
+    }
+
+
+    void OnPrevPagePlugin()
+    {
+        if (pluginPage != 0)
+            pluginPage--;
+        else
+            return;
+        if (PluginPageUpdate != null)
+            Startup.ins.StopCoroutine(PluginPageUpdate);
+        PluginPageUpdate = Startup.ins.StartCoroutine(PluginPageRefresh());
+    }
+
+    void OnNextPagePlugin()
+    {
+        if (pluginPage < pageMax - 1)
+            pluginPage++;
+        else
+            return;
+        if (PluginPageUpdate != null)
+            Startup.ins.StopCoroutine(PluginPageUpdate);
+        PluginPageUpdate = Startup.ins.StartCoroutine(PluginPageRefresh());
+    }
+
+    IEnumerator PluginPageRefresh()
+    {
+        for (int i = 0; i < pluginList.Count; i++)
+        {
+            GameObject.Destroy(pluginList[i].gameObject);
+            yield return 0;
+        }
+        pluginList.Clear();
+        for (int i = pluginPage * pluginPerPage; i < Mathf.Min((pluginPage + 1) * pluginPerPage, DlcMng.Instance.allItem.Count); i++)
+        {
+            if (DlcMng.Instance.allItem[i] is ModelItem)
+                InsertModel(DlcMng.Instance.allItem[i] as ModelItem);
+            else
+                InsertDlc(DlcMng.Instance.allItem[i] as Chapter);
+            yield return 0;
+        }
+        PluginPageUpdate = null;
+    }
+
+    IEnumerator GamePageRefresh()
+    {
+        for (int i = 0; i < GameList.Count; i++)
+        {
+            GameObject.Destroy(GameList[i].gameObject);
+            yield return 0;
+        }
+        GameList.Clear();
+        for (int i = gamePage * pluginPerPage; i < Mathf.Min((gamePage + 1) * pluginPerPage, GameConfig.Instance.moreGame.Count); i++)
+        {
+            InsertGame(GameConfig.Instance.moreGame[i]);
+            yield return 0;
+        }
+        GamePageUpdate = null;
+        yield return 0;
     }
 
     void OnMusicVolumeChange(float vo)
@@ -331,6 +454,18 @@ public class SettingWnd : Window<SettingWnd> {
             PluginUpdate = null;
         }
 
+        if (PluginPageUpdate != null)
+        {
+            Startup.ins.StopCoroutine(PluginPageUpdate);
+            PluginPageUpdate = null;
+        }
+
+        if (GamePageUpdate != null)
+        {
+            Startup.ins.StopCoroutine(GamePageUpdate);
+            GamePageUpdate = null;
+        }
+
         for (int i = 0; i < Install.Count; i++)
         {
             GameObject.Destroy(Install[i]);
@@ -349,8 +484,10 @@ public class SettingWnd : Window<SettingWnd> {
 
         Install.Clear();
     }
-
+    List<MoreGameCtrl> GameList = new List<MoreGameCtrl>();
+    List<PluginCtrl> pluginList = new List<PluginCtrl>();
     GameObject prefabPluginWnd;
+    GameObject prefabGameItem;
     void InsertModel(ModelItem item)
     {
         if (prefabPluginWnd == null)
@@ -365,6 +502,7 @@ public class SettingWnd : Window<SettingWnd> {
         {
             ctrl.AttachModel(item);
         }
+        pluginList.Add(ctrl);
     }
 
     void InsertDlc(Chapter item)
@@ -381,6 +519,23 @@ public class SettingWnd : Window<SettingWnd> {
         {
             ctrl.AttachDlc(item);
         }
+        pluginList.Add(ctrl);
     }
 
+    void InsertGame(AdGame game)
+    {
+        if (prefabGameItem == null)
+            prefabGameItem = ResMng.Load("MoreGameItem") as GameObject;
+        GameObject insert = GameObject.Instantiate(prefabGameItem);
+        insert.transform.SetParent(GameRoot.transform);
+        insert.transform.localPosition = Vector3.zero;
+        insert.transform.localScale = Vector3.one;
+        insert.transform.localRotation = Quaternion.identity;
+        MoreGameCtrl ctrl = insert.GetComponent<MoreGameCtrl>();
+        if (ctrl != null)
+        {
+            ctrl.Load(game);
+        }
+        GameList.Add(ctrl);
+    }
 }
