@@ -93,8 +93,8 @@ public partial class GameBattleEx : MonoBehaviour {
             FightWnd.Instance.OnBattleEnd();
         if (SfxWnd.Exist)
             SfxWnd.Instance.Close();
-        if (NewSystemWnd.Exist)
-            NewSystemWnd.Instance.Close();
+        if (EscWnd.Exist)
+            EscWnd.Instance.Close();
         //打开结算面板
         if (BattleResultWnd.Exist)
             BattleResultWnd.Instance.Close();
@@ -448,7 +448,7 @@ public partial class GameBattleEx : MonoBehaviour {
         }
 
         lev_script = script;
-        DisableCameraLock = GameData.Instance.gameStatus.DisableLock;
+        DisableCameraLock = !GameData.Instance.gameStatus.AutoLock;
         //updateFn = ScriptMng.ins.GetFunc("OnUpdate");
         if (script != null)
         {

@@ -78,6 +78,8 @@ public class WSDebug : MonoBehaviour {
         for (int i = 0; i < GlobalDebuggableObjects.Count; i++)
         {
             string buttonName = GetDebugClassName(GlobalDebuggableObjects[i]);
+            if (string.IsNullOrEmpty(buttonName))
+                continue;
             AddButton(OpenSubGUIDebug, i, buttonName, true);
         }
         AddButton(CloseGUIDebug, "Close", true);
@@ -88,6 +90,8 @@ public class WSDebug : MonoBehaviour {
 
     private string GetDebugClassName(object obj)
     {
+        if (obj == null)
+            return null;
 #if NETFX_CORE
         DebugClass[] attrs = (DebugClass[]) obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(DebugClass), false);
 #else

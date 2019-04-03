@@ -755,7 +755,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
         //除了受击，防御，其他动作在有锁定目标下，都要转向锁定目标.
         if (GetLockedTarget() != null && posMng.mActiveAction.Idx == CommonAction.Run)
         {
-            if (robot == null && !GameData.Instance.gameStatus.DisableLock)
+            if (robot == null && GameData.Instance.gameStatus.AutoLock)
             {
                 if (GetWeaponType() != (int)EquipWeaponType.Guillotines &&
                     GetWeaponType() != (int)EquipWeaponType.Gun &&
@@ -1370,8 +1370,9 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
     {
         if (Attr.Weapon2 == 0)
             return -1;
-        if (Attr != null)
-            return GameData.Instance.MakeEquip(Attr.Weapon2).Info().SubType;
+        InventoryItem it = GameData.Instance.MakeEquip(Attr.Weapon2);
+        if (it != null)
+            return it.Info().SubType;
         return -1;
     }
 

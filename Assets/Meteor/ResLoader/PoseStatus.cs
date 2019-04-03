@@ -29,7 +29,7 @@ public class PoseStatus
             if (_Self.controller.InputLocked)
                 return false;
             //如果有锁定目标，不许转向(在有锁系统下)
-            if (_Self.GetLockedTarget() != null && !GameData.Instance.gameStatus.DisableLock)
+            if (_Self.GetLockedTarget() != null && GameData.Instance.gameStatus.AutoLock)
                 return false;
             //攻击动作播放时不许摇杆控制角色转向
             if (IsAttackPose())
@@ -396,7 +396,7 @@ public class PoseStatus
                                 _Self.Defence();
                             }
                             else
-                            if (_Self.GetLockedTarget() != null && !GameData.Instance.gameStatus.DisableLock)
+                            if (_Self.GetLockedTarget() != null && GameData.Instance.gameStatus.AutoLock)
                             {
                                 int ReadyAction = 0;
                                 switch ((EquipWeaponType)_Self.GetWeaponType())
@@ -616,7 +616,7 @@ public class PoseStatus
                         _Self.FaceToTarget(_Self.GetLockedTarget());
                     }
                 }
-                else if (_Self.robot == null && !GameData.Instance.gameStatus.DisableLock && idx != CommonAction.Idle)
+                else if (_Self.robot == null && GameData.Instance.gameStatus.AutoLock && idx != CommonAction.Idle)
                 {
                     if (_Self.GetWeaponType() != (int)EquipWeaponType.Guillotines &&
                         _Self.GetWeaponType() != (int)EquipWeaponType.Gun &&

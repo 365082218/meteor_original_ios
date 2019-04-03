@@ -4,6 +4,7 @@ using System.Xml;
 using System.Collections;
 using System.Collections.Generic;
 using CoClass;
+using System.Linq;
 
 public class Global
 {
@@ -48,6 +49,7 @@ public class Global
     public List<ServerInfo> Servers = new List<ServerInfo>();
     public float FPS = 1.0f / 30.0f;//动画设计帧率
     public float gGravity = 1000;
+    public const float angularVelocity = 540.0f;
     public bool useShadowInterpolate = true;//是否使用影子跟随插值
     public bool PluginUpdated = false;//是否已成功更新过资料片配置文件
     public int MaxPlayer;
@@ -119,14 +121,53 @@ public class Global
         }
     }
 
-    public Level[] GetAllLevel()
+    private List<Level> AllLevel;
+    public void ClearLevel()
     {
-        return null;
+        AllLevel = null;
     }
 
-    public Level GetLevel(int id)
+    public Level[] GetAllLevel()
     {
-        LevelMng.Instance.GetItem(id);
+        if (AllLevel != null)
+            return AllLevel.ToArray();
+        if (AllLevel == null)
+            AllLevel = new List<Level>();
+        Level[] baseLevel = LevelMng.Instance.GetAllItem();
+        for (int i = 0; i < baseLevel.Length; i++)
+        {
+            if (baseLevel[i].Template == 1)
+                AllLevel.Add(baseLevel[i]);
+        }
+
+        for (int i = 0; i < GameData.Instance.gameStatus.pluginChapter.Count; i++)
+        {
+            baseLevel = DlcMng.Instance.GetDlcLevel(GameData.Instance.gameStatus.pluginChapter[i].ChapterId);
+            for (int j = 0; j < baseLevel.Length; i++)
+            {
+                if (baseLevel[j].Template == 1)
+                    AllLevel.Add(baseLevel[j]);
+            }
+        }
+        return baseLevel.ToArray();
+    }
+
+    public Level GetLevel(int chapterId, int id)
+    {
+        if (chapterId == 0)
+        {
+            Level lev = LevelMng.Instance.GetItem(id);
+            if (lev != null)
+                return lev;
+        }
+
+        Level[] l = DlcMng.Instance.GetDlcLevel(chapterId);
+        for (int i = 0; i < l.Length; i++)
+        {
+            if (l[i].Id == id)
+                return l[i];
+        }
+        Debug.LogError(string.Format("无法找到指定的剧本{0}关卡{1}", chapterId, id));
         return null;
     }
 

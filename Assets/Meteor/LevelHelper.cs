@@ -87,7 +87,7 @@ public class LevelHelper : MonoBehaviour
             }
             if (type == null)
             {
-                Debug.LogError(string.Format("GameStart Meteor Version:{0}", AppInfo.Instance.AppVersion()));
+                Log.WriteError(string.Format("Load sn failed {0}, Meteor Version:{1}", sn, AppInfo.Instance.AppVersion()));
                 return null;
             }
         }
@@ -119,6 +119,7 @@ public class LevelHelper : MonoBehaviour
         }
     }
 
+    //单机
     void OnLoadFinishedEx(Level lev)
     {
         SoundManager.Instance.Enable(true);

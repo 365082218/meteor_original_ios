@@ -27,6 +27,7 @@ public class Startup : MonoBehaviour {
     {
         ins = this;
         DontDestroyOnLoad(gameObject);
+        Log.WriteError(string.Format("GameStart AppVersion:{0}", AppInfo.Instance.AppVersion()));
         Application.targetFrameRate = 60;
     }
 
@@ -46,15 +47,15 @@ public class Startup : MonoBehaviour {
         {
             if (Input.GetKeyUp(KeyCode.Escape))
             {
-                if (NewSystemWnd.Exist)
+                if (EscWnd.Exist)
                 {
-                    NewSystemWnd.Instance.Close();
+                    EscWnd.Instance.Close();
 #if UNITY_STANDALONE
                     Cursor.lockState = CursorLockMode.Locked;
 #endif
                 }
                 else
-                    NewSystemWnd.Instance.Open();
+                    EscWnd.Instance.Open();
             }
         }
     }
@@ -155,14 +156,6 @@ public class Startup : MonoBehaviour {
         FtpLog.Uninit();
         //GameData.Instance.SaveState();
         GlobalUpdate.Instance.SaveCache();
-    }
-
-    //游戏接口
-    public void GameStart()
-	{
-        LangItem.ChangeLang();
-        OnGameStart();
-        return;
     }
 
     /*

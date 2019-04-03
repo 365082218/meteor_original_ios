@@ -55,7 +55,7 @@ public class CameraFollow : MonoBehaviour {
 
     public void Init()
     {
-        DisableLockTarget = GameData.Instance.gameStatus.DisableLock;
+        DisableLockTarget = !GameData.Instance.gameStatus.AutoLock;
         animationPlay = false;
         animationTick = 0.0f;
         followHeight = 6;

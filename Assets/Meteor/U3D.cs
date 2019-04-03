@@ -26,12 +26,6 @@ public class U3D : MonoBehaviour {
             DestroyImmediate(this);
     }
 
-    void GameStart(string msg)
-    {
-        Startup.ins.GameStart();
-    }
-
-
     //控制场景上的文本的函数
     public static void TextAppend(string str)
     {
@@ -743,7 +737,7 @@ public class U3D : MonoBehaviour {
     {
         if (Global.Instance.GLevelItem != null)
         {
-            NewSystemWnd.Instance.DoModal();
+            EscWnd.Instance.DoModal();
             if (NGUIJoystick.instance != null)
                 NGUIJoystick.instance.Lock(true);
             return;
@@ -968,6 +962,12 @@ public class U3D : MonoBehaviour {
         LevelScriptBase.Clear();
         Global.Instance.CampASpawnIndex = 0;
         Global.Instance.CampBSpawnIndex = 0;
+
+        if (MeteorManager.Instance.Pet != null)
+        {
+            GameObject.Destroy(MeteorManager.Instance.Pet.gameObject);
+            MeteorManager.Instance.Pet = null;
+        }
 #if !STRIP_DBG_SETTING
         WSDebug.Ins.Clear();
 #endif
@@ -1906,5 +1906,17 @@ public class U3D : MonoBehaviour {
     public static ItemBase GetItemProperty(int item)
     {
         return GameData.Instance.FindItemByIdx(item);
+    }
+
+    public static void DeletePlugins()
+    {
+        GameData.Instance.gameStatus.pluginChapter.Clear();
+        GameData.Instance.gameStatus.pluginModel.Clear();
+        GameData.Instance.gameStatus.pluginNpc.Clear();
+        Global.Instance.PluginUpdated = false;
+        GameData.Instance.SaveState();
+        //Control("DeletePlugins").GetComponent<Button>().onClick.AddListener(() => {
+            
+        //});
     }
 }

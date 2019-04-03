@@ -258,14 +258,15 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
 
         //地图模板，应该从所有地图表里获取，包括外部载入的地图.
         TemplateRoot = Control("WorldRoot", WndObject);
-        for (int i = 1; i <= Global.Instance.GetAllLevel().Length; i++)
+        Level[] allLevel = Global.Instance.GetAllLevel();
+        for (int i = 1; i <= allLevel.Length; i++)
         {
-            Level lev = Global.Instance.GetLevel(i);
+            Level lev = allLevel[i];
             if (lev == null || lev.Template == 0)
                 continue;
             AddGridItem(lev, TemplateRoot.transform);
         }
-        select = Global.Instance.GetLevel(GameData.Instance.gameStatus.LevelTemplate);
+        select = Global.Instance.GetLevel(GameData.Instance.gameStatus.ChapterTemplate, GameData.Instance.gameStatus.LevelTemplate);
         OnSelectLevel(select);
 
         GameObject ModelGroup = Control("ModelGroup");

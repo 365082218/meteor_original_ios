@@ -73,6 +73,7 @@ public class GameState
     public int Life;//创建单机时选择的生命上限
     public int Weapon0;//创建单机时选择的武器1
     public int Weapon1;//创建单机时选择的武器2
+    public int ChapterTemplate;//创建单机适默认剧本
     public int LevelTemplate;//创建单机时选择的场景
     public int Model;//创建单机时的角色模型
     public int RoundTime;//创建单机时的单轮时长
@@ -100,6 +101,7 @@ public class GameState
         if (pluginChapter == null)
             pluginChapter = new List<Chapter>();
         pluginChapter.Add(dlc);
+        Global.Instance.ClearLevel();//需要刷新
     }
 
     public bool IsModelInstalled(ModelItem item)
@@ -237,8 +239,9 @@ public class GameState
             _LevelDebug = value;
         }
     }//关卡内功能
-    public bool DisableLock;//无锁定
+    public bool AutoLock;//无锁定
     public bool DisableParticle;//无粒子特效
+    public bool SnowParticle;//雪粒子
     public bool DisableJoystick;//不显示摇杆.
     public bool PetOn;//带宠物
     public List<ServerInfo> ServerList;//自定义服务器

@@ -31,7 +31,7 @@ public class Log
         byte[] line = new byte[2] { (byte)'\r', (byte)'\n' };
         if (fs != null)
         {
-            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(string.Format("debug:{0}", message));
+            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(string.Format("debug:{0}-{1}", message, Time.frameCount));
             fs.Write(buffer, 0, buffer.Length);
             fs.Write(line, 0, 2);
             fs.Flush();
@@ -45,7 +45,7 @@ public class Log
         byte[] line = new byte[2] { (byte)'\r', (byte)'\n' };
         if (fs != null)
         {
-            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(string.Format("error:{0}", message));
+            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(string.Format("error:{0}-{1}", message, Time.frameCount));
             fs.Write(buffer, 0, buffer.Length);
             fs.Write(line, 0, 2);
             fs.Flush();

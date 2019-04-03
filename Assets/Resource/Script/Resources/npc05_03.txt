@@ -34,7 +34,6 @@ function class:OnStart()
 	ChangeBehavior(class.g_self, "follow", "player");
 end
 
---不会用到以下函数.
 function class:Attack(enable)
 	if (enable == 1) then
 		class.Attack1 = 40;

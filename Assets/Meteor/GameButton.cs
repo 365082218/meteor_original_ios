@@ -60,7 +60,7 @@ public class GameButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (polygonCollider != null)
+        if (polygonCollider != null && UICamera.currentCamera != null)
         {
             if (polygonCollider.OverlapPoint(UICamera.currentCamera.ScreenToWorldPoint(eventData.position)))
             {

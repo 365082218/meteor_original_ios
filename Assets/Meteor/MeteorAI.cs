@@ -489,7 +489,7 @@ public class MeteorAI {
         }
     }
 
-    IEnumerator LookRotateToTarget(float leaveAngle, float angularspeed = 150.0f)
+    IEnumerator LookRotateToTarget(float leaveAngle, float angularspeed = Global.angularVelocity)
     {
         bool rightRotate = Random.Range(-1, 2) >= 0;
         float offset = 0.0f;
@@ -535,7 +535,7 @@ public class MeteorAI {
         Stop();
     }
 
-    IEnumerator LeaveRotateAngle(float leaveAngle, float angularspeed = 150.0f)
+    IEnumerator LeaveRotateAngle(float leaveAngle, float angularspeed = Global.angularVelocity)
     {
         bool rightRotate = Random.Range(-1, 2) >= 0;
         float offset = 0.0f;
@@ -1638,7 +1638,7 @@ public class MeteorAI {
                 }
                 break;
             case EAISubStatus.FollowSubRotateToTarget:
-                if (targetIndex >= Path.Count)
+                if (targetIndex >= Path.Count || targetIndex < 0)
                     vec = followTarget.mSkeletonPivot;
                 else
                     vec = Path[targetIndex].pos;
@@ -1761,7 +1761,7 @@ public class MeteorAI {
             case EAISubStatus.KillSubRotateToTarget:
                 if (KillRotateToTargetCoroutine == null)
                 {
-                    if (targetIndex >= Path.Count)
+                    if (targetIndex >= Path.Count || targetIndex < 0)
                         vec = killTarget.mSkeletonPivot;
                     else
                         vec = Path[targetIndex].pos;
@@ -2190,7 +2190,7 @@ public class MeteorAI {
 
     //绕原地
     Coroutine PatrolRotateCoroutine;//巡逻到达某个目的点后，会随机旋转1-5次，每次都会停留不固定的时间
-    IEnumerator PatrolRotate(float angleSpeed = 150)
+    IEnumerator PatrolRotate(float angleSpeed = (Global.angularVelocity / 2))
     {
         float rotateAngle1 = Random.Range(-90, -45);
         float rotateAngle2 = Random.Range(45, 90);
@@ -2278,7 +2278,7 @@ public class MeteorAI {
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
-        float timeTotal = offsetmax / 150.0f;
+        float timeTotal = offsetmax / (Global.angularVelocity / 2);
         float timeTick = 0.0f;
         
         while (true)
@@ -2320,7 +2320,7 @@ public class MeteorAI {
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
-        float timeTotal = offsetmax / 150.0f;
+        float timeTotal = offsetmax / Global.angularVelocity;
         float timeTick = 0.0f;
         while (true)
         {
@@ -2363,7 +2363,7 @@ public class MeteorAI {
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
-        float timeTotal = offsetmax / 150.0f;
+        float timeTotal = offsetmax / Global.angularVelocity;
         float timeTick = 0.0f;
         while (true)
         {
@@ -2404,7 +2404,7 @@ public class MeteorAI {
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
-        float timeTotal = offsetmax / 150.0f;
+        float timeTotal = offsetmax / Global.angularVelocity;//转速快一点，否则感觉AI很弱智
         float timeTick = 0.0f;
         while (true)
         {
@@ -2446,7 +2446,7 @@ public class MeteorAI {
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
-        float timeTotal = offsetmax / 150.0f;
+        float timeTotal = offsetmax / (Global.angularVelocity / 2);
         float timeTick = 0.0f;
         while (true)
         {
@@ -2487,7 +2487,7 @@ public class MeteorAI {
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
-        float timeTotal = offsetmax / 150.0f;
+        float timeTotal = offsetmax / (Global.angularVelocity / 2);
         float timeTick = 0.0f;
         while (true)
         {
@@ -2530,7 +2530,7 @@ public class MeteorAI {
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
-        float timeTotal = offsetmax / 150.0f;
+        float timeTotal = offsetmax / (Global.angularVelocity / 2);
         float timeTick = 0.0f;
         while (true)
         {
@@ -2573,7 +2573,7 @@ public class MeteorAI {
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
-        float timeTotal = offsetmax / 150.0f;
+        float timeTotal = offsetmax / (Global.angularVelocity / 2);
         float timeTick = 0.0f;
         while (true)
         {
