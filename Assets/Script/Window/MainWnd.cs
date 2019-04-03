@@ -1722,7 +1722,6 @@ public class BattleResultWnd : Window<BattleResultWnd>
     GameObject BattleTitle;
     Transform MeteorResult;
     Transform ButterflyResult;
-    public Coroutine Coroutine;
     public IEnumerator SetResult(int result)
     {
         yield return new WaitForSeconds(0.5f);
@@ -1770,6 +1769,11 @@ public class BattleResultWnd : Window<BattleResultWnd>
             BattleResult.SetActive(true);
             BattleTitle.SetActive(true);
         }
+
+        Control("Close").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            Startup.ins.PlayEndMovie(result == 1);
+        });
     }
 
     public void Init()
@@ -1779,16 +1783,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
         ButterflyResult = Control("ButterflyResult").transform;
         BattleResult = Global.ldaControlX("BattleResult", WndObject);
         BattleTitle = Global.ldaControlX("BattleTitle", WndObject);
-        Control("Close").GetComponent<Button>().onClick.AddListener(() =>
-        {
-            if (Coroutine != null)
-            {
-                Startup.ins.StopCoroutine(Coroutine);
-                Coroutine = null;
-            }
-            Startup.ins.PlayEndMovie();
-        });
-
+        Control("Close").SetActive(false);
         BattleResultAll = Global.ldaControlX("AllResult", WndObject);
         Control("CampImage", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
         Control("Title", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);

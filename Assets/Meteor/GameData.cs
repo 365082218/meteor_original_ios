@@ -521,7 +521,8 @@ public class GameData:Singleton<GameData>
             gameStatus.Quality = 0;
             gameStatus.DisableJoystick = true;
             gameStatus.DisableParticle = true;
-
+            gameStatus.AutoLock = true;
+            gameStatus.SkipVideo = false;
             gameStatus.LevelTemplate = 22;
             gameStatus.MaxPlayer = 4;
             gameStatus.RoundTime = 15;

@@ -100,7 +100,7 @@ public partial class GameBattleEx : MonoBehaviour {
             BattleResultWnd.Instance.Close();
         BattleResultWnd.Instance.Open();
         Result = result;
-        BattleResultWnd.Instance.Coroutine = Startup.ins.StartCoroutine(BattleResultWnd.Instance.SetResult(result));
+        Startup.ins.StartCoroutine(BattleResultWnd.Instance.SetResult(result));
 
         if (NGUICameraJoystick.instance)
             NGUICameraJoystick.instance.Lock(true);
