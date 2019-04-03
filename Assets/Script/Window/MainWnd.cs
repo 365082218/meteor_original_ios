@@ -259,7 +259,7 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
         //地图模板，应该从所有地图表里获取，包括外部载入的地图.
         TemplateRoot = Control("WorldRoot", WndObject);
         Level[] allLevel = Global.Instance.GetAllLevel();
-        for (int i = 1; i <= allLevel.Length; i++)
+        for (int i = 0; i < allLevel.Length; i++)
         {
             Level lev = allLevel[i];
             if (lev == null || lev.Template == 0)
