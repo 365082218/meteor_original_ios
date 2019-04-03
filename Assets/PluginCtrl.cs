@@ -150,7 +150,7 @@ public class PluginCtrl : MonoBehaviour {
             for (int i = 0; i < files.Length; i++)
             {
                 Debug.Log(files[i]);
-                Chapter.resPath[i] = files[i];
+                Chapter.resPath[i] = files[i].Replace("\\", "/");
             }
             Chapter.Installed = true;
             GameData.Instance.gameStatus.RegisterDlc(Chapter);
@@ -338,13 +338,13 @@ public class UnzipCallbackEx: ZipUtility.UnzipCallback
     void OnScanNpcFiles()
     {
         GameData.Instance.gameStatus.pluginNpc.Clear();
-        string[] files = System.IO.Directory.GetFiles(Application.persistentDataPath + @"\Plugins\Def\Npc\");
+        string[] files = System.IO.Directory.GetFiles(Application.persistentDataPath + "/Plugins/Def/Npc/");
         for (int i = 0; i < files.Length; i++)
         {
             System.IO.FileInfo fi = new System.IO.FileInfo(files[i]);
             NpcTemplate template = new NpcTemplate();
             template.npcTemplate = fi.Name.Substring(0, fi.Name.Length - fi.Extension.Length);
-            template.filePath = fi.FullName;
+            template.filePath = fi.FullName.Replace("\\", "/");
             GameData.Instance.gameStatus.pluginNpc.Add(template);
         }
 

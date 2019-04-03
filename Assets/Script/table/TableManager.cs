@@ -126,6 +126,8 @@ public abstract class TableManagerEx<T, U> : Singleton<U>, ITableManager where T
     // get the item array.
     public T[] GetAllItem()
     {
+        if (mItemArray == null)
+            return new T[0];
         return mItemArray.ToArray();
     }
 

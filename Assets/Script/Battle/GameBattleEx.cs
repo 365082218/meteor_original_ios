@@ -179,6 +179,7 @@ public partial class GameBattleEx : MonoBehaviour {
 
     public void NetUpdate()
     {
+        Global.Instance.NetUpdate();
         for (int i = 0; i < DeleteHandler.Count; i++)
         {
             if (UpdateHandler.Contains(DeleteHandler[i]))

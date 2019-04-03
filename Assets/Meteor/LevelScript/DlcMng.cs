@@ -56,15 +56,15 @@ public class DlcMng:Singleton<DlcMng> {
     //初始化各个路径.
     public void Init()
     {
-        if (!System.IO.Directory.Exists(Application.persistentDataPath + @"\Plugins\Model\"))
-            System.IO.Directory.CreateDirectory(Application.persistentDataPath + @"\Plugins\Model\");
+        if (!System.IO.Directory.Exists(Application.persistentDataPath + "/Plugins/Model/"))
+            System.IO.Directory.CreateDirectory(Application.persistentDataPath + "/Plugins/Model/");
 
-        if (!System.IO.Directory.Exists(Application.persistentDataPath + @"\Plugins\Dlc\"))
-            System.IO.Directory.CreateDirectory(Application.persistentDataPath + @"\Plugins\Dlc\");
+        if (!System.IO.Directory.Exists(Application.persistentDataPath + "/Plugins/Dlc/"))
+            System.IO.Directory.CreateDirectory(Application.persistentDataPath + "Plugins/Dlc/");
 
         //下载NPC定义文件，用于DLC内得关卡脚本加载NPC时使用
-        if (!System.IO.Directory.Exists(Application.persistentDataPath + @"\Plugins\Npc\"))
-            System.IO.Directory.CreateDirectory(Application.persistentDataPath + @"\Plugins\Npc\");
+        if (!System.IO.Directory.Exists(Application.persistentDataPath + "/Plugins/Def/"))
+            System.IO.Directory.CreateDirectory(Application.persistentDataPath + "Plugins/Def/");
     }
 
     public List<ModelItem> Models = new List<ModelItem>();

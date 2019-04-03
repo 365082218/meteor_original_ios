@@ -113,7 +113,7 @@ public class InputItem
             //在硬直中
             if (mOwner.charLoader.IsInStraight())
             {
-                Debug.LogError("in straight:" + mOwner.charLoader.PoseStraight);
+                //Debug.LogError("in straight:" + mOwner.charLoader.PoseStraight);
                 targetPose = -1;
                 return false;
             }

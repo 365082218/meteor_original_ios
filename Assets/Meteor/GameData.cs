@@ -244,6 +244,7 @@ public class GameState
     public bool SnowParticle;//雪粒子
     public bool DisableJoystick;//不显示摇杆.
     public bool PetOn;//带宠物
+    public bool SkipVideo;//忽略过场视频
     public List<ServerInfo> ServerList;//自定义服务器
 }
 
