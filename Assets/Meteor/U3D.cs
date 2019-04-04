@@ -427,7 +427,7 @@ public class U3D : MonoBehaviour {
         string shortName = Path.Substring(k);
         shortName = shortName.Substring(0, shortName.Length - 4);
         if (local)
-            return Application.persistentDataPath + @"\Plugins\" + shortDir + @"\" + (inzipPath ? shortName + @"\" + shortName: shortName) + suffix;//.zip => .png
+            return Application.persistentDataPath + "/Plugins/" + shortDir + "/" + (inzipPath ? shortName + "/" + shortName: shortName) + suffix;//.zip => .png
         return Path.Substring(0, Path.Length - 4) + suffix;
     }
 
@@ -931,13 +931,13 @@ public class U3D : MonoBehaviour {
         LoadingWnd.Instance.Open();
         Resources.UnloadUnusedAssets();
         GC.Collect();
-        if (!string.IsNullOrEmpty(lev.sceneItems))
+        if (!string.IsNullOrEmpty(lev.sceneItems) && !GameData.Instance.gameStatus.SkipVideo && levelmode == LevelMode.SinglePlayerTask)
         {
             string num = lev.sceneItems.Substring(2);
             int number = 0;
             if (int.TryParse(num, out number))
             {
-                if (number >= 0 && number <= 9)
+                if (id >= 0 && id <= 9)
                 {
                     string movie = string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, "mmv/" + "b" + number + ".mv");
                     U3D.PlayMovie(movie);

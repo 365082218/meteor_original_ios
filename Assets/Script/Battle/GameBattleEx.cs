@@ -100,7 +100,7 @@ public partial class GameBattleEx : MonoBehaviour {
             BattleResultWnd.Instance.Close();
         BattleResultWnd.Instance.Open();
         Result = result;
-        BattleResultWnd.Instance.Coroutine = Startup.ins.StartCoroutine(BattleResultWnd.Instance.SetResult(result));
+        Startup.ins.StartCoroutine(BattleResultWnd.Instance.SetResult(result));
 
         if (NGUICameraJoystick.instance)
             NGUICameraJoystick.instance.Lock(true);
@@ -179,6 +179,7 @@ public partial class GameBattleEx : MonoBehaviour {
 
     public void NetUpdate()
     {
+        Global.Instance.NetUpdate();
         for (int i = 0; i < DeleteHandler.Count; i++)
         {
             if (UpdateHandler.Contains(DeleteHandler[i]))

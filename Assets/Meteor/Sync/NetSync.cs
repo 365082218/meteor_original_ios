@@ -35,7 +35,6 @@ public class NetSync : MonoBehaviour {
             if (SceneItem[i] != null)
                 SceneItem[i].Update();
         }
-        Global.Instance.NetUpdate();
     }
 
     void OnNetInput(uint player, InputFrame fInput)

@@ -46,7 +46,7 @@ public class Chapter
         {
             if (!string.IsNullOrEmpty(localPath))
                 return localPath;
-            localPath = Application.persistentDataPath + @"\Plugins\" + Path;
+            localPath = Application.persistentDataPath + "/Plugins/" + Path;
             return localPath;
         }
     }//本地存储路径，由

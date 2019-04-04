@@ -244,6 +244,7 @@ public class GameState
     public bool SnowParticle;//雪粒子
     public bool DisableJoystick;//不显示摇杆.
     public bool PetOn;//带宠物
+    public bool SkipVideo;//忽略过场视频
     public List<ServerInfo> ServerList;//自定义服务器
 }
 
@@ -520,7 +521,8 @@ public class GameData:Singleton<GameData>
             gameStatus.Quality = 0;
             gameStatus.DisableJoystick = true;
             gameStatus.DisableParticle = true;
-
+            gameStatus.AutoLock = true;
+            gameStatus.SkipVideo = false;
             gameStatus.LevelTemplate = 22;
             gameStatus.MaxPlayer = 4;
             gameStatus.RoundTime = 15;

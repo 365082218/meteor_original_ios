@@ -159,6 +159,10 @@ public class SettingWnd : Window<SettingWnd> {
         toggleDisableCat.onValueChanged.AddListener(OnDisableCat);
         OnDisableCat(toggleDisableCat.isOn);
 
+        Toggle toggleSkipVideo = Control("SkipVideo").GetComponent<Toggle>();
+        toggleSkipVideo.isOn = GameData.Instance.gameStatus.SkipVideo;
+        toggleSkipVideo.onValueChanged.AddListener(OnSkipVideo);
+
         GameObject pluginTab = Control("PluginTab", WndObject);
         GameObject gameTab = Control("GameTab", WndObject);
         Control("PluginPrev").GetComponent<Button>().onClick.AddListener(OnPrevPagePlugin);
@@ -189,6 +193,11 @@ public class SettingWnd : Window<SettingWnd> {
     void OnSetJoyPosition()
     {
         JoyAdjustWnd.Instance.Open();
+    }
+
+    void OnSkipVideo(bool skip)
+    {
+        GameData.Instance.gameStatus.SkipVideo = skip;
     }
 
     void OnDisableCat(bool disable)
@@ -479,10 +488,17 @@ public class SettingWnd : Window<SettingWnd> {
             //}
 
             //更新定义文件
-            WebClient webDef = new WebClient();
-            webDef.DownloadFile(string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, @"Def\Def.zip"), Application.persistentDataPath + @"\Plugins\Def.zip");
-            ZipUtility.UnzipFile(Application.persistentDataPath + @"\Plugins\Def.zip", Application.persistentDataPath + @"\Plugins\Def\", null, new UnzipCallbackEx(0));
-
+            UnzipCallbackEx cb = new UnzipCallbackEx(0);
+            try
+            {
+                WebClient webDef = new WebClient();
+                webDef.DownloadFile(string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, "Def/Def.zip"), Application.persistentDataPath + "/Plugins/Def.zip");
+                ZipUtility.UnzipFile(Application.persistentDataPath + "/Plugins/Def.zip", Application.persistentDataPath + "/Plugins/Def/", null, cb);
+            }
+            catch (Exception exp)
+            {
+                cb.OnFinished(false);
+            }
             DlcMng.Instance.ClearDlc();
             for (int i = 0; i < js["Dlc"].Count; i++)
             {

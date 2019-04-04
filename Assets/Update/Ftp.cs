@@ -34,7 +34,10 @@ public static class FtpLog
             }
         }
         else
+        {
+            U3D.PopupTip("无日志文件发送");
             return;
+        }
         if (fs != null)
             fs.Close();
 

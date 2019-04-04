@@ -60,15 +60,15 @@ public class Startup : MonoBehaviour {
         }
     }
 
-    public void PlayEndMovie()
+    public void PlayEndMovie(bool play)
     {
-        if (!string.IsNullOrEmpty(Global.Instance.GLevelItem.sceneItems))
+        if (!string.IsNullOrEmpty(Global.Instance.GLevelItem.sceneItems) && play && Global.Instance.GLevelMode == LevelMode.SinglePlayerTask)
         {
             string num = Global.Instance.GLevelItem.sceneItems.Substring(2);
             int number = 0;
             if (int.TryParse(num, out number))
             {
-                if (number >= 0 && number <= 9)
+                if (Global.Instance.GLevelItem.ID >= 0 && Global.Instance.GLevelItem.ID <= 9)
                 {
                     string movie = string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, "mmv/" + "v" + number + ".mv");
                     U3D.PlayMovie(movie);
