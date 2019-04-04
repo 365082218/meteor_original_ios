@@ -1022,8 +1022,8 @@ public class MainWnd : Window<MainWnd>
         if (GameData.Instance.gameStatus.GodLike)
         {
             Control("UploadLog").SetActive(true);
-            Control("UploadLog").GetComponent<Button>().onClick.AddListener(() => { FtpLog.UploadStart(); });
         }
+        Control("UploadLog").GetComponent<Button>().onClick.AddListener(() => { FtpLog.UploadStart(); });
         Game.Instance.CloseDbg();
         ClientProxy.Exit();
     }
