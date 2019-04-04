@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net;
@@ -338,14 +339,21 @@ public class UnzipCallbackEx: ZipUtility.UnzipCallback
     void OnScanNpcFiles()
     {
         GameData.Instance.gameStatus.pluginNpc.Clear();
-        string[] files = System.IO.Directory.GetFiles(Application.persistentDataPath + "/Plugins/Def/Npc/");
-        for (int i = 0; i < files.Length; i++)
+        try
         {
-            System.IO.FileInfo fi = new System.IO.FileInfo(files[i]);
-            NpcTemplate template = new NpcTemplate();
-            template.npcTemplate = fi.Name.Substring(0, fi.Name.Length - fi.Extension.Length);
-            template.filePath = fi.FullName.Replace("\\", "/");
-            GameData.Instance.gameStatus.pluginNpc.Add(template);
+            string[] files = System.IO.Directory.GetFiles(Application.persistentDataPath + "/Plugins/Def/Npc/");
+            for (int i = 0; i < files.Length; i++)
+            {
+                System.IO.FileInfo fi = new System.IO.FileInfo(files[i]);
+                NpcTemplate template = new NpcTemplate();
+                template.npcTemplate = fi.Name.Substring(0, fi.Name.Length - fi.Extension.Length);
+                template.filePath = fi.FullName.Replace("\\", "/");
+                GameData.Instance.gameStatus.pluginNpc.Add(template);
+            }
+        }
+        catch (Exception exp)
+        {
+            Debug.LogError(exp.Message);
         }
 
         PluginItemMng.Instance.ReLoad();

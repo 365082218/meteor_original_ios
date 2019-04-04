@@ -63,7 +63,7 @@ public class DlcMng:Singleton<DlcMng> {
             System.IO.Directory.CreateDirectory(Application.persistentDataPath + "/Plugins/Model/");
 
         if (!System.IO.Directory.Exists(Application.persistentDataPath + "/Plugins/Dlc/"))
-            System.IO.Directory.CreateDirectory(Application.persistentDataPath + "Plugins/Dlc/");
+            System.IO.Directory.CreateDirectory(Application.persistentDataPath + "/Plugins/Dlc/");
 
         //下载NPC定义文件，用于DLC内得关卡脚本加载NPC时使用
         if (!System.IO.Directory.Exists(Application.persistentDataPath + "/Plugins/Def/"))
