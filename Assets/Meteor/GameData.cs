@@ -86,6 +86,7 @@ public class GameState
     public bool EnableWeaponChoose;//战斗UI控制面板是否显示按钮
     public bool EnableDebugRobot;//调试角色按钮。
     public bool _EnableInfiniteAngry;
+    public float UIAlpha = 1.0f;
     public List<ModelItem> pluginModel = new List<ModelItem>();
     public List<Chapter> pluginChapter = new List<Chapter>();
     public List<NpcTemplate> pluginNpc = new List<NpcTemplate>();
@@ -213,6 +214,8 @@ public class GameState
         }
     }
     public MyVector2 JoyAnchor;//摇杆坐标.
+    public bool[] HasUIAnchor = new bool[10];//UI按钮坐标被设置的.
+    public MyVector2[] UIAnchor = new MyVector2[10];//UI按钮坐标
     public MyVector2 AxisSensitivity;//轴视角转向灵敏度
     public string MeteorVersion;
     public int TargetFrame;//60-30

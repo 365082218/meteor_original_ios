@@ -17,7 +17,6 @@ Nikki Ma
 public class CameraFollow : MonoBehaviour {
     public static CameraFollow Ins { get { return Instance; } }
     static CameraFollow Instance;
-    [HideInInspector]
     //public Transform[] m_Targets;//摄像机的各个视角的调试对象.
     public float followDistance = 50;//在角色身后多远
     public float followHeight = 0;//离跟随点多高。

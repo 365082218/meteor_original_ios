@@ -53,6 +53,18 @@ public class FightWnd : Window<FightWnd>
             Unlock.SetActive(false);
     }
 
+    public void EnableJoyStick()
+    {
+        if (NGUIJoystick.instance != null)
+            NGUIJoystick.instance.JoyCollider.enabled = true;
+    }
+
+    public void DisableJoyStick()
+    {
+        if (NGUIJoystick.instance != null)
+            NGUIJoystick.instance.JoyCollider.enabled = false;
+    }
+
     public void ShowCameraBtn()
     {
         if (Unlock != null)
@@ -77,6 +89,7 @@ public class FightWnd : Window<FightWnd>
         FloatOpen = Control("FloatOpen");
         FloatOpen.GetComponent<Button>().onClick.AddListener(OnChangeActionBarStatus);
         actionStatusBarCtrl = Control("Slots").GetComponent<Animation>();
+        Control("BattleInfo").GetComponent<RectTransform>().anchoredPosition = new Vector2(GameData.Instance.gameStatus.ShowSysMenu2 ? 145 : -20, -175);
         Global.ldaControlX("Attack", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnAttackPress);
         Global.ldaControlX("Attack", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnAttackRelease);
         Global.ldaControlX("Defence", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnDefencePress);
@@ -131,16 +144,24 @@ public class FightWnd : Window<FightWnd>
         TargetHPLabel = ldaControl("TargetHPLabel", TargetBlood).GetComponent<Text>();
         TargetName = ldaControl("TargetName", TargetBlood).GetComponent<Text>();
         UpdateUIButton();
-        if (NGUIJoystick.instance != null)
-            NGUIJoystick.instance.SetAnchor(GameData.Instance.gameStatus.JoyAnchor);
+        
 
         GameBattleEx.Instance.RegisterHandler(Update);
+        CanvasGroup[] c = WndObject.GetComponentsInChildren<CanvasGroup>();
+        for (int i = 0; i < c.Length; i++)
+            c[i].alpha = GameData.Instance.gameStatus.UIAlpha;
 #if (UNITY_EDITOR || UNITY_STANDALONE_WIN) && !STRIP_KEYBOARD
         Control("ClickPanel").SetActive(false);
         Control("JoyArrow").SetActive(false);
         Control("ActionFloat").SetActive(false);
         Control("FloatOpen").SetActive(false);
 #endif
+    }
+
+    public override void OnRefresh(int message, object param)
+    {
+        base.OnRefresh(message, param);
+        UpdateUIButton();
     }
 
     void OnChatClick()
@@ -257,6 +278,23 @@ public class FightWnd : Window<FightWnd>
             WSDebug.Ins.OpenLogView();
         else
             WSDebug.Ins.CloseLogView();
+
+        GameObject clickPanel = Control("ClickPanel").gameObject;
+        RectTransform rc = clickPanel.GetComponent<RectTransform>();
+        rc.sizeDelta = new Vector2(Screen.width, Screen.height);
+        if (NGUIJoystick.instance != null)
+            NGUIJoystick.instance.SetAnchor(GameData.Instance.gameStatus.JoyAnchor);
+        int j = 0;
+        for (int i = 0; i < clickPanel.transform.childCount; i++)
+        {
+            Transform tri = clickPanel.transform.GetChild(i);
+            if (tri.name == "Direction")
+                continue;
+            RectTransform r = tri.GetComponent<RectTransform>();
+            if (GameData.Instance.gameStatus.HasUIAnchor[j])
+                r.anchoredPosition = GameData.Instance.gameStatus.UIAnchor[j];
+            j++;
+        }
     }
 
     void OnAttackPress()

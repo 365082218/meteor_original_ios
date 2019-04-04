@@ -4263,6 +4263,7 @@ MonoBehaviour:
   weaponIdx: 0
   bSync: 0
   gameTime: 0
+  TurnFrame: 5
   TurnStarted: 0
   waitReborn: 0
   waitSend: 1

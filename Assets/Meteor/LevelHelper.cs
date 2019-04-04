@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using System.Reflection;
+using UnityEngine.UI;
 
 //for loadingui updateui
 public interface LoadingUI
@@ -60,8 +61,6 @@ public class LevelHelper : MonoBehaviour
         yield return 0;
         //WSLog.LogInfo("OnLoadFinishedEx");
         OnLoadFinishedEx(lev);
-        for (int i = 0; i < 5; i++)
-            yield return 0;
         if (LoadingWnd.Exist)
             LoadingWnd.Instance.Close();
         Destroy(this);

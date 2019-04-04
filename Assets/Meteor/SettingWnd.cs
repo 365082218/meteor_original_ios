@@ -28,6 +28,7 @@ public class SettingWnd : Window<SettingWnd> {
     int pluginPage;//当前插件页
     int pageMax;//最大页
     int pluginCount;//插件数量
+    bool showInstallPlugin = true;
     List<GameObject> Install = new List<GameObject>();
     void Init()
     {
@@ -88,7 +89,7 @@ public class SettingWnd : Window<SettingWnd> {
         Control("EffectSlider").GetComponent<Slider>().onValueChanged.AddListener(OnEffectVolumeChange);
         Control("HSliderBar").GetComponent<Slider>().onValueChanged.AddListener(OnXSensitivityChange);
         Control("VSliderBar").GetComponent<Slider>().onValueChanged.AddListener(OnYSensitivityChange);
-        Control("SetJoyPosition").GetComponent<Button>().onClick.AddListener(OnSetJoyPosition);
+        Control("SetJoyPosition").GetComponent<Button>().onClick.AddListener(OnSetUIPosition);
         
         //显示战斗界面的调试按钮
         Toggle toggleDebug = Control("EnableSFX").GetComponent<Toggle>();
@@ -171,6 +172,18 @@ public class SettingWnd : Window<SettingWnd> {
         Control("GameNext").GetComponent<Button>().onClick.AddListener(OnNextPageGame);
         PluginRoot = Control("Content", pluginTab);
         GameRoot = Control("Content", gameTab);
+
+        //模组分页内的功能设定
+        Control("DeletePlugin").GetComponent<Button>().onClick.AddListener(() => { U3D.DeletePlugins();SettingWnd.Instance.Close();SettingWnd.Instance.Open();SettingWnd.Instance.ShowTab(4); });
+        Toggle togShowInstallPlugin = Control("ShowInstallToggle").GetComponent<Toggle>();
+        togShowInstallPlugin.onValueChanged.AddListener((bool value) => { this.showInstallPlugin = value; DlcMng.Instance.CollectAll(this.showInstallPlugin); this.PluginPageRefreshEx(); });
+        togShowInstallPlugin.isOn = true;
+
+        //透明度设定
+        Control("AlphaSliderBar").GetComponent<Slider>().value = GameData.Instance.gameStatus.UIAlpha;
+        Control("AlphaSliderBar").GetComponent<Slider>().onValueChanged.AddListener(OnUIAlphaChange);
+
+        
         if (AppInfo.Instance.AppVersionIsSmallThan(GameConfig.Instance.newVersion))
         {
             //需要更新，设置好服务器版本号，设置好下载链接
@@ -190,9 +203,25 @@ public class SettingWnd : Window<SettingWnd> {
         
     }
 
-    void OnSetJoyPosition()
+    public void OnUIAlphaChange(float v)
     {
-        JoyAdjustWnd.Instance.Open();
+        GameData.Instance.gameStatus.UIAlpha = v;
+    }
+
+    public void ShowTab(int tab)
+    {
+        GameObject grid = Control("Tabs Grid");
+        Transform tabCtrl = grid.transform.GetChild(tab);
+        if (tabCtrl != null)
+        {
+            UITab t = tabCtrl.GetComponent<UITab>();
+            t.isOn = true;
+        }
+    }
+
+    void OnSetUIPosition()
+    {
+        UIAdjustWnd.Instance.Open();
     }
 
     void OnSkipVideo(bool skip)
@@ -428,7 +457,7 @@ public class SettingWnd : Window<SettingWnd> {
                 //}
                 pluginPage = 0;
                 pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
-                DlcMng.Instance.CollectAll();
+                DlcMng.Instance.CollectAll(this.showInstallPlugin);
                 PluginPageUpdate = Startup.ins.StartCoroutine(PluginPageRefresh());
                 yield break;
             }
@@ -552,7 +581,7 @@ public class SettingWnd : Window<SettingWnd> {
             //}
             pluginPage = 0;
             pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
-            DlcMng.Instance.CollectAll();
+            DlcMng.Instance.CollectAll(this.showInstallPlugin);
             PluginPageUpdate = Startup.ins.StartCoroutine(PluginPageRefresh());
             Global.Instance.PluginUpdated = true;
             PluginUpdate = null;
@@ -601,9 +630,7 @@ public class SettingWnd : Window<SettingWnd> {
             pluginPage--;
         else
             return;
-        if (PluginPageUpdate != null)
-            Startup.ins.StopCoroutine(PluginPageUpdate);
-        PluginPageUpdate = Startup.ins.StartCoroutine(PluginPageRefresh());
+        PluginPageRefreshEx();
     }
 
     void OnNextPagePlugin()
@@ -612,6 +639,11 @@ public class SettingWnd : Window<SettingWnd> {
             pluginPage++;
         else
             return;
+        PluginPageRefreshEx();
+    }
+
+    void PluginPageRefreshEx()
+    {
         if (PluginPageUpdate != null)
             Startup.ins.StopCoroutine(PluginPageUpdate);
         PluginPageUpdate = Startup.ins.StartCoroutine(PluginPageRefresh());

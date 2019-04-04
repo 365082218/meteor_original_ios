@@ -198,13 +198,21 @@ public class DlcMng:Singleton<DlcMng> {
     }
 
     //把插件放到一个集合里，便于翻页.
-    public void CollectAll()
+    public void CollectAll(bool showInstall = true)
     {
         allItem.Clear();
         for (int i = 0; i < Models.Count; i++)
+        {
+            if (Models[i].Installed && !showInstall)
+                continue;
             allItem.Add(Models[i]);
+        }
         for (int i = 0; i < Dlcs.Count; i++)
+        {
+            if (Dlcs[i].Installed && !showInstall)
+                continue;
             allItem.Add(Dlcs[i]);
+        }
     }
 
     public List<object> allItem = new List<object>();

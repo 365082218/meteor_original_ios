@@ -100,6 +100,7 @@ public class EscWnd : Window<EscWnd>
         Control("SpeedFast").GetComponent<Button>().onClick.AddListener(() => { OnChangeSpeed(true); });
         Control("SpeedSlow").GetComponent<Button>().onClick.AddListener(() => { OnChangeSpeed(false); });
         Control("ChangeModel").GetComponent<Button>().onClick.AddListener(() => { ModelWnd.Instance.Open(); });
+        Control("ChangeUIPosition").GetComponent<Button>().onClick.AddListener(() => { UIAdjustWnd.Instance.Open(); });
         //战斗内显示角色信息
         Toggle toggleDebugStatus = Control("EnableDebugStatus").GetComponent<Toggle>();
         toggleDebugStatus.isOn = GameData.Instance.gameStatus.EnableDebugStatus;

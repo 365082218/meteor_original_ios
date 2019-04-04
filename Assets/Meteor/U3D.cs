@@ -1915,8 +1915,5 @@ public class U3D : MonoBehaviour {
         GameData.Instance.gameStatus.pluginNpc.Clear();
         Global.Instance.PluginUpdated = false;
         GameData.Instance.SaveState();
-        //Control("DeletePlugins").GetComponent<Button>().onClick.AddListener(() => {
-            
-        //});
     }
 }
