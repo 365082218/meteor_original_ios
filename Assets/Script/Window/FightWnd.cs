@@ -280,8 +280,6 @@ public class FightWnd : Window<FightWnd>
             WSDebug.Ins.CloseLogView();
 
         GameObject clickPanel = Control("ClickPanel").gameObject;
-        RectTransform rc = clickPanel.GetComponent<RectTransform>();
-        rc.sizeDelta = new Vector2(Screen.width, Screen.height);
         if (NGUIJoystick.instance != null)
             NGUIJoystick.instance.SetAnchor(GameData.Instance.gameStatus.JoyAnchor);
         int j = 0;

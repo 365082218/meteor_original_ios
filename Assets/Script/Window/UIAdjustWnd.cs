@@ -35,8 +35,8 @@ public class UIAdjustWnd : Window<UIAdjustWnd> {
             Close();
         });
         GameObject click = Control("ClickPanel");
-        RectTransform rc = click.GetComponent<RectTransform>();
-        rc.sizeDelta = new Vector2(Screen.width, Screen.height);
+        //RectTransform rc = click.GetComponent<RectTransform>();
+        //rc.sizeDelta = new Vector2(Screen.width, Screen.height);
         UIAdjust adjust = Control("LeftJoystick").GetComponent<UIAdjust>();
         GameButton[] buttons = WndObject.GetComponentsInChildren<GameButton>();
         for (int i = 0; i < buttons.Length; i++)

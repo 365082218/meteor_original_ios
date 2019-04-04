@@ -5,7 +5,7 @@ using AnimationOrTween;
 public class UIHelper
 {
     public static float WorldToScreenModify { get { return WindowsRoot.ManualHeight / Screen.height; }  }
-	public static float UIModify { get { return 1 + (float)Screen.width / Screen.height - 1920 / 1080f; } }//UI LocalPos the modify
+	public static float UIModify { get { return 1 + (float)Screen.width / Screen.height - 2160.0f / 1080.0f; } }//UI LocalPos the modify
 	
     //UI原点在屏幕中间，把屏幕坐标系的点换算为UI坐标系的点.
 	public static Vector2 ScreenPointToUIPoint(Vector2 screenPoint)

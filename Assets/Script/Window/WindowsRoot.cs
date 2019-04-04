@@ -3,7 +3,7 @@ using System.Collections;
 
 public class WindowsRoot : MonoBehaviour
 {
-    public static float DesignWidth = 1920.0f;
+    public static float DesignWidth = 2160.0f;
 	public static float DesignHeight = 1080.0f;
 	
 	static float mManualHeight = 1080.0f;

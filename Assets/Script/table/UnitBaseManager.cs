@@ -45,11 +45,11 @@ public class WeaponMng : TableManager<WeaponBase, WeaponMng>
 //外接的武器定义
 public class PluginWeaponMng: TableManagerEx<WeaponBase, PluginWeaponMng>
 {
-    public override string TableName() { return Application.persistentDataPath + @"\Plugins\Def\Weapon.txt"; }
+    public override string TableName() { return Application.persistentDataPath + "/Plugins/Def/Weapon.txt"; }
 }
 
 //外接的物品定义
 public class PluginItemMng:TableManagerEx<ItemBase, PluginItemMng>
 {
-    public override string TableName() { return Application.persistentDataPath + @"\Plugins\Def\Item.txt"; }
+    public override string TableName() { return Application.persistentDataPath + "/Plugins/Def/Item.txt"; }
 }

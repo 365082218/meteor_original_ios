@@ -31,8 +31,11 @@ public class UIAdjust : MonoBehaviour {
             Target.GetComponent<CanvasGroup>().alpha = 1.0f;
         UIIndex = uiIndex;
         box.enabled = Target != null;
+        if (Target == null)
+            vecOffset.x = vecOffset.y = 0;
     }
 
+    Vector2 vecOffset = new Vector2(0, 0);
     void OnPress(bool pressed)
     {
         if (enabled && gameObject.activeSelf && Target != null)
@@ -41,7 +44,8 @@ public class UIAdjust : MonoBehaviour {
             if (pressed)
             {
                 Vector2 curPos = UICamera.currentTouch.pos;
-                Target.anchoredPosition = new Vector3(curPos.x, curPos.y);
+                vecOffset = curPos - Target.anchoredPosition;
+                //Target.anchoredPosition = new Vector3(curPos.x, curPos.y);
                 mClickPos = UIHelper.ScreenPointToUIPoint(curPos);
                 if (mLastFingerId == -2 || mLastFingerId != UICamera.currentTouchID)
                 {
@@ -61,10 +65,10 @@ public class UIAdjust : MonoBehaviour {
     {
         if (enabled && gameObject.activeSelf && Target != null)
         {
-            Debug.Log(string.Format("OnDrag {0}-{1}", delta.x, delta.y));
+            Debug.Log(string.Format("currentTouch.pos {0}-{1}", UICamera.currentTouch.pos.x, UICamera.currentTouch.pos.y));
             if (mLastFingerId == UICamera.currentTouchID)
             {
-                Target.anchoredPosition = UICamera.currentTouch.pos;
+                Target.anchoredPosition = UICamera.currentTouch.pos - vecOffset;
                 if (UIIndex == 0)
                 {
                     GameData.Instance.gameStatus.JoyAnchor.x = Target.anchoredPosition.x;
