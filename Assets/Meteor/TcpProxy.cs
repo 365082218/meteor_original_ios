@@ -13,7 +13,7 @@ namespace CoClass
         byte[] Buff;//缓存全部.
         byte[] Buf;//接收每个包
         int Len;//Buff有多长.
-        public static int MaxSize = 8192;//
+        public static int MaxSize = 512 * 1024;//
         public static int PacketSize = 4096;//
         public TcpProxy()
         {
@@ -34,6 +34,7 @@ namespace CoClass
             if (Len + receivedLength > MaxSize)
             {
                 Len = 0;
+                Debug.LogError("the packet is too long");
                 return false;
             }
             Buffer.BlockCopy(Buf, 0, Buff, Len, receivedLength);

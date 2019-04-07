@@ -134,8 +134,11 @@ public class Patch : MonoBehaviour {
 #endif
 
         Log.Write(string.Format("fps:{0}", Application.targetFrameRate));
-        string movie = string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, "mmv/start.mv");
-        U3D.PlayMovie(movie);
+        if (!GameData.Instance.gameStatus.SkipVideo)
+        {
+            string movie = string.Format(Main.strSFile, Main.strHost, Main.port, Main.strProjectUrl, "mmv/start.mv");
+            U3D.PlayMovie(movie);
+        }
         AppDomain.CurrentDomain.UnhandledException += UncaughtException;
         ResMng.LoadScene("Menu");
         SceneManager.LoadScene("Menu");

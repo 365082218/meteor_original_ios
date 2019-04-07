@@ -56,7 +56,33 @@ public enum LanguageType
     En,
 }
 
-
+[ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
+public class RoomSetting
+{
+    public int Mode;//创建单机时选择的模式
+    public int Life;//创建单机时选择的生命上限
+    public int Weapon0;//创建单机时选择的武器1
+    public int Weapon1;//创建单机时选择的武器2
+    public int ChapterTemplate;//剧本模板+关卡模板，唯一定义了一个地图.
+    public int LevelTemplate;//创建单机时选择的场景
+    public int Model;//创建单机时的角色模型
+    public int RoundTime;//创建单机时的单轮时长
+    public int MaxPlayer;//创建单机时的初始角色个数
+    public string RoomName;//房间名称
+    public bool DisallowSpecialWeapon;//创建房间时禁用远程武器
+    public RoomSetting()
+    {
+        LevelTemplate = 22;
+        MaxPlayer = 4;
+        RoundTime = 15;
+        Weapon0 = 1;
+        Weapon1 = 10;
+        Model = 0;
+        Life = 200;
+        Mode = (int)GameMode.MENGZHU;
+        DisallowSpecialWeapon = true;
+    }
+}
 
 //整个游戏只有一份的开关状态.就是整个
 [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
@@ -69,16 +95,7 @@ public class GameState
     public string ClientId;//IOS GAMECENTER账号。
     public int Quality;//0默认最高,1中_800面,2低_300面
     public int Level;//当前最远通过的关卡
-    public int GameMode;//创建单机时选择的模式
-    public int Life;//创建单机时选择的生命上限
-    public int Weapon0;//创建单机时选择的武器1
-    public int Weapon1;//创建单机时选择的武器2
     public int ChapterTemplate;//创建单机适默认剧本
-    public int LevelTemplate;//创建单机时选择的场景
-    public int Model;//创建单机时的角色模型
-    public int RoundTime;//创建单机时的单轮时长
-    public int MaxPlayer;//创建单机时的初始角色个数
-    public bool DisallowSpecialWeapon;//创建房间时禁用远程武器
     public string NickName;
     public bool useJoystickOrKeyBoard;//是否使用外设摇杆
     public bool EnableDebugSFX;//战斗UI调试特效是否显示
@@ -87,6 +104,9 @@ public class GameState
     public bool EnableDebugRobot;//调试角色按钮。
     public bool _EnableInfiniteAngry;
     public float UIAlpha = 1.0f;
+    public RoomSetting Single = new RoomSetting();
+    public RoomSetting NetWork = new RoomSetting();
+    public Dictionary<string, string> LocalMovie = new Dictionary<string, string>();
     public List<ModelItem> pluginModel = new List<ModelItem>();
     public List<Chapter> pluginChapter = new List<Chapter>();
     public List<NpcTemplate> pluginNpc = new List<NpcTemplate>();
@@ -525,16 +545,7 @@ public class GameData:Singleton<GameData>
             gameStatus.DisableJoystick = true;
             gameStatus.DisableParticle = true;
             gameStatus.AutoLock = true;
-            gameStatus.SkipVideo = false;
-            gameStatus.LevelTemplate = 22;
-            gameStatus.MaxPlayer = 4;
-            gameStatus.RoundTime = 15;
-            gameStatus.Weapon0 = 1;
-            gameStatus.Weapon1 = 10;
-            gameStatus.Model = 0;
-            gameStatus.Life = 200;
-            gameStatus.GameMode = (int)GameMode.MENGZHU;
-            gameStatus.DisallowSpecialWeapon = true;
+            gameStatus.SkipVideo = true;
         }
         else
         {

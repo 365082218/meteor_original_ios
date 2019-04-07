@@ -16,6 +16,7 @@ public class NetWorkBattle : MonoBehaviour {
     public int LevelId = -1;//房间场景关卡编号
     public int PlayerId = -1;//主角在服务器的角色编号.
     public int heroIdx;//选择的模型编号.
+    public int camp;//选择的阵营编号
     public int weaponIdx;
     string RoomName;
     public bool bSync;
@@ -179,7 +180,7 @@ public class NetWorkBattle : MonoBehaviour {
     //选择好了角色和武器，向服务器发出进入房间请求.
     public void EnterLevel()
     {
-        ClientProxy.EnterLevel(heroIdx, weaponIdx);
+        ClientProxy.EnterLevel(heroIdx, weaponIdx, camp);
     }
 
     public void SyncAttribute(Player_ p)
@@ -270,6 +271,7 @@ public class NetWorkBattle : MonoBehaviour {
         RoomId = roomId;
         LevelId = levelid;
         PlayerId = playerid;
+        camp = (int)EUnitCamp.EUC_KILLALL;
     }
 
     //本地采集的5帧的输入，上传到服务器.
@@ -304,16 +306,34 @@ public class NetWorkBattle : MonoBehaviour {
     AsyncOperation mAsync;
     IEnumerator LoadAsync(Level lev, List<SceneItem_> sceneItems, List<Player_> players)
     {
+        int displayProgress = 0;
+        int toProgress = 0;
         ResMng.LoadScene(lev.Scene);
         mAsync = SceneManager.LoadSceneAsync(lev.Scene);
         mAsync.allowSceneActivation = false;
         while (mAsync.progress < 0.9f)
         {
+            toProgress = (int)mAsync.progress * 100;
+            while (displayProgress < toProgress)
+            {
+                ++displayProgress;
+                if (LoadingWnd.Exist)
+                    LoadingWnd.Instance.UpdateProgress(displayProgress / 100.0f);
+                yield return 0;
+            }
             yield return 0;
         }
-        mAsync.allowSceneActivation = true;
-        while (!mAsync.isDone)
+        toProgress = 100;
+        //WSLog.LogInfo("displayProgress < toProgress");
+        while (displayProgress < toProgress)
+        {
+            ++displayProgress;
+            if (LoadingWnd.Exist)
+                LoadingWnd.Instance.UpdateProgress(displayProgress / 100.0f);
             yield return 0;
+        }
+        //WSLog.LogInfo("displayProgress < toProgress");
+        mAsync.allowSceneActivation = true;
         yield return 0;
         OnLoadFinishedEx(lev, sceneItems, players);
         ProtoHandler.loading = false;

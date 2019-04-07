@@ -46,6 +46,8 @@ public enum EUnitCamp
     EUC_FRIEND = 1,     // 流星雇佣兵或者NPC，帮助流星打Enemy或者KILLALL
     EUC_ENEMY = 2,      // 蝴蝶
     EUC_NONE = 3,    // 与所有人和平 NPC,不攻击，不受击
+    EUC_Meteor = EUC_FRIEND,
+    EUC_Butterfly = EUC_ENEMY,
 };
 
 /** 技能伤害类型 */
@@ -244,12 +246,20 @@ public class Common
 
     public static void SendChatMessage(string message)
     {
-        //Exec<chat>(ClientProxy.sProxy, message);
+        ChatMsg msg = new ChatMsg();
+        msg.channelType = 0;
+        msg.chatMessage = message;
+        msg.playerId = (uint)NetWorkBattle.Ins.PlayerId;
+        Exec(ClientProxy.sProxy,(int)MeteorMsg.MsgType.ChatInRoomReq, msg);
     }
 
     public static void SendAudioMessage(float [] data)
     {
-
+        AudioChatMsg msg = new AudioChatMsg();
+        msg.type = 0;
+        msg.audio_data.AddRange(data);
+        msg.playerId = (uint)NetWorkBattle.Ins.PlayerId;
+        Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.AudioChat, msg);
     }
 
     public static void Exec(Socket s, int msg)
@@ -340,11 +350,12 @@ public class Common
         Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.UserRebornReq, id);
     }
 
-    public static void SendJoinRoom(int roomId)
+    public static void SendJoinRoom(int roomId, string sec = "")
     {
         JoinRoomReq req = new JoinRoomReq();
         req.roomId = (uint)roomId;
         req.userNick = GameData.Instance.gameStatus.NickName;
+        req.secret = sec;
         Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.JoinRoomReq, req);
     }
 
@@ -353,16 +364,35 @@ public class Common
         Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.LeaveRoomReq);
     }
 
-    public static void SendEnterLevel(int model, int weapon)
+    public static void SendEnterLevel(int model, int weapon, int camp)
     {
         //UnityEngine.Debug.LogError("sendEnterLevel " + UnityEngine.Time.frameCount);
         EnterLevelReq req = new EnterLevelReq();
-        req.camp = 0;//暂时全部为盟主模式
+        req.camp = (uint)camp;//暂时全部为盟主模式
         req.model = (uint)model;
         req.weapon = (uint)weapon;
         Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.EnterLevelReq, req);
     }
 
+    //创建房间.
+    public static void CreateRoom(string name, string sec)
+    {
+        CreateRoomReq req = new CreateRoomReq();
+        req.hpMax = (uint)GameData.Instance.gameStatus.NetWork.Life;
+        req.levelIdx = (uint)GameData.Instance.gameStatus.NetWork.ChapterTemplate * 1000 + (uint)GameData.Instance.gameStatus.NetWork.LevelTemplate;
+        req.maxPlayer = (uint)GameData.Instance.gameStatus.NetWork.MaxPlayer;
+        req.roomName = name;
+        req.roundTime = (uint)GameData.Instance.gameStatus.NetWork.RoundTime;
+        req.rule = (uint)GameData.Instance.gameStatus.NetWork.Mode;
+        req.secret = sec;
+        Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.CreateRoomReq, req);
+        //1,人数上限
+        //2.关卡模式
+        //3.时长
+        //4.地图模板
+        //5.生命上限
+        //6.禁用远程武器
+    }
     //public static void SyncFrame(KeyFrame k)
     //{
     //    Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.KeyFrameReq, k);

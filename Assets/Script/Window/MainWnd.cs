@@ -10,6 +10,108 @@ using protocol;
 using Idevgame.Util;
 using System.Net;
 using UnityEngine.Networking;
+using DG.Tweening;
+
+public class RoomChatWnd:Window<RoomChatWnd>
+{
+    GameObject Root;
+    public override string PrefabName
+    {
+        get
+        {
+            return "RoomChatWnd";
+        }
+    }
+
+    Sequence hide;
+    protected override bool OnOpen()
+    {
+        Init();
+        return base.OnOpen();
+    }
+
+    Scrollbar vscrollBar;
+    void Init()
+    {
+        Root = Control("LevelTalk");
+        WndObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(145, 400);
+        vscrollBar = Control("Scrollbar Vertical").GetComponent<Scrollbar>();
+    }
+
+    protected override bool OnClose()
+    {
+        return base.OnClose();
+    }
+
+    //加入声音UI按钮
+    Dictionary<int, List<float>> audioCache = new Dictionary<int, List<float>>();
+    public void Add(int playerId, List<float> audio)
+    {
+        if (Root.transform.childCount >= 20)
+        {
+            if (audioCache.ContainsKey(0))
+                audioCache.Remove(0);
+            GameObject.Destroy(Root.transform.GetChild(0).gameObject);
+        }
+        GameObject obj = GameObject.Instantiate(Resources.Load("AudioMsg")) as GameObject;
+        obj.name = (Root.transform.childCount + 1).ToString();
+        obj.transform.GetChild(0).GetComponent<Text>().text = NetWorkBattle.Ins.GetNetPlayerName(playerId) + "发来了一条语音信息";
+        obj.transform.GetChild(1).GetComponent<UIFunCtrl>().SetEvent((int audioIdx) => { OnPlayAudio(audioIdx); }, Root.transform.childCount);
+        obj.transform.SetParent(Root.transform);
+        obj.transform.localScale = Vector3.one;
+        obj.transform.localPosition = Vector3.zero;
+        obj.transform.localRotation = Quaternion.identity;
+        if (hide != null)
+            hide.Kill(false);
+        WndObject.GetComponent<CanvasGroup>().alpha = 1.0f;
+        hide = DOTween.Sequence();
+        hide.AppendInterval(8.0f);
+        hide.Append(WndObject.GetComponent<CanvasGroup>().DOFade(0, 5.0f));
+        hide.Play();
+        audioCache.Add(Root.transform.childCount - 1, audio);
+        vscrollBar.value = 0;
+    }
+
+    void OnPlayAudio(int audioIndex)
+    {
+        if (audioCache.ContainsKey(audioIndex))
+        {
+            Startup.ins.Sound.Stop();
+            Startup.ins.Music.Stop();
+            AudioClip au = AudioClip.Create("talk", audioCache[audioIndex].Count, 1, 8000, false);
+            au.SetData(audioCache[audioIndex].ToArray(), 0);
+            SoundManager.Instance.PlayClip(au);
+        }
+    }
+
+    public void Add(int playerId, string message)
+    {
+        if (Root.transform.childCount >= 20)
+            GameObject.Destroy(Root.transform.GetChild(0).gameObject);
+        GameObject obj = new GameObject();
+        obj.name = (Root.transform.childCount + 1).ToString();
+        Text txt = obj.AddComponent<Text>();
+        txt.text = string.Format("{0}:{1}", NetWorkBattle.Ins.GetNetPlayerName(playerId), message);
+        //00AAFFFF
+        txt.font = Startup.ins.TextFont;
+        txt.fontSize = 32;
+        txt.alignment = TextAnchor.MiddleLeft;
+        txt.raycastTarget = false;
+        txt.color = new Color(1.0f, 1.0f, 1.0f, 1f);
+        obj.transform.SetParent(Root.transform);
+        obj.transform.localScale = Vector3.one;
+        obj.transform.localPosition = Vector3.zero;
+        obj.transform.localRotation = Quaternion.identity;
+        if (hide != null)
+            hide.Kill(false);
+        WndObject.GetComponent<CanvasGroup>().alpha = 1.0f;
+        hide = DOTween.Sequence();
+        hide.AppendInterval(8.0f);
+        hide.Append(WndObject.GetComponent<CanvasGroup>().DOFade(0, 5.0f));
+        hide.Play();
+        vscrollBar.value = 0;
+    }
+}
 
 public class ChatWnd : Window<ChatWnd>
 {
@@ -68,9 +170,9 @@ public class ChatWnd : Window<ChatWnd>
             TextAsset text = ResMng.Load("MsgTable") as TextAsset;
             jsData = LitJson.JsonMapper.ToObject(text.text);
         }
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < jsData["Msg"].Count; i++)
         {
-            string strQuick = jsData[string.Format("Msg{0}", i)].ToString();
+            string strQuick = jsData["Msg"][i].ToString();
             Control(i.ToString(), WndObject).GetComponentInChildren<Text>().text = strQuick;
             int j = i;
             Control(i.ToString(), WndObject).GetComponent<Button>().onClick.AddListener(()=> { SendQuickMsg(j); });
@@ -90,7 +192,7 @@ public class ChatWnd : Window<ChatWnd>
 
     void SendQuickMsg(int i)
     {
-        Common.SendChatMessage(jsData[string.Format("Msg{0}", i)].ToString());
+        Common.SendChatMessage(jsData["Msg"][i].ToString());
     }
 
     void SendAudioMsg()
@@ -181,6 +283,145 @@ public class GunShootUI:Window<GunShootUI>
     }
 }
 
+public class RoomOptionWnd:Window<RoomOptionWnd>
+{
+    public override string PrefabName
+    {
+        get
+        {
+            return "RoomOption";
+        }
+    }
+
+    protected override bool OnOpen()
+    {
+        Init();
+        return base.OnOpen();
+    }
+
+    GameObject TemplateRoot;
+
+    int[] ConstRoundTime = { 15, 30, 60 };
+    int[] ConstPlayer = { 2, 4, 8, 12, 16 };
+    InputField roomName;
+    InputField roomSecret;
+    void Init()
+    {
+        roomName = Control("RoomNameInput").GetComponent<UnityEngine.UI.InputField>();
+        roomName.text = string.Format("{0}{1}", GameData.Instance.gameStatus.NickName, "的房间");
+        roomSecret = Control("RoomSecretInput").GetComponent<UnityEngine.UI.InputField>();
+        roomSecret.text = "";
+        Control("CreateWorld").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            OnCreateRoom();
+        });
+        GameObject RuleGroup = Control("RuleGroup", WndObject);
+        Toggle rule0 = Control("0", RuleGroup).GetComponent<Toggle>();
+        Toggle rule1 = Control("1", RuleGroup).GetComponent<Toggle>();
+        Toggle rule2 = Control("2", RuleGroup).GetComponent<Toggle>();
+        rule0.isOn = GameData.Instance.gameStatus.NetWork.Mode == (int)GameMode.MENGZHU;
+        rule1.isOn = GameData.Instance.gameStatus.NetWork.Mode == (int)GameMode.ANSHA;
+        rule2.isOn = GameData.Instance.gameStatus.NetWork.Mode == (int)GameMode.SIDOU;
+
+        rule0.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.NetWork.Mode = (int)GameMode.MENGZHU; });
+        rule1.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.NetWork.Mode = (int)GameMode.ANSHA; });
+        rule2.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.NetWork.Mode = (int)GameMode.SIDOU; });
+
+        GameObject LifeGroup = Control("LifeGroup", WndObject);
+        Toggle Life0 = Control("0", LifeGroup).GetComponent<Toggle>();
+        Toggle Life1 = Control("1", LifeGroup).GetComponent<Toggle>();
+        Toggle Life2 = Control("2", LifeGroup).GetComponent<Toggle>();
+
+        Life0.isOn = GameData.Instance.gameStatus.NetWork.Life == 500;
+        Life1.isOn = GameData.Instance.gameStatus.NetWork.Life == 200;
+        Life2.isOn = GameData.Instance.gameStatus.NetWork.Life == 100;
+        Life0.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.NetWork.Life = 500; });
+        Life1.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.NetWork.Life = 200; });
+        Life2.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.NetWork.Life = 100; });
+
+        Control("Return").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            GameData.Instance.SaveState();
+            MainLobby.Instance.Open();
+            Close();
+        });
+
+        //地图模板，应该从所有地图表里获取，包括外部载入的地图.
+        TemplateRoot = Control("WorldRoot", WndObject);
+        Level[] allLevel = Global.Instance.GetAllLevel();
+        for (int i = 0; i < allLevel.Length; i++)
+        {
+            Level lev = allLevel[i];
+            if (lev == null || lev.Template == 0)
+                continue;
+            AddGridItem(lev, TemplateRoot.transform);
+        }
+        select = Global.Instance.GetLevel(GameData.Instance.gameStatus.ChapterTemplate, GameData.Instance.gameStatus.NetWork.LevelTemplate);
+        OnSelectLevel(select);
+
+        GameObject TimeGroup = Control("GameTime", WndObject);
+        for (int i = 0; i < 3; i++)
+        {
+            Toggle TimeToggle = Control(string.Format("{0}", i), TimeGroup).GetComponent<Toggle>();
+            var k = i;
+            TimeToggle.isOn = GameData.Instance.gameStatus.NetWork.RoundTime == ConstRoundTime[k];
+            TimeToggle.onValueChanged.AddListener((bool selected) => { if (selected) GameData.Instance.gameStatus.NetWork.RoundTime = ConstRoundTime[k]; });
+        }
+
+        GameObject PlayerGroup = Control("PlayerGroup", WndObject);
+        for (int i = 0; i <= 4; i++)
+        {
+            Toggle PlayerToggle = Control(string.Format("{0}", i), PlayerGroup).GetComponent<Toggle>();
+            var k = i;
+            PlayerToggle.isOn = GameData.Instance.gameStatus.NetWork.MaxPlayer == ConstPlayer[k];
+            PlayerToggle.onValueChanged.AddListener((bool selected) =>
+            {
+                if (selected)
+                    GameData.Instance.gameStatus.NetWork.MaxPlayer = ConstPlayer[k];
+            });
+        }
+    }
+
+    Level select;
+    void OnSelectLevel(Level lev)
+    {
+        select = lev;
+        GameData.Instance.gameStatus.NetWork.LevelTemplate = lev.ID;
+        Control("Task").GetComponent<Text>().text = select.Name;
+    }
+
+    void OnCreateRoom()
+    {
+        if (select != null)
+        {
+            //Global.Instance.PlayerLife = GameData.Instance.gameStatus.NetWork.Life;
+            //Global.Instance.RoundTime = GameData.Instance.gameStatus.NetWork.RoundTime;
+            //Global.Instance.MaxPlayer = GameData.Instance.gameStatus.NetWork.MaxPlayer;
+            if (string.IsNullOrEmpty(roomName.text))
+            {
+                U3D.PopupTip("需要设置房间名");
+                return;
+            }
+            GameData.Instance.gameStatus.NetWork.RoomName = roomName.text;
+            Common.CreateRoom(roomName.text, roomSecret.text);
+            //U3D.LoadLevel(select.ID, LevelMode.CreateWorld, (GameMode)GameData.Instance.gameStatus.NetWork.Mode);
+        }
+    }
+
+    void AddGridItem(Level lev, Transform parent)
+    {
+        GameObject objPrefab = Resources.Load("LevelSelectItem", typeof(GameObject)) as GameObject;
+        GameObject obj = GameObject.Instantiate(objPrefab) as GameObject;
+        obj.transform.SetParent(parent);
+        obj.name = lev.Name;
+        obj.GetComponent<Button>().onClick.AddListener(() => { OnSelectLevel(lev); });
+        obj.GetComponentInChildren<Text>().text = lev.Name;
+        obj.transform.localPosition = Vector3.zero;
+        obj.transform.localScale = Vector3.one;
+    }
+}
+
+//单机创建房间面板
 public class WorldTemplateWnd : Window<WorldTemplateWnd>
 {
     public override string PrefabName
@@ -211,32 +452,32 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
         Toggle rule0 = Control("0", RuleGroup).GetComponent<Toggle>();
         Toggle rule1 = Control("1", RuleGroup).GetComponent<Toggle>();
         Toggle rule2 = Control("2", RuleGroup).GetComponent<Toggle>();
-        rule0.isOn = GameData.Instance.gameStatus.GameMode == (int)GameMode.MENGZHU;
-        rule1.isOn = GameData.Instance.gameStatus.GameMode == (int)GameMode.ANSHA;
-        rule2.isOn = GameData.Instance.gameStatus.GameMode == (int)GameMode.SIDOU;
+        rule0.isOn = GameData.Instance.gameStatus.Single.Mode == (int)GameMode.MENGZHU;
+        rule1.isOn = GameData.Instance.gameStatus.Single.Mode == (int)GameMode.ANSHA;
+        rule2.isOn = GameData.Instance.gameStatus.Single.Mode == (int)GameMode.SIDOU;
 
-        rule0.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.GameMode = (int)GameMode.MENGZHU;});
-        rule1.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.GameMode = (int)GameMode.ANSHA; });
-        rule2.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.GameMode = (int)GameMode.SIDOU; });
+        rule0.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Single.Mode = (int)GameMode.MENGZHU;});
+        rule1.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Single.Mode = (int)GameMode.ANSHA; });
+        rule2.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Single.Mode = (int)GameMode.SIDOU; });
 
         GameObject LifeGroup = Control("LifeGroup", WndObject);
         Toggle Life0 = Control("0", LifeGroup).GetComponent<Toggle>();
         Toggle Life1 = Control("1", LifeGroup).GetComponent<Toggle>();
         Toggle Life2 = Control("2", LifeGroup).GetComponent<Toggle>();
 
-        Life0.isOn = GameData.Instance.gameStatus.Life == 500;
-        Life1.isOn = GameData.Instance.gameStatus.Life == 200;
-        Life2.isOn = GameData.Instance.gameStatus.Life == 100;
-        Life0.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Life = 500; });
-        Life1.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Life = 200; });
-        Life2.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Life = 100; });
+        Life0.isOn = GameData.Instance.gameStatus.Single.Life == 500;
+        Life1.isOn = GameData.Instance.gameStatus.Single.Life == 200;
+        Life2.isOn = GameData.Instance.gameStatus.Single.Life == 100;
+        Life0.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Single.Life = 500; });
+        Life1.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Single.Life = 200; });
+        Life2.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Single.Life = 100; });
 
         GameObject MainWeaponGroup = Control("FirstWeapon", WndObject);
         GameObject WeaponGroup = Control("WeaponGroup", MainWeaponGroup);
         for (int i = 0; i <= 11; i++)
         {
             Toggle MainWeapon = Control(string.Format("{0}", i), WeaponGroup).GetComponent<Toggle>();
-            MainWeapon.isOn = GameData.Instance.gameStatus.Weapon0 == i;
+            MainWeapon.isOn = GameData.Instance.gameStatus.Single.Weapon0 == i;
             MainWeapon.onValueChanged.AddListener(OnMainWeaponSelected);
         }
 
@@ -245,7 +486,7 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
         for (int i = 0; i <= 11; i++)
         {
             Toggle subWeapon = Control(string.Format("{0}", i), WeaponGroup).GetComponent<Toggle>();
-            subWeapon.isOn = GameData.Instance.gameStatus.Weapon1 == i;
+            subWeapon.isOn = GameData.Instance.gameStatus.Single.Weapon1 == i;
             subWeapon.onValueChanged.AddListener(OnSubWeaponSelected);
         }
 
@@ -266,7 +507,7 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
                 continue;
             AddGridItem(lev, TemplateRoot.transform);
         }
-        select = Global.Instance.GetLevel(GameData.Instance.gameStatus.ChapterTemplate, GameData.Instance.gameStatus.LevelTemplate);
+        select = Global.Instance.GetLevel(GameData.Instance.gameStatus.ChapterTemplate, GameData.Instance.gameStatus.Single.LevelTemplate);
         OnSelectLevel(select);
 
         GameObject ModelGroup = Control("ModelGroup");
@@ -276,8 +517,8 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
             Text t = modelTog.GetComponentInChildren<Text>();
             t.text = ModelMng.Instance.GetAllItem()[i].Name;
             var k = i;
-            modelTog.isOn = GameData.Instance.gameStatus.Model == i;
-            modelTog.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Model = k; });
+            modelTog.isOn = GameData.Instance.gameStatus.Single.Model == i;
+            modelTog.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Single.Model = k; });
         }
 
         GameObject TimeGroup = Control("GameTime", WndObject);
@@ -285,8 +526,8 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
         {
             Toggle TimeToggle = Control(string.Format("{0}", i), TimeGroup).GetComponent<Toggle>();
             var k = i;
-            TimeToggle.isOn = GameData.Instance.gameStatus.RoundTime == ConstRoundTime[k];
-            TimeToggle.onValueChanged.AddListener((bool selected) => { if (selected) GameData.Instance.gameStatus.RoundTime = ConstRoundTime[k]; });
+            TimeToggle.isOn = GameData.Instance.gameStatus.Single.RoundTime == ConstRoundTime[k];
+            TimeToggle.onValueChanged.AddListener((bool selected) => { if (selected) GameData.Instance.gameStatus.Single.RoundTime = ConstRoundTime[k]; });
         }
 
         GameObject PlayerGroup = Control("PlayerGroup", WndObject);
@@ -294,18 +535,18 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
         {
             Toggle PlayerToggle = Control(string.Format("{0}", i), PlayerGroup).GetComponent<Toggle>();
             var k = i;
-            PlayerToggle.isOn = GameData.Instance.gameStatus.MaxPlayer == ConstPlayer[k];
+            PlayerToggle.isOn = GameData.Instance.gameStatus.Single.MaxPlayer == ConstPlayer[k];
             PlayerToggle.onValueChanged.AddListener((bool selected) => 
             {
                 if (selected)
-                    GameData.Instance.gameStatus.MaxPlayer = ConstPlayer[k];
+                    GameData.Instance.gameStatus.Single.MaxPlayer = ConstPlayer[k];
             });
         }
 
         GameObject DisallowGroup = Control("DisallowGroup", WndObject);
         Toggle DisallowToggle = Control("0", DisallowGroup).GetComponent<Toggle>();
-        DisallowToggle.isOn = GameData.Instance.gameStatus.DisallowSpecialWeapon;
-        DisallowToggle.onValueChanged.AddListener((bool selected) => { GameData.Instance.gameStatus.DisallowSpecialWeapon = selected; });
+        DisallowToggle.isOn = GameData.Instance.gameStatus.Single.DisallowSpecialWeapon;
+        DisallowToggle.onValueChanged.AddListener((bool selected) => { GameData.Instance.gameStatus.Single.DisallowSpecialWeapon = selected; });
     }
 
     void OnMainWeaponSelected(bool select)
@@ -319,7 +560,7 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
                 Toggle MainWeapon = Control(string.Format("{0}", i), WeaponGroup).GetComponent<Toggle>();
                 if (MainWeapon.isOn)
                 {
-                    GameData.Instance.gameStatus.Weapon0 = i;
+                    GameData.Instance.gameStatus.Single.Weapon0 = i;
                     break;
                 }
                 
@@ -338,7 +579,7 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
                 Toggle subWeapon = Control(string.Format("{0}", i), WeaponGroup).GetComponent<Toggle>();
                 if (subWeapon.isOn)
                 {
-                    GameData.Instance.gameStatus.Weapon1 = i;
+                    GameData.Instance.gameStatus.Single.Weapon1 = i;
                     break;
                 }
             }
@@ -349,7 +590,7 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
     void OnSelectLevel(Level lev)
     {
         select = lev;
-        GameData.Instance.gameStatus.LevelTemplate = lev.ID;
+        GameData.Instance.gameStatus.Single.LevelTemplate = lev.ID;
         Control("Task").GetComponent<Text>().text = select.Name;
     }
 
@@ -357,13 +598,13 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
     {
         if (select != null)
         {
-            Global.Instance.MainWeapon = GameData.Instance.gameStatus.Weapon0;
-            Global.Instance.SubWeapon = GameData.Instance.gameStatus.Weapon1;
-            Global.Instance.PlayerLife = GameData.Instance.gameStatus.Life;
-            Global.Instance.PlayerModel = GameData.Instance.gameStatus.Model;
-            Global.Instance.RoundTime = GameData.Instance.gameStatus.RoundTime;
-            Global.Instance.MaxPlayer = GameData.Instance.gameStatus.MaxPlayer;
-            U3D.LoadLevel(select.ID, LevelMode.CreateWorld, (GameMode)GameData.Instance.gameStatus.GameMode);
+            Global.Instance.MainWeapon = GameData.Instance.gameStatus.Single.Weapon0;
+            Global.Instance.SubWeapon = GameData.Instance.gameStatus.Single.Weapon1;
+            Global.Instance.PlayerLife = GameData.Instance.gameStatus.Single.Life;
+            Global.Instance.PlayerModel = GameData.Instance.gameStatus.Single.Model;
+            Global.Instance.RoundTime = GameData.Instance.gameStatus.Single.RoundTime;
+            Global.Instance.MaxPlayer = GameData.Instance.gameStatus.Single.MaxPlayer;
+            U3D.LoadLevel(select.ID, LevelMode.CreateWorld, (GameMode)GameData.Instance.gameStatus.Single.Mode);
         }
     }
 
@@ -433,6 +674,22 @@ public class WeaponSelectWnd:Window<WeaponSelectWnd>
         NetWorkBattle.Ins.weaponIdx = U3D.GetWeaponByCode(weaponIdx);
         NetWorkBattle.Ins.EnterLevel();
         Close();
+    }
+}
+
+public class CampSelectWnd : Window<CampSelectWnd>
+{
+    public override string PrefabName { get { return "CampSelectWnd"; } }
+    protected override bool OnOpen()
+    {
+        Init();
+        return base.OnOpen();
+    }
+
+    void Init()
+    {
+        Control("Meteor").GetComponent<Button>().onClick.AddListener(()=> { NetWorkBattle.Ins.camp = (int)EUnitCamp.EUC_Meteor; RoleSelectWnd.Instance.Open(); Close(); });
+        Control("Butterfly").GetComponent<Button>().onClick.AddListener(() => { NetWorkBattle.Ins.camp = (int)EUnitCamp.EUC_Butterfly; RoleSelectWnd.Instance.Open(); Close(); });
     }
 }
 
@@ -512,6 +769,28 @@ public class MatchWnd:Window<MatchWnd>
     }
 }
 
+public class PsdWnd : Window<PsdWnd>
+{
+    public override string PrefabName { get { return "PsdWnd"; } }
+    protected override bool OnOpen()
+    {
+        Init();
+        return base.OnOpen();
+    }
+
+    protected override bool OnClose()
+    {
+        return base.OnClose();
+    }
+
+    public Action OnConfirm;
+    void Init()
+    {
+        Control("Confirm").GetComponent<Button>().onClick.AddListener(() => { if (OnConfirm != null) OnConfirm(); });
+        Control("Cancel").GetComponent<Button>().onClick.AddListener(() => { Close(); });
+    }
+}
+
 public class MainLobby : Window<MainLobby>
 {
     public override string PrefabName { get { return "MainLobby"; } }
@@ -535,21 +814,26 @@ public class MainLobby : Window<MainLobby>
         return base.OnClose();
     }
 
-    public void OnGetRoom(GetRoomRsp rsp)
+    public void ClearRooms()
     {
         if (RoomRoot == null)
             return;
         SelectRoomId = -1;
-        int cnt = rsp.RoomInLobby.Count;
         for (int i = 0; i < rooms.Count; i++)
             GameObject.DestroyImmediate(rooms[i]);
         rooms.Clear();
+    }
+
+    public void OnGetRoom(GetRoomRsp rsp)
+    {
+        ClearRooms();
+        int cnt = rsp.RoomInLobby.Count;
         GameObject prefab = Resources.Load<GameObject>("RoomInfoItem");
         for (int i = 0; i < cnt; i++)
             InsertRoomItem(rsp.RoomInLobby[i], prefab);
     }
 
-    string[] ruleS = new string[3] { "盟主", "死斗", "暗杀" };
+    string[] ruleS = new string[5] { "盟主", "劫镖", "防守", "暗杀", "死斗"};
     public void InsertRoomItem(RoomInfo room, GameObject prefab)
     {
         GameObject roomObj = GameObject.Instantiate(prefab, RoomRoot.transform);
@@ -585,7 +869,7 @@ public class MainLobby : Window<MainLobby>
         SelectRoomId = (int)id;
     }
 
-    void OnSelectService()
+    public void OnSelectService()
     {
         Control("Server").GetComponent<Text>().text = string.Format("服务器:{0}        IP:{1}        端口:{2}", Global.Instance.Server.ServerName,
             ClientProxy.server == null ? "还未取得" : ClientProxy.server.Address.ToString(), ClientProxy.server == null ? "还未取得" : ClientProxy.server.Port.ToString());
@@ -634,8 +918,8 @@ public class MainLobby : Window<MainLobby>
     IEnumerator UpdateServiceList()
     {
         UnityWebRequest vFile = new UnityWebRequest();
-        vFile.url = string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, Main.strServices);
-        vFile.timeout = 2;
+        vFile.url = string.Format(Main.strSFile, Main.strHost, Main.port, Main.strProjectUrl, Main.strServices);
+        vFile.timeout = 5;
         DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
         vFile.downloadHandler = dH;
         yield return vFile.Send();
@@ -685,13 +969,12 @@ public class MainLobby : Window<MainLobby>
         serverRoot = Control("Content", Services);
         for (int i = 0; i < Global.Instance.Servers.Count; i++)
         {
-            InsertServerItem(Global.Instance.Servers[i]);
+            InsertServerItem(Global.Instance.Servers[i], i);
         }
-        OnSelectService();
         ClientProxy.Init();
     }
 
-    void InsertServerItem(ServerInfo svr)
+    void InsertServerItem(ServerInfo svr, int i)
     {
         GameObject btn = GameObject.Instantiate(ResMng.Load("ButtonNormal")) as GameObject;
         btn.transform.SetParent(serverRoot.transform);
@@ -699,12 +982,12 @@ public class MainLobby : Window<MainLobby>
         btn.transform.localPosition = Vector3.zero;
         btn.transform.localRotation = Quaternion.identity;
         btn.GetComponent<Button>().onClick.AddListener(() => {
-            if (Global.Instance.Server == svr)
+            if (Global.Instance.Server == Global.Instance.Servers[i])
                 return;
             ClientProxy.Exit();
+            ClearRooms();
             Global.Instance.Server = svr;
             ClientProxy.Init();
-            OnSelectService();
         });
         btn.GetComponentInChildren<Text>().text = svr.ServerName;
     }
@@ -722,8 +1005,8 @@ public class MainLobby : Window<MainLobby>
 
     void OnCreateRoom()
     {
-        U3D.PopupTip("此功能暂时无效");
-        //WorldTemplateWnd.Instance.Open();
+        RoomOptionWnd.Instance.Open();
+        Close();
     }
 
     void OnJoinRoom()
@@ -971,8 +1254,7 @@ public class NickName : Window<NickName>
 
 public class MainWnd : Window<MainWnd>
 {
-    MeteorUnit Unit;
-    public int[] HeroId = { 0, 1 };
+    bool subMenuOpen = false;
     public override string PrefabName { get { return "MainWnd"; } }
     protected override bool OnOpen()
     {
@@ -988,6 +1270,10 @@ public class MainWnd : Window<MainWnd>
 	void Init()
 	{
         Control("Version").GetComponent<Text>().text = AppInfo.Instance.MeteorVersion;
+        Control("SinglePlayerMode").GetComponent<Button>().onClick.AddListener(() => {
+            subMenuOpen = !subMenuOpen;
+            Control("SubMenu").SetActive(subMenuOpen);
+        });
         //单机关卡-官方剧情
         Control("SinglePlayer").GetComponent<Button>().onClick.AddListener(()=> {
             OnSinglePlayer();

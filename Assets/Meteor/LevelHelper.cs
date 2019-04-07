@@ -100,7 +100,7 @@ public class LevelHelper : MonoBehaviour
         {
             for (int i = 1; i < Global.Instance.MaxPlayer; i++)
             {
-                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), EUnitCamp.EUC_KILLALL, GameData.Instance.gameStatus.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.Instance.PlayerLife);
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), EUnitCamp.EUC_KILLALL, GameData.Instance.gameStatus.Single.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.Instance.PlayerLife);
             }
         }
         else if (Global.Instance.GGameMode == GameMode.ANSHA || Global.Instance.GGameMode == GameMode.SIDOU)
@@ -108,12 +108,12 @@ public class LevelHelper : MonoBehaviour
             int FriendCount = Global.Instance.MaxPlayer / 2 - 1;
             for (int i = 0; i < FriendCount; i++)
             {
-                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), MeteorManager.Instance.LocalPlayer.Camp, GameData.Instance.gameStatus.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.Instance.PlayerLife);
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), MeteorManager.Instance.LocalPlayer.Camp, GameData.Instance.gameStatus.Single.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.Instance.PlayerLife);
             }
 
             for (int i = FriendCount + 1; i < Global.Instance.MaxPlayer; i++)
             {
-                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), U3D.GetAnotherCamp(MeteorManager.Instance.LocalPlayer.Camp), GameData.Instance.gameStatus.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.Instance.PlayerLife);
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), U3D.GetAnotherCamp(MeteorManager.Instance.LocalPlayer.Camp), GameData.Instance.gameStatus.Single.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.Instance.PlayerLife);
             }
         }
     }

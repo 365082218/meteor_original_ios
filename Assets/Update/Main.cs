@@ -10,9 +10,11 @@ using UnityEngine.Networking;
 public class Main : MonoBehaviour {
 	public static Main Ins = null;
 #if LOCALHOST
-    private static string strHost = "127.0.0.1";
+    public static string strHost = "127.0.0.1";
+    public static int port = 8080;
 #else
     public static string strHost = "www.idevgame.com";
+    private static int port = 80;
 #endif
 	public static string strProjectUrl = "meteor";
 #if UNITY_ANDROID
@@ -28,8 +30,8 @@ public class Main : MonoBehaviour {
     public static string strServices = "Services.json";
     public static string strVerFile = "Version.json";
     //版本仓库地址
-    public static string strVFile = "http://{0}/{1}/{2}/{3}";//域名+项目+平台+指定文件
-    public static string strSFile = "http://{0}/{1}/{2}";//域名+项目名称+指定文件
+    public static string strVFile = "http://{0}:{1}/{2}/{3}/{4}";//域名+项目+平台+指定文件
+    public static string strSFile = "http://{0}:{1}/{2}/{3}";//域名+项目名称+指定文件
     public static HttpClient UpdateClient = null;
     void OnApplicationQuit()
     {
@@ -84,10 +86,10 @@ public class Main : MonoBehaviour {
         else
 		if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
         {
-            Debug.LogError("download:" + string.Format(strVFile, strHost, strProjectUrl, strPlatform, strVFileName));
+            Debug.LogError("download:" + string.Format(strVFile, strHost, Main.port, strProjectUrl, strPlatform, strVFileName));
             UnityWebRequest vFile = new UnityWebRequest();
-            vFile.url = string.Format(strVFile, strHost, strProjectUrl, strPlatform, strVFileName);
-            vFile.timeout = 2;
+            vFile.url = string.Format(strVFile, strHost, Main.port, strProjectUrl, strPlatform, strVFileName);
+            vFile.timeout = 5;
             DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
             vFile.downloadHandler = dH;
             yield return vFile.Send();
@@ -249,7 +251,7 @@ public class Main : MonoBehaviour {
 	{
         UpdateClient = HttpManager.Instance.Alloc();
         StartCoroutine(UpdateProgress());
-        UpdateClient.AddRequest(string.Format(strVFile, strHost, strProjectUrl, strPlatform, zipInfo.File.strFile), zipInfo.File.strLocalPath, 
+        UpdateClient.AddRequest(string.Format(strVFile, strHost, Main.port, strProjectUrl, strPlatform, zipInfo.File.strFile), zipInfo.File.strLocalPath, 
             (ref HttpRequest req)=> 
             {
                 zipInfo.File.Loadbytes = req.loadBytes;

@@ -45,7 +45,6 @@ public abstract class  Windows
     protected virtual bool OnClose() { return true; }
     protected virtual bool OnShow() { return true; }
     protected virtual bool OnHide() { return true; }
-    protected virtual bool OnConfirm(bool confirm, int tag) { return true; }
     protected virtual int GetZ() { return 0; }
     protected virtual int GetY() { return 0; }
     protected virtual int GetX() { return 0; }
@@ -171,11 +170,6 @@ public abstract class Window<T> :Windows where T : class, new()
 				return child;
 		}
 		return null;
-	}
-
-	public void Confirm(bool confirm, int tag)
-	{
-		OnConfirm(confirm, tag);
 	}
 
     public void DoModal()

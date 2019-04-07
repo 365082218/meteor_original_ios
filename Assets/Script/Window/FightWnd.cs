@@ -89,7 +89,15 @@ public class FightWnd : Window<FightWnd>
         FloatOpen = Control("FloatOpen");
         FloatOpen.GetComponent<Button>().onClick.AddListener(OnChangeActionBarStatus);
         actionStatusBarCtrl = Control("Slots").GetComponent<Animation>();
-        Control("BattleInfo").GetComponent<RectTransform>().anchoredPosition = new Vector2(GameData.Instance.gameStatus.ShowSysMenu2 ? 145 : -20, -175);
+        //联机不需要剧情对白面板，而使用房间聊天面板单独代替.
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+        {
+            GameObject.Destroy(Control("BattleInfo").gameObject);
+        }
+        else
+        {
+            Control("BattleInfo").GetComponent<RectTransform>().anchoredPosition = new Vector2(GameData.Instance.gameStatus.ShowSysMenu2 ? 145 : -20, -175);
+        }
         Global.ldaControlX("Attack", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnAttackPress);
         Global.ldaControlX("Attack", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnAttackRelease);
         Global.ldaControlX("Defence", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnDefencePress);

@@ -94,6 +94,16 @@ class ProtoHandler
                         //    KeyFrame KeyFrameRsp = ProtoBuf.Serializer.Deserialize<KeyFrame>(ms);
                         //    OnSyncKeyFrame(KeyFrameRsp);
                         //    break;
+                        case (int)MeteorMsg.MsgType.ChatInRoomRsp:
+                            ms = new MemoryStream(each.Value);
+                            ChatMsg chatRsp = ProtoBuf.Serializer.Deserialize<ChatMsg>(ms);
+                            OnReceiveChatMsg(chatRsp);
+                            break;
+                        case (int)MeteorMsg.MsgType.AudioChat:
+                            ms = new MemoryStream(each.Value);
+                            AudioChatMsg audioRsp = ProtoBuf.Serializer.Deserialize<AudioChatMsg>(ms);
+                            OnReceiveAudioMsg(audioRsp);
+                            break;
                         case (int)MeteorMsg.MsgType.UserDeadSB2C:
                             //Debug.LogError("OnUserDead");
                             ms = new MemoryStream(each.Value);
@@ -169,6 +179,21 @@ class ProtoHandler
             U3D.PopupTip(strTip);
             //insert.insertPlayer;
         }
+    }
+
+    //某人发来一段语音,显示一个按钮，点击了就播放这段语音即可.
+    static void OnReceiveAudioMsg(AudioChatMsg msg)
+    {
+        if (!RoomChatWnd.Exist)
+            RoomChatWnd.Instance.Open();
+        RoomChatWnd.Instance.Add((int)msg.playerId, msg.audio_data);
+    }
+
+    static void OnReceiveChatMsg(ChatMsg msg)
+    {
+        if (!RoomChatWnd.Exist)
+            RoomChatWnd.Instance.Open();
+        RoomChatWnd.Instance.Add((int)msg.playerId, msg.chatMessage);
     }
 
     //看是自己挂了还是其他人挂了
@@ -304,11 +329,12 @@ class ProtoHandler
         if (rsp.result == 1)
         {
             GameOverlayWnd.Instance.InsertSystemMsg(string.Format("创建房间 编号:{0}", rsp.roomId));
-            RoleSelectWnd.Instance.Open();
+            RoomMng.Instance.Register((int)rsp.roomId, true);
+            Common.SendJoinRoom((int)rsp.roomId);
         }
         else
         {
-            GameOverlayWnd.Instance.InsertSystemMsg("创建房间失败");
+            U3D.PopupTip("创建房间失败");
         }
     }
 
@@ -331,10 +357,17 @@ class ProtoHandler
             {
                 //选人，或者阵营，或者
                 //UnityEngine.Debug.LogError("OnJoinRoom successful");
-                if (MainLobby.Instance != null)
+                if (MainLobby.Exist)
                     MainLobby.Instance.Close();
+                if (RoomOptionWnd.Exist)
+                    RoomOptionWnd.Instance.Close();
                 NetWorkBattle.Ins.OnEnterRoomSuccessed((int)rsp.roomId, (int)rsp.levelIdx, (int)rsp.playerId);
-                RoleSelectWnd.Instance.Open();//阵营选择,最后一步，调用进入Level,那个时候再加载场景之类.
+                RoomInfo r = RoomMng.Instance.GetRoom((int)rsp.roomId);
+                //如果是盟主模式，无需选择阵营
+                if (r.rule == RoomInfo.RoomRule.MZ)
+                    RoleSelectWnd.Instance.Open();
+                else
+                    CampSelectWnd.Instance.Open();
             }
             //U3D.LoadNetLevel((int)rsp.levelIdx, LevelMode.MultiplyPlayer, GameMode.MENGZHU);
         }
@@ -351,6 +384,12 @@ class ProtoHandler
                 case 1:U3D.PopupTip("此房间已满，无法进入");break;
                 case 2:U3D.PopupTip("房间已解散");break;
                 case 3:U3D.PopupTip("需要先退出房间");break;
+                //密码不正确
+                case 4: PsdWnd.Instance.Open();PsdWnd.Instance.OnConfirm =()=> {
+                    Common.SendJoinRoom((int)rsp.roomId, PsdWnd.Instance.Control("PsdField").GetComponent<UnityEngine.UI.InputField>().text);
+                    PsdWnd.Instance.Close();
+                };
+                break;
             }
         }
     }
@@ -372,6 +411,7 @@ class ProtoHandler
         //Debug.LogError("get room rsp");
         if (MainLobby.Exist)
             MainLobby.Instance.OnGetRoom(rsp);
+        RoomMng.Instance.RegisterRooms(rsp.RoomInLobby);
     }
 
     static int retryNum = 3;
@@ -383,6 +423,8 @@ class ProtoHandler
             retryNum = 3;
             Debug.Log("connected AutoLogin");
             ClientProxy.AutoLogin();//验证客户端的合法性
+            if (MainLobby.Exist)
+                MainLobby.Instance.OnSelectService();
         }
         else
         {

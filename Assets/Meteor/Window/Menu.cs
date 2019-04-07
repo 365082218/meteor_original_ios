@@ -32,14 +32,14 @@ public class Menu : MonoBehaviour {
     IEnumerator UpdateAppInfo()
     {
         UnityWebRequest vFile = new UnityWebRequest();
-        vFile.url = string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, Main.strNewVersionName);
-        vFile.timeout = 2;
+        vFile.url = string.Format(Main.strSFile, Main.strHost, Main.port, Main.strProjectUrl, Main.strNewVersionName);
+        vFile.timeout = 5;
         DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
         vFile.downloadHandler = dH;
         yield return vFile.Send();
         if (vFile.isError || vFile.responseCode != 200)
         {
-            Debug.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
+            Debug.LogError(string.Format("update version file:{0} error:{1} or responseCode:{2}", vFile.url, vFile.error, vFile.responseCode));
             vFile.Dispose();
             Update = null;
             yield break;

@@ -252,6 +252,11 @@ public class SoundManager : Singleton<SoundManager>
         return Play3DSound(GetSoundIndex(clipname), position, loop, D3Audio);
     }
 
+    public void PlayClip(AudioClip clip)
+    {
+        CurrentAudioSource.PlayOneShot(clip);
+    }
+
     public void PlaySound(int idx)
     {
         if (!enable)

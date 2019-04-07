@@ -11,6 +11,8 @@ using CoClass;
 using UnityEngine.Profiling;
 using protocol;
 using System.Linq;
+using System.Net;
+using System.ComponentModel;
 
 [CustomLuaClassAttribute]
 public class U3D : MonoBehaviour {
@@ -275,7 +277,7 @@ public class U3D : MonoBehaviour {
         MeteorUnit unit = ins.GetComponent<MeteorUnit>();
         if (mon.IsPlayer)
             MeteorManager.Instance.LocalPlayer = unit;
-        unit.Camp = EUnitCamp.EUC_KILLALL;
+        unit.Camp = (EUnitCamp)player.Camp; 
         unit.Init(mon.Model, mon);
         MeteorManager.Instance.OnGenerateUnit(unit, (int)player.id);
         unit.SetGround(false);
@@ -595,8 +597,8 @@ public class U3D : MonoBehaviour {
         //return SceneMng.ContainsItem(item);
         return false;
     }
-    static AsyncOperation backOp;
-    static AsyncOperation loadMainOp;
+    static UnityEngine.AsyncOperation backOp;
+    static UnityEngine.AsyncOperation loadMainOp;
     static Coroutine loadMain;
     //返回到主目录
     public static void GoBack(Action t = null)
@@ -939,7 +941,7 @@ public class U3D : MonoBehaviour {
             {
                 if (id >= 0 && id <= 9)
                 {
-                    string movie = string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, "mmv/" + "b" + number + ".mv");
+                    string movie = string.Format(Main.strSFile, Main.strHost, Main.port, Main.strProjectUrl, "mmv/" + "b" + number + ".mv");
                     U3D.PlayMovie(movie);
                 }
             }
@@ -1690,10 +1692,65 @@ public class U3D : MonoBehaviour {
         return 0;
     }
 
+    static WebClient downloadMovie;
+    public static List<string> WaitDownload = new List<string>();
     public static void PlayMovie(string movie)
     {
-        Debug.Log("PlayMovie:" + movie);
-        Handheld.PlayFullScreenMovie(movie, Color.black, FullScreenMovieControlMode.CancelOnInput, FullScreenMovieScalingMode.AspectFit);
+        if (GameData.Instance.gameStatus.LocalMovie.ContainsKey(movie))
+        {
+            Debug.Log("PlayMovie:" + movie);
+            if (downloadMovie == null)
+            {
+                if (WaitDownload.Count != 0)
+                {
+                    downloadMovie = new WebClient();
+                    string download = WaitDownload[0];
+                    int index = download.LastIndexOf("/");
+                    string file = movie.Substring(index + 1);
+                    string local = Application.persistentDataPath + "/mmv/" + file;
+                    Debug.Log("file:" + file);
+                    downloadMovie.DownloadFileCompleted += (object sender, AsyncCompletedEventArgs e) => {
+                        if (e.Error != null)
+                        {
+                            GameData.Instance.gameStatus.LocalMovie.Add(download, local);
+                            WaitDownload.Remove(download);
+                        }
+                        downloadMovie.CancelAsync();
+                        downloadMovie.Dispose();
+                        downloadMovie = null;
+                    };
+                    downloadMovie.DownloadFileAsync(new Uri(download), local);
+                    Debug.Log("downloadMovieQueue:" + download + " to" + local);
+                }
+            }
+            Handheld.PlayFullScreenMovie(GameData.Instance.gameStatus.LocalMovie[movie], Color.black, FullScreenMovieControlMode.CancelOnInput, FullScreenMovieScalingMode.AspectFit);
+        }
+        else
+        {
+            if (!Directory.Exists(Application.persistentDataPath + "/mmv"))
+                Directory.CreateDirectory(Application.persistentDataPath + "/mmv");
+            if (downloadMovie != null)
+            {
+                //还在下载其他
+                if (!WaitDownload.Contains(movie))
+                    WaitDownload.Add(movie);
+                return;
+            }
+            downloadMovie = new WebClient();
+            int index = movie.LastIndexOf("/");
+            string file = movie.Substring(index + 1);
+            string local = Application.persistentDataPath + "/mmv/" + file;
+            Debug.Log("file:" + file);
+            downloadMovie.DownloadFileCompleted += (object sender, AsyncCompletedEventArgs e) => {
+                if (e.Error != null)
+                    GameData.Instance.gameStatus.LocalMovie.Add(movie, local);
+                downloadMovie.CancelAsync();
+                downloadMovie.Dispose();
+                downloadMovie = null;
+            };
+            downloadMovie.DownloadFileAsync(new Uri(movie), local);
+            Debug.Log("downloadMovie:" + movie + " to" + local);
+        }
     }
 
     public static int GetEnemyCount()

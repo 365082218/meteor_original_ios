@@ -422,8 +422,8 @@ public class SettingWnd : Window<SettingWnd> {
         if (!Global.Instance.PluginUpdated)
         {
             UnityWebRequest vFile = new UnityWebRequest();
-            vFile.url = string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, Main.strPlugins);
-            vFile.timeout = 2;
+            vFile.url = string.Format(Main.strSFile, Main.strHost, Main.port, Main.strProjectUrl, Main.strPlugins);
+            vFile.timeout = 5;
             DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
             vFile.downloadHandler = dH;
             yield return vFile.Send();
@@ -521,7 +521,7 @@ public class SettingWnd : Window<SettingWnd> {
             try
             {
                 WebClient webDef = new WebClient();
-                webDef.DownloadFile(string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, "Def/Def.zip"), Application.persistentDataPath + "/Plugins/Def.zip");
+                webDef.DownloadFile(string.Format(Main.strSFile, Main.strHost, Main.port, Main.strProjectUrl, "Def/Def.zip"), Application.persistentDataPath + "/Plugins/Def.zip");
                 ZipUtility.UnzipFile(Application.persistentDataPath + "/Plugins/Def.zip", Application.persistentDataPath + "/Plugins/Def/", null, cb);
             }
             catch (Exception exp)

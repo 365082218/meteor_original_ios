@@ -70,7 +70,7 @@ public class Startup : MonoBehaviour {
             {
                 if (Global.Instance.GLevelItem.ID >= 0 && Global.Instance.GLevelItem.ID <= 9)
                 {
-                    string movie = string.Format(Main.strSFile, Main.strHost, Main.strProjectUrl, "mmv/" + "v" + number + ".mv");
+                    string movie = string.Format(Main.strSFile, Main.strHost, Main.port, Main.strProjectUrl, "mmv/" + "v" + number + ".mv");
                     U3D.PlayMovie(movie);
                 }
             }
@@ -226,7 +226,7 @@ public class Startup : MonoBehaviour {
         }
         else
             ClientProxy.UpdateGameServer(OnSynServerList);
-    }
+    }u3d
 
     void HeartBeat()
     {

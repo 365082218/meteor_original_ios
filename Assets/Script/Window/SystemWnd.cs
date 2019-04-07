@@ -176,6 +176,7 @@ public class EscWnd : Window<EscWnd>
         //离开副本
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             ClientProxy.LeaveLevel();
-        U3D.GoBack();
+        else
+            U3D.GoBack();
     }
 }

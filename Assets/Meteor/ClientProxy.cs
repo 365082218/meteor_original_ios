@@ -237,9 +237,9 @@ class ClientProxy
         Common.SendRebornRequest(userId);
     }
 
-    public static void EnterLevel(int model, int weapon)
+    public static void EnterLevel(int model, int weapon, int camp)
     {
-        Common.SendEnterLevel(model, weapon);
+        Common.SendEnterLevel(model, weapon, camp);
     }
 
     public static void LeaveLevel()

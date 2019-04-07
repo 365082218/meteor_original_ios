@@ -247,7 +247,7 @@ public partial class GameBattleEx : MonoBehaviour {
             UnitActKeyDeleted.Clear();
         }
 
-        if (lev_script != null && Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (lev_script != null && Global.Instance.GLevelMode <= LevelMode.CreateWorld)
         {
             if (timeDelay >= 1.0f)
             {
