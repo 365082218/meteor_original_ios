@@ -143,8 +143,12 @@ public class MeteorAI {
         }
 
         //如果处于跌倒状态.A处理从地面站立,僵直过后才能正常站立 B，在后面的逻辑中，决定是否用爆气解除跌倒状态
-        DoProcessStruggle();
+        if (DoProcessStruggle())
+            return;
 
+        //如果在受击中.
+        if (owner.posMng.onhurt)
+            return;
         //if (Status == EAIStatus.PushByWall)
         //{
         //    if (owner.OnTouchWall)
@@ -305,7 +309,7 @@ public class MeteorAI {
     }
 
     //处理倒地后的挣扎起身
-    void DoProcessStruggle()
+    bool DoProcessStruggle()
     {
         if (owner.posMng.mActiveAction.Idx == CommonAction.Struggle || owner.posMng.mActiveAction.Idx == CommonAction.Struggle0)
         {
@@ -316,14 +320,15 @@ public class MeteorAI {
                 if (waitStruggleDone != 0)
                 {
                     waitStruggleDone--;
-                    return;
+                    return true;
                 }
                 owner.StopCoroutine(struggleCoroutine);
                 struggleCoroutine = null;
                 waitStruggleDone = 2 * AppInfo.Instance.GetWaitForNextInput();
             }
-            return;
+            return true;
         }
+        return false;
     }
     //逃跑
     void OnDodge()
