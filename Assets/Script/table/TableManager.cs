@@ -108,7 +108,7 @@ public abstract class TableManagerEx<T, U> : Singleton<U>, ITableManager where T
 
     public virtual void ReLoad()
     {
-        mItemArray = TableParser.Parse<T>(TableName()).ToList();
+        mItemArray = TableParser.Parse<T>(TableName(), true).ToList();
 
         // build the key-value map.
         for (int i = 0; i < mItemArray.Count; i++)

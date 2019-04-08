@@ -40,6 +40,8 @@ public class Chapter
     public string Desc;
     [ProtoMember(7)]
     public string localPath;
+    [ProtoMember(8)]
+    public int level = 1;//该资料片通过的最远关卡.
     public string LocalPath
     {
         get

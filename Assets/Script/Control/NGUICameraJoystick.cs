@@ -66,7 +66,7 @@ public class NGUICameraJoystick : MonoBehaviour
             return;
         if (enabled && gameObject.activeSelf)
         {
-            if (MeteorManager.Instance.LocalPlayer.Dead)
+            if (MeteorManager.Instance.LocalPlayer == null || MeteorManager.Instance.LocalPlayer.Dead)
                 return;
             if (pressed)
             {
@@ -103,10 +103,9 @@ public class NGUICameraJoystick : MonoBehaviour
         if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
             return;
 #endif
-        //Debug.LogError("draging");
-        if (MeteorManager.Instance.LocalPlayer.Dead)
+        if (MeteorManager.Instance.LocalPlayer == null || MeteorManager.Instance.LocalPlayer.Dead)
             return;
-		if (isPress && enabled && gameObject.activeSelf)
+        if (isPress && enabled && gameObject.activeSelf)
 		{
             //float angle = 0.0f;
             if (mLastFingerId == UICamera.currentTouchID)

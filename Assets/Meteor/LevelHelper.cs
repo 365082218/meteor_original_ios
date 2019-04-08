@@ -73,15 +73,18 @@ public class LevelHelper : MonoBehaviour
         if (type == null)
         {
             //尝试在chapter的dll里加载
-            Assembly ass = Assembly.LoadFile(Global.Instance.Chapter.Dll);
-            Type[] t = ass.GetTypes();
-            for (int i = 0; i < t.Length; i++)
+            if (System.IO.File.Exists(Global.Instance.Chapter.Dll))
             {
-                if (t[i].Name == typeIden)
+                Assembly ass = Assembly.Load(System.IO.File.ReadAllBytes(Global.Instance.Chapter.Dll));
+                Type[] t = ass.GetTypes();
+                for (int i = 0; i < t.Length; i++)
                 {
-                    //LevelScriptBase l = System.Activator.CreateInstance(t[i]) as LevelScriptBase;
-                    type = t[i];
-                    break;
+                    if (t[i].Name == typeIden)
+                    {
+                        //LevelScriptBase l = System.Activator.CreateInstance(t[i]) as LevelScriptBase;
+                        type = t[i];
+                        break;
+                    }
                 }
             }
             if (type == null)

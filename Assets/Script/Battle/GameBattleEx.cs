@@ -109,8 +109,26 @@ public partial class GameBattleEx : MonoBehaviour {
         //如果胜利，且不是最后一关，打开最新关标志.
         if (result == 1 && (Global.Instance.GLevelItem.ID == GameData.Instance.gameStatus.Level) && Global.Instance.GLevelItem.ID < Global.Instance.LEVELMAX)
         {
-            GameData.Instance.gameStatus.Level++;
-            GameData.Instance.SaveState();
+            if (Global.Instance.Chapter == null)
+            {
+                GameData.Instance.gameStatus.Level++;
+                GameData.Instance.SaveState();
+            }
+            else
+            {
+                int nextLevel = 0;
+                Level[] all = Global.Instance.Chapter.LoadAll();
+                for (int i = 0; i < all.Length; i++)
+                {
+                    if (Global.Instance.Chapter.level == all[i].ID)
+                        nextLevel = i + 1;
+                }
+
+                if (nextLevel < all.Length)
+                    Global.Instance.Chapter.level = all[nextLevel].ID;
+
+                GameData.Instance.SaveState();
+            }
         }
     }
 

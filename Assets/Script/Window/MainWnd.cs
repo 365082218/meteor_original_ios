@@ -256,7 +256,7 @@ public class ChatWnd : Window<ChatWnd>
     {
         Debug.Log("chatwnd update");
         RecordTick += Time.deltaTime;
-        if (RecordTick > 10.0)
+        if (RecordTick >= 8)
         {
             Record();
         }
@@ -2055,7 +2055,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
             BattleResult.SetActive(true);
             BattleTitle.SetActive(true);
         }
-
+        Control("Close").SetActive(true);
         Control("Close").GetComponent<Button>().onClick.AddListener(() =>
         {
             Startup.ins.PlayEndMovie(result == 1);

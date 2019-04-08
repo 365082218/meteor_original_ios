@@ -143,13 +143,13 @@ public class Global
         for (int i = 0; i < GameData.Instance.gameStatus.pluginChapter.Count; i++)
         {
             baseLevel = DlcMng.Instance.GetDlcLevel(GameData.Instance.gameStatus.pluginChapter[i].ChapterId);
-            for (int j = 0; j < baseLevel.Length; i++)
+            for (int j = 0; j < baseLevel.Length; j++)
             {
                 if (baseLevel[j].Template == 1)
                     AllLevel.Add(baseLevel[j]);
             }
         }
-        return baseLevel.ToArray();
+        return AllLevel.ToArray();
     }
 
     public Level GetLevel(int chapterId, int id)

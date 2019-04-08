@@ -99,7 +99,7 @@ public class DlcLevelSelect : Window<DlcLevelSelect>
             //回到资料片选择界面.
         });
 
-        for (int i = 1; i <= Global.Instance.Chapter.LoadAll().Length; i++)
+        for (int i = 1; i <= Global.Instance.Chapter.level; i++)
         {
             Level lev = Global.Instance.Chapter.GetItem(i);
             if (lev == null)

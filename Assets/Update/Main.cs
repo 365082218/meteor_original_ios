@@ -14,7 +14,7 @@ public class Main : MonoBehaviour {
     public static int port = 8080;
 #else
     public static string strHost = "www.idevgame.com";
-    private static int port = 80;
+    public static int port = 80;
 #endif
 	public static string strProjectUrl = "meteor";
 #if UNITY_ANDROID

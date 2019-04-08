@@ -426,7 +426,7 @@ public class U3D : MonoBehaviour {
         string shortDir = "";
         int k = Path.LastIndexOf('/');
         shortDir = Path.Substring(0, k);
-        string shortName = Path.Substring(k);
+        string shortName = Path.Substring(k + 1);
         shortName = shortName.Substring(0, shortName.Length - 4);
         if (local)
             return Application.persistentDataPath + "/Plugins/" + shortDir + "/" + (inzipPath ? shortName + "/" + shortName: shortName) + suffix;//.zip => .png
@@ -930,10 +930,11 @@ public class U3D : MonoBehaviour {
         Global.Instance.GLevelItem = lev;
         Global.Instance.GLevelMode = levelmode;
         Global.Instance.GGameMode = gamemode;
+        Global.Instance.Chapter = null;
         LoadingWnd.Instance.Open();
         Resources.UnloadUnusedAssets();
         GC.Collect();
-        if (!string.IsNullOrEmpty(lev.sceneItems) && !GameData.Instance.gameStatus.SkipVideo && levelmode == LevelMode.SinglePlayerTask)
+        if (!string.IsNullOrEmpty(lev.sceneItems) && !GameData.Instance.gameStatus.SkipVideo && levelmode == LevelMode.SinglePlayerTask && Global.Instance.Chapter == null)
         {
             string num = lev.sceneItems.Substring(2);
             int number = 0;

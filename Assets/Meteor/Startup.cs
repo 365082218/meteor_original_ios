@@ -62,7 +62,7 @@ public class Startup : MonoBehaviour {
 
     public void PlayEndMovie(bool play)
     {
-        if (!string.IsNullOrEmpty(Global.Instance.GLevelItem.sceneItems) && play && Global.Instance.GLevelMode == LevelMode.SinglePlayerTask)
+        if (!string.IsNullOrEmpty(Global.Instance.GLevelItem.sceneItems) && play && Global.Instance.GLevelMode == LevelMode.SinglePlayerTask && Global.Instance.Chapter == null)
         {
             string num = Global.Instance.GLevelItem.sceneItems.Substring(2);
             int number = 0;
@@ -84,6 +84,10 @@ public class Startup : MonoBehaviour {
         FightWnd.Instance.Close();
         if (Global.Instance.GLevelMode == LevelMode.Teach || Global.Instance.GLevelMode == LevelMode.CreateWorld)
             U3D.GoBack(() => { MainWnd.Instance.Open(); });
+        else if (Global.Instance.Chapter != null)
+        {
+            U3D.GoBack(() => { DlcLevelSelect.Instance.Open(); });
+        }
         else
             U3D.GoBack(() => { MainMenu.Instance.Open(); });
     }

@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class NetSync : MonoBehaviour {
     //顺序是由playerId由小到大跑
-    
     TurnFrames Frame;
     float LogicTime = 0.0f;
     // Update is called once per frame

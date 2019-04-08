@@ -2110,6 +2110,10 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
         AngryValue = 0;
         charController.enabled = true;
         MeteorManager.Instance.PhysicalIgnore(this, false);
+        MoveOnGroundEx = false;
+        OnGround = false;
+        IgnoreGravity = false;
+        SetWorldVelocity(new Vector3(0, -100, 0));
     }
 
     //盟主模式下的自动复活.

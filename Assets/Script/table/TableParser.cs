@@ -103,13 +103,18 @@ public static class TableParser
 //    }
 
 
-    public static T[] Parse<T>(string name)
+    public static T[] Parse<T>(string name, bool asFile = false)
     {
 		string[] lines;
         string strText = "";
-        if (File.Exists(name))
-            strText = File.ReadAllText(name);
-		else
+        if (asFile)
+        {
+            if (File.Exists(name))
+                strText = File.ReadAllText(name);
+            else
+                return new T[0];
+        }
+        else
             strText = Resources.Load<TextAsset>(name).text;
 		if (strText == null)
 		{

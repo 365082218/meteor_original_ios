@@ -7,9 +7,12 @@ using UnityEngine;
 /// <summary>
 /// 在帧同步上传阶段采集本地输入，在帧同步下载阶段转发输入到本地输入
 /// </summary>
-public class MeteorNetInput
+public class MeteorNetInput:MeteorInput
 {
+    public MeteorNetInput(MeteorUnit owner, MeteorController controller):base(owner, controller)
+    {
 
+    }
 }
 
 public class MeteorInput
@@ -42,6 +45,11 @@ public class MeteorInput
             return true;
         return false;
     }
+    
+    public bool OnInputMoving()
+    {
+        return (mInputVector.x != 0 || mInputVector.y != 0);
+    }
 
     public void OnAxisKeyPress(EKeyList k)
     {
@@ -52,12 +60,7 @@ public class MeteorInput
         }
         else
             OnKeyPressing(k);
-        
-    }
-    
-    public bool OnInputMoving()
-    {
-        return (mInputVector.x != 0 || mInputVector.y != 0);
+
     }
 
     public void OnAxisKeyRelease(EKeyList k)
@@ -111,11 +114,6 @@ public class MeteorInput
 
         KeyStates[(int)EKeyList.KL_Taunt].AxisName = "Taunt";
         KeyStates[(int)EKeyList.KL_Taunt].Key = EKeyList.KL_Taunt;
-    }
-
-    void SetController(MeteorController controller)
-    {
-        mController = controller;
     }
 
     public void ResetVector()
@@ -2110,7 +2108,19 @@ public class MeteorController {
             posMng = mOwner.posMng;
             Input = new MeteorInput(mOwner, this);
             if (Owner.Attr.IsPlayer)
-                Global.Instance.GMeteorInput = Input;
+            {
+                if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+                {
+                    Input = new MeteorNetInput(mOwner, this);
+                    Global.Instance.GMeteorInput = Input;
+                }
+                else
+                {
+                    Input = new MeteorInput(mOwner, this);
+                    Global.Instance.GMeteorInput = Input;
+                }
+                
+            }
         }
     }
 
