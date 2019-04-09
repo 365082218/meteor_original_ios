@@ -44,8 +44,8 @@ public class Global
             return 0.02f;
         return Time.deltaTime;
     }
-
-    public ServerInfo Server;//当前选择的服务器
+    public NetSync lsm;//帧同步组件.
+    public ServerInfo Server;//当前选择的服务器.
     public List<ServerInfo> Servers = new List<ServerInfo>();
     public float FPS = 1.0f / 30.0f;//动画设计帧率
     public float gGravity = 1000;

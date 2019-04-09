@@ -158,7 +158,8 @@ public partial class GameBattleEx : MonoBehaviour {
     }
 
     void Start () {
-        StartCoroutine(UpdateTime());
+        if (Global.Instance.GLevelMode != LevelMode.MultiplyPlayer)
+            StartCoroutine(UpdateTime());
 	}
 
     IEnumerator UpdateTime()

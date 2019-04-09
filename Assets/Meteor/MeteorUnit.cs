@@ -73,6 +73,7 @@ public class BuffContainer
 
 public class Buff: INetUpdate
 {
+    public bool Finished { get { return false; } }
     public EBUFF_Type type;
     public int Id;//12是蛊毒，
     public string Iden;
@@ -198,7 +199,7 @@ public class Buff: INetUpdate
     }
 
     List<MeteorUnit> unitRemoved = new List<MeteorUnit>();
-    public void NetUpdate()
+    public void GameFrameTurn(int delta)
     {
         unitRemoved.Clear();
         switch (refresh_type)
@@ -258,12 +259,13 @@ public class Buff: INetUpdate
     {
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             return;
-        NetUpdate();
+        GameFrameTurn(Convert.ToInt32(Time.deltaTime * 1000));
     }
 }
 
 public partial class MeteorUnit : MonoBehaviour, INetUpdate
 {
+    public bool Finished { get { return Dead; } }
     public virtual bool IsDebugUnit() { return false; }
     public int UnitId;
     public int InstanceId;
@@ -686,7 +688,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
     int GameFrame = 0;
     private float AccumilatedTime = 0f;
     private float FrameLength = 0.05f; //50 miliseconds
-    public void NetUpdate()
+    public void GameFrameTurn(int delta)
     {
         if (Climbing)
             ClimbingTime += Time.deltaTime;
@@ -776,7 +778,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
             return;
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             return;
-        NetUpdate();
+        GameFrameTurn(Convert.ToInt32(Time.deltaTime * 1000));
     }
 
     //private void LateUpdate()

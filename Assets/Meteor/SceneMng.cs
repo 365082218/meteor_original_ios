@@ -250,7 +250,7 @@ class SceneMng
         mon.OnStart();
         return unit;
     }
-    
+
     public static void OnLoad()
     {
         GameObject root = GameObject.Find("BattleRoot");
@@ -263,7 +263,9 @@ class SceneMng
         }
         root.AddComponent<GameBattleEx>();
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
-            root.AddComponent<NetSync>();
+        {
+            Global.Instance.lsm = root.AddComponent<NetSync>();
+        }
     }
 
     public static MonsterEx InitMon(string Script)
