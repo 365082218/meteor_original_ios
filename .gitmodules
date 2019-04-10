@@ -1,0 +1,3 @@
+[submodule "SyncMessage"]
+	path = SyncMessage
+	url = https://github.com/365082218/SyncMessage
