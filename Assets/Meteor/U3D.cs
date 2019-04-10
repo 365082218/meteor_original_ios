@@ -277,7 +277,7 @@ public class U3D : MonoBehaviour {
         MeteorUnit unit = ins.GetComponent<MeteorUnit>();
         if (mon.IsPlayer)
             MeteorManager.Instance.LocalPlayer = unit;
-        unit.Camp = (EUnitCamp)player.Camp; 
+        unit.Camp = (EUnitCamp)player.camp; 
         unit.Init(mon.Model, mon);
         MeteorManager.Instance.OnGenerateUnit(unit, (int)player.id);
         unit.SetGround(false);
@@ -895,7 +895,7 @@ public class U3D : MonoBehaviour {
         //}
     }
 
-    public static void LoadNetLevel(List<SceneItem_> sceneItems, List<Player_> players)
+    public static void LoadNetLevel()
     {
         //Debug.LogError("LoadNetLevel " + Time.frameCount);
         uint profileTotalAllocate = Profiler.GetTotalAllocatedMemory();
@@ -911,7 +911,7 @@ public class U3D : MonoBehaviour {
         ClearLevelData();
         Resources.UnloadUnusedAssets();
         GC.Collect();
-        NetWorkBattle.Ins.Load(sceneItems, players);
+        NetWorkBattle.Ins.Load();
     }
 
     //走内置关卡.

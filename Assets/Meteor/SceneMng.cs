@@ -15,15 +15,13 @@ class SceneMng
         WsWindow.Open(WsWindow.Battle);
     }
 
-    public static void OnEnterNetLevel(List<SceneItem_> items, int level)
+    public static void OnEnterNetLevel(int level)
     {
         Level lev = LevelMng.Instance.GetItem(level);
         if (Loader.Instance != null)
         {
             Loader.Instance.LoadFixedScene(lev.sceneItems);
-            //加载服务器传递过来的动态物件列表
-            for (int i = 0; i < items.Count; i++)
-                Loader.Instance.LoadDynamicTrigger(items[i]);
+            Loader.Instance.LoadDynamicTrigger(lev.sceneItems);
         }
         else
         {
@@ -59,28 +57,6 @@ class SceneMng
                 Global.Instance.GCampASpawn[i] = WayMng.Instance.wayPoints[i >= WayMng.Instance.wayPoints.Count ? 0 : i].pos;
                 Global.Instance.GCampBSpawn[i] = WayMng.Instance.wayPoints[i >= WayMng.Instance.wayPoints.Count ? 0 : i].pos;
             }
-        }
-
-        GameObject objWayPoint = new GameObject("wayPoint");
-        objWayPoint.transform.position = Vector3.zero;
-        objWayPoint.transform.rotation = Quaternion.identity;
-        objWayPoint.transform.localScale = Vector3.one;
-        objWayPoint.layer = LayerMask.NameToLayer("WayPoint");
-        for (int i = 0; i < Global.Instance.GLevelItem.wayPoint.Count; i++)
-        {
-            GameObject wayPoint = new GameObject(string.Format("WayPoint{0}", i));
-            wayPoint.tag = "WayPoint";
-            wayPoint.transform.SetParent(objWayPoint.transform);
-            wayPoint.transform.position = Global.Instance.GLevelItem.wayPoint[i].pos;
-            wayPoint.layer = objWayPoint.layer;
-            wayPoint.transform.rotation = Quaternion.identity;
-            wayPoint.transform.localScale = Vector3.one;
-            BoxCollider box = wayPoint.AddComponent<BoxCollider>();
-            box.isTrigger = true;
-            box.size = Vector3.one * (Global.Instance.GLevelItem.wayPoint[i].size);
-            box.center = Vector3.zero;
-            WayPointTrigger trigger = wayPoint.AddComponent<WayPointTrigger>();
-            trigger.WayIndex = i;
         }
     }
 
@@ -280,13 +256,13 @@ class SceneMng
     {
         MonsterEx ret = new MonsterEx();
         ret.hpCur = player.hp;
-        ret.HpMax = player.hpMax;
-        ret.mpCur = player.angry;
+        ret.HpMax = (int)RoomMng.Instance.GetRoom(NetWorkBattle.Ins.RoomId).hpMax;
+        ret.AngryValue = 0;
         ret.Model = player.model;
         ret.Weapon = (int)player.weapon;
-        ret.Weapon2 = (int)player.weapon2;
+        ret.Weapon2 = (int)0;
         ret.name = player.name;
-        ret.SpawnPoint = player.SpawnPoint;
+        ret.SpawnPoint = player.spawnpoint;
         ret.Speed = 1000;
         ret.IsPlayer = player.id == NetWorkBattle.Ins.PlayerId;
         return ret;

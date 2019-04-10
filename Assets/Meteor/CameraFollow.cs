@@ -221,8 +221,17 @@ public class CameraFollow : MonoBehaviour {
     void ChangeAutoTarget()
     {
         OnLockTarget();
-        int i = Random.Range(0, MeteorManager.Instance.UnitInfos.Count);
-        AutoTarget = MeteorManager.Instance.UnitInfos[i];
+        if (MeteorManager.Instance.UnitInfos.Count == 0)
+            return;
+        int j = -1;
+        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        {
+            if (!MeteorManager.Instance.UnitInfos[i].Dead)
+                break;
+            j = i;
+        }
+        if (j >= 0 && j < MeteorManager.Instance.UnitInfos.Count)
+            AutoTarget = MeteorManager.Instance.UnitInfos[j];
     }
 
     //为真则下一帧摄像机要切换视角模式.

@@ -343,19 +343,19 @@ public class Common
         Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ProtocolVerify, req);
     }
 
-    public static void SendRebornRequest(int playerid)
-    {
-        UserId id = new UserId();
-        id.Player.Add((uint)playerid);
-        Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.UserRebornReq, id);
-    }
+    //public static void SendRebornRequest(int playerid)
+    //{
+    //    UserId id = new UserId();
+    //    id.Player.Add((uint)playerid);
+    //    Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.UserRebornReq, id);
+    //}
 
     public static void SendJoinRoom(int roomId, string sec = "")
     {
         JoinRoomReq req = new JoinRoomReq();
         req.roomId = (uint)roomId;
-        req.userNick = GameData.Instance.gameStatus.NickName;
-        req.secret = sec;
+        req.version = AppInfo.Instance.MeteorVersion.Equals("9.07") ? RoomInfo.MeteorVersion.V907:RoomInfo.MeteorVersion.V107;
+        req.password = sec;
         Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.JoinRoomReq, req);
     }
 
@@ -383,7 +383,7 @@ public class Common
         req.maxPlayer = (uint)GameData.Instance.gameStatus.NetWork.MaxPlayer;
         req.roomName = name;
         req.roundTime = (uint)GameData.Instance.gameStatus.NetWork.RoundTime;
-        req.rule = (uint)GameData.Instance.gameStatus.NetWork.Mode;
+        req.rule = (RoomInfo.RoomRule)GameData.Instance.gameStatus.NetWork.Mode;
         req.secret = sec;
         Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.CreateRoomReq, req);
         //1,人数上限

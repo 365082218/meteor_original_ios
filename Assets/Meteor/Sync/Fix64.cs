@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using UnityEngine;
 
 public partial struct Fix64 : IEquatable<Fix64>, IComparable<Fix64>
 {

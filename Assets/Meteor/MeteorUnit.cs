@@ -199,7 +199,7 @@ public class Buff: INetUpdate
     }
 
     List<MeteorUnit> unitRemoved = new List<MeteorUnit>();
-    public void GameFrameTurn(int delta)
+    public void GameFrameTurn(int delta, List<protocol.FrameAction> actions)
     {
         unitRemoved.Clear();
         switch (refresh_type)
@@ -259,7 +259,7 @@ public class Buff: INetUpdate
     {
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             return;
-        GameFrameTurn(Convert.ToInt32(Time.deltaTime * 1000));
+        GameFrameTurn(Convert.ToInt32(Time.deltaTime * 1000), null);
     }
 }
 
@@ -688,7 +688,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
     int GameFrame = 0;
     private float AccumilatedTime = 0f;
     private float FrameLength = 0.05f; //50 miliseconds
-    public void GameFrameTurn(int delta)
+    public void GameFrameTurn(int delta, List<protocol.FrameAction> actions)
     {
         if (Climbing)
             ClimbingTime += Time.deltaTime;
@@ -778,7 +778,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
             return;
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             return;
-        GameFrameTurn(Convert.ToInt32(Time.deltaTime * 1000));
+        GameFrameTurn(Convert.ToInt32(Time.deltaTime * 1000), null);
     }
 
     //private void LateUpdate()
@@ -3477,11 +3477,5 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
         {
             //当前武器小技能2
         }
-    }
-
-    public void OnNetInput(protocol.InputFrame inputs)
-    {
-        //controller.Input.Update();
-        //inputs.w;
     }
 }

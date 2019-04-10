@@ -152,6 +152,13 @@ public class Global
         return AllLevel.ToArray();
     }
 
+    public Level GetGlobalLevel(int mix)
+    {
+        int c = (mix / 1000) * 1000;
+        int l = mix % 1000;
+        return GetLevel(c, l);
+    }
+
     public Level GetLevel(int chapterId, int id)
     {
         if (chapterId == 0)

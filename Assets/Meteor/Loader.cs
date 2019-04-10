@@ -240,27 +240,6 @@ public class Loader : MonoBehaviour {
         }
     }
 
-    public void LoadDynamicTrigger(SceneItem_ sceneItems)
-    {
-        GameObject obj = new GameObject();
-        obj.name = sceneItems.model;
-
-        SceneItemAgent target = obj.AddComponent<SceneItemAgent>();
-        target.tag = "SceneItemAgent";
-        target.Load(sceneItems.model);
-        //target.LoadCustom(des.SceneItems[i].name, des.SceneItems[i].custom);//自定义的一些属性，name=damage100
-        target.ApplyPost();
-        MeteorManager.Instance.OnGenerateSceneItem(target);
-        //环境特效.一直存在的特效.和特效挂载点
-        //string effect;
-        //if (des.SceneItems[i].ContainsKey("effect", out effect))
-        //    SFXLoader.Instance.PlayEffect(string.Format("{0}.ef", effect), obj);
-        //sceneItems.pos
-        obj.transform.position = Vector3Helper.ConvertTo(sceneItems.pos);
-        obj.transform.rotation = QuaternionHelper.ConvertTo(sceneItems.rotation);
-        obj.transform.SetParent(transform);
-    }
-
     public void LoadDynamicTrigger(string sceneItems)
     {
         //return;

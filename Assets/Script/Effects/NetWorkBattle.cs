@@ -11,7 +11,6 @@ public class NetWorkBattle : MonoBehaviour {
     //在房间的玩家.
     Dictionary<int, protocol.Player_> playerInfo = new Dictionary<int, Player_>();
     Dictionary<int, MeteorUnit> player = new Dictionary<int, MeteorUnit>();
-    public SceneInfo scene;
     public int RoomId = -1;//房间在服务器的编号
     public int LevelId = -1;//房间场景关卡编号
     public int PlayerId = -1;//主角在服务器的角色编号.
@@ -185,12 +184,8 @@ public class NetWorkBattle : MonoBehaviour {
 
     public void SyncAttribute(Player_ p)
     {
-        p.angry = MeteorManager.Instance.LocalPlayer.AngryValue;
-        p.aniSource = MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx;
-        p.Camp = (int)EUnitCamp.EUC_KILLALL;
-        p.frame = MeteorManager.Instance.LocalPlayer.charLoader.GetCurrentFrameIndex();
+        p.camp = (int)EUnitCamp.EUC_KILLALL;
         p.hp = MeteorManager.Instance.LocalPlayer.Attr.hpCur;
-        p.hpMax = MeteorManager.Instance.LocalPlayer.Attr.HpMax;
         p.id = (uint)MeteorManager.Instance.LocalPlayer.InstanceId;
         p.model = MeteorManager.Instance.LocalPlayer.Attr.Model;
         p.name = "";// MeteorManager.Instance.LocalPlayer.name;
@@ -203,20 +198,13 @@ public class NetWorkBattle : MonoBehaviour {
         p.rotation.x = Mathf.FloorToInt(MeteorManager.Instance.LocalPlayer.transform.rotation.x * 1000);
         p.rotation.y = Mathf.FloorToInt(MeteorManager.Instance.LocalPlayer.transform.rotation.y * 1000);
         p.rotation.z = Mathf.FloorToInt(MeteorManager.Instance.LocalPlayer.transform.rotation.z * 1000);
-        p.SpawnPoint = MeteorManager.Instance.LocalPlayer.Attr.SpawnPoint;
+        p.spawnpoint = MeteorManager.Instance.LocalPlayer.Attr.SpawnPoint;
         p.weapon = (uint)MeteorManager.Instance.LocalPlayer.Attr.Weapon;
-        p.weapon1 = p.weapon;
-        p.weapon2 = (uint)MeteorManager.Instance.LocalPlayer.Attr.Weapon2;
-        p.weapon_pos = (uint)MeteorManager.Instance.LocalPlayer.weaponLoader.GetCurrentWeapon().WeaponPos;
     }
 
     public void ApplyAttribute(MeteorUnit unit, Player_ p)
     {
-        //Debug.Log("sync:" + Time.frameCount);
-        unit.AngryValue = p.angry;
-        //MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx = ;
-        //p.Camp = (int)EUnitCamp.EUC_KILLALL;
-        unit.charLoader.ChangeFrame(p.aniSource, p.frame);
+        unit.AngryValue = 0;
         unit.Attr.hpCur = p.hp;
         //p.hpMax = MeteorManager.Instance.LocalPlayer.Attr.HpMax;
         //p.id = (uint)MeteorManager.Instance.LocalPlayer.InstanceId;
@@ -248,11 +236,6 @@ public class NetWorkBattle : MonoBehaviour {
             unit.transform.position = unit.ShadowPosition;
             unit.transform.rotation = unit.ShadowRotation;
         }
-        //p.SpawnPoint = MeteorManager.Instance.LocalPlayer.Attr.SpawnPoint;
-        if (unit.Attr.Weapon != (int)p.weapon)
-            unit.SyncWeapon((int)p.weapon, (int)p.weapon2);
-        if (unit.weaponLoader.GetCurrentWeapon().WeaponPos != p.weapon_pos)
-            unit.weaponLoader.ChangeWeaponPos((int)p.weapon_pos);
     }
 
     public void OnEnterLevelSucessed()
@@ -293,18 +276,19 @@ public class NetWorkBattle : MonoBehaviour {
     }
 
 
-    public void Load(List<SceneItem_> sceneItems, List<Player_> players)
+    public void Load()
     {
-        Level lev = LevelMng.Instance.GetItem(LevelId);
+        Level lev = Global.Instance.GetGlobalLevel(LevelId);
+        Global.Instance.Chapter = DlcMng.Instance.FindChapter((LevelId / 1000) * 1000);
         Global.Instance.GLevelItem = lev;
         Global.Instance.GLevelMode = LevelMode.MultiplyPlayer;
-        Global.Instance.GGameMode = GameMode.MENGZHU;//所有场景道具都不加载，这部分物件的属性需要同步.
+        Global.Instance.GGameMode = GameMode.MENGZHU;
         LoadingWnd.Instance.Open();
-        StartCoroutine(LoadAsync(lev, sceneItems, players));
+        StartCoroutine(LoadAsync(lev));
     }
 
     AsyncOperation mAsync;
-    IEnumerator LoadAsync(Level lev, List<SceneItem_> sceneItems, List<Player_> players)
+    IEnumerator LoadAsync(Level lev)
     {
         int displayProgress = 0;
         int toProgress = 0;
@@ -335,8 +319,7 @@ public class NetWorkBattle : MonoBehaviour {
         //WSLog.LogInfo("displayProgress < toProgress");
         mAsync.allowSceneActivation = true;
         yield return 0;
-        OnLoadFinishedEx(lev, sceneItems, players);
-        ProtoHandler.loading = false;
+        OnLoadFinishedEx(lev);
         NetWorkBattle.Ins.OnEnterLevelSucessed();
         yield return 0;
     }
@@ -355,7 +338,8 @@ public class NetWorkBattle : MonoBehaviour {
         return System.Activator.CreateInstance(type) as LevelScriptBase;
     }
 
-    void OnLoadFinishedEx(Level lev, List<SceneItem_> sceneItems, List<Player_> players)
+    //场景加载完成后，加载场景上的道具，让场景达到初始化状态，这个状态，所有的客户端都是一致的.
+    void OnLoadFinishedEx(Level lev)
     {
         SoundManager.Instance.Enable(true);
         LevelScriptBase script = GetLevelScript(lev.LevelScript);
@@ -368,15 +352,7 @@ public class NetWorkBattle : MonoBehaviour {
         Global.Instance.GScript = script;
         SceneMng.OnLoad();//
         //加载场景配置数据
-        SceneMng.OnEnterNetLevel(sceneItems, lev.ID);//原版功能不加载其他存档数据.
-
-        //设置主角属性
-        for (int i = 0; i < players.Count; i++)
-            U3D.InitNetPlayer(players[i]);
-
-        //把音频侦听移到角色
-        Startup.ins.listener.enabled = false;
-        Startup.ins.playerListener = MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
+        SceneMng.OnEnterNetLevel(lev.ID);//原版功能不加载其他存档数据.
 
         //等脚本设置好物件的状态后，根据状态决定是否生成受击盒，攻击盒等.
         GameBattleEx.Instance.Init(script);
@@ -389,23 +365,6 @@ public class NetWorkBattle : MonoBehaviour {
         CameraFollow followCamera = GameObject.Find("CameraEx").GetComponent<CameraFollow>();
         followCamera.Init();
         GameBattleEx.Instance.m_CameraControl = followCamera;
-        //摄像机完毕后
-        FightWnd.Instance.Open();
-        if (!string.IsNullOrEmpty(lev.BgmName))
-            SoundManager.Instance.PlayMusic(lev.BgmName);
-
-        //除了主角的所有角色,开始输出,选择阵营, 进入战场
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
-        {
-            if (MeteorManager.Instance.UnitInfos[i] == MeteorManager.Instance.LocalPlayer)
-                continue;
-            MeteorUnit unitLog = MeteorManager.Instance.UnitInfos[i];
-            U3D.InsertSystemMsg(GetCampStr(unitLog));
-        }
-
-        U3D.InsertSystemMsg("新回合开始计时");
-        if (FightWnd.Exist)
-            FightWnd.Instance.OnBattleStart();
     }
 
     public static string GetCampStr(MeteorUnit unit)
