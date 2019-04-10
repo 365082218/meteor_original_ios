@@ -339,7 +339,7 @@ public class Common
     {
         ProtocolVerifyReq req = new ProtocolVerifyReq();
         req.protocol = AppInfo.ProtocolVersion;
-        req.data = AppInfo.Instance.AppVersion();
+        req.data = GameData.Instance.gameStatus.NickName;
         Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ProtocolVerify, req);
     }
 

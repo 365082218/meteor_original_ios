@@ -42,6 +42,7 @@ public class Chapter
     public string localPath;
     [ProtoMember(8)]
     public int level = 1;//该资料片通过的最远关卡.
+
     public string LocalPath
     {
         get
@@ -92,7 +93,7 @@ public class Chapter
         return mLevel.GetItem(id);
     }
 
-    [ProtoMember(8)]
+    [ProtoMember(9)]
     public bool Installed;//是否已安装,解压了zip包.
 
     public void Check()
