@@ -148,8 +148,8 @@ public class CameraFollow : MonoBehaviour {
             return unit.mSkeletonPivot + unit.transform.forward * -55;
         }
         //
-        randomOffset.x = Random.Range(30, 200);
-        randomOffset.z = Random.Range(30, 200);
+        randomOffset.x = 100;
+        randomOffset.z = 100;
         randomOffset.y = 0;
         return transform.position + randomOffset;
     }
