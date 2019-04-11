@@ -30,11 +30,6 @@ public class WeaponLoader : MonoBehaviour {
     public string StrWeaponR;
     public string StrWeaponL;
 
-    public void Update()
-    {
-        
-    }
-
     //主要是用来隐藏飞轮
     public void HideWeapon()
     {

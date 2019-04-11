@@ -278,6 +278,14 @@ public class FightWnd : Window<FightWnd>
         Global.ldaControlX("Robot", WndObject).SetActive(GameData.Instance.gameStatus.EnableDebugRobot);
         Global.ldaControlX("MiniMap", WndObject).SetActive(true);
 
+        if (NGUIJoystick.instance != null)
+        {
+            if (GameData.Instance.gameStatus.DisableJoystick)
+                NGUIJoystick.instance.OnDisabled();
+            else
+                NGUIJoystick.instance.OnEnabled();
+        }
+
         if (GameData.Instance.gameStatus.LevelDebug)
             Game.Instance.ShowDbg();
         else

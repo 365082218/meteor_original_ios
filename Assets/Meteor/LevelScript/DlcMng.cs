@@ -33,24 +33,11 @@ public class DlcMng:Singleton<DlcMng> {
     public void PlayDlc(Chapter chapter, int levelIdx)
     {
         GameData.Instance.SaveState();
-        if (FightWnd.Exist)
-            FightWnd.Instance.Close();
-        WindowMng.CloseAll();
-        //暂时不允许使用声音管理器，在切换场景时不允许播放
-        SoundManager.Instance.StopAll();
-        SoundManager.Instance.Enable(false);
-        U3D.SaveLastLevelData();
-        U3D.ClearLevelData();
         Level lev = chapter.GetItem(levelIdx);
         Global.Instance.GLevelItem = lev;
         Global.Instance.GLevelMode = LevelMode.SinglePlayerTask;
         Global.Instance.GGameMode = GameMode.Normal;
-        LoadingWnd.Instance.Open();
-        Resources.UnloadUnusedAssets();
-        GC.Collect();
-        LevelHelper helper = U3D.ins.gameObject.AddComponent<LevelHelper>();
-        helper.Load();
-        Log.Write("helper.load end");
+        U3D.LoadLevelEx();
     }
 
     //初始化各个路径.

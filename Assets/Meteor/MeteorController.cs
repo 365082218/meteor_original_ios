@@ -2127,9 +2127,6 @@ public class MeteorController {
     //由NetWorkBattle驱动.按顺序来的.
     public void NetUpdate()
     {
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
-            return;
-
         if (!Global.Instance.PauseAll)
         {
             if (Owner.robot != null)

@@ -53,7 +53,7 @@ public struct MeshVert
     public Vector3 pos ;
     public Vector3 normal;
     public Color color;
-    public Vector2 uv; 
+    public Vector2 uv;
 }
 public struct MeshFace
 {

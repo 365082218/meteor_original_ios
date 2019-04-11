@@ -772,26 +772,13 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
             }
         }
     }
-    void Update()
-    {
-        if (IsDebugUnit())
-            return;
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
-            return;
-        GameFrameTurn(Convert.ToInt32(Time.deltaTime * 1000), null);
-    }
-
-    //private void LateUpdate()
+    //void Update()
     //{
-        //ProcessFreePos();
-    //}
-
-    //void ProcessFreePos()
-    //{
-    //    foreach (var each in SlotFreePos)
-    //    {
-    //        each.Value.transform.position = transform.position + Quaternion.AngleAxis(each.Key * 24, Vector3.up) * (Vector3.forward * 40);
-    //    }
+    //    if (IsDebugUnit())
+    //        return;
+    //    if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+    //        return;
+    //    GameFrameTurn(Convert.ToInt32(Time.deltaTime * 1000), null);
     //}
 
     //刷新敌人，视野内的可拾取道具

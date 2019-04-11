@@ -58,6 +58,7 @@ public class Startup : MonoBehaviour {
                     EscWnd.Instance.Open();
             }
         }
+        ProtoHandler.Update();
     }
 
     public void PlayEndMovie(bool play)
@@ -75,6 +76,7 @@ public class Startup : MonoBehaviour {
                 }
             }
         }
+
         GotoMenu();
     }
 
@@ -158,123 +160,9 @@ public class Startup : MonoBehaviour {
         ClientProxy.Exit();
         Log.Uninit();
         FtpLog.Uninit();
-        //GameData.Instance.SaveState();
         GlobalUpdate.Instance.SaveCache();
     }
 
-    /*
-    public void OnConnect(CBase result)
-    {
-        GameObject loading = U3D.ShowLoading();
-        ConnResult connRet = result as ConnResult;
-        if (connRet != null)
-        {
-            if (!connRet.success)
-                U3D.btn.gameObject.SetActive(true);
-            else
-                OnConnectSuccess();
-        }
-    }
-    */
-
-    /*
-    public void OnDisConnect()
-    {
-        if (!GameData.anotherLogined)
-        {
-            U3D.PopupTip("服务器断开连接, 正在尝试重新连接");
-            CancelInvoke("HeartBeat");
-            U3D.CloseLoading();
-            U3D.ShowLoading();
-        }
-    }
-    */
-    /*
-    public static void OnSynServerList(RBase rsp)
-    {
-        ResponGetServerList Rsp = rsp as ResponGetServerList;
-        if (Rsp != null && Rsp.lst != null)
-            GameData.server = Rsp.lst;
-        if (GameData.server != null && GameData.server.Count != 0)
-        {
-            ins.ServerIdx = GameData.server[0].Idx;
-            ins.GameServerIP = GameData.server[0].ServerIP;
-            ins.ServerName = GameData.server[0].ServerName;
-            ins.ServerPort = GameData.server[0].ServerPort;
-            LoginCtrl ctrl = WsWindow.Open<LoginCtrl>(WsWindow.RegAndLogin);
-            U3D.CloseLoading();
-        }
-        else
-            ins.OnConnectSuccess();
-    }
-    */
-
-    /*
-    public void OnConnectSuccess()
-    {
-        //其他设备把此设备挤出去了.
-        if (GameData.anotherLogined)
-            return;
-        //已经登录过的，尝试重连.
-        if (GameData.logined)
-        {
-            ClientProxy.OnClickLogin(GameData.account.lastAccount, GameData.account.lastPassword, 
-            delegate (RBase rsp)
-            {
-                Common.OnAuthRsp(rsp, delegate (RBase rsp2) {
-                    //如果重连，那么发过来的信息，结构体不是UserInfo，而是一个可以恢复玩家 线路，角色，和状态的一个包。
-                    //这个重连等能进游戏再回过头来做
-                    OnSyncRoleStatus(rsp2);
-                });
-            });
-        }
-        else
-            ClientProxy.UpdateGameServer(OnSynServerList);
-    }u3d
-
-    void HeartBeat()
-    {
-        cnt--;
-        if (cnt <= 0)
-        {
-            U3D.ShowLoading();
-            return;
-        }
-        Common.SendHeartBeat(OnHeartBeat);
-    }
-
-    int cnt = 4;
-    void OnHeartBeat(RBase rq)
-    {
-        U3D.PopupTip("心跳成功");
-        cnt = 4;
-    }
-
-    public void OnSyncRoleStatus(RBase rsp)
-    {
-        //需要线路信息1，角色编号信息2，2者有了，又登录了的情况下。是可以恢复角色状态的.若恢复失败，则告知需要重新登录.
-        U3D.PopupTip("状态重连 还没做，流程是对的。先做状态同步");
-    }
-
-    public void OnLoginSuccess()
-    {
-        //InvokeRepeating("HeartBeat", 15.0f, 15.0f);
-        U3D.CloseLoading();
-        WsWindow.Close(WsWindow.RegAndLogin);
-        ShowServerInfo();
-    }
-
-    void ShowServerInfo()
-    {
-        WsWindow.Open(WsWindow.ServerInfo);
-    }
-
-    public void ShowRoleInfo()
-    {
-        WsWindow.Close(WsWindow.ServerInfo);
-        GameObject panel = WsWindow.Open(WsWindow.RoleInfo);
-    }
-    */
     public void EntryNextTitle()
 	{
         WsWindow.Open(WsWindow.UIPage);

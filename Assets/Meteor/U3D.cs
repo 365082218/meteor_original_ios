@@ -897,7 +897,12 @@ public class U3D : MonoBehaviour {
 
     public static void LoadNetLevel()
     {
-        //Debug.LogError("LoadNetLevel " + Time.frameCount);
+        NetWorkBattle.Ins.Load();
+    }
+
+    //加载当前设置的关卡.
+    public static void LoadLevelEx()
+    {
         uint profileTotalAllocate = Profiler.GetTotalAllocatedMemory();
         uint profileTotalReserved = Profiler.GetTotalReservedMemory();
         long gcTotal = System.GC.GetTotalMemory(false);
@@ -909,9 +914,12 @@ public class U3D : MonoBehaviour {
         SoundManager.Instance.Enable(false);
         SaveLastLevelData();
         ClearLevelData();
+        LoadingWnd.Instance.Open();
         Resources.UnloadUnusedAssets();
         GC.Collect();
-        NetWorkBattle.Ins.Load();
+        LevelHelper helper = ins.gameObject.AddComponent<LevelHelper>();
+        helper.Load();
+        Log.Write("helper.load end");
     }
 
     //走内置关卡.
@@ -1708,7 +1716,8 @@ public class U3D : MonoBehaviour {
                     string download = WaitDownload[0];
                     int index = download.LastIndexOf("/");
                     string file = movie.Substring(index + 1);
-                    string local = Application.persistentDataPath + "/mmv/" + file;
+                    string local = Application.persistentDataPath + "/mmv/" + file;//start.mv
+                    local = local.Replace(".mv", ".mp4");
                     Debug.Log("file:" + file);
                     downloadMovie.DownloadFileCompleted += (object sender, AsyncCompletedEventArgs e) => {
                         if (e.Error != null)
@@ -1728,6 +1737,8 @@ public class U3D : MonoBehaviour {
         }
         else
         {
+            if (GameData.Instance.gameStatus.SkipVideo)
+                return;
             if (!Directory.Exists(Application.persistentDataPath + "/mmv"))
                 Directory.CreateDirectory(Application.persistentDataPath + "/mmv");
             if (downloadMovie != null)
@@ -1741,6 +1752,7 @@ public class U3D : MonoBehaviour {
             int index = movie.LastIndexOf("/");
             string file = movie.Substring(index + 1);
             string local = Application.persistentDataPath + "/mmv/" + file;
+            local = local.Replace(".mv", ".mp4");
             Debug.Log("file:" + file);
             downloadMovie.DownloadFileCompleted += (object sender, AsyncCompletedEventArgs e) => {
                 if (e.Error != null)

@@ -3,25 +3,27 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PickupItemAgent : MonoBehaviour {
-
-	// Use this for initialization
-	void Start () {
+public class PickupItemAgent : MonoBehaviour, INetUpdate {
+    bool bFinished = false;
+    public bool Finished { get { return bFinished; } }
+    // Use this for initialization
+    void Start () {
 		
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		if (isWeapon)
+
+    public void GameFrameTurn(int delta, List<protocol.FrameAction> actions)
+    {
+        if (isWeapon)
         {
-            startTick -= Time.deltaTime;
+            startTick -= delta;
             if (startTick < 0)
             {
                 Destroy(gameObject);
                 isWeapon = false;
+                bFinished = true;
             }
         }
-	}
+    }
 
     string model;
     bool isWeapon = false;

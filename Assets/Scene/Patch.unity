@@ -4174,8 +4174,8 @@ GameObject:
   - component: {fileID: 2044160632}
   - component: {fileID: 2044160631}
   - component: {fileID: 2044160630}
-  - component: {fileID: 2044160628}
   - component: {fileID: 2044160639}
+  - component: {fileID: 2044160628}
   m_Layer: 0
   m_Name: Persist
   m_TagString: Untagged
@@ -4191,9 +4191,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2044160627}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 31160d950d34bcd44a510c934d208435, type: 3}
+  m_Script: {fileID: 11500000, guid: 3c4a20ab84e0c0241b74ea4b4706a284, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  LockStepTurnID: 0
 --- !u!4 &2044160629
 Transform:
   m_ObjectHideFlags: 0
@@ -4256,12 +4257,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16edc67b7740ada4ebe96fcd1290091a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mLogicTempTime: 0
   RoomId: -1
   LevelId: -1
   PlayerId: -1
   heroIdx: 0
+  camp: 0
   weaponIdx: 0
+  RoomName: 
   bSync: 0
+  FrameIndex: 0
+  ServerFrameIndex: 0
   gameTime: 0
   TurnFrame: 5
   TurnStarted: 0

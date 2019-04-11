@@ -282,13 +282,6 @@ public partial class GameBattleEx : MonoBehaviour {
         CollisionCheck();
     }
 
-	// Update is called once per frame
-	void Update () {
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
-            return;
-        NetUpdate();
-    }
-
     //每一个攻击盒，与所有受击盒碰撞测试.
     Dictionary<MeteorUnit, List<MeteorUnit>> hitDic = new Dictionary<MeteorUnit, List<MeteorUnit>>();
     //每个攻击盒，与所有环境物受击盒碰撞测试
@@ -521,6 +514,70 @@ public partial class GameBattleEx : MonoBehaviour {
             if (uEnemy != null)
                 SFXLoader.Instance.PlayEffect("vipred.ef", uEnemy.gameObject, false);
         }
+    }
+
+    void SpawnAllRobot()
+    {
+        if (Global.Instance.GGameMode == GameMode.MENGZHU)
+        {
+            for (int i = 1; i < Global.Instance.MaxPlayer; i++)
+            {
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), EUnitCamp.EUC_KILLALL, GameData.Instance.gameStatus.Single.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.Instance.PlayerLife);
+            }
+        }
+        else if (Global.Instance.GGameMode == GameMode.ANSHA || Global.Instance.GGameMode == GameMode.SIDOU)
+        {
+            int FriendCount = Global.Instance.MaxPlayer / 2 - 1;
+            for (int i = 0; i < FriendCount; i++)
+            {
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), MeteorManager.Instance.LocalPlayer.Camp, GameData.Instance.gameStatus.Single.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.Instance.PlayerLife);
+            }
+
+            for (int i = FriendCount + 1; i < Global.Instance.MaxPlayer; i++)
+            {
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), U3D.GetAnotherCamp(MeteorManager.Instance.LocalPlayer.Camp), GameData.Instance.gameStatus.Single.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.Instance.PlayerLife);
+            }
+        }
+    }
+
+    public void OnFrameOne()
+    {
+        //设置主角属性
+        U3D.InitPlayer(lev_script);
+        if (GameData.Instance.gameStatus.PetOn && Global.Instance.GLevelItem.DisableFindWay == 0)
+            U3D.InitPet();
+        //把音频侦听移到角色
+        Startup.ins.listener.enabled = false;
+        Startup.ins.playerListener = MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
+
+        if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
+            SpawnAllRobot();
+
+        //先创建一个相机
+        GameObject camera = GameObject.Instantiate(Resources.Load("CameraEx")) as GameObject;
+        camera.name = "CameraEx";
+
+        //角色摄像机跟随者着角色.
+        CameraFollow followCamera = GameObject.Find("CameraEx").GetComponent<CameraFollow>();
+        followCamera.Init();
+        GameBattleEx.Instance.m_CameraControl = followCamera;
+        //摄像机完毕后
+        FightWnd.Instance.Open();
+        if (!string.IsNullOrEmpty(Global.Instance.GLevelItem.BgmName))
+            SoundManager.Instance.PlayMusic(Global.Instance.GLevelItem.BgmName);
+
+        //除了主角的所有角色,开始输出,选择阵营, 进入战场
+        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        {
+            if (MeteorManager.Instance.UnitInfos[i] == MeteorManager.Instance.LocalPlayer)
+                continue;
+            MeteorUnit unitLog = MeteorManager.Instance.UnitInfos[i];
+            U3D.InsertSystemMsg(U3D.GetCampEnterLevelStr(unitLog));
+        }
+
+        U3D.InsertSystemMsg("新回合开始计时");
+        if (FightWnd.Exist)
+            FightWnd.Instance.OnBattleStart();
     }
 
     //场景物件的受击框
@@ -822,7 +879,7 @@ public partial class GameBattleEx : MonoBehaviour {
         }
         else if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
-            int left = Mathf.FloorToInt(NetWorkBattle.Ins.gameTime / 1000);
+            int left = Mathf.FloorToInt(NetWorkBattle.Ins.GameTime / 1000);
             if (left < 0)
                 left = 0;
             int minute = left / 60;

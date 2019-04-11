@@ -492,6 +492,39 @@ public partial struct Fix64 : IEquatable<Fix64>, IComparable<Fix64>
     #endregion
 }
 
+public struct FixQuaternion
+{
+    public Fix64 x;
+    public Fix64 y;
+    public Fix64 z;
+    public Fix64 w;
+    public FixQuaternion(Fix64 w, Fix64 x, Fix64 y, Fix64 z)
+    {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
+    }
+
+    public FixQuaternion(FixQuaternion v)
+    {
+        this.x = v.x;
+        this.y = v.y;
+        this.z = v.z;
+        this.w = v.w;
+    }
+
+    public static implicit operator Quaternion(FixQuaternion a)
+    {
+        return new Quaternion((float)a.x, (float)a.y, (float)a.z, (float)a.w);
+    }
+
+    public static implicit operator FixQuaternion(Quaternion a)
+    {
+        return new FixQuaternion((Fix64)a.w, (Fix64)a.x, (Fix64)a.y, (Fix64)a.z);
+    }
+}
+
 public struct FixVector3
 {
     public Fix64 x;
@@ -649,12 +682,20 @@ public struct FixVector3
     {
         return from * (1 - factor) + to * factor;
     }
-#if _CLIENTLOGIC_
-    public UnityEngine.Vector3 ToVector3()
+
+    //public Vector3 ToVector3()
+    //{
+    //    return new Vector3((float)x, (float)y, (float)z);
+    //}
+    public static implicit operator Vector3(FixVector3 a)
     {
-        return new UnityEngine.Vector3((float)x, (float)y, (float)z);
+        return new Vector3((float)a.x, (float)a.y, (float)a.z);
     }
-#endif
+
+    public static implicit operator FixVector3(Vector3 a)
+    {
+        return new FixVector3((Fix64)a.x, (Fix64)a.y, (Fix64)a.z);
+    }
 }
 
 public struct FixVector2

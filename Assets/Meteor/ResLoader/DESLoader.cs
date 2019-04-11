@@ -26,10 +26,10 @@ public class DesLoader:Singleton<DesLoader>{
 public class DesItem
 {
     public string name;
-    public Vector3 pos = new Vector3(0, 0, 0);
-    public Quaternion quat = new Quaternion(0, 0, 0, 0);
+    public FixVector3 pos = new FixVector3((Fix64)0, (Fix64)0, (Fix64)0);
+    public FixQuaternion quat = new FixQuaternion((Fix64)0, (Fix64)0, (Fix64)0, (Fix64)0);
     public bool useTextAnimation; //是否使用uv动画
-    public Vector2 textAnimation = new Vector2(0, 0);//uv参数
+    public FixVector2 textAnimation = new FixVector2(0, 0);//uv参数
     public List<string> custom = new List<string>();
     public bool ContainsKey(string key, out string value)
     {
@@ -72,22 +72,22 @@ public class DesItem
             //Z UP TO Y UP x轴z轴取反
             if (keyValue[0] == "Position:" && readLeftToken && leftTokenStack == 1)
             {
-                pos.x = float.Parse(keyValue[1]);
-                pos.z = float.Parse(keyValue[2]);
-                pos.y = float.Parse(keyValue[3]);
+                pos.x = (Fix64)float.Parse(keyValue[1]);
+                pos.z = (Fix64)float.Parse(keyValue[2]);
+                pos.y = (Fix64)float.Parse(keyValue[3]);
             }
             if (keyValue[0] == "Quaternion:" && readLeftToken && leftTokenStack == 1)
             {
-                quat.w = float.Parse(keyValue[1]);
-                quat.x = -float.Parse(keyValue[2]);
-                quat.y = -float.Parse(keyValue[4]);
-                quat.z = -float.Parse(keyValue[3]);
+                quat.w = (Fix64)float.Parse(keyValue[1]);
+                quat.x = -(Fix64)float.Parse(keyValue[2]);
+                quat.y = -(Fix64)float.Parse(keyValue[4]);
+                quat.z = -(Fix64)float.Parse(keyValue[3]);
             }
             if (keyValue[0] == "TextureAnimation:" && readLeftToken && leftTokenStack == 1)
             {
                 useTextAnimation = (int.Parse(keyValue[1]) == 1);
-                textAnimation.x = float.Parse(keyValue[2]);
-                textAnimation.y = float.Parse(keyValue[3]);
+                textAnimation.x = (Fix64)float.Parse(keyValue[2]);
+                textAnimation.y = (Fix64)float.Parse(keyValue[3]);
             }
             if (keyValue[0] == "Custom:" && readLeftToken && leftTokenStack == 1)
             {

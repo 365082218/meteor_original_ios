@@ -185,7 +185,7 @@ public class WsGlobal {
                         for (int k = 0; k < gmb.mesh[i].vertices.Count; k++)
                         {
                             //ve.Add(gmb.mesh[i].vertices[k].pos);
-                            Vector3 vec = gmb.mesh[i].vertices[k].pos - fIns.SceneItems[i].pos;
+                            Vector3 vec = gmb.mesh[i].vertices[k].pos - (Vector3)fIns.SceneItems[i].pos;
                             vec = Quaternion.Inverse(fIns.SceneItems[i].quat) * vec;
                             //ve.Add(fModel.mesh[i].vertices[k].pos);
                             ve.Add(vec);
@@ -399,7 +399,7 @@ public class WsGlobal {
                         }
                         for (int k = 0; k < fModel.mesh[i].vertices.Count; k++)
                         {
-                            Vector3 vec = fModel.mesh[i].vertices[k].pos - fIns.SceneItems[i].pos;
+                            Vector3 vec = fModel.mesh[i].vertices[k].pos - (Vector3)fIns.SceneItems[i].pos;
                             vec = Quaternion.Inverse(fIns.SceneItems[i].quat) * vec;
                             //ve.Add(fModel.mesh[i].vertices[k].pos);
                             ve.Add(vec);

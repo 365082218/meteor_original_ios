@@ -80,8 +80,6 @@ public class SceneItemAgent : MonoBehaviour {
         Refresh = false;
     }
 
-    void Start () {
-    }
 
     float refresh_tick;
     bool Refresh;
@@ -100,12 +98,6 @@ public class SceneItemAgent : MonoBehaviour {
                 OnRefresh();
             }
         }
-    }
-
-	void Update () {
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
-            return;
-        NetUpdate();
     }
 
     public void OnPickup(MeteorUnit unit)

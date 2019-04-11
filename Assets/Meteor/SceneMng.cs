@@ -15,51 +15,6 @@ class SceneMng
         WsWindow.Open(WsWindow.Battle);
     }
 
-    public static void OnEnterNetLevel(int level)
-    {
-        Level lev = LevelMng.Instance.GetItem(level);
-        if (Loader.Instance != null)
-        {
-            Loader.Instance.LoadFixedScene(lev.sceneItems);
-            Loader.Instance.LoadDynamicTrigger(lev.sceneItems);
-        }
-        else
-        {
-            Debug.LogError("Loader not exist");
-        }
-
-        Global.Instance.GLevelSpawn = new Vector3[16];
-        Global.Instance.GCampASpawn = new Vector3[8];
-        Global.Instance.GCampBSpawn = new Vector3[8];
-
-        if (WayMng.Instance == null)
-        {
-            for (int i = 0; i < 16; i++)
-            {
-                Global.Instance.GLevelSpawn[i] = Global.ldaControlX(string.Format("D_user{0:d2}", i + 1), Loader.Instance.gameObject).transform.position;
-            }
-
-            for (int i = 0; i < 8; i++)
-            {
-                Global.Instance.GCampASpawn[i] = Global.ldaControlX(string.Format("D_teamA{0:d2}", i + 1), Loader.Instance.gameObject).transform.position;
-                Global.Instance.GCampBSpawn[i] = Global.ldaControlX(string.Format("D_teamB{0:d2}", i + 1), Loader.Instance.gameObject).transform.position;
-            }
-        }
-        else
-        {
-            for (int i = 0; i < 16; i++)
-            {
-                Global.Instance.GLevelSpawn[i] = WayMng.Instance.wayPoints[i >= WayMng.Instance.wayPoints.Count ? 0 : i].pos;
-            }
-
-            for (int i = 0; i < 8; i++)
-            {
-                Global.Instance.GCampASpawn[i] = WayMng.Instance.wayPoints[i >= WayMng.Instance.wayPoints.Count ? 0 : i].pos;
-                Global.Instance.GCampBSpawn[i] = WayMng.Instance.wayPoints[i >= WayMng.Instance.wayPoints.Count ? 0 : i].pos;
-            }
-        }
-    }
-
     public static void OnEnterLevel(LevelScriptBase levelScript, string sceneItems)
     {
         if (levelScript == null)
@@ -105,6 +60,9 @@ class SceneMng
             }
         }
 
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+            return;
+
         GameObject objWayPoint = new GameObject("wayPoint");
         objWayPoint.transform.position = Vector3.zero;
         objWayPoint.transform.rotation = Quaternion.identity;
@@ -129,17 +87,14 @@ class SceneMng
     }
 
     //指明进入一张地图,地图上所有的道具，建筑，陷阱，传送门，Npc,怪物,障碍物都需要保存下来，以便下次进入场景恢复
-    public static void OnEnterLevel(LevelScriptBase levelScript, int level)
+    public static void OnEnterLevel()
     {
-        if (levelScript == null)
-            return;
-        Level lev = LevelMng.Instance.GetItem(level);
-        string sceneItems = lev.sceneItems;
-        string items = levelScript.GetDesName();
+        string sceneItems = Global.Instance.GLevelItem.sceneItems;
+        string items = Global.Instance.GScript.GetDesName();
         if (!string.IsNullOrEmpty(items))
             sceneItems = items;
 
-        OnEnterLevel(levelScript, sceneItems);
+        OnEnterLevel(Global.Instance.GScript, sceneItems);
     }
 
     //生成指定怪物,这个是从脚本入口来的，是正式关卡中生成NPC的
@@ -238,10 +193,6 @@ class SceneMng
             root.transform.localScale = Vector3.one;
         }
         root.AddComponent<GameBattleEx>();
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
-        {
-            Global.Instance.lsm = root.AddComponent<NetSync>();
-        }
     }
 
     public static MonsterEx InitMon(string Script)
