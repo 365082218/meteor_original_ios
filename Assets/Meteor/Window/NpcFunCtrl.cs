@@ -17,7 +17,7 @@ public class NpcFunCtrl : MonoBehaviour {
     public void OnClick()
     {
         if (Fun != null)
-            ScriptMng.ins.CallScript(Fun.Script);
+            ScriptMng.Instance.CallScript(Fun.Script);
     }
 
     public void Attach(NpcFunction fun)

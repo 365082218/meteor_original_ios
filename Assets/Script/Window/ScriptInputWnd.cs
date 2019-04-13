@@ -21,7 +21,7 @@ public class ScriptInputWnd:Window<ScriptInputWnd>
             try
             {
                 if (!UseCheatCode(scriptInput.text))
-                    ScriptMng.ins.CallString(scriptInput.text);
+                    ScriptMng.Instance.CallString(scriptInput.text);
                 else
                 {
                     Close();

@@ -14,8 +14,7 @@ public class ModelWnd:Window<ModelWnd>
     {
         GridViewRoot = Control("GridViewRoot");
         Control("Close").GetComponent<Button>().onClick.AddListener(()=> { Close(); });
-        if (GameBattleEx.Instance != null)
-            loadModel = GameBattleEx.Instance.StartCoroutine(LoadModels());
+        loadModel = Startup.ins.StartCoroutine(LoadModels());
         return base.OnOpen();
     }
 
@@ -64,8 +63,8 @@ public class ModelWnd:Window<ModelWnd>
 
     protected override bool OnClose()
     {
-        if (loadModel != null && GameBattleEx.Instance != null)
-            GameBattleEx.Instance.StopCoroutine(loadModel);
+        if (loadModel != null)
+            Startup.ins.StopCoroutine(loadModel);
         return base.OnClose();
     }
 }
@@ -164,7 +163,7 @@ public class EscWnd : Window<EscWnd>
     {
         GameData.Instance.SaveState();
         GameBattleEx.Instance.Pause();
-        GameBattleEx.Instance.StopAllCoroutines();
+        Startup.ins.StopAllCoroutines();
         SoundManager.Instance.StopAll();
         BuffMng.Instance.Clear();
         MeteorManager.Instance.Clear();

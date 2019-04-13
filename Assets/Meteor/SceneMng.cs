@@ -6,16 +6,9 @@ using CoClass;
 using System.IO;
 using protocol;
 
-class SceneMng
+class SceneMng:Singleton<SceneMng>
 {
-    static void BattleInit()
-    {
-        WsWindow.Close(WsWindow.Dialogue);//进战斗前必须把交互对话框关闭.
-        WsWindow.Close(WsWindow.Battle);
-        WsWindow.Open(WsWindow.Battle);
-    }
-
-    public static void OnEnterLevel(LevelScriptBase levelScript, string sceneItems)
+    public void OnEnterLevel(LevelScriptBase levelScript, string sceneItems)
     {
         if (levelScript == null)
             return;
@@ -87,7 +80,7 @@ class SceneMng
     }
 
     //指明进入一张地图,地图上所有的道具，建筑，陷阱，传送门，Npc,怪物,障碍物都需要保存下来，以便下次进入场景恢复
-    public static void OnEnterLevel()
+    public void OnEnterLevel()
     {
         string sceneItems = Global.Instance.GLevelItem.sceneItems;
         string items = Global.Instance.GScript.GetDesName();
@@ -98,7 +91,7 @@ class SceneMng
     }
 
     //生成指定怪物,这个是从脚本入口来的，是正式关卡中生成NPC的
-    public static MeteorUnit Spawn(string script)
+    public MeteorUnit Spawn(string script)
     {
         MonsterEx mon = InitMon(script);
         GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
@@ -182,20 +175,7 @@ class SceneMng
         return unit;
     }
 
-    public static void OnLoad()
-    {
-        GameObject root = GameObject.Find("BattleRoot");
-        if (root == null)
-        {
-            root = new GameObject("BattleRoot");
-            root.transform.position = Vector3.zero;
-            root.transform.rotation = Quaternion.identity;
-            root.transform.localScale = Vector3.one;
-        }
-        root.AddComponent<GameBattleEx>();
-    }
-
-    public static MonsterEx InitMon(string Script)
+    public MonsterEx InitMon(string Script)
     {
         MonsterEx ret = new MonsterEx();
         if (ret.InitMonster(Script))
@@ -203,7 +183,7 @@ class SceneMng
         return null;
     }
 
-    public static MonsterEx InitNetPlayer(Player_ player)
+    public MonsterEx InitNetPlayer(Player_ player)
     {
         MonsterEx ret = new MonsterEx();
         ret.hpCur = player.hp;
@@ -219,14 +199,14 @@ class SceneMng
         return ret;
     }
 
-    public static MonsterEx InitPlayer(LevelScriptBase script)
+    public MonsterEx InitPlayer(LevelScriptBase script)
     {
         MonsterEx ret = new MonsterEx();
         ret.InitPlayer(script);
         return ret;
     }
     //index指定多个对手的站位。NPC呼叫其他NPC帮忙时候，都是把战场已死NPC剔除，然后
-    public static MonsterEx InitNpc(string Script)
+    public MonsterEx InitNpc(string Script)
     {
         return InitMon(Script);
     }

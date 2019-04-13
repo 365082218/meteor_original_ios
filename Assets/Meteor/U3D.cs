@@ -261,7 +261,7 @@ public class U3D : MonoBehaviour {
 
     public static MeteorUnit InitNetPlayer(Player_ player)
     {
-        MonsterEx mon = SceneMng.InitNetPlayer(player);
+        MonsterEx mon = SceneMng.Instance.InitNetPlayer(player);
         GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
         Vector3 spawnPos;
         spawnPos.x = player.pos.x;
@@ -331,7 +331,7 @@ public class U3D : MonoBehaviour {
 
     public static MeteorUnit InitPlayer(LevelScriptBase script)
     {
-        MonsterEx mon = SceneMng.InitPlayer(script);
+        MonsterEx mon = SceneMng.Instance.InitPlayer(script);
         GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
         GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
         MeteorUnit unit = ins.GetComponent<MeteorUnit>();
@@ -435,7 +435,7 @@ public class U3D : MonoBehaviour {
 
     public static int AddNPC(string script)
     {
-        MeteorUnit target = SceneMng.Spawn(script);
+        MeteorUnit target = SceneMng.Instance.Spawn(script);
         return target.InstanceId;
     }
 
@@ -1390,10 +1390,10 @@ public class U3D : MonoBehaviour {
                 return MeteorManager.Instance.DeadUnits[i].InstanceId;
         }
 
-        for (int i = 0; i < MeteorManager.Instance.LeavedUnits.Count; i++)
+        foreach (var each in MeteorManager.Instance.LeavedUnits)
         {
-            if (MeteorManager.Instance.LeavedUnits[i].name == player)
-                return MeteorManager.Instance.LeavedUnits[i].InstanceId;
+            if (each.Value == player)
+                return each.Key;
         }
         return -1;
     }
@@ -1679,12 +1679,6 @@ public class U3D : MonoBehaviour {
         {
             if (MeteorManager.Instance.DeadUnits[i].InstanceId == id)
                 return MeteorManager.Instance.DeadUnits[i];
-        }
-
-        for (int i = 0; i < MeteorManager.Instance.LeavedUnits.Count; i++)
-        {
-            if (MeteorManager.Instance.LeavedUnits[i].InstanceId == id)
-                return MeteorManager.Instance.LeavedUnits[i];
         }
 
         return null;

@@ -16,7 +16,7 @@ public class SceneItemProperty
     public Dictionary<string, int> attribute = new Dictionary<string, int>();//是否激活active 是否有伤害(damage) 是否有碰撞(collision) pose做动作.
 }
 //原版内不需要序列化存储的机关，关卡固有机关,尖刺,摆斧
-public class SceneItemAgent : MonoBehaviour {
+public class SceneItemAgent : MonoBehaviour, INetUpdate {
     // Use this for initialization
     List<Collider> collisions = new List<Collider>();
     [SerializeField]
@@ -29,9 +29,12 @@ public class SceneItemAgent : MonoBehaviour {
     System.Func<int, int, int, int> OnAttackCallBack;
     System.Action<int, int> OnIdle;
     System.Reflection.MethodInfo OnTouch;
+    bool bFinished = false;
+    public bool Finished { get{ return bFinished; } }
     bool syncTouched = false;
     float initializeY;
     bool billBoard = false;
+    bool animate = false;
     //场景初始化调用，或者爆出物品，待物品落地时调用
     public void OnStart(LevelScriptBase script = null)
     {
@@ -48,7 +51,7 @@ public class SceneItemAgent : MonoBehaviour {
             }
             curve.postWrapMode = WrapMode.PingPong;
             curve.preWrapMode = WrapMode.PingPong;
-            StartCoroutine(yMove());
+            animate = true;
         }
 
         if (script != null)
@@ -62,15 +65,11 @@ public class SceneItemAgent : MonoBehaviour {
 
     //bool up = true;
     //float yHeight = 5.0f;
-    IEnumerator yMove()
+    void yMove(int delta)
     {
-        while (true)
-        {
-            float y = curve.Evaluate(Global.Instance.GameTime());
-                transform.position = new Vector3(transform.position.x, initializeY + 5 * y, transform.position.z);
-            transform.Rotate(new Vector3(0, 90 * Time.deltaTime, 0));
-            yield return 0;
-        }
+        float y = curve.Evaluate(Global.Instance.GameTime());
+        transform.position = new Vector3(transform.position.x, initializeY + 5 * y, transform.position.z);
+        transform.Rotate(new Vector3(0, 90 * delta / 1000.0f, 0));
     }
 
     private void Awake()
@@ -84,12 +83,13 @@ public class SceneItemAgent : MonoBehaviour {
     float refresh_tick;
     bool Refresh;
 
-    public void NetUpdate()
+    public void GameFrameTurn(int delta, List<protocol.FrameCommand> acts)
     {
         if (MethodOnIdle != null)
-            MethodOnIdle.Invoke(GameBattleEx.Instance.Script, new object[] { InstanceId });
+            MethodOnIdle.Invoke(Global.Instance.GScript, new object[] { InstanceId });
         else if (OnIdle != null)
             OnIdle.Invoke(InstanceId, Index);
+
         if (ItemInfo != null && (ItemInfo.IsItem() || ItemInfo.IsWeapon()) && Refresh)
         {
             refresh_tick -= Time.deltaTime;
@@ -98,6 +98,7 @@ public class SceneItemAgent : MonoBehaviour {
                 OnRefresh();
             }
         }
+        yMove(delta);
     }
 
     public void OnPickup(MeteorUnit unit)
@@ -721,7 +722,7 @@ public class SceneItemAgent : MonoBehaviour {
         int realDamage = CalcDamage(attacker, attck);
         //非铁箱子， 木箱子，酒坛， 桌子 椅子的受击处理
         if (MethodOnAttack != null)
-            MethodOnAttack.Invoke(GameBattleEx.Instance.Script, new object[] { InstanceId, attacker.InstanceId, realDamage });
+            MethodOnAttack.Invoke(Global.Instance.GScript, new object[] { InstanceId, attacker.InstanceId, realDamage });
         else if (OnAttackCallBack != null)
         {
             OnAttackCallBack.Invoke(InstanceId, Index, realDamage);

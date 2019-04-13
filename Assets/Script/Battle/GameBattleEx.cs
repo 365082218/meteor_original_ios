@@ -21,31 +21,25 @@ public class BattleResultItem
 
 //负责战斗中相机的位置指定之类，主角色目标组作为摄像机 视锥体范围，参考Tank教程里的简单相机控制
 //负责战斗场景内位置间的寻路缓存
-public partial class GameBattleEx : MonoBehaviour {
+public partial class GameBattleEx : Singleton<GameBattleEx> {
     [HideInInspector]
     public CameraFollow m_CameraControl;
     int time = 1000;//秒
     float timeClock = 0.0f;
     const float ViewLimit = 90000;//300码，自动解除锁定.
-    static GameBattleEx _Ins;
-    public static GameBattleEx Instance { get { return _Ins; } }
-    // Use this for initialization
-    void Awake()
+    public GameBattleEx()
     {
 #if !STRIP_DBG_SETTING
         WSDebug.Ins.AddDebuggableObject(this);
 #endif
-        _Ins = this;
     }
 
-    private void OnDestroy()
+    ~GameBattleEx()
     {
 #if !STRIP_DBG_SETTING
         if (WSDebug.Ins != null)
             WSDebug.Ins.RemoveDebuggableObject(this);
 #endif
-        StopAllCoroutines();
-        _Ins = null;
     }
 
     public bool BattleWin()
@@ -156,28 +150,12 @@ public partial class GameBattleEx : MonoBehaviour {
     {
         return Mathf.FloorToInt(timeClock);
     }
-
-    void Start () {
-        if (Global.Instance.GLevelMode != LevelMode.MultiplyPlayer)
-            StartCoroutine(UpdateTime());
-	}
-
-    IEnumerator UpdateTime()
+    
+    //多久触发一次.
+    void UpdateTime()
     {
-        while (true)
-        {
-            if (Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
-            {
-                if (IsTimeup())
-                {
-                    StopCoroutine("UpdateTime");
-                    yield break;
-                }
-            }
-            yield return new WaitForSeconds(1);
-            if (FightWnd.Exist)
-                FightWnd.Instance.UpdateTime(GetTimeClock());
-        }
+        if (FightWnd.Exist)
+            FightWnd.Instance.UpdateTime(GetTimeClock());
     }
 
     GameObject SelectTarget;
@@ -266,18 +244,18 @@ public partial class GameBattleEx : MonoBehaviour {
             UnitActKeyDeleted.Clear();
         }
 
-        if (lev_script != null && Global.Instance.GLevelMode <= LevelMode.CreateWorld)
+        if (Global.Instance.GScript != null && Global.Instance.GLevelMode <= LevelMode.CreateWorld)
         {
             if (timeDelay >= 1.0f)
             {
-                lev_script.OnUpdate();
+                Global.Instance.GScript.OnUpdate();
                 timeDelay = 0.0f;
             }
         }
 
         timeDelay += Time.deltaTime;
-        if (lev_script != null)
-            lev_script.Scene_OnIdle();//每一帧调用一次场景物件更新.
+        if (Global.Instance.GScript != null)
+            Global.Instance.GScript.Scene_OnIdle();//每一帧调用一次场景物件更新.
         RefreshAutoTarget();
         CollisionCheck();
     }
@@ -432,8 +410,6 @@ public partial class GameBattleEx : MonoBehaviour {
     //    return false;
     //}
 
-    public LevelScriptBase Script { get { return lev_script; } }
-    LevelScriptBase lev_script;
     System.Reflection.MethodInfo Scene_OnCharacterEvent;
     System.Reflection.MethodInfo Scene_OnEvent;
     int EventDeath = 202;
@@ -460,7 +436,6 @@ public partial class GameBattleEx : MonoBehaviour {
             }
         }
 
-        lev_script = script;
         DisableCameraLock = !GameData.Instance.gameStatus.AutoLock;
         //updateFn = ScriptMng.ins.GetFunc("OnUpdate");
         if (script != null)
@@ -473,28 +448,26 @@ public partial class GameBattleEx : MonoBehaviour {
                 time = 30 * 60;
         }
         timeClock = 0.0f;
-        //注册所有场景物件的受击框
-        SceneItemAgent[] sceneObjs = FindObjectsOfType<SceneItemAgent>();
         //上一局如果暂停了，新局开始都恢复
         Resume();
 
         //只有单人模式，才从脚本恢复这些物件，否则都应该由服务器发出物件的信息恢复.
-        if (lev_script != null)
+        if (Global.Instance.GScript != null)
         {
-            lev_script.Scene_OnLoad();
-            lev_script.Scene_OnInit();
+            Global.Instance.GScript.Scene_OnLoad();
+            Global.Instance.GScript.Scene_OnInit();
         }
 
-        for (int i = 0; i < sceneObjs.Length; i++)
+        for (int i = 0; i < MeteorManager.Instance.SceneItems.Count; i++)
         {
-            sceneObjs[i].OnStart(lev_script);
-            RegisterCollision(sceneObjs[i]);
+            MeteorManager.Instance.SceneItems[i].OnStart(Global.Instance.GScript);
+            RegisterCollision(MeteorManager.Instance.SceneItems[i]);
         }
 
         if (Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
         {
-            if (lev_script != null)
-                lev_script.OnStart();
+            if (Global.Instance.GScript != null)
+                Global.Instance.GScript.OnStart();
 
             for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
             {
@@ -502,11 +475,7 @@ public partial class GameBattleEx : MonoBehaviour {
                     MeteorManager.Instance.UnitInfos[i].Attr.OnStart();//AI脚本必须在所有角色都加载完毕后再调用
             }
         }
-        CheckGameMode();
-    }
 
-    void CheckGameMode()
-    {
         if (Global.Instance.GGameMode == GameMode.ANSHA)
         {
             MeteorUnit uEnemy = U3D.GetTeamLeader(EUnitCamp.EUC_ENEMY);
@@ -540,10 +509,10 @@ public partial class GameBattleEx : MonoBehaviour {
         }
     }
 
-    public void OnFrameOne()
+    public void OnCreatePlayer()
     {
         //设置主角属性
-        U3D.InitPlayer(lev_script);
+        U3D.InitPlayer(Global.Instance.GScript);
         if (GameData.Instance.gameStatus.PetOn && Global.Instance.GLevelItem.DisableFindWay == 0)
             U3D.InitPet();
         //把音频侦听移到角色

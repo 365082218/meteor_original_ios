@@ -1779,7 +1779,7 @@ public class MeteorAI {
     public void FollowTarget(int target)
     {
         MeteorUnit want = U3D.GetUnit(target);
-        if (want != null && MeteorManager.Instance.LeavedUnits.Contains(want))
+        if (MeteorManager.Instance.LeavedUnits.ContainsKey(target))
             return;
         followTarget = want;
         ChangeState(EAIStatus.Follow);

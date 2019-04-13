@@ -199,7 +199,7 @@ public class Buff: INetUpdate
     }
 
     List<MeteorUnit> unitRemoved = new List<MeteorUnit>();
-    public void GameFrameTurn(int delta, List<protocol.FrameAction> actions)
+    public void GameFrameTurn(int delta, List<protocol.FrameCommand> actions)
     {
         unitRemoved.Clear();
         switch (refresh_type)
@@ -688,7 +688,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
     int GameFrame = 0;
     private float AccumilatedTime = 0f;
     private float FrameLength = 0.05f; //50 miliseconds
-    public void GameFrameTurn(int delta, List<protocol.FrameAction> actions)
+    public void GameFrameTurn(int delta, List<protocol.FrameCommand> actions)
     {
         if (Climbing)
             ClimbingTime += Time.deltaTime;

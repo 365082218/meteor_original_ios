@@ -43,12 +43,12 @@ public class ScriptBase
 
     public static void InitPlayerVariable()
     {
-        ScriptMng.ins.CallScript("localPlayer");
-        Model = (int)(double)ScriptMng.ins.GetVariable("Model");
-        _PlayerName = (string)ScriptMng.ins.GetVariable("Name");
-        Weapon0 = (int)(double)ScriptMng.ins.GetVariable("Weapon");
-        Weapon1 = (int)(double)ScriptMng.ins.GetVariable("Weapon2");
-        MaxHP = (int)(double)ScriptMng.ins.GetVariable("HP");
+        ScriptMng.Instance.CallScript("localPlayer");
+        Model = (int)(double)ScriptMng.Instance.GetVariable("Model");
+        _PlayerName = (string)ScriptMng.Instance.GetVariable("Name");
+        Weapon0 = (int)(double)ScriptMng.Instance.GetVariable("Weapon");
+        Weapon1 = (int)(double)ScriptMng.Instance.GetVariable("Weapon2");
+        MaxHP = (int)(double)ScriptMng.Instance.GetVariable("HP");
     }
 
     public static int _GetPlayerWeapon() { InitPlayerVariable(); return Weapon0; }
@@ -1157,8 +1157,8 @@ public class LevelScriptBase:ScriptBase {
     {
         if (Global.Instance.GLevelItem != null && (!string.IsNullOrEmpty(Global.Instance.GLevelItem.StartScript)))
         {
-            if (ScriptMng.ins != null)
-                ScriptMng.ins.CallFunc(Global.Instance.GLevelItem.StartScript);
+            if (ScriptMng.Instance != null)
+                ScriptMng.Instance.CallFunc(Global.Instance.GLevelItem.StartScript);
         }
     }
 
@@ -8469,7 +8469,7 @@ public class LevelScript_sn26 : LevelScriptBase
 
     public override void OnStart()
     {
-        ScriptMng.ins.CallFunc("LevelScript_sn26");
+        ScriptMng.Instance.CallFunc("LevelScript_sn26");
         base.OnStart();
     }
 

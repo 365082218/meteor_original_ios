@@ -11,7 +11,7 @@ public class PickupItemAgent : MonoBehaviour, INetUpdate {
 		
 	}
 
-    public void GameFrameTurn(int delta, List<protocol.FrameAction> actions)
+    public void GameFrameTurn(int delta, List<protocol.FrameCommand> actions)
     {
         if (isWeapon)
         {

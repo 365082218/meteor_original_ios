@@ -100,11 +100,11 @@ class ProtoHandler
                         //    UserId userDeadRsp = ProtoBuf.Serializer.Deserialize<UserId>(ms);
                         //    OnUserDead(userDeadRsp);
                         //    break;
-                            //受到服务器的帧同步信息.
+                        //收到服务器的帧同步信息.
                         case (int)MeteorMsg.MsgType.SyncTurnRsp:
                             ms = new MemoryStream(each.Value);
-                            //UserId userDeadRsp = ProtoBuf.Serializer.Deserialize<UserId>(ms);
-                            //OnUserDead(userDeadRsp);
+                            TurnFrames t = ProtoBuf.Serializer.Deserialize<TurnFrames>(ms);
+                            FSC.Instance.OnReceiveCommand(t);
                             break;
                     }
                 }

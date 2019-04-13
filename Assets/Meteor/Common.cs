@@ -330,6 +330,11 @@ public class Common
         //Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ProtocolVeritify);
     }
 
+    public static void SyncTurn(TurnFrames turn)
+    {
+        Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.SyncTurnReq, turn);
+    }
+
     public static void SendUpdateGameServer()
     {
         Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.GetRoomReq);

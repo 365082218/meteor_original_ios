@@ -153,7 +153,7 @@ public class MonsterEx
     public bool InitMonster(string Script)
     {
         IsPlayer = false;
-        sState = ScriptMng.ins.DoScript(Script) as LuaTable;
+        sState = ScriptMng.Instance.DoScript(Script) as LuaTable;
         NpcTemplate = Script;
         Model = (int)(double)sState["Model"];
         name = (string)sState["Name"];

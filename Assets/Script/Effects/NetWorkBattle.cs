@@ -141,7 +141,7 @@ public class NetWorkBattle:Singleton<NetWorkBattle> {
     //断开连接时.
     public void OnDisconnect()
     {
-        if (GameBattleEx.Instance && RoomId != -1)
+        if (RoomId != -1)
         {
             //在联机战斗场景中.
             GameBattleEx.Instance.Pause();
@@ -152,7 +152,7 @@ public class NetWorkBattle:Singleton<NetWorkBattle> {
                 FightWnd.Instance.Close();
             RoomId = -1;
             RoomName = "";
-            TurnStarted = false;
+            FrameReplay.Instance.OnDisconnected();
             FrameIndex = ServerFrameIndex = 0;
             U3D.InsertSystemMsg("与服务器断开链接.");
             if (!MainWnd.Exist)
@@ -161,7 +161,6 @@ public class NetWorkBattle:Singleton<NetWorkBattle> {
         RoomId = -1;
         waitReborn = false;
         RoomName = "";
-        TurnStarted = false;
     }
 
     //选择好了角色和武器，向服务器发出进入房间请求.

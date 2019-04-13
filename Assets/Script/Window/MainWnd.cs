@@ -222,7 +222,7 @@ public class ChatWnd : Window<ChatWnd>
             if (audioData != null && audioData.Length != 0)
                 Listen.gameObject.SetActive(true);
             Control("Record", WndObject).GetComponentInChildren<Text>().text = "录音";
-            if (GameBattleEx.Instance)
+            if (GameBattleEx.Instance != null)
                 GameBattleEx.Instance.DeletesHandler(Update);
             return;
         }
@@ -1469,8 +1469,8 @@ public class WeaponWnd : Window<WeaponWnd>
 
     protected override bool OnClose()
     {
-        if (load != null && GameBattleEx.Instance)
-            GameBattleEx.Instance.StopCoroutine(load);
+        if (load != null)
+            Startup.ins.StopCoroutine(load);
         if (CameraForWeapon != null)
             GameObject.Destroy(CameraForWeapon);
         return base.OnClose();
@@ -1500,7 +1500,7 @@ public class WeaponWnd : Window<WeaponWnd>
             Control(control).GetComponent<UITab>().onValueChanged.AddListener(ChangeWeaponType);
         }
         if (load == null)
-            load = GameBattleEx.Instance.StartCoroutine(AddWeapon());
+            load = Startup.ins.StartCoroutine(AddWeapon());
     }
 
     IEnumerator AddWeapon()
@@ -1596,8 +1596,8 @@ public class WeaponWnd : Window<WeaponWnd>
         for (int i = 0; i < GridWeapon.Count; i++)
             GridWeapon[i].SetActive(false);
         if (load != null)
-            GameBattleEx.Instance.StopCoroutine(load);
-        load = GameBattleEx.Instance.StartCoroutine(AddWeapon());
+            Startup.ins.StopCoroutine(load);
+        load = Startup.ins.StartCoroutine(AddWeapon());
     }
 }
 
@@ -1623,8 +1623,8 @@ public class RobotWnd : Window<RobotWnd>
 
     protected override bool OnClose()
     {
-        if (refresh != null && GameBattleEx.Instance)
-            GameBattleEx.Instance.StopCoroutine(refresh);
+        if (refresh != null)
+            Startup.ins.StopCoroutine(refresh);
         return base.OnClose();
     }
 
@@ -1727,8 +1727,8 @@ public class SfxWnd: Window<SfxWnd>
 
     protected override bool OnClose()
     {
-        if (load != null && GameBattleEx.Instance)
-            GameBattleEx.Instance.StopCoroutine(load);
+        if (load != null)
+            Startup.ins.StopCoroutine(load);
         return base.OnClose();
     }
 
@@ -1754,8 +1754,8 @@ public class SfxWnd: Window<SfxWnd>
         else
             pageIndex += 1;
         if (refresh != null)
-            GameBattleEx.Instance.StopCoroutine(refresh);
-        refresh = GameBattleEx.Instance.StartCoroutine(RefreshSfx(pageIndex));
+            Startup.ins.StopCoroutine(refresh);
+        refresh = Startup.ins.StartCoroutine(RefreshSfx(pageIndex));
         Control("PageText").GetComponent<Text>().text = string.Format("{0:d2}/{1:d2}", pageIndex, pageMax);
     }
 
@@ -1766,8 +1766,8 @@ public class SfxWnd: Window<SfxWnd>
         else
             pageIndex -= 1;
         if (refresh != null)
-            GameBattleEx.Instance.StopCoroutine(refresh);
-        refresh = GameBattleEx.Instance.StartCoroutine(RefreshSfx(pageIndex));
+            Startup.ins.StopCoroutine(refresh);
+        refresh = Startup.ins.StartCoroutine(RefreshSfx(pageIndex));
         Control("PageText").GetComponent<Text>().text = string.Format("{0:d2}/{1:d2}", pageIndex, pageMax);
     }
 

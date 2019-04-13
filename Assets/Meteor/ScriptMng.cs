@@ -6,24 +6,14 @@ using System.IO;
 
 
 //解决slua脚本如何与内部通信的问题,每个脚本都是一个txt文件.
-public class ScriptMng:MonoBehaviour
+public class ScriptMng:Singleton<ScriptMng>
 {
 	LuaSvr svr;
-    public static ScriptMng ins = null;
     LuaFunction save;
-    void Awake()
-    {
-        ins = this;
-    }
 
-	public void Start()
+	public ScriptMng()
 	{
         ResetStatus();
-	}
-
-	public void Update()
-	{
-		
 	}
     
     public object GetVariable(string iden)

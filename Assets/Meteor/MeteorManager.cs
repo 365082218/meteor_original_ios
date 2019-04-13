@@ -14,7 +14,7 @@ public class MeteorManager {
     public List<MeteorUnit> UnitInfos = new List<MeteorUnit>();
     public List<MeteorUnit> DeadUnits = new List<MeteorUnit>();
     public List<MeteorUnit> DeadUnitsClone = new List<MeteorUnit>();//备用的
-    public List<MeteorUnit> LeavedUnits = new List<MeteorUnit>();//离场的NPC,设置禁用，取消激活游戏对象，但是可以查询
+    public SortedDictionary<int, string> LeavedUnits = new SortedDictionary<int, string>();//离场的NPC,设置禁用，取消激活游戏对象，但是可以查询
     public List<SceneItemAgent> SceneItems = new List<SceneItemAgent>();
     public List<GameObject> Coins = new List<GameObject>();
     public List<GameObject> DropThing = new List<GameObject>();
@@ -62,6 +62,7 @@ public class MeteorManager {
             UnitInstanceIdx++;
         }
         UnitInfos.Add(unit);
+        FrameReplay.Instance.RegisterObject(unit);
     }
 
     public bool IsFirstMember(MeteorUnit unit)
@@ -79,6 +80,7 @@ public class MeteorManager {
         if (!SceneItems.Contains(item))
             return;
         SceneItems.Remove(item);
+        FrameReplay.Instance.UnRegisterObject(item);
     }
 
     public void OnGenerateSceneItem(SceneItemAgent item)
@@ -87,6 +89,7 @@ public class MeteorManager {
             return;
         SceneItems.Add(item);
         item.InstanceId = SceneItemInstanceIdx++;
+        FrameReplay.Instance.RegisterObject(item);
     }
 
     public void PhysicalIgnore(MeteorUnit self, bool ignore)
@@ -103,23 +106,6 @@ public class MeteorManager {
         self.IgnorePhysical = ignore;
     }
 
-    //直接删除，而不隐藏，NPC要隐藏是因为死了还有剧情对话。
-    public void OnNetRemoveUnit(MeteorUnit unit)
-    {
-        MeteorManager.Instance.PhysicalIgnore(unit, true);
-
-        for (int i = 0; i < UnitInfos.Count; i++)
-            UnitInfos[i].OnUnitDead(unit);
-
-        if (UnitInfos.Contains(unit))
-            UnitInfos.Remove(unit);
-        if (DeadUnits.Contains(unit))
-            DeadUnits.Remove(unit);
-
-        BuffMng.Instance.RemoveUnit(unit);
-        GameObject.Destroy(unit.gameObject);
-    }
-
     //某个角色从场景删除
     public void OnRemoveUnit(MeteorUnit unit)
     {
@@ -132,10 +118,9 @@ public class MeteorManager {
             UnitInfos.Remove(unit);
         if (DeadUnits.Contains(unit))
             DeadUnits.Remove(unit);
-        LeavedUnits.Add(unit);
+        LeavedUnits.Add(unit.InstanceId, unit.name);
         BuffMng.Instance.RemoveUnit(unit);
-        unit.transform.position = new Vector3(-10000, -10000, -10000);
-        unit.gameObject.SetActive(false);
+        GameObject.Destroy(unit.gameObject);
     }
 
     public void OnUnitDead(MeteorUnit unit)
@@ -167,8 +152,6 @@ public class MeteorManager {
         }
         for (int i = 0; i < DeadUnits.Count; i++)
             GameObject.Destroy(DeadUnits[i].gameObject);
-        for (int i = 0; i < LeavedUnits.Count; i++)
-            GameObject.Destroy(LeavedUnits[i].gameObject);
         UnitInfos.Clear();
         DeadUnits.Clear();
         LeavedUnits.Clear();

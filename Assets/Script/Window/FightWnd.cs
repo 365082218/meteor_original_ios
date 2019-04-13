@@ -257,7 +257,7 @@ public class FightWnd : Window<FightWnd>
     void OnChangeActionBarStatus()
     {
         FloatOpen.GetComponent<Button>().interactable = false;
-        GameBattleEx.Instance.StartCoroutine(actionStatusBarCtrl.PlayAnimation(actionBarStatus ? "HideActionBar" : "ShowActionBar", false, ()=> {
+        Startup.ins.StartCoroutine(actionStatusBarCtrl.PlayAnimation(actionBarStatus ? "HideActionBar" : "ShowActionBar", false, ()=> {
             FloatOpen.GetComponent<Button>().interactable = true;
             actionBarStatus = !actionBarStatus;
             FloatOpen.transform.rotation = Quaternion.Euler(0, 0, actionBarStatus ? 90 : 270);
@@ -441,7 +441,7 @@ public class FightWnd : Window<FightWnd>
 
     protected override bool OnClose()
     {
-        if (GameBattleEx.Instance)
+        if (GameBattleEx.Instance != null)
             GameBattleEx.Instance.DeletesHandler(Update);
         return base.OnClose();
     }
