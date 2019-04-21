@@ -1143,47 +1143,48 @@ public class AmbLoader
     {
         if (FrameBoneAni.ContainsKey(idx))
             return;
-        if (idx == 24)
-        {
-            if (!FrameBoneAni.ContainsKey(24))
-                FrameBoneAni.Add(24, FrameBoneAni[16]);
-            return;
-        }
         //大于20的是新角色，新角色只读skc其他男性角色读0号位数据 女性角色读1号位数据
-        if (idx > 19)
+        if (idx >= 20)
         {
-            if (FrameBoneAni.ContainsKey(idx))
-                return;
+            ModelItem m = DlcMng.GetPluginModel(idx);
+            if (m != null && m.Installed)
+            {
+                for (int i = 0; i < m.resPath.Length; i++)
+                {
+                    if (m.resPath[i].ToLower().EndsWith(".amb"))
+                    {
+                        byte[] memory = System.IO.File.ReadAllBytes(m.resPath[i]);
+                        FrameBoneAni.Add(idx, Parse(memory));
+                        return;
+                    }
+                }
+            }
             FrameBoneAni.Add(idx, FrameBoneAni[0]);
             return;
         }
-
-        if (idx == 11)
+        //11和9文件重复了.
+        if (idx == 11 || idx == 9)
             idx = 9;
         Dictionary<int, BoneStatus> ret = LoadAmb("p" + idx + ".amb");
         FrameBoneAni.Add(idx, ret);
+
         //9号文件和11号一样，复用
         if (idx == 9)
-            FrameBoneAni.Add(11, ret);
+        {
+            if (FrameBoneAni.ContainsKey(11))
+                FrameBoneAni.Add(11, ret);
+        }
     }
+
     //加载通用动作
     public void LoadCharacterAmb()
     {
         CharCommon = LoadAmb("characteramb");
     }
 
-    //人物自身动作，0帧为TPose
-    //招式通用动作，从1帧开始，没有0帧
-    public Dictionary<int, BoneStatus> LoadAmb(string file)
+    public Dictionary<int, BoneStatus> Parse(byte[] memory)
     {
-        long s1 = System.DateTime.Now.Ticks;
-        TextAsset asset = Resources.Load<TextAsset>(file);
-        if (asset == null)
-        {
-            Debug.LogError("amb file:" + file + " can not found");
-            return null;
-        }
-        MemoryStream ms = new MemoryStream(asset.bytes);
+        MemoryStream ms = new MemoryStream(memory);
         BinaryReader binRead = new BinaryReader(ms);
         binRead.BaseStream.Seek(5, SeekOrigin.Begin);
         int bone = binRead.ReadInt32();
@@ -1225,13 +1226,27 @@ public class AmbLoader
                 status.DummyPos.Add(new Vector3(dx, dz, dy));
                 status.DummyQuat.Add(new Quaternion(dxx, dyy, dzz, dw));
             }
-
             innerValue.Add(frameindex, status);
         }
-        
+
         //豪微秒 10^-7秒
         //Debug.Log(string.Format("{0}", (double)(System.DateTime.Now.Ticks - s1) / 10000000.0));
         return innerValue;
+    }
+
+    //人物自身动作，0帧为TPose
+    //招式通用动作，从1帧开始，没有0帧
+    public Dictionary<int, BoneStatus> LoadAmb(string file)
+    {
+        long s1 = System.DateTime.Now.Ticks;
+        TextAsset asset = Resources.Load<TextAsset>(file);
+        if (asset == null)
+        {
+            Debug.LogError("amb file:" + file + " can not found");
+            return null;
+        }
+        return Parse(asset.bytes);
+        
     }
 }
 [ProtoContract]

@@ -4,24 +4,30 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PickupItemAgent : MonoBehaviour, INetUpdate {
-    bool bFinished = false;
-    public bool Finished { get { return bFinished; } }
     // Use this for initialization
     void Start () {
 		
 	}
 
-    public void GameFrameTurn(int delta, List<protocol.FrameCommand> actions)
+    private void Awake()
+    {
+        FrameReplay.Instance.RegisterObject(this);    
+    }
+
+    public void GameFrameTurn(List<protocol.FrameCommand> actions)
     {
         if (isWeapon)
         {
-            startTick -= delta;
+            startTick -= FrameReplay.deltaTime;
             if (startTick < 0)
             {
                 Destroy(gameObject);
                 isWeapon = false;
-                bFinished = true;
+                FrameReplay.Instance.UnRegisterObject(this);
+                return;
             }
+
+            yMove();
         }
     }
 
@@ -88,31 +94,26 @@ public class PickupItemAgent : MonoBehaviour, INetUpdate {
         }
         curve.postWrapMode = WrapMode.PingPong;
         curve.preWrapMode = WrapMode.PingPong;
-        StartCoroutine(yMove());
     }
 
     bool up = true;
     float yHeight = 5.0f;
     float initializeY = 0.0f;
-    IEnumerator yMove()
+    void yMove()
     {
-        while (true)
+        if (up)
         {
-            if (up)
-            {
-                transform.position = new Vector3(transform.position.x, transform.position.y + 5 * Time.deltaTime, transform.position.z);
-                if (transform.position.y >= initializeY + yHeight)
-                    up = false;
-            }
-            else
-            {
-                transform.position = new Vector3(transform.position.x, transform.position.y - 5 * Time.deltaTime, transform.position.z);
-                if (transform.position.y <= initializeY - yHeight)
-                    up = true;
-            }
-            transform.Rotate(new Vector3(0, 90 * Time.deltaTime, 0));
-            yield return 0;
+            transform.position = new Vector3(transform.position.x, transform.position.y + 5 * FrameReplay.deltaTime, transform.position.z);
+            if (transform.position.y >= initializeY + yHeight)
+                up = false;
         }
+        else
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y - 5 * FrameReplay.deltaTime, transform.position.z);
+            if (transform.position.y <= initializeY - yHeight)
+                up = true;
+        }
+        transform.Rotate(new Vector3(0, 90 * FrameReplay.deltaTime, 0));
     }
 
     public void OnPickup(MeteorUnit unit)
@@ -156,6 +157,7 @@ public class PickupItemAgent : MonoBehaviour, INetUpdate {
             unit.Attr.Weapon2 = weaponPickup;
             SFXLoader.Instance.PlayEffect(672, unit.gameObject, true);
             Destroy(gameObject);
+            FrameReplay.Instance.UnRegisterObject(this);
         }
     }
 }

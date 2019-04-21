@@ -29,8 +29,6 @@ public class SceneItemAgent : MonoBehaviour, INetUpdate {
     System.Func<int, int, int, int> OnAttackCallBack;
     System.Action<int, int> OnIdle;
     System.Reflection.MethodInfo OnTouch;
-    bool bFinished = false;
-    public bool Finished { get{ return bFinished; } }
     bool syncTouched = false;
     float initializeY;
     bool billBoard = false;
@@ -65,11 +63,11 @@ public class SceneItemAgent : MonoBehaviour, INetUpdate {
 
     //bool up = true;
     //float yHeight = 5.0f;
-    void yMove(int delta)
+    void yMove()
     {
         float y = curve.Evaluate(Global.Instance.GameTime());
         transform.position = new Vector3(transform.position.x, initializeY + 5 * y, transform.position.z);
-        transform.Rotate(new Vector3(0, 90 * delta / 1000.0f, 0));
+        transform.Rotate(new Vector3(0, 90 * FrameReplay.deltaTime, 0));
     }
 
     private void Awake()
@@ -83,7 +81,7 @@ public class SceneItemAgent : MonoBehaviour, INetUpdate {
     float refresh_tick;
     bool Refresh;
 
-    public void GameFrameTurn(int delta, List<protocol.FrameCommand> acts)
+    public void GameFrameTurn(List<protocol.FrameCommand> acts)
     {
         if (MethodOnIdle != null)
             MethodOnIdle.Invoke(Global.Instance.GScript, new object[] { InstanceId });
@@ -98,7 +96,8 @@ public class SceneItemAgent : MonoBehaviour, INetUpdate {
                 OnRefresh();
             }
         }
-        yMove(delta);
+        if (animate)
+            yMove();
     }
 
     public void OnPickup(MeteorUnit unit)

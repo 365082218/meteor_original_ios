@@ -275,7 +275,7 @@ public class CameraFollow : MonoBehaviour {
 
     public Vector3[] newViewIndex = new Vector3[3];
     int ViewIndex = 0;
-
+    //只允许改摄像机的矩阵，不允许修改其他场景对象的矩阵
     protected void CameraSmoothFollow(bool smooth = true)
     {
         //y = ax + b;
@@ -375,25 +375,8 @@ public class CameraFollow : MonoBehaviour {
         }
         else
         {
-            float yRotate = 0.0f;
-            //Y轴旋转，受到是否可旋转，以及当前是否有锁定对象决定
-            if (MeteorManager.Instance.LocalPlayer.posMng.CanRotateY)
-            {
-#if STRIP_KEYBOARD
-                //Debug.LogError(string.Format("deltaLast.x:{0}", NGUICameraJoystick.instance.deltaLast.x));
-                yRotate = NGUICameraJoystick.instance.deltaLast.x * GameData.Instance.gameStatus.AxisSensitivity.x;
-#else
-                yRotate = Input.GetAxis("Mouse X") * 5;
-#endif
-                if (yRotate != 0)
-                    MeteorManager.Instance.LocalPlayer.SetOrientation(yRotate, false);
-            }
-            float xRotate = 0;
-#if STRIP_KEYBOARD
-            xRotate = NGUICameraJoystick.instance.deltaLast.y * GameData.Instance.gameStatus.AxisSensitivity.y;
-#else
-            xRotate = Input.GetAxis("Mouse Y") * 2;
-#endif
+            float yRotate = MeteorManager.Instance.LocalPlayer.yRotateDelta;
+            float xRotate = MeteorManager.Instance.LocalPlayer.xRotateDelta;
             if (xRotate != 0.0f)
             {
                 //根据参数调整高度，和距离.

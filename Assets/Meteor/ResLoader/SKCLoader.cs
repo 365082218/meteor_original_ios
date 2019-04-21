@@ -82,6 +82,11 @@ public class MaterialUnit
     public bool TwoSide;
 }
 
+public class BoneWeightEx
+{
+    public int BoneIndex;
+    public float Weight;
+}
 public class SkcFile
 {
     int StaticSkins = 0;
@@ -265,38 +270,31 @@ public class SkcFile
                         uvv.x = float.Parse(subline[5]);
                         uvv.y = float.Parse(subline[6]);
                         BoneWeight weight = new BoneWeight();
+                        List<BoneWeightEx> boneW = new List<BoneWeightEx>();
                         int boneCtrlNum = int.Parse(subline[8]);
-                        switch (boneCtrlNum)
+                        for (int z = 9; z < 9 + 2 * boneCtrlNum; z += 2)
                         {
-                            case 1:
-                                weight.boneIndex0 = (int)float.Parse(subline[9]);
-                                weight.weight0 = float.Parse(subline[10]);
-                                break;
-                            case 2:
-                                weight.boneIndex0 = (int)float.Parse(subline[9]);
-                                weight.weight0 = float.Parse(subline[10]);
-                                weight.boneIndex1 = (int)float.Parse(subline[11]);
-                                weight.weight1 = float.Parse(subline[12]);
-                                break;
-                            case 3:
-                                weight.boneIndex0 = (int)float.Parse(subline[9]);
-                                weight.weight0 = float.Parse(subline[10]);
-                                weight.boneIndex1 = (int)float.Parse(subline[11]);
-                                weight.weight1 = float.Parse(subline[12]);
-                                weight.boneIndex2 = (int)float.Parse(subline[13]);
-                                weight.weight2 = float.Parse(subline[14]);
-                                break;
-                            case 4:
-                                weight.boneIndex0 = (int)float.Parse(subline[9]);
-                                weight.weight0 = float.Parse(subline[10]);
-                                weight.boneIndex1 = (int)float.Parse(subline[11]);
-                                weight.weight1 = float.Parse(subline[12]);
-                                weight.boneIndex2 = (int)float.Parse(subline[13]);
-                                weight.weight2 = float.Parse(subline[14]);
-                                weight.boneIndex3 = (int)float.Parse(subline[15]);
-                                weight.weight3 = float.Parse(subline[16]);
-                                break;
+                            int b = (int)float.Parse(subline[z]);
+                            float w = float.Parse(subline[z + 1]);
+                            //部分骨骼权重太低，剪掉这个骨骼
+                            if (w <= 0.005f)
+                            {
+                                Debug.LogError("忽略了权重为0的骨骼,");
+                                continue;
+                            }
+                            BoneWeightEx e = new BoneWeightEx();
+                            e.BoneIndex = b;
+                            e.Weight = w;
+                            boneW.Add(e);
                         }
+                        weight.boneIndex0 = boneW.Count >= 1 ? boneW[0].BoneIndex : 0;
+                        weight.weight0 = boneW.Count >= 1 ? boneW[0].Weight : 0;
+                        weight.boneIndex1 = boneW.Count >= 2 ? boneW[1].BoneIndex : 0;
+                        weight.weight1 = boneW.Count >= 2 ? boneW[1].Weight : 0;
+                        weight.boneIndex2 = boneW.Count >= 3 ? boneW[2].BoneIndex : 0;
+                        weight.weight2 = boneW.Count >= 3 ? boneW[2].Weight : 0;
+                        weight.boneIndex3 = boneW.Count >= 4 ? boneW[3].BoneIndex : 0;
+                        weight.weight3 = boneW.Count >= 4 ? boneW[3].Weight : 0;
                         boneWeight.Add(weight);
                         vec.Add(v);
                         uv.Add(uvv);
@@ -379,7 +377,7 @@ public class SkcFile
             string name = Target.resPath[i].Substring(idx + 1);
             idx = name.LastIndexOf(".");
             name = name.Substring(0, idx);
-            if (name == imgPath)
+            if (string.Equals(name, imgPath, StringComparison.OrdinalIgnoreCase))
                 return GetTexrture2DFromPath(Target.resPath[i]);
         }
         return null;
@@ -388,7 +386,9 @@ public class SkcFile
     public static Texture2D GetTexrture2DFromPath(string imgPath)
     {
         //读取文件
-        FileStream fs = new FileStream(imgPath, FileMode.Open, FileAccess.Read);
+        //WWW www = new WWW("file://" + imgPath);
+        //return www.texture;
+        FileStream fs = new FileStream(imgPath, FileMode.Open, FileAccess.Read);
         int byteLength = (int)fs.Length;
         byte[] imgBytes = new byte[byteLength];
         fs.Read(imgBytes, 0, byteLength);
@@ -396,6 +396,7 @@ public class SkcFile
         fs.Dispose();
         //转化为Texture2D
         Texture2D t2d = new Texture2D(0, 0);
+
         t2d.LoadImage(imgBytes);
         t2d.Apply();
         return t2d;

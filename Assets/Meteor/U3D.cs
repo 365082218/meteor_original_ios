@@ -312,7 +312,6 @@ public class U3D : MonoBehaviour {
             unit.transform.position = spawnPos;
             unit.transform.rotation = quat;
         }
-        U3D.InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
         return unit;
     }
 

@@ -32,7 +32,23 @@ public class ModelWnd:Window<ModelWnd>
             {
                 GameData.Instance.gameStatus.pluginModel[i].Check();
                 if (GameData.Instance.gameStatus.pluginModel[i].Installed)
-                    allModel.Add(GameData.Instance.gameStatus.pluginModel[i].ModelId);
+                {
+                    bool inserted = false;
+                    for (int j = 0; j < allModel.Count; j++)
+                    {
+                        if (GameData.Instance.gameStatus.pluginModel[i].ModelId < allModel[j])
+                        {
+                            inserted = true;
+                            allModel.Insert(j, GameData.Instance.gameStatus.pluginModel[i].ModelId);
+                            break;
+                        }
+                    }
+
+                    if (!inserted)
+                    {
+                        allModel.Add(GameData.Instance.gameStatus.pluginModel[i].ModelId);
+                    }
+                }
             }
         }
 
@@ -172,6 +188,7 @@ public class EscWnd : Window<EscWnd>
             FightWnd.Instance.Close();
         if (GameOverlayWnd.Exist)
             GameOverlayWnd.Instance.ClearSystemMsg();
+        FrameReplay.Instance.OnBattleFinished();
         //离开副本
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             ClientProxy.LeaveLevel();

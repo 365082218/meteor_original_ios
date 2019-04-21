@@ -192,7 +192,7 @@ public partial class GameBattleEx : Singleton<GameBattleEx> {
 
         if (Global.Instance.GLevelMode <= LevelMode.CreateWorld)
         {
-            timeClock += Time.deltaTime;
+            timeClock += FrameReplay.deltaTime;
             if (timeClock > (float)time)//时间超过，平局
             {
                 GameOver(2);
@@ -253,7 +253,7 @@ public partial class GameBattleEx : Singleton<GameBattleEx> {
             }
         }
 
-        timeDelay += Time.deltaTime;
+        timeDelay += FrameReplay.deltaTime;
         if (Global.Instance.GScript != null)
             Global.Instance.GScript.Scene_OnIdle();//每一帧调用一次场景物件更新.
         RefreshAutoTarget();
@@ -451,7 +451,6 @@ public partial class GameBattleEx : Singleton<GameBattleEx> {
         //上一局如果暂停了，新局开始都恢复
         Resume();
 
-        //只有单人模式，才从脚本恢复这些物件，否则都应该由服务器发出物件的信息恢复.
         if (Global.Instance.GScript != null)
         {
             Global.Instance.GScript.Scene_OnLoad();
@@ -464,8 +463,10 @@ public partial class GameBattleEx : Singleton<GameBattleEx> {
             RegisterCollision(MeteorManager.Instance.SceneItems[i]);
         }
 
-        if (Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Global.Instance.GLevelMode <= LevelMode.CreateWorld)
         {
+            OnCreatePlayer();
+
             if (Global.Instance.GScript != null)
                 Global.Instance.GScript.OnStart();
 
@@ -509,6 +510,12 @@ public partial class GameBattleEx : Singleton<GameBattleEx> {
         }
     }
 
+    public void OnCreateNetPlayer(protocol.Player_ player)
+    {
+        MeteorUnit unit = U3D.InitNetPlayer(player);
+        U3D.InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
+    }
+    //单机角色创建
     public void OnCreatePlayer()
     {
         //设置主角属性

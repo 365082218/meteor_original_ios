@@ -2,13 +2,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
+//using System.Diagnostics;
 using UnityEngine;
 
 public interface INetUpdate
 {
-    void GameFrameTurn(int gameFramesPerSecond, List<FrameCommand> actions);
-    bool Finished { get; }
+    void GameFrameTurn(List<FrameCommand> actions);
 }
 
 //帧指令接收器，用于存储从服务器/单机 时发送来的帧指令.FSC=FRAMESYNCCLIENT
@@ -31,28 +30,57 @@ public class FSC:Singleton<FSC>
         return null;
     }
 
-    public void OnDisconnected()
+    public void Reset()
     {
         frameCommand.Clear();
+    }
+
+    public void OnDisconnected()
+    {
+        Reset();
     }
 }
 
 //帧指令发送器，用于把客户端的操作发送到服务器/或FrameClient FSS=FRAMESYNCSERVER
+//存储客户端操作序列.
 public class FSS:Singleton<FSS>
 {
     List<TurnFrames> frameCommand = new List<TurnFrames>();
     public void OnDisconnected()
     {
+        Reset();
+    }
+
+    public void Reset()
+    {
         frameCommand.Clear();
     }
 
+    
     public void SyncTurn()
     {
-        TurnFrames t = frameCommand[FrameReplay.Instance.TurnIndex];
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+        {
+            //联机时客户端并没有操作,可以不向服务器发送之间的帧指令。但是服务器会生成默认的空操作
+            if (FrameReplay.Instance.TurnIndex >= frameCommand.Count)
+            {
+                return;
+            }
+            TurnFrames t = frameCommand[FrameReplay.Instance.TurnIndex];
             Common.SyncTurn(t);
+        }
         else
+        {
+            //如果是单机下，所有更新者都没有操作.生成默认的空操作，填充进来
+            if (FrameReplay.Instance.TurnIndex >= frameCommand.Count)
+            {
+                TurnFrames tAdd = new TurnFrames();
+                tAdd.turnIndex = (uint)FrameReplay.Instance.TurnIndex;
+                frameCommand.Add(tAdd);
+            }
+            TurnFrames t = frameCommand[FrameReplay.Instance.TurnIndex];
             FSC.Instance.OnReceiveCommand(t);
+        }
     }
 
     //在指定帧推入数据.
@@ -62,6 +90,20 @@ public class FSS:Singleton<FSS>
     }
 
     //在当前帧推入指令
+    public void PushMouseDelta(int playerId, float x, float y)
+    {
+        
+        TurnFrames t = GetTurnByFrame(FrameReplay.Instance.NextFrame);
+        FrameCommand cmd = new FrameCommand();
+        cmd.message = MeteorMsg.MsgType.SyncCommand;
+        //cmd.command = MeteorMsg.Command.MouseDelta;
+        //cmd.LogicFrame = (uint)FrameReplay.Instance.NextFrame;
+        //cmd.playerId = (uint)playerId;
+        //cmd.data5 = x;
+        //cmd.data6 = y;
+        t.commands.Add(cmd);
+    }
+
     public void Push(int action)
     {
         PushAction(FrameReplay.Instance.NextFrame, MeteorMsg.MsgType.SyncCommand, (MeteorMsg.Command)action);
@@ -101,7 +143,7 @@ public class FrameReplay : MonoBehaviour {
     public const int TurnMaxFrame = 5;//每个Turn5帧
     //角色更新顺序是由playerId由小到大跑.
     //场景物件顺序由物件ID由小到大跑.
-    private Stopwatch gameTurnSW;
+    //private Stopwatch gameTurnSW;
     public bool TurnStarted;
     //返回下一帧,单机插入指令，都需要在下一帧插入
     public int NextFrame
@@ -113,7 +155,8 @@ public class FrameReplay : MonoBehaviour {
     }
     private int LogicFrameIndex = 0;
     private int AccumilatedTime = 0;
-    private int LogicFrameLength = 50;
+    public const float deltaTime = LogicFrameLength / 1000.0f;
+    public const int LogicFrameLength = 50;
     public int TurnIndex = 0;
     TurnFrames nowTurn;//当前的Turn
     /// <summary>
@@ -144,9 +187,7 @@ public class FrameReplay : MonoBehaviour {
             //发送同步随机种子事件
             FSS.Instance.Command(1, MeteorMsg.MsgType.SyncCommand, MeteorMsg.Command.SyncRandomSeed);
             //发送创建主角色事件.
-            FSS.Instance.Command(2, MeteorMsg.MsgType.SyncCommand, MeteorMsg.Command.CreatePlayer);
-            //发送场景脚本初始化事件.
-            FSS.Instance.Command(3, MeteorMsg.MsgType.SyncCommand, MeteorMsg.Command.LevelStart);
+            //FSS.Instance.Command(2, MeteorMsg.MsgType.SyncCommand, MeteorMsg.Command.CreatePlayer);
             //向客户端发送首包.
             FSS.Instance.SyncTurn();
         }
@@ -158,11 +199,18 @@ public class FrameReplay : MonoBehaviour {
     private void Awake()
     {
         Instance = this;
+        //gameTurnSW = new Stopwatch();
     }
 
     public void OnBattleFinished()
     {
         TurnStarted = false;
+        AccumilatedTime = 0;
+        TurnIndex = 0;
+        LogicFrameIndex = 0;
+        TotalObjects.Clear();
+        FSS.Instance.Reset();
+        FSC.Instance.Reset();
     }
 
     public void OnDisconnected()
@@ -173,6 +221,8 @@ public class FrameReplay : MonoBehaviour {
         TurnStarted = false;
         TurnIndex = 0;
         LogicFrameIndex = 0;
+        AccumilatedTime = 0;
+        TotalObjects.Clear();
     }
 
     //called once per unity frame
@@ -188,6 +238,7 @@ public class FrameReplay : MonoBehaviour {
         while (AccumilatedTime > LogicFrameLength)
         {
             LogicFrame();
+            Debug.LogError("logicframe:" + LogicFrameIndex);
             AccumilatedTime = AccumilatedTime - LogicFrameLength;
         }
     }
@@ -202,8 +253,6 @@ public class FrameReplay : MonoBehaviour {
             if (acts[i].LogicFrame == logicF)
                 cacheActions.Add(acts[i]);
         }
-        if (cacheActions.Count == 0)
-            return null;
         return cacheActions;
     }
 
@@ -223,7 +272,7 @@ public class FrameReplay : MonoBehaviour {
         }
 
         List<FrameCommand> actions = GetAction(nowTurn.commands, LogicFrameIndex);
-        gameTurnSW.Start();
+        //gameTurnSW.Start();
 
         //update game
         //SceneManager.Manager.TwoDPhysics.Update(GameFramesPerSecond);
@@ -237,21 +286,10 @@ public class FrameReplay : MonoBehaviour {
                     switch (actions[i].command)
                     {
                         case MeteorMsg.Command.SyncRandomSeed:
-                            //UnityEngine.Random.InitState((int)actions[i].data1);
+                            UnityEngine.Random.InitState((int)actions[i].data1);
                             break;
                         case MeteorMsg.Command.CreatePlayer:
-                            GameBattleEx.Instance.OnCreatePlayer();
-                            break;
-                        //关卡开始.
-                        case MeteorMsg.Command.LevelStart:
-                            if (Global.Instance.GScript != null)
-                                Global.Instance.GScript.OnStart();
-
-                            for (int j = 0; j < MeteorManager.Instance.UnitInfos.Count; j++)
-                            {
-                                if (MeteorManager.Instance.UnitInfos[j].Attr != null)
-                                    MeteorManager.Instance.UnitInfos[j].Attr.OnStart();//AI脚本必须在所有角色都加载完毕后再调用
-                            }
+                            GameBattleEx.Instance.OnCreateNetPlayer(null);
                             break;
                     }
                     break;
@@ -265,28 +303,21 @@ public class FrameReplay : MonoBehaviour {
         List<INetUpdate> finished = new List<INetUpdate>();
         foreach (INetUpdate obj in GameObjects)
         {
-            obj.GameFrameTurn(LogicFrameLength, actions);
-            if (obj.Finished)
-                finished.Add(obj);
-        }
-
-        foreach (INetUpdate obj in finished)
-        {
-            TotalObjects.Remove(obj);
+            obj.GameFrameTurn(actions);
         }
 
         GameBattleEx.Instance.NetUpdate();
 
         LogicFrameIndex++;
         //当逻辑帧为 Turn序号
-        if (LogicFrameIndex == nowTurn.turnIndex * TurnMaxFrame)
+        if (LogicFrameIndex == (TurnIndex + 1) * TurnMaxFrame)
         {
             nowTurn = null;
             FSS.Instance.SyncTurn();
             TurnIndex++;
         }
-        gameTurnSW.Stop();
-        gameTurnSW.Reset();
+        //gameTurnSW.Stop();
+        //gameTurnSW.Reset();
     }
 
     public void NetUpdate()

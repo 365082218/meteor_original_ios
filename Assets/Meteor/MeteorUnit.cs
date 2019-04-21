@@ -23,7 +23,7 @@ public enum EBUFF_Type
 
 public class BuffMng:Singleton<BuffMng>
 {
-    public Dictionary<int, Buff> BufDict = new Dictionary<int, Buff>();
+    public SortedDictionary<int, Buff> BufDict = new SortedDictionary<int, Buff>();
     public void Clear()
     {
         BufDict.Clear();
@@ -199,7 +199,7 @@ public class Buff: INetUpdate
     }
 
     List<MeteorUnit> unitRemoved = new List<MeteorUnit>();
-    public void GameFrameTurn(int delta, List<protocol.FrameCommand> actions)
+    public void GameFrameTurn(List<protocol.FrameCommand> actions)
     {
         unitRemoved.Clear();
         switch (refresh_type)
@@ -208,13 +208,13 @@ public class Buff: INetUpdate
             case 99999://间隔多久刷一次，整体时间到了，删除对象
                 foreach (var each in Units)
                 {
-                    each.Value.refresh_tick -= Time.deltaTime;
+                    each.Value.refresh_tick -= FrameReplay.deltaTime;
                     if (each.Value.refresh_tick <= 0.0f)
                     {
                         unitRemoved.Add(each.Key);//整体时间到了，就不要算单轮了
                         continue;
                     }
-                    each.Value.refresh_round_tick -= Time.deltaTime;
+                    each.Value.refresh_round_tick -= FrameReplay.deltaTime;
                     if (each.Value.refresh_round_tick <= 0.0f)
                     {
                         each.Value.refresh_round_tick = refresh_delay;
@@ -234,7 +234,7 @@ public class Buff: INetUpdate
             case -1://状态，持续时间到了取消状态，且删除对象
                 foreach (var each in Units)
                 {
-                    each.Value.refresh_tick -= Time.deltaTime;
+                    each.Value.refresh_tick -= FrameReplay.deltaTime;
                     if (each.Value.refresh_tick <= 0.0f)
                         unitRemoved.Add(each.Key);
                 }
@@ -259,7 +259,7 @@ public class Buff: INetUpdate
     {
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
             return;
-        GameFrameTurn(Convert.ToInt32(Time.deltaTime * 1000), null);
+        GameFrameTurn(null);
     }
 }
 
@@ -685,23 +685,22 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
     List<SceneItemAgent> removedD = new List<SceneItemAgent>();
     List<SceneItemAgent> keyT = new List<SceneItemAgent>();
     List<SceneItemAgent> removedT = new List<SceneItemAgent>();
-    int GameFrame = 0;
-    private float AccumilatedTime = 0f;
-    private float FrameLength = 0.05f; //50 miliseconds
-    public void GameFrameTurn(int delta, List<protocol.FrameCommand> actions)
+    public float xRotateDelta = 0;
+    public float yRotateDelta = 0;
+    public void GameFrameTurn(List<protocol.FrameCommand> actions)
     {
         if (Climbing)
-            ClimbingTime += Time.deltaTime;
+            ClimbingTime += FrameReplay.deltaTime;
         else
             ClimbingTime = 0;
         if (posMng.Jump)
-            posMng.JumpTick += Time.deltaTime;
+            posMng.JumpTick += FrameReplay.deltaTime;
         keyM.Clear();
         keyM.AddRange(Damaged.Keys);
         removedM.Clear();
         foreach (var each in keyM)
         {
-            Damaged[each] -= Time.deltaTime;
+            Damaged[each] -= FrameReplay.deltaTime;
             //Debug.LogError("time:" + Time.deltaTime);
             if (Damaged[each] < 0.0f)
                 removedM.Add(each);
@@ -713,7 +712,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
         removedS.Clear();
         foreach (var each in keyS)
         {
-            Damaged2[each] -= Time.deltaTime;
+            Damaged2[each] -= FrameReplay.deltaTime;
             if (Damaged2[each] < 0.0f)
                 removedS.Add(each);
         }
@@ -727,7 +726,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
         removedD.Clear();
         foreach (var each in keyD)
         {
-            attackDelay[each] -= Time.deltaTime;
+            attackDelay[each] -= FrameReplay.deltaTime;
             if (attackDelay[each] < 0.0f)
                 removedD.Add(each);
         }
@@ -740,7 +739,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
         removedT.Clear();
         foreach (var each in keyT)
         {
-            touchDelay[each] -= Time.deltaTime;
+            touchDelay[each] -= FrameReplay.deltaTime;
             if (touchDelay[each] < 0.0f)
                 removedT.Add(each);
         }
@@ -771,15 +770,63 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
                 }
             }
         }
+
+        if (Attr.IsPlayer)
+        {
+            float yRotate = 0;
+            if (posMng.CanRotateY)
+            {
+#if STRIP_KEYBOARD
+                //Debug.LogError(string.Format("deltaLast.x:{0}", NGUICameraJoystick.instance.deltaLast.x));
+                yRotate = NGUICameraJoystick.instance.deltaLast.x * GameData.Instance.gameStatus.AxisSensitivity.x;
+#else
+                yRotate = Input.GetAxis("Mouse X") * 5;
+#endif
+            }
+            if (yRotate != 0)
+                MeteorManager.Instance.LocalPlayer.SetOrientation(yRotate, false);
+
+            float xRotate = 0;
+#if STRIP_KEYBOARD
+            xRotate = NGUICameraJoystick.instance.deltaLast.y * GameData.Instance.gameStatus.AxisSensitivity.y;
+#else
+            xRotate = Input.GetAxis("Mouse Y") * 2;
+#endif
+            //把Mouse的移动事件/触屏的拖拽事件发送到
+            FSS.Instance.PushMouseDelta(InstanceId, xRotate, yRotate);
+        }
+        xRotateDelta = 0;
+        yRotateDelta = 0;
+        for (int i = 0; i < actions.Count; i++)
+        {
+            if (actions[i].playerId == InstanceId)
+            {
+                ProcessCommand(actions[i]);
+            }
+        }
     }
-    //void Update()
-    //{
-    //    if (IsDebugUnit())
-    //        return;
-    //    if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
-    //        return;
-    //    GameFrameTurn(Convert.ToInt32(Time.deltaTime * 1000), null);
-    //}
+
+    //解析角色的真动作.
+    protected void ProcessCommand(protocol.FrameCommand command)
+    {
+        if (command.message != protocol.MeteorMsg.MsgType.SyncCommand)
+            Debug.LogError("error");
+        //switch (command.command)
+        //{
+        //    case protocol.MeteorMsg.Command.MouseDelta:
+        //        OnPlayerMouseDelta(command.data5, command.data6);
+        //        break;
+        //}
+    }
+
+    protected void OnPlayerMouseDelta(float x, float y)
+    {
+        if (y != 0)
+            MeteorManager.Instance.LocalPlayer.SetOrientation(y, false);
+        //存储上一帧鼠标或者触屏的偏移.
+        xRotateDelta = x;
+        yRotateDelta = y;
+    }
 
     //刷新敌人，视野内的可拾取道具
     public SceneItemAgent GetSceneItemTarget()
