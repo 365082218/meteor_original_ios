@@ -19,31 +19,11 @@ public class Global
         }
     }
 
-    public void NetUpdate()
-    {
-        Frame++;
-    }
-
-    private int Frame = 0;
-    public int FrameIndex
-    {
-        get
-        {
-            return Frame;
-        }
-    }
     public float GameTime()
     {
-        return FrameIndex * 0.02f;
+        return FrameReplay.Instance.LogicFrameIndex * 0.02f;
     }
 
-    //网络和单机的时间不一致
-    public float TimeDelta()
-    {
-        if (GLevelMode == LevelMode.MultiplyPlayer)
-            return 0.02f;
-        return Time.deltaTime;
-    }
     public ServerInfo Server;//当前选择的服务器.
     public List<ServerInfo> Servers = new List<ServerInfo>();
     public float FPS = 1.0f / 30.0f;//动画设计帧率
@@ -177,7 +157,7 @@ public class Global
         return null;
     }
 
-    public string GetCharacter(int id)
+    public string GetCharacterName(int id)
     {
         if (id >= Global.MaxModel)
         {

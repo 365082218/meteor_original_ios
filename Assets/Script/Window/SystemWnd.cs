@@ -63,7 +63,7 @@ public class ModelWnd:Window<ModelWnd>
     {
         UIFunCtrl obj = (GameObject.Instantiate(Resources.Load("UIFuncItem")) as GameObject).GetComponent<UIFunCtrl>();
         obj.SetEvent(ChangeModel, Idx);
-        obj.SetText(Global.Instance.GetCharacter(Idx));
+        obj.SetText(Global.Instance.GetCharacterName(Idx));
         obj.transform.SetParent(GridViewRoot.transform);
         obj.gameObject.layer = GridViewRoot.layer;
         obj.transform.localScale = Vector3.one;

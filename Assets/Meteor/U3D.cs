@@ -2,8 +2,6 @@
 using System.Collections;
 using UnityEngine.UI;
 using SLua;
-//用于跨语言交互，由其他语言，反向调用此类的函数.
-//using LuaInterface;
 using System.Collections.Generic;
 using System;
 using System.IO;
@@ -16,47 +14,17 @@ using System.ComponentModel;
 
 [CustomLuaClassAttribute]
 public class U3D : MonoBehaviour {
-    public static U3D ins = null;
+    public static U3D Instance = null;
     void Awake()
     {
-        if (ins == null)
-            ins = this;
-    }
-    // Use this for initialization
-    void Start() {
-        if (ins != this)
-            DestroyImmediate(this);
-    }
-
-    //控制场景上的文本的函数
-    public static void TextAppend(string str)
-    {
-        if (string.IsNullOrEmpty(str))
-            return;
-        Say(-1, str);
-    }
-
-    public static void TextClear()
-    {
-        //if (SceneControl.ins != null)
-        //	SceneControl.ins.TextClear ();
-    }
-
-    //清除所有在此场景物品实例化的按钮,即场景实物，并不清除实务本身.
-    //不清除 Menu
-    public static void ItemsObjClear()
-    {
-        //if (SceneControl.ins != null)
-        //	SceneControl.ins.ItemsClear();
+        if (Instance == null)
+            Instance = this;
     }
 
     public static void ReloadTable()
     {
         TblCore.Instance.Reload();
-        //底下这种架构不好，要一个个调用，非常麻烦的，暂时这样
         LevelMng.Instance.ReLoad();
-        LoadingTipsManager.Instance.ReLoad();
-        //UnitMng.Instance.ReLoad();
         WeaponMng.Instance.ReLoad();
     }
 
@@ -105,7 +73,19 @@ public class U3D : MonoBehaviour {
     //取得随机英雄ID
     public static int GetRandomUnitIdx()
     {
-        return UnityEngine.Random.Range(0, ModelMng.Instance.GetAllItem().Length);
+        List<int> all = new List<int>();
+        for (int i = 0; i < Global.MaxModel; i++)
+        {
+            all.Add(i);
+        }
+        for (int i = 0; i < GameData.Instance.gameStatus.pluginModel.Count; i++)
+        {
+            GameData.Instance.gameStatus.pluginModel[i].Check();
+            if (!GameData.Instance.gameStatus.pluginModel[i].Installed)
+                continue;
+            all.Add(GameData.Instance.gameStatus.pluginModel[i].ModelId);
+        }
+        return all[UnityEngine.Random.Range(0, all.Count)];
     }
 
     public static EUnitCamp GetAnotherCamp(EUnitCamp camp)
@@ -463,139 +443,13 @@ public class U3D : MonoBehaviour {
         GameOverlayWnd.Instance.InsertSystemMsg(msg);
     }
 
-    //从mapunit.xls读取idx原件，放到当前场景上,只是放到配置上。但是不生成
-    public static void AddMapUnit(int mapunitIdx)
-    {
-        //SceneMng.MakeInstance(mapunitIdx);
-    }
-
-    //删除一个指定名称的按钮.若有相同的，则删除找到的最后一个.
-    public static void RemoveMenu(string menu)
-    {
-        if (string.IsNullOrEmpty(menu))
-        {
-            Debug.LogError("is a hide button");
-        }
-        //if (SceneControl.ins != null)
-        //    SceneControl.ins.RemoveMenuObj(menu);
-    }
-
-    
-    //增加一个按钮，但按钮是没有状态的，下次进这个场景，这个按钮不存在
-    //要添加可以在此场景保存的物品，调用AddMapUnit.这个讲会在重进入场景时，复原.
-	public static void AddMenu(string menu, LuaFunction fn)
-	{
-		if (string.IsNullOrEmpty (menu)) {
-			Debug.LogError ("is a hide button");
-		}
-		if (fn == null) {
-			Debug.LogError ("a invalid function");
-			return;
-		}
-		//if (SceneControl.ins != null)
-		//	SceneControl.ins.AddMenuObj (menu, fn);
-	}
-
-    //清理掉加到场景 物件 部分的 按钮，对NPC,随机怪，场景物件不管
-    public static void MenuClear()
-    {
-        //SceneControl.ins.MenuClear();
-    }
-
-    public static void EnterMap(int mapid, int x, int y)
-	{
-  //      EntryPoint ept = new EntryPoint();
-  //      ept.cityIdx = mapid;
-  //      ept.cellIdx = new Cell();
-  //      ept.cellIdx.cellX = x;
-  //      ept.cellIdx.cellY = y;
-		//SceneMng.EntryMap (ept);
-	}
-
-    //查看物品元数据.基础表格信息
-	public static void ViewItem(int unitid)
-	{
-		//Camera.main.gameObject.GetComponent<Startup> ().ShowItemInfo (unitid);
-	}
-
-    //请教NPC
-    public static void FightWithNpc(int npcIdx)
-    {
-        
-    }
-
-    //杀死NPC
-    public static void KillNpc(int npcIdx)
-    {
-        
-    }
-
-    public static bool FindNpc(int idx, int mapidx, int cellx, int celly)
-    {
-        //EntryPoint ep = new EntryPoint();
-        //ep.cityIdx = mapidx;
-        //ep.cellIdx = new Cell(cellx, celly);
-        //return SceneMng.FindNpc(idx, ep);
-        return false;
-    }
-
-    //点击下方的 物品，NPC按钮，弹出一个简单提示
+    //弹出一个简单提示
     public static void PopupTip(string str)
     {
         PopupTip tip = WsWindow.OpenMul<PopupTip>(WsWindow.PopupTip);
         tip.Popup(str);
     }
-    public static void PopupTip(int strIden)
-    {
-        PopupTip tip = WsWindow.OpenMul<PopupTip>(WsWindow.PopupTip);
-        LangBase langIt = GameData.Instance.langMng.GetRowByIdx((int)strIden) as LangBase;
-        string str = "";
-        if (Lang == (int)LanguageType.Ch && langIt != null)
-        str = langIt.Ch;
-        if (Lang == (int)LanguageType.En && langIt != null)
-            str = langIt.En;
-        tip.Popup(str);
-    }
 
-    //为所有的类包装.脚本里只需要在调用这里的函数.
-    public static void AddItem(int idx, uint count)
-    {
-        //Player.Instance.AddItem(name, count);
-    }
-
-    public static void OnDeadEnd()
-    {
-        //SceneMng.OnDeadEnd();
-    }
-
-    public static void OnDead(int battleId, LuaFunction fn)
-    {
-        //SceneMng.OnDead(battleId, fn);
-    }
-
-    public static void StartBattle(int battleid)
-    {
-        //SceneMng.StartBattle(battleid);
-    }
-
-    //完成指定任务上带的战斗.
-    public static void StartTaskBattle(int task, LuaFunction onSuccessful)
-    {
-        //TaskUnit ta = GameData.FindTaskByIdx(task);
-        //if (ta.TaskType == (int)TaskType.BattleDone)
-        //{
-        //    if (onSuccessful != null)
-        //        OnDead(ta.CompleteBattleId, onSuccessful);//战斗胜利后调用剧情.保留在战斗界面.
-        //    SceneMng.StartBattle(ta.CompleteBattleId);
-
-        //}
-    }
-
-    public static bool ContainsItem(string item)
-    {
-        //return SceneMng.ContainsItem(item);
-        return false;
-    }
     static UnityEngine.AsyncOperation backOp;
     static UnityEngine.AsyncOperation loadMainOp;
     static Coroutine loadMain;
@@ -605,10 +459,10 @@ public class U3D : MonoBehaviour {
         Global.Instance.GLevelItem = null;
         if (loadMain != null)
         {
-            ins.StopCoroutine(loadMain);
+            Instance.StopCoroutine(loadMain);
             loadMain = null;
         }
-        loadMain = ins.StartCoroutine(ins.LoadMainWnd(t));
+        loadMain = Instance.StartCoroutine(Instance.LoadMainWnd(t));
     }
 
     //修改版本号后回到Startup重新加载资源
@@ -617,10 +471,10 @@ public class U3D : MonoBehaviour {
         Global.Instance.GLevelItem = null;
         if (loadMain != null)
         {
-            ins.StopCoroutine(loadMain);
+            Instance.StopCoroutine(loadMain);
             loadMain = null;
         }
-        loadMain = ins.StartCoroutine(ins.LoadStartup());
+        loadMain = Instance.StartCoroutine(Instance.LoadStartup());
     }
 
     IEnumerator LoadStartup()
@@ -632,7 +486,6 @@ public class U3D : MonoBehaviour {
 
     IEnumerator LoadMainWnd(Action t)
     {
-        //Debug.LogError("LoadScenes Menu");
         ResMng.LoadScene("Menu");
         loadMainOp = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Menu", UnityEngine.SceneManagement.LoadSceneMode.Single);//.LoadSceneAsync_s (1);
         yield return loadMainOp;
@@ -645,13 +498,6 @@ public class U3D : MonoBehaviour {
         GameData.Instance.SaveState();
         if (t != null)
             t.Invoke();
-    }
-
-    //当前场景里的一个宝箱是否是空的.
-    public static bool ItemIsEmpty(string mapObject)
-    {
-        //return SceneMng.ItemIsEmpty(mapObject);
-        return false;
     }
 
     public static FileStream save;
@@ -694,21 +540,6 @@ public class U3D : MonoBehaviour {
         save = null;
     }
 
-    public static void PlaySound(string wav)
-    {
-        
-    }
-
-    public static void NpcTalkClose()
-    {
-        WsWindow.Close(WsWindow.NpcTalkPanel);    
-    }
-
-    //模拟炼铁狱全BUFF
-    public static void Fullup()
-    {
-    }
-
     public static void OpenRobotWnd()
     {
         if (RobotWnd.Exist)
@@ -743,155 +574,12 @@ public class U3D : MonoBehaviour {
                 NGUIJoystick.instance.Lock(true);
             return;
         }
-
-        //WsWindow.Close(WsWindow.System);
-        //GameObject ctrl = WsWindow.Open(WsWindow.System);
-        //RectTransform rectTran = ctrl.GetComponent<RectTransform>();
-        //if (rectTran != null)
-        //    rectTran.sizeDelta = new Vector2(0, 0);
     }
 
-    
-
-    //开启一个传送点，可以从此传送点，传送到目的位置
-    public static void EnableGate(int sourceDoor)
-    {
-        //GameData.save.loadDoneList;
-    }
-
-    //显示0-4 全部-道术师-步兵-骑兵-弓弩手 供招募的
-    public static void ShowEmploy(int type)
-    {
-        ArmyShopCtrl ctrl =  WsWindow.Open<ArmyShopCtrl>(WsWindow.ArmyShop);
-        RectTransform rectTran = ctrl.GetComponent<RectTransform>();
-        if (rectTran != null)
-        {
-            rectTran.sizeDelta = new Vector2(0, 0);
-            //rectTran.anchorMin = new Vector2(0, 0);
-            //rectTran.anchorMax = new Vector2(1, 1);
-        }
-        ctrl.BindArmyType(type);
-        ctrl.Reset();
-        ctrl.UpdateUI();
-    }
-
-    public static void EnableUIFunc(int func)
-    {
-        //UIFunction fun = GameData.FindUIFunc(func);
-        //if (fun != null)
-        //{
-        //    if (!GameData.MainRole.EnableUIFunc.ContainsKey(func))
-        //    {
-        //        GameData.MainRole.EnableUIFunc.Add(func, false);//false指示这个UI功能还没有点击过.
-        //        if (MainCityCtrl.Ins != null)
-        //            MainCityCtrl.Ins.UpdateUI();
-        //    }
-        //}
-    }
-
-    //通过官阶来开启可招募士兵.
-    public static void EnableArmyLevel(int level)
-    {
-        //for (int i = 0; i < GameData.Data.MonsterList.Count; i++)
-        //{
-        //    if (GameData.Data.MonsterList[i].Level == level)
-        //        EnableArmy(GameData.Data.MonsterList[i].Idx);
-        //}
-    }
-
-    public static void EnableBuild(int build)
-    {
-        //MapObject objBuild = GameData.FindNpcById(npc);
-        //foreach (var each in WorkFactory.Ins.Factory)
-        //{
-        //    if (objBuild.PropertyIdx == each.Value.BuildingPropertyIdx)
-        //        return;
-        //}
-    }
-
-    //这种技能都是兵种大类属性技能，比如骑术，骑兵的护甲
-    public static void EnableSkill(int skill)
-    {
-        
-    }
-
-    public static void PlayBtnAudio()
+    public static void PlayBtnAudio(string audio = "btn")
     {
         if (SoundManager.Instance != null)
-            SoundManager.Instance.PlaySound("btn");
-    }
-
-    //显示建筑列表，包括可建造及已建造的
-    public static void ShowBuild()
-    {
-        //BuildListCtrl.Ins.Open();
-    }
-
-    public static void ChangeLang(int lang)
-    {
-        //重新加载数据
-        Lang = lang;
-        //GameData.LoadData();
-        //if (GameData.save != null)
-        //    GameData.save.ChangeLanguage(lang);
-        LangItem.ChangeLang();
-        //MainCityCtrl.Ins.ChangeLang();
-        //MainTownCtrl.Ins.ChangeLang();
-        //BuildListCtrl.Ins.ChangeLang();
-    }
-
-    public static void OpenLangSel()
-    {
-        LanguageSelectCtrl ctrl = WsWindow.Open<LanguageSelectCtrl>(WsWindow.LanguageSelect);
-        RectTransform rectTran = ctrl.GetComponent<RectTransform>();
-        if (rectTran != null)
-            rectTran.sizeDelta = new Vector2(0, 0);
-        ctrl.UpdateUI();
-    }
-
-    public static bool EatFood()
-    {
-        //在作战行囊里找到食物，如果有则吃掉一个，没有返回false;
-        //UnitId.Food
-        //if (GameData.MainInventory.GetItemCount((int)UnitId.Food) > 0)
-        //{
-        //    GameData.MainInventory.RemoveItemCnt((int)UnitId.Food, 1);
-        //    return true;
-        //}
-        return false;
-    }
-
-    //允许用一些物品合成一件物品.
-    public static void EnableMakeItem(int idx)
-    {
-        ItemBase it = GameData.Instance.FindItemByIdx(idx);
-        if (it != null)
-        {
-            //if (!GameData.MainRole.EnableMakeList.Contains(idx))
-            //{
-            //    GameData.MainRole.EnableMakeList.Add(idx);
-                
-            //    //可以新制造一件物品的时候，UI功能制造按钮，会重新设置为没点击过
-            //    if (GameData.MainRole.EnableUIFunc.ContainsKey((int)UIFuncType.Produce))
-            //        GameData.MainRole.EnableUIFunc[(int)UIFuncType.Produce] = true;
-            //    MainCityCtrl.Ins.AppendText(LangItem.GetLangString(StringIden.CanMake) + StringTbl.unitPrefix + it.Name + StringTbl.unitSuffix);
-            //    MainCityCtrl.Ins.UpdateUI();
-            //}
-        }
-    }
-
-    public static void SaveLastLevelData()
-    {
-        //if (GameData.MainRole.lastLevel != 0)
-        //{
-        //    if (SceneMng.hasLoaded(GameData.MainRole.lastLevel))
-        //    {
-        //        //只要是要存储的都会绑定一个此数据.在剔除一个场景序列化对象时,会先在对应的 mapObject里删除掉那一项数据
-        //        MapUnitCtrl[] ctrls = GameObject.FindObjectsOfType<MapUnitCtrl>();
-        //        for (int i = 0; i < ctrls.Length; i++)
-        //            ctrls[i].Save();
-        //    }
-        //}
+            SoundManager.Instance.PlaySound(audio);
     }
 
     public static void LoadNetLevel()
@@ -899,39 +587,33 @@ public class U3D : MonoBehaviour {
         NetWorkBattle.Ins.Load();
     }
 
-    //加载当前设置的关卡.
+    //加载当前设置的关卡.在打开模组剧本时/联机时
     public static void LoadLevelEx()
     {
-        uint profileTotalAllocate = Profiler.GetTotalAllocatedMemory();
-        uint profileTotalReserved = Profiler.GetTotalReservedMemory();
-        long gcTotal = System.GC.GetTotalMemory(false);
         if (FightWnd.Exist)
             FightWnd.Instance.Close();
         WindowMng.CloseAll();
         //暂时不允许使用声音管理器，在切换场景时不允许播放
         SoundManager.Instance.StopAll();
         SoundManager.Instance.Enable(false);
-        SaveLastLevelData();
         ClearLevelData();
         LoadingWnd.Instance.Open();
         Resources.UnloadUnusedAssets();
         GC.Collect();
-        LevelHelper helper = ins.gameObject.AddComponent<LevelHelper>();
+        LevelHelper helper = Instance.gameObject.AddComponent<LevelHelper>();
         helper.Load();
         Log.Write("helper.load end");
     }
 
-    //走内置关卡.
+    //走参数指定关卡.
     public static void LoadLevel(int id, LevelMode levelmode, GameMode gamemode)
     {
-        GameData.Instance.SaveState();
         if (FightWnd.Exist)
             FightWnd.Instance.Close();
         WindowMng.CloseAll();
         //暂时不允许使用声音管理器，在切换场景时不允许播放
         SoundManager.Instance.StopAll();
         SoundManager.Instance.Enable(false);
-        SaveLastLevelData();
         ClearLevelData();
         Level lev = LevelMng.Instance.GetItem(id);
         Global.Instance.GLevelItem = lev;
@@ -954,7 +636,7 @@ public class U3D : MonoBehaviour {
                 }
             }
         }
-        LevelHelper helper = ins.gameObject.AddComponent<LevelHelper>();
+        LevelHelper helper = Instance.gameObject.AddComponent<LevelHelper>();
         helper.Load();
         Log.Write("helper.load end");
     }
@@ -972,7 +654,7 @@ public class U3D : MonoBehaviour {
         LevelScriptBase.Clear();
         Global.Instance.CampASpawnIndex = 0;
         Global.Instance.CampBSpawnIndex = 0;
-
+        Global.Instance.SpawnIndex = 0;
         if (MeteorManager.Instance.Pet != null)
         {
             GameObject.Destroy(MeteorManager.Instance.Pet.gameObject);
@@ -1104,16 +786,6 @@ public class U3D : MonoBehaviour {
             agent.SetSceneItem(feature, value);
     }
 
-    public static SceneItemAgent GetSceneFlag()
-    {
-        for (int i = 0; i < MeteorManager.Instance.SceneItems.Count; i++)
-        {
-            if (MeteorManager.Instance.SceneItems[i].ItemInfo != null && MeteorManager.Instance.SceneItems[i].ItemInfo.IsFlag())
-                return MeteorManager.Instance.SceneItems[i];
-        }
-        return null;
-    }
-
     public static SceneItemAgent GetSceneItem(string name)
     {
         for (int i = 0; i < MeteorManager.Instance.SceneItems.Count; i++)
@@ -1165,8 +837,6 @@ public class U3D : MonoBehaviour {
 
     public static void CreateEffect(string target, string effect, bool loop = false)
     {
-        if (effect == "GiMaHIT")
-            Debug.LogError("find");
         GameObject objEffect = null;
         for (int i = 0; i < Loader.Instance.transform.childCount; i++)
         {
@@ -1180,6 +850,7 @@ public class U3D : MonoBehaviour {
         if (SFXLoader.Instance != null && objEffect != null)
             SFXLoader.Instance.PlayEffect(effect, objEffect, !loop);
     }
+
     public static void CreateEffect(int id, string effect)
     {
         SceneItemAgent[] agents = FindObjectsOfType<SceneItemAgent>();
@@ -1194,18 +865,6 @@ public class U3D : MonoBehaviour {
         }
         if (SFXLoader.Instance != null && objEffect != null)
             SFXLoader.Instance.PlayEffect(effect, objEffect.gameObject, true);
-
-        if (syncToServer)
-        {
-            //???同步特效生成到服务器，服务器告诉其他客户端，在该物件上产生一个特效.
-        }
-    }
-
-    //开启同步和关闭同步，这里先放着，等联机时实现
-    public static bool syncToServer = false;
-    public static void NetEvent(int status)
-    {
-        syncToServer = status == 1;
     }
 
     public static MeteorUnit GetTeamLeader(EUnitCamp camp)
@@ -1333,9 +992,11 @@ public class U3D : MonoBehaviour {
             }
             else if (act == "run")
             {
-                //乱跑.可能是一段时间在主角附近找一个4层路点，然后跑到该路点去，到达之后，重复重复再重复.
-                MeteorUnit un = GetUnit(id);
-                Debug.Log(string.Format("level:{0} player:{1} run", Global.Instance.GLevelItem.ID, un.name));
+                //不再实现，类似AI意义不大，四处跑，即寻找一个临近路点，跑过去.
+            }
+            else if (act == "dodge")
+            {
+                //不再实现，类似AI意义不大，寻找一个目标临近路点，跑过去.
             }
         }
     }
@@ -1413,10 +1074,6 @@ public class U3D : MonoBehaviour {
                 return MeteorManager.Instance.DeadUnits[i].InstanceId;
         }
         return -1;
-    }	// including dead char
-    public static int GetSelf(int self)
-    {
-        return self;
     }
 
     public static int GetAngry(int id)
@@ -1456,18 +1113,13 @@ public class U3D : MonoBehaviour {
             return enemy.InstanceId;
         return -1;
     }
-    public static int GetLeader(int id)
-    {
-        return 0;
-    }
-    public static int GetGameTime()
-    {
-        return 0;
-    }
+
+    //场景发生破坏后，对路点的影响.
     public static int EnableWaypoints(int a, int b, params int[] way)
     {
         return 0;
     }
+
     public static int DisableWaypoints(int a, int b, params int[] way)
     {
         return 0;
@@ -1555,10 +1207,7 @@ public class U3D : MonoBehaviour {
             Say(0, content);
         return 0;
     }
-    public static int PlayerPerform(int id, string pose, params int[] fun)
-    {
-        return 0;
-    }
+
     // pose="say", "pause", "use", "block"
     public static int StopPerform(int id)
     {
@@ -1573,17 +1222,7 @@ public class U3D : MonoBehaviour {
         }
         return 0;
     }
-    public static int IsPerforming(int player)
-    {
-        if (GameBattleEx.Instance != null)
-            return GameBattleEx.Instance.IsPerforming(player) ? 1: 0;
-        return 0;
-    }
 
-    public static int SetTarget(int idx, string type, params int[] fun)
-    {
-        return 0;
-    }
     // type="char", "waypoint", "flag", "safe"
     //获得2个角色的距离.
     public static float Distance(int idx1, int idx2)
@@ -1605,7 +1244,7 @@ public class U3D : MonoBehaviour {
     }
 
     //单机下
-    public static void RotateNpc(string name, float yRotate)
+    public static void RotatePlayer(string name, float yRotate)
     {
         if (Global.Instance.GLevelItem != null && Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
         {
@@ -1619,7 +1258,7 @@ public class U3D : MonoBehaviour {
         }
     }
 
-    public static void MoveNpc(string name, Vector3 position)
+    public static void MovePlayer(string name, Vector3 position)
     {
         if (Global.Instance.GLevelItem != null && Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
         {
@@ -1661,11 +1300,6 @@ public class U3D : MonoBehaviour {
         monster.Attr.UpdateAttr();
     }
 
-    public static int Call(int id, string functionName, params object[] param)
-    {
-        return 0;
-    }
-
     public static MeteorUnit GetUnit(int id)
     {
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
@@ -1687,11 +1321,6 @@ public class U3D : MonoBehaviour {
     {
         if (GameBattleEx.Instance != null)
             GameBattleEx.Instance.PushActionSay(id, param);//1=say 2=pause
-    }
-
-    public static int Print(int a, string b, string c, params object[] param)
-    {
-        return 0;
     }
 
     static WebClient downloadMovie;
@@ -1764,7 +1393,7 @@ public class U3D : MonoBehaviour {
         int total = 0;
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
         {
-            if (MeteorManager.Instance.UnitInfos[i].Camp != EUnitCamp.EUC_FRIEND)
+            if (MeteorManager.Instance.UnitInfos[i].Camp != EUnitCamp.EUC_Meteor)
                 total++;
         }
         return total;
@@ -1793,15 +1422,6 @@ public class U3D : MonoBehaviour {
             u.AddAngry(angry);
     }
 
-    //角色放大招
-    public static void PlaySkill(int player)
-    {
-        MeteorUnit u = GetUnit(player);
-        if (u != null)
-            u.PlaySkill();
-    }
-
-    //665->剔骨 W11_4
     public static void Drop(int itemIdx)
     {
         MakeItem(itemIdx);
@@ -1814,25 +1434,7 @@ public class U3D : MonoBehaviour {
             DropMng.Instance.DropWeapon2(it.UnitId);
         else if (it.MainType == 2)//
         {
-
-        }
-    }
-
-    public static int Lang
-    {
-        get
-        {
-            if (GameData.Instance.gameStatus == null)
-                return (int)LanguageType.En;
-            else
-                return GameData.Instance.gameStatus.Language;
-        }
-        set
-        {
-            if (GameData.Instance.gameStatus == null)
-                return;
-            else
-                GameData.Instance.gameStatus.Language = value;
+            //其他物品，暂时没有其他道具系统.
         }
     }
 
@@ -1840,11 +1442,6 @@ public class U3D : MonoBehaviour {
     {
         GameObject objCamera = GameObject.Find("CameraEx");
         return objCamera == null ? null : objCamera.GetComponent<Camera>();
-    }
-
-    public static bool IsWeapon(int itemIdx)
-    {
-        return itemIdx != 0;
     }
 
     public static bool IsSpecialWeapon(EquipWeaponType t)
@@ -1868,6 +1465,7 @@ public class U3D : MonoBehaviour {
 
     public static int GetMaxLevel()
     {
+        //内置关卡的最后一个关卡.
         Level[] level = LevelMng.Instance.GetAllItem();
         if (level == null)
             return 0;
@@ -1943,12 +1541,6 @@ public class U3D : MonoBehaviour {
         }
     }
 
-    //战场上找到一个对象
-    public static GameObject Find(string name)
-    {
-        return GameObject.Find(name);
-    }
-
     //以下为脚本系统执行面板里能响应的操作
     public static void GodLike()
     {
@@ -1964,11 +1556,6 @@ public class U3D : MonoBehaviour {
         if (w == null)
             Debug.LogError("can not find weapon:" + weaponIdx);
         return w;
-    }
-
-    public static ItemBase GetItemProperty(int item)
-    {
-        return GameData.Instance.FindItemByIdx(item);
     }
 
     public static void DeletePlugins()

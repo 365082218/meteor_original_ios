@@ -446,19 +446,6 @@ public class FightWnd : Window<FightWnd>
         return base.OnClose();
     }
 
-    private void OnClickPause(GameObject go)
-    {
-        int size = UIMoveControl.mUIMoveControlList.Count;
-        for (int i = 0; i < size; i++)
-        {
-            UIMoveControl.mUIMoveControlList[i].SetEndPos();
-        }
-        if (Exist)
-            WndObject.SetActive(false);
-        if (!PauseWnd.Exist)
-            PauseWnd.Instance.Open();
-    }
-
     //弹出剧情.
     public void InsertFightMessage(string text)
     {

@@ -143,40 +143,6 @@ class ProtoHandler
             messageQueue.Add(msg);
     }
 
-    static void OnPlayerInsert(RBase req)
-    {
-        PlayerEnterMap insert = req as PlayerEnterMap;
-        if (insert != null)
-        {
-            //把场景上的此玩家删除掉.
-            string strTip = "玩家:";
-            foreach (var each in insert.insertPlayer)
-            {
-                strTip += each.Value.Name + " ";
-            }
-            strTip += "进入";
-            U3D.PopupTip(strTip);
-            //insert.insertPlayer;
-        }
-    }
-
-    static void OnPlayerLeave(RBase req)
-    {
-        PlayerEnterMap remove = req as PlayerEnterMap;
-        if (remove != null)
-        {
-            //把场景上的此玩家删除掉.
-            string strTip = "玩家:";
-            foreach (var each in remove.insertPlayer)
-            {
-                strTip += each.Value.Name + " ";
-            }
-            strTip += "离开";
-            U3D.PopupTip(strTip);
-            //insert.insertPlayer;
-        }
-    }
-
     //某人发来一段语音,显示一个按钮，点击了就播放这段语音即可.
     static void OnReceiveAudioMsg(AudioChatMsg msg)
     {

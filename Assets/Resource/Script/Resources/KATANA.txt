@@ -1,4 +1,4 @@
-string Name = "�ԤM";
+string Name = "忍刀";
 int Model = 10;
 int Weapon = 55;
 int Weapon2 = 0;

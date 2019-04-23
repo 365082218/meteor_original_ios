@@ -1,9 +1,0 @@
-﻿
-  local function HaveARest()
-  U3D.HaveARest()
-  U3D.NpcTalkClose()
-  end
-  --家具，床上休息
-  function main()
-  HaveARest()
-  end

@@ -43,7 +43,7 @@ public enum GameMode
 public class ModelInfo:ITableItem
 {
     public int Key() { return ID; }
-    public SmartInt ID
+    public int ID
     {
         get { return ModelId; }
     }
@@ -62,7 +62,7 @@ public class ModelMng : TableManager<ModelInfo, ModelMng>
 [ProtoBuf.ProtoContract(ImplicitFields = ProtoBuf.ImplicitFields.AllFields)]
 public class Level : ITableItem
 {
-	public SmartInt ID
+	public int ID
 	{
 		get
 		{return Id;}

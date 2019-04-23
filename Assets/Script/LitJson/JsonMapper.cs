@@ -758,11 +758,6 @@ namespace LitJson
                 return;
             }
 
-            if (obj is SmartInt) {
-                writer.Write((int)(SmartInt)obj);
-                return;
-            }
-
             if (obj is Array) {
                 writer.WriteArrayStart ();
 

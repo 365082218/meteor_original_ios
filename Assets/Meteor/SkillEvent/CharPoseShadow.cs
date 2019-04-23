@@ -46,11 +46,12 @@ public class CharPoseShadow : MonoBehaviour {
         
     }
 
+    List<GameObject> keys = new List<GameObject>();
     IEnumerator Reduction()
     {
         while (true)
         {
-            List<GameObject> keys = new List<GameObject>();
+            keys.Clear();
             foreach (var each in copyedModel)
             {
                 each.Value.shadowLast -= Time.deltaTime;

@@ -1,7 +1,7 @@
-Name = "无敌门门主-独孤无敌";
+﻿Name = "无敌门门主-独孤无敌";
 Model = 2;
 Weapon = 7;
 Weapon2 = 5;
-HP = 99999999;
+HP = 999999;
 function main()
 end

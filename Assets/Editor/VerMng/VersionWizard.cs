@@ -39,15 +39,6 @@ public static class BuildDefine
 
     // build script related
     public const string ExportPathDefine = "exportPath";
-
-    public static string Combine(params string[] options)
-    {
-        if (options == null || options.Length == 0)
-        {
-            return "";
-        }
-        return StringUtils.CollectionToDelimitedString(options, ";");
-    }
 }
 
 public class BuildWizardAndroid : ScriptableWizard {

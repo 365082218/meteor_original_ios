@@ -153,7 +153,7 @@ public class FrameReplay : MonoBehaviour {
             return LogicFrameIndex + 1;
         }
     }
-    private int LogicFrameIndex = 0;
+    public int LogicFrameIndex = 0;
     private int AccumilatedTime = 0;
     public const float deltaTime = LogicFrameLength / 1000.0f;
     public const int LogicFrameLength = 50;

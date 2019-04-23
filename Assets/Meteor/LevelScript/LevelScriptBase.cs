@@ -66,11 +66,6 @@ public class ScriptBase
         return Value;
     }
 
-    public static void NetEvent(int status)
-    {
-        U3D.NetEvent(status);
-    }
-
     public void CleanSceneParticle()
     {
         if (SnowEffect != null)
@@ -550,10 +545,10 @@ public class ScriptBase
         g_iBoxHP[index - 1] = g_iBoxHP[index - 1] - damage;
         if (g_iBoxHP[index - 1] > 0)
         {
-            NetEvent(1);
+            
             //Output("effect:", id, "BoxHit");
             CreateEffect(id, "BoxHIT");
-            NetEvent(0);
+            
             return 0;
         }
 
@@ -567,7 +562,7 @@ public class ScriptBase
         MakeString(ref itemname, "D_itBBox", index);
         MakeString(ref weaponname, "D_wpBBox", index);
 
-        NetEvent(1);
+        
         CreateEffect(id, "BoxBRK");
         SetSceneItem(id, "pose", 1, 0);
         SetSceneItem(id, "attribute", "interactive", 0);
@@ -576,7 +571,7 @@ public class ScriptBase
         SetSceneItem(itemname, "attribute", "interactive", 1);
         SetSceneItem(weaponname, "attribute", "active", 1);
         SetSceneItem(weaponname, "attribute", "interactive", 1);
-        NetEvent(0);
+        
 
         return 1;
     }
@@ -598,9 +593,9 @@ public class ScriptBase
             return 0;
         }
 
-        NetEvent(1);
+        
         SetSceneItem(id, "attribute", "active", 0);
-        NetEvent(0);
+        
         Output("remove item", id);
         return 1;
     }
@@ -649,9 +644,9 @@ public class ScriptBase
         g_iBBoxHP[index - 1] = g_iBBoxHP[index - 1] - damage;
         if (g_iBBoxHP[index - 1] > 0)
         {
-            //NetEvent(1);
+            //
             CreateEffect(id, "BoxHIT");
-            //NetEvent(0);
+            //
             return 0;
         }
 
@@ -660,7 +655,7 @@ public class ScriptBase
         MakeString(ref itemname, "D_itBBBox", index);
         MakeString(ref weaponname, "D_wpBBBox", index);
 
-        //NetEvent(1);
+        //
         CreateEffect(id, "BoxBRK");
         SetSceneItem(id, "pose", 1, 0);
         SetSceneItem(id, "attribute", "interactive", 0);
@@ -669,7 +664,7 @@ public class ScriptBase
         SetSceneItem(itemname, "attribute", "interactive", 1);
         SetSceneItem(weaponname, "attribute", "active", 1);
         SetSceneItem(weaponname, "attribute", "interactive", 1);
-        //NetEvent(0);
+        //
 
         return 1;
     }
@@ -691,9 +686,9 @@ public class ScriptBase
             return 0;
         }
 
-        //NetEvent(1);
+        //
         SetSceneItem(id, "attribute", "active", 0);
-        //NetEvent(0);
+        //
         Output("remove item", id);
         return 1;
     }
@@ -746,9 +741,9 @@ public class ScriptBase
         g_iDeskHP[index - 1] = g_iDeskHP[index - 1] - damage;
         if (g_iDeskHP[index - 1] > 0)
         {
-            //NetEvent(1);//网络同步开始，后续调用都要通知网络层
+            ////网络同步开始，后续调用都要通知网络层
             CreateEffect(id, "BoxHIT");
-            //NetEvent(0);
+            //
         }
 
         if (GetSceneItem(id, "pose") == 1)
@@ -761,7 +756,7 @@ public class ScriptBase
         MakeString(ref itemname, "D_itDesk", index);
         MakeString(ref weaponname, "D_wpDesk", index);
 
-        //NetEvent(1);
+        //
         CreateEffect(id, "BoxBRK");
         SetSceneItem(id, "pose", 1, 0);
         SetSceneItem(id, "attribute", "interactive", 0);
@@ -770,7 +765,7 @@ public class ScriptBase
         SetSceneItem(itemname, "attribute", "interactive", 1);
         SetSceneItem(weaponname, "attribute", "active", 1);
         SetSceneItem(weaponname, "attribute", "interactive", 1);
-        //NetEvent(0);
+        //
 
         return 1;
     }
@@ -792,9 +787,9 @@ public class ScriptBase
             return 0;
         }
 
-        //NetEvent(1);
+        //
         SetSceneItem(id, "attribute", "active", 0);
-        //NetEvent(0);
+        //
         Output("remove item", id);
         return 1;
     }
@@ -849,9 +844,9 @@ public class ScriptBase
         g_iChairHP[index - 1] = g_iChairHP[index - 1] - damage;
         if (g_iChairHP[index - 1] > 0)
         {
-            //NetEvent(1);
+            //
             CreateEffect(id, "BoxHIT");
-            //NetEvent(0);
+            //
             return 0;
         }
 
@@ -865,7 +860,7 @@ public class ScriptBase
         MakeString(ref itemname, "D_itChair", index);
         MakeString(ref weaponname, "D_wpChair", index);
 
-        //NetEvent(1);
+        //
         CreateEffect(id, "BoxBRK");
         SetSceneItem(id, "pose", 1, 0);
         SetSceneItem(id, "attribute", "interactive", 0);
@@ -874,7 +869,7 @@ public class ScriptBase
         SetSceneItem(itemname, "attribute", "interactive", 1);
         SetSceneItem(weaponname, "attribute", "active", 1);
         SetSceneItem(weaponname, "attribute", "interactive", 1);
-        //NetEvent(0);
+        //
 
         return 1;
     }
@@ -896,9 +891,9 @@ public class ScriptBase
             return 0;
         }
 
-        //NetEvent(1);
+        //
         SetSceneItem(id, "attribute", "active", 0);
-        //NetEvent(0);
+        //
         Output("remove item", id);
         return 1;
     }
@@ -990,9 +985,9 @@ public class ScriptBase
         g_iJugHP[index - 1] = g_iJugHP[index - 1] - damage;
         if (g_iJugHP[index - 1] > 0)
         {
-            //NetEvent(1);
+            //
             CreateEffect(id, "WonHIT");
-            //NetEvent(0);
+            //
             return 0;
         }
 
@@ -1006,7 +1001,7 @@ public class ScriptBase
         MakeString(ref itemname, "D_itJug", index);
         MakeString(ref weaponname, "D_wpJug", index);
 
-        //NetEvent(1);
+        //
         CreateEffect(id, "WonBRK");
         SetSceneItem(id, "pose", 1, 0);
         SetSceneItem(id, "attribute", "interactive", 0);
@@ -1015,7 +1010,7 @@ public class ScriptBase
         SetSceneItem(itemname, "attribute", "interactive", 1);
         SetSceneItem(weaponname, "attribute", "active", 1);
         SetSceneItem(weaponname, "attribute", "interactive", 1);
-        //NetEvent(0);
+        //
 
         return 1;
     }
@@ -1037,9 +1032,9 @@ public class ScriptBase
             return 0;
         }
 
-        //NetEvent(1);
+        //
         SetSceneItem(id, "attribute", "active", 0);
-        //NetEvent(0);
+        //
         Output("remove item", id);
         return 1;
     }
@@ -1063,9 +1058,9 @@ public class ScriptBase
         g_iRJugHP[index - 1] = g_iRJugHP[index - 1] - damage;
         if (g_iRJugHP[index - 1] > 0)
         {
-            NetEvent(1);
+            
             CreateEffect(id, "WonHIT");
-            NetEvent(0);
+            
             return 0;
         }
 
@@ -1088,7 +1083,7 @@ public class ScriptBase
         MakeString(ref ritemname, itemname, randx);
         MakeString(ref rweaponname, weaponname, randx);
 
-        NetEvent(1);
+        
         CreateEffect(id, "WonBRK");
         SetSceneItem(id, "pose", 1, 0);
         SetSceneItem(id, "attribute", "interactive", 0);
@@ -1097,7 +1092,7 @@ public class ScriptBase
         SetSceneItem(ritemname, "attribute", "interactive", 1);
         SetSceneItem(rweaponname, "attribute", "active", 1);
         SetSceneItem(rweaponname, "attribute", "interactive", 1);
-        NetEvent(0);
+        
 
         return 1;
     }
@@ -1119,9 +1114,9 @@ public class ScriptBase
             return 0;
         }
 
-        NetEvent(1);
+        
         SetSceneItem(id, "attribute", "active", 0);
-        NetEvent(0);
+        
         Output("remove item", id);
         return 1;
     }
@@ -1247,9 +1242,9 @@ public class LevelScript_sn01:LevelScriptBase
         {
             return 0;
         }
-        NetEvent(1);
+        
         SetSceneItem(id, "attribute", "active", 0);
-        NetEvent(0);
+        
         return 1;
     }
 
@@ -1270,7 +1265,7 @@ public class LevelScript_sn01:LevelScriptBase
         MakeString(ref weaponname, "D_wpSt", index);
 
         Output("Active Stone", index);
-        NetEvent(1);
+        
         CreateEffect(stonename, "StoneBRK");
         SetSceneItem(stonename, "pose", 1, 0);
         SetSceneItem(stonename, "attribute", "collision", 0);
@@ -1279,7 +1274,7 @@ public class LevelScript_sn01:LevelScriptBase
         SetSceneItem(itemname, "attribute", "interactive", 1);
         SetSceneItem(weaponname, "attribute", "active", 1);
         SetSceneItem(itemname, "attribute", "interactive", 1);
-        NetEvent(0);
+        
         return 1;
     }
 
@@ -1290,9 +1285,9 @@ public class LevelScript_sn01:LevelScriptBase
         Output(g_iStoneHP[index - 1]);
         MakeString(ref name, "D_st", index);
 
-        NetEvent(1);
+        
         CreateEffect(name, "StoneHIT");
-        NetEvent(0);
+        
 
         if (g_iStoneHP[index - 1] <= 0)
         {
@@ -1650,7 +1645,7 @@ public class LevelScript_sn02: LevelScriptBase
 
     public void D_IPItem01_OnPickUp()
     {
-        //NetEvent(1);
+        //
 
         SetSceneItem("D_sn02st01", "attribute", "active", 1);
         SetSceneItem("D_sn02st02", "attribute", "active", 1);
@@ -1666,7 +1661,7 @@ public class LevelScript_sn02: LevelScriptBase
         SetSceneItem("D_sn02st03", "pose", 1, 1);
         SetSceneItem("D_sn02st03", "frame", 120);
 
-        //NetEvent(0);
+        //
     }
 
     public override void OnStart()
@@ -1705,8 +1700,6 @@ public class LevelScript_sn03 : LevelScriptBase
     int trg3 = 0;
     int trg4 = 0;
     int trg5 = 0;
-    int trg6 = 0;
-    int trg7 = 0;
     int trg8 = 0;
     int trg9 = 0;
     int timer0 = 0;
@@ -1958,25 +1951,25 @@ public class LevelScript_sn03 : LevelScriptBase
             }
         }
 
-        if (trg6 == 0)
+        if (trg5 == 0)
         {
             c = GetChar("火枪哨兵﹒乙");
             if (FindEnemy(c, player) != 0)
             {
-                trg6 = 1;
+                trg5 = 1;
             }
         }
 
-        if (trg7 == 0)
+        if (trg5 == 0)
         {
             c = GetChar("火枪哨兵﹒丙");
             if (FindEnemy(c, player) != 0)
             {
-                trg7 = 1;
+                trg5 = 1;
             }
         }
 
-        if (trg5 == 0 && trg6 == 0 && trg7 == 0 && trg8 == 0)
+        if (trg5 == 0 && trg8 == 0)
         {
             c = GetChar("疾剑哨兵长");
             if (c >= 0 && GetEnemy(c) == player)
@@ -2150,48 +2143,48 @@ public class LevelScript_sn03 : LevelScriptBase
         {
             g_iAPdoorState = g_iAPdoorState + 1;
             g_iAPdoorShakePose = 3;
-            NetEvent(1);
+            
             SetSceneItem(id, "pose", 2, 0);
-            NetEvent(0);
+            
         }
 
         if (g_iAPdoorState == 2 && g_iAPdoorHP < g_iPdoorState2HP)
         {
             g_iAPdoorState = g_iAPdoorState + 1;
             g_iAPdoorShakePose = 5;
-            NetEvent(1);
+            
             SetSceneItem(id, "pose", 4, 0);
-            NetEvent(0);
+            
         }
 
         if (g_iAPdoorState == 3 && g_iAPdoorHP < g_iPdoorState3HP)
         {
             g_iAPdoorState = g_iAPdoorState + 1;
             g_iAPdoorShakePose = 7;
-            NetEvent(1);
+            
             SetSceneItem(id, "pose", 6, 0);
-            NetEvent(0);
+            
         }
 
         if (g_iAPdoorState == 4 && g_iAPdoorHP < 0)
         {
             g_iAPdoorState = g_iAPdoorState + 1;
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaBRK");
             SetSceneItem(id, "attribute", "interactive", 0);
             SetSceneItem(id, "attribute", "collision", 0);
             SetSceneItem(id, "pose", 8, 0);
             SetSceneItem("D_APd02Box01", "attribute", "active", 0);
-            NetEvent(0);
+            
         }
 
         state = GetSceneItem(id, "state");
         if (state == 3)
         {
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaHIT");
             SetSceneItem(id, "pose", g_iAPdoorShakePose, 0);
-            NetEvent(0);
+            
         }
         return 0;
     }
@@ -2211,9 +2204,9 @@ public class LevelScript_sn03 : LevelScriptBase
             if (state == 3)
             {
                 g_bAPdoorAlive = 0;
-                NetEvent(1);
+                
                 SetSceneItem("D_APdoor01", "attribute", "active", 0);
-                NetEvent(0);
+                
             }
         }
         return 0;
@@ -2234,9 +2227,9 @@ public class LevelScript_sn03 : LevelScriptBase
         {
             g_iBPdoorState = g_iBPdoorState + 1;
             g_iBPdoorShakePose = 3;
-            NetEvent(1);
+            
             SetSceneItem(id, "pose", 2, 0);
-            NetEvent(0);
+            
         }
 
         if (g_iBPdoorState == 2 && g_iBPdoorHP < g_iPdoorState2HP)
@@ -2244,9 +2237,9 @@ public class LevelScript_sn03 : LevelScriptBase
             g_iBPdoorState = g_iBPdoorState + 1;
             g_iBPdoorShakePose = 5;
             Output("Change State 3");
-            NetEvent(1);
+            
             SetSceneItem(id, "pose", 4, 0);
-            NetEvent(0);
+            
         }
 
         if (g_iBPdoorState == 3 && g_iBPdoorHP < g_iPdoorState3HP)
@@ -2254,30 +2247,30 @@ public class LevelScript_sn03 : LevelScriptBase
             g_iBPdoorState = g_iBPdoorState + 1;
             g_iBPdoorShakePose = 7;
             Output("Change State 4");
-            NetEvent(1);
+            
             SetSceneItem(id, "pose", 6, 0);
-            NetEvent(0);
+            
         }
 
         if (g_iBPdoorState == 4 && g_iBPdoorHP < g_iPdoorState4HP)
         {
             g_iBPdoorState = g_iBPdoorState + 1;
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaBRK");
             SetSceneItem(id, "attribute", "interactive", 0);
             SetSceneItem(id, "attribute", "collision", 0);
             SetSceneItem(id, "pose", 8, 0);
             SetSceneItem("D_BPd02Box01", "attribute", "active", 0);
-            NetEvent(0);
+            
         }
 
         state = GetSceneItem(id, "state");
         if (state == 3)
         {
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaHIT");
             SetSceneItem(id, "pose", g_iBPdoorShakePose, 0);
-            NetEvent(0);
+            
         }
         return 0;
     }
@@ -2296,9 +2289,9 @@ public class LevelScript_sn03 : LevelScriptBase
             if (state == 3)
             {
                 g_bBPdoorAlive = 0;
-                NetEvent(1);
+                
                 SetSceneItem("D_BPdoor01", "attribute", "active", 0);
-                NetEvent(0);
+                
             }
         }
         return 0;
@@ -2312,13 +2305,13 @@ public class LevelScript_sn03 : LevelScriptBase
             return 0;
         }
 
-        NetEvent(1);
+        
         CreateEffect(id, "StoneFIL");
         CreateEffect("D_Sston01", "StoneFIL");
         SetSceneItem(id, "pose", 1, 0);
         SetSceneItem(id, "attribute", "collision", 0);
         SetSceneItem(id, "attribute", "damage", 1);
-        NetEvent(0);
+        
         return 0;
     }
 
@@ -2335,9 +2328,9 @@ public class LevelScript_sn03 : LevelScriptBase
             if (state == 3)
             {
                 g_bStone01Active = 0;
-                NetEvent(1);
+                
                 SetSceneItem(id, "attribute", "active", 0);
-                NetEvent(0);
+                
             }
         }
         return 0;
@@ -2351,13 +2344,13 @@ public class LevelScript_sn03 : LevelScriptBase
             return 0;
         }
 
-        NetEvent(1);
+        
         CreateEffect(id, "StoneFIL");
         CreateEffect("D_Sston02", "StoneFIL");
         SetSceneItem(id, "pose", 1, 0);
         SetSceneItem(id, "attribute", "collision", 0);
         SetSceneItem(id, "attribute", "damage", 1);
-        NetEvent(0);
+        
         return 0;
     }
 
@@ -2374,9 +2367,9 @@ public class LevelScript_sn03 : LevelScriptBase
             if (state == 3)
             {
                 g_bStone02Active = 0;
-                NetEvent(1);
+                
                 SetSceneItem(id, "attribute", "active", 0);
-                NetEvent(0);
+                
             }
         }
         return 0;
@@ -2390,10 +2383,10 @@ public class LevelScript_sn03 : LevelScriptBase
             return 0;
         }
         g_iADoor02OpenTime = Misc("gettime");
-        NetEvent(1);
+        
         SetSceneItem("D_ADoor01", "pose", 1, 0);
         SetSceneItem(id, "pose", 1, 0);
-        NetEvent(0);
+        
         return 0;
     }
 
@@ -2405,10 +2398,10 @@ public class LevelScript_sn03 : LevelScriptBase
             return 0;
         }
         g_iADoor02OpenTime = Misc("gettime");
-        NetEvent(1);
+        
         SetSceneItem("D_ADoor01", "pose", 1, 0);
         SetSceneItem(id, "pose", 1, 0);
-        NetEvent(0);
+        
         return 0;
     }
 
@@ -2426,17 +2419,17 @@ public class LevelScript_sn03 : LevelScriptBase
             if (diff > g_iDoorWaitTime)
             {
                 Output("Close Door");
-                NetEvent(1);
+                
                 SetSceneItem(id, "pose", 2, 0);
-                NetEvent(0);
+                
             }
             return 1;
         }
         if (pose == 2 && state == 3)
         {
-            NetEvent(1);
+            
             SetSceneItem(id, "pose", 0, 0);
-            NetEvent(0);
+            
             return 1;
         }
         return 0;
@@ -2450,10 +2443,10 @@ public class LevelScript_sn03 : LevelScriptBase
             return 0;
         }
         g_iBDoor01OpenTime = Misc("gettime");
-        NetEvent(1);
+        
         SetSceneItem("D_BDoor01", "pose", 1, 0);
         SetSceneItem(id, "pose", 1, 0);
-        NetEvent(0);
+        
         return 0;
     }
 
@@ -2465,10 +2458,10 @@ public class LevelScript_sn03 : LevelScriptBase
             return 0;
         }
         g_iBDoor01OpenTime = Misc("gettime");
-        NetEvent(1);
+        
         SetSceneItem("D_BDoor01", "pose", 1, 0);
         SetSceneItem(id, "pose", 1, 0);
-        NetEvent(0);
+        
         return 0;
     }
 
@@ -2486,16 +2479,16 @@ public class LevelScript_sn03 : LevelScriptBase
             if (diff > g_iDoorWaitTime)
             {
                 Output("Close Door");
-                NetEvent(1);
+                
                 SetSceneItem(id, "pose", 2, 0);
-                NetEvent(0);
+                
             }
         }
         if (pose == 2 && state == 3)
         {
-            NetEvent(1);
+            
             SetSceneItem("D_BDoor01", "pose", 0, 0);
-            NetEvent(0);
+            
         }
         return 0;
     }
@@ -2878,47 +2871,47 @@ public class LevelScript_sn04: LevelScriptBase
         {
             g_iAPdoorState = g_iAPdoorState + 1;
             g_iAPdoorShakePose = 3;
-            NetEvent(1);
+            
             SetSceneItem(id, "pose", 2, 0);
-            NetEvent(0);
+            
         }
 
         if (g_iAPdoorState == 2 && g_iAPdoorHP < g_iPdoorState2HP)
         {
             g_iAPdoorState = g_iAPdoorState + 1;
             g_iAPdoorShakePose = 5;
-            NetEvent(1);
+            
             SetSceneItem(id, "pose", 4, 0);
-            NetEvent(0);
+            
         }
 
         if (g_iAPdoorState == 3 && g_iAPdoorHP < g_iPdoorState3HP)
         {
             g_iAPdoorState = g_iAPdoorState + 1;
             g_iAPdoorShakePose = 7;
-            NetEvent(1);
+            
             SetSceneItem(id, "pose", 6, 0);
-            NetEvent(0);
+            
         }
 
         if (g_iAPdoorState == 4 && g_iAPdoorHP < 0)
         {
             g_iAPdoorState = g_iAPdoorState + 1;
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaBRK");
             SetSceneItem(id, "attribute", "interactive", 0);
             SetSceneItem(id, "attribute", "collision", 0);
             SetSceneItem(id, "pose", 8, 0);
-            NetEvent(0);
+            
         }
 
         state = GetSceneItem(id, "state");
         if (state == 3)
         {
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaHIT");
             SetSceneItem(id, "pose", g_iAPdoorShakePose, 0);
-            NetEvent(0);
+            
         }
         return 1;
     }
@@ -2955,9 +2948,9 @@ public class LevelScript_sn04: LevelScriptBase
         {
             g_iBPdoorState = g_iBPdoorState + 1;
             g_iBPdoorShakePose = 3;
-            NetEvent(1);
+            
             SetSceneItem(id, "pose", 2, 0);
-            NetEvent(0);
+            
         }
 
         if (g_iBPdoorState == 2 && g_iBPdoorHP < g_iPdoorState2HP)
@@ -2965,9 +2958,9 @@ public class LevelScript_sn04: LevelScriptBase
             g_iBPdoorState = g_iBPdoorState + 1;
             g_iBPdoorShakePose = 5;
             Output("Change State 3");
-            NetEvent(1);
+            
             SetSceneItem(id, "pose", 4, 0);
-            NetEvent(0);
+            
         }
 
         if (g_iBPdoorState == 3 && g_iBPdoorHP < g_iPdoorState3HP)
@@ -2975,29 +2968,29 @@ public class LevelScript_sn04: LevelScriptBase
             g_iBPdoorState = g_iBPdoorState + 1;
             g_iBPdoorShakePose = 7;
             Output("Change State 4");
-            NetEvent(1);
+            
             SetSceneItem(id, "pose", 6, 0);
-            NetEvent(0);
+            
         }
 
         if (g_iBPdoorState == 4 && g_iBPdoorHP < 0)
         {
             g_iBPdoorState = g_iBPdoorState + 1;
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaBRK");
             SetSceneItem(id, "attribute", "interactive", 0);
             SetSceneItem(id, "attribute", "collision", 0);
             SetSceneItem(id, "pose", 8, 0);
-            NetEvent(0);
+            
         }
 
         state = GetSceneItem(id, "state");
         if (state == 3)
         {
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaHIT");
             SetSceneItem(id, "pose", g_iBPdoorShakePose, 0);
-            NetEvent(0);
+            
         }
         return 1;
     }
@@ -3929,12 +3922,12 @@ public class LevelScript_sn07: LevelScriptBase
         Output("02");
         if (GetSceneItem("D_gd02eye01", "state") == 3)
         {
-            NetEvent(1);
+            
             CreateEffect("D_sn07t06", "FStinger");
             SetSceneItem("D_sn07t06", "pose", 1, 0);
             SetSceneItem("D_gd02eye01", "pose", 1, 0);
             RandomActivate();
-            NetEvent(0);
+            
         }
     }
 
@@ -3943,12 +3936,12 @@ public class LevelScript_sn07: LevelScriptBase
         Output("03");
         if (GetSceneItem("D_gd03eye02", "state") == 3)
         {
-            NetEvent(1);
+            
             CreateEffect("D_sn07t03", "FStinger");
             SetSceneItem("D_sn07t03", "pose", 1, 0);
             SetSceneItem("D_gd03eye02", "pose", 1, 0);
             RandomActivate();
-            NetEvent(0);
+            
         }
     }
 
@@ -3957,12 +3950,12 @@ public class LevelScript_sn07: LevelScriptBase
         Output("04");
         if (GetSceneItem("D_gd04eye03", "state") == 3)
         {
-            NetEvent(1);
+            
             CreateEffect("D_sn07t04", "FStinger");
             SetSceneItem("D_sn07t04", "pose", 1, 0);
             SetSceneItem("D_gd04eye03", "pose", 1, 0);
             RandomActivate();
-            NetEvent(0);
+            
         }
     }
 
@@ -3971,12 +3964,12 @@ public class LevelScript_sn07: LevelScriptBase
         Output("05");
         if (GetSceneItem("D_gd05eye04", "state") == 3)
         {
-            NetEvent(1);
+            
             CreateEffect("D_sn07t05", "FStinger");
             SetSceneItem("D_sn07t05", "pose", 1, 0);
             SetSceneItem("D_gd05eye04", "pose", 1, 0);
             RandomActivate();
-            NetEvent(0);
+            
         }
     }
 
@@ -4369,10 +4362,10 @@ public class LevelScript_sn09 : LevelScriptBase
 
             int target = Misc("getseries", g_iActiveState, g_iActiveCount - g_iShift);
             MakeString(ref name, "D_sn09f", target);
-            NetEvent(1);
+            
             CreateEffect(name, "FloorFI1");
             SetSceneItem(name, "pose", 1, 0);
-            NetEvent(0);
+            
             //Output("Active", name, "State", g_iActiveState, g_iActiveCount);
 
             g_iActiveCount = g_iActiveCount + 1;
@@ -4995,20 +4988,20 @@ public class LevelScript_sn11 : LevelScriptBase
         int state = GetSceneItem(id, "state");
         if (state == 3)
         {
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaHIT");
             SetSceneItem(id, "pose", 1, 0);
-            NetEvent(0);
+            
         }
 
         ADoorHP = ADoorHP - damage;
         Output("ADoor 1", ADoorHP);
         if (ADoorHP < DoorState1HP)
         {
-            NetEvent(1);
+            
             SetSceneItem(id, "attribute", "active", 0);
             SetSceneItem("D_APdoor02", "attribute", "active", 1);
-            NetEvent(0);
+            
         }
         return 1;
     }
@@ -5023,20 +5016,20 @@ public class LevelScript_sn11 : LevelScriptBase
         int state = GetSceneItem(id, "state");
         if (state == 3)
         {
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaHIT");
             SetSceneItem(id, "pose", 1, 0);
-            NetEvent(0);
+            
         }
 
         ADoorHP = ADoorHP - damage;
         Output("ADoor 2", ADoorHP);
         if (ADoorHP < DoorState2HP)
         {
-            NetEvent(1);
+            
             SetSceneItem(id, "attribute", "active", 0);
             SetSceneItem("D_APdoor03", "attribute", "active", 1);
-            NetEvent(0);
+            
         }
         return 1;
     }
@@ -5051,20 +5044,20 @@ public class LevelScript_sn11 : LevelScriptBase
         int state = GetSceneItem(id, "state");
         if (state == 3)
         {
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaHIT");
             SetSceneItem(id, "pose", 1, 0);
-            NetEvent(0);
+            
         }
 
         ADoorHP = ADoorHP - damage;
         Output("ADoor 3", ADoorHP);
         if (ADoorHP < DoorState3HP)
         {
-            NetEvent(1);
+            
             SetSceneItem(id, "attribute", "active", 0);
             SetSceneItem("D_APdoor04", "attribute", "active", 1);
-            NetEvent(0);
+            
         }
         return 1;
     }
@@ -5079,23 +5072,23 @@ public class LevelScript_sn11 : LevelScriptBase
         int state = GetSceneItem(id, "state");
         if (state == 3)
         {
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaHIT");
             SetSceneItem(id, "pose", 1, 0);
-            NetEvent(0);
+            
         }
 
         ADoorHP = ADoorHP - damage;
         Output("ADoor 4", ADoorHP);
         if (ADoorHP <= 0)
         {
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaBRK");
             SetSceneItem(id, "attribute", "active", 0);
             SetSceneItem("D_APdoor05", "attribute", "active", 1);
             SetSceneItem("D_APdoor05", "attribute", "collision", 0);
             SetSceneItem("D_APdoor05", "pose", 1, 0);
-            NetEvent(0);
+            
             GameCallBack("end", 2);
         }
         return 1;
@@ -5112,20 +5105,20 @@ public class LevelScript_sn11 : LevelScriptBase
         int state = GetSceneItem(id, "state");
         if (state == 3)
         {
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaHIT");
             SetSceneItem(id, "pose", 1, 0);
-            NetEvent(0);
+            
         }
 
         BDoorHP = BDoorHP - damage;
         Output("BDoor 1", BDoorHP);
         if (BDoorHP < DoorState1HP)
         {
-            NetEvent(1);
+            
             SetSceneItem(id, "attribute", "active", 0);
             SetSceneItem("D_BPdoor02", "attribute", "active", 1);
-            NetEvent(0);
+            
         }
         return 1;
     }
@@ -5140,20 +5133,20 @@ public class LevelScript_sn11 : LevelScriptBase
         int state = GetSceneItem(id, "state");
         if (state == 3)
         {
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaHIT");
             SetSceneItem(id, "pose", 1, 0);
-            NetEvent(0);
+            
         }
 
         BDoorHP = BDoorHP - damage;
         Output("BDoor 2", BDoorHP);
         if (BDoorHP < DoorState2HP)
         {
-            NetEvent(1);
+            
             SetSceneItem(id, "attribute", "active", 0);
             SetSceneItem("D_BPdoor03", "attribute", "active", 1);
-            NetEvent(0);
+            
         }
         return 1;
     }
@@ -5168,20 +5161,20 @@ public class LevelScript_sn11 : LevelScriptBase
         int state = GetSceneItem(id, "state");
         if (state == 3)
         {
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaHIT");
             SetSceneItem(id, "pose", 1, 0);
-            NetEvent(0);
+            
         }
 
         BDoorHP = BDoorHP - damage;
         Output("BDoor 3", BDoorHP);
         if (BDoorHP < DoorState3HP)
         {
-            NetEvent(1);
+            
             SetSceneItem(id, "attribute", "active", 0);
             SetSceneItem("D_BPdoor04", "attribute", "active", 1);
-            NetEvent(0);
+            
         }
         return 1;
     }
@@ -5196,22 +5189,22 @@ public class LevelScript_sn11 : LevelScriptBase
         int state = GetSceneItem(id, "state");
         if (state == 3)
         {
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaHIT");
             SetSceneItem(id, "pose", 1, 0);
-            NetEvent(0);
+            
         }
 
         BDoorHP = BDoorHP - damage;
         Output("BDoor 4", BDoorHP);
         if (BDoorHP <= 0)
         {
-            NetEvent(1);
+            
             CreateEffect(id, "GiMaBRK");
             SetSceneItem(id, "attribute", "active", 0);
             SetSceneItem("D_BPdoor05", "attribute", "active", 1);
             SetSceneItem("D_BPdoor05", "pose", 1, 0);
-            NetEvent(0);
+            
             GameCallBack("end", 1);
         }
         return 1;
@@ -5317,7 +5310,7 @@ public class LevelScript_sn12 : LevelScriptBase
         g_iStoveHP[index - 1] = g_iStoveHP[index - 1] - damage;
         if (g_iStoveHP[index - 1] > 0)
         {
-            NetEvent(1);
+            
             CreateEffect(id, "FireHIT");
             int state = GetSceneItem(id, "state");
             Output("state", state);
@@ -5326,7 +5319,7 @@ public class LevelScript_sn12 : LevelScriptBase
                 Output("Shake", id);
                 SetSceneItem(id, "pose", 1, 0);
             }
-            NetEvent(0);
+            
             return 0;
         }
         g_bStoveAlive[index - 1] = 0;
@@ -5339,12 +5332,12 @@ public class LevelScript_sn12 : LevelScriptBase
             g_iTeamBStoves = g_iTeamBStoves - 1;
         }
 
-        NetEvent(1);
+        
         CreateEffect(id, "FireBRK");
         SetSceneItem(id, "pose", 2, 0);
         SetSceneItem(id, "attribute", "interactive", 0);
         SetSceneItem(id, "attribute", "collision", 0);
-        NetEvent(0);
+        
 
         if (g_iTeamAStoves == 0)
         {
@@ -5866,23 +5859,23 @@ public class LevelScript_sn13 : LevelScriptBase
                     return 0;
                 }
 
-                NetEvent(1);
+                
                 CreateEffect(id, "BridgBRK");
                 SetSceneItem(id, "pose", 2, 0);
                 SetSceneItem(id, "attribute", "damage", 1);
                 SetSceneItem("D_itbridge01", "attribute", "active", 1);
                 SetSceneItem("D_itbridge01", "attribute", "interactive", 1);
-                NetEvent(0);
+                
             }
             else
             {
                 int state = GetSceneItem(id, "state");
                 if (state == 3)
                 {
-                    NetEvent(1);
+                    
                     CreateEffect(id, "BridgHIT");
                     SetSceneItem(id, "pose", 1, 0);
-                    NetEvent(0);
+                    
                 }
             }
         }
@@ -5902,10 +5895,10 @@ public class LevelScript_sn13 : LevelScriptBase
             if (state == 3)
             {
                 g_bBridge01Alive = 0;
-                NetEvent(1);
+                
                 SetSceneItem(id, "attribute", "damage", 0);
                 SetSceneItem(id, "attribute", "active", 0);
-                NetEvent(0);
+                
             }
         }
         return;
@@ -5925,23 +5918,23 @@ public class LevelScript_sn13 : LevelScriptBase
                     return 0;
                 }
 
-                NetEvent(1);
+                
                 CreateEffect(id, "BridgBRK");
                 SetSceneItem(id, "pose", 2, 0);
                 SetSceneItem(id, "attribute", "damage", 1);
                 SetSceneItem("D_itbridge02", "attribute", "active", 1);
                 SetSceneItem("D_itbridge02", "attribute", "interactive", 1);
-                NetEvent(0);
+                
             }
             else
             {
                 int state = GetSceneItem(id, "state");
                 if (state == 3)
                 {
-                    NetEvent(1);
+                    
                     CreateEffect(id, "BridgHIT");
                     SetSceneItem(id, "pose", 1, 0);
-                    NetEvent(0);
+                    
                 }
             }
         }
@@ -5961,10 +5954,10 @@ public class LevelScript_sn13 : LevelScriptBase
             if (state == 3)
             {
                 g_bBridge02Alive = 0;
-                NetEvent(1);
+                
                 SetSceneItem(id, "attribute", "damage", 0);
                 SetSceneItem(id, "attribute", "active", 0);
-                NetEvent(0);
+                
             }
         }
         return;
@@ -7186,7 +7179,7 @@ public class LevelScript_sn21 : LevelScriptBase
         }
         Output("rotate.....");
 
-        NetEvent(1);
+        
         CreateEffect(id, "XStar");
         SetSceneItem(id, "pose", 1, 0);
         int i;
@@ -7197,7 +7190,7 @@ public class LevelScript_sn21 : LevelScriptBase
             SetSceneItem(name, "attribute", "active", 1);
             SetSceneItem(name, "attribute", "interactive", 1);
         }
-        NetEvent(0);
+        
         return 1;
     }
     /*
@@ -7248,11 +7241,11 @@ public class LevelScript_sn21 : LevelScriptBase
         g_iBoxHP[index - 1] = g_iBoxHP[index - 1] - damage;
         if (g_iBoxHP[index - 1] > 0)
         {
-            NetEvent(1);
+            
             //Output("effect:", id, "BoxHit");
             SetSceneItem(id, "pose", 2, 0);
             CreateEffect(id, "BoxHIT");
-            NetEvent(0);
+            
             return 0;
         }
 
@@ -7261,7 +7254,7 @@ public class LevelScript_sn21 : LevelScriptBase
         MakeString(ref itemname, "D_itBBox", index);
         MakeString(ref weaponname, "D_wpBBox", index);
 
-        NetEvent(1);
+        
 
         if (index < 5)
         {
@@ -7279,7 +7272,7 @@ public class LevelScript_sn21 : LevelScriptBase
         SetSceneItem(itemname, "attribute", "interactive", 1);
         SetSceneItem(weaponname, "attribute", "active", 1);
         SetSceneItem(weaponname, "attribute", "interactive", 1);
-        NetEvent(0);
+        
 
         return 1;
     }
@@ -7301,9 +7294,9 @@ public class LevelScript_sn21 : LevelScriptBase
             return 0;
         }
 
-        NetEvent(1);
+        
         SetSceneItem(id, "attribute", "active", 0);
-        NetEvent(0);
+        
         Output("remove item", id);
         return 1;
     }
@@ -7351,9 +7344,9 @@ public class LevelScript_sn21 : LevelScriptBase
         g_iBBoxHP[index - 1] = g_iBBoxHP[index - 1] - damage;
         if (g_iBBoxHP[index - 1] > 0)
         {
-            NetEvent(1);
+            
             CreateEffect(id, "BoxHIT");
-            NetEvent(0);
+            
             return 0;
         }
 
@@ -7362,7 +7355,7 @@ public class LevelScript_sn21 : LevelScriptBase
         MakeString(ref itemname, "D_itBBBox", index);
         MakeString(ref weaponname, "D_wpBBBox", index);
 
-        NetEvent(1);
+        
         CreateEffect(id, "BoxBRK");
         SetSceneItem(id, "pose", 1, 0);
         SetSceneItem(id, "attribute", "interactive", 0);
@@ -7371,7 +7364,7 @@ public class LevelScript_sn21 : LevelScriptBase
         SetSceneItem(itemname, "attribute", "interactive", 1);
         SetSceneItem(weaponname, "attribute", "active", 1);
         SetSceneItem(weaponname, "attribute", "interactive", 1);
-        NetEvent(0);
+        
 
         return 1;
     }
@@ -7393,9 +7386,9 @@ public class LevelScript_sn21 : LevelScriptBase
             return 0;
         }
 
-        NetEvent(1);
+        
         SetSceneItem(id, "attribute", "active", 0);
-        NetEvent(0);
+        
         Output("remove item", id);
         return 1;
     }
@@ -8594,8 +8587,8 @@ public class LevelScript_sn31 : LevelScript_sn22
         vec.x += 350;
         vec.x += 65;
         vec.y = unit.transform.position.y;
-        U3D.MoveNpc("player", vec);
-        U3D.RotateNpc("player", 90);
+        U3D.MovePlayer("player", vec);
+        U3D.RotatePlayer("player", 90);
         return true;
     }
 
@@ -8620,41 +8613,41 @@ public class LevelScript_sn31 : LevelScript_sn22
         AddNPC("npc31_13");
         Vector3 vec = Global.Instance.GLevelSpawn[14];
         vec.x += 375;
-        U3D.MoveNpc("高寄萍", vec);
-        U3D.RotateNpc("高寄萍", -90);
+        U3D.MovePlayer("高寄萍", vec);
+        U3D.RotatePlayer("高寄萍", -90);
 
-        GameObject roof = U3D.Find("flat_roofR72");
+        GameObject roof = GameObject.Find("flat_roofR72");
         vec = roof.transform.position;
         vec.y += 50;
-        U3D.MoveNpc("叶翔", vec);//乾-教官-叶翔-剑
-        roof = U3D.Find("flat_roofR70");
+        U3D.MovePlayer("叶翔", vec);//乾-教官-叶翔-剑
+        roof = GameObject.Find("flat_roofR70");
         vec = roof.transform.position;
         vec.y += 50;
-        U3D.MoveNpc("石群", vec);//坤-教官-刀
-        roof = U3D.Find("flat_roofR65");
+        U3D.MovePlayer("石群", vec);//坤-教官-刀
+        roof = GameObject.Find("flat_roofR65");
         vec = roof.transform.position;
         vec.y += 50;
-        U3D.MoveNpc("金枪李", vec);//乾-教官-长枪
-        roof = U3D.Find("flat_roofR66");
+        U3D.MovePlayer("金枪李", vec);//乾-教官-长枪
+        roof = GameObject.Find("flat_roofR66");
         vec = roof.transform.position;
         vec.y += 50;
-        U3D.MoveNpc("小何", vec);//乾-教官-匕首
-        roof = U3D.Find("flat_roofR69");
+        U3D.MovePlayer("小何", vec);//乾-教官-匕首
+        roof = GameObject.Find("flat_roofR69");
         vec = roof.transform.position;
         vec.y += 50;
-        U3D.MoveNpc("冷燕", vec);//双刺
-        roof = U3D.Find("flat_roofR71");
+        U3D.MovePlayer("冷燕", vec);//双刺
+        roof = GameObject.Find("flat_roofR71");
         vec = roof.transform.position;
         vec.y += 50;
-        U3D.MoveNpc("孙玉伯", vec);//坤-教官-孙玉伯-锤
-        roof = U3D.Find("flat_roofR73");
+        U3D.MovePlayer("孙玉伯", vec);//坤-教官-孙玉伯-锤
+        roof = GameObject.Find("flat_roofR73");
         vec = roof.transform.position;
         vec.y += 50;
-        U3D.MoveNpc("孙剑", vec);//指虎
-        roof = U3D.Find("flat_roofR74");
+        U3D.MovePlayer("孙剑", vec);//指虎
+        roof = GameObject.Find("flat_roofR74");
         vec = roof.transform.position;
         vec.y += 50;
-        U3D.MoveNpc("无名", vec);//忍刀
+        U3D.MovePlayer("无名", vec);//忍刀
         base.OnStart();
     }
 

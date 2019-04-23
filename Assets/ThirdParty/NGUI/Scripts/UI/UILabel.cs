@@ -34,7 +34,6 @@ public class UILabel : UIWidget
 	[HideInInspector][SerializeField] UIFont.SymbolStyle mSymbols = UIFont.SymbolStyle.Uncolored;
 	[HideInInspector][SerializeField] Vector2 mEffectDistance = Vector2.one;
 	[HideInInspector][SerializeField] bool mShrinkToFit = false;
-	[HideInInspector][SerializeField] GameColor.GColor mLabelColor =  GameColor.GColor.None;
 
 	/// <summary>
 	/// Obsolete, do not use. Use 'mMaxLineWidth' instead.
@@ -341,23 +340,6 @@ public class UILabel : UIWidget
 		}
 	}
 
-
-
-	public GameColor.GColor labelColor
-	{
-		get
-		{
-			return mLabelColor;
-		}
-		set
-		{
-			if (mLabelColor != value)
-			{
-				mLabelColor = value;
-				hasChanged = true;
-			}
-		}
-	}
 
 	/// <summary>
 	/// Color used by the effect, if it's enabled.

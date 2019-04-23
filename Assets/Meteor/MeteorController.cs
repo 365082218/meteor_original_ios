@@ -168,8 +168,8 @@ public class MeteorInput
         for (int idx = 0; idx < KeyStates.Length; idx++)
         {
             KeyState keyStatus = KeyStates[idx];
-            keyStatus.PressedTime += Global.Instance.TimeDelta();
-            keyStatus.ReleasedTime += Global.Instance.TimeDelta();
+            keyStatus.PressedTime += FrameReplay.deltaTime;
+            keyStatus.ReleasedTime += FrameReplay.deltaTime;
 
             //底下做的是与键盘同步，多输入设备会让其他设备的输出,被键盘状态刷新掉
             if (string.IsNullOrEmpty(keyStatus.AxisName))
@@ -2108,19 +2108,20 @@ public class MeteorController {
             posMng = mOwner.posMng;
             Input = new MeteorInput(mOwner, this);
             if (Owner.Attr.IsPlayer)
-            {
-                if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
-                {
-                    Input = new MeteorNetInput(mOwner, this);
-                    Global.Instance.GMeteorInput = Input;
-                }
-                else
-                {
-                    Input = new MeteorInput(mOwner, this);
-                    Global.Instance.GMeteorInput = Input;
-                }
-                
-            }
+                Global.Instance.GMeteorInput = Input;
+            //{
+            //    if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+            //    {
+            //        Input = new MeteorNetInput(mOwner, this);
+            //        Global.Instance.GMeteorInput = Input;
+            //    }
+            //    else
+            //    {
+            //        Input = new MeteorInput(mOwner, this);
+            //        Global.Instance.GMeteorInput = Input;
+            //    }
+
+            //}
         }
     }
 

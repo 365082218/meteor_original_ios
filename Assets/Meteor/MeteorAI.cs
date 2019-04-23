@@ -1243,7 +1243,7 @@ public class MeteorAI {
                             return;
                         }
                     }
-                    else if (U3D.IsWeapon(owner.Attr.Weapon2) && !U3D.IsSpecialWeapon(owner.Attr.Weapon2))//主手为远程武器，副手有武器且不为远程武器
+                    else if (owner.Attr.Weapon2 != 0 && !U3D.IsSpecialWeapon(owner.Attr.Weapon2))//主手为远程武器，副手有武器且不为远程武器
                     {
                         //主手远程武器,副手近战武器
                         //1切换为近战武器，2跑远

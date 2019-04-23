@@ -6,7 +6,8 @@
  * 
  * 
  */
-
+ //就是播放动画每一帧，然后把skinmesh上经过变换的网格bake到一个静态模型上
+ //如果游戏不采用Animation动画，就不能这样做了.
 using UnityEngine;
 using System.Collections;
 

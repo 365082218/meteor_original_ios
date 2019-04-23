@@ -246,7 +246,11 @@ public class VerMng : EditorWindow{
         }
         Log.Write(string.Format("file {0}", bundle.Count));
         //当有重复产生时，不允许打包，文件重复意味着某个文件名+后缀在不同路径出现多次
-        Assert.IsTrue(bundle.Count == ReferenceNode.referenceDict.Count);
+        if (bundle.Count != ReferenceNode.referenceDict.Count)
+        {
+            Debug.LogError("bundle length not equal");
+            return;
+        }
 
         //开始设置bundle名称
         List<ReferenceNode> referenceTable = new List<ReferenceNode>();

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+//调整按键布局
 public class UIAdjustWnd : Window<UIAdjustWnd> {
     public override string PrefabName
     {

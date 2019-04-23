@@ -2,6 +2,7 @@
 using System.Collections;
 
 //show vertices
+//显示网格的全部顶点.
 public class ShowVertices : MonoBehaviour {
 	// Use this for initialization
 	LineRenderer line;

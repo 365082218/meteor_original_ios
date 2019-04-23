@@ -147,7 +147,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
-  audio: {fileID: 11400000, guid: 20d5d63c873d32f49a83eb2cbf294d7f, type: 2}
+  audioS: {fileID: 8300000, guid: a85a436de4424d5468782cbdf9a5fad0, type: 3}
 --- !u!222 &222000011177570024
 CanvasRenderer:
   m_ObjectHideFlags: 1

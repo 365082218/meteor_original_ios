@@ -1,6 +1,0 @@
-﻿--库房触发
-
-  function main()
-      U3D.TextAppend("锦衣卫营房，这里由四支部队：道术师，步兵部队，骑兵部队，弓弩手部队组成，可以在各个招募处招募士兵")
-	  U3D.RandTalk()
-  end

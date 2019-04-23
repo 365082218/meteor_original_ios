@@ -6581,7 +6581,7 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1044348427}
-  m_LocalRotation: {x: 0.6549768, y: 0.1749938, z: 0.1749938, w: -0.7139747}
+  m_LocalRotation: {x: 0.6549767, y: 0.17499378, z: 0.17499378, w: -0.71397465}
   m_LocalPosition: {x: 1137.583, y: -99.094, z: -946.273}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -7731,7 +7731,6 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 1200501560}
-  - component: {fileID: 1200501559}
   m_Layer: 10
   m_Name: CobLayer
   m_TagString: Untagged
@@ -7739,19 +7738,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &1200501559
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1200501558}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 898c6e461a591ab44a4cd894ec90cf55, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CobData: {fileID: 4900000, guid: 8f68ac5a920e714439b33192492e495c, type: 3}
-  snLevel: sn14
 --- !u!4 &1200501560
 Transform:
   m_ObjectHideFlags: 0

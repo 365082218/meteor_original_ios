@@ -1745,8 +1745,6 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 439671829}
-  - component: {fileID: 439671831}
-  - component: {fileID: 439671830}
   m_Layer: 19
   m_Name: MonsterGround
   m_TagString: Untagged
@@ -1776,51 +1774,10 @@ Transform:
   - {fileID: 78446172}
   - {fileID: 1349275473}
   - {fileID: 907692535}
-  - {fileID: 649697091}
   - {fileID: 1428110919}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &439671830
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 439671828}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66ee5724a1ab69a4e8dabe09326a79b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hScale: 20
---- !u!114 &439671831
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 439671828}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e3a9673028bc0c64493fdb04742b42bd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hitGroup:
-  - {fileID: 649697092}
-  platformGroup:
-  - {fileID: 782721254}
-  - {fileID: 657894818}
-  - {fileID: 546003358}
-  - {fileID: 1218025282}
-  - {fileID: 888234253}
-  - {fileID: 1469422642}
-  - {fileID: 1607161986}
-  - {fileID: 1269285486}
-  - {fileID: 587145854}
-  - {fileID: 78446174}
-  - {fileID: 1349275475}
-  - {fileID: 907692537}
-  Hp: 500
-  Pose: 1
 --- !u!1 &445677029
 GameObject:
   m_ObjectHideFlags: 0
@@ -2712,68 +2669,6 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 608335691}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &649697090
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 649697091}
-  - component: {fileID: 649697096}
-  - component: {fileID: 649697095}
-  - component: {fileID: 649697092}
-  m_Layer: 10
-  m_Name: HitBox
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &649697091
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 649697090}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -185, y: -598, z: -1169}
-  m_LocalScale: {x: 20, y: 300, z: 1000}
-  m_Children: []
-  m_Father: {fileID: 439671829}
-  m_RootOrder: 12
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &649697092
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 649697090}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e8f6193cd3a6ff488e84b0bc5301c4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Camp: 2
---- !u!65 &649697095
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 649697090}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!33 &649697096
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 649697090}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &657894815
 GameObject:
@@ -5333,7 +5228,7 @@ Transform:
   m_LocalScale: {x: 20, y: 300, z: 1000}
   m_Children: []
   m_Father: {fileID: 439671829}
-  m_RootOrder: 13
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1428110920
 BoxCollider:

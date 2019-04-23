@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: Effects_Textures_Object_buff_42
-  m_Shader: {fileID: 4800000, guid: 33a58b9d78f0a6e4fbb9b5a2730b02bd, type: 3}
+  m_Shader: {fileID: 4800000, guid: 035d06320bf7f3a4796d5f6f2dd893ff, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_CustomRenderQueue: -1

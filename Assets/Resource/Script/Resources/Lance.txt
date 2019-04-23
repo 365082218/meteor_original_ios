@@ -1,4 +1,4 @@
-string Name = "ªøºj";
+string Name = "é•¿æžª";
 int Model = 17;
 int Weapon = 7;
 int Weapon2 = 0;

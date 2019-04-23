@@ -34,10 +34,6 @@ function Output(a)
 	print(a)
 end
 
-function NetEvent(a)
-	U3D.NetEvent(a)
-end
-
 function CreateEffect(a, b)
 	U3D.CreateEffect(a, b)
 end

@@ -1,7 +1,0 @@
-﻿--库房触发
-
-  function main()
-      U3D.TextAppend("这儿是库房，产出的东西全部都会放到这里，也可以把行囊里的物品放到这儿补充原材料")
-	  U3D.RandTalk()
-	  U3D.ShowHomeInventory()--显示仓库里的每件东西。还定时刷新.
-  end

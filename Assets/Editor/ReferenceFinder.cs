@@ -151,7 +151,7 @@ namespace Meteor.Editor {
         [MenuItem("Meteor/Referecne Finder")]
         private static void Init() {
             // Get existing open window or if none, make a new one
-            AssetUsageDetector window = (AssetUsageDetector) EditorWindow.GetWindow(typeof(AssetUsageDetector));
+            AssetUsageDetector window = (AssetUsageDetector)EditorWindow.GetWindow(typeof(AssetUsageDetector));
             window.titleContent = new GUIContent("Asset Usage");
 
             boxGUIStyle = new GUIStyle(EditorStyles.helpBox);
@@ -170,21 +170,6 @@ namespace Meteor.Editor {
             }
         }
 
-        [MenuItem("CONTEXT/Component/# Find References: In Current Scene (fast)")]
-        private static void StartComponentSearchInCurrentScene(MenuCommand data) {
-            StartComponentSearch(data);
-        }
-
-        [MenuItem("CONTEXT/Component/# Find References: In All Scenes (slower)")]
-        private static void StartComponentSearchInAllScenes(MenuCommand data) {
-            StartComponentSearch(data, true);
-        }
-
-        [MenuItem("CONTEXT/Component/# Find References: In All Scenes and Assets (slowest)")]
-        private static void StartComponentSearchAllScenesAndAssets(MenuCommand data) {
-            StartComponentSearch(data, true, true);
-        }
-
         private static void StartComponentSearch(MenuCommand data, bool searchInAllScenes = false, bool searchInAssetsFolder = false) {
             if (data.context != null) {
                 var comp = data.context as Component;
@@ -197,33 +182,13 @@ namespace Meteor.Editor {
             }
         }
 
-        [MenuItem("Assets/# Find References/In Current Scene (fast)")]
-        [MenuItem("GameObject/# Find References/In Current Scene (fast)", false, 20)]
-        public static void StartSearchInCurrentScene() {
-            StartSearch(Selection.objects);
-        }
-
-        [MenuItem("Assets/# Find References/In All Scenes (slower)")]
-        [MenuItem("GameObject/# Find References/In All Scenes (slower)", false, 20)]
-        public static void StartSearchInAllScenes() {
-            StartSearch(Selection.activeObject, true);
-        }
-
-        [MenuItem("Assets/# Find References/In All Scenes and Assets (slowest) #%f")]
-        [MenuItem("GameObject/# Find References/In All Scenes and Assets (slowest) #%f", false, 20)]
-        public static void StartSearchInAllScenesAndAssets() {
-            StartSearch(Selection.objects, true, true);
-        }
-
         private static void StartSearch(Object searchFor, bool searchInAllScenes = false, bool searchInAssetsFolder = false) {
             StartSearch(new Object[] { searchFor }, searchInAllScenes, searchInAssetsFolder);
         }
 
         private static void StartSearch(Object[] searchFor, bool searchInAllScenes = false, bool searchInAssetsFolder = false) {
-            if (CollectionUtils.IsEmpty(searchFor)) {
-                //O7Log.ErrorT(Tag, "First give me something to search for!");
+            if (searchFor == null || searchFor.Length == 0)
                 return;
-            }
 
             if (Instance == null) {
                 //O7Log.InfoT(Tag, "Starting new instance");

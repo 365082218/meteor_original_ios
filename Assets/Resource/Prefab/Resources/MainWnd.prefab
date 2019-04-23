@@ -1132,7 +1132,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
-  audioS: {fileID: 0}
+  audioS: {fileID: 8300000, guid: 42a417f04f074144b8a5c334b0f6a77d, type: 3}
 --- !u!114 &114170347858988922
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1174,7 +1174,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
-  audioS: {fileID: 0}
+  audioS: {fileID: 8300000, guid: 42a417f04f074144b8a5c334b0f6a77d, type: 3}
 --- !u!114 &114251976354829968
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1263,7 +1263,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
-  audioS: {fileID: 0}
+  audioS: {fileID: 8300000, guid: 42a417f04f074144b8a5c334b0f6a77d, type: 3}
 --- !u!114 &114329724467132266
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1426,7 +1426,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
-  audioS: {fileID: 0}
+  audioS: {fileID: 8300000, guid: 42a417f04f074144b8a5c334b0f6a77d, type: 3}
 --- !u!114 &114566090927533474
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1468,7 +1468,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
-  audioS: {fileID: 0}
+  audioS: {fileID: 8300000, guid: 42a417f04f074144b8a5c334b0f6a77d, type: 3}
 --- !u!114 &114572231582700608
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1537,7 +1537,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
-  audioS: {fileID: 0}
+  audioS: {fileID: 8300000, guid: a85a436de4424d5468782cbdf9a5fad0, type: 3}
 --- !u!114 &114602144721217824
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1602,7 +1602,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
-  audioS: {fileID: 0}
+  audioS: {fileID: 8300000, guid: dd2cb13f7a1fbc648925007d89c7b642, type: 3}
 --- !u!114 &114655913521066180
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1813,7 +1813,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
-  audioS: {fileID: 0}
+  audioS: {fileID: 8300000, guid: 42a417f04f074144b8a5c334b0f6a77d, type: 3}
 --- !u!114 &114987153619840354
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1855,7 +1855,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
-  audioS: {fileID: 0}
+  audioS: {fileID: 8300000, guid: a85a436de4424d5468782cbdf9a5fad0, type: 3}
 --- !u!222 &222000011030228846
 CanvasRenderer:
   m_ObjectHideFlags: 1

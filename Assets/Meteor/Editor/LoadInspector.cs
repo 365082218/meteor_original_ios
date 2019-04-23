@@ -3,20 +3,6 @@ using System.Collections;
 using UnityEditor;
 using System.Net;
 
-[CustomEditor(typeof(PathFinder))]
-public class PathFinderInspector : Editor
-{
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-        if (GUILayout.Button("FindPath"))
-        {
-            var obj = (PathFinder)target;
-            obj.FindPath();
-        }
-    }
-}
-
 [CustomEditor(typeof(SFXUnit))]
 public class SFXUnitInspector : Editor
 {
@@ -42,19 +28,6 @@ public class AudioButtonInspector:Editor
     }
 }
 
-[CustomEditor(typeof(CobLoader))]
-public class CobInspector:Editor
-{
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-        if (GUILayout.Button("Apply"))
-        {
-            var obj = (CobLoader)target;
-            obj.Load();
-        }
-    }
-}
 [CustomEditor(typeof(ChangeShader))]
 public class ChangeShaderInspector : Editor
 {
@@ -90,20 +63,6 @@ public class PMDSaveInspector : Editor
             string file = EditorUtility.SaveFilePanel("save pmd file", "", "", "pmd");
             if (!string.IsNullOrEmpty(file))
                 obj.SaveMap(file);
-        }
-    }
-}
-
-[CustomEditor(typeof(MeshInfo))]
-public class MeshInfoInspector : Editor
-{
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-        MeshInfo myTarget = (MeshInfo)target;
-        if (GUILayout.Button("LoadMesh"))
-        {
-            myTarget.Init();
         }
     }
 }
@@ -311,8 +270,6 @@ public class MeteorUnitInspector : Editor
 [CustomEditor(typeof(CameraSnapShot))]
 public class CameraSnapShotInspector : Editor
 {
-    string pos = "Weapon Id";
-    //string ModelId = "Model Id";
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();

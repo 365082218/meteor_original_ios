@@ -1,30 +1,9 @@
-using Idevgame.Util;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-[ProtoBuf.ProtoContract(ImplicitFields = ProtoBuf.ImplicitFields.AllFields)]
-public class UnitBase : ITableItem
-{
-    public SmartInt ID;
-    public string Name;
-    public string Prefab;
-    public string ShowPrefab;
-    public string RoleIocn;
-    public string Desc;
-
-    public int Key() { return ID; }
-};
-
-//public class UnitMng : TableManager<UnitBase, UnitMng>
-//{
-//    public override string TableName() { return "UnitBase"; }
-//}
 
 [ProtoBuf.ProtoContract(ImplicitFields = ProtoBuf.ImplicitFields.AllFields)]
 public class WeaponBase : ITableItem
 {
-    public SmartInt ID;
+    public int ID;
     public string Name;
     public string WeaponL;
     public string WeaponR;

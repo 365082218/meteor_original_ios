@@ -197,6 +197,8 @@ MonoBehaviour:
   - {fileID: 3281106}
   - {fileID: 1232462075}
   - {fileID: 1416022024}
+  Player800: []
+  Player300: []
 --- !u!4 &70376411
 Transform:
   m_ObjectHideFlags: 0
@@ -228,7 +230,7 @@ Transform:
   - {fileID: 1232462076}
   - {fileID: 1416022025}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &181922845
 GameObject:
@@ -820,7 +822,7 @@ Camera:
   field of view: 60
   orthographic: 0
   orthographic size: 5
-  m_Depth: 0
+  m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 32769
@@ -844,7 +846,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 35.036003, y: 0, z: 0}
 --- !u!1 &1328271060
 GameObject:
@@ -962,7 +964,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1416022023
 GameObject:
@@ -1146,7 +1148,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1478306561
 GameObject:

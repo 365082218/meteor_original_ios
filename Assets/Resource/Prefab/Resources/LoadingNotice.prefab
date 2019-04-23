@@ -172,7 +172,6 @@ GameObject:
   - component: {fileID: 224000013754630122}
   - component: {fileID: 222000013394942150}
   - component: {fileID: 114000012953166828}
-  - component: {fileID: 114000013612618988}
   m_Layer: 5
   m_Name: Title
   m_TagString: Untagged
@@ -437,8 +436,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114000012139577182}
   m_HandleRect: {fileID: 224000012350837076}
   m_Direction: 2
-  m_Value: 0
-  m_Size: 1
+  m_Value: 0.33333334
+  m_Size: 0.9999998
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -618,18 +617,6 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &114000013612618988
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1000012679337932}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7cc82ba9eb8850f479e462e266e7a9a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  LangIdx: 403
 --- !u!114 &114000013749339718
 MonoBehaviour:
   m_ObjectHideFlags: 1

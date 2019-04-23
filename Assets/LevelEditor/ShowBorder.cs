@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+//显示网格的线框
 public class ShowBorder : MonoBehaviour {
 
     GameObject [] mBorder = new GameObject[12];
@@ -15,9 +16,6 @@ public class ShowBorder : MonoBehaviour {
             mBorder[i].transform.parent = gameObject.transform;
             mBorder[i].layer = gameObject.layer;
             mLineRender[i] = mBorder[i].AddComponent<LineRenderer>();
-            mLineRender[i].SetWidth(0.08f, 0.08f);
-            mLineRender[i].SetVertexCount(2);
-            mLineRender[i].SetColors(startColor, endColor);
             mLineRender[i].material = new Material(Shader.Find("Particles/Additive"));
         }
 	}

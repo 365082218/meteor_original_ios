@@ -50,12 +50,6 @@ public class UpdateVersion
     public string Notices;//版本更新信息.
 }
 
-public enum LanguageType
-{
-    Ch,
-    En,
-}
-
 [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
 public class RoomSetting
 {
@@ -89,7 +83,6 @@ public class RoomSetting
 public class GameState
 {
     public int saveSlot;//默认使用的存档编号
-    public int Language;//语言设置. 0 中文 1 英文
     public float MusicVolume;//设置背景音乐
     public float SoundVolume;//设置声音
     public string ClientId;//IOS GAMECENTER账号。
@@ -293,186 +286,17 @@ public class GameData:Singleton<GameData>
         InventoryItem item = new InventoryItem();
         item.Count = 1;
         item.Idx = info.Idx;
-        //if (Startup.ins == null)
-        //    return item;
         return item;
     }
 
-    public List<InventoryItem> MakeItems(int unit, uint count)
-    {
-        ItemBase info = FindItemByIdx(unit);
-        if (info == null)
-            return null;
-        List<InventoryItem> ret = new List<InventoryItem>();
-        if (info.MainType == (int)UnitType.Equip)
-        {
-            for (int i = 0; i < count; i++)
-            {
-                InventoryItem itequip = MakeEquip(unit);
-                if (itequip != null)
-                    ret.Add(itequip);
-            }
-            return ret;
-        }
-
-        uint num = 0;
-        uint left = 0;
-        num = count / (uint)info.Stack;
-        left = count % (uint)info.Stack;
-        if (count > info.Stack)
-        {
-            //一次生成不能大于最大堆叠值.
-            Debug.Log("unit:" + info.Name + " stack is " + info.Stack + " but make it :" + count);
-        }
-        
-        for (int i = 0; i < num; i++)
-        {
-            InventoryItem it = new InventoryItem();
-            it.Idx = info.Idx;
-            it.Count = it.Info().Stack;
-            //it.ItemId = GetNextSlot();
-            //save.Items[it.ItemId] = it;
-            //string text = "得到物品:" + it.Name() + ":" + it.Info().Stack;
-            //U3D.PopupTip(text);
-            ret.Add(it);
-        }
-
-        if (left != 0)
-        {
-            InventoryItem it = new InventoryItem();
-            it.Idx = info.Idx;
-            it.Count = left;
-            //it.ItemId = GetNextSlot();
-            //save.Items[it.ItemId] = it;
-            //string text = "得到物品:" + it.Name() + ":" + left;
-            //U3D.PopupTip(text);
-            ret.Add(it);
-        }
-        return ret;
-    }
-
-
-    //创建初始物品
-    //public List<uint> MakeDefaultItems()
-    //{
-    //    //初始物品包含,300金币,装备直接填到表里即可.
-    //    List<uint> items = new List<uint>();
-    //    List<InventoryItem> it = new List<InventoryItem>();
-    //    List<ItemBase> tbl = itemMng.GetFullRow();
-    //    for (int i = 0; i < tbl.Count; i++)
-    //    {
-    //        if (tbl[i].MainType != (int)UnitType.Equip)
-    //            continue;
-    //        it = MakeItems(tbl[i].Idx, 1);
-    //        for (int j = 0; j < it.Count; j++)
-    //            items.Add(it[j].ItemId);
-    //    }
-
-    //    return items;
-    //}
-
-
-    //暂停所有与游戏有关的定时器，以及
-    public void Pause()
-    {
-        pause = true;
-        if (MeteorManager.Instance.LocalPlayer != null)
-            MeteorManager.Instance.LocalPlayer.controller.LockInput(true);
-        if (NGUIJoystick.instance != null)
-            NGUIJoystick.instance.Lock(true);
-    }
-
-    public void Resume()
-    {
-        pause = false;
-        if (NGUIJoystick.instance != null)
-            NGUIJoystick.instance.Lock(false);
-    }
-
-    static bool pause = false;
-    public bool IsPause { get { return pause; } }
-
-    public bool anotherLogined = false;
-    //其他客户端登录相同账号.
-    //public static void OnAnotherLogined(RBase rsp)
-    //{
-    //    U3D.PopupTip(rdat.account + " 在其他处登录");//考虑存档在服务器的问题，这里的本地存档，可能是需要从服务器下载的.
-    //    anotherLogined = true;
-    //    //保存角色数据,把roleid清理掉.
-    //    SaveRoleState();
-    //    WsWindow.CloseAll();
-    //}
-
-    /*
-    public static bool LoadAccount()
-    {
-        if (account != null)
-            return true;
-        //如果上次有注册成功的账号,那么加载出来.
-        //解压缩，读取。存储时，加密压缩，保存.
-        string file = Application.persistentDataPath + "/" + "account.dat";
-        if (System.IO.File.Exists(file))
-        {
-            byte[] buff = Encrypt.DecryptFile(file);
-            MemoryStream ms = new MemoryStream(buff);
-            try
-            {
-                account = Serializer.Deserialize<Account>(ms);
-            }
-            catch
-            {
-                
-            }
-        }
-        return account != null;
-    }
-    */
-
-
-    /*
-    public static void SetCurAccount(UserInfo info, string strAccount, string strPassword)
-    {
-        if (account == null)
-            account = new Account();
-        logined = true;
-        anotherLogined = false;
-        user = info;
-        account.lastAccount = strAccount;
-        account.lastPassword = strPassword;
-        AccountInfo acc = new AccountInfo();
-        acc.curAccount = strAccount;
-        acc.curPassword = strPassword;
-        for (int i = 0; i < account.account.Count; i++)
-        {
-            if (account.account[i].curAccount == strAccount)
-            {
-                account.account[i].curPassword = strPassword;
-                return;
-            }
-        }
-        account.account.Add(acc);
-    }
-    */
-    //1两黄金=10两白银=10贯铜钱=10000文铜钱
-    public string GetMoneyStr(long count)
-    {
-        long gold = count / 10000;
-        long sliver = (count - (gold * 10000))/ 1000;
-        long copper = count % 1000;
-        string str = (gold == 0 ? "" : gold + "金") + (sliver == 0 ? "" : sliver + "银") + (copper == 0 ? "" : copper + "文");
-        if (str == "")
-            str = "-";
-        return str; 
-    }
-
-
-    
     public ItemBase FindItemByIdx(int itemid)
     {
         object obj = itemMng.GetRowByIdx(itemid);
         if (obj == null)
             obj = PluginItemMng.Instance.GetItem(itemid);
-        return obj as ItemBase ;
+        if (obj != null)
+            return obj as ItemBase ;
+        return null;
     }
 
     string state_path_;
@@ -518,7 +342,6 @@ public class GameData:Singleton<GameData>
             gameStatus = new GameState();
             gameStatus.Level = 1;
             gameStatus.saveSlot = 0;//默认使用0号存档.
-            gameStatus.Language = (int)LanguageType.Ch;//默认使用英文.
             gameStatus.MusicVolume = 50;
             gameStatus.SoundVolume = 50;
             gameStatus.NickName = "昱泉杀手";

@@ -19,8 +19,6 @@ public static class TableParser
                 value = int.Parse(valueStr);
             else if (fieldInfo.FieldType == typeof(byte))
                 value = byte.Parse(valueStr);
-            else if (fieldInfo.FieldType == typeof(SmartInt))
-                value = new SmartInt(int.Parse(valueStr));
             else if (fieldInfo.FieldType == typeof(float))
                 value = float.Parse(valueStr);
             else if (fieldInfo.FieldType == typeof(double))

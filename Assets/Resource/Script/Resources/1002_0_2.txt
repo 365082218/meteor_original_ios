@@ -1,5 +1,0 @@
-﻿
-  function main()
-	U3D.TextAppend("这儿是军械制造所，只要有材料，你可以制作出任何器械")
-	U3D.RandTalk()
-  end
