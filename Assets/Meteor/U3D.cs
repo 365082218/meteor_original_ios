@@ -468,6 +468,7 @@ public class U3D : MonoBehaviour {
     //修改版本号后回到Startup重新加载资源
     public static void ReStart()
     {
+        FrameReplay.Instance.OnDisconnected();
         Global.Instance.GLevelItem = null;
         if (loadMain != null)
         {
@@ -1546,6 +1547,9 @@ public class U3D : MonoBehaviour {
     {
         GameData.Instance.gameStatus.GodLike = !GameData.Instance.gameStatus.GodLike;
         U3D.InsertSystemMsg(GameData.Instance.gameStatus.GodLike ? "作弊[开]" : "作弊[关]");
+        if (EscWnd.Exist)
+            EscWnd.Instance.Close();
+        EscWnd.Instance.Open();
     }
 
     public static WeaponBase GetWeaponProperty(int weaponIdx)

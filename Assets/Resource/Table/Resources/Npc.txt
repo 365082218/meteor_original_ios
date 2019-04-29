@@ -1,3 +1,0 @@
-﻿序号	名称	怪物属性	携带物品	功能集合	任务集合	对话脚本
-Idx	Name	MonsterIdx	Items	Funcs	Tasks	Script
-1	许大人	1002				

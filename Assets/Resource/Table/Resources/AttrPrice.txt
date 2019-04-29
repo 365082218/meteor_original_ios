@@ -1,3 +1,0 @@
-﻿IDX	名字	品质	气血1点价格	部队气血加成	部队防御加成	部队攻击加成	魔法值价格	物理攻击	物理防御	攻击频率	暴击几率	尺寸
-Idx	Name	Quality	Hp	ArmyHp	ArmyDef	ArmyAttack	Mp	PhysicalAttack	PhysicalDefence	Speed	CriticalRating	Size
-1	白色	0	40	150	80	250	20	10	10	3	425	100

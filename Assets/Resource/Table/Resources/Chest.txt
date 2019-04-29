@@ -1,7 +1,0 @@
-﻿序号	名称	模型unitID	暴率配置	是否需要钥匙	需要钥匙类型
-Idx	Name	UnitId	Reward	NeedKey	KeyType
-1	木制宝箱	9	1002	0	0
-2	黄铜宝箱	5		1	2
-3	白银宝箱	7		1	3
-4	骷髅宝箱	8		1	1
-5	黄金宝箱	6		1	4
