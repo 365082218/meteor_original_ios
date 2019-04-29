@@ -315,7 +315,7 @@ class ProtoHandler
         //到最后一步确认后，开始同步服务器场景数据.
         if (rsp.result == 1)
         {
-            if (NetWorkBattle.Ins.RoomId == -1)
+            if (NetWorkBattle.Instance.RoomId == -1)
             {
                 //选人，或者阵营，或者
                 //UnityEngine.Debug.LogError("OnJoinRoom successful");
@@ -323,7 +323,7 @@ class ProtoHandler
                     MainLobby.Instance.Close();
                 if (RoomOptionWnd.Exist)
                     RoomOptionWnd.Instance.Close();
-                NetWorkBattle.Ins.OnEnterRoomSuccessed((int)rsp.roomId, (int)rsp.levelIdx, (int)rsp.playerId);
+                NetWorkBattle.Instance.OnEnterRoomSuccessed((int)rsp.roomId, (int)rsp.levelIdx, (int)rsp.playerId);
                 RoomInfo r = RoomMng.Instance.GetRoom((int)rsp.roomId);
                 //如果是盟主模式，无需选择阵营
                 if (r.rule == RoomInfo.RoomRule.MZ)
@@ -393,7 +393,7 @@ class ProtoHandler
             //链接失败,重置对战
             //Debug.LogError("disconnected");
             U3D.PopupTip(message);
-            NetWorkBattle.Ins.OnDisconnect();
+            NetWorkBattle.Instance.OnDisconnect();
             retryNum--;
             if (retryNum <= 0)
             {
@@ -406,7 +406,7 @@ class ProtoHandler
     //断开链接,退出场景，返回
     static void OnDisconnect()
     {
-        NetWorkBattle.Ins.OnDisconnect();
+        NetWorkBattle.Instance.OnDisconnect();
         if (!MainWnd.Exist && GameBattleEx.Instance != null)
             U3D.GoBack();
     }

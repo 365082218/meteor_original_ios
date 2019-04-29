@@ -22,14 +22,6 @@ public class NetWorkBattle:Singleton<NetWorkBattle> {
     int FrameIndex;
     int ServerFrameIndex;
     public int GameTime;//剩余总时间.
-    static NetWorkBattle _Ins;
-    public static NetWorkBattle Ins { get { return _Ins; } }
-    // Use this for initialization
-    private void Awake()
-    {
-        if (_Ins == null)
-            _Ins = this;    
-    }
 
     void Start () {
         RoomId = -1;

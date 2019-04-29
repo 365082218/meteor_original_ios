@@ -249,7 +249,7 @@ public class Common
         ChatMsg msg = new ChatMsg();
         msg.channelType = 0;
         msg.chatMessage = message;
-        msg.playerId = (uint)NetWorkBattle.Ins.PlayerId;
+        msg.playerId = (uint)NetWorkBattle.Instance.PlayerId;
         Exec(ClientProxy.sProxy,(int)MeteorMsg.MsgType.ChatInRoomReq, msg);
     }
 
@@ -258,7 +258,7 @@ public class Common
         AudioChatMsg msg = new AudioChatMsg();
         msg.type = 0;
         msg.audio_data.AddRange(data);
-        msg.playerId = (uint)NetWorkBattle.Ins.PlayerId;
+        msg.playerId = (uint)NetWorkBattle.Instance.PlayerId;
         Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.AudioChat, msg);
     }
 

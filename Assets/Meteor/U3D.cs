@@ -585,7 +585,7 @@ public class U3D : MonoBehaviour {
 
     public static void LoadNetLevel()
     {
-        NetWorkBattle.Ins.Load();
+        NetWorkBattle.Instance.Load();
     }
 
     //加载当前设置的关卡.在打开模组剧本时/联机时

@@ -55,7 +55,7 @@ public class RoomChatWnd:Window<RoomChatWnd>
         }
         GameObject obj = GameObject.Instantiate(Resources.Load("AudioMsg")) as GameObject;
         obj.name = (Root.transform.childCount + 1).ToString();
-        obj.transform.GetChild(0).GetComponent<Text>().text = NetWorkBattle.Ins.GetNetPlayerName(playerId) + "发来了一条语音信息";
+        obj.transform.GetChild(0).GetComponent<Text>().text = NetWorkBattle.Instance.GetNetPlayerName(playerId) + "发来了一条语音信息";
         obj.transform.GetChild(1).GetComponent<UIFunCtrl>().SetEvent((int audioIdx) => { OnPlayAudio(audioIdx); }, Root.transform.childCount);
         obj.transform.SetParent(Root.transform);
         obj.transform.localScale = Vector3.one;
@@ -91,7 +91,7 @@ public class RoomChatWnd:Window<RoomChatWnd>
         GameObject obj = new GameObject();
         obj.name = (Root.transform.childCount + 1).ToString();
         Text txt = obj.AddComponent<Text>();
-        txt.text = string.Format("{0}:{1}", NetWorkBattle.Ins.GetNetPlayerName(playerId), message);
+        txt.text = string.Format("{0}:{1}", NetWorkBattle.Instance.GetNetPlayerName(playerId), message);
         //00AAFFFF
         txt.font = Startup.ins.TextFont;
         txt.fontSize = 32;
@@ -671,8 +671,8 @@ public class WeaponSelectWnd:Window<WeaponSelectWnd>
 
     void OnSelectWeapon()
     {
-        NetWorkBattle.Ins.weaponIdx = U3D.GetWeaponByCode(weaponIdx);
-        NetWorkBattle.Ins.EnterLevel();
+        NetWorkBattle.Instance.weaponIdx = U3D.GetWeaponByCode(weaponIdx);
+        NetWorkBattle.Instance.EnterLevel();
         Close();
     }
 }
@@ -688,8 +688,8 @@ public class CampSelectWnd : Window<CampSelectWnd>
 
     void Init()
     {
-        Control("Meteor").GetComponent<Button>().onClick.AddListener(()=> { NetWorkBattle.Ins.camp = (int)EUnitCamp.EUC_Meteor; RoleSelectWnd.Instance.Open(); Close(); });
-        Control("Butterfly").GetComponent<Button>().onClick.AddListener(() => { NetWorkBattle.Ins.camp = (int)EUnitCamp.EUC_Butterfly; RoleSelectWnd.Instance.Open(); Close(); });
+        Control("Meteor").GetComponent<Button>().onClick.AddListener(()=> { NetWorkBattle.Instance.camp = (int)EUnitCamp.EUC_Meteor; RoleSelectWnd.Instance.Open(); Close(); });
+        Control("Butterfly").GetComponent<Button>().onClick.AddListener(() => { NetWorkBattle.Instance.camp = (int)EUnitCamp.EUC_Butterfly; RoleSelectWnd.Instance.Open(); Close(); });
     }
 }
 
@@ -742,7 +742,7 @@ public class RoleSelectWnd: Window<RoleSelectWnd>
 
     void OnSelectHero()
     {
-        NetWorkBattle.Ins.heroIdx = heroIdx;
+        NetWorkBattle.Instance.heroIdx = heroIdx;
         WeaponSelectWnd.Instance.Open();
         Close();
     }

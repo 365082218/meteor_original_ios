@@ -854,7 +854,7 @@ public partial class GameBattleEx : Singleton<GameBattleEx> {
         }
         else if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
-            int left = Mathf.FloorToInt(NetWorkBattle.Ins.GameTime / 1000);
+            int left = Mathf.FloorToInt(NetWorkBattle.Instance.GameTime / 1000);
             if (left < 0)
                 left = 0;
             int minute = left / 60;

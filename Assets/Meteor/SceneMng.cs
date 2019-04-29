@@ -187,7 +187,7 @@ class SceneMng:Singleton<SceneMng>
     {
         MonsterEx ret = new MonsterEx();
         ret.hpCur = player.hp;
-        ret.HpMax = (int)RoomMng.Instance.GetRoom(NetWorkBattle.Ins.RoomId).hpMax;
+        ret.HpMax = (int)RoomMng.Instance.GetRoom(NetWorkBattle.Instance.RoomId).hpMax;
         ret.AngryValue = 0;
         ret.Model = player.model;
         ret.Weapon = (int)player.weapon;
@@ -195,7 +195,7 @@ class SceneMng:Singleton<SceneMng>
         ret.name = player.name;
         ret.SpawnPoint = player.spawnpoint;
         ret.Speed = 1000;
-        ret.IsPlayer = player.id == NetWorkBattle.Ins.PlayerId;
+        ret.IsPlayer = player.id == NetWorkBattle.Instance.PlayerId;
         return ret;
     }
 
