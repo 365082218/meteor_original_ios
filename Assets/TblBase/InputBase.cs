@@ -132,9 +132,7 @@ public class InputItem
                     targetIdx = 0;
 
                 //任意准备动作，可以接任意Pose与Idle一样
-                if (targetIdx >= CommonAction.DartReady && targetIdx <= CommonAction.HammerReady)
-                    targetIdx = 0;
-                if (targetIdx >= CommonAction.ZhihuReady && targetIdx <= CommonAction.RendaoReady)
+                if (PoseStatus.IsReadyAction(targetIdx))
                     targetIdx = 0;
 
                 //部分火枪动作，翻滚，攻击，都有后摇，不允许立即切换，必须等待动作完成

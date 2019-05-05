@@ -15,6 +15,7 @@ public class PluginCtrl : MonoBehaviour {
     float wantPercent = 0;
     float currentPercent = 0;
     bool downLoadComplete = false;
+    public int retryNum = 0;//重试次数.手动点下载时，重置为0
     public bool downLoadError = false;
     public bool instanllComplete = false;
     bool showTips = false;
@@ -53,6 +54,7 @@ public class PluginCtrl : MonoBehaviour {
     }
 
     //安装/取消
+    bool setup = false;
     void OnInstall()
     {
         //处理外挂模型得安装和下载.
@@ -60,18 +62,17 @@ public class PluginCtrl : MonoBehaviour {
         {
             if (Target.Installed)
                 return;
-
-            if (download == null)
+            if (!setup)
             {
-                download = new WebClient();
-                download.DownloadProgressChanged += this.DownLoadProgressChanged;
-                download.DownloadFileCompleted += this.DownLoadFileCompleted;
+                DlcMng.Instance.AddDownloadTask(this);
                 Install.GetComponentInChildren<Text>().text = "取消";
-                string downloadUrl = string.Format("http://{0}/meteor/{1}", Main.strHost, Target.Path);
-                download.DownloadFileAsync(new System.Uri(downloadUrl), Target.LocalPath);
+                setup = true;
+                retryNum = 0;
             }
             else
             {
+                DlcMng.Instance.RemoveDownloadTask(this);
+                setup = false;
                 Install.GetComponentInChildren<Text>().text = "下载";
             }
         }
@@ -80,29 +81,28 @@ public class PluginCtrl : MonoBehaviour {
         {
             if (Chapter.Installed)
                 return;
-
-            if (download == null)
+            if (!setup)
             {
-                download = new WebClient();
-                download.DownloadProgressChanged += this.DownLoadProgressChanged;
-                download.DownloadFileCompleted += this.DownLoadFileCompleted;
+                DlcMng.Instance.AddDownloadTask(this);
                 Install.GetComponentInChildren<Text>().text = "取消";
-                string downloadUrl = string.Format("http://{0}/meteor/{1}", Main.strHost, Chapter.Path);
-                download.DownloadFileAsync(new System.Uri(downloadUrl), Chapter.LocalPath);
+                setup = true;
+                retryNum = 0;
             }
             else
             {
+                DlcMng.Instance.RemoveDownloadTask(this);
+                setup = false;
                 Install.GetComponentInChildren<Text>().text = "下载";
             }
         }
     }
 
-    void DownLoadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+    public void DownLoadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
     {
         wantPercent = e.ProgressPercentage;
     }
 
-    void DownLoadFileCompleted(object sender, AsyncCompletedEventArgs e)
+    public void DownLoadFileCompleted(object sender, AsyncCompletedEventArgs e)
     {
         if (e.Error != null)
         {
@@ -162,7 +162,6 @@ public class PluginCtrl : MonoBehaviour {
 
     public void OnFailed()
     {
-        ReleaseClient();
         U3D.PopupTip("安装失败");
         downLoadError = true;
     }
@@ -172,32 +171,16 @@ public class PluginCtrl : MonoBehaviour {
         OnFailed();
     }
 
-    void ReleaseClient()
-    {
-        if (download != null)
-        {
-            download.CancelAsync();
-            download.Dispose();
-            download = null;
-        }
-    }
-
     private void OnDestroy()
     {
-        if (preview != null)
-        {
-            preview.CancelAsync();
-            preview.Dispose();
-            preview = null;
-        }
-
-        ReleaseClient();
+        DlcMng.Instance.RemovePreviewTask(this);
+        DlcMng.Instance.RemoveDownloadTask(this);
     }
 
-    WebClient preview;
     WebClient download;
-    ModelItem Target;
-    Chapter Chapter;
+    public ModelItem Target;
+    public Chapter Chapter;
+    
     public void AttachModel(ModelItem it)
     {
         Target = it;
@@ -218,36 +201,7 @@ public class PluginCtrl : MonoBehaviour {
         }
         else
         {
-            string urlIconPreview = string.Format("http://{0}/meteor/{1}", Main.strHost, it.webPreview);
-            try
-            {
-                preview = new WebClient();
-                byte[] bitIcon = preview.DownloadData(urlIconPreview);
-                if (bitIcon != null && bitIcon.Length != 0)
-                {
-                    try
-                    {
-                        System.IO.FileStream fs = new System.IO.FileStream(it.Preview, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.ReadWrite, System.IO.FileShare.None);
-                        fs.Write(bitIcon, 0, bitIcon.Length);
-                        fs.SetLength(bitIcon.Length);
-                        fs.Flush();
-                        fs.Close();
-                    }
-                    catch (System.Exception exp)
-                    {
-                        Debug.Log(exp.Message);
-                    }
-                    Texture2D tex = new Texture2D(200, 150);
-                    tex.LoadImage(bitIcon);
-                    Preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
-                }
-                preview.Dispose();
-                preview = null;
-            }
-            catch
-            {
-
-            }
+            
         }
         Title.text = string.Format("「角色模型-{0}」", it.Name);
         Desc.text = it.Desc ?? "";
@@ -274,25 +228,7 @@ public class PluginCtrl : MonoBehaviour {
         }
         else
         {
-            string urlIconPreview = string.Format("http://{0}/meteor/{1}", Main.strHost, Chapter.webPreview);
-            try
-            {
-                preview = new WebClient();
-                byte[] bitIcon = preview.DownloadData(urlIconPreview);
-                if (bitIcon != null && bitIcon.Length != 0)
-                {
-                    System.IO.File.WriteAllBytes(Chapter.Preview, bitIcon);
-                    Texture2D tex = new Texture2D(200, 150);
-                    tex.LoadImage(bitIcon);
-                    Preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
-                }
-                preview.Dispose();
-                preview = null;
-            }
-            catch
-            {
-
-            }
+            
         }
         Title.text = string.Format("「剧本-{0}」", Chapter.Name);
         Desc.text = Chapter.Desc ?? "";

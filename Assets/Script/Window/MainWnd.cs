@@ -2058,6 +2058,25 @@ public class BattleResultWnd : Window<BattleResultWnd>
         Control("Close").SetActive(true);
         Control("Close").GetComponent<Button>().onClick.AddListener(() =>
         {
+            if (SettingWnd.Exist)
+                SettingWnd.Instance.Close();
+            GameData.Instance.SaveState();
+            GameBattleEx.Instance.Pause();
+            Startup.ins.StopAllCoroutines();
+            SoundManager.Instance.StopAll();
+            BuffMng.Instance.Clear();
+            MeteorManager.Instance.Clear();
+            Close();
+            if (FightWnd.Exist)
+                FightWnd.Instance.Close();
+            if (GameOverlayWnd.Exist)
+                GameOverlayWnd.Instance.ClearSystemMsg();
+            //离开副本
+            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+                ClientProxy.LeaveLevel();
+            else
+                FrameReplay.Instance.OnDisconnected();
+
             Startup.ins.PlayEndMovie(result == 1);
         });
     }

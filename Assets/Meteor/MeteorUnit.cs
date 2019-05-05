@@ -255,12 +255,6 @@ public class Buff: INetUpdate
             //    FightWnd.Instance.UpdateMonsterInfo(unitRemoved[i]);
         }
     }
-    public void Update()
-    {
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
-            return;
-        GameFrameTurn(null);
-    }
 }
 
 public partial class MeteorUnit : MonoBehaviour, INetUpdate
@@ -689,6 +683,8 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
     public float yRotateDelta = 0;
     public void GameFrameTurn(List<protocol.FrameCommand> actions)
     {
+        if (!gameObject.activeInHierarchy)
+            return;
         if (Climbing)
             ClimbingTime += FrameReplay.deltaTime;
         else
@@ -953,13 +949,13 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
         {
             if (ImpluseVec.x > 0)
             {
-                ImpluseVec.x -= scale * groundFriction * Time.deltaTime;
+                ImpluseVec.x -= scale * groundFriction * FrameReplay.deltaTime;
                 if (ImpluseVec.x < 0)
                     ImpluseVec.x = 0;
             }
             else
             {
-                ImpluseVec.x += scale * groundFriction * Time.deltaTime;
+                ImpluseVec.x += scale * groundFriction * FrameReplay.deltaTime;
                 if (ImpluseVec.x > 0)
                     ImpluseVec.x = 0;
             }
@@ -968,13 +964,13 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
         {
             if (ImpluseVec.z > 0)
             {
-                ImpluseVec.z -= scale * groundFriction * Time.deltaTime;
+                ImpluseVec.z -= scale * groundFriction * FrameReplay.deltaTime;
                 if (ImpluseVec.z < 0)
                     ImpluseVec.z = 0;
             }
             else
             {
-                ImpluseVec.z += scale * groundFriction * Time.deltaTime;
+                ImpluseVec.z += scale * groundFriction * FrameReplay.deltaTime;
                 if (ImpluseVec.z > 0)
                     ImpluseVec.z = 0;
             }
@@ -1003,9 +999,9 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
         //    ImpluseVec.y = 0;
 
         Vector3 v;
-        v.x = ImpluseVec.x * Time.deltaTime;
-        v.y = IgnoreGravity ? 0 : ImpluseVec.y * Time.deltaTime;
-        v.z = ImpluseVec.z * Time.deltaTime;
+        v.x = ImpluseVec.x * FrameReplay.deltaTime;
+        v.y = IgnoreGravity ? 0 : ImpluseVec.y * FrameReplay.deltaTime;
+        v.z = ImpluseVec.z * FrameReplay.deltaTime;
         v += charLoader.moveDelta;
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
@@ -1030,7 +1026,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
             }
             else
             {
-                ImpluseVec.y = ImpluseVec.y - gScale * Time.deltaTime;
+                ImpluseVec.y = ImpluseVec.y - gScale * FrameReplay.deltaTime;
                 if (ImpluseVec.y < yLimitMin)
                     ImpluseVec.y = yLimitMin;
             }
@@ -1695,7 +1691,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
                 //爬墙
                 if (!MoveOnGroundEx && ImpluseVec.y < yClimbEndLimit)
                 {
-                    posMng.ClimbFallTick += Time.deltaTime;
+                    posMng.ClimbFallTick += FrameReplay.deltaTime;
                     if (posMng.ClimbFallTick > PoseStatus.ClimbFallLimit)
                     {
                         //Debug.LogError("爬墙速度低于最低速度-爬墙落下");
@@ -1802,7 +1798,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
                         //爬墙
                         if (!MoveOnGroundEx && ImpluseVec.y < yClimbEndLimit)
                         {
-                            posMng.ClimbFallTick += Time.deltaTime;
+                            posMng.ClimbFallTick += FrameReplay.deltaTime;
                             if (posMng.ClimbFallTick > PoseStatus.ClimbFallLimit)
                             {
                                 //Debug.LogError("爬墙速度低于最低速度-爬墙落下");
@@ -2010,7 +2006,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
                 return false;
         }
         RebornTarget = null;
-        float dis = 50;
+        float dis = Global.RebornRange;
         int index = -1;
         for (int i = 0; i < MeteorManager.Instance.DeadUnits.Count; i++)
         {
@@ -2042,7 +2038,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
                 return;
         }
         RebornTarget = null;
-        float dis = 50;
+        float dis = Global.RebornRange;
         int index = -1;
         for (int i = 0; i < MeteorManager.Instance.DeadUnits.Count; i++)
         {
@@ -2155,7 +2151,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
     //盟主模式下的自动复活.
     public void RebornUpdate()
     {
-        RebornTick += Time.deltaTime;
+        RebornTick += FrameReplay.deltaTime;
         if (RebornTick >= 5.0f)
         {
             OnReborn(1.0f);
@@ -2299,7 +2295,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
     public bool PassThrough(Vector3 target)
     {
         RaycastHit ray = new RaycastHit();
-        if (Physics.Raycast(mSkeletonPivot, (target - mSkeletonPivot).normalized, out ray, Vector3.Distance(target, mSkeletonPivot), LayerMask.NameToLayer("Scene")))
+        if (Physics.SphereCast(mSkeletonPivot, 2.0f, (target - mSkeletonPivot).normalized, out ray, Vector3.Distance(target, mSkeletonPivot), 1 << LayerMask.NameToLayer("Scene")))
             return false;
         return true;
     }
@@ -3207,7 +3203,7 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
     {
         while (true)
         {
-            checkRotateTick -= Time.deltaTime;
+            checkRotateTick -= FrameReplay.deltaTime;
             if (checkRotateTick < 0.0f)
             {
                 posMng.Rotateing = false;

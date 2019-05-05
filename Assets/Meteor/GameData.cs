@@ -259,7 +259,6 @@ public class GameState
     public bool DisableParticle;//无粒子特效
     public bool SnowParticle;//雪粒子
     public bool DisableJoystick;//不显示摇杆.
-    public bool PetOn;//带宠物
     public bool SkipVideo;//忽略过场视频
     public List<ServerInfo> ServerList;//自定义服务器
 }
@@ -362,7 +361,6 @@ public class GameData:Singleton<GameData>
             gameStatus.ServerList.Add(svr);
             gameStatus.GodLike = false;
             gameStatus.Undead = false;
-            gameStatus.PetOn = false;
             gameStatus.ShowBlood = false;
             gameStatus.Quality = 0;
             gameStatus.DisableJoystick = true;

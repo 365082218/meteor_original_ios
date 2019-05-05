@@ -10,7 +10,7 @@ public class MeteorManager {
     }
     static MeteorManager _Ins;
     public MeteorUnit LocalPlayer;//当前操纵着主英雄.
-    public PetController Pet;
+    //public PetController Pet;
     public List<MeteorUnit> UnitInfos = new List<MeteorUnit>();
     public List<MeteorUnit> DeadUnits = new List<MeteorUnit>();
     public List<MeteorUnit> DeadUnitsClone = new List<MeteorUnit>();//备用的
@@ -159,10 +159,5 @@ public class MeteorManager {
         LocalPlayer = null;
         UnitInstanceIdx = 0;
         SceneItemInstanceIdx = 0;
-        if (Pet != null)
-        {
-            GameObject.Destroy(Pet.gameObject);
-            Pet = null;
-        }
     }
 }

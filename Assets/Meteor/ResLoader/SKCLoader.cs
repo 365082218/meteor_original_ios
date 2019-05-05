@@ -279,7 +279,7 @@ public class SkcFile
                             //部分骨骼权重太低，剪掉这个骨骼
                             if (w <= 0.005f)
                             {
-                                Debug.LogError("忽略了权重为0的骨骼,");
+                                //Debug.LogError("忽略了权重为0的骨骼,");
                                 continue;
                             }
                             BoneWeightEx e = new BoneWeightEx();

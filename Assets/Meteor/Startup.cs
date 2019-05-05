@@ -52,7 +52,8 @@ public class Startup : MonoBehaviour {
                     EscWnd.Instance.Open();
             }
         }
-        ProtoHandler.Update();
+        if (Global.Instance.GLevelItem == null)
+            DlcMng.Instance.Update();
     }
 
     public void PlayEndMovie(bool play)

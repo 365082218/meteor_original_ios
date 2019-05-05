@@ -67,8 +67,8 @@ public class Patch : MonoBehaviour {
         if (ConnectWnd.Exist)
             ConnectWnd.Instance.Close();
         SFXLoader.Instance.Init();
-        GameObject sfx = new GameObject("preload");
-        SFXLoader.Instance.PlayEffect("defup.ef", sfx, true, true);
+        //GameObject sfx = new GameObject("preload");
+        //SFXLoader.Instance.PlayEffect("defup.ef", sfx, true, true);
         //yield return new WaitForEndOfFrame();
         //toProgress = 30;
         //while (displayProgress < toProgress)
@@ -102,6 +102,8 @@ public class Patch : MonoBehaviour {
             percent.text = string.Format("{0}%", displayProgress);
             yield return 0;
         }
+        //加载默认角色，这个角色有用的
+        AmbLoader.Ins.LoadCharacterAmb(0);
         //for (int i = 0; i < 20; i++)
         //{
         //    AmbLoader.Ins.LoadCharacterAmb(i);
@@ -117,6 +119,7 @@ public class Patch : MonoBehaviour {
         //}
         PoseStatus.Clear();
         AmbLoader.Ins.LoadCharacterAmb();
+        PoseStatus.LoadDefault();
         toProgress = 100;
         while (displayProgress < toProgress)
         {

@@ -29,6 +29,9 @@ public class Global
     public float FPS = 1.0f / 30.0f;//动画设计帧率
     public float gGravity = 1000;
     public const float angularVelocity = 540.0f;
+    public const float RebornDelay = 15.0f;//复活队友的CD间隔
+    public const float RebornRange = 125.0f;//复活队友的距离最大限制
+    public const float RefreshFollowPathDelay = 5.0f;//如果跟随一个动态的目标，那么每5秒刷新一次位置
     public bool useShadowInterpolate = true;//是否使用影子跟随插值
     public bool PluginUpdated = false;//是否已成功更新过资料片配置文件
     public int MaxPlayer;
@@ -68,8 +71,7 @@ public class Global
     public int LEVELMAX = 29;//最大关卡29
     public const int ANGRYMAX = 100;
     public const int ANGRYBURST = 60;
-    public const float AttackRangeMin = 31;//远程武器在距离35码内要离开目标，否则是很难攻击到目标的
-    public const float AttackRangeMinD = 1000;//最小约31码
+    public const float AttackRangeMinD = 1225;//最小约35码
     public const float AttackRange = 8100.0f;//90 * 90换近战武器
     public const float FollowDistanceEnd = 3600.0f;//结束跟随60
     public const float FollowDistanceStart = 6400.0f;//开始跟随80

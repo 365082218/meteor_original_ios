@@ -1,11 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 //播放一个sfxfile中的一个子特效
 //自己追踪目标的位置和旋转。
 //子Mesh设置自己的本地坐标和旋转。
 [System.Serializable]
-public class SFXUnit : MonoBehaviour
+public class SFXUnit : MonoBehaviour, INetUpdate
 {
     public SFXEffectPlay parentSfx;
     public int effectIndex;
@@ -22,12 +23,12 @@ public class SFXUnit : MonoBehaviour
     //public Mesh[] mesh;
     public ParticleSystem particle;
     public IFLLoader iflTexture;
-    Coroutine playCoroutine;
     public bool PlayDone = false;
     public bool pause = false;
     bool LookAtC = false;
     void Awake()
     {
+        FrameReplay.Instance.RegisterObject(this);
     }
     /* BOX 立体模型、
 AUDIO 声音指向、Audio_3音效 Audio_0 UI音效 Audio_15 多一个字节？
@@ -43,6 +44,7 @@ DRAG*/
     //第二个参数，本地坐标系跟随，
     public void OnDestroy()
     {
+        FrameReplay.Instance.UnRegisterObject(this);
         if (mOwner != null)
             mOwner.OnSFXDestroy(this);
     }
@@ -340,7 +342,6 @@ DRAG*/
                 Destroy(gameObject);
             return;
         }
-        playCoroutine = StartCoroutine(PlayEffectFrame());
     }
 
     public Transform FindFollowed(string bone)
@@ -355,52 +356,28 @@ DRAG*/
         return bindBone == null ? null : bindBone.transform;
     }
 
-    void Start()
-    {
-
-    }
-
     float playedTime = 0.0f;
     int playedIndex = 1;
+    Vector3 temp = new Vector3(0, 0, 0);
+    Vector3 temp2 = new Vector3(0, 0, 0);
     // Update is called once per frame
-    void Update()
+    public void GameFrameTurn(List<protocol.FrameCommand> cmd)
     {
-        playedTime += Time.deltaTime;
-        //if (LookAtC)
-        //    transform.LookAt(Camera.main.transform);
-    }
-
-    //重复播放
-    public void RePlay()
-    {
-        playedTime = 0.0f;
-        playedIndex = 1;
-        PlayDone = false;
-        if (playCoroutine != null)
-            StopCoroutine(playCoroutine);
-        playCoroutine = StartCoroutine(PlayEffectFrame());
-    }
-
-    IEnumerator PlayEffectFrame()
-    {
-        while (playedIndex < source.frames.Count)
+        playedTime += FrameReplay.deltaTime;
+        if (pause || PlayDone)
+            return;
+        if (playedIndex < source.frames.Count)
         {
-            //某帧锁定
-            if (pause)
-            {
-                yield return 0;
-                continue;
-            }
             if (playedTime < source.frames[0].startTime && mRender.enabled)
                 mRender.enabled = false;
             else if (playedTime >= source.frames[0].startTime && !mRender.enabled && source.Hidden == 0 && EffectType != "DRAG" && tex != null)
                 mRender.enabled = true;
 
-            while (playedTime < source.frames[0].startTime)
-                yield return 0;
+            if (playedTime < source.frames[0].startTime)
+                return;
             ChangeAttackCore();
             float timeRatio2 = (playedTime - source.frames[playedIndex - 1].startTime) / (source.frames[playedIndex].startTime - source.frames[playedIndex - 1].startTime);
-            
+
             string vertexColor = "_TintColor";
             if (source.BlendType == 2)
                 vertexColor = "_InvColor";
@@ -410,12 +387,21 @@ DRAG*/
                 if (source.frames[playedIndex].startTime <= playedTime)
                 {
                     OnNewFrame(vertexColor);
-                    transform.localScale = new Vector3(source.origScale.x * source.frames[playedIndex-1].scale.x, source.origScale.y * source.frames[playedIndex-1].scale.y, source.origScale.z * source.frames[playedIndex-1].scale.z);
+                    temp.x = source.origScale.x * source.frames[playedIndex - 1].scale.x;
+                    temp.y = source.origScale.y * source.frames[playedIndex - 1].scale.y;
+                    temp.z = source.origScale.z * source.frames[playedIndex - 1].scale.z;
+                    transform.localScale = temp;
                 }
                 else
                 {
                     OnLastFrame(timeRatio2, vertexColor);
-                    transform.localScale = Vector3.Lerp(new Vector3(source.origScale.x * source.frames[playedIndex - 1].scale.x, source.origScale.y * source.frames[playedIndex - 1].scale.y, source.origScale.z * source.frames[playedIndex - 1].scale.z), new Vector3(source.origScale.x * source.frames[playedIndex].scale.x, source.origScale.y * source.frames[playedIndex].scale.y, source.origScale.z * source.frames[playedIndex].scale.z), timeRatio2);
+                    temp.x = source.origScale.x * source.frames[playedIndex - 1].scale.x;
+                    temp.y = source.origScale.y * source.frames[playedIndex - 1].scale.y;
+                    temp.z = source.origScale.z * source.frames[playedIndex - 1].scale.z;
+                    temp2.x = source.origScale.x * source.frames[playedIndex].scale.x;
+                    temp2.y = source.origScale.y * source.frames[playedIndex].scale.y;
+                    temp2.z = source.origScale.z * source.frames[playedIndex].scale.z;
+                    transform.localScale = Vector3.Lerp(temp, temp2, timeRatio2);
                 }
             }
             else if (source.EffectType.Equals("CYLINDER"))
@@ -423,7 +409,7 @@ DRAG*/
                 if (source.frames[playedIndex].startTime <= playedTime)
                 {
                     OnNewFrame(vertexColor);
-                    transform.localScale = source.frames[playedIndex-1].scale;
+                    transform.localScale = source.frames[playedIndex - 1].scale;
                 }
                 else
                 {
@@ -436,7 +422,7 @@ DRAG*/
                 if (source.frames[playedIndex].startTime <= playedTime)
                 {
                     OnNewFrame(vertexColor);
-                    transform.localScale = source.frames[playedIndex-1].scale;
+                    transform.localScale = source.frames[playedIndex - 1].scale;
                 }
                 else
                 {
@@ -449,7 +435,7 @@ DRAG*/
                 if (source.frames[playedIndex].startTime <= playedTime)
                 {
                     OnNewFrame(vertexColor);
-                    transform.localScale = source.frames[playedIndex-1].scale;
+                    transform.localScale = source.frames[playedIndex - 1].scale;
                 }
                 else
                 {
@@ -463,13 +449,22 @@ DRAG*/
                 {
                     OnNewFrame(vertexColor);
                     transform.LookAt(Camera.main.transform);
-                    transform.localScale = new Vector3(source.origScale.x * source.frames[playedIndex-1].scale.x, source.origScale.y * source.frames[playedIndex-1].scale.y, source.origScale.z * source.frames[playedIndex-1].scale.z);
+                    temp.x = source.origScale.x * source.frames[playedIndex - 1].scale.x;
+                    temp.y = source.origScale.y * source.frames[playedIndex - 1].scale.y;
+                    temp.z = source.origScale.z * source.frames[playedIndex - 1].scale.z;
+                    transform.localScale = temp;
                 }
                 else
                 {
                     OnLastFrame(timeRatio2, vertexColor);
                     transform.LookAt(Camera.main.transform);
-                    transform.localScale = Vector3.Lerp(new Vector3(source.origScale.x * source.frames[playedIndex - 1].scale.x, source.origScale.y * source.frames[playedIndex - 1].scale.y, source.origScale.z * source.frames[playedIndex - 1].scale.z), new Vector3(source.origScale.x * source.frames[playedIndex].scale.x, source.origScale.y * source.frames[playedIndex].scale.y, source.origScale.z * source.frames[playedIndex].scale.z), timeRatio2);
+                    temp.x = source.origScale.x * source.frames[playedIndex - 1].scale.x;
+                    temp.y = source.origScale.y * source.frames[playedIndex - 1].scale.y;
+                    temp.z = source.origScale.z * source.frames[playedIndex - 1].scale.z;
+                    temp2.x = source.origScale.x * source.frames[playedIndex].scale.x;
+                    temp2.y = source.origScale.y * source.frames[playedIndex].scale.y;
+                    temp2.z = source.origScale.z * source.frames[playedIndex].scale.z;
+                    transform.localScale = Vector3.Lerp(temp, temp2, timeRatio2);
                 }
             }
             else if (source.EffectType.Equals("MODEL"))
@@ -513,7 +508,7 @@ DRAG*/
                 if (source.frames[playedIndex].startTime <= playedTime)
                 {
                     OnNewFrame(vertexColor);
-                    transform.localScale = source.frames[playedIndex-1].scale;
+                    transform.localScale = source.frames[playedIndex - 1].scale;
                 }
                 else
                 {
@@ -526,7 +521,7 @@ DRAG*/
                 if (source.frames[playedIndex].startTime <= playedTime)
                 {
                     OnNewFrame(vertexColor);
-                    transform.localScale = source.frames[playedIndex-1].scale;
+                    transform.localScale = source.frames[playedIndex - 1].scale;
                 }
                 else
                 {
@@ -534,18 +529,23 @@ DRAG*/
                     transform.localScale = Vector3.Lerp(source.frames[playedIndex - 1].scale, source.frames[playedIndex].scale, timeRatio2);
                 }
             }
-
-            yield return 0;
         }
-        //?是循环还是删除
-        //playedIndex = 0;
-        //yield return 0;
-        PlayDone = true;
-        if (parentSfx != null)
-            parentSfx.OnPlayDone(this);
         else
-            Destroy(gameObject);
-        yield break;
+        {
+            PlayDone = true;
+            if (parentSfx != null)
+                parentSfx.OnPlayDone(this);
+            else
+                Destroy(gameObject);
+        }
+    }
+
+    //重复播放
+    public void RePlay()
+    {
+        playedTime = 0.0f;
+        playedIndex = 1;
+        PlayDone = false;
     }
 
     public void ShowKeyFrame(string vertexColor)

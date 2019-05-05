@@ -45,7 +45,7 @@ public class ModelWnd:Window<ModelWnd>
 
     void AddModel(int Idx)
     {
-        UIFunCtrl obj = (GameObject.Instantiate(Resources.Load("UIFuncItem")) as GameObject).GetComponent<UIFunCtrl>();
+        UIFunCtrl obj = (GameObject.Instantiate(Resources.Load("GridItemBtn")) as GameObject).AddComponent<UIFunCtrl>();
         obj.SetEvent(ChangeModel, Idx);
         obj.SetText(Global.Instance.GetCharacterName(Idx));
         obj.transform.SetParent(GridViewRoot.transform);
@@ -190,14 +190,6 @@ public class EscWnd : Window<EscWnd>
         toggleDisableJoyStick.onValueChanged.AddListener(OnDisableJoyStick);
         OnDisableJoyStick(toggleDisableJoyStick.isOn);
 
-        //宠物猫
-        Toggle toggleDisableCat = Control("Cat").GetComponent<Toggle>();
-        toggleDisableCat.isOn = GameData.Instance.gameStatus.PetOn;
-        toggleDisableCat.onValueChanged.AddListener(OnDisableCat);
-        OnDisableCat(toggleDisableCat.isOn);
-
-        
-
         //把一些模式禁用，例如作弊之类的.
         if (GameData.Instance.gameStatus.GodLike)
         {
@@ -219,7 +211,6 @@ public class EscWnd : Window<EscWnd>
             Control("EnableGodMode").SetActive(false);
             Control("ShowLog").SetActive(false);
             Control("ShowLevelDebugButton").SetActive(false);
-            Control("Cat").SetActive(false);
             Control("EnableUnDead").SetActive(false);
         }
 
@@ -237,23 +228,6 @@ public class EscWnd : Window<EscWnd>
                     MeteorManager.Instance.LocalPlayer.SpeedFast();
                 else
                     MeteorManager.Instance.LocalPlayer.SpeedSlow();
-            }
-        }
-    }
-
-    void OnDisableCat(bool disable)
-    {
-        GameData.Instance.gameStatus.PetOn = disable;
-        if (GameData.Instance.gameStatus.PetOn && Global.Instance.GLevelItem.DisableFindWay == 0 && Global.Instance.GLevelItem != null && Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
-        {
-            U3D.InitPet();
-        }
-        else
-        {
-            if (MeteorManager.Instance.Pet != null)
-            {
-                GameObject.Destroy(MeteorManager.Instance.Pet.gameObject);
-                MeteorManager.Instance.Pet = null;
             }
         }
     }

@@ -11,23 +11,24 @@ public class DamageRecord
 }
 
 //飞镖飞行实现-Flight层
-public class DartLoader : MonoBehaviour {
+public class DartLoader : MonoBehaviour, INetUpdate {
     InventoryItem weapon;
     public const float MaxDistance = 5000;
     // Use this for initialization
     private void Awake()
     {
-        rig = GetComponent<Rigidbody>();
-        rig.useGravity = false;
+        Rigidbody r = GetComponent<Rigidbody>();
+        r.useGravity = false;
+        FrameReplay.Instance.RegisterObject(this);
     }
 
     List<DamageRecord> deleteRec = new List<DamageRecord>();
-    private void Update()
+    public void GameFrameTurn(List<protocol.FrameCommand> command)
     {
         deleteRec.Clear();
         for (int i = 0; i < recordList.Count; i++)
         {
-            recordList[i].tick -= Time.deltaTime;
+            recordList[i].tick -= FrameReplay.deltaTime;
             if (recordList[i].tick <= 0)
             {
                 deleteRec.Add(recordList[i]);
@@ -37,18 +38,25 @@ public class DartLoader : MonoBehaviour {
         {
             recordList.Remove(deleteRec[i]);
         }
+
+        //计算位置
+        //是否该
+        _speed += gspeed * FrameReplay.deltaTime;
+        float dis = FrameReplay.deltaTime * _speed;
+        transform.position = transform.position + velocity * FrameReplay.deltaTime;
+        velocity += velocity * gspeed * FrameReplay.deltaTime;
+        maxDistance -= dis;
+        if (maxDistance <= 0.0f)
+            DestroyObject(gameObject);
     }
 
     public AttackDes _attack;
-    Vector3 _direction;
+    Vector3 velocity;
     public static float InitializeSpeed = 350.0f;
     float _speed = InitializeSpeed;//初始速度.
     public static float gspeed = 140.0f;//加速度.
     float maxDistance = 5000;//最远射程
-    Rigidbody rig;
-    Coroutine fly;
     List<DamageRecord> recordList = new List<DamageRecord>();
-
     public void LoadAttack(InventoryItem weapon, Vector3 forward, AttackDes att, MeteorUnit Owner)
     {
         owner = Owner;
@@ -64,30 +72,13 @@ public class DartLoader : MonoBehaviour {
         LoadWeapon();
         transform.LookAt(transform.position + forward);
         MeshRenderer mr = gameObject.GetComponentInChildren<MeshRenderer>();
-        if (mr != null)
-        {
-            BoxCollider bc = mr.gameObject.AddComponent<BoxCollider>();
-            bc.isTrigger = true;
-            bc.size = new Vector3(6, 3, 6);
-        }
-        if (fly != null)
-            StopCoroutine(fly);
-        rig.AddForce(forward * InitializeSpeed, ForceMode.Impulse);
-        rig.AddForce(forward * gspeed, ForceMode.Acceleration);
-        fly = StartCoroutine(Fly());
-    }
 
-    IEnumerator Fly()
-    {
-        while (true)
-        {
-            _speed += gspeed * Time.deltaTime;
-            float dis = Time.deltaTime * _speed;
-            maxDistance -= dis;
-            if (maxDistance <= 0.0f)
-                DestroyObject(gameObject);
-            yield return 0;
-        }
+        BoxCollider bc = mr.gameObject.AddComponent<BoxCollider>();
+        bc.isTrigger = true;
+        bc.size = new Vector3(6, 3, 6);
+
+        velocity = forward * InitializeSpeed;
+        GameBattleEx.Instance.AddDamageCollision(owner, bc);
     }
 
     public static void Init(Vector3 spawn, Vector3 forw, InventoryItem weapon, AttackDes att, MeteorUnit owner)

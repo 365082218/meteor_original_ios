@@ -53,15 +53,20 @@ public class Main : MonoBehaviour {
         ResMng.Reload();
     }
 
+    Coroutine checkUpdate;
     void Start()
     {
         ConnectWnd.Instance.Open();
-        StartCoroutine(CheckNeedUpdate());
+        if (checkUpdate == null)
+            checkUpdate = StartCoroutine(CheckNeedUpdate());
     }
 
 	public void GameStart()
 	{
         GlobalUpdate.Instance.SaveCache();
+        if (checkUpdate != null)
+            StopCoroutine(checkUpdate);
+        checkUpdate = null;
         UnityEngine.SceneManagement.SceneManager.LoadScene("Startup");
     }
 	

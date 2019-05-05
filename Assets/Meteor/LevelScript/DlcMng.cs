@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Net;
 using System.Reflection;
 using UnityEngine;
 
@@ -206,4 +208,327 @@ public class DlcMng:Singleton<DlcMng> {
     }
 
     public List<object> allItem = new List<object>();
+    public bool processing = false;
+    public PluginCtrl processingCtrl = null;
+    //放到预览图下载队列里，绑定到一个UI,做任务控制，避免多个UI同时更新自己的预览图.
+    List<PluginCtrl> PreviewTask = new List<PluginCtrl>();
+    List<string> PreviewTaskCache = new List<string>();//已经下载过预览图的，下次翻页不要再下载.单次运行APP下载一次
+    public void AddPreviewTask(PluginCtrl uiCtrl)
+    {
+        lock (PreviewTask)
+        {
+            if (!PreviewTask.Contains(uiCtrl))
+                PreviewTask.Add(uiCtrl);
+        }
+    }
+
+    public void RemovePreviewTask(PluginCtrl uiCtrl)
+    {
+        lock (PreviewTask)
+        {
+            if (processingCtrl == uiCtrl)
+            {
+                if (client != null)
+                {
+                    client.CancelAsync();
+                    client.Dispose();
+                    client = null;
+                }
+            }
+            if (PreviewTask.Contains(uiCtrl))
+                PreviewTask.Remove(uiCtrl);
+        }
+    }
+
+    public void RemoveDownloadTask(PluginCtrl uiCtrl)
+    {
+        lock (DownloadTask)
+        {
+            if (processingCtrl == uiCtrl)
+            {
+                if (client != null)
+                {
+                    client.CancelAsync();
+                    client.Dispose();
+                    client = null;
+                }
+            }
+            if (DownloadTask.Contains(uiCtrl))
+                DownloadTask.Remove(uiCtrl);
+        }
+    }
+    
+    //下载队列，避免多个控制器一起下载.
+    List<PluginCtrl> DownloadTask = new List<PluginCtrl>();
+    public void AddDownloadTask(PluginCtrl uiCtrl)
+    {
+        lock (DownloadTask)
+        {
+            if (!DownloadTask.Contains(uiCtrl))
+                DownloadTask.Add(uiCtrl);
+        }
+    }
+
+    WebClient client = null;
+    public delegate void OnCrossThreadFunc();
+    List<OnCrossThreadFunc> handler = new List<OnCrossThreadFunc>();
+    public void Update()
+    {
+        if (!processing)
+        {
+            //下载预览图任务
+            if (PreviewTask.Count != 0)
+            {
+                processingCtrl = PreviewTask[0];
+                ModelItem it = processingCtrl.Target;
+                if (it != null)
+                {
+                    //如果该封面已经下载过，并且存储到本地了，那么从本地读取
+                    if (PreviewTaskCache.Contains(processingCtrl.Target.Preview))
+                    {
+                        System.IO.FileStream fs = new System.IO.FileStream(processingCtrl.Target.Preview, System.IO.FileMode.Open, System.IO.FileAccess.ReadWrite, System.IO.FileShare.None);
+                        byte[] bitIcon = new byte[fs.Length];
+                        fs.Read(bitIcon, 0, (int)fs.Length);
+                        fs.Close();
+                        Texture2D tex = new Texture2D(200, 150);
+                        tex.LoadImage(bitIcon);
+                        processingCtrl.Preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+                        processingCtrl = null;
+                        PreviewTask.RemoveAt(0);
+                        return;
+                    }
+                    //如果该封面没有下载过.开始下载
+                    processing = true;
+                    string urlIconPreview = string.Format("http://{0}/meteor/{1}", Main.strHost, it.webPreview);
+                    try
+                    {
+                        if (client == null)
+                        {
+                            client = new WebClient();
+                            client.DownloadDataCompleted += OnDownloadPreviewComplete;
+                        }
+                        client.DownloadDataAsync(new Uri(urlIconPreview));
+                    }
+                    catch
+                    {
+                        processing = false;
+                    }
+                    return;
+                }
+                else
+                {
+                    //dlc的预览图.
+                    Chapter cha = processingCtrl.Chapter;
+                    //如果该封面已经下载过，并且存储到本地了，那么从本地读取
+                    if (PreviewTaskCache.Contains(processingCtrl.Chapter.Preview))
+                    {
+                        System.IO.FileStream fs = new System.IO.FileStream(processingCtrl.Chapter.Preview, System.IO.FileMode.Open, System.IO.FileAccess.ReadWrite, System.IO.FileShare.None);
+                        byte[] bitIcon = new byte[fs.Length];
+                        fs.Read(bitIcon, 0, (int)fs.Length);
+                        fs.Close();
+                        Texture2D tex = new Texture2D(200, 150);
+                        tex.LoadImage(bitIcon);
+                        processingCtrl.Preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+                        processingCtrl = null;
+                        PreviewTask.RemoveAt(0);
+                        return;
+                    }
+                    processing = true;
+                    string urlIconPreview = string.Format("http://{0}/meteor/{1}", Main.strHost, cha.webPreview);
+                    try
+                    {
+                        if (client == null)
+                        {
+                            client = new WebClient();
+                            client.DownloadDataCompleted += OnDownloadPreviewComplete;
+                        }
+                        client.DownloadDataAsync(new Uri(urlIconPreview));
+                       
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+
+            //下载模组zip任务.
+            if (DownloadTask.Count != 0)
+            {
+                processingCtrl = DownloadTask[0];
+                ModelItem it = processingCtrl.Target;
+                if (it != null)
+                {
+                    //如果该模组没有
+                    processing = true;
+                    if (client == null)
+                    {
+                        client = new WebClient();
+                        client.DownloadProgressChanged += this.DownLoadProgressChanged;
+                        client.DownloadFileCompleted += this.DownLoadFileCompleted;
+                        
+                        string downloadUrl = string.Format("http://{0}/meteor/{1}", Main.strHost, processingCtrl.Target.Path);
+                        client.DownloadFileAsync(new System.Uri(downloadUrl), processingCtrl.Target.LocalPath);
+                    }
+                    return;
+                }
+                else
+                {
+                    processing = true;
+                    //dlc的下载.
+                    if (client == null)
+                    {
+                        client = new WebClient();
+                        client.DownloadProgressChanged += this.DownLoadProgressChanged;
+                        client.DownloadFileCompleted += this.DownLoadFileCompleted;
+
+                        string downloadUrl = string.Format("http://{0}/meteor/{1}", Main.strHost, processingCtrl.Chapter.Path);
+                        client.DownloadFileAsync(new System.Uri(downloadUrl), processingCtrl.Chapter.LocalPath);
+                    }
+                    return;
+                }
+            }
+        }
+
+        lock (handler)
+        {
+            for (int i = 0; i < handler.Count; i++)
+            {
+                handler[i].Invoke();
+            }
+            handler.Clear();
+        }
+    }
+
+    void DownLoadFileCompleted(object sender, AsyncCompletedEventArgs e)
+    {
+        lock (handler)
+        {
+            handler.Add(() =>
+            {
+                if (processingCtrl != null)
+                    processingCtrl.DownLoadFileCompleted(sender, e);
+                if (client != null)
+                {
+                    client.Dispose();
+                    client = null;
+                }
+                lock (DownloadTask)
+                {
+                    if (DownloadTask.Contains(processingCtrl))
+                        DownloadTask.Remove(processingCtrl);
+                }
+                processingCtrl = null;
+                processing = false;
+            });
+        }
+    }
+
+    void DownLoadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+    {
+        lock (handler)
+        {
+            handler.Add(() =>
+            {
+                if (processingCtrl != null)
+                    processingCtrl.DownLoadProgressChanged(sender, e);
+            });
+        }
+    }
+
+    private void OnDownloadPreviewComplete(object sender, DownloadDataCompletedEventArgs e)
+    {
+        lock (handler)
+        {
+            handler.Add(() => {
+                if (e.Error != null)
+                {
+                    if (processingCtrl.retryNum >= 3)
+                    {
+                        //跳过这个任务，开始下载下一个的预览图
+                        lock (PreviewTask)
+                        {
+                            if (PreviewTask.Contains(processingCtrl))
+                                PreviewTask.Remove(processingCtrl);
+                        }
+                    }
+                    else
+                        processingCtrl.retryNum++;
+                    if (client != null)
+                    {
+                        client.Dispose();
+                        client = null;
+                    }
+                    processingCtrl = null;
+                    processing = false;
+                }
+                else
+                {
+                    byte[] bitIcon = e.Result;
+                    if (bitIcon != null && bitIcon.Length != 0)
+                    {
+                        if (processingCtrl.Target != null)
+                        {
+                            try
+                            {
+                                lock (PreviewTask)
+                                {
+                                    if (PreviewTask.Contains(processingCtrl))
+                                    {
+                                        System.IO.FileStream fs = new System.IO.FileStream(processingCtrl.Target.Preview, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.ReadWrite, System.IO.FileShare.None);
+                                        fs.Write(bitIcon, 0, bitIcon.Length);
+                                        fs.SetLength(bitIcon.Length);
+                                        fs.Flush();
+                                        fs.Close();
+                                        PreviewTask.Remove(processingCtrl);
+                                    }
+                                }
+                            }
+                            catch (System.Exception exp)
+                            {
+                                Debug.Log(exp.Message);
+                            }
+                            Texture2D tex = new Texture2D(200, 150);
+                            tex.LoadImage(bitIcon);
+                            processingCtrl.Preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+                            lock (PreviewTaskCache)
+                            {
+                                PreviewTaskCache.Add(processingCtrl.Target.Preview);
+                            }
+                            client.Dispose();
+                            client = null;
+                            processingCtrl = null;
+                            processing = false;
+                        }
+                        else if (processingCtrl.Chapter != null)
+                        {
+                            lock (PreviewTask)
+                            {
+                                if (PreviewTask.Contains(processingCtrl))
+                                {
+                                    if (bitIcon != null && bitIcon.Length != 0)
+                                    {
+                                        System.IO.File.WriteAllBytes(processingCtrl.Chapter.Preview, bitIcon);
+                                        Texture2D tex = new Texture2D(200, 150);
+                                        tex.LoadImage(bitIcon);
+                                        processingCtrl.Preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+                                    }
+                                    PreviewTask.Remove(processingCtrl);
+                                }
+                            }
+
+                            lock (PreviewTaskCache)
+                            {
+                                PreviewTaskCache.Add(processingCtrl.Chapter.Preview);
+                            }
+                            client.Dispose();
+                            client = null;
+                            processingCtrl = null;
+                            processing = false;
+                        }
+                    }
+                }
+            });
+        }
+    }
 }

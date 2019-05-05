@@ -68,6 +68,16 @@ public class UnitDebugInfo : MonoBehaviour {
                         if (target.robot.targetPatrolIndex != -1)
                             TargetWayPoint.text = string.Format("下个路点:{0}", target.robot.PatrolPath[target.robot.targetPatrolIndex].index);
                     }
+                    else
+                    {
+                        if (target.robot.Path.Count != 0)
+                        {
+                            if (target.robot.curIndex >= 0 && target.robot.curIndex < target.robot.Path.Count)
+                                CurWayPoint.text = string.Format("当前路点:{0}", target.robot.Path[target.robot.curIndex].index);
+                            if (target.robot.targetIndex >= 0 && target.robot.targetIndex < target.robot.Path.Count)
+                                TargetWayPoint.text = string.Format("下个路点:{0}", target.robot.Path[target.robot.targetIndex].index);
+                        }
+                    }
                 }
             }
             yield return 0;

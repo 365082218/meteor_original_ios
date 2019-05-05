@@ -37,7 +37,7 @@ public class CommonAction
     public const int DefenceHitEnd = 88;//防御受击结束
     public const int HitStart = 90;//受击动作开始
     public const int HitEnd = 121;//受击动作结束
-    public const int ZhihuReady = 400;
+    public const int GloveReady = 400;//持拳套-待机
     public const int QK_BADAO_READY = 401;
     public const int QK_CHIQIANG_READY = 402;
     public const int QK_JUHE_READY = 403;
@@ -708,7 +708,7 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
         }
 
         //准备动作
-        for (int i = CommonAction.ZhihuReady; i <= CommonAction.RendaoReady; i++)
+        for (int i = CommonAction.GloveReady; i <= CommonAction.RendaoReady; i++)
         {
             ActionNode n = new ActionNode();
             n.ActionIdx = i;

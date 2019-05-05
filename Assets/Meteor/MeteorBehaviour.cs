@@ -9,13 +9,13 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
     public bool ProcessNormalAction(MeteorUnit Owner)
     {
         MeteorInput Input = Owner.controller.Input;
-        if (Input.HasInput((int)EKeyList.KL_Defence, (int)EInputType.EIT_Pressing, Time.deltaTime))
+        if (Input.HasInput((int)EKeyList.KL_Defence, (int)EInputType.EIT_Pressing))
         {
             Owner.Defence();
             return true;
         }
         else
-        if (Input.HasInput((int)EKeyList.KL_ChangeWeapon, (int)EInputType.EIT_Click, Time.deltaTime))
+        if (Input.HasInput((int)EKeyList.KL_ChangeWeapon, (int)EInputType.EIT_Click))
         {
             Owner.ChangeWeapon();
             return true;
@@ -112,54 +112,54 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
         MeteorUnit Owner = target;
         //后面改为状态机 遵循 当前动作-遍历每一个中断动作-扫描切换所需状态.符合则切换（关键是这个状态表不好生成）
         //除了idle以外还有其他预备动作，都可以随意切换
-        if (posMng.mActiveAction.Idx < 10 ||
-            (posMng.mActiveAction.Idx >= CommonAction.ZhihuReady && posMng.mActiveAction.Idx <= CommonAction.RendaoReady) ||
-            posMng.mActiveAction.Idx == CommonAction.Dead)
+        if (posMng.mActiveAction.Idx == CommonAction.Idle ||
+            PoseStatus.IsReadyAction(posMng.mActiveAction.Idx) ||
+            posMng.mActiveAction.Idx == CommonAction.Dead)//动作是假死，角色没有挂
         {
             if (ProcessNormalAction(Owner))
             {
                 return;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_Defence, (int)EInputType.EIT_Pressing, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_Defence, (int)EInputType.EIT_Pressing))
             {
                 Owner.Defence();
                 return;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_Crouch, (int)EInputType.EIT_Pressing, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_Crouch, (int)EInputType.EIT_Pressing))
             {
                 Owner.OnCrouch();
                 return;
             }
-            else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease, Time.deltaTime) && Owner.IsOnGround())
+            else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease) && Owner.IsOnGround())
             {
                 Jump(Owner, Input.mInputVector, Input.KeyStates[(int)EKeyList.KL_Jump].PressedTime / MeteorInput.ShortPressTime);
             }
-            else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress, Time.deltaTime) && Owner.IsOnGround())
+            else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress) && Owner.IsOnGround())
             {
                 Jump(Owner, Input.mInputVector);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.IdleRush();
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.IdleRush(1);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.IdleRush(2);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.IdleRush(3);
@@ -182,38 +182,38 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
                 return;
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_Crouch, (int)EInputType.EIT_Releasing, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_Crouch, (int)EInputType.EIT_Releasing))
             {
                 posMng.ChangeAction(CommonAction.Idle, 0.1f);
             }
-            else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease, Time.deltaTime) && Owner.IsOnGround())
+            else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease) && Owner.IsOnGround())
             {
                 Jump(Owner, Input.mInputVector, Input.KeyStates[(int)EKeyList.KL_Jump].PressedTime / MeteorInput.ShortPressTime);
             }
-            else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress, Time.deltaTime) && Owner.IsOnGround())
+            else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress) && Owner.IsOnGround())
             {
                 Jump(Owner, Input.mInputVector);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.CrouchRush();
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.CrouchRush(1);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.CrouchRush(2);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.CrouchRush(3);
@@ -230,29 +230,29 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
         }
         else if (posMng.mActiveAction.Idx == CommonAction.Run || posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
         {
-            if (Input.HasInput((int)EKeyList.KL_Crouch, (int)EInputType.EIT_Pressing, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_Crouch, (int)EInputType.EIT_Pressing))
             {
                 Owner.OnCrouch();
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick))
             {
                 Owner.IdleRush();
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.IdleRush(1);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.IdleRush(2);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.IdleRush(3);
@@ -261,11 +261,11 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
             if (Input.mInputVector == Vector2.zero)
                 posMng.ChangeAction(0, 0.1f);
             else
-            if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease, Time.deltaTime) && Owner.IsOnGround())
+            if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease) && Owner.IsOnGround())
             {
                 Jump(Owner, Input.mInputVector, Input.KeyStates[(int)EKeyList.KL_Jump].PressedTime / MeteorInput.ShortPressTime);
             }
-            else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress, Time.deltaTime) && Owner.IsOnGround())
+            else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress) && Owner.IsOnGround())
             {
                 Jump(Owner, Input.mInputVector);
             }
@@ -280,38 +280,38 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
         }
         else if (posMng.mActiveAction.Idx == CommonAction.WalkLeft)
         {
-            if (Input.HasInput((int)EKeyList.KL_Crouch, (int)EInputType.EIT_Pressing, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_Crouch, (int)EInputType.EIT_Pressing))
             {
                 Owner.OnCrouch();
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease, Time.deltaTime) && Owner.IsOnGround())
+            if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease) && Owner.IsOnGround())
             {
                 Jump(Owner, Input.mInputVector, Input.KeyStates[(int)EKeyList.KL_Jump].PressedTime / MeteorInput.ShortPressTime);
             }
-            else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress, Time.deltaTime) && Owner.IsOnGround())
+            else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress) && Owner.IsOnGround())
             {
                 Jump(Owner, Input.mInputVector);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick))
             {
                 Owner.IdleRush();
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.IdleRush(1);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.IdleRush(2);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.IdleRush(3);
@@ -327,39 +327,39 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
         }
         else if (posMng.mActiveAction.Idx == CommonAction.WalkRight)
         {
-            if (Input.HasInput((int)EKeyList.KL_Crouch, (int)EInputType.EIT_Pressing, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_Crouch, (int)EInputType.EIT_Pressing))
             {
                 Owner.OnCrouch();
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease, Time.deltaTime) && Owner.IsOnGround())
+            if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease) && Owner.IsOnGround())
             {
                 Jump(Owner, Input.mInputVector, Input.KeyStates[(int)EKeyList.KL_Jump].PressedTime / MeteorInput.ShortPressTime);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress, Time.deltaTime) && Owner.IsOnGround())
+            if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress) && Owner.IsOnGround())
             {
                 Jump(Owner, Input.mInputVector);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick))
             {
                 Owner.IdleRush();
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.IdleRush(1);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.IdleRush(2);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.IdleRush(3);
@@ -375,40 +375,40 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
         }
         else if (posMng.mActiveAction.Idx == CommonAction.WalkBackward)
         {
-            if (Input.HasInput((int)EKeyList.KL_Crouch, (int)EInputType.EIT_Pressing, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_Crouch, (int)EInputType.EIT_Pressing))
             {
                 Owner.OnCrouch();
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease, Time.deltaTime) && Owner.IsOnGround())
+            if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease) && Owner.IsOnGround())
             {
                 Jump(Owner, Input.mInputVector, Input.KeyStates[(int)EKeyList.KL_Jump].PressedTime / MeteorInput.ShortPressTime);
                 //Debug.LogError("jumpback");
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress, Time.deltaTime) && Owner.IsOnGround())
+            if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress) && Owner.IsOnGround())
             {
                 Jump(Owner, Input.mInputVector);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick))
             {
                 Owner.IdleRush();
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.IdleRush(1);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.IdleRush(2);
             }
             else
-            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick))
             {
                 //这里要判断武器
                 Owner.IdleRush(3);
@@ -428,7 +428,7 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
             && posMng.mActiveAction.Idx <= CommonAction.RendaoDefence))
         {
             //还有乾坤刀的其他2种姿势没处理
-            if (Input.HasInput((int)EKeyList.KL_Defence, (int)EInputType.EIT_Releasing, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_Defence, (int)EInputType.EIT_Releasing))
             {
                 Owner.ReleaseDefence();
             }
@@ -437,31 +437,31 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
         {
             if (Owner.IsOnGround())
             {
-                if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_Release, Time.deltaTime))
+                if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_Release))
                 {
                     posMng.ChangeAction(CommonAction.DCForw, 0.1f);
                 }
-                else if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_Release, Time.deltaTime))
+                else if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_Release))
                 {
                     posMng.ChangeAction(CommonAction.DCBack, 0.1f);
                 }
-                else if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_Release, Time.deltaTime))
+                else if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_Release))
                 {
                     posMng.ChangeAction(CommonAction.DCLeft, 0.1f);
                 }
-                else if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_Release, Time.deltaTime))
+                else if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_Release))
                 {
                     posMng.ChangeAction(CommonAction.DCRight, 0.1f);
                 }
-                else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease, Time.deltaTime))
+                else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease))
                 {
                     Jump(Owner, Input.mInputVector, Input.KeyStates[(int)EKeyList.KL_Jump].PressedTime / MeteorInput.ShortPressTime);
                 }
-                else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress, Time.deltaTime))
+                else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress))
                 {
                     Jump(Owner, Input.mInputVector);
                 }
-                else if (Input.HasInput((int)EKeyList.KL_Defence, (int)EInputType.EIT_Click, Time.deltaTime))
+                else if (Input.HasInput((int)EKeyList.KL_Defence, (int)EInputType.EIT_Click))
                 {
                     if (posMng.mActiveAction.Idx == CommonAction.Struggle)
                         Owner.posMng.ChangeAction(CommonAction.IdleBack, 0.1f);
@@ -472,20 +472,20 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
         }
         else if (Owner.Climbing)
         {
-            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_Release, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_Release))
             {
                 //Owner.ProcessFall();
                 Owner.posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
             }
             else if (Owner.ImpluseVec.y > 0 && Owner.OnTouchWall)
             {
-                if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_Click, Time.deltaTime))
+                if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_Click))
                 {
                     //Debug.LogError("ProcessTouchWallJump");
                     Owner.ProcessTouchWallJump(true);
                 }
             }
-            else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_Click, Time.deltaTime))
+            else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_Click))
             {
                 //Debug.LogError("ProcessJump2");
                 Owner.ProcessJump2();
@@ -493,13 +493,13 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
         }
         else if (posMng.mActiveAction.Idx >= CommonAction.Jump && posMng.mActiveAction.Idx <= CommonAction.WallLeftJump)
         {
-            if (Input.HasInput((int)EKeyList.KL_ChangeWeapon, (int)EInputType.EIT_Click, Time.deltaTime))
+            if (Input.HasInput((int)EKeyList.KL_ChangeWeapon, (int)EInputType.EIT_Click))
             {
                 Owner.ChangeWeapon();
             }
             else if (Owner.ImpluseVec.y > 0)
             {
-                if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_Click, Time.deltaTime))
+                if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_Click))
                 {
                     Owner.ProcessJump2();
                 }
@@ -510,7 +510,7 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
             ProcessGunAction(Owner);
         }
         else if (posMng.IsHurtPose() &&
-            Input.HasInput((int)EKeyList.KL_BreakOut, (int)EInputType.EIT_Click, Time.deltaTime))
+            Input.HasInput((int)EKeyList.KL_BreakOut, (int)EInputType.EIT_Click))
         {
             Owner.DoBreakOut();
         }
@@ -522,44 +522,44 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
         MeteorInput Input = target.controller.Input;
         MeteorUnit Owner = target;
         //响应
-        if (Input.HasInput((int)EKeyList.KL_BreakOut, (int)EInputType.EIT_Click, Time.deltaTime))
+        if (Input.HasInput((int)EKeyList.KL_BreakOut, (int)EInputType.EIT_Click))
         {
             Owner.SetGunReady(false);
             Owner.DoBreakOut();
         }
         else//除了跳/受击/爆气 清了枪蹲下的状态，其他全部不能清理这个状态
-        if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease, Time.deltaTime) && Owner.IsOnGround())
+        if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_ShortRelease) && Owner.IsOnGround())
         {
             Owner.SetGunReady(false);
             Owner.SetGround(false);
             Jump(Owner, Input.mInputVector, Input.KeyStates[(int)EKeyList.KL_Jump].PressedTime / MeteorInput.ShortPressTime);
         }
-        else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress, Time.deltaTime) && Owner.IsOnGround())
+        else if (Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_FullPress) && Owner.IsOnGround())
         {
             Owner.SetGunReady(false);
             Owner.SetGround(false);
             Jump(Owner, Input.mInputVector);
         }
         else
-        if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+        if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_DoubleClick))
         {
             //这里要判断武器
             Owner.CrouchRush();
         }
         else
-        if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+        if (Input.HasInput((int)EKeyList.KL_KeyS, (int)EInputType.EIT_DoubleClick))
         {
             //这里要判断武器
             Owner.CrouchRush(1);
         }
         else
-        if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+        if (Input.HasInput((int)EKeyList.KL_KeyA, (int)EInputType.EIT_DoubleClick))
         {
             //这里要判断武器
             Owner.CrouchRush(2);
         }
         else
-        if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick, Time.deltaTime))
+        if (Input.HasInput((int)EKeyList.KL_KeyD, (int)EInputType.EIT_DoubleClick))
         {
             //这里要判断武器
             Owner.CrouchRush(3);

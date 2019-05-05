@@ -321,10 +321,11 @@ public class MeteorInput
         if (p.Idx >= 218 && p.Idx <= 225)
             return false;
 
-        //防御中无法接受输入.
+        //防御受击中.
         if (p.Idx >= CommonAction.DefenceHitStart && p.Idx <= CommonAction.DefenceHitEnd)
             return false;
 
+        //受击动作中
         if (p.Idx >= CommonAction.HitStart && p.Idx <= CommonAction.HitEnd)
             return false;
         //if (p.Idx == CommonAction.Idle || p.Idx == CommonAction.GunIdle)
@@ -2042,7 +2043,7 @@ public class MeteorInput
 
     }
 
-    bool checkInputType(EKeyList inpuKey, EInputType inputType, float deltaTime)
+    bool checkInputType(EKeyList inpuKey, EInputType inputType)
     {
         int pressed = KeyStates[(int)inpuKey].Pressed;
         float pressedTime = KeyStates[(int)inpuKey].PressedTime;
@@ -2058,7 +2059,7 @@ public class MeteorInput
                 ret = (pressed == 2 && pressedTime == 0);
                 break;
             case EInputType.EIT_Press:
-                ret = (pressed != 0 && (pressedTime < LongPressedTime && pressedTime + deltaTime >= LongPressedTime));
+                ret = (pressed != 0 && (pressedTime < LongPressedTime && pressedTime + FrameReplay.deltaTime >= LongPressedTime));
                 break;
             case EInputType.EIT_Release:
                 ret = (pressed == 0 && releasedTime == 0);
@@ -2073,15 +2074,15 @@ public class MeteorInput
                 ret = (pressed == 0 && releasedTime == 0 && pressedTime < ShortPressTime);
                 break;
             case EInputType.EIT_FullPress://大跳
-                ret = (pressed != 0 && pressedTime <= ShortPressTime && pressedTime + deltaTime >= ShortPressTime);
+                ret = (pressed != 0 && pressedTime <= ShortPressTime && pressedTime + FrameReplay.deltaTime >= ShortPressTime);
                 break;
         }
         return ret;
     }
 
-    public bool HasInput(int key, int tp, float time)
+    public bool HasInput(int key, int tp)
     {
-        return checkInputType((EKeyList)key, (EInputType)tp, time);
+        return checkInputType((EKeyList)key, (EInputType)tp);
     }
 
     //按键有超过1S时间未被触发,无论是抬起还是按下.
@@ -2130,10 +2131,10 @@ public class MeteorController {
     {
         if (!Global.Instance.PauseAll)
         {
-            if (Owner.robot != null)
+            if (Owner.robot != null && Owner.gameObject.activeInHierarchy)
                 Owner.robot.Update();
         }
-        CheckActionInput(Time.deltaTime);
+        CheckActionInput(FrameReplay.deltaTime);
         if (Input != null)
             Input.NetUpdate();
     }
@@ -2146,12 +2147,12 @@ public class MeteorController {
         if (Owner.Dead)
             return;
         //一些按键不限定当前POSE，类似解锁
-        if (Owner.Attr.IsPlayer && Input.HasInput((int)EKeyList.KL_KeyQ, (int)EInputType.EIT_Click, Time.deltaTime))
+        if (Owner.Attr.IsPlayer && Input.HasInput((int)EKeyList.KL_KeyQ, (int)EInputType.EIT_Click))
             GameBattleEx.Instance.ChangeLockStatus();
         //无需考虑当前动作的处理,无需考虑硬直
-        if (Input.HasInput((int)EKeyList.KL_DropWeapon, (int)EInputType.EIT_Click, Time.deltaTime))
+        if (Input.HasInput((int)EKeyList.KL_DropWeapon, (int)EInputType.EIT_Click))
             Owner.DropWeapon();
-        else if (Input.HasInput((int)EKeyList.KL_BreakOut, (int)EInputType.EIT_Click, Time.deltaTime))
+        else if (Input.HasInput((int)EKeyList.KL_BreakOut, (int)EInputType.EIT_Click))
         {
             Owner.DoBreakOut();
             return;

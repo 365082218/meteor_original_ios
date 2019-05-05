@@ -215,7 +215,7 @@ public partial class GameBattleEx : Singleton<GameBattleEx> {
 
         //更新BUFF
         foreach (var each in BuffMng.Instance.BufDict)
-            each.Value.Update();
+            each.Value.GameFrameTurn(null);
 
         //更新左侧角色对话文本
         for (int i = 0; i < UnitActKey.Count; i++)
@@ -368,6 +368,8 @@ public partial class GameBattleEx : Singleton<GameBattleEx> {
                 continue;
             for (int j = 0; j < ondamaged.Count; j++)
             {
+                if (ondamaged[j] == null)
+                    continue;
                 if (!ondamaged[j].enabled)
                     return false;
                 if (colist[i].bounds.Intersects(ondamaged[j].bounds))
@@ -519,14 +521,9 @@ public partial class GameBattleEx : Singleton<GameBattleEx> {
     {
         //设置主角属性
         U3D.InitPlayer(Global.Instance.GScript);
-        if (GameData.Instance.gameStatus.PetOn && Global.Instance.GLevelItem.DisableFindWay == 0)
-            U3D.InitPet();
         //把音频侦听移到角色
         Startup.ins.listener.enabled = false;
         Startup.ins.playerListener = MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
-
-        if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
-            SpawnAllRobot();
 
         //先创建一个相机
         GameObject camera = GameObject.Instantiate(Resources.Load("CameraEx")) as GameObject;
@@ -536,6 +533,10 @@ public partial class GameBattleEx : Singleton<GameBattleEx> {
         CameraFollow followCamera = GameObject.Find("CameraEx").GetComponent<CameraFollow>();
         followCamera.Init();
         GameBattleEx.Instance.m_CameraControl = followCamera;
+
+        if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
+            SpawnAllRobot();
+
         //摄像机完毕后
         FightWnd.Instance.Open();
         if (!string.IsNullOrEmpty(Global.Instance.GLevelItem.BgmName))
@@ -814,7 +815,7 @@ public partial class GameBattleEx : Singleton<GameBattleEx> {
         }
     }
 
-    //所有角色的攻击盒.
+    //所有角色的攻击盒.特效，武器
     Dictionary<MeteorUnit, List<Collider>> DamageList = new Dictionary<MeteorUnit, List<Collider>>();
     //缓存角色的攻击盒.
     public void AddDamageCollision(MeteorUnit unit, Collider co)
@@ -1436,6 +1437,8 @@ public partial class GameBattleEx : Singleton<GameBattleEx> {
     public List<GameObject> wayArrowList = new List<GameObject>();
     public void ShowWayPoint(bool on)
     {
+        if (Global.Instance.GLevelItem == null)
+            return;
         if (!on)
         {
             for (int i = 0; i < wayPointList.Count; i++)

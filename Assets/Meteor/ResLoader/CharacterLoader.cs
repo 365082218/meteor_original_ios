@@ -714,10 +714,10 @@ public class CharacterLoader
             moveDelta = Vector3.zero;
             if (blendTime == 0.0f)
             {
-                lastFramePlayedTimes += Time.deltaTime;
+                lastFramePlayedTimes += FrameReplay.deltaTime;
 
                 if (checkStaright && PoseStraight > 0.0f && startCount)
-                    PoseStraight -= Time.deltaTime;
+                    PoseStraight -= FrameReplay.deltaTime;
 
                 float speedScale = owner.ActionSpeed * GetSpeedScale();
                 float fps = Global.Instance.FPS / speedScale;
@@ -734,9 +734,9 @@ public class CharacterLoader
             }
             else
             {
-                playedTime += Time.deltaTime;
+                playedTime += FrameReplay.deltaTime;
                 if (checkStaright && PoseStraight > 0.0f && startCount)
-                    PoseStraight -= Time.deltaTime;
+                    PoseStraight -= FrameReplay.deltaTime;
                 //TryPlayEffect();
                 ChangeWeaponTrail();
 
@@ -1044,7 +1044,7 @@ public class CharacterLoader
         if (po.SourceIdx == 0)
             lastDBasePos = AmbLoader.CharCommon[curIndex].DummyPos[0];
         else if (po.SourceIdx == 1)
-            lastDBasePos = AmbLoader.FrameBoneAni[owner.UnitId >= Global.MaxModel ? 0 : owner.UnitId][curIndex].DummyPos[0];
+            lastDBasePos = AmbLoader.FrameBoneAni[owner.UnitId][curIndex].DummyPos[0];
 
         if (lastPosIdx != 0)
         {
@@ -1166,12 +1166,13 @@ public class AmbLoader
         if (idx == 11 || idx == 9)
             idx = 9;
         Dictionary<int, BoneStatus> ret = LoadAmb("p" + idx + ".amb");
-        FrameBoneAni.Add(idx, ret);
+        if (!FrameBoneAni.ContainsKey(idx))
+            FrameBoneAni.Add(idx, ret);
 
         //9号文件和11号一样，复用
         if (idx == 9)
         {
-            if (FrameBoneAni.ContainsKey(11))
+            if (!FrameBoneAni.ContainsKey(11))
                 FrameBoneAni.Add(11, ret);
         }
     }

@@ -33,6 +33,7 @@ public class CameraFollow : MonoBehaviour {
     float angleMin = -75.0f;
     private void Awake()
     {
+        enabled = false;
         Instance = this;
     }
 
@@ -84,6 +85,7 @@ public class CameraFollow : MonoBehaviour {
             Vector3 vdiff = MeteorManager.Instance.LocalPlayer.transform.position - transform.position;
             transform.rotation = Quaternion.LookRotation(new Vector3(vdiff.x, 0, vdiff.z), Vector3.up);
         }
+        enabled = true;
     }
 
     public bool Smooth = true;
@@ -116,7 +118,7 @@ public class CameraFollow : MonoBehaviour {
         }
     }
 
-    void LateUpdate()
+    public void NetUpdate()
     {
         if (MeteorManager.Instance.LocalPlayer != null && !Global.Instance.PauseAll)
         {
@@ -156,7 +158,7 @@ public class CameraFollow : MonoBehaviour {
 
     void OnAutoMove()
     {
-        lastWatchTick += Time.deltaTime;
+        lastWatchTick += FrameReplay.deltaTime;
         if (lastWatchTick >= AutoSwitchTarget)
         {
             lastWatchTick = 0.0f;
@@ -446,7 +448,7 @@ public class CameraFollow : MonoBehaviour {
                 else
                 {
                     //当锁定目标丢失，或者死亡时.从双人视角转换为单人视角的摄像机过渡动画.
-                    animationTick += Time.deltaTime;
+                    animationTick += FrameReplay.deltaTime;
                     newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime, f_speedMax);
                     newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime, f_speedMax);
                     newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime, f_speedMax);

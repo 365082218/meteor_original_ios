@@ -118,6 +118,7 @@ public class SfxFile
         return null;
     }
     public string strfile;
+    public bool error = false;
     public List<SfxEffect> effectList = new List<SfxEffect>();
     public bool ParseFile(string file)
     {
@@ -127,12 +128,14 @@ public class SfxFile
         {
             SFXLoader.Instance.Miss++;
             Debug.LogError(string.Format("sfx:{0} missed", file));
+            error = true;
             return false;
         }
         int offset = 0;
         if (asset != null && asset.bytes == null)
         {
             Debug.LogError(string.Format("asset or it content is null file is {0}", file));
+            error = true;
             return false;
         }
         MemoryStream ms = new MemoryStream(asset.bytes);
@@ -357,6 +360,7 @@ public class SfxFile
                 else
                 {
                     Debug.LogError(string.Format("{0} can not parse: file {1}",  sfx.EffectType, file));
+                    error = true;
                 }
                 effectList.Add(sfx);
             }
@@ -477,22 +481,22 @@ public class SFXLoader :Singleton<SFXLoader>{
             SfxFile f = new SfxFile();
             try
             {
-                if (f.ParseFile(file))
-                {
-                    EffectList.Add(file, f);
+                f.ParseFile(file);
+                EffectList[file] = f;
+                if (!f.error)
                     return f.Play(obj, once, preload);
-                }
-                else
-                    Debug.LogError(string.Format("{0} parse error", file));
             }
             catch
             {
+                EffectList[file] = f;
                 Debug.LogError(string.Format("{0}  parse error", file));
             }
 
         }
         else
         {
+            if (EffectList[file].error)
+                return null;
             //Debug.LogError("effect file:" + file + " 455");
             return EffectList[file].Play(obj, once, preload);
         }
@@ -510,22 +514,22 @@ public class SFXLoader :Singleton<SFXLoader>{
             SfxFile f = new SfxFile();
             try
             {
-                if (f.ParseFile(file))
-                {
-                    EffectList.Add(file, f);
+                f.ParseFile(file);
+                EffectList[file] = f;
+                if (!f.error)
                     return f.Play(obj, once, preload);
-                }
-                else
-                    Debug.LogError(string.Format("{0} parse error", file));
             }
             catch
             {
+                EffectList[file] = f;
                 Debug.LogError(string.Format("{0}  parse error", file));
             }
 
         }
         else
         {
+            if (EffectList[file].error)
+                return null;
             //Debug.LogError("effect file:" + file + " 455");
             return EffectList[file].Play(obj, once, preload);
         }
@@ -541,22 +545,23 @@ public class SFXLoader :Singleton<SFXLoader>{
             SfxFile f = new SfxFile();
             try
             {
-                if (f.ParseFile(file))
-                {
-                    EffectList.Add(file, f);
-                    //Debug.LogError("effect file:" + file);
-                    return f.Play(target, timePlayed);
-                }
+                f.ParseFile(file);
+                EffectList[file] = f;
+                //Debug.LogError("effect file:" + file);
+                return f.Play(target, timePlayed);
             }
             catch (Exception exp)
             {
                 Debug.LogError(string.Format("{0}  parse error {1}", file, exp.Message));
+                EffectList[file] = f;
             }
 
         }
         else
         {
             //Debug.LogError("effect file:" + file);
+            if (EffectList[file].error)
+                return null;
             return EffectList[file].Play(target, timePlayed);
         }
         return null;
@@ -570,5 +575,22 @@ public class SFXLoader :Singleton<SFXLoader>{
         TextAsset list = Resources.Load<TextAsset>("effect.lst");
         Eff = list.text.Split(new char[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
         TotalSfx = Eff.Length;
+        for (int i = 0; i < Eff.Length; i++)
+        {
+            if (!EffectList.ContainsKey(Eff[i]))
+            {
+                SfxFile f = new SfxFile();
+                try
+                {
+                    f.ParseFile(Eff[i]);
+                }
+                catch (Exception exp)
+                {
+                    f.error = true;
+                    Debug.LogError(string.Format("{0}  parse error {1}", Eff[i], exp.Message));
+                }
+                EffectList[Eff[i]] = f;
+            }
+        }
     }
 }

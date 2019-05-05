@@ -16,6 +16,14 @@ public class PoseStatus
         ActionList.Clear();
     }
     MeteorUnit _Self;
+    public static bool IsReadyAction(int idx)
+    {
+        if (idx >= CommonAction.DartReady && idx <= CommonAction.HammerReady)
+            return true;
+        if (idx >= CommonAction.GloveReady && idx <= CommonAction.RendaoReady)
+            return true;
+        return false;
+    }
     int UnitId;
     public bool CanMove;
     public bool CanControl;
@@ -145,6 +153,16 @@ public class PoseStatus
         }
     }
 
+    public static void LoadDefault()
+    {
+        if (!ActionList.ContainsKey(0))
+        {
+            ActionList.Add(0, new List<Pose>());
+            TextAsset asset = Resources.Load<TextAsset>(string.Format("{0}/P{1}.pos", AppInfo.Instance.MeteorVersion, 0));
+            string text = System.Text.Encoding.ASCII.GetString(asset.bytes);
+            Parse(text, 0);
+        }
+    }
 
     public void Init(MeteorUnit owner)
     {
@@ -170,7 +188,7 @@ public class PoseStatus
                         {
                             ActionList.Add(UnitId, new List<Pose>());
                             string text = System.IO.File.ReadAllText(m.resPath[i]);
-                            Parse(text);
+                            Parse(text, UnitId);
                             return;
                         }
                     }
@@ -182,7 +200,7 @@ public class PoseStatus
                 ActionList.Add(UnitId, new List<Pose>());
                 TextAsset asset = Resources.Load<TextAsset>(string.Format("{0}/P{1}.pos", AppInfo.Instance.MeteorVersion, UnitId));
                 string text = System.Text.Encoding.ASCII.GetString(asset.bytes);
-                Parse(text);
+                Parse(text, UnitId);
             }
         }
     }
@@ -428,7 +446,7 @@ public class PoseStatus
                                     case EquipWeaponType.Lance: ReadyAction = CommonAction.LanceReady; break;
                                     case EquipWeaponType.Brahchthrust: ReadyAction = CommonAction.BrahchthrustReady; break;
                                     case EquipWeaponType.Dart: ReadyAction = CommonAction.DartReady; break;
-                                    case EquipWeaponType.Gloves: ReadyAction = CommonAction.ZhihuReady; break;//没找到
+                                    case EquipWeaponType.Gloves: ReadyAction = CommonAction.GloveReady; break;
                                     case EquipWeaponType.Guillotines: ReadyAction = CommonAction.GuillotinesReady; break;
                                     case EquipWeaponType.Hammer: ReadyAction = CommonAction.HammerReady; break;
                                     case EquipWeaponType.NinjaSword: ReadyAction = CommonAction.RendaoReady; break;
@@ -652,8 +670,13 @@ public class PoseStatus
         }
     }
 
-    void Parse(string text)
+    static void Parse(string text, int id)
     {
+        if (ActionList.ContainsKey(id) && ActionList[id].Count != 0)
+        {
+            Debug.LogError("重复解析某个角色的动画配置文件");
+            return;
+        }
         Pose current = null;
         PosAction curAct = null;
         AttackDes att = null;
@@ -667,10 +690,6 @@ public class PoseStatus
         string[] pos = text.Split(new char[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
         for (int i = 0; i < pos.Length; i++)
         {
-            if (current != null && current.Idx == 573)
-            {
-                //Debug.Log("get");
-            }
             string line = pos[i];
             string[] lineObject = line.Split(new char[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
             if (lineObject.Length == 0)
@@ -685,7 +704,7 @@ public class PoseStatus
             if (lineObject[0] == "Pose" && left == 0 && leftAct == 0)
             {
                 Pose insert = new Pose();
-                ActionList[UnitId].Add(insert);
+                ActionList[id].Add(insert);
                 int idx = int.Parse(lineObject[1]);
                 insert.Idx = idx;
                 current = insert;

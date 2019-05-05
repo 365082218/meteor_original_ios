@@ -154,12 +154,6 @@ public class SettingWnd : Window<SettingWnd> {
         toggleDisableJoyStick.onValueChanged.AddListener(OnDisableJoyStick);
         OnDisableJoyStick(toggleDisableJoyStick.isOn);
 
-        //宠物猫
-        Toggle toggleDisableCat = Control("Cat").GetComponent<Toggle>();
-        toggleDisableCat.isOn = GameData.Instance.gameStatus.PetOn;
-        toggleDisableCat.onValueChanged.AddListener(OnDisableCat);
-        OnDisableCat(toggleDisableCat.isOn);
-
         Toggle toggleSkipVideo = Control("SkipVideo").GetComponent<Toggle>();
         toggleSkipVideo.isOn = GameData.Instance.gameStatus.SkipVideo;
         toggleSkipVideo.onValueChanged.AddListener(OnSkipVideo);
@@ -182,7 +176,7 @@ public class SettingWnd : Window<SettingWnd> {
         //透明度设定
         Control("AlphaSliderBar").GetComponent<Slider>().value = GameData.Instance.gameStatus.UIAlpha;
         Control("AlphaSliderBar").GetComponent<Slider>().onValueChanged.AddListener(OnUIAlphaChange);
-
+        Control("InstallAll").GetComponent<Button>().onClick.AddListener(OnInstallAll);
         
         if (AppInfo.Instance.AppVersionIsSmallThan(GameConfig.Instance.newVersion))
         {
@@ -201,6 +195,14 @@ public class SettingWnd : Window<SettingWnd> {
             tabs[i].onValueChanged.AddListener(OnTabShow);
         }
         
+    }
+
+    void OnInstallAll()
+    {
+        for (int i = 0; i < pluginList.Count; i++)
+        {
+            DlcMng.Instance.AddDownloadTask(pluginList[i]);
+        }
     }
 
     public void OnUIAlphaChange(float v)
@@ -227,11 +229,6 @@ public class SettingWnd : Window<SettingWnd> {
     void OnSkipVideo(bool skip)
     {
         GameData.Instance.gameStatus.SkipVideo = skip;
-    }
-
-    void OnDisableCat(bool disable)
-    {
-        GameData.Instance.gameStatus.PetOn = disable;
     }
 
     void OnDisableJoyStick(bool disable)
@@ -371,7 +368,8 @@ public class SettingWnd : Window<SettingWnd> {
 
     void OnShowWayPoint(bool on)
     {
-        GameBattleEx.Instance.ShowWayPoint(on);
+        if (GameBattleEx.Instance != null)
+            GameBattleEx.Instance.ShowWayPoint(on);
     }
 
     void OnMusicVolumeChange(float vo)
@@ -458,6 +456,7 @@ public class SettingWnd : Window<SettingWnd> {
                 pluginPage = 0;
                 pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
                 DlcMng.Instance.CollectAll(this.showInstallPlugin);
+                Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
                 PluginPageUpdate = Startup.ins.StartCoroutine(PluginPageRefresh());
                 yield break;
             }
@@ -603,6 +602,7 @@ public class SettingWnd : Window<SettingWnd> {
             //    InsertDlc(DlcMng.Instance.Dlcs[i]);
             //}
         }
+        Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
     }
 
     void OnPrevPageGame()
@@ -644,6 +644,7 @@ public class SettingWnd : Window<SettingWnd> {
 
     void PluginPageRefreshEx()
     {
+        Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
         if (PluginPageUpdate != null)
             Startup.ins.StopCoroutine(PluginPageUpdate);
         PluginPageUpdate = Startup.ins.StartCoroutine(PluginPageRefresh());
@@ -753,6 +754,8 @@ public class SettingWnd : Window<SettingWnd> {
         if (ctrl != null)
         {
             ctrl.AttachModel(item);
+            if (!GameData.Instance.gameStatus.IsModelInstalled(item))
+                DlcMng.Instance.AddPreviewTask(ctrl);
         }
         pluginList.Add(ctrl);
     }
@@ -770,6 +773,8 @@ public class SettingWnd : Window<SettingWnd> {
         if (ctrl != null)
         {
             ctrl.AttachDlc(item);
+            if (!GameData.Instance.gameStatus.IsDlcInstalled(item))
+                DlcMng.Instance.AddPreviewTask(ctrl);
         }
         pluginList.Add(ctrl);
     }

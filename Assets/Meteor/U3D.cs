@@ -295,19 +295,6 @@ public class U3D : MonoBehaviour {
         return unit;
     }
 
-    public static void InitPet()
-    {
-        if (MeteorManager.Instance.Pet != null)
-            return;
-        GameObject objPrefab = Resources.Load("Cat") as GameObject;
-        GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
-        //ins.transform.localScale = new Vector3(25, 25, 25);
-        MeteorManager.Instance.Pet = ins.GetComponent<PetController>();
-        MeteorManager.Instance.Pet.FollowTarget = MeteorManager.Instance.LocalPlayer;
-        ins.transform.position = MeteorManager.Instance.LocalPlayer.mPos + MeteorManager.Instance.LocalPlayer.transform.right * 35;
-        ins.transform.LookAt(MeteorManager.Instance.LocalPlayer.transform);
-    }
-
     public static MeteorUnit InitPlayer(LevelScriptBase script)
     {
         MonsterEx mon = SceneMng.Instance.InitPlayer(script);
@@ -408,7 +395,7 @@ public class U3D : MonoBehaviour {
         string shortName = Path.Substring(k + 1);
         shortName = shortName.Substring(0, shortName.Length - 4);
         if (local)
-            return Application.persistentDataPath + "/Plugins/" + shortDir + "/" + (inzipPath ? shortName + "/" + shortName: shortName) + suffix;//.zip => .png
+            return ResMng.localPath + "/Plugins/" + shortDir + "/" + (inzipPath ? shortName + "/" + shortName: shortName) + suffix;//.zip => .png
         return Path.Substring(0, Path.Length - 4) + suffix;
     }
 
@@ -656,11 +643,6 @@ public class U3D : MonoBehaviour {
         Global.Instance.CampASpawnIndex = 0;
         Global.Instance.CampBSpawnIndex = 0;
         Global.Instance.SpawnIndex = 0;
-        if (MeteorManager.Instance.Pet != null)
-        {
-            GameObject.Destroy(MeteorManager.Instance.Pet.gameObject);
-            MeteorManager.Instance.Pet = null;
-        }
 #if !STRIP_DBG_SETTING
         WSDebug.Ins.Clear();
 #endif

@@ -11,7 +11,7 @@ public enum FlyStatus
 }
 
 //血滴子，敌方无法逃脱，除了防御/或用地形躲避.
-public class FlyWheel : MonoBehaviour {
+public class FlyWheel : MonoBehaviour,INetUpdate {
 
     public static bool FindFlyWheel(MeteorUnit owner)
     {
@@ -48,20 +48,17 @@ public class FlyWheel : MonoBehaviour {
     bool outofArea = false;
     private void Awake()
     {
-        
+        FrameReplay.Instance.RegisterObject(this);
     }
-    // Use this for initialization
-    void Start () {
-		
-	}
 
     private void OnDestroy()
     {
         FlyWheel.UnRegister(this);
+        FrameReplay.Instance.UnRegisterObject(this);
     }
 
     // Update is called once per frame
-    void Update () {
+    public void GameFrameTurn (List<protocol.FrameCommand> commands) {
         List<MeteorUnit> deleted = new List<MeteorUnit>();
 		foreach (var each in attackTick)
         {
@@ -70,9 +67,9 @@ public class FlyWheel : MonoBehaviour {
         }
         for (int i = 0; i < deleted.Count; i++)
             attackTick.Remove(deleted[i]);
+        Fly();
 	}
 
-    Coroutine fly;
     //LineRenderer line;
     public void LoadAttack(InventoryItem weapon, MeteorUnit target, AttackDes attackdef, MeteorUnit Owner)
     {
@@ -116,9 +113,6 @@ public class FlyWheel : MonoBehaviour {
             bc.isTrigger = true;
             bc.size = new Vector3(10, 5, 10);
         }
-        if (fly != null)
-            StopCoroutine(fly);
-        fly = StartCoroutine(Fly());
     }
 
     float refreshDelay = 0.1f;//0.1秒刷新一次目标缓存.
@@ -167,66 +161,62 @@ public class FlyWheel : MonoBehaviour {
         spline.SetControlPoint(2, TargetPosCache);
         //tTotal = tTick + spline.GetLength() / speed;
     }
-
-    IEnumerator Fly()
+    Vector3 vecRotate = new Vector3(0, 15.0f, 0);
+    void Fly()
     {
-        while (true)
+        if (status == FlyStatus.FlySpline)
         {
-            if (status == FlyStatus.FlySpline)
+            //Debug.LogError("status == 0");
+            //发射,随机自转
+            tTick += FrameReplay.deltaTime;
+            refreshDelay -= FrameReplay.deltaTime;
+            if (refreshDelay <= 0.0f && !outofArea)
             {
-                //Debug.LogError("status == 0");
-                //发射,随机自转
-                tTick += Time.deltaTime;
-                refreshDelay -= Time.deltaTime;
-                if (refreshDelay <= 0.0f && !outofArea)
-                {
-                    RefreshSpline();
-                    refreshDelay = 0.1f;
-                }
+                RefreshSpline();
+                refreshDelay = 0.1f;
+            }
 
-                if (tTick > tTotal)
-                {
-                    status = outofArea ? FlyStatus.FlyReturn : FlyStatus.FlyGoto;//如果还没有撞到敌人.则在接下来的时间里，直线追击敌人
-                    //tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / returnspeed;
-                    //tTick = 0.0f;
-                    yield return 0;
-                }
+            if (tTick > tTotal)
+            {
+                status = outofArea ? FlyStatus.FlyReturn : FlyStatus.FlyGoto;//如果还没有撞到敌人.则在接下来的时间里，直线追击敌人
+                //tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / returnspeed;
+                //tTick = 0.0f;
+                return ;
+            }
 
-                transform.Rotate(new Vector3(0, 15.0f, 0), Space.Self);
-                //Debug.LogError("tTick:" + tTick + " tTotal:" + tTotal);
-                Vector3 v = spline.Eval(tTick / tTotal);
-                //Debug.LogError(v.ToString());
-                transform.position = v;
-            }
-            else if (status == FlyStatus.FlyGoto)
+            transform.Rotate(vecRotate, Space.Self);
+            //Debug.LogError("tTick:" + tTick + " tTotal:" + tTotal);
+            Vector3 v = spline.Eval(tTick / tTotal);
+            //Debug.LogError(v.ToString());
+            transform.position = v;
+        }
+        else if (status == FlyStatus.FlyGoto)
+        {
+            transform.Rotate(vecRotate, Space.Self);
+            Vector3 dir = auto_target.mSkeletonPivot - transform.position;
+            //Debug.LogError("dir.magnitude:" + dir.sqrMagnitude + " speed*time.deltatime:" + speed * Time.deltaTime);
+            //WsGlobal.AddDebugLine(transform.position, transform.position + dir, Color.red, "dir");
+            if (dir.magnitude <= speed * Time.deltaTime)//下一帧能够超过目标.
+                status = FlyStatus.FlyReturn;
+            transform.position = transform.position + dir.normalized * speed * Time.deltaTime;
+        }
+        else if (status == FlyStatus.FlyReturn)
+        {
+            //Debug.LogError("status == 1");
+            //回收-直线回转-穿墙
+            transform.Rotate(vecRotate, Space.Self);
+            Vector3 dir = owner.WeaponR.position - transform.position;
+            //Debug.LogError("dir.magnitude:" + dir.sqrMagnitude + " speed*time.deltatime:" + speed * Time.deltaTime);
+            //WsGlobal.AddDebugLine(transform.position, transform.position + dir, Color.red, "dir");
+            if (dir.magnitude <= speed * Time.deltaTime)//速度太大的时候，可能会2边跑，而且距离都大于5，这样要看夹角是否改变了方向.
             {
-                transform.Rotate(new Vector3(0, 15.0f, 0), Space.Self);
-                Vector3 dir = auto_target.mSkeletonPivot - transform.position;
-                //Debug.LogError("dir.magnitude:" + dir.sqrMagnitude + " speed*time.deltatime:" + speed * Time.deltaTime);
-                //WsGlobal.AddDebugLine(transform.position, transform.position + dir, Color.red, "dir");
-                if (dir.magnitude <= speed * Time.deltaTime)//下一帧能够超过目标.
-                    status = FlyStatus.FlyReturn;
-                transform.position = transform.position + dir.normalized * speed * Time.deltaTime;
+                //Debug.LogError("WeaponReturned");
+                owner.WeaponReturned(_attack.PoseIdx);
+                owner.weaponLoader.ShowWeapon();
+                GameObject.Destroy(gameObject);
+                return;
             }
-            else if (status == FlyStatus.FlyReturn)
-            {
-                //Debug.LogError("status == 1");
-                //回收-直线回转-穿墙
-                transform.Rotate(new Vector3(0, 15.0f, 0), Space.Self);
-                Vector3 dir = owner.WeaponR.position - transform.position;
-                //Debug.LogError("dir.magnitude:" + dir.sqrMagnitude + " speed*time.deltatime:" + speed * Time.deltaTime);
-                //WsGlobal.AddDebugLine(transform.position, transform.position + dir, Color.red, "dir");
-                if (dir.magnitude <= speed * Time.deltaTime)//速度太大的时候，可能会2边跑，而且距离都大于5，这样要看夹角是否改变了方向.
-                {
-                    //Debug.LogError("WeaponReturned");
-                    owner.WeaponReturned(_attack.PoseIdx);
-                    owner.weaponLoader.ShowWeapon();
-                    GameObject.Destroy(gameObject);
-                    yield break;
-                }
-                transform.position = transform.position + dir.normalized * speed * Time.deltaTime;
-            }
-            yield return 0;
+            transform.position = transform.position + dir.normalized * speed * Time.deltaTime;
         }
     }
 

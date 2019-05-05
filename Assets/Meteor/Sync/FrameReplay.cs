@@ -156,7 +156,7 @@ public class FrameReplay : MonoBehaviour {
     public int LogicFrameIndex = 0;
     private int AccumilatedTime = 0;
     public const float deltaTime = LogicFrameLength / 1000.0f;
-    public const int LogicFrameLength = 50;
+    public const int LogicFrameLength = 20;
     public int TurnIndex = 0;
     TurnFrames nowTurn;//当前的Turn
     /// <summary>
@@ -229,7 +229,6 @@ public class FrameReplay : MonoBehaviour {
     public void Update()
     {
         ProtoHandler.Update();
-
         if (!TurnStarted)
             return;
         //Basically same logic as FixedUpdate, but we can scale it by adjusting FrameLength
@@ -238,7 +237,7 @@ public class FrameReplay : MonoBehaviour {
         while (AccumilatedTime > LogicFrameLength)
         {
             LogicFrame();
-            Debug.LogError("logicframe:" + LogicFrameIndex);
+            //Debug.LogError("logicframe:" + LogicFrameIndex);
             AccumilatedTime = AccumilatedTime - LogicFrameLength;
         }
     }
@@ -307,7 +306,7 @@ public class FrameReplay : MonoBehaviour {
         }
 
         GameBattleEx.Instance.NetUpdate();
-
+        CameraFollow.Ins.NetUpdate();
         LogicFrameIndex++;
         //当逻辑帧为 Turn序号
         if (LogicFrameIndex == (TurnIndex + 1) * TurnMaxFrame)
@@ -316,26 +315,5 @@ public class FrameReplay : MonoBehaviour {
             FSS.Instance.SyncTurn();
             TurnIndex++;
         }
-        //gameTurnSW.Stop();
-        //gameTurnSW.Reset();
     }
-
-    public void NetUpdate()
-    {
-        //if (TurnIndex != Frame.turnIndex)
-        //    return;
-        //if (FrameIndex >= Frame.Inputs[0].frames.Count)
-        //    return;
-        
-        //for (int i = 0; i < Frame.Inputs.Count; i++)
-        //    OnNetInput(Frame.Inputs[i].playerId, Frame.Inputs[i].frames[FrameIndex]);
-        //FrameIndex++;
-        
-    }
-
-    //void OnNetInput(uint player, InputFrame fInput)
-    //{
-    //    MeteorUnit unit = NetWorkBattle.Ins.GetNetPlayer((int)player);
-    //    unit.OnNetInput(fInput);
-    //}
 }

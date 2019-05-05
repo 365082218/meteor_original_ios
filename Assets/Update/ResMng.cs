@@ -111,6 +111,7 @@ public class ResMng {
             Debug.LogError(string.Format("already contains:{0}", node.strResources));
     }
 
+    public static string localPath;
 	static void Load()
 	{
         Log.WriteError("ResInit");
@@ -118,6 +119,7 @@ public class ResMng {
         Bundle.Clear();
         ReferenceNode.referenceDict.Clear();
         ReadReferenceTable();
+        localPath = Application.persistentDataPath;
 	}
 
 

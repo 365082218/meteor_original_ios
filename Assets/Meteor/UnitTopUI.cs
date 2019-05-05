@@ -49,10 +49,10 @@ public class UnitTopUI : MonoBehaviour {
         //1.6f 1.7666f
         if (MonsterName.gameObject.activeSelf)
         {
-            Vector3 vec = Camera.main.WorldToScreenPoint(new Vector3(target.position.x, target.position.y + 40.0f, target.position.z));
+            Vector3 vec = Camera.main.WorldToScreenPoint(new Vector3(target.position.x, target.position.y + 50.0f, target.position.z));
             float scalex = vec.x / Screen.width;
             float scaley = vec.y / Screen.height;
-            rect.anchoredPosition3D = new Vector3(1920f * scalex, 1080f * scaley, vec.z);
+            rect.anchoredPosition3D = new Vector3(2160.0f * scalex, 1080f * scaley, vec.z);
             if (GameData.Instance.gameStatus.EnableDebugStatus)
             {
                 if (!Info.gameObject.activeInHierarchy)

@@ -894,6 +894,8 @@ public class WeaponLoader : MonoBehaviour {
     {
         for (int i = 0; i < weaponDamage.Count; i++)
         {
+            if (weaponDamage[i] == null)
+                continue;
             weaponDamage[i].isTrigger = open;
             weaponDamage[i].enabled = open;
         }
