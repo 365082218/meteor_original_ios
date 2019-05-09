@@ -3,18 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PickupItemAgent : MonoBehaviour, INetUpdate {
-    // Use this for initialization
-    void Start () {
-		
-	}
-
-    private void Awake()
+public class PickupItemAgent : LockBehaviour {
+    protected new void Awake()
     {
-        FrameReplay.Instance.RegisterObject(this);    
+        base.Awake();
     }
 
-    public void GameFrameTurn(List<protocol.FrameCommand> actions)
+    protected new void OnDestroy()
+    {
+        base.OnDestroy();
+    }
+
+    protected override void LockUpdate()
     {
         if (isWeapon)
         {
@@ -23,7 +23,6 @@ public class PickupItemAgent : MonoBehaviour, INetUpdate {
             {
                 Destroy(gameObject);
                 isWeapon = false;
-                FrameReplay.Instance.UnRegisterObject(this);
                 return;
             }
 
@@ -157,7 +156,6 @@ public class PickupItemAgent : MonoBehaviour, INetUpdate {
             unit.Attr.Weapon2 = weaponPickup;
             SFXLoader.Instance.PlayEffect(672, unit.gameObject, true);
             Destroy(gameObject);
-            FrameReplay.Instance.UnRegisterObject(this);
         }
     }
 }

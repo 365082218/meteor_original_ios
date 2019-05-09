@@ -11,19 +11,19 @@ public class DamageRecord
 }
 
 //飞镖飞行实现-Flight层
-public class DartLoader : MonoBehaviour, INetUpdate {
+public class DartLoader : LockBehaviour {
     InventoryItem weapon;
     public const float MaxDistance = 5000;
     // Use this for initialization
-    private void Awake()
+    protected new void Awake()
     {
+        base.Awake();
         Rigidbody r = GetComponent<Rigidbody>();
         r.useGravity = false;
-        FrameReplay.Instance.RegisterObject(this);
     }
 
     List<DamageRecord> deleteRec = new List<DamageRecord>();
-    public void GameFrameTurn(List<protocol.FrameCommand> command)
+    protected override void LockUpdate()
     {
         deleteRec.Clear();
         for (int i = 0; i < recordList.Count; i++)

@@ -1,15 +1,8 @@
 ﻿using protocol;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 //using System.Diagnostics;
 using UnityEngine;
-
-public interface INetUpdate
-{
-    void GameFrameTurn(List<FrameCommand> actions);
-}
-
 //帧指令接收器，用于存储从服务器/单机 时发送来的帧指令.FSC=FRAMESYNCCLIENT
 public class FSC:Singleton<FSC>
 {
@@ -67,7 +60,7 @@ public class FSS:Singleton<FSS>
                 return;
             }
             TurnFrames t = frameCommand[FrameReplay.Instance.TurnIndex];
-            Common.SyncTurn(t);
+            UdpClientProxy.Exec((int)MeteorMsg.MsgType.SyncTurnReq, t);
         }
         else
         {
@@ -159,21 +152,12 @@ public class FrameReplay : MonoBehaviour {
     public const int LogicFrameLength = 20;
     public int TurnIndex = 0;
     TurnFrames nowTurn;//当前的Turn
+    public static event Action UpdateEvent;
+    public static event Action LateUpdateEvent;
     /// <summary>
     /// 包括所有动态物体
     /// 所有需要使用网络时间驱动的游戏对象.需要实现接口IHasGameFrame，由该组件按网络时间，顺序执行每个对象的更新.
     /// </summary>
-    public List<INetUpdate> GameObjects = new List<INetUpdate>();
-    public List<INetUpdate> TotalObjects = new List<INetUpdate>();
-    public void RegisterObject(INetUpdate objNetUpdate)
-    {
-        TotalObjects.Add(objNetUpdate);
-    }
-
-    public void UnRegisterObject(INetUpdate objNetUpdate)
-    {
-        TotalObjects.Remove(objNetUpdate);
-    }
 
     //当场景以及物件全部加载完成，重新开局时
     public void OnBattleStart()
@@ -199,7 +183,8 @@ public class FrameReplay : MonoBehaviour {
     private void Awake()
     {
         Instance = this;
-        //gameTurnSW = new Stopwatch();
+        TcpClientProxy.Init();
+        UdpClientProxy.Init();
     }
 
     public void OnBattleFinished()
@@ -208,7 +193,6 @@ public class FrameReplay : MonoBehaviour {
         AccumilatedTime = 0;
         TurnIndex = 0;
         LogicFrameIndex = 0;
-        TotalObjects.Clear();
         FSS.Instance.Reset();
         FSC.Instance.Reset();
     }
@@ -222,7 +206,6 @@ public class FrameReplay : MonoBehaviour {
         TurnIndex = 0;
         LogicFrameIndex = 0;
         AccumilatedTime = 0;
-        TotalObjects.Clear();
     }
 
     //called once per unity frame
@@ -236,6 +219,7 @@ public class FrameReplay : MonoBehaviour {
         //in case the FPS is too slow, we may need to update the game multiple times a frame
         while (AccumilatedTime > LogicFrameLength)
         {
+            UdpClientProxy.Update();
             LogicFrame();
             //Debug.LogError("logicframe:" + LogicFrameIndex);
             AccumilatedTime = AccumilatedTime - LogicFrameLength;
@@ -295,18 +279,8 @@ public class FrameReplay : MonoBehaviour {
             }
         }
 
-        //在更新过程中会新增/移除某元素
-        GameObjects.Clear();
-        GameObjects.AddRange(TotalObjects);
-
-        List<INetUpdate> finished = new List<INetUpdate>();
-        foreach (INetUpdate obj in GameObjects)
-        {
-            obj.GameFrameTurn(actions);
-        }
-
-        GameBattleEx.Instance.NetUpdate();
-        CameraFollow.Ins.NetUpdate();
+        UpdateEvent();
+        LateUpdateEvent();
         LogicFrameIndex++;
         //当逻辑帧为 Turn序号
         if (LogicFrameIndex == (TurnIndex + 1) * TurnMaxFrame)

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 //自己追踪目标的位置和旋转。
 //子Mesh设置自己的本地坐标和旋转。
 [System.Serializable]
-public class SFXUnit : MonoBehaviour, INetUpdate
+public class SFXUnit : LockBehaviour
 {
     public SFXEffectPlay parentSfx;
     public int effectIndex;
@@ -26,9 +26,9 @@ public class SFXUnit : MonoBehaviour, INetUpdate
     public bool PlayDone = false;
     public bool pause = false;
     bool LookAtC = false;
-    void Awake()
+    protected new void Awake()
     {
-        FrameReplay.Instance.RegisterObject(this);
+        base.Awake();
     }
     /* BOX 立体模型、
 AUDIO 声音指向、Audio_3音效 Audio_0 UI音效 Audio_15 多一个字节？
@@ -42,9 +42,9 @@ BILLBOARD 连接模板、公告板
 DRAG*/
     //第一个参数 控制层级关系
     //第二个参数，本地坐标系跟随，
-    public void OnDestroy()
+    protected new void OnDestroy()
     {
-        FrameReplay.Instance.UnRegisterObject(this);
+        base.OnDestroy();
         if (mOwner != null)
             mOwner.OnSFXDestroy(this);
     }
@@ -196,7 +196,7 @@ DRAG*/
             meshIndex = 6;
         }
         //决定模型
-        if (meshIndex != -1 && meshIndex < Game.Instance.MeshMng.Meshes.Length)
+        if (meshIndex != -1 && meshIndex < GamePool.Instance.MeshMng.Meshes.Length)
         {
             if (meshIndex == 4)
                 mFilter.mesh = SfxMeshGenerator.Instance.CreateCylinder(source.origAtt.y, source.origAtt.x, source.origScale.x);
@@ -205,7 +205,7 @@ DRAG*/
             else if (meshIndex == 0)
                 mFilter.mesh = SfxMeshGenerator.Instance.CreatePlane(source.origScale.x, source.origScale.y);
             else
-                mFilter.mesh = Game.Instance.MeshMng.Meshes[meshIndex];
+                mFilter.mesh = GamePool.Instance.MeshMng.Meshes[meshIndex];
         }
         if (effect.Texture.ToLower().EndsWith(".bmp") || effect.Texture.ToLower().EndsWith(".jpg") || effect.Texture.ToLower().EndsWith(".tga"))
         {
@@ -361,7 +361,7 @@ DRAG*/
     Vector3 temp = new Vector3(0, 0, 0);
     Vector3 temp2 = new Vector3(0, 0, 0);
     // Update is called once per frame
-    public void GameFrameTurn(List<protocol.FrameCommand> cmd)
+    protected override void LockUpdate()
     {
         playedTime += FrameReplay.deltaTime;
         if (pause || PlayDone)

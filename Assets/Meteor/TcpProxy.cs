@@ -8,14 +8,14 @@ using UnityEngine;
 
 namespace CoClass
 {
-    public class TcpProxy
+    public class PacketProxy
     {
         byte[] Buff;//缓存全部.
         byte[] Buf;//接收每个包
         int Len;//Buff有多长.
         public static int MaxSize = 512 * 1024;//
         public static int PacketSize = 4096;//
-        public TcpProxy()
+        public PacketProxy()
         {
             Buf = new byte[PacketSize];
             Buff = new byte[MaxSize];
@@ -131,15 +131,14 @@ namespace CoClass
             return true;
         }
 
-        public void OnSendComplete(IAsyncResult ar)
-        {
-            Socket s = ar.AsyncState as Socket;
-            s.EndSend(ar);
-        }
-
         public byte[] GetBuffer()
         {
             return Buf;
+        }
+
+        public void SetBuffer(byte[] buffer)
+        {
+            Buf = buffer;
         }
     }
 }

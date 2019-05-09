@@ -250,7 +250,7 @@ public class Common
         msg.channelType = 0;
         msg.chatMessage = message;
         msg.playerId = (uint)NetWorkBattle.Instance.PlayerId;
-        Exec(ClientProxy.sProxy,(int)MeteorMsg.MsgType.ChatInRoomReq, msg);
+        Exec(TcpClientProxy.sProxy,(int)MeteorMsg.MsgType.ChatInRoomReq, msg);
     }
 
     public static void SendAudioMessage(float [] data)
@@ -259,7 +259,7 @@ public class Common
         msg.type = 0;
         msg.audio_data.AddRange(data);
         msg.playerId = (uint)NetWorkBattle.Instance.PlayerId;
-        Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.AudioChat, msg);
+        Exec(TcpClientProxy.sProxy, (int)MeteorMsg.MsgType.AudioChat, msg);
     }
 
     public static void Exec(Socket s, int msg)
@@ -332,12 +332,12 @@ public class Common
 
     public static void SyncTurn(TurnFrames turn)
     {
-        Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.SyncTurnReq, turn);
+        Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.SyncTurnReq, turn);
     }
 
     public static void SendUpdateGameServer()
     {
-        Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.GetRoomReq);
+        Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.GetRoomReq);
     }
 
     public static void SendAutoLogin()
@@ -345,7 +345,7 @@ public class Common
         ProtocolVerifyReq req = new ProtocolVerifyReq();
         req.protocol = AppInfo.ProtocolVersion;
         req.data = GameData.Instance.gameStatus.NickName;
-        Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ProtocolVerify, req);
+        Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ProtocolVerify, req);
     }
 
     //public static void SendRebornRequest(int playerid)
@@ -361,12 +361,12 @@ public class Common
         req.roomId = (uint)roomId;
         req.version = AppInfo.Instance.MeteorVersion.Equals("9.07") ? RoomInfo.MeteorVersion.V907:RoomInfo.MeteorVersion.V107;
         req.password = sec;
-        Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.JoinRoomReq, req);
+        Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.JoinRoomReq, req);
     }
 
     public static void SendLeaveLevel()
     {
-        Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.LeaveRoomReq);
+        Exec(TcpClientProxy.sProxy, (int)MeteorMsg.MsgType.LeaveRoomReq);
     }
 
     public static void SendEnterLevel(int model, int weapon, int camp)
@@ -376,7 +376,7 @@ public class Common
         req.camp = (uint)camp;//暂时全部为盟主模式
         req.model = (uint)model;
         req.weapon = (uint)weapon;
-        Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.EnterLevelReq, req);
+        Exec(TcpClientProxy.sProxy, (int)MeteorMsg.MsgType.EnterLevelReq, req);
     }
 
     //创建房间.
@@ -390,7 +390,7 @@ public class Common
         req.roundTime = (uint)GameData.Instance.gameStatus.NetWork.RoundTime;
         req.rule = (RoomInfo.RoomRule)GameData.Instance.gameStatus.NetWork.Mode;
         req.secret = sec;
-        Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.CreateRoomReq, req);
+        Exec(TcpClientProxy.sProxy, (int)MeteorMsg.MsgType.CreateRoomReq, req);
         //1,人数上限
         //2.关卡模式
         //3.时长

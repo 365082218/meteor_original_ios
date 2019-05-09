@@ -42,7 +42,7 @@ public class EscConfirmWnd : Window<EscConfirmWnd>
             GameOverlayWnd.Instance.ClearSystemMsg();
         //离开副本
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
-            ClientProxy.LeaveLevel();
+            TcpClientProxy.LeaveLevel();
         else
         {
             FrameReplay.Instance.OnDisconnected();

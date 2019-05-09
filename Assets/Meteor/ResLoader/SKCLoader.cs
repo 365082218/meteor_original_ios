@@ -418,8 +418,8 @@ public class SkcFile
         }
         else
         {
-            if (Game.Instance != null && Game.Instance.SkcMng != null)
-                return Game.Instance.SkcMng.GetPlayerMat(roleIdx, camp);
+            if (GamePool.Instance != null && GamePool.Instance.SkcMng != null)
+                return GamePool.Instance.SkcMng.GetPlayerMat(roleIdx, camp);
             //使用预先设置好的材质球，降低DC和Batch
             Material[] ret = new Material[materials.Length];
             string strTexture = "";

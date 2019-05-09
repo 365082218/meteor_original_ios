@@ -91,7 +91,7 @@ public class Startup : MonoBehaviour {
 
     public void OnApplicationQuit()
     {
-        ClientProxy.Exit();
+        TcpClientProxy.Exit();
         Log.Uninit();
         FtpLog.Uninit();
         GlobalUpdate.Instance.SaveCache();

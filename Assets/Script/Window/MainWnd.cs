@@ -872,7 +872,7 @@ public class MainLobby : Window<MainLobby>
     public void OnSelectService()
     {
         Control("Server").GetComponent<Text>().text = string.Format("服务器:{0}        IP:{1}        端口:{2}", Global.Instance.Server.ServerName,
-            ClientProxy.server == null ? "还未取得" : ClientProxy.server.Address.ToString(), ClientProxy.server == null ? "还未取得" : ClientProxy.server.Port.ToString());
+            TcpClientProxy.server == null ? "还未取得" : TcpClientProxy.server.Address.ToString(), TcpClientProxy.server == null ? "还未取得" : TcpClientProxy.server.Port.ToString());
     }
 
     Coroutine Update;//更新服务器列表的协程.
@@ -971,7 +971,7 @@ public class MainLobby : Window<MainLobby>
         {
             InsertServerItem(Global.Instance.Servers[i], i);
         }
-        ClientProxy.Init();
+        TcpClientProxy.ReStart();
     }
 
     void InsertServerItem(ServerInfo svr, int i)
@@ -984,10 +984,10 @@ public class MainLobby : Window<MainLobby>
         btn.GetComponent<Button>().onClick.AddListener(() => {
             if (Global.Instance.Server == Global.Instance.Servers[i])
                 return;
-            ClientProxy.Exit();
+            TcpClientProxy.Exit();
             ClearRooms();
             Global.Instance.Server = svr;
-            ClientProxy.Init();
+            TcpClientProxy.ReStart();
         });
         btn.GetComponentInChildren<Text>().text = svr.ServerName;
     }
@@ -1000,7 +1000,7 @@ public class MainLobby : Window<MainLobby>
 
     void OnRefresh()
     {
-        ClientProxy.UpdateGameServer();
+        TcpClientProxy.UpdateGameServer();
     }
 
     void OnCreateRoom()
@@ -1013,7 +1013,7 @@ public class MainLobby : Window<MainLobby>
     {
         if (SelectRoomId != -1)
         {
-            ClientProxy.JoinRoom(SelectRoomId);
+            TcpClientProxy.JoinRoom(SelectRoomId);
         }
     }
 }
@@ -1310,8 +1310,8 @@ public class MainWnd : Window<MainWnd>
             Control("UploadLog").SetActive(true);
         }
         Control("UploadLog").GetComponent<Button>().onClick.AddListener(() => { FtpLog.UploadStart(); });
-        Game.Instance.CloseDbg();
-        ClientProxy.Exit();
+        GamePool.Instance.CloseDbg();
+        TcpClientProxy.Exit();
     }
 
     void OnSinglePlayer()
@@ -2073,7 +2073,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
                 GameOverlayWnd.Instance.ClearSystemMsg();
             //离开副本
             if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
-                ClientProxy.LeaveLevel();
+                TcpClientProxy.LeaveLevel();
             else
                 FrameReplay.Instance.OnDisconnected();
 
@@ -2083,7 +2083,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
 
     public void Init()
     {
-        Game.Instance.CloseDbg();
+        GamePool.Instance.CloseDbg();
         MeteorResult = Control("MeteorResult").transform;
         ButterflyResult = Control("ButterflyResult").transform;
         BattleResult = Global.ldaControlX("BattleResult", WndObject);

@@ -10,17 +10,168 @@ using System.Text;
 using System.Threading;
 using UnityEngine;
 
-//处理与服务器的连接.没有p2p
-class ClientProxy
+//处理与服务器的Udp链接，当进入房间服务器时
+class UdpClientProxy
+{
+    private static IPEndPoint remote;
+    private static UdpClient udp;
+    private static KCP kcp;
+    static PacketProxy packetProxy;
+    private static float updateTime;
+    private static bool willDisconnect;
+    public static Dictionary<int, byte[]> Packet;
+    public static void Init()
+    {
+        Packet = new Dictionary<int, byte[]>();
+        //注册解析udp数据包.
+        ProtoHandler.RegisterPacket(Packet);
+    }
+
+    public static bool Connected
+    {
+        get;
+        private set;
+    }
+
+    public static bool Connect(int port)
+    {
+        if (Connected)
+        {
+            return false;
+        }
+
+        udp = new UdpClient(TcpClientProxy.server.Address.ToString(), port);
+        kcp = new KCP(1, SendWrap);
+        kcp.NoDelay(1, 10, 2, 1);
+        kcp.WndSize(128, 128);
+        Receive();
+        updateTime = 0;
+        Connected = true;
+        
+        return true;
+    }
+
+    public static void Update()
+    {
+        if (!Connected)
+        {
+            return;
+        }
+
+        if (willDisconnect)
+        {
+            Disconnect();
+            willDisconnect = false;
+
+            return;
+        }
+
+        updateTime += FrameReplay.deltaTime;
+        kcp.Update((uint)Mathf.FloorToInt(updateTime * 1000));
+
+        for (var size = kcp.PeekSize(); size > 0; size = kcp.PeekSize())
+        {
+            var buffer = new byte[size];
+            int n = kcp.Recv(buffer);
+            if (n > 0)
+            {
+                packetProxy.SetBuffer(buffer);
+                packetProxy.Analysis(n, Packet);
+            }
+        }
+    }
+
+    public static bool Disconnect()
+    {
+        if (!Connected)
+        {
+            return false;
+        }
+        Connected = false;
+        udp.Close();
+        return true;
+    }
+
+    private static void Receive()
+    {
+        udp.BeginReceive(ReceiveCallback, null);
+    }
+
+    private static void ReceiveCallback(IAsyncResult ar)
+    {
+        try
+        {
+            var data = udp.EndReceive(ar, ref remote);
+
+            if (data != null)
+            {
+                kcp.Input(data);
+            }
+
+            Receive();
+        }
+        catch (SocketException)
+        {
+            willDisconnect = true;
+        }
+    }
+
+    private static void SendCallback(IAsyncResult ar)
+    {
+        udp.EndSend(ar);
+    }
+
+    public static void Exec<T>(int msg, T rsp)
+    {
+        MemoryStream ms = new MemoryStream();
+        Serializer.Serialize(ms, rsp);
+        byte[] coreData = ms.ToArray();
+        int length = 8 + coreData.Length;
+        byte[] data = new byte[length];
+        Buffer.BlockCopy(coreData, 0, data, 8, coreData.Length);
+        byte[] Length = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(length));
+        byte[] wIdent = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(msg));
+        Buffer.BlockCopy(Length, 0, data, 0, 4);
+        Buffer.BlockCopy(wIdent, 0, data, 4, 4);
+        try
+        {
+            kcp.Send(data);
+        }
+        catch (Exception exp)
+        {
+            Log.WriteError(exp.Message);
+        }
+    }
+
+    private static void SendWrap(byte[] data, int size)
+    {
+        try
+        {
+            udp.BeginSend(data, size, SendCallback, null);
+        }
+        catch (SocketException)
+        {
+            Disconnect();
+        }
+    }
+}
+
+//处理与服务器的TCP连接.
+class TcpClientProxy
 {
     public static bool quit = false;
     //public static AutoResetEvent logicEvent = new AutoResetEvent(false);//负责收到服务器后的响应线程的激活.
     public static IPEndPoint server;
-    public static TcpProxy proxy;
+    public static PacketProxy proxy;
     public static Dictionary<int, byte[]> Packet = new Dictionary<int, byte[]>();//消息ID和字节流
     static Timer tConn;
 
     public static void Init()
+    {
+        ProtoHandler.RegisterPacket(Packet);
+    }
+
+    public static void ReStart()
     {
         quit = false;
 
@@ -28,7 +179,7 @@ class ClientProxy
             sProxy = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
         if (proxy == null)
-            proxy = new TcpProxy();
+            proxy = new PacketProxy();
 
         InitServerCfg();
         if (tConn == null)
@@ -71,10 +222,9 @@ class ClientProxy
         result.Message = (int)LocalMsgType.Connect;
         result.Result = 1;
         ProtoHandler.PostMessage(result);
-
         try
         {
-            sProxy.BeginReceive(proxy.GetBuffer(), 0, TcpProxy.PacketSize, SocketFlags.None, OnReceivedData, sProxy);
+            sProxy.BeginReceive(proxy.GetBuffer(), 0, PacketProxy.PacketSize, SocketFlags.None, OnReceivedData, sProxy);
         }
         catch
         {
@@ -133,7 +283,7 @@ class ClientProxy
         {
             try
             {
-                sProxy.BeginReceive(proxy.GetBuffer(), 0, TcpProxy.PacketSize, SocketFlags.None, OnReceivedData, sProxy);
+                sProxy.BeginReceive(proxy.GetBuffer(), 0, PacketProxy.PacketSize, SocketFlags.None, OnReceivedData, sProxy);
             }
             catch
             {
@@ -177,10 +327,6 @@ class ClientProxy
         }
     }
 
-    public static void OnLogout(uint userid, Action<RBase> cb)
-    {
-    }
-
     public static Socket sProxy = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     public static void Exit()
     {
@@ -192,7 +338,6 @@ class ClientProxy
             {
                 sProxy.Shutdown(SocketShutdown.Both);
                 sProxy.Close();
-                
             }
             catch
             {
@@ -232,11 +377,6 @@ class ClientProxy
         Common.SendJoinRoom(roomId);
     }
 
-    //public static void ReqReborn(int userId)
-    //{
-    //    Common.SendRebornRequest(userId);
-    //}
-
     public static void EnterLevel(int model, int weapon, int camp)
     {
         Common.SendEnterLevel(model, weapon, camp);
@@ -247,28 +387,4 @@ class ClientProxy
         Common.SendLeaveLevel();
         NetWorkBattle.Instance.OnDisconnect();
     }
-
-    //同步当前帧的输入状态
-    public static void SyncInput()
-    {
-
-    }
-
-    //同步当前角色状态,定点数，位置 + 旋转 + 帧动画 + 时刻
-    public static void SyncFrame()
-    {
-
-    }
-    //public static void SendBattleResult(bool result, int battleId, List<int> monster, Action<RBase> cb = null)
-    //{
-    //    try
-    //    {
-    //        InitServerCfg();
-    //        Common.SendBattleResult(result, battleId, monster, cb);
-    //    }
-    //    catch (Exception exp)
-    //    {
-    //        Console.WriteLine("socket error");
-    //    }
-    //}
 }

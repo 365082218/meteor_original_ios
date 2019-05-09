@@ -270,9 +270,9 @@ public class EscWnd : Window<EscWnd>
     {
         GameData.Instance.gameStatus.LevelDebug = toggle;
         if (toggle)
-            Game.Instance.ShowDbg();
+            GamePool.Instance.ShowDbg();
         else
-            Game.Instance.CloseDbg();
+            GamePool.Instance.CloseDbg();
     }
 
     void InitLevel()

@@ -14,7 +14,7 @@ Nikki Ma
 四是：电影的摄像机是定焦的，而不是变焦。所谓定焦，就是说拍近景和拍远景，只能依靠变化摄像机和人物的距离来完成。摄像机离你近了，取景范围就小，你的脸就大了。摄像机离你远了，取景范围加大，你全身就露出来了。所以，想像爸爸去哪儿一样，十几个机位一字排开，各自拍不同的景别是不可能的。相对于电影，电视台录节目一般采用变焦头，最大优点就是方便、快捷。但是定焦头拍出来，无论是色彩、画面质感都和定焦头没得比。电影屏幕大，要求高，一般都是定焦头啦。所以如果双机拍，拍全景的时候，前面肯定会有一个摄像机挡在那里拍近景。。。穿帮是肯定的。电影里面用双机的有钱剧组，一般都是同景别不同角度的拍摄，或者像前面说的，只能拍一次的镜头。。。
 第一次知乎回答哈，还请指正。
  */
-public class CameraFollow : MonoBehaviour {
+public class CameraFollow : LockBehaviour {
     public static CameraFollow Ins { get { return Instance; } }
     static CameraFollow Instance;
     //public Transform[] m_Targets;//摄像机的各个视角的调试对象.
@@ -31,14 +31,17 @@ public class CameraFollow : MonoBehaviour {
     public float lastAngle;
     float angleMax = 75.0f;
     float angleMin = -75.0f;
-    private void Awake()
+    protected new void Awake()
     {
+        this.orderType = OrderType.Late;
+        base.Awake();
         enabled = false;
         Instance = this;
     }
 
-    private void OnDestroy()
+    private new void OnDestroy()
     {
+        base.OnDestroy();
         Instance = null;
     }
 
@@ -118,7 +121,7 @@ public class CameraFollow : MonoBehaviour {
         }
     }
 
-    public void NetUpdate()
+    protected override void LockUpdate()
     {
         if (MeteorManager.Instance.LocalPlayer != null && !Global.Instance.PauseAll)
         {

@@ -158,7 +158,7 @@ public class NetWorkBattle:Singleton<NetWorkBattle> {
     //选择好了角色和武器，向服务器发出进入房间请求.
     public void EnterLevel()
     {
-        ClientProxy.EnterLevel(heroIdx, weaponIdx, camp);
+        TcpClientProxy.EnterLevel(heroIdx, weaponIdx, camp);
     }
 
     //进入房间，还未进入战场，选阵营/人/武器界面

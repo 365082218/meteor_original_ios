@@ -287,9 +287,9 @@ public class FightWnd : Window<FightWnd>
         }
 
         if (GameData.Instance.gameStatus.LevelDebug)
-            Game.Instance.ShowDbg();
+            GamePool.Instance.ShowDbg();
         else
-            Game.Instance.CloseDbg();
+            GamePool.Instance.CloseDbg();
         if (GameData.Instance.gameStatus.EnableLog)
             WSDebug.Ins.OpenLogView();
         else

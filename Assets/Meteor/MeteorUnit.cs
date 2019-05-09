@@ -71,7 +71,7 @@ public class BuffContainer
     public SFXEffectPlay effect;
 }
 
-public class Buff: INetUpdate
+public class Buff
 {
     public bool Finished { get { return false; } }
     public EBUFF_Type type;
@@ -199,7 +199,7 @@ public class Buff: INetUpdate
     }
 
     List<MeteorUnit> unitRemoved = new List<MeteorUnit>();
-    public void GameFrameTurn(List<protocol.FrameCommand> actions)
+    public void LockUpdate()
     {
         unitRemoved.Clear();
         switch (refresh_type)
@@ -257,7 +257,7 @@ public class Buff: INetUpdate
     }
 }
 
-public partial class MeteorUnit : MonoBehaviour, INetUpdate
+public partial class MeteorUnit : LockBehaviour
 {
     public bool Finished { get { return Dead; } }
     public virtual bool IsDebugUnit() { return false; }
@@ -512,8 +512,9 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
         lockTarget = target;
     }
 
-    private void OnDestroy()
+    protected new void OnDestroy()
     {
+        base.OnDestroy();
         if (UnitTopUI != null)
             GameObject.DestroyImmediate(UnitTopUI.gameObject);
         if (weaponLoader != null)
@@ -660,8 +661,9 @@ public partial class MeteorUnit : MonoBehaviour, INetUpdate
 
 
     public MonsterEx Attr;
-    void Awake()
+    protected new void Awake()
     {
+        base.Awake();
         //单场景启动.
 #if !STRIP_DBG_SETTING
         if (!IsDebugUnit())

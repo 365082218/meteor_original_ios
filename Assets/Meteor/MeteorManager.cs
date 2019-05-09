@@ -62,7 +62,6 @@ public class MeteorManager {
             UnitInstanceIdx++;
         }
         UnitInfos.Add(unit);
-        FrameReplay.Instance.RegisterObject(unit);
     }
 
     public bool IsFirstMember(MeteorUnit unit)
@@ -80,7 +79,6 @@ public class MeteorManager {
         if (!SceneItems.Contains(item))
             return;
         SceneItems.Remove(item);
-        FrameReplay.Instance.UnRegisterObject(item);
     }
 
     public void OnGenerateSceneItem(SceneItemAgent item)
@@ -89,7 +87,6 @@ public class MeteorManager {
             return;
         SceneItems.Add(item);
         item.InstanceId = SceneItemInstanceIdx++;
-        FrameReplay.Instance.RegisterObject(item);
     }
 
     public void PhysicalIgnore(MeteorUnit self, bool ignore)

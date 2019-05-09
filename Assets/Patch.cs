@@ -36,7 +36,7 @@ public class Patch : MonoBehaviour {
     //如果还没有进入Menu就退出，则还是保存信息.
     public void OnApplicationQuit()
     {
-        ClientProxy.Exit();
+        TcpClientProxy.Exit();
         Log.Uninit();
         FtpLog.Uninit();
         //GameData.Instance.SaveState();
@@ -66,7 +66,7 @@ public class Patch : MonoBehaviour {
         int displayProgress = 0;
         if (ConnectWnd.Exist)
             ConnectWnd.Instance.Close();
-        SFXLoader.Instance.Init();
+        yield return SFXLoader.Instance.Init();
         //GameObject sfx = new GameObject("preload");
         //SFXLoader.Instance.PlayEffect("defup.ef", sfx, true, true);
         //yield return new WaitForEndOfFrame();

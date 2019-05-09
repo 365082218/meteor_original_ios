@@ -570,7 +570,7 @@ public class SFXLoader :Singleton<SFXLoader>{
     public int TotalSfx = 0;
     public int Miss = 0;
     public string[] Eff;
-    public void Init()
+    public IEnumerator Init()
     {
         TextAsset list = Resources.Load<TextAsset>("effect.lst");
         Eff = list.text.Split(new char[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
@@ -580,15 +580,8 @@ public class SFXLoader :Singleton<SFXLoader>{
             if (!EffectList.ContainsKey(Eff[i]))
             {
                 SfxFile f = new SfxFile();
-                try
-                {
-                    f.ParseFile(Eff[i]);
-                }
-                catch (Exception exp)
-                {
-                    f.error = true;
-                    Debug.LogError(string.Format("{0}  parse error {1}", Eff[i], exp.Message));
-                }
+                f.ParseFile(Eff[i]);
+                yield return 0;
                 EffectList[Eff[i]] = f;
             }
         }

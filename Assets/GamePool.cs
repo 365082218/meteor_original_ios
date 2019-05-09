@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Game : MonoBehaviour {
-    static Game _Instance;
-    public static Game Instance { get { return _Instance; } }
+public class GamePool : MonoBehaviour {
+    static GamePool _Instance;
+    public static GamePool Instance { get { return _Instance; } }
     private void Awake()
     {
         _Instance = this;

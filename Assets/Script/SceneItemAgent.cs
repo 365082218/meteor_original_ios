@@ -16,7 +16,7 @@ public class SceneItemProperty
     public Dictionary<string, int> attribute = new Dictionary<string, int>();//是否激活active 是否有伤害(damage) 是否有碰撞(collision) pose做动作.
 }
 //原版内不需要序列化存储的机关，关卡固有机关,尖刺,摆斧
-public class SceneItemAgent : MonoBehaviour, INetUpdate {
+public class SceneItemAgent : LockBehaviour {
     // Use this for initialization
     List<Collider> collisions = new List<Collider>();
     [SerializeField]

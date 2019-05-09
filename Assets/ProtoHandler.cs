@@ -25,100 +25,114 @@ public class LocalMsg
 
 class ProtoHandler
 {
+    static List<Dictionary<int, byte[]>> packets = new List<Dictionary<int, byte[]>>();
+    public static void RegisterPacket(Dictionary<int, byte[]> packet)
+    {
+        packets.Add(packet);
+    }
+    public static void UnRegisterPacket(Dictionary<int, byte[]>packet)
+    {
+        packets.Remove(packet);
+    }
+
     //套接口消息.
     public static void Update()
     {
         //处理网络消息
-        lock (ClientProxy.Packet)
+        for (int i = 0; i < packets.Count; i++)
         {
-            MemoryStream ms = null;
-            try
+            Dictionary<int, byte[]> pack = packets[i];
+            lock (pack)
             {
-                foreach (var each in ClientProxy.Packet)
+                MemoryStream ms = null;
+                try
                 {
-                    //UnityEngine.Debug.LogError(string.Format("收到:{0}", each.Key));
-                    switch (each.Key)
+                    foreach (var each in pack)
                     {
-                        case (int)MeteorMsg.MsgType.ProtocolVerify:
-                            ms = new MemoryStream(each.Value);
-                            ProtocolVerifyRsp rspVer = ProtoBuf.Serializer.Deserialize<ProtocolVerifyRsp>(ms);
-                            OnVerifyResult(rspVer);
-                            break;
-                        case (int)MeteorMsg.MsgType.GetRoomRsp:
-                            ms = new MemoryStream(each.Value);
-                            GetRoomRsp rspG = ProtoBuf.Serializer.Deserialize<GetRoomRsp>(ms);
-                            OnGetRoomRsp(rspG);
-                            break;
-                        //case (int)MeteorMsg.MsgType.JoinRoomRsp:
-                        //    ms = new MemoryStream(each.Value);
-                        //    JoinRoomRsp rspJ = ProtoBuf.Serializer.Deserialize<JoinRoomRsp>(ms);
-                        //    ClientJoinRoomRsp(rspJ);
-                        //    break;
-                        //case (int)MeteorMsg.MsgType.OnJoinRoomRsp:
-                        //    ms = new MemoryStream(each.Value);
-                        //    OnEnterRoomRsp rspE = ProtoBuf.Serializer.Deserialize<OnEnterRoomRsp>(ms);
-                        //    OnEnterRoomRsp_(rspE);
-                        //    break;
-                        case (int)MeteorMsg.MsgType.CreateRoomRsp:
-                            ms = new MemoryStream(each.Value);
-                            CreateRoomRsp rspC = ProtoBuf.Serializer.Deserialize<CreateRoomRsp>(ms);
-                            OnCreateRoomRsp(rspC);
-                            break;
-                        //case (int)MeteorMsg.MsgType.EnterLevelRsp:
-                        //    ms = new MemoryStream(each.Value);
-                        //    EnterLevelRsp rspER = ProtoBuf.Serializer.Deserialize<EnterLevelRsp>(ms);
-                        //    EnterLevelRsp_(rspER);
-                        //    break;
-                        //case (int)MeteorMsg.MsgType.OnEnterLevelRsp:
-                        //    ms = new MemoryStream(each.Value);
-                        //    OnEnterLevelRsp rspOE = ProtoBuf.Serializer.Deserialize<OnEnterLevelRsp>(ms);
-                        //    OnEnterLevelRsp_(rspOE);
-                        //    break;
-                        //case (int)MeteorMsg.MsgType.UserRebornSB2C:
-                        //    ms = new MemoryStream(each.Value);
-                        //    OnEnterLevelRsp rspReborn = ProtoBuf.Serializer.Deserialize<OnEnterLevelRsp>(ms);
-                        //    OnUserRebornRsp_(rspReborn);
-                        //    break;
-                        //case (int)MeteorMsg.MsgType.OnLeaveRoomRsp:
-                        //    ms = new MemoryStream(each.Value);
-                        //    OnLeaveRoomRsp rspL = ProtoBuf.Serializer.Deserialize<OnLeaveRoomRsp>(ms);
-                        //    OnLeaveRoomRsp_(rspL);
-                        //    break;
-                        case (int)MeteorMsg.MsgType.ChatInRoomRsp:
-                            ms = new MemoryStream(each.Value);
-                            ChatMsg chatRsp = ProtoBuf.Serializer.Deserialize<ChatMsg>(ms);
-                            OnReceiveChatMsg(chatRsp);
-                            break;
-                        case (int)MeteorMsg.MsgType.AudioChat:
-                            ms = new MemoryStream(each.Value);
-                            AudioChatMsg audioRsp = ProtoBuf.Serializer.Deserialize<AudioChatMsg>(ms);
-                            OnReceiveAudioMsg(audioRsp);
-                            break;
-                        //case (int)MeteorMsg.MsgType.UserDeadSB2C:
-                        //    //Debug.LogError("OnUserDead");
-                        //    ms = new MemoryStream(each.Value);
-                        //    UserId userDeadRsp = ProtoBuf.Serializer.Deserialize<UserId>(ms);
-                        //    OnUserDead(userDeadRsp);
-                        //    break;
-                        //收到服务器的帧同步信息.
-                        case (int)MeteorMsg.MsgType.SyncTurnRsp:
-                            ms = new MemoryStream(each.Value);
-                            TurnFrames t = ProtoBuf.Serializer.Deserialize<TurnFrames>(ms);
-                            FSC.Instance.OnReceiveCommand(t);
-                            break;
+                        //UnityEngine.Debug.LogError(string.Format("收到:{0}", each.Key));
+                        switch (each.Key)
+                        {
+                            case (int)MeteorMsg.MsgType.ProtocolVerify:
+                                ms = new MemoryStream(each.Value);
+                                ProtocolVerifyRsp rspVer = ProtoBuf.Serializer.Deserialize<ProtocolVerifyRsp>(ms);
+                                OnVerifyResult(rspVer);
+                                break;
+                            case (int)MeteorMsg.MsgType.GetRoomRsp:
+                                ms = new MemoryStream(each.Value);
+                                GetRoomRsp rspG = ProtoBuf.Serializer.Deserialize<GetRoomRsp>(ms);
+                                OnGetRoomRsp(rspG);
+                                break;
+                            //case (int)MeteorMsg.MsgType.JoinRoomRsp:
+                            //    ms = new MemoryStream(each.Value);
+                            //    JoinRoomRsp rspJ = ProtoBuf.Serializer.Deserialize<JoinRoomRsp>(ms);
+                            //    ClientJoinRoomRsp(rspJ);
+                            //    break;
+                            //case (int)MeteorMsg.MsgType.OnJoinRoomRsp:
+                            //    ms = new MemoryStream(each.Value);
+                            //    OnEnterRoomRsp rspE = ProtoBuf.Serializer.Deserialize<OnEnterRoomRsp>(ms);
+                            //    OnEnterRoomRsp_(rspE);
+                            //    break;
+                            case (int)MeteorMsg.MsgType.CreateRoomRsp:
+                                ms = new MemoryStream(each.Value);
+                                CreateRoomRsp rspC = ProtoBuf.Serializer.Deserialize<CreateRoomRsp>(ms);
+                                OnCreateRoomRsp(rspC);
+                                break;
+                            //case (int)MeteorMsg.MsgType.EnterLevelRsp:
+                            //    ms = new MemoryStream(each.Value);
+                            //    EnterLevelRsp rspER = ProtoBuf.Serializer.Deserialize<EnterLevelRsp>(ms);
+                            //    EnterLevelRsp_(rspER);
+                            //    break;
+                            //case (int)MeteorMsg.MsgType.OnEnterLevelRsp:
+                            //    ms = new MemoryStream(each.Value);
+                            //    OnEnterLevelRsp rspOE = ProtoBuf.Serializer.Deserialize<OnEnterLevelRsp>(ms);
+                            //    OnEnterLevelRsp_(rspOE);
+                            //    break;
+                            //case (int)MeteorMsg.MsgType.UserRebornSB2C:
+                            //    ms = new MemoryStream(each.Value);
+                            //    OnEnterLevelRsp rspReborn = ProtoBuf.Serializer.Deserialize<OnEnterLevelRsp>(ms);
+                            //    OnUserRebornRsp_(rspReborn);
+                            //    break;
+                            //case (int)MeteorMsg.MsgType.OnLeaveRoomRsp:
+                            //    ms = new MemoryStream(each.Value);
+                            //    OnLeaveRoomRsp rspL = ProtoBuf.Serializer.Deserialize<OnLeaveRoomRsp>(ms);
+                            //    OnLeaveRoomRsp_(rspL);
+                            //    break;
+                            case (int)MeteorMsg.MsgType.ChatInRoomRsp:
+                                ms = new MemoryStream(each.Value);
+                                ChatMsg chatRsp = ProtoBuf.Serializer.Deserialize<ChatMsg>(ms);
+                                OnReceiveChatMsg(chatRsp);
+                                break;
+                            case (int)MeteorMsg.MsgType.AudioChat:
+                                ms = new MemoryStream(each.Value);
+                                AudioChatMsg audioRsp = ProtoBuf.Serializer.Deserialize<AudioChatMsg>(ms);
+                                OnReceiveAudioMsg(audioRsp);
+                                break;
+                            //case (int)MeteorMsg.MsgType.UserDeadSB2C:
+                            //    //Debug.LogError("OnUserDead");
+                            //    ms = new MemoryStream(each.Value);
+                            //    UserId userDeadRsp = ProtoBuf.Serializer.Deserialize<UserId>(ms);
+                            //    OnUserDead(userDeadRsp);
+                            //    break;
+                            //收到服务器的帧同步信息.
+                            case (int)MeteorMsg.MsgType.SyncTurnRsp:
+                                ms = new MemoryStream(each.Value);
+                                TurnFrames t = ProtoBuf.Serializer.Deserialize<TurnFrames>(ms);
+                                FSC.Instance.OnReceiveCommand(t);
+                                break;
+                        }
                     }
                 }
-            }
-            catch (Exception exp)
-            {
-                UnityEngine.Debug.LogError(exp.Message + exp.StackTrace);
-            }
-            finally
-            {
-                ClientProxy.Packet.Clear();
+                catch (Exception exp)
+                {
+                    UnityEngine.Debug.LogError(exp.Message + exp.StackTrace);
+                }
+                finally
+                {
+                    pack.Clear();
+                }
             }
         }
-
+        
         lock (messageQueue)
         {
             int length = messageQueue.Count;
@@ -360,7 +374,7 @@ class ProtoHandler
     {
         if (rsp.result == 1)
         {
-            ClientProxy.UpdateGameServer();//取得房间列表
+            TcpClientProxy.UpdateGameServer();//取得房间列表
         }
         else
         {
@@ -384,7 +398,7 @@ class ProtoHandler
         {
             retryNum = 3;
             Debug.Log("connected AutoLogin");
-            ClientProxy.AutoLogin();//验证客户端的合法性
+            TcpClientProxy.AutoLogin();//验证客户端的合法性
             if (MainLobby.Exist)
                 MainLobby.Instance.OnSelectService();
         }
@@ -397,7 +411,7 @@ class ProtoHandler
             retryNum--;
             if (retryNum <= 0)
             {
-                ClientProxy.Exit();//重试3次，等待切换服务器再激活链接服务器的定时器.
+                TcpClientProxy.Exit();//重试3次，等待切换服务器再激活链接服务器的定时器.
                 retryNum = 3;
             }
         }

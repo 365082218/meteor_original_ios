@@ -21,25 +21,30 @@ public class BattleResultItem
 
 //负责战斗中相机的位置指定之类，主角色目标组作为摄像机 视锥体范围，参考Tank教程里的简单相机控制
 //负责战斗场景内位置间的寻路缓存
-public partial class GameBattleEx : Singleton<GameBattleEx> {
+public partial class GameBattleEx : LockBehaviour {
     [HideInInspector]
     public CameraFollow m_CameraControl;
+    public static GameBattleEx Instance;
     int time = 1000;//秒
     float timeClock = 0.0f;
     const float ViewLimit = 90000;//300码，自动解除锁定.
-    public GameBattleEx()
+    public new void Awake()
     {
+        base.Awake();
+        Instance = this;
 #if !STRIP_DBG_SETTING
         WSDebug.Ins.AddDebuggableObject(this);
 #endif
     }
 
-    ~GameBattleEx()
+    public new void OnDestroy()
     {
 #if !STRIP_DBG_SETTING
         if (WSDebug.Ins != null)
             WSDebug.Ins.RemoveDebuggableObject(this);
 #endif
+        Instance = null;
+        base.OnDestroy();
     }
 
     public bool BattleWin()
@@ -174,7 +179,7 @@ public partial class GameBattleEx : Singleton<GameBattleEx> {
             UpdateHandler.Add(fun);
     }
 
-    public void NetUpdate()
+    protected override void LockUpdate()
     {
         for (int i = 0; i < DeleteHandler.Count; i++)
         {
@@ -215,7 +220,7 @@ public partial class GameBattleEx : Singleton<GameBattleEx> {
 
         //更新BUFF
         foreach (var each in BuffMng.Instance.BufDict)
-            each.Value.GameFrameTurn(null);
+            each.Value.LockUpdate();
 
         //更新左侧角色对话文本
         for (int i = 0; i < UnitActKey.Count; i++)
@@ -532,7 +537,7 @@ public partial class GameBattleEx : Singleton<GameBattleEx> {
         //角色摄像机跟随者着角色.
         CameraFollow followCamera = GameObject.Find("CameraEx").GetComponent<CameraFollow>();
         followCamera.Init();
-        GameBattleEx.Instance.m_CameraControl = followCamera;
+        m_CameraControl = followCamera;
 
         if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
             SpawnAllRobot();
