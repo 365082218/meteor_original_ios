@@ -134,7 +134,7 @@ public class MeteorAI {
         //这个暂停是部分行为需要停止AI一段指定时间间隔
         if (paused)
         {
-            Stop();
+            StopMove();
             pause_tick -= FrameReplay.deltaTime;
             if (pause_tick <= 0.0f)
                 paused = false;
@@ -486,7 +486,7 @@ public class MeteorAI {
             case EAISubStatus.GetItemGotoItem:
                 if (owner.GetSceneItemTarget() == null)
                 {
-                    Stop();
+                    StopMove();
                     ChangeState(EAIStatus.Wait);
                     return;
                 }
@@ -590,7 +590,7 @@ public class MeteorAI {
     {
         if (owner.GetLockedTarget() != null && LookRotateToTargetCoroutine == null)
         {
-            Stop();
+            StopMove();
             ChangeState(EAIStatus.Wait);
             return;
         }
@@ -599,7 +599,7 @@ public class MeteorAI {
             if (owner.posMng.mActiveAction.Idx != CommonAction.Idle)
                 return;
             float angle = Random.Range(-60, 60);
-            Stop();//停止移动.
+            StopMove();//停止移动.
             LookRotateToTargetCoroutine = owner.StartCoroutine(LookRotateToTarget(angle));
         }
     }
@@ -647,7 +647,7 @@ public class MeteorAI {
         //重新朝一个面向，跑1-2秒
         leaveTick = 0.0f;
         leaveAngle = Random.Range(15.0f, 60.0f);
-        Stop();
+        StopMove();
     }
 
     IEnumerator LeaveRotateAngle(float leaveAngle, float angularspeed = Global.angularVelocity)
@@ -688,7 +688,7 @@ public class MeteorAI {
         owner.controller.Input.AIMove(0, 1);
     }
 
-    public void Stop()
+    public void StopMove()
     {
         owner.controller.Input.AIMove(0, 0);
     }
@@ -963,7 +963,7 @@ public class MeteorAI {
         float disMin = owner.MoveSpeed * FrameReplay.deltaTime * 0.15f;
         if (dis <= disMin)
         {
-            Stop();
+            StopMove();
             ChangeState(EAIStatus.Fight);
         }
     }
@@ -1479,7 +1479,7 @@ public class MeteorAI {
         if (!U3D.IsSpecialWeapon(owner.Attr.Weapon) && defence < owner.Attr.Guard)
         {
             //远程武器无法防御.
-            Stop();
+            StopMove();
             owner.Guard(true);
         }
         else
@@ -1498,7 +1498,7 @@ public class MeteorAI {
                 if (JumpCoroutine == null && jump < owner.Attr.Jump)
                 {
                     //最好不要带方向跳跃，否则可能跳到障碍物外被场景卡住
-                    Stop();
+                    StopMove();
                     AIJump();
                 }
                 else
@@ -1558,7 +1558,7 @@ public class MeteorAI {
             if (Status == EAIStatus.Fight && (SubStatus == EAISubStatus.FightGotoPosition || SubStatus == EAISubStatus.FightGotoTarget))
             {
                 StopCoroutine();
-                Stop();
+                StopMove();
                 ResetAIKey();
                 ChangeState(EAIStatus.Wait);
                 Path.Clear();
@@ -1566,7 +1566,7 @@ public class MeteorAI {
             else if (Status == EAIStatus.Follow)
             {
                 StopCoroutine();
-                Stop();
+                StopMove();
                 ResetAIKey();
                 ChangeState(EAIStatus.Wait);
                 Path.Clear();
@@ -1574,7 +1574,7 @@ public class MeteorAI {
             else if (Status == EAIStatus.Patrol)
             {
                 StopCoroutine();
-                Stop();
+                StopMove();
                 ResetAIKey();
                 ChangeState(EAIStatus.Wait);
                 curIndex = -1;
@@ -1583,7 +1583,7 @@ public class MeteorAI {
             else if (Status == EAIStatus.GetItem)
             {
                 StopCoroutine();
-                Stop();
+                StopMove();
                 ResetAIKey();
                 ChangeState(EAIStatus.Wait);
                 Path.Clear();
@@ -1591,7 +1591,7 @@ public class MeteorAI {
             else if (Status == EAIStatus.AttackTarget)
             {
                 StopCoroutine();
-                Stop();
+                StopMove();
                 ResetAIKey();
                 ChangeState(EAIStatus.Wait);
                 Path.Clear();
@@ -1618,7 +1618,7 @@ public class MeteorAI {
         if (AttackRotateToTargetCoroutine == null)
         {
             //Debug.LogError("fight leave");
-            Stop();
+            StopMove();
             TargetPos = PathMng.Instance.GetNearestWayPoint(fightTarget.mSkeletonPivot, fightTarget);
             if (TargetPos == Vector3.zero)
             {
@@ -2040,7 +2040,7 @@ public class MeteorAI {
         pause_tick = pause_time;
         if (paused)
         {
-            Stop();
+            StopMove();
             StopCoroutine();
         }
         //Debug.Log(string.Format("unit:{0} pause:{1}", owner.name, pause_tick));
@@ -2051,7 +2051,7 @@ public class MeteorAI {
         stoped = !enable;
         if (stoped)
         {
-            Stop();
+            StopMove();
             StopCoroutine();
         }
     }
@@ -2061,7 +2061,7 @@ public class MeteorAI {
     {
         Status = type;
         StopCoroutine();
-        Stop();
+        StopMove();
         ResetAIKey();
         //Path.Clear();
         if (type == EAIStatus.Kill)
@@ -2290,7 +2290,7 @@ public class MeteorAI {
             }
         }
 
-        Stop();
+        StopMove();
         ResetAIKey();
         StopCoroutine();
         owner.controller.Input.ResetInput();

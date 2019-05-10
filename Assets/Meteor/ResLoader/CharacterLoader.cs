@@ -705,7 +705,7 @@ public class CharacterLoader
         }
     }
 
-    public void CharacterUpdate()
+    public void LockUpdate()
     {
         if (Pause)
             return;

@@ -5,10 +5,9 @@ using System.Collections.Generic;
 public class MeteorUnitDebug : MeteorUnit
 {
     public Transform CameraTarget;
-    //Vector3 mPosition;
-    //int mCacheLayerMask;
-    void Awake()
+    new void Awake()
     {
+        base.Awake();
     }
 
     public override bool IsDebugUnit() { return true; }
@@ -38,7 +37,7 @@ public class MeteorUnitDebug : MeteorUnit
     // Update is called once per frame
     public void Update()
     {
-        charLoader.CharacterUpdate();
+        charLoader.LockUpdate();
         //ProcessGravity();
     }
 

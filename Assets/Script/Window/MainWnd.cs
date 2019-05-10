@@ -2015,8 +2015,8 @@ public class BattleResultWnd : Window<BattleResultWnd>
         {
             for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
             {
-                if (MeteorManager.Instance.UnitInfos[i].robot != null)
-                    MeteorManager.Instance.UnitInfos[i].robot.Stop();
+                if (MeteorManager.Instance.UnitInfos[i].Robot != null)
+                    MeteorManager.Instance.UnitInfos[i].Robot.StopMove();
                 MeteorManager.Instance.UnitInfos[i].controller.Input.ResetVector();
                 MeteorManager.Instance.UnitInfos[i].OnGameResult(result);
             }

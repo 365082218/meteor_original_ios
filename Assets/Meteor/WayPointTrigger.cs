@@ -18,14 +18,14 @@ public class WayPointTrigger : MonoBehaviour {
     private void OnTriggerEnter(Collider other)
     {
         MeteorUnit user = other.GetComponentInParent<MeteorUnit>();
-        if (user.robot != null)
-            user.robot.OnGotoWayPoint(WayIndex);
+        if (user.Robot != null)
+            user.Robot.OnGotoWayPoint(WayIndex);
     }
 
     private void OnTriggerStay(Collider other)
     {
         MeteorUnit user = other.GetComponentInParent<MeteorUnit>();
-        if (user.robot != null)
-            user.robot.OnGotoWayPoint(WayIndex);
+        if (user.Robot != null)
+            user.Robot.OnGotoWayPoint(WayIndex);
     }
 }

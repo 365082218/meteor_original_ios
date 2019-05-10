@@ -283,8 +283,7 @@ public partial class MeteorUnit : LockBehaviour
     public uint OnGroundTick = 0;
     public float RebornTick = 0;//复活需要在死亡后多久间隔
     public bool WaitReborn = false;//盟主模式-等待系统复活
-    [SerializeField]
-    public MeteorAI robot;
+    public MeteorAI Robot;
     //按照角色的坐标围成一圈，每个30度 12个空位，距离50，其实应该按
     //指定的对象是否在自己视野内
     public bool Find(MeteorUnit unit)
@@ -328,8 +327,8 @@ public partial class MeteorUnit : LockBehaviour
 
     public void AIPause(bool pause, float t = 0.0f)
     {
-        if (robot != null)
-            robot.Pause(pause, t);
+        if (Robot != null)
+            Robot.Pause(pause, t);
     }
 
     public System.Action<InventoryItem> OnEquipChanged;
@@ -545,15 +544,8 @@ public partial class MeteorUnit : LockBehaviour
 
     public void Guard(bool guard)
     {
-        if (robot != null)
-        {
-            if (guard)
-                robot.ChangeState(EAIStatus.Guard);
-            else
-            {
-                robot.ChangeState(EAIStatus.Wait);
-            }
-        }
+        if (Robot != null)
+            Robot.ChangeState(guard ? EAIStatus.Guard: EAIStatus.Wait);
     }
 
     //初始化的时候，设置默认选择友军是谁，所有治疗技能，增益BUFF均默认释放给他
@@ -683,7 +675,7 @@ public partial class MeteorUnit : LockBehaviour
     List<SceneItemAgent> removedT = new List<SceneItemAgent>();
     public float xRotateDelta = 0;
     public float yRotateDelta = 0;
-    public void GameFrameTurn(List<protocol.FrameCommand> actions)
+    protected override void LockUpdate()
     {
         if (!gameObject.activeInHierarchy)
             return;
@@ -745,16 +737,26 @@ public partial class MeteorUnit : LockBehaviour
         for (int i = 0; i < removedT.Count; i++)
             touchDelay.Remove(removedT[i]);
 
-        charLoader.CharacterUpdate();
-        controller.NetUpdate();
-        if (robot != null)
+        //动画帧和位置
+        charLoader.LockUpdate();
+        //控制者更新
+        controller.LockUpdate();
+
+        if (!Global.Instance.PauseAll)
+        {
+            if (Robot != null && gameObject.activeInHierarchy)
+                Robot.Update();
+        }
+
+        if (Robot != null)
             RefreshTarget();
+
         ProcessGravity();
 
         //除了受击，防御，其他动作在有锁定目标下，都要转向锁定目标.
         if (GetLockedTarget() != null && posMng.mActiveAction.Idx == CommonAction.Run)
         {
-            if (robot == null && GameData.Instance.gameStatus.AutoLock)
+            if (Robot == null && GameData.Instance.gameStatus.AutoLock)
             {
                 if (GetWeaponType() != (int)EquipWeaponType.Guillotines &&
                     GetWeaponType() != (int)EquipWeaponType.Gun &&
@@ -795,26 +797,23 @@ public partial class MeteorUnit : LockBehaviour
         }
         xRotateDelta = 0;
         yRotateDelta = 0;
-        for (int i = 0; i < actions.Count; i++)
-        {
-            if (actions[i].playerId == InstanceId)
-            {
-                ProcessCommand(actions[i]);
-            }
-        }
+        ProcessCommand();
     }
 
     //解析角色的真动作.
-    protected void ProcessCommand(protocol.FrameCommand command)
+    protected void ProcessCommand()
     {
-        if (command.message != protocol.MeteorMsg.MsgType.SyncCommand)
-            Debug.LogError("error");
-        //switch (command.command)
-        //{
-        //    case protocol.MeteorMsg.Command.MouseDelta:
-        //        OnPlayerMouseDelta(command.data5, command.data6);
-        //        break;
-        //}
+        var command = FSC.Instance.GetCommand(FrameReplay.Instance.LogicFrameIndex);
+        for (int i = 0; i < command.Count; i++)
+        {
+            //取得该角色得操作指令，并且执行.
+            switch (command[i].command)
+            {
+                //case protocol.MeteorMsg.Command.MouseDelta:
+                //    OnPlayerMouseDelta(command.data5, command.data6);
+                //    break;
+            }
+        }
     }
 
     protected void OnPlayerMouseDelta(float x, float y)
@@ -867,7 +866,7 @@ public partial class MeteorUnit : LockBehaviour
         else
         {
             //死亡，失去视野，超出视力范围，重新选择
-            if (robot.killTarget == lockTarget)
+            if (Robot.killTarget == lockTarget)
             {
                 //强制杀死还存活的角色时，不会丢失目标.
             }
@@ -1188,10 +1187,10 @@ public partial class MeteorUnit : LockBehaviour
     MeteorUnit killTarget = null;
     public void KillTarget(MeteorUnit unit)
     {
-        if (robot != null)
+        if (Robot != null)
         {
             killTarget = unit;
-            robot.ChangeState(EAIStatus.Kill);
+            Robot.ChangeState(EAIStatus.Kill);
         }
     }
 
@@ -1238,7 +1237,7 @@ public partial class MeteorUnit : LockBehaviour
 
         //单机模式下有ai
         if (Global.Instance.GLevelMode <= LevelMode.CreateWorld)
-            robot = Attr.IsPlayer ? null : new MeteorAI(this);
+            Robot = Attr.IsPlayer ? null : new MeteorAI(this);
         
         if (controller == null)
             controller = new MeteorController();
@@ -1447,8 +1446,8 @@ public partial class MeteorUnit : LockBehaviour
              GetWeaponType() == (int)EquipWeaponType.Dart ||
              GetWeaponType() == (int)EquipWeaponType.Guillotines))
             GameBattleEx.Instance.Unlock();
-        if (robot != null)
-            robot.OnChangeWeapon();
+        if (Robot != null)
+            Robot.OnChangeWeapon();
     }
 
     public void ChangeNextWeapon()
@@ -1472,8 +1471,8 @@ public partial class MeteorUnit : LockBehaviour
              GetWeaponType() == (int)EquipWeaponType.Dart || 
              GetWeaponType() == (int)EquipWeaponType.Guillotines))
             GameBattleEx.Instance.Unlock();
-        if (robot != null)
-            robot.OnChangeWeapon();
+        if (Robot != null)
+            Robot.OnChangeWeapon();
     }
 
 
@@ -2218,8 +2217,8 @@ public partial class MeteorUnit : LockBehaviour
 
     public void EnableAI(bool enable)
     {
-        if (robot != null)
-            robot.EnableAI(enable);
+        if (Robot != null)
+            Robot.EnableAI(enable);
     }
 
     public void AddAngry(int angry)
@@ -2242,8 +2241,8 @@ public partial class MeteorUnit : LockBehaviour
         if (lockTarget == deadunit && lockTarget != null)
             lockTarget = null;
 
-        if (robot != null)
-            robot.OnUnitDead(deadunit);
+        if (Robot != null)
+            Robot.OnUnitDead(deadunit);
     }
 
     //特殊招式时，关闭碰撞，让角色互相穿透,
@@ -2285,9 +2284,9 @@ public partial class MeteorUnit : LockBehaviour
         {
             hitPoint = hit.point;
             hitNormal = hit.normal;
-            if (robot != null)
+            if (Robot != null)
             {
-                robot.CheckStatus();
+                Robot.CheckStatus();
             }
         }
     }
@@ -2720,8 +2719,8 @@ public partial class MeteorUnit : LockBehaviour
                 //一击必杀
                 string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                 SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                if (robot != null)
-                    robot.OnDamaged(attacker);
+                if (Robot != null)
+                    Robot.OnDamaged(attacker);
                 Attr.ReduceHp(Attr.HpMax);
                 if (Attr.Dead)
                     OnDead(attacker);
@@ -2782,8 +2781,8 @@ public partial class MeteorUnit : LockBehaviour
                         string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
                         AngryValue += (int)((realDamage * 10) / 73.0f);
-                        if (robot != null)
-                            robot.OnDamaged(attacker);
+                        if (Robot != null)
+                            Robot.OnDamaged(attacker);
                         if (Attr.Dead)
                             OnDead(attacker);
                         else
@@ -2841,8 +2840,8 @@ public partial class MeteorUnit : LockBehaviour
                     AngryValue += (int)((realDamage * 10) / 73.0f);
                     string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                     SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                    if (robot != null)
-                        robot.OnDamaged(attacker);
+                    if (Robot != null)
+                        Robot.OnDamaged(attacker);
                     if (Attr.Dead)
                         OnDead(attacker);
                     else
@@ -2894,8 +2893,8 @@ public partial class MeteorUnit : LockBehaviour
         SetGunReady(false);
         if (attacker == null)
         {
-            if (robot != null)
-                robot.OnDamaged(attacker);
+            if (Robot != null)
+                Robot.OnDamaged(attacker);
             //环境伤害.
             Attr.ReduceHp(buffDamage);
             if (Attr.Dead)
@@ -2922,8 +2921,8 @@ public partial class MeteorUnit : LockBehaviour
                 //一击必杀
                 string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                 SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                if (robot != null)
-                    robot.OnDamaged(attacker);
+                if (Robot != null)
+                    Robot.OnDamaged(attacker);
                 Attr.ReduceHp(Attr.HpMax);
                 if (Attr.Dead)
                     OnDead(attacker);
@@ -2964,8 +2963,8 @@ public partial class MeteorUnit : LockBehaviour
                         string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                         SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
                         AngryValue += (int)(realDamage * 10 / 73.0f);
-                        if (robot != null)
-                            robot.OnDamaged(attacker);
+                        if (Robot != null)
+                            Robot.OnDamaged(attacker);
                         if (Attr.Dead)
                             OnDead(attacker);
                         else
@@ -3003,8 +3002,8 @@ public partial class MeteorUnit : LockBehaviour
                     AngryValue += (int)((realDamage * 10) / 73.0f);
                     string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
                     SFXLoader.Instance.PlayEffect(attackAudio, charLoader);
-                    if (robot != null)
-                        robot.OnDamaged(attacker);
+                    if (Robot != null)
+                        Robot.OnDamaged(attacker);
                     if (Attr.Dead)
                         OnDead(attacker);
                     else

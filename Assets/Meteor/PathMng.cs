@@ -27,7 +27,7 @@ public class PathMng:Singleton<PathMng>
         int endPathIndex = GetWayIndex(target, null);
         
         //跟随玩家时，玩家跟随的对象所处于的路点，如果在后面跟随的对象移动，这个路点会发生变化
-        user.robot.lastFollowTargetIndex = endPathIndex;
+        user.Robot.lastFollowTargetIndex = endPathIndex;
         looked.Clear();
         wp.Clear();
         return FindPathCore(user, startPathIndex, endPathIndex, wp);
@@ -66,20 +66,20 @@ public class PathMng:Singleton<PathMng>
     {
         if (looked.Contains(start))
         {
-            user.robot.FindWayFinished = true;
+            user.Robot.FindWayFinished = true;
             yield break;
         }
         //Debug.Log(string.Format("start:{0}:end:{1}", start, end));
         looked.Add(start);
         if (start == -1 || end == -1)
         {
-            user.robot.FindWayFinished = true;
+            user.Robot.FindWayFinished = true;
             yield break;
         }
         if (start == end)
         {
             wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
-            user.robot.FindWayFinished = true;
+            user.Robot.FindWayFinished = true;
             yield break;
         }
 
@@ -88,7 +88,7 @@ public class PathMng:Singleton<PathMng>
             List<WayPoint> direct = new List<WayPoint>();
             wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
             wp.Add(Global.Instance.GLevelItem.wayPoint[end]);
-            user.robot.FindWayFinished = true;
+            user.Robot.FindWayFinished = true;
             yield break;
         }
 
@@ -97,17 +97,17 @@ public class PathMng:Singleton<PathMng>
         {
             wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
             wp.Add(Global.Instance.GLevelItem.wayPoint[end]);
-            user.robot.FindWayFinished = true;
+            user.Robot.FindWayFinished = true;
             yield break;
         }
         else
         {
             //收集路径信息 层次
-            user.robot.PathReset();
-            PathNode no = user.robot.nodeContainer[start];
+            user.Robot.PathReset();
+            PathNode no = user.Robot.nodeContainer[start];
             no.wayPointIdx = start;
             no.parent = -1;
-            user.robot.PathInfo[0].Add(no);
+            user.Robot.PathInfo[0].Add(no);
             yield return CollectPathInfo(user, start, end);
 
             //计算最短路径.从A-B，路径越少，越短，2边之和大于第3边
@@ -116,7 +116,7 @@ public class PathMng:Singleton<PathMng>
             while (true)
             {
                 bool find = false;
-                foreach (var each in user.robot.PathInfo)
+                foreach (var each in user.Robot.PathInfo)
                 {
                     for (int i = 0; i < each.Value.Count; i++)
                     {
@@ -158,13 +158,13 @@ public class PathMng:Singleton<PathMng>
             }
             wp.Insert(0, Global.Instance.GLevelItem.wayPoint[start]);
         }
-        user.robot.FindWayFinished = true;
+        user.Robot.FindWayFinished = true;
     }
 
     //查看之前层级是否已统计过该节点信息
     bool PathLayerExist(MeteorUnit user, int wayPoint)
     {
-        foreach (var each in user.robot.PathInfo)
+        foreach (var each in user.Robot.PathInfo)
         {
             for (int i = 0; i < each.Value.Count; i++)
             {
@@ -179,12 +179,12 @@ public class PathMng:Singleton<PathMng>
     IEnumerator CollectPathInfo(MeteorUnit user, int start, int end, int layer = 1)
     {
         yield return CollectPathLayer(user, start, end, layer);
-        while (user.robot.PathInfo.ContainsKey(layer))
+        while (user.Robot.PathInfo.ContainsKey(layer))
         {
             int nextLayer = layer + 1;
-            for (int i = 0; i < user.robot.PathInfo[layer].Count; i++)
+            for (int i = 0; i < user.Robot.PathInfo[layer].Count; i++)
             {
-                yield return CollectPathLayer(user, user.robot.PathInfo[layer][i].wayPointIdx, end, nextLayer);
+                yield return CollectPathLayer(user, user.Robot.PathInfo[layer][i].wayPointIdx, end, nextLayer);
             }
             layer = nextLayer;
         }
@@ -199,13 +199,13 @@ public class PathMng:Singleton<PathMng>
             if (!PathLayerExist(user, each.Key))
             {
                 //之前的所有层次中并不包含此节点.
-                PathNode no = user.robot.nodeContainer[each.Key];
+                PathNode no = user.Robot.nodeContainer[each.Key];
                 no.wayPointIdx = each.Key;
                 no.parent = start;
-                if (user.robot.PathInfo.ContainsKey(layer))
-                    user.robot.PathInfo[layer].Add(no);
+                if (user.Robot.PathInfo.ContainsKey(layer))
+                    user.Robot.PathInfo[layer].Add(no);
                 else
-                    user.robot.PathInfo.Add(layer, new List<PathNode> { no });
+                    user.Robot.PathInfo.Add(layer, new List<PathNode> { no });
             }
             yield return 0;
         }

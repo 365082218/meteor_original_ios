@@ -7,7 +7,6 @@ using UnityEngine;
 public class FSC:Singleton<FSC>
 {
     List<TurnFrames> frameCommand = new List<TurnFrames>();//指令序列.
-    
     public void OnReceiveCommand(TurnFrames turn)
     {
         frameCommand.Add(turn);
@@ -31,6 +30,27 @@ public class FSC:Singleton<FSC>
     public void OnDisconnected()
     {
         Reset();
+    }
+
+    public List<FrameCommand> GetCommand(int frame)
+    {
+        int t = frame / FrameReplay.TurnMaxFrame;
+        int f = frame % FrameReplay.TurnMaxFrame;
+        return GetCommand(t, f);
+    }
+
+    List<FrameCommand> cmdCache = new List<FrameCommand>();
+    protected List<FrameCommand> GetCommand(int turn, int frame)
+    {
+        cmdCache.Clear();
+        for (int i = 0; i < frameCommand[turn].commands.Count; i++)
+        {
+            if (frameCommand[turn].commands[i].LogicFrame == frame)
+            {
+                cmdCache.Add(frameCommand[turn].commands[i]);
+            }
+        }
+        return cmdCache;
     }
 }
 
@@ -85,13 +105,12 @@ public class FSS:Singleton<FSS>
     //在当前帧推入指令
     public void PushMouseDelta(int playerId, float x, float y)
     {
-        
         TurnFrames t = GetTurnByFrame(FrameReplay.Instance.NextFrame);
         FrameCommand cmd = new FrameCommand();
         cmd.message = MeteorMsg.MsgType.SyncCommand;
         //cmd.command = MeteorMsg.Command.MouseDelta;
-        //cmd.LogicFrame = (uint)FrameReplay.Instance.NextFrame;
-        //cmd.playerId = (uint)playerId;
+        cmd.LogicFrame = (uint)FrameReplay.Instance.NextFrame % FrameReplay.TurnMaxFrame;
+        cmd.playerId = (uint)playerId;
         //cmd.data5 = x;
         //cmd.data6 = y;
         t.commands.Add(cmd);
@@ -260,7 +279,7 @@ public class FrameReplay : MonoBehaviour {
         //update game
         //SceneManager.Manager.TwoDPhysics.Update(GameFramesPerSecond);
 
-        Log.WriteError(string.Format("Turn:{0}, LogicFrame:{1}", nowTurn.turnIndex, LogicFrameIndex));//从这里开始，播放逻辑帧，在取得自己进入场景消息帧时，初始化主角
+        //Log.WriteError(string.Format("Turn:{0}, LogicFrame:{1}", nowTurn.turnIndex, LogicFrameIndex));//从这里开始，播放逻辑帧，在取得自己进入场景消息帧时，初始化主角
         for (int i = 0; i < actions.Count; i++)
         {
             switch (actions[i].message)

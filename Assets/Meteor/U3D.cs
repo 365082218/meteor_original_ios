@@ -205,7 +205,7 @@ public class U3D : MonoBehaviour {
         
         //InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
         //找寻敌人攻击.因为这个并没有脚本模板
-        unit.robot.ChangeState(EAIStatus.Wait);
+        unit.Robot.ChangeState(EAIStatus.Wait);
 
         unit.Attr.GetItem = 0;
         unit.Attr.View = 5000;//视野给大一点
@@ -1196,8 +1196,8 @@ public class U3D : MonoBehaviour {
     {
         MeteorUnit u = GetUnit(id);
         //停止动作的时候，状态为等待，一般遇见敌人时会调用此接口
-        if (u.robot != null)
-            u.robot.ChangeState(EAIStatus.Wait);
+        if (u.Robot != null)
+            u.Robot.ChangeState(EAIStatus.Wait);
         if (u != null)
         {
             //先清除该角色的聊天动作，其他动画动作不处理。

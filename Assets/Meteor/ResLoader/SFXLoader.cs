@@ -581,9 +581,10 @@ public class SFXLoader :Singleton<SFXLoader>{
             {
                 SfxFile f = new SfxFile();
                 f.ParseFile(Eff[i]);
-                yield return 0;
                 EffectList[Eff[i]] = f;
             }
+            if (i % 50 == 0)
+                yield return 0;
         }
     }
 }

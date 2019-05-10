@@ -2126,14 +2126,8 @@ public class MeteorController {
         }
     }
 
-    //由NetWorkBattle驱动.按顺序来的.
-    public void NetUpdate()
+    public void LockUpdate()
     {
-        if (!Global.Instance.PauseAll)
-        {
-            if (Owner.robot != null && Owner.gameObject.activeInHierarchy)
-                Owner.robot.Update();
-        }
         CheckActionInput(FrameReplay.deltaTime);
         if (Input != null)
             Input.NetUpdate();

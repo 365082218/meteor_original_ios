@@ -645,7 +645,7 @@ public class PoseStatus
             if (_Self.GetLockedTarget() != null && !onDefence && !onhurt)
             {
                 //NPC只在处于杀死敌方的状态时会朝角色转向
-                if (_Self.robot != null && _Self.robot.Status == EAIStatus.Fight && _Self.robot.SubStatus == EAISubStatus.Fight)
+                if (_Self.Robot != null && _Self.Robot.Status == EAIStatus.Fight && _Self.Robot.SubStatus == EAISubStatus.Fight)
                 {
                     //远程武器无需转向.
                     if (_Self.GetWeaponType() != (int)EquipWeaponType.Guillotines &&
@@ -655,7 +655,7 @@ public class PoseStatus
                         _Self.FaceToTarget(_Self.GetLockedTarget());
                     }
                 }
-                else if (_Self.robot == null && GameData.Instance.gameStatus.AutoLock && idx != CommonAction.Idle)
+                else if (_Self.Robot == null && GameData.Instance.gameStatus.AutoLock && idx != CommonAction.Idle)
                 {
                     if (_Self.GetWeaponType() != (int)EquipWeaponType.Guillotines &&
                         _Self.GetWeaponType() != (int)EquipWeaponType.Gun &&

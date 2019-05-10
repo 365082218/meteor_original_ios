@@ -27,11 +27,11 @@ public partial class MeteorUnit: DebugInstance
     {
         if (GameBattleEx.Instance != null)
             GameBattleEx.Instance.StopAction(InstanceId);
-        if (robot != null)
+        if (Robot != null)
         {
-            robot.Stop();
+            Robot.StopMove();
             posMng.ChangeAction(0);
-            robot.ChangeState(EAIStatus.Wait);
+            Robot.ChangeState(EAIStatus.Wait);
         }
     }
 
@@ -40,10 +40,10 @@ public partial class MeteorUnit: DebugInstance
     {
         if (GameBattleEx.Instance != null)
             GameBattleEx.Instance.StopAction(InstanceId);
-        if (robot != null)
+        if (Robot != null)
         {
-            robot.Stop();
-            robot.EnableAI(robot.stoped);
+            Robot.StopMove();
+            Robot.EnableAI(Robot.stoped);
         }
     }
 

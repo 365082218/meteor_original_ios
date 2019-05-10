@@ -1606,24 +1606,24 @@ public class ActionConfig
             else if (action[action.Count - 1].type == StackAction.Wait)
             {
                 MeteorUnit unit = U3D.GetUnit(id);
-                if (unit != null && unit.robot != null)
-                    unit.robot.ChangeState(EAIStatus.Wait);
+                if (unit != null && unit.Robot != null)
+                    unit.Robot.ChangeState(EAIStatus.Wait);
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.Follow)
             {
                 MeteorUnit unit = U3D.GetUnit(id);
-                if (unit != null && unit.robot != null)
-                    unit.robot.FollowTarget(action[action.Count - 1].param);
+                if (unit != null && unit.Robot != null)
+                    unit.Robot.FollowTarget(action[action.Count - 1].param);
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.Patrol)
             {
                 MeteorUnit unit = U3D.GetUnit(id);
-                if (unit != null && unit.robot != null)
+                if (unit != null && unit.Robot != null)
                 {
-                    unit.robot.SetPatrolPath(action[action.Count - 1].Path);
-                    unit.robot.ChangeState(EAIStatus.Patrol);//多点巡逻.
+                    unit.Robot.SetPatrolPath(action[action.Count - 1].Path);
+                    unit.Robot.ChangeState(EAIStatus.Patrol);//多点巡逻.
                 }
                 action.RemoveAt(action.Count - 1);
             }
@@ -1650,21 +1650,21 @@ public class ActionConfig
             {
                 //攻击指定位置
                 MeteorUnit unit = U3D.GetUnit(id);
-                if (unit.robot != null && !unit.Dead)
+                if (unit.Robot != null && !unit.Dead)
                 {
-                    if (unit.robot.Status != EAIStatus.AttackTarget)
+                    if (unit.Robot.Status != EAIStatus.AttackTarget)
                     {
-                        unit.robot.AttackCount = action[action.Count - 1].param;
-                        unit.robot.AttackTarget = action[action.Count - 1].target;
-                        unit.robot.ChangeState(EAIStatus.AttackTarget);
+                        unit.Robot.AttackCount = action[action.Count - 1].param;
+                        unit.Robot.AttackTarget = action[action.Count - 1].target;
+                        unit.Robot.ChangeState(EAIStatus.AttackTarget);
                     }
                     //部分情况下，子状态不正确会导致很多奇怪的情况
-                    if (unit.robot.SubStatus != EAISubStatus.AttackGotoTarget && unit.robot.SubStatus != EAISubStatus.AttackTarget && unit.robot.SubStatus != EAISubStatus.AttackTargetSubRotateToTarget)
-                        unit.robot.SubStatus = EAISubStatus.AttackGotoTarget;
-                    if (unit.robot.OnAttackTarget())
+                    if (unit.Robot.SubStatus != EAISubStatus.AttackGotoTarget && unit.Robot.SubStatus != EAISubStatus.AttackTarget && unit.Robot.SubStatus != EAISubStatus.AttackTargetSubRotateToTarget)
+                        unit.Robot.SubStatus = EAISubStatus.AttackGotoTarget;
+                    if (unit.Robot.OnAttackTarget())
                     {
                         action.RemoveAt(action.Count - 1);
-                        unit.robot.ChangeState(EAIStatus.Wait);
+                        unit.Robot.ChangeState(EAIStatus.Wait);
                     }
                 }
             }
