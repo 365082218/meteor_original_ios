@@ -3,21 +3,21 @@ using System.Collections;
 using UnityEditor;
 using System.Net;
 
-[CustomEditor(typeof(SFXUnit))]
-public class SFXUnitInspector : Editor
-{
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-        if (GUILayout.Button("DumpParticle"))
-        {
-            var obj = (SFXUnit)target;
-            string file = EditorUtility.SaveFilePanel("DumpParticle", "", "Particle", "bytes");
-            if (!string.IsNullOrEmpty(file))
-                obj.SaveParticle(file);
-        }
-    }
-}
+//[CustomEditor(typeof(SFXUnit))]
+//public class SFXUnitInspector : Editor
+//{
+//    public override void OnInspectorGUI()
+//    {
+//        base.OnInspectorGUI();
+//        if (GUILayout.Button("DumpParticle"))
+//        {
+//            var obj = (SFXUnit)target;
+//            string file = EditorUtility.SaveFilePanel("DumpParticle", "", "Particle", "bytes");
+//            if (!string.IsNullOrEmpty(file))
+//                obj.SaveParticle(file);
+//        }
+//    }
+//}
 
 [CustomEditor(typeof(AudioButton))]
 public class AudioButtonInspector:Editor

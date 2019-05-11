@@ -131,7 +131,7 @@ public class SfxFile
             error = true;
             return false;
         }
-        int offset = 0;
+
         if (asset != null && asset.bytes == null)
         {
             Debug.LogError(string.Format("asset or it content is null file is {0}", file));
@@ -161,7 +161,7 @@ public class SfxFile
                 headlen += haveBone;
                 haveBone = reader.ReadInt32();
                 sfx.Texture = readNextString(reader, haveBone);
-                reader.BaseStream.Seek(60, SeekOrigin.Current);//这60字节分别是 环境光 镜面光 漫反射 自发光 还有未知的3字节
+                reader.BaseStream.Seek(60, SeekOrigin.Current);
                 headlen += 4;
                 headlen += haveBone;
                 reader.BaseStream.Seek(5, SeekOrigin.Current);
@@ -176,38 +176,21 @@ public class SfxFile
                 for (int y = 0; y < sfx.FrameCnt; y++)
                 {
                     EffectFrame frame = new EffectFrame();
-                    frame.startTime = reader.ReadSingle();// asset.bytes, offset);//可能是int可能是float
-                    //offset += 4;
-                    frame.pos.x = reader.ReadSingle();//可能是int可能是float
-                    offset += 4;
-                    frame.pos.z = reader.ReadSingle();//可能是int可能是float
-                    offset += 4;
-                    frame.pos.y = reader.ReadSingle();//可能是int可能是float
-                    offset += 4;
-                    frame.quat.x = -reader.ReadSingle();//可能是int可能是float
-                    offset += 4;
-                    frame.quat.z = -reader.ReadSingle();//可能是int可能是float
-                    offset += 4;
-                    frame.quat.y = -reader.ReadSingle();//可能是int可能是float
-                    offset += 4;
-                    frame.quat.w = reader.ReadSingle();//可能是int可能是float
-                    offset += 4;
-                    frame.scale.x = reader.ReadSingle();//可能是int可能是float
-                    offset += 4;
-                    frame.scale.z = reader.ReadSingle();//可能是int可能是float
-                    offset += 4;
-                    frame.scale.y = reader.ReadSingle();//可能是int可能是float
-                    offset += 4;
-                    frame.colorRGB.r = reader.ReadSingle();//可能是int可能是float
-                    offset += 4;
-                    frame.colorRGB.g = reader.ReadSingle();//可能是int可能是float
-                    offset += 4;
-                    frame.colorRGB.b = reader.ReadSingle();//可能是int可能是float
-                    offset += 4;
-                    frame.colorRGB.a = reader.ReadSingle();//4 15*4 = 60 
-                    offset += 4;
-                    
-                    //offset += 52;//后面52字节暂时不知道什么意思.13个float
+                    frame.startTime = reader.ReadSingle();
+                    frame.pos.x = reader.ReadSingle();
+                    frame.pos.z = reader.ReadSingle();
+                    frame.pos.y = reader.ReadSingle();
+                    frame.quat.x = -reader.ReadSingle();
+                    frame.quat.z = -reader.ReadSingle();
+                    frame.quat.y = -reader.ReadSingle();
+                    frame.quat.w = reader.ReadSingle();
+                    frame.scale.x = reader.ReadSingle();
+                    frame.scale.z = reader.ReadSingle();
+                    frame.scale.y = reader.ReadSingle();
+                    frame.colorRGB.r = reader.ReadSingle();
+                    frame.colorRGB.g = reader.ReadSingle();
+                    frame.colorRGB.b = reader.ReadSingle();
+                    frame.colorRGB.a = reader.ReadSingle();
                     for (int j = 0; j < 13; j++)
                     {
                         frame.TailFlags[j] = reader.ReadSingle();
@@ -226,33 +209,21 @@ public class SfxFile
                 else if (sfx.EffectType.Equals("BILLBOARD") || sfx.EffectType.Equals("PLANE"))
                 {
                     sfx.origScale.x = reader.ReadSingle();
-                    offset += 4;
                     sfx.origScale.y = reader.ReadSingle();
-                    offset += 4;
                 }
                 else if (sfx.EffectType.Equals("CYLINDER"))
                 {
                     sfx.origAtt.x = reader.ReadSingle();//底部半径
-                    offset += 4;
                     sfx.origAtt.y = reader.ReadSingle();//顶部半径
-                    offset += 4;
                     sfx.origScale.x = reader.ReadSingle();//高度
-                    offset += 4;
                     sfx.origScale.y = reader.ReadSingle();//90
-                    offset += 4;
                     sfx.origScale.z = reader.ReadSingle();//450
-                    offset += 4;
-                    //sfx.TailLength = 24;
                 }
                 else if (sfx.EffectType.Equals("BOX"))
                 {
-                    sfx.origScale.x = reader.ReadSingle();//System.BitConverter.ToSingle(asset.bytes, offset);//可能是int可能是float
-                    offset += 4;
-                    sfx.origScale.y = reader.ReadSingle();//System.BitConverter.ToSingle(asset.bytes, offset);//可能是int可能是float
-                    offset += 4;
-                    sfx.origScale.z = reader.ReadSingle();//System.BitConverter.ToSingle(asset.bytes, offset);//可能是int可能是float
-                    offset += 4;
-                    //sfx.TailLength = 16;
+                    sfx.origScale.x = reader.ReadSingle();
+                    sfx.origScale.y = reader.ReadSingle();
+                    sfx.origScale.z = reader.ReadSingle();
                 }
                 else if (sfx.EffectType.Equals("PARTICLE"))
                 {
@@ -263,7 +234,14 @@ public class SfxFile
                     //sfx.TailLength = 100 + endRegionCnt;
                     //粒子细节=96+endRegionCnt
                     sfx.version = endRegionCnt == 0 ? 0 : 1;
-                    sfx.particle = reader.ReadBytes(96 + endRegionCnt);
+                    int particleBytes = 96 + endRegionCnt;
+                    if (particleBytes == 96)
+                        sfx.version = 0;
+                    else if (particleBytes == 124)
+                        sfx.version = 1;
+                    else if (particleBytes == 112)
+                        sfx.version = 2;
+                    reader.ReadBytes(particleBytes);
                     //前面的28字节不知道干啥的。
                     reader.BaseStream.Seek(-96, SeekOrigin.Current);
                     sfx.MaxParticles = reader.ReadInt32();
@@ -290,72 +268,40 @@ public class SfxFile
                     sfx.unknown15 = reader.ReadSingle();//0.5f
                     sfx.multiplyAlpha = reader.ReadInt32();//1
                     sfx.alpha = reader.ReadSingle();//0.3
-
-                    int regionCnt = reader.ReadInt32();// (asset.bytes, offset);
-                                                        //offset += 4;
-                                                        //sfx.TailLength += 4;
+                    int regionCnt = reader.ReadInt32();
                     string sBone = readNextString(reader, regionCnt);
-                    //string sBone = System.Text.Encoding.UTF8.GetString(asset.bytes, offset, regionCnt);
                     sfx.Tails[0] = sBone;
-                    //offset += regionCnt;
-                    //sfx.TailLength += regionCnt;
                     regionCnt = reader.ReadInt32();
-                    //offset += 4;
-                    //sfx.TailLength += 4;
-                    sBone = readNextString(reader, regionCnt);//  System.Text.Encoding.UTF8.GetString(asset.bytes, offset, regionCnt);
+                    sBone = readNextString(reader, regionCnt);
                     sfx.Tails[1] = sBone;
-                    //offset += regionCnt;
-                    //sfx.TailLength += regionCnt;
-                    regionCnt = reader.ReadInt32();// (asset.bytes, offset);
-                    offset += 4;
-                    //sfx.TailLength += 4;
-                    sBone = readNextString(reader, regionCnt);// System.Text.Encoding.UTF8.GetString(asset.bytes, offset, regionCnt);
+                    regionCnt = reader.ReadInt32();
+                    sBone = readNextString(reader, regionCnt);
                     sfx.Tails[2] = sBone;
-                    offset += regionCnt;
-                    //sfx.TailLength += regionCnt;
                 }
                 else if (sfx.EffectType.Equals("DONUT"))
                 {
                     reader.BaseStream.Seek(24, SeekOrigin.Current);
-                    //sfx.TailLength = 28;
                 }
                 else if (sfx.EffectType.Equals("DRAG"))
                 {
-                    //sfx.TailLength += 8;
-                    offset += 8;
                     reader.BaseStream.Seek(4, SeekOrigin.Current);
-                    int len4 = reader.ReadInt32();// (asset.bytes, offset);
-                    offset += 4;
-                    //sfx.TailLength += 4;
-                    sfx.Tails[0] = readNextString(reader, len4);// (asset.bytes, offset, len4);
-                    //sfx.TailLength += len4;
-                    offset += len4;
-                    len4 = reader.ReadInt32();// System.BitConverter.ToInt32(asset.bytes, offset);
-                    offset += 4;
-                    //sfx.TailLength += 4;
-                    sfx.Tails[1] = readNextString(reader, len4);// System.Text.Encoding.UTF8.GetString(asset.bytes, offset, len4);
-                    //sfx.TailLength += len4;
-                    offset += len4;
+                    int len4 = reader.ReadInt32();
+                    sfx.Tails[0] = readNextString(reader, len4);
+                    len4 = reader.ReadInt32();
+                    sfx.Tails[1] = readNextString(reader, len4);
                 }
                 else if (sfx.EffectType.Equals("MODEL"))
                 {
-                    //4 + 4 + 长度
-                    //sfx.TailLength += 4;
-                    int len4 = reader.ReadInt32();// System.BitConverter.ToInt32(asset.bytes, offset);
-                    offset += 4;
-                    //sfx.TailLength += 4;
-
-                    sfx.Tails[0] = readNextString(reader, len4);// System.Text.Encoding.UTF8.GetString(asset.bytes, offset, len4);
-                    //sfx.TailLength += len4;
+                    int len4 = reader.ReadInt32();
+                    sfx.Tails[0] = readNextString(reader, len4);
                 }
                 else if (sfx.EffectType.Equals("SPHERE"))
                 {
-                    sfx.SphereScale = reader.ReadSingle();
+                    sfx.SphereRadius = reader.ReadSingle();
                     sfx.sphereAttr.x = reader.ReadSingle();
                     sfx.sphereAttr.y = reader.ReadSingle();
                     sfx.sphereAttr.z = reader.ReadSingle();
                     sfx.sphereAttr.w = reader.ReadSingle();
-                    //reader.BaseStream.Seek(16, SeekOrigin.Current);
                 }
                 else
                 {
@@ -424,14 +370,14 @@ public class SfxEffect
     public int Unknown3;
     public int FrameCnt;
     public int audioLoop;
-    public float SphereScale;
+    public float SphereRadius;
     public List<EffectFrame> frames = new List<EffectFrame>();
     public Vector3 origScale = Vector3.one;//这个参数决定了网格生成的参数，类似cylinder,顶部半径，底部半径，以及高度都由此设置
     public Vector2 origAtt = Vector2.zero;//各自的参数设置 顶部半径，底部半径
     public Vector4 sphereAttr = Vector4.zero;
     //粒子系统使用的
-    public int version;//96字节版=0 124字节版=1
-    public byte[] particle;
+    public int version;//96字节版=0 124字节版=1 112字节=2
+    //public byte[] particle;
     public string[] Tails = new string[3];
     public int MaxParticles;
     public float startSizeMin;

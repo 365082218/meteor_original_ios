@@ -55,18 +55,19 @@ DRAG*/
             mRender.enabled = false;
     }
 
-    public void SaveParticle(string file)
-    {
-        if (source != null && source.particle != null)
-        {
-            System.IO.FileStream fs = System.IO.File.OpenWrite(file);
-            System.IO.BinaryWriter w = new System.IO.BinaryWriter(fs);
-            w.Write(source.particle);
-            w.Flush();
-            w.Close();
-            fs.Close();
-        }
-    }
+    //public void SaveParticle(string file)
+    //{
+    //    if (source != null && source.particle != null)
+    //    {
+    //        System.IO.FileStream fs = System.IO.File.OpenWrite(file);
+    //        System.IO.BinaryWriter w = new System.IO.BinaryWriter(fs);
+    //        w.Write(source.particle);
+    //        w.Flush();
+    //        w.Close();
+    //        fs.Close();
+    //    }
+    //}
+
     //原粒子系统是右手坐标系的，转移到左手坐标系后非常多问题，特别是父子关系以及，跟随和子物体旋转叠加
     public void Init(SfxEffect effect, SFXEffectPlay parent, int index, float timePlayed = 0.0f, bool preLoad = false)
     {
@@ -201,7 +202,7 @@ DRAG*/
             if (meshIndex == 4)
                 mFilter.mesh = SfxMeshGenerator.Instance.CreateCylinder(source.origAtt.y, source.origAtt.x, source.origScale.x);
             else if (meshIndex == 3)
-                mFilter.mesh = SfxMeshGenerator.Instance.CreateSphere(source.SphereScale);
+                mFilter.mesh = SfxMeshGenerator.Instance.CreateSphere(source.SphereRadius);
             else if (meshIndex == 0)
                 mFilter.mesh = SfxMeshGenerator.Instance.CreatePlane(source.origScale.x, source.origScale.y);
             else
