@@ -685,14 +685,8 @@ public class CharacterLoader
                         }
                         else
                         {
-                            //if (attackTarget != Vector3.zero)
-                            //{
-                            //    vec = vec.sqrMagnitude * attackTarget;
-                            //}
                         }
                         moveDelta += vec;
-                        //if (po.Idx == 151)
-                        //    Debug.LogError(string.Format("pose:{0} frame:{1} move: x ={2}, y ={3} z = {4}", po.Idx, curIndex, moveDelta.x, moveDelta.y, moveDelta.z));
                         lastDBasePos = targetPos;
                     }
                 }

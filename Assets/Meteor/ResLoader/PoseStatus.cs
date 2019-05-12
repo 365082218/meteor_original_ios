@@ -369,40 +369,59 @@ public class PoseStatus
                 }
                 else
                 {
-                    //213=>213
-                    if (mActiveAction.Idx == CommonAction.GunIdle)
+                    if (_Self.IsOnGround())
                     {
-                        ChangeAction(CommonAction.GunIdle);
-                    }
-                    else
-                    {
-                        //其他有重装子弹的进入212
-                        if (mActiveAction.Link != 0)
+                        //213=>213
+                        if (mActiveAction.Idx == CommonAction.GunIdle)
                         {
-                            if (mActiveAction.Next != null)
-                                ChangeAction(mActiveAction.Link, mActiveAction.Next.Time);
-                            else
-                                ChangeAction(mActiveAction.Link, 0.1f);
+                            ChangeAction(CommonAction.GunIdle);
                         }
                         else
                         {
-                            if (!_Self.GunReady)
+                            if (LinkInput.ContainsKey(mActiveAction.Idx))
+                            {
+                                //拿着火枪在空中踢人.
+                                int TargetActionIdx = mActiveAction.Idx;
+                                if (mActiveAction.Next != null)
+                                    ChangeAction(LinkInput[mActiveAction.Idx], mActiveAction.Next.Time);//
+                                else
+                                    ChangeAction(LinkInput[mActiveAction.Idx], 0.1f);//ok
+                                LinkInput.Clear();
+                            }
+                            else
+                            if (mActiveAction.Link != 0)
                             {
                                 if (mActiveAction.Next != null)
-                                    ChangeAction(CommonAction.Idle, mActiveAction.Next.Time);
+                                    ChangeAction(mActiveAction.Link, mActiveAction.Next.Time);
                                 else
-                                    ChangeAction(CommonAction.Idle, 0.1f);
+                                    ChangeAction(mActiveAction.Link, 0.1f);
                             }
                             else
                             {
-                                //没有重装子弹的进入213
-                                if (mActiveAction.Next != null)
-                                    ChangeAction(CommonAction.GunIdle, mActiveAction.Next.Time);
+                                if (!_Self.GunReady)
+                                {
+                                    if (mActiveAction.Next != null)
+                                        ChangeAction(CommonAction.Idle, mActiveAction.Next.Time);
+                                    else
+                                        ChangeAction(CommonAction.Idle, 0.1f);
+                                }
                                 else
-                                    ChangeAction(CommonAction.GunIdle, 0.1f);
+                                {
+                                    //没有重装子弹的进入213
+                                    if (mActiveAction.Next != null)
+                                        ChangeAction(CommonAction.GunIdle, mActiveAction.Next.Time);
+                                    else
+                                        ChangeAction(CommonAction.GunIdle, 0.1f);
+                                }
                             }
                         }
                     }
+                    else if (_Self.posMng.onhurt)
+                    {
+                        //浮空受击.
+                    }
+                    else
+                        ChangeAction(CommonAction.JumpFall);//拿着枪从空中落下.
                 }
             }
             else
@@ -423,7 +442,7 @@ public class PoseStatus
                         if (mActiveAction.Next != null)
                             ChangeAction(mActiveAction.Link, mActiveAction.Next.Time);
                         else
-                            ChangeAction(mActiveAction.Link, 0.1f);//OK
+                            ChangeAction(mActiveAction.Link, 0.0f);//OK
                     }
                     else
                     {
@@ -478,7 +497,7 @@ public class PoseStatus
                             //Debug.Log("目标受到伤害浮空");
                         }
                         else
-                            ChangeAction(CommonAction.JumpFall, 0.1f);
+                            ChangeAction(CommonAction.JumpFall);
                     }
                 }
             }

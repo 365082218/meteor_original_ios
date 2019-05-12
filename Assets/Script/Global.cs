@@ -27,7 +27,7 @@ public class Global
     public ServerInfo Server;//当前选择的服务器.
     public List<ServerInfo> Servers = new List<ServerInfo>();
     public float FPS = 1.0f / 30.0f;//动画设计帧率
-    public float gGravity = 1000;
+    public float gGravity = 900;
     public const float angularVelocity = 540.0f;
     public const float RebornDelay = 15.0f;//复活队友的CD间隔
     public const float RebornRange = 125.0f;//复活队友的距离最大限制

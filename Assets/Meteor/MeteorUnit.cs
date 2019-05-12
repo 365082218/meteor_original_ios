@@ -1696,7 +1696,7 @@ public partial class MeteorUnit : LockBehaviour
                     if (posMng.ClimbFallTick > PoseStatus.ClimbFallLimit)
                     {
                         //Debug.LogError("爬墙速度低于最低速度-爬墙落下");
-                        posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
+                        posMng.ChangeAction(CommonAction.JumpFall, 0f);//短时间内落地姿势
                         ProcessFall();
                         posMng.ClimbFallTick = 0.0f;
                     }
@@ -1704,7 +1704,7 @@ public partial class MeteorUnit : LockBehaviour
                 else if (MoveOnGroundEx)
                 {
                     //Debug.LogError("爬墙碰到地面-落到地面");
-                    posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
+                    posMng.ChangeAction(CommonAction.JumpFall, 0.0f);//短时间内落地姿势
                 }
                 else
                 {
@@ -1803,7 +1803,7 @@ public partial class MeteorUnit : LockBehaviour
                             if (posMng.ClimbFallTick > PoseStatus.ClimbFallLimit)
                             {
                                 //Debug.LogError("爬墙速度低于最低速度-爬墙落下");
-                                posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
+                                posMng.ChangeAction(CommonAction.JumpFall, 0.0f);//短时间内落地姿势
                                 ProcessFall();
                                 posMng.ClimbFallTick = 0.0f;
                             }
@@ -1845,7 +1845,7 @@ public partial class MeteorUnit : LockBehaviour
             {
                 //爬墙过程中忽然没贴着墙壁了???直接落下
                 //Debug.LogError("爬墙没有贴着墙壁-结束爬墙");
-                posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
+                posMng.ChangeAction(CommonAction.JumpFall, 0.0f);
                 ProcessFall();
             }
             else if (Floating)
@@ -1862,7 +1862,7 @@ public partial class MeteorUnit : LockBehaviour
                     //AddYVelocity(-100);//让他快速一点落地
                     //与落地的间隔超过0.3S再切换动作，否则就会抽搐
                     if (groundTick + 0.3f < Time.timeSinceLevelLoad)
-                        posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
+                        posMng.ChangeAction(CommonAction.JumpFall, 0.0f);
                     //看是否被物件推开
                     ProcessFall();
                     floatTick = Time.timeSinceLevelLoad;
@@ -1877,7 +1877,7 @@ public partial class MeteorUnit : LockBehaviour
             {
                 if ((posMng.mActiveAction.Idx >= CommonAction.Jump && posMng.mActiveAction.Idx <= CommonAction.JumpBackFall) || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
                 {
-                    posMng.ChangeAction(0, 0f);
+                    posMng.ChangeAction(0, 0.1f);
                     //Debug.LogError(name + " 接触地面切换到IDle" + Time.frameCount);
                     groundTick = Time.timeSinceLevelLoad;
                 }
@@ -1967,11 +1967,12 @@ public partial class MeteorUnit : LockBehaviour
         canControlOnAir = true;
         OnGround = false;
         ImpluseVec.y = CalcVelocity(y);
+        ImpluseVec.y = 100;
         posMng.JumpTick = 0.0f;
         posMng.CanAdjust = true;
         posMng.CheckClimb = true;
         posMng.ChangeAction(act, 0.1f);
-        charLoader.SetActionScale(y / JumpLimit);
+        //charLoader.SetActionScale(y / JumpLimit);
     }
 
     //给3个参数,Y轴完整跳跃的高度缩放(就是按下跳跃的压力缩放)，前方速度，右方速度
@@ -1982,11 +1983,12 @@ public partial class MeteorUnit : LockBehaviour
         float jumpScale = Short ? (ShortScale * 0.32f) : 1.0f;
         float h = JumpLimit * jumpScale;
         ImpluseVec.y = CalcVelocity(h);
+        ImpluseVec.y = 100;
         posMng.JumpTick = 0.0f;
         posMng.CanAdjust = true;
         posMng.CheckClimb = true;
         posMng.ChangeAction(act, 0.1f);
-        charLoader.SetActionScale(jumpScale);
+        //charLoader.SetActionScale(jumpScale);
     }
 
     public void ReleaseDefence()
