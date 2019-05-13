@@ -15,16 +15,40 @@ public class SFXEffectPlay : MonoBehaviour {
     }
     bool loop;
     float playedTime = 0.0f;
+    
     // Use this for initialization
     void Start () {
 	
 	}
-	
 
-	// Update is called once per frame
-	void Update () {
-        playedTime += Time.deltaTime;
+    public System.Action<float> OnSfxFrame;
+    float speedScale = 1;
+    public void SpeedFast()
+    {
+        speedScale = speedScale * 2;
+        if (speedScale >= 4f)
+            speedScale = 4f;
+    }
 
+    public void SpeedSlow()
+    {
+        speedScale = speedScale / 2;
+        if (speedScale <= 0.1f)
+            speedScale = 0.1f;
+    }
+
+    // Update is called once per frame
+    void Update () {
+        if (owner.IsDebugUnit())
+        {
+            playedTime += FrameReplay.deltaTime * speedScale;
+            if (OnSfxFrame != null)
+                OnSfxFrame(playedTime);
+        }
+        else
+        {
+            playedTime += FrameReplay.deltaTime;
+        }
     }
 
     public Transform FindEffectByName(string str)

@@ -12,3 +12,22 @@
         animation = animationIdx;
     }
 }
+
+public class SfxCellData : AbstractCellData
+{
+
+    public override System.Type CellControllerType
+    {
+        get
+        {
+            return typeof(AnimationCellController);
+        }
+    }
+
+    public int Sfx;
+
+    public SfxCellData(int sfx)
+    {
+        Sfx = sfx;
+    }
+}
