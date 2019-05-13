@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-using CoClass;
+
 using System.Linq;
 using System.Collections.Generic;
 //using UnityEditor;

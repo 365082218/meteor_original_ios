@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-using CoClass;
+
 using System.IO;
 using ProtoBuf;
 using System;
@@ -1672,9 +1672,10 @@ public class RobotWnd : Window<RobotWnd>
     Coroutine refresh = null;
     IEnumerator RefreshRobot()
     {
-        for (int i = 0; i < 20; i++)
+        List<int> l = U3D.GetUnitList();
+        for (int i = 0; i < l.Count; i++)
         {
-            AddRobot(i);
+            AddRobot(l[i]);
             yield return 0;
         }
         refresh = null;

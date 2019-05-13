@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using CoClass;
 using System.Collections.Generic;
 using System;
 
@@ -331,7 +330,7 @@ public partial class MeteorUnit : LockBehaviour
             Robot.Pause(pause, t);
     }
 
-    public System.Action<InventoryItem> OnEquipChanged;
+    //public System.Action<InventoryItem> OnEquipChanged;
     //public MeteorUnit NGUIJoystick_skill_TargetUnit;//技能目标
     //public List<SkillInput> SkillList = new List<SkillInput>();
     //MeteorUnit wantTarget = null;//绿色目标.只有主角拥有。
@@ -740,7 +739,8 @@ public partial class MeteorUnit : LockBehaviour
         //动画帧和位置
         charLoader.LockUpdate();
         //控制者更新
-        controller.LockUpdate();
+        if (controller != null)
+            controller.LockUpdate();
 
         if (!Global.Instance.PauseAll)
         {
@@ -771,33 +771,42 @@ public partial class MeteorUnit : LockBehaviour
             }
         }
 
-        if (Attr.IsPlayer)
+        if (IsDebugUnit())
         {
-            float yRotate = 0;
-            if (posMng.CanRotateY)
+        }
+        else
+        {
+            if (Attr.IsPlayer)
             {
+                float yRotate = 0;
+                if (posMng.CanRotateY)
+                {
 #if STRIP_KEYBOARD
-                //Debug.LogError(string.Format("deltaLast.x:{0}", NGUICameraJoystick.instance.deltaLast.x));
-                yRotate = NGUICameraJoystick.instance.deltaLast.x * GameData.Instance.gameStatus.AxisSensitivity.x;
+                    //Debug.LogError(string.Format("deltaLast.x:{0}", NGUICameraJoystick.instance.deltaLast.x));
+                    yRotate = NGUICameraJoystick.instance.deltaLast.x * GameData.Instance.gameStatus.AxisSensitivity.x;
 #else
                 yRotate = Input.GetAxis("Mouse X") * 5;
 #endif
-            }
-            if (yRotate != 0)
-                MeteorManager.Instance.LocalPlayer.SetOrientation(yRotate, false);
+                }
+                if (yRotate != 0)
+                    MeteorManager.Instance.LocalPlayer.SetOrientation(yRotate, false);
 
-            float xRotate = 0;
+                float xRotate = 0;
 #if STRIP_KEYBOARD
-            xRotate = NGUICameraJoystick.instance.deltaLast.y * GameData.Instance.gameStatus.AxisSensitivity.y;
+                xRotate = NGUICameraJoystick.instance.deltaLast.y * GameData.Instance.gameStatus.AxisSensitivity.y;
 #else
             xRotate = Input.GetAxis("Mouse Y") * 2;
 #endif
-            //把Mouse的移动事件/触屏的拖拽事件发送到
-            FSS.Instance.PushMouseDelta(InstanceId, xRotate, yRotate);
+                //把Mouse的移动事件/触屏的拖拽事件发送到
+                if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+                {
+                    FSS.Instance.PushMouseDelta(InstanceId, xRotate, yRotate);
+                }
+                else
+                    OnPlayerMouseDelta(xRotate, yRotate);
+            }
+            ProcessCommand();
         }
-        xRotateDelta = 0;
-        yRotateDelta = 0;
-        ProcessCommand();
     }
 
     //解析角色的真动作.
@@ -1335,15 +1344,6 @@ public partial class MeteorUnit : LockBehaviour
 
         GunReady = false;
         IsPlaySkill = false;
-
-        //初始化角色周围的占位寻路点
-        //for (int i = 0; i < 15; i++)
-        //{
-            //SlotInfo.Add(i, null);
-            //GameObject obj = GameObject.Instantiate(ResMng.LoadPrefab("FreePos"), transform.position + Quaternion.AngleAxis(i * 24, Vector3.up) * (Vector3.forward * 40), Quaternion.identity, null) as GameObject;
-            //obj.transform.localScale = new Vector3(1, 0.1f, 1);
-            //SlotFreePos.Add(i, obj);
-        //}
     }
 
     public bool IsPlaySkill { get; set; }
@@ -1365,8 +1365,8 @@ public partial class MeteorUnit : LockBehaviour
         InventoryItem toEquip = IndicatedWeapon;
         if (toEquip != null && weaponLoader != null)
             weaponLoader.EquipWeapon(toEquip);
-        if (OnEquipChanged != null)
-            OnEquipChanged.Invoke(toEquip);
+        //if (OnEquipChanged != null)
+        //    OnEquipChanged.Invoke(toEquip);
         IndicatedWeapon = null;
         //没有自动目标，攻击目标，不许计算自动/锁定目标，无转向
         if (Attr.IsPlayer && (GetWeaponType() == (int)EquipWeaponType.Gun || GetWeaponType() == (int)EquipWeaponType.Dart))

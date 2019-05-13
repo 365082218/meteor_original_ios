@@ -582,6 +582,7 @@ public class CharacterLoader
         return false;
     }
 
+    public System.Action<int, int, int, float> OnAnimationFrame;
     public void PlayFrame(float timeRatio)
     {
         //Debug.LogError("play frame timeratio:" + timeRatio);
@@ -665,7 +666,11 @@ public class CharacterLoader
 
         bool IgnoreActionMoves = IgnoreActionMove(po.Idx);
         if (owner.IsDebugUnit())
+        {
+            if (OnAnimationFrame != null)
+                OnAnimationFrame(po.SourceIdx, po.Idx, curIndex, timeRatio);
             IgnoreActionMoves = false;
+        }
         if (lastStatus != null && status != null)
         {
             for (int i = 0; i < dummy.Count; i++)

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using CoClass;
+
 
 public class DropMng:Singleton<DropMng>{
     public void DropWeapon(MeteorUnit player)

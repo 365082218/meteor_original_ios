@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Xml;
 using System.Collections;
 using System.Collections.Generic;
-using CoClass;
+
 using System.Linq;
 
 public class Global
@@ -82,7 +82,7 @@ public class Global
         LEVELMAX = U3D.GetMaxLevel();
     }
 
-    public void OnServiceChanged(int i, CoClass.ServerInfo Info)
+    public void OnServiceChanged(int i, ServerInfo Info)
     {
         if (Servers == null)
             return;

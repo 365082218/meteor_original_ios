@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
-using CoClass;
+
 using System;
 
 public enum SceneEvent

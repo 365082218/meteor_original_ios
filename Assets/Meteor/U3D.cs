@@ -5,7 +5,7 @@ using SLua;
 using System.Collections.Generic;
 using System;
 using System.IO;
-using CoClass;
+
 using UnityEngine.Profiling;
 using protocol;
 using System.Linq;
@@ -48,6 +48,24 @@ public class U3D : MonoBehaviour {
         return n;
     }
 
+    public static int GetPrevUnitId(int unit)
+    {
+        List<int> all = GetUnitList();
+        int index = all.IndexOf(unit);
+        index -= 1;
+        index = Mathf.Clamp(index, 0, all.Count - 1);
+        return all[index];
+    }
+
+    public static int GetNextUnitId(int unit)
+    {
+        List<int> all = GetUnitList();
+        int index = all.IndexOf(unit);
+        index += 1;
+        index = Mathf.Clamp(index, 0, all.Count - 1);
+        return all[index];
+    }
+
     //取得某个种类的随机一把武器.
     public static int GetRandomWeaponType()
     {
@@ -70,21 +88,31 @@ public class U3D : MonoBehaviour {
         return s[k];
     }
 
-    //取得随机英雄ID
-    public static int GetRandomUnitIdx()
+    public static List<int> GetUnitList()
     {
         List<int> all = new List<int>();
         for (int i = 0; i < Global.MaxModel; i++)
         {
             all.Add(i);
         }
-        for (int i = 0; i < GameData.Instance.gameStatus.pluginModel.Count; i++)
+
+        if (GameData.Instance.gameStatus != null)
         {
-            GameData.Instance.gameStatus.pluginModel[i].Check();
-            if (!GameData.Instance.gameStatus.pluginModel[i].Installed)
-                continue;
-            all.Add(GameData.Instance.gameStatus.pluginModel[i].ModelId);
+            for (int i = 0; i < GameData.Instance.gameStatus.pluginModel.Count; i++)
+            {
+                GameData.Instance.gameStatus.pluginModel[i].Check();
+                if (!GameData.Instance.gameStatus.pluginModel[i].Installed)
+                    continue;
+                all.Add(GameData.Instance.gameStatus.pluginModel[i].ModelId);
+            }
         }
+        return all;
+    }
+
+    //取得随机英雄ID
+    public static int GetRandomUnitIdx()
+    {
+        List<int> all = GetUnitList();
         return all[UnityEngine.Random.Range(0, all.Count)];
     }
 
@@ -103,6 +131,32 @@ public class U3D : MonoBehaviour {
         if (i < 0 || i >= weaponCode.Length)
             return 5;//默认是匕首
         return weaponCode[i];
+    }
+
+    //sort -x->+x标识当前武器得前/后多少个武器
+    public static int GetWeaponBySort(int weapon, int sort)
+    {
+        List<ItemBase> we = GameData.Instance.itemMng.GetFullRow();
+        for (int i = 0; i < we.Count; i++)
+        {
+            if (we[i].MainType == 1)
+            {
+                //武器
+                if (we[i].Idx == weapon)
+                {
+                    if (i + sort < we.Count)
+                    {
+                        if (we[i + sort].MainType == 1)
+                            return we[i + sort].Idx;
+                        else
+                            return we[0].Idx;
+                    }
+                    else
+                        return we[0].Idx;
+                }
+            }
+        }
+        return 1;
     }
 
     //通过EquipWeaponType,得到指定类型的武器.用于在

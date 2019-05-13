@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using SLua;
 using UnityEngine;
-using CoClass;
+
 using System.IO;
 using protocol;
 

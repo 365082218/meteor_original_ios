@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-using CoClass;
+
 using System.Collections.Generic;
 public class MeteorUnitDebug : MeteorUnit
 {
@@ -21,12 +21,10 @@ public class MeteorUnitDebug : MeteorUnit
         MenuResLoader.Instance.Init();
         Attr = new MonsterEx();
         Attr.InitPlayer(null);
-        IgnoreGravity = true;
         if (charLoader != null)
             return;
         UnitId %= 20;
-        
-        Init(UnitId < 0 ? 0:UnitId, LayerMask.NameToLayer("3DUIPlayer"));
+        Init(UnitId < 0 ? 0:UnitId, LayerMask.NameToLayer("LocalPlayer"));
     }
 
     public void GetOut()
@@ -37,67 +35,39 @@ public class MeteorUnitDebug : MeteorUnit
     // Update is called once per frame
     public void Update()
     {
-        charLoader.LockUpdate();
-        //ProcessGravity();
+        base.LockUpdate();
     }
 
-    //public override void ProcessGravity()
-    //{
-    //    if (ImpluseVec.y > 0)
-    //    {
-    //        float s = ImpluseVec.y * Time.deltaTime - 0.5f * gScale * Time.deltaTime * Time.deltaTime;
-    //        Move(new Vector3(ImpluseVec.x * Time.deltaTime, s, ImpluseVec.z * Time.deltaTime) + charLoader.moveDelta);
-    //        ImpluseVec.y = ImpluseVec.y - gScale * Time.deltaTime;
-    //        //???
-    //        //Move(new Vector3(ImpluseVec.x * Time.deltaTime, 0, ImpluseVec.z * Time.deltaTime) + charLoader.moveDelta);
-    //    }
-    //    else
-    //    {
-    //        if (IgnoreGravity)
-    //        {
-    //            //浮空状态，某些大招会在空中停留.注意其他轴如果有速度，那么应该算
-    //            Move(new Vector3(ImpluseVec.x * Time.deltaTime, 0, ImpluseVec.z * Time.deltaTime) + charLoader.moveDelta);
-    //        }
-    //        else
-    //        {
-    //            //处理跳跃的下半程
-    //            float s = ImpluseVec.y * Time.deltaTime - 0.5f * gScale * Time.deltaTime * Time.deltaTime;
-    //            Vector3 v;
-    //            v.x = ImpluseVec.x * Time.deltaTime;
-    //            v.y = IsOnGround() ? 0 : s;
-    //            v.z = ImpluseVec.z * Time.deltaTime;
-    //            v += charLoader.moveDelta;
-    //            Move(v);
-    //            float v2 = Vector3.Magnitude(v);
-    //            if (Mathf.Abs(v2) >= 5.0f)
-    //            {
-    //                UnityEngine.Debug.DebugBreak();
-    //            }
-    //            //Move(new Vector3(0, s, 0) + transform.right * ImpluseVec.x * Time.deltaTime - transform.forward * ImpluseVec.z * Time.deltaTime);
-    //            //Debug.Log("move s:" + v2);
-
-    //            //只判断控制器，有时候在空中也会为真，但是还是要把速度与加速度计算
-    //        }
-    //    }
-    //}
-    //计算重力作用下的运动方向以及位移
-
-    //public CharacterController charController;
-    //Rigidbody rig;
-
-    public void Init(int modelIdx, int layer)
+    public void Init(int modelIdx, int layer, bool updateModel = false)
     {
         tag = "meteorUnit";
         UnitId = modelIdx;
         IgnoreGravity = true;
+
+        if (updateModel)
+        {
+            //把伤害盒子去掉，把受击盒子去掉
+            hitList.Clear();
+
+            if (charLoader != null)
+            {
+                GameObject.Destroy(charLoader.rootBone.parent.gameObject);
+                GameObject.Destroy(charLoader.Skin.gameObject);
+                charLoader = null;
+            }
+        }
+
         if (Attr == null && MeteorManager.Instance != null && MeteorManager.Instance.LocalPlayer != null)
             Attr = MeteorManager.Instance.LocalPlayer.Attr;
-        charLoader = GetComponent<CharacterLoader>();
         if (charLoader == null)
             charLoader = new CharacterLoader();
         if (posMng == null)
             posMng = new PoseStatus();
-
+        if (updateModel)
+        {
+            transform.position = Vector3.zero;
+            transform.rotation = Quaternion.identity;
+        }
         charLoader.LoadCharactor(UnitId, transform);
         posMng.Init(this);
         WeaponR = Global.ldaControlX("d_wpnR", charLoader.rootBone.gameObject).transform;
@@ -106,35 +76,26 @@ public class MeteorUnitDebug : MeteorUnit
         RootdBase = charLoader.rootBone;
         CameraTarget = RootdBase;
         weaponLoader = gameObject.GetComponent<WeaponLoader>();
+        if (updateModel)
+        {
+            Destroy(weaponLoader);
+            weaponLoader = null;
+        }
         if (weaponLoader == null)
             weaponLoader = gameObject.AddComponent<WeaponLoader>();
         weaponLoader.Init(this);
+        charController = gameObject.GetComponent<CharacterController>();
+        if (charController == null)
+            charController = gameObject.AddComponent<CharacterController>();
+        charController.center = new Vector3(0, 16, 0);
+        charController.height = 32;
+        charController.radius = 9.0f;//不这么大碰不到寻路点.
+        charController.stepOffset = 7.6f;
         posMng.ChangeAction();
-        if (MeteorManager.Instance != null)
-        {
-            if (MeteorManager.Instance.LocalPlayer != null)
-                MeteorManager.Instance.LocalPlayer.OnEquipChanged += EquipChanged;
-            //weaponLoader.EquipWeapon(MeteorManager.Instance.LocalPlayer.weaponLoader.GetCurrentWeapon());
-        }
         WsGlobal.SetObjectLayer(gameObject, layer);
-
-        //charController = gameObject.AddComponent<CharacterController>();
-        //charController.center = new Vector3(0, 17.8f, 0);
-        //charController.height = 36.0f;
-        //charController.radius = 8.0f;
-        //charController.stepOffset = 7.8f;
-        //mPos = transform.position;
-        //for (int i = 0; i < 32; i++)
-        //{
-        //    if (LayerMask.LayerToName(i) == "LocalPlayer")
-        //        continue;
-        //    if (LayerMask.LayerToName(i) == "Monster")
-        //        continue;
-        //    if (LayerMask.LayerToName(i) == "Trigger")
-        //        continue;
-        //    if (!Physics.GetIgnoreLayerCollision(gameObject.layer, i))
-        //        mCacheLayerMask |= (1 << i);
-        //}
+        InventoryItem itWeapon = GameData.Instance.MakeEquip(1);
+        weaponLoader.EquipWeapon(itWeapon);
+        this.name = Global.Instance.GetCharacterName(UnitId);
     }
 
     public void Jump()
@@ -145,6 +106,6 @@ public class MeteorUnitDebug : MeteorUnit
     void EquipChanged(InventoryItem it)
     {
         weaponLoader.EquipWeapon(it);
-        WsGlobal.SetObjectLayer(gameObject, LayerMask.NameToLayer("3DUIPlayer"));
+        WsGlobal.SetObjectLayer(gameObject, gameObject.layer);
     }
 }

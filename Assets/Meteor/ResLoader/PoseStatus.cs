@@ -8,6 +8,12 @@ using System;
 public class PoseStatus
 {
     public static Dictionary<int, List<Pose>> ActionList = new Dictionary<int, List<Pose>>();
+    public static bool ActionExist(int unit, int action)
+    {
+        if (ActionList[unit] != null && ActionList[unit].Count > action && action >= 0)
+            return true;
+        return false;
+    }
     //1一定不要重力，因为招式向上 2一定要重力，因为招式向下，3如果在空中，忽略重力
     //public static Dictionary<int, int> IgnoreGravity = new Dictionary<int, int>();
     public Pose mActiveAction = null;
@@ -32,6 +38,8 @@ public class PoseStatus
         get
         {
             //如果被锁定
+            if (_Self.IsDebugUnit())
+                return false;
             if (_Self.controller.InputLocked)
                 return false;
             //如果有锁定目标，不许转向(在有锁系统下)

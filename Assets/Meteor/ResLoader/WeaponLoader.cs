@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-using CoClass;
+
 using System.Linq;
 using System.Collections.Generic;
 //using UnityEditor;
@@ -157,29 +157,34 @@ public class WeaponLoader : MonoBehaviour {
 
     //要判断是双手还是单手的
     InventoryItem weaponModel;
-    public void EquipWeapon(int unitid)
+    public void EquipWeapon(int unitid, bool ui = true)
     {
-        if (weaponModel == null)
+        InventoryItem i = ui ? weaponModel : Weapon;
+        if (i == null)
         {
-            weaponModel = GameData.Instance.MakeEquip(unitid);
-            WeaponBase weaponProperty = U3D.GetWeaponProperty(weaponModel.Info().UnitId);
-            EquipWeapon(weaponModel, true);
+            i = ui ? weaponModel = GameData.Instance.MakeEquip(unitid):GameData.Instance.MakeEquip(unitid);
+            WeaponBase weaponProperty = U3D.GetWeaponProperty(i.Info().UnitId);
+            EquipWeapon(i, true);
         }
         else
         {
             UnEquipWeapon();
-            weaponModel = GameData.Instance.MakeEquip(unitid);
-            WeaponBase weaponProperty = U3D.GetWeaponProperty(weaponModel.Info().UnitId);
-            EquipWeapon(weaponModel, true);
+            i = ui ? weaponModel = GameData.Instance.MakeEquip(unitid):GameData.Instance.MakeEquip(unitid);
+            WeaponBase weaponProperty = U3D.GetWeaponProperty(i.Info().UnitId);
+            EquipWeapon(i, true);
         }
 
-        if (weaponModel.Info().SubType == (int)(EquipWeaponType.Lance))
-            transform.localPosition = new Vector3(0, 9, 130);
-        else
-            transform.localPosition = new Vector3(0, 9, 110);
-
-        WsGlobal.SetObjectLayer(RParent.gameObject, LayerMask.NameToLayer("RenderModel"));
-        WsGlobal.SetObjectLayer(LParent.gameObject, LayerMask.NameToLayer("RenderModel"));
+        if (ui)
+        {
+            if (i.Info().SubType == (int)(EquipWeaponType.Lance))
+                transform.localPosition = new Vector3(0, 9, 130);
+            else
+                transform.localPosition = new Vector3(0, 9, 110);
+        }
+        if (RParent != null)
+            WsGlobal.SetObjectLayer(RParent.gameObject, LayerMask.NameToLayer("RenderModel"));
+        if (LParent != null)
+            WsGlobal.SetObjectLayer(LParent.gameObject, LayerMask.NameToLayer("RenderModel"));
     }
 
     //把背包里的物品，装备到身上.

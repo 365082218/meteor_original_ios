@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using CoClass;
+
 using System.IO;
 using ProtoBuf;
 using UnityEngine.UI;
