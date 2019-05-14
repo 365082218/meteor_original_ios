@@ -21,7 +21,7 @@ public class SettingWnd : Window<SettingWnd> {
     Coroutine GamePageUpdate;//游戏推荐页翻页
     Coroutine PluginUpdate;
     GameObject PluginRoot;
-    GameObject GameRoot;
+    GameObject DebugRoot;
     int gamePage;
     int gamePageMax;
     const int pluginPerPage = 12;//一页最大插件数量
@@ -159,13 +159,13 @@ public class SettingWnd : Window<SettingWnd> {
         toggleSkipVideo.onValueChanged.AddListener(OnSkipVideo);
 
         GameObject pluginTab = Control("PluginTab", WndObject);
-        GameObject gameTab = Control("GameTab", WndObject);
+        GameObject debugTab = Control("DebugTab", WndObject);
         Control("PluginPrev").GetComponent<Button>().onClick.AddListener(OnPrevPagePlugin);
         Control("PluginNext").GetComponent<Button>().onClick.AddListener(OnNextPagePlugin);
         Control("AnimationDebug").GetComponent<Button>().onClick.AddListener(()=> { this.Close(); UnityEngine.SceneManagement.SceneManager.LoadScene("DebugScene0"); });
         Control("SfxDebug").GetComponent<Button>().onClick.AddListener(()=> { this.Close(); UnityEngine.SceneManagement.SceneManager.LoadScene("DebugScene1"); });
         PluginRoot = Control("Content", pluginTab);
-        GameRoot = Control("Content", gameTab);
+        DebugRoot = Control("Content", debugTab);
 
         //模组分页内的功能设定
         Control("DeletePlugin").GetComponent<Button>().onClick.AddListener(() => { U3D.DeletePlugins();SettingWnd.Instance.Close();SettingWnd.Instance.Open();SettingWnd.Instance.ShowTab(4); });
