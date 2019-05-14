@@ -5,10 +5,8 @@ using UnityEngine;
 public class EffectDebug : MonoBehaviour {
 
     // Use this for initialization
-    public string[] Eff;
     void Start () {
-        SFXLoader.Instance.Init();
-        Eff = SFXLoader.Instance.Eff;
+        SFXLoader.Instance.InitSync();
 	}
 	
 	// Update is called once per frame

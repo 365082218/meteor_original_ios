@@ -1,4 +1,5 @@
 ﻿
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,13 +15,19 @@ public class DebugScene1 : MonoBehaviour {
     private UnityEngine.UI.Text SfxName;
     [SerializeField]
     private UnityEngine.UI.Text SfxInfo;
+    [SerializeField]
+    private Transform[] cameraPosition;
     void Awake()
     {
+        AudioListener[] au = FindObjectsOfType<AudioListener>();
+        if (au == null || au.Length == 0)
+            gameObject.AddComponent<AudioListener>();
+        SFXLoader.Instance.InitSync();
         InfiniteScrollRect rect = ScrollView.GetScrollRect();
-
+        SoundManager.Instance.SetSoundVolume(100);
         rect.SetFullScrollView(false);
         rect.SetModifiedScale(true);
-        for (int i = 0; i <= 1103 ; i++)
+        for (int i = 0; i < SFXLoader.Instance.Eff.Length; i++)
         {
             ScrollView.Add(new SfxCellData(i));
         }
@@ -29,36 +36,73 @@ public class DebugScene1 : MonoBehaviour {
     }
     // Use this for initialization
     SFXEffectPlay sfxDebugTarget = null;
-    void Start () {
-        
-    }
-	
-	// Update is called once per frame
+    bool inited = false;
+    float t = 0;
 	void Update () {
+        t += Time.deltaTime * DebugUtil.speedScale;
         if (sfxDebugTarget != null && sfxDebugTarget.OnSfxFrame == null)
             sfxDebugTarget.OnSfxFrame += this.OnSfxFrame;
+        while (t >= FrameReplay.deltaTime)
+        {
+            FrameReplay.InvokeLockUpdate();
+            FrameReplay.InvokeLateUpdate();
+            t -= FrameReplay.deltaTime;
+        }
 	}
 
     public void PlayEffect()
     {
+        if (sfxDebugTarget != null)
+        {
+            sfxDebugTarget.OnPlayAbort();
+            sfxDebugTarget = null;
+        }
+        
         int sfx = (ScrollView.CurrentData as SfxCellData).Sfx;
-        SFXLoader.Instance.PlayEffect(sfx, Player.gameObject, false, false);
+        sfxDebugTarget = SFXLoader.Instance.PlayEffect(sfx, Player.charLoader);
+        sfxDebugTarget.setAsDebug();
+    }
+
+    public void Far()
+    {
+        Tweener t = Camera.main.transform.DOMove(Camera.main.transform.position + Camera.main.transform.forward * -20, 0.5f);
+        t.OnComplete(() => { Camera.main.transform.DOLookAt(Vector3.zero + new Vector3(0, 30, 0), 0.5f); });
+    }
+
+    public void Near()
+    {
+        Tweener t = Camera.main.transform.DOMove(Camera.main.transform.position + Camera.main.transform.forward * +20, 0.5f);
+        t.OnComplete(() => { Camera.main.transform.DOLookAt(Vector3.zero + new Vector3(0, 30, 0), 0.5f); });
     }
 
     public void SpeedFast()
     {
-        if (sfxDebugTarget != null)
-            sfxDebugTarget.SpeedFast();
-        Player.SpeedFast();
+        DebugUtil.SpeedFast();
     }
 
     public void SpeedSlow()
     {
-        if (sfxDebugTarget != null)
-            sfxDebugTarget.SpeedSlow();
-        Player.SpeedSlow();
+        DebugUtil.SpeedSlow();
     }
 
+    public void SpeedFast1()
+    {
+        DebugUtil.SpeedFast1();
+    }
+
+    public void SpeedSlow1()
+    {
+        DebugUtil.SpeedSlow1();
+    }
+
+    public void ChangeCamera(int i)
+    {
+        if (cameraPosition.Length > i && i >= 0)
+        {
+            Camera.main.transform.position = cameraPosition[i].position;
+            Camera.main.transform.rotation = cameraPosition[i].rotation;
+        }
+    }
 
     public void ReturnToMain()
     {
@@ -92,7 +136,7 @@ public class DebugScene1 : MonoBehaviour {
     public void OnSfxFrame(float time)
     {
         if (SfxName.text != sfxDebugTarget.name)
-            SfxName.text = SfxName.name;
-        SfxInfo.text = string.Format("时间:{3:f3}", time);
+            SfxName.text = sfxDebugTarget.file;
+        SfxInfo.text = string.Format("时间:{0:f3}", time);
     }
 }

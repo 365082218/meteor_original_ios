@@ -32,12 +32,6 @@ public class MeteorUnitDebug : MeteorUnit
         U3D.GoBack();
     }
 
-    // Update is called once per frame
-    public void Update()
-    {
-        base.LockUpdate();
-    }
-
     public void Init(int modelIdx, int layer, bool updateModel = false)
     {
         tag = "meteorUnit";

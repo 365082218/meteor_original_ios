@@ -1,6 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+public class AnimationBase: TblBase,ITableItem
+{
+    public int Key() { return Idx; }
+    public override string TableName { get { return "AnimationTable"; } }
+    public int Idx;
+    public int Source;//动画源
+    public int Unit;//角色
+    public string Animation;//动画文件
+}
 
 public class ItemBase : TblBase, ITableItem
 {

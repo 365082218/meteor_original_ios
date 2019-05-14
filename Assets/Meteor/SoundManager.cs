@@ -40,7 +40,7 @@ public class SoundManager : Singleton<SoundManager>
         get
         {
             if (mAudioMusic == null)
-                mAudioMusic = Startup.ins.Music;
+                mAudioMusic = Startup.ins != null ? Startup.ins.Music : null;
             return mAudioMusic;
         }
         set { mAudioMusic = value; }

@@ -32,3 +32,8 @@ public class PluginItemMng:TableManagerEx<ItemBase, PluginItemMng>
 {
     public override string TableName() { return Application.persistentDataPath + "/Plugins/Def/Item.txt"; }
 }
+
+public class AnimationMng : TableManagerEx<AnimationBase, AnimationMng>
+{
+    public override string TableName() { return "AnimationTable.txt"; }
+}

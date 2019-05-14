@@ -103,23 +103,16 @@ public class Patch : MonoBehaviour {
             yield return 0;
         }
         //加载默认角色，这个角色有用的
-        AmbLoader.Ins.LoadCharacterAmb(0);
-        //for (int i = 0; i < 20; i++)
-        //{
-        //    AmbLoader.Ins.LoadCharacterAmb(i);
-        //    toProgress++;
-        //    while (displayProgress < toProgress)
-        //    {
-        //        displayProgress++;
-        //        progress.fillAmount = (float)displayProgress / 100.0f;
-        //        percent.text = displayProgress + "%";
-        //        yield return new WaitForEndOfFrame();
-        //    }
-        //    yield return new WaitForEndOfFrame();
-        //}
-        PoseStatus.Clear();
+        //AmbLoader.Ins.LoadCharacterAmb(0);
+        for (int i = 0; i < 20; i++)
+        {
+            AmbLoader.Ins.LoadCharacterAmb(i);
+            yield return 0;
+        }
         AmbLoader.Ins.LoadCharacterAmb();
-        PoseStatus.LoadDefault();
+        AmbLoader.Ins.LoadCharacterAmbEx();
+        PoseStatus.Clear();
+        PoseStatus.LoadAll();
         toProgress = 100;
         while (displayProgress < toProgress)
         {

@@ -97,9 +97,9 @@ public class CharacterLoader
             if (!PoseStatus.ActionList.ContainsKey(owner.UnitId))
                 return;
             po = PoseStatus.ActionList[owner.UnitId][pose];
-            if (po.SourceIdx == 0 && (AmbLoader.CharCommon.Count <= frame || !AmbLoader.FrameBoneAni.ContainsKey(owner.UnitId)))
+            if (po.SourceIdx == 0 && (AmbLoader.CharCommon.Count <= frame || !AmbLoader.PlayerAnimation.ContainsKey(owner.UnitId)))
                 return;
-            if (po.SourceIdx == 1 && AmbLoader.FrameBoneAni[owner.UnitId].Count <= frame)
+            if (po.SourceIdx == 1 && AmbLoader.PlayerAnimation[owner.UnitId].Count <= frame)
                 return;
 
             lastPosIdx = netPose;
@@ -426,7 +426,9 @@ public class CharacterLoader
         if (po.SourceIdx == 0)
             status = AmbLoader.CharCommon[curIndex];
         else if (po.SourceIdx == 1)
-            status = AmbLoader.FrameBoneAni[owner.UnitId][curIndex];
+            status = AmbLoader.PlayerAnimation[owner.UnitId][curIndex];
+        else
+            status = AmbLoader.GetBoneStatus(po.SourceIdx, owner.UnitId, curIndex);
 
         //if (mOwner.Attr.IsPlayer && FightWnd.Exist)
         //    FightWnd.Instance.UpdatePoseStatus(po.Idx, curIndex);
@@ -644,13 +646,14 @@ public class CharacterLoader
         BoneStatus lastStatus = null;
         if (lastSource == 0 && AmbLoader.CharCommon.Count > lastFrameIndex && lastFrameIndex >= 0)
             lastStatus = AmbLoader.CharCommon[lastFrameIndex];
-        else if (AmbLoader.FrameBoneAni.ContainsKey(owner.UnitId) && AmbLoader.FrameBoneAni[owner.UnitId].Count > lastFrameIndex && lastFrameIndex >= 0)
-            lastStatus = AmbLoader.FrameBoneAni[owner.UnitId][lastFrameIndex];
+        else if (AmbLoader.PlayerAnimation.ContainsKey(owner.UnitId) && AmbLoader.PlayerAnimation[owner.UnitId].Count > lastFrameIndex && lastFrameIndex >= 0)
+            lastStatus = AmbLoader.PlayerAnimation[owner.UnitId][lastFrameIndex];
         if (po.SourceIdx == 0)
             status = AmbLoader.CharCommon[curIndex];
         else if (po.SourceIdx == 1)
-            status = AmbLoader.FrameBoneAni[owner.UnitId][curIndex];
-
+            status = AmbLoader.PlayerAnimation[owner.UnitId][curIndex];
+        else
+            status = AmbLoader.GetBoneStatus(po.SourceIdx, owner.UnitId, curIndex);
         //if (mOwner.Attr.IsPlayer && FightWnd.Exist)
         //    FightWnd.Instance.UpdatePoseStatus(po.Idx, lastFrameIndex);
 
@@ -742,9 +745,10 @@ public class CharacterLoader
                 BoneStatus status = null;
                 if (po.SourceIdx == 0 && AmbLoader.CharCommon.Count > blendStart && blendStart >= 0)
                     status = AmbLoader.CharCommon[blendStart];
-                else if (po.SourceIdx == 1 && AmbLoader.FrameBoneAni.ContainsKey(mOwner.UnitId) && AmbLoader.FrameBoneAni[mOwner.UnitId].Count > blendStart && blendStart >= 0)
-                    status = AmbLoader.FrameBoneAni[mOwner.UnitId][blendStart];
-
+                else if (po.SourceIdx == 1 && AmbLoader.PlayerAnimation.ContainsKey(mOwner.UnitId) && AmbLoader.PlayerAnimation[mOwner.UnitId].Count > blendStart && blendStart >= 0)
+                    status = AmbLoader.PlayerAnimation[mOwner.UnitId][blendStart];
+                else
+                    status = AmbLoader.GetBoneStatus(po.SourceIdx, owner.UnitId, blendStart);
                 if (playedTime < blendTime && blendTime != 0.0f && lastFrameStatus != null && status != null)
                 {
                     for (int i = 0; i < bo.Count; i++)
@@ -835,15 +839,10 @@ public class CharacterLoader
         }
         else if (po.Idx == CommonAction.Struggle || po.Idx == CommonAction.Struggle0)
         {
-            //一些有僵直的动作,必须等到僵直循环动作第一次结束后开始减少僵直值.
-            //mOwner.IgnoreGravitys(false);
-            //if (PoseStraight <= 0.0f)
-            //{
             if (checkStaright)
                 return;
             if (mOwner.IsOnGround() && LoopCount > 1)
                 loop = false;
-            //}
         }
         else if ((po.Idx >= CommonAction.Idle && po.Idx <= 21) || (po.Idx >= CommonAction.WalkForward && po.Idx <= CommonAction.RunOnDrug))
         {
@@ -855,17 +854,10 @@ public class CharacterLoader
         }
         else
         {
-            //mOwner.IgnoreGravitys(false);
-            //Debug.LogError("straight:" + PoseStraight);
-            //Debug.LogError(string.Format("action:{0} is not processed", po.Idx));
             if (checkStaright)
                 return;
-            //if (PoseStraight <= 0.0f)
-            //{
-            //Debug.Log("check:" + Time.frameCount);
             if (mOwner.IsOnGround() && LoopCount > 1)
                 loop = false;
-            //}
         }
     }
 
@@ -999,17 +991,6 @@ public class CharacterLoader
         PosAction act = null;
         if (pos.ActionList.Count != 0)
         {
-            //for (int i = 0; i < pos.ActionList.Count; i++)
-            //{
-            //    if (pos.ActionList[i].Type == "Action")
-            //    {
-            //        if (TheLastFrame == 0)
-            //            TheLastFrame = pos.ActionList[i].End - 1;
-            //        if (TheFirstFrame == 0 || TheFirstFrame > pos.ActionList[i].Start)
-            //            TheFirstFrame = pos.ActionList[i].Start;
-            //        break;
-            //    }
-            //}
             if (isAttackPos)
             {
                 for (int i = 0; i < pos.ActionList.Count; i++)
@@ -1043,7 +1024,7 @@ public class CharacterLoader
         if (po.SourceIdx == 0)
             lastDBasePos = AmbLoader.CharCommon[curIndex].DummyPos[0];
         else if (po.SourceIdx == 1)
-            lastDBasePos = AmbLoader.FrameBoneAni[owner.UnitId][curIndex].DummyPos[0];
+            lastDBasePos = AmbLoader.PlayerAnimation[owner.UnitId][curIndex].DummyPos[0];
 
         if (lastPosIdx != 0)
         {
@@ -1133,14 +1114,23 @@ public class AmbLoader
             return _Ins;
         }
     }
+
+    public static BoneStatus GetBoneStatus(int source, int unitId, int frame)
+    {
+        return PlayerAnimationEx[source][unitId][frame]; 
+    }
+
     //所有角色公用的招式.
-    public static Dictionary<int, BoneStatus> CharCommon = new Dictionary<int, BoneStatus>();
+    public static Dictionary<int, BoneStatus> CharCommon = new Dictionary<int, BoneStatus>();//source 0
     //角色ID-角色动画帧编号-骨骼状态.
-    public static Dictionary<int, Dictionary<int, BoneStatus>> FrameBoneAni = new Dictionary<int, Dictionary<int, BoneStatus>>();
+    public static Dictionary<int, Dictionary<int, BoneStatus>> PlayerAnimation = new Dictionary<int, Dictionary<int, BoneStatus>>();//source 1
+    //后期自定义动画，表格里对应.
+    //source - unit - frame - boneStatus
+    public static Dictionary<int, Dictionary<int, Dictionary<int, BoneStatus>>> PlayerAnimationEx = new Dictionary<int, Dictionary<int, Dictionary<int, BoneStatus>>>();
     //加载个人自身的动作
     public void LoadCharacterAmb(int idx)
     {
-        if (FrameBoneAni.ContainsKey(idx))
+        if (PlayerAnimation.ContainsKey(idx))
             return;
         //大于20的是新角色，新角色只读skc其他男性角色读0号位数据 女性角色读1号位数据
         if (idx >= 20)
@@ -1153,26 +1143,45 @@ public class AmbLoader
                     if (m.resPath[i].ToLower().EndsWith(".amb"))
                     {
                         byte[] memory = System.IO.File.ReadAllBytes(m.resPath[i]);
-                        FrameBoneAni.Add(idx, Parse(memory));
+                        PlayerAnimation.Add(idx, Parse(memory));
                         return;
                     }
                 }
             }
-            FrameBoneAni.Add(idx, FrameBoneAni[0]);
+            PlayerAnimation.Add(idx, PlayerAnimation[0]);
             return;
         }
         //11和9文件重复了.
         if (idx == 11 || idx == 9)
             idx = 9;
         Dictionary<int, BoneStatus> ret = LoadAmb("p" + idx + ".amb");
-        if (!FrameBoneAni.ContainsKey(idx))
-            FrameBoneAni.Add(idx, ret);
+        if (!PlayerAnimation.ContainsKey(idx))
+            PlayerAnimation.Add(idx, ret);
 
         //9号文件和11号一样，复用
         if (idx == 9)
         {
-            if (!FrameBoneAni.ContainsKey(11))
-                FrameBoneAni.Add(11, ret);
+            if (!PlayerAnimation.ContainsKey(11))
+                PlayerAnimation.Add(11, ret);
+        }
+    }
+
+    //加载配表动作
+    public void LoadCharacterAmbEx()
+    {
+        AnimationBase [] items = AnimationMng.Instance.GetAllItem();
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (!string.IsNullOrEmpty(items[i].TableName))
+            {
+                if (!PlayerAnimationEx.ContainsKey(items[i].Source))
+                    PlayerAnimationEx[items[i].Source] = new Dictionary<int, Dictionary<int, BoneStatus>>();
+                if (!PlayerAnimationEx[items[i].Source].ContainsKey(items[i].Unit))
+                {
+                    TextAsset asset = Resources.Load<TextAsset>(items[i].TableName);
+                    PlayerAnimationEx[items[i].Source][items[i].Unit] = Parse(asset.bytes);
+                }
+            }
         }
     }
 
@@ -1236,7 +1245,7 @@ public class AmbLoader
 
     //人物自身动作，0帧为TPose
     //招式通用动作，从1帧开始，没有0帧
-    public Dictionary<int, BoneStatus> LoadAmb(string file)
+    private Dictionary<int, BoneStatus> LoadAmb(string file)
     {
         long s1 = System.DateTime.Now.Ticks;
         TextAsset asset = Resources.Load<TextAsset>(file);

@@ -21,7 +21,7 @@ public class Log
 
     public static void Print(string message)
     {
-        UnityEngine.Debug.Log(string.Format("f:{0} message:{1}", Time.frameCount, message));
+        UnityEngine.Debug.Log(string.Format("message:{0}", message));
     }
 
     private static FileStream fs;
@@ -31,7 +31,7 @@ public class Log
         byte[] line = new byte[2] { (byte)'\r', (byte)'\n' };
         if (fs != null)
         {
-            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(string.Format("debug:{0}-{1}", message, Time.frameCount));
+            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(string.Format("debug:{0}", message));
             fs.Write(buffer, 0, buffer.Length);
             fs.Write(line, 0, 2);
             fs.Flush();
@@ -45,7 +45,7 @@ public class Log
         byte[] line = new byte[2] { (byte)'\r', (byte)'\n' };
         if (fs != null)
         {
-            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(string.Format("error:{0}-{1}", message, Time.frameCount));
+            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(string.Format("error:{0}", message));
             fs.Write(buffer, 0, buffer.Length);
             fs.Write(line, 0, 2);
             fs.Flush();

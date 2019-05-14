@@ -127,14 +127,14 @@ public class SfxFile
         if (asset == null)
         {
             SFXLoader.Instance.Miss++;
-            Debug.LogError(string.Format("sfx:{0} missed", file));
+            //Debug.LogError(string.Format("sfx:{0} missed", file));
             error = true;
             return false;
         }
 
         if (asset != null && asset.bytes == null)
         {
-            Debug.LogError(string.Format("asset or it content is null file is {0}", file));
+            //Debug.LogError(string.Format("asset or it content is null file is {0}", file));
             error = true;
             return false;
         }
@@ -482,6 +482,10 @@ public class SFXLoader :Singleton<SFXLoader>{
         return null;
     }
 
+    public SFXEffectPlay PlayEffect(int id, CharacterLoader target, float timePlayed = 0.0f)
+    {
+        return PlayEffect(Eff[id], target, timePlayed);
+    }
     //target描述，此特效的主调者
     //timePlayed用于同步动作和特效。快速出招时，特效要加一个已经播放时间，否则特效跟不上动作的播放步骤
     public SFXEffectPlay PlayEffect(string file, CharacterLoader target, float timePlayed = 0.0f)
@@ -531,6 +535,22 @@ public class SFXLoader :Singleton<SFXLoader>{
             }
             if (i % 50 == 0)
                 yield return 0;
+        }
+    }
+
+    public void InitSync()
+    {
+        TextAsset list = Resources.Load<TextAsset>("effect.lst");
+        Eff = list.text.Split(new char[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
+        TotalSfx = Eff.Length;
+        for (int i = 0; i < Eff.Length; i++)
+        {
+            if (!EffectList.ContainsKey(Eff[i]))
+            {
+                SfxFile f = new SfxFile();
+                f.ParseFile(Eff[i]);
+                EffectList[Eff[i]] = f;
+            }
         }
     }
 }

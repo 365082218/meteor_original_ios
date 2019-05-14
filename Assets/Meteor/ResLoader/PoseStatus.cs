@@ -161,14 +161,18 @@ public class PoseStatus
         }
     }
 
-    public static void LoadDefault()
+    //加载全部，在游戏过程中尽量不要发生IO
+    public static void LoadAll()
     {
-        if (!ActionList.ContainsKey(0))
+        for (int i = 0; i < 20; i++)
         {
-            ActionList.Add(0, new List<Pose>());
-            TextAsset asset = Resources.Load<TextAsset>(string.Format("{0}/P{1}.pos", AppInfo.Instance.MeteorVersion, 0));
-            string text = System.Text.Encoding.ASCII.GetString(asset.bytes);
-            Parse(text, 0);
+            if (!ActionList.ContainsKey(i))
+            {
+                ActionList.Add(i, new List<Pose>());
+                TextAsset asset = Resources.Load<TextAsset>(string.Format("{0}/P{1}.pos", AppInfo.Instance.MeteorVersion, i));
+                string text = System.Text.Encoding.ASCII.GetString(asset.bytes);
+                Parse(text, i);
+            }
         }
     }
 
@@ -351,8 +355,11 @@ public class PoseStatus
 
     //动作播放完毕，切换下一个可连接动作.
     public bool playResultAction = false;
+    public System.Action OnDebugActionFinished;
     public void OnActionFinished()
     {
+        if (OnDebugActionFinished != null)
+            OnDebugActionFinished();
         if (waitPause)
         {
             //死亡后接事件

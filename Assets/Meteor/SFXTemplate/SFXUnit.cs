@@ -257,7 +257,7 @@ DRAG*/
                 render.material.SetColor("_Color", effect.frames[0].colorRGB);
                 render.material.SetColor("_TintColor", effect.frames[0].colorRGB);
                 render.material.SetFloat("_Intensity", effect.frames[0].TailFlags[9]);
-                if (!GameData.Instance.gameStatus.DisableParticle)
+                if (GameData.Instance.gameStatus != null && !GameData.Instance.gameStatus.DisableParticle)
                     particle.Play();
             }
             else
@@ -361,6 +361,7 @@ DRAG*/
     int playedIndex = 1;
     Vector3 temp = new Vector3(0, 0, 0);
     Vector3 temp2 = new Vector3(0, 0, 0);
+
     // Update is called once per frame
     protected override void LockUpdate()
     {

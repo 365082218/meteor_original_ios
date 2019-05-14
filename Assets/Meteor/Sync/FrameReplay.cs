@@ -173,6 +173,18 @@ public class FrameReplay : MonoBehaviour {
     TurnFrames nowTurn;//当前的Turn
     public static event Action UpdateEvent;
     public static event Action LateUpdateEvent;
+
+    public static void InvokeLockUpdate()
+    {
+        if (UpdateEvent != null)
+            UpdateEvent();
+    }
+
+    public static void InvokeLateUpdate()
+    {
+        if (LateUpdateEvent != null)
+            LateUpdateEvent();
+    }
     /// <summary>
     /// 包括所有动态物体
     /// 所有需要使用网络时间驱动的游戏对象.需要实现接口IHasGameFrame，由该组件按网络时间，顺序执行每个对象的更新.

@@ -20,7 +20,7 @@ public class SfxCellData : AbstractCellData
     {
         get
         {
-            return typeof(AnimationCellController);
+            return typeof(SfxCellController);
         }
     }
 

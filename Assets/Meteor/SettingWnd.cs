@@ -162,8 +162,8 @@ public class SettingWnd : Window<SettingWnd> {
         GameObject gameTab = Control("GameTab", WndObject);
         Control("PluginPrev").GetComponent<Button>().onClick.AddListener(OnPrevPagePlugin);
         Control("PluginNext").GetComponent<Button>().onClick.AddListener(OnNextPagePlugin);
-        Control("GamePrev").GetComponent<Button>().onClick.AddListener(OnPrevPageGame);
-        Control("GameNext").GetComponent<Button>().onClick.AddListener(OnNextPageGame);
+        Control("AnimationDebug").GetComponent<Button>().onClick.AddListener(()=> { this.Close(); UnityEngine.SceneManagement.SceneManager.LoadScene("DebugScene0"); });
+        Control("SfxDebug").GetComponent<Button>().onClick.AddListener(()=> { this.Close(); UnityEngine.SceneManagement.SceneManager.LoadScene("DebugScene1"); });
         PluginRoot = Control("Content", pluginTab);
         GameRoot = Control("Content", gameTab);
 
@@ -404,15 +404,6 @@ public class SettingWnd : Window<SettingWnd> {
                 PluginUpdate = Startup.ins.StartCoroutine(UpdatePluginInfo());//下载插件信息，显示插件
             }
         }
-        else if (Control("GameTab", WndObject).activeInHierarchy && show)
-        {
-            GamePageUpdate = Startup.ins.StartCoroutine(GamePageRefresh());
-            if (PluginUpdate != null)
-            {
-                Startup.ins.StopCoroutine(PluginUpdate);
-                PluginUpdate = null;
-            }
-        }
     }
 
     IEnumerator UpdatePluginInfo()
@@ -605,25 +596,6 @@ public class SettingWnd : Window<SettingWnd> {
         Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
     }
 
-    void OnPrevPageGame()
-    {
-        if (gamePage != 0)
-            gamePage--; 
-        if (GamePageUpdate != null)
-            Startup.ins.StopCoroutine(GamePageUpdate);
-        GamePageUpdate = Startup.ins.StartCoroutine(GamePageRefresh());
-    }
-
-    void OnNextPageGame()
-    {
-        if (gamePage < gamePageMax - 1)
-            gamePage++;
-        if (GamePageUpdate != null)
-            Startup.ins.StopCoroutine(GamePageUpdate);
-        GamePageUpdate = Startup.ins.StartCoroutine(GamePageRefresh());
-    }
-
-
     void OnPrevPagePlugin()
     {
         if (pluginPage != 0)
@@ -667,23 +639,6 @@ public class SettingWnd : Window<SettingWnd> {
             yield return 0;
         }
         PluginPageUpdate = null;
-    }
-
-    IEnumerator GamePageRefresh()
-    {
-        for (int i = 0; i < GameList.Count; i++)
-        {
-            GameObject.Destroy(GameList[i].gameObject);
-            yield return 0;
-        }
-        GameList.Clear();
-        for (int i = gamePage * pluginPerPage; i < Mathf.Min((gamePage + 1) * pluginPerPage, GameConfig.Instance.moreGame.Count); i++)
-        {
-            InsertGame(GameConfig.Instance.moreGame[i]);
-            yield return 0;
-        }
-        GamePageUpdate = null;
-        yield return 0;
     }
 
     public override void OnRefresh(int message, object param)
@@ -777,22 +732,5 @@ public class SettingWnd : Window<SettingWnd> {
                 DlcMng.Instance.AddPreviewTask(ctrl);
         }
         pluginList.Add(ctrl);
-    }
-
-    void InsertGame(AdGame game)
-    {
-        if (prefabGameItem == null)
-            prefabGameItem = ResMng.Load("MoreGameItem") as GameObject;
-        GameObject insert = GameObject.Instantiate(prefabGameItem);
-        insert.transform.SetParent(GameRoot.transform);
-        insert.transform.localPosition = Vector3.zero;
-        insert.transform.localScale = Vector3.one;
-        insert.transform.localRotation = Quaternion.identity;
-        MoreGameCtrl ctrl = insert.GetComponent<MoreGameCtrl>();
-        if (ctrl != null)
-        {
-            ctrl.Load(game);
-        }
-        GameList.Add(ctrl);
     }
 }
