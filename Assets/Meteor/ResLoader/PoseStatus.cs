@@ -31,6 +31,7 @@ public class PoseStatus
         return false;
     }
     int UnitId;
+    public int mActiveActionIdx;
     public bool CanMove;
     public bool CanControl;
     public bool CanRotateY
@@ -457,7 +458,7 @@ public class PoseStatus
                         if (mActiveAction.Next != null)
                             ChangeAction(mActiveAction.Link, mActiveAction.Next.Time);
                         else
-                            ChangeAction(mActiveAction.Link, 0.0f);//OK
+                            ChangeAction(mActiveAction.Link, 0.01f);//给一个微弱得过渡时间,因为一些动作过渡需要把d_base得偏移对上去(针对152接180导致得角色轻微位移)
                     }
                     else
                     {
@@ -568,8 +569,9 @@ public class PoseStatus
         return false;
     }
 
-    public void ChangeAction(int idx = CommonAction.Idle, float time = 0.0f)
+    public void ChangeAction(int idx = CommonAction.Idle, float time = 0.01f)
     {
+        Debug.Log("change action" + idx);
         //if (!_Self.Attr.IsPlayer && _Self.posMng != null && _Self.posMng.mActiveAction != null && _Self.posMng.mActiveAction.Idx == CommonAction.GunIdle && idx != CommonAction.GunIdle)
         //    Debug.LogError("idx:" + idx);
         //if (_Self != null && _Self.Attr.IsPlayer && _Self.posMng != null && _Self.posMng.mActiveAction != null && _Self.posMng.mActiveAction.Idx + 1 == idx && idx > 150)
@@ -697,9 +699,9 @@ public class PoseStatus
                         _Self.FaceToTarget(_Self.GetLockedTarget());
                 }
             }
-            load.SetPosData(ActionList[UnitId][idx], time, singleAction);
-            singleAction = false;
+            load.SetPosData(ActionList[UnitId][idx], time);
             mActiveAction = ActionList[UnitId][idx];
+            mActiveActionIdx = mActiveAction.Idx;
             LinkInput.Clear();
         }
     }

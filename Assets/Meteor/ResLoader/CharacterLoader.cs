@@ -17,8 +17,7 @@ public enum PoseEvt
     WeaponIsReturned = 1,
 }
 
-//读取skc文件并且绘制骨骼，有一定问题，那个原始模型和骨骼是右手坐标系的
-//如果什么都不改，那么最后左右腿是互换了。但是改了半天，左右手坐标系并不好转换
+//读取skc文件并且绘制骨骼
 //负责处理动画帧的播放
 public class CharacterLoader
 {
@@ -71,73 +70,9 @@ public class CharacterLoader
         LoadBoxDef(id);
     }
 
-    //换算后，人物轴向朝Z的负方向，当武器挂载点OK后，可以把轴向调整为朝Z正方向，在之前会引起武器挂载点不对的问题
-    public void WeaponInitDone()
-    {
-        rootBone.localRotation = new Quaternion(0, 1f, 0, 0);
-    }
-
     public PoseStatus posMng;
     public MeteorUnit owner;
     public MeteorUnit mOwner { get { return owner; } }
-    void Awake()
-    {
-
-    }
-
-    //旧的
-    int netFrame = 0;
-    int netPose = 0;
-    
-    public void ChangeFrame(int pose, int frame)
-    {
-        Pause = false;
-        if (pose != netPose)
-        {
-            if (!PoseStatus.ActionList.ContainsKey(owner.UnitId))
-                return;
-            po = PoseStatus.ActionList[owner.UnitId][pose];
-            if (po.SourceIdx == 0 && (AmbLoader.CharCommon.Count <= frame || !AmbLoader.PlayerAnimation.ContainsKey(owner.UnitId)))
-                return;
-            if (po.SourceIdx == 1 && AmbLoader.PlayerAnimation[owner.UnitId].Count <= frame)
-                return;
-
-            lastPosIdx = netPose;
-            netPose = pose;
-            effectPlayed = false;
-            lastFrameIndex = curIndex;
-            owner.posMng.ChangeAction(pose);
-            //lastFrameIndex = frame;
-            curIndex = frame;
-            //BoneStatus status = null;
-            //if (po.SourceIdx == 0)
-            //    status = AmbLoader.CharCommon[frame];
-            //else if (po.SourceIdx == 1)
-            //    status = AmbLoader.FrameBoneAni[owner.UnitId][frame];
-
-            //for (int i = 0; i < bo.Count; i++)
-            //{
-            //    bo[i].localRotation = status.BoneQuat[i];
-            //    if (i == 0)
-            //        bo[i].localPosition = status.BonePos;
-            //}
-
-            //for (int i = 0; i < dummy.Count; i++)
-            //{
-            //    if (i == 0)
-            //    {
-            //    }
-            //    else
-            //    {
-            //        dummy[i].localRotation = status.DummyQuat[i];
-            //        dummy[i].localPosition = status.DummyPos[i];
-            //    }
-            //}
-        }
-        TryPlayEffect();
-        ChangeAttack();
-        ChangeWeaponTrail();
-    }
 
     void GenerateBounds(Mesh me, List<Transform> bo)
     {
@@ -331,6 +266,12 @@ public class CharacterLoader
         return PoseStraight > 0;
     }
 
+    public bool InTransition()
+    {
+        return false;
+        //return blendTime != 0 && owner.posMng.mActiveAction.Idx != 0;
+    }
+
     public float FPS = 1.0f / 30.0f;
     int lastFrameIndex = 1;
     int lastSource = 1;
@@ -403,10 +344,7 @@ public class CharacterLoader
         {
             if (curIndex > po.End)
             {
-                if (single)
-                    Pause = true;
-                else
-                    posMng.OnActionFinished();
+                posMng.OnActionFinished();
                 return;
             }
 
@@ -623,10 +561,7 @@ public class CharacterLoader
         {
             if (curIndex > po.End)
             {
-                if (single)
-                    Pause = true;
-                else
-                    posMng.OnActionFinished();
+                posMng.OnActionFinished();
                 return;
             }
             if (TheFirstFrame <= curIndex && TheFirstFrame != -1)
@@ -723,16 +658,22 @@ public class CharacterLoader
 
                 float speedScale = owner.ActionSpeed * GetSpeedScale();
                 float fps = Global.Instance.FPS / speedScale;
-                while (lastFramePlayedTimes >= fps)
+                if (lastFramePlayedTimes >= fps)
                 {
-                    PlayNextKeyFrame();
-                    lastFramePlayedTimes -= fps;
-                    speedScale = GetSpeedScale();
-                    fps = Global.Instance.FPS / speedScale;
+                    do
+                    {
+                        PlayNextKeyFrame();
+                        lastFramePlayedTimes -= fps;
+                        speedScale = GetSpeedScale();
+                        fps = Global.Instance.FPS / speedScale;
+                    }
+                    while (lastFramePlayedTimes >= fps);
                 }
-
-                if (lastFramePlayedTimes < fps && lastFramePlayedTimes > 0)
+                else if (lastFramePlayedTimes < fps && lastFramePlayedTimes > 0)
+                {
                     PlayFrame(lastFramePlayedTimes / fps);
+
+                }
             }
             else
             {
@@ -761,21 +702,7 @@ public class CharacterLoader
                     {
                         if (i == 0)
                         {
-                            //Vector3 targetPos = Vector3.Lerp(lastFrameStatus.DummyPos[i], status.DummyPos[i], playedTime / blendTime);
-                            //Vector3 vec = transform.rotation * (targetPos - nextDBasePos) * moveScale;
-                            //if (IgnoreActionMove(po.Idx) || IgnoreBlendMove)
-                            //{
-                                //vec.x = 0;
-                                //vec.z = 0;
-                                //vec.y = 0;
-                            //}
-                            //else
-                            //{
-                            //}
-                            //moveDelta += vec;
                             lastDBasePos = status.DummyPos[i];
-                            //if (po.Idx == 151)
-                            //    Debug.LogError(string.Format("pose:{0} frame:{1} move: x ={2}, y ={3} z = {4}", po.Idx, curIndex, moveDelta.x, moveDelta.y, moveDelta.z));
                         }
                         else
                         {
@@ -820,7 +747,11 @@ public class CharacterLoader
         else if (po.Idx == CommonAction.JumpFallOnGround)
         {
             mOwner.IgnoreGravitys(false);
-            if (mOwner.IsOnGround()) posMng.ChangeAction(0, 0.1f);
+            if (mOwner.IsOnGround())
+            {
+                posMng.ChangeAction(0, 0.1f);
+                loop = false;
+            }
         }
         else if (po.Idx == CommonAction.KnifeA2Fall)//匕首空中A2落地
         {
@@ -935,7 +866,7 @@ public class CharacterLoader
     bool effectPlayed = false;
     public bool Pause = false;
     bool single = false;
-    public void SetPosData(Pose pos, float BlendTime = 0.0f, bool singlePos = false)
+    public void SetPosData(Pose pos, float BlendTime = 0.0f)
     {
         //一些招式，需要把尾部事件执行完才能切换武器.
         LoopCount = 0;
@@ -964,7 +895,6 @@ public class CharacterLoader
         else
             //isAttackPos = po.Idx >= CommonAction.AttackActStart && po.Idx != CommonAction.GunIdle;
             isAttackPos = posMng.IsAttackPose(po.Idx);
-        single = singlePos;
         //从IDLE往IDLE是不许融合的，否则武器位置插值非常难看
         if (pos != null && po != null && pos.Idx == po.Idx && pos.Idx == 0)
             BlendTime = 0.0f;
@@ -1009,13 +939,15 @@ public class CharacterLoader
         TheLastFrame = pos.End - 1;
         TheFirstFrame = pos.Start;
 
-        //算第一个融合条件很多，有切换目的帧是否设定，第一个混合帧是否存在，上一个动作是否攻击动作，锤绝325BUG，其他招式接325，还要在地面等，应该不需要在地面等
+        //算第一个过渡帧条件很多，有切换目的帧是否设定，第一个过渡帧是否存在，上一个动作是否攻击动作，锤绝325BUG，其他招式接325，还要在地面等，应该不需要在地面等
         //curIndex = targetFrame != 0 ? targetFrame : (act != null ? (act.Type == "Action" ? act.Start: (isAttackPos ? act.End : pos.Start)): pos.Start);
         curIndex = act != null ? (act.Type == "Action" ? (isAttackPos ? act.Start : pos.Start) : (isAttackPos ? act.End : act.Start)) : pos.Start;
         //部分动作混合帧比开始帧还靠前
         if (curIndex < pos.Start)
             curIndex = pos.Start;
         blendStart = curIndex;
+        if (blendTime != 0.0f && (pos.Idx == CommonAction.JumpFall || pos.Idx == CommonAction.Jump || pos.Idx == CommonAction.JumpFallOnGround))
+            Debug.Log("过渡帧为" + blendStart + " 转换到动作:" + pos.Idx);
         effectPlayed = false;
         sfxEffect = null;
         playedTime = 0;

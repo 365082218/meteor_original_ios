@@ -124,8 +124,6 @@ public class Patch : MonoBehaviour {
         yield return 0;
         Application.targetFrameRate = GameData.Instance.gameStatus.TargetFrame;
 #if UNITY_EDITOR
-        Application.targetFrameRate = 60;
-#elif UNITY_STANDALONE
         Application.targetFrameRate = 120;
 #endif
 

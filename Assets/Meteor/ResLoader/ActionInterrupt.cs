@@ -78,7 +78,7 @@ public class CommonAction
     
     //164-175 前右左后 闪 一样3个 指虎(509-512) 忍刀(501-504) 乾坤刀(505-508)
     public const int DForw1 = 164;//前闪 暗器 火枪 双刺 锤子
-    public const int DForw2 = 165;//前闪 剑 刀
+    public const int DForw2 = 165;//前闪 刀
     public const int DForw3 = 166;//前闪 匕首 枪 飞轮
     public const int DForw4 = 501;//忍刀前闪
     public const int DForw5 = 505;//乾坤刀前闪

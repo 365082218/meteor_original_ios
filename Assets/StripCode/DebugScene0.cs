@@ -17,6 +17,8 @@ public class DebugScene0 : MonoBehaviour {
     private UnityEngine.UI.Text PlayerInfo;
     [SerializeField]
     private Transform[] cameraPosition;
+    [SerializeField]
+    private Animator playerCtrl;
     void Awake()
     {
         AudioListener[] au = FindObjectsOfType<AudioListener>();

@@ -311,7 +311,7 @@ public class MeteorInput
 
     */
 
-    //返回当前动作是否在可接受输入帧内
+    //返回当前动作是否在可接受输入帧内,就是
     public bool AcceptInput()
     {
         Pose p = PoseStatus.ActionList[mOwner.UnitId][posMng.mActiveAction.Idx];
@@ -339,7 +339,8 @@ public class MeteorInput
         {
             int inputEnd = p.Next.End;
             int curIndex = mOwner.charLoader.GetCurrentFrameIndex();
-            if (p.Next.Start <= curIndex && curIndex <= inputEnd)
+            //边界条件会导致部分招式衔接过快
+            if (p.Next.Start < curIndex && curIndex < inputEnd)
             {
                 //if (posMng.mActiveAction.Idx >= 295 && posMng.mActiveAction.Idx <= 300)
                 //    Debug.LogError("pos:" + p.Idx + " p.next start:" + p.Next.Start + "  cur index = " + curIndex + " input end:" + inputEnd);
@@ -984,7 +985,7 @@ public class MeteorInput
                 }
                 break;
             case (int)EquipWeaponType.Gloves://拳套
-                //可能是全套接其他招式.
+                //可能是全套快速出招接其他招式.
                 int nextWeapon = ActionEvent.TryHandlerLastActionFrame(mOwner, mOwner.posMng.mActiveAction.Idx);//切换了武器后，新的武器POSE或者SUBTYPE
                 if (nextWeapon != weapon && nextWeapon != -1)
                     result = TryOtherWeapon(nextWeapon, KeyMap);

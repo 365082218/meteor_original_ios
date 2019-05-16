@@ -1,15 +1,14 @@
 using UnityEngine;
 using System.Collections;
 
-public class LookAtCamara : MonoBehaviour 
+public class LookAtCamara : LockBehaviour 
 {
-    // Update is called once per frame
-    //   ;
-    void LateUpdate()
+    protected override void LockUpdate()
     {
-        if (Camera.main != null)
+        base.LockUpdate();
+        if (CameraFollow.Ins != null)
         {
-            transform.LookAt(Camera.main.transform);
+            transform.LookAt(CameraFollow.Ins.transform);
             transform.Rotate(new Vector3(-90, 0, 0));
         }
     }

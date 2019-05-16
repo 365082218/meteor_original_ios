@@ -22,7 +22,6 @@ public class Startup : MonoBehaviour {
         ins = this;
         DontDestroyOnLoad(gameObject);
         Log.WriteError(string.Format("GameStart AppVersion:{0}", AppInfo.Instance.AppVersion()));
-        Application.targetFrameRate = 60;
     }
 
     // Use this for initialization

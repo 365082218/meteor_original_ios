@@ -1696,7 +1696,7 @@ public partial class MeteorUnit : LockBehaviour
                     if (posMng.ClimbFallTick > PoseStatus.ClimbFallLimit)
                     {
                         //Debug.LogError("爬墙速度低于最低速度-爬墙落下");
-                        posMng.ChangeAction(CommonAction.JumpFall, 0f);//短时间内落地姿势
+                        posMng.ChangeAction(CommonAction.JumpFall);//短时间内落地姿势
                         ProcessFall();
                         posMng.ClimbFallTick = 0.0f;
                     }
@@ -1803,7 +1803,7 @@ public partial class MeteorUnit : LockBehaviour
                             if (posMng.ClimbFallTick > PoseStatus.ClimbFallLimit)
                             {
                                 //Debug.LogError("爬墙速度低于最低速度-爬墙落下");
-                                posMng.ChangeAction(CommonAction.JumpFall, 0.0f);//短时间内落地姿势
+                                posMng.ChangeAction(CommonAction.JumpFall);//短时间内落地姿势
                                 ProcessFall();
                                 posMng.ClimbFallTick = 0.0f;
                             }
@@ -1875,12 +1875,12 @@ public partial class MeteorUnit : LockBehaviour
         {
             if (MoveOnGroundEx || OnGround)
             {
-                if ((posMng.mActiveAction.Idx >= CommonAction.Jump && posMng.mActiveAction.Idx <= CommonAction.JumpBackFall) || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
-                {
-                    posMng.ChangeAction(0, 0.1f);
+                //if ((posMng.mActiveAction.Idx >= CommonAction.Jump && posMng.mActiveAction.Idx <= CommonAction.JumpBackFall) || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
+                //{
+                    //posMng.ChangeAction(0, 0.1f);
                     //Debug.LogError(name + " 接触地面切换到IDle" + Time.frameCount);
-                    groundTick = Time.timeSinceLevelLoad;
-                }
+                    //groundTick = Time.timeSinceLevelLoad;
+                //}
                 ResetYVelocity();
             }
         }
@@ -1966,12 +1966,12 @@ public partial class MeteorUnit : LockBehaviour
     {
         canControlOnAir = true;
         OnGround = false;
-        ImpluseVec.y = CalcVelocity(y);
-        ImpluseVec.y = 100;
+        //ImpluseVec.y = CalcVelocity(y);
+        //ImpluseVec.y = 100;
         posMng.JumpTick = 0.0f;
         posMng.CanAdjust = true;
         posMng.CheckClimb = true;
-        posMng.ChangeAction(act, 0.1f);
+        posMng.ChangeAction(act);
         //charLoader.SetActionScale(y / JumpLimit);
     }
 
@@ -1982,12 +1982,12 @@ public partial class MeteorUnit : LockBehaviour
         OnGround = false;
         float jumpScale = Short ? (ShortScale * 0.32f) : 1.0f;
         float h = JumpLimit * jumpScale;
-        ImpluseVec.y = CalcVelocity(h);
-        ImpluseVec.y = 100;
+        //ImpluseVec.y = CalcVelocity(h);
+        //ImpluseVec.y = 100;
         posMng.JumpTick = 0.0f;
         posMng.CanAdjust = true;
         posMng.CheckClimb = true;
-        posMng.ChangeAction(act, 0.1f);
+        posMng.ChangeAction(act);
         //charLoader.SetActionScale(jumpScale);
     }
 
@@ -3064,6 +3064,7 @@ public partial class MeteorUnit : LockBehaviour
             case 0://前
                 switch (GetWeaponType())
                 {
+                    case (int)EquipWeaponType.Sword:
                     case (int)EquipWeaponType.Gun://火枪
                     case (int)EquipWeaponType.Dart://飞镖
                     case (int)EquipWeaponType.Guillotines://飞轮
@@ -3073,7 +3074,6 @@ public partial class MeteorUnit : LockBehaviour
                     case (int)EquipWeaponType.Brahchthrust://双刺
                         posMng.ChangeAction(CommonAction.DForw1, 0.1f);
                         break;
-                    case (int)EquipWeaponType.Sword:
                     case (int)EquipWeaponType.Blade:
                         posMng.ChangeAction(CommonAction.DForw2, 0.1f);
                         break;
@@ -3097,6 +3097,7 @@ public partial class MeteorUnit : LockBehaviour
             case 1://后
                 switch (GetWeaponType())
                 {
+                    case (int)EquipWeaponType.Sword:
                     case (int)EquipWeaponType.Gun://火枪
                     case (int)EquipWeaponType.Dart://飞镖
                     case (int)EquipWeaponType.Guillotines://飞轮
@@ -3106,7 +3107,6 @@ public partial class MeteorUnit : LockBehaviour
                     case (int)EquipWeaponType.Brahchthrust://双刺
                         posMng.ChangeAction(CommonAction.DBack1, 0.1f);
                         break;
-                    case (int)EquipWeaponType.Sword:
                     case (int)EquipWeaponType.Blade:
                         posMng.ChangeAction(CommonAction.DBack2, 0.1f);
                         break;
@@ -3128,6 +3128,7 @@ public partial class MeteorUnit : LockBehaviour
             case 2://左
                 switch (GetWeaponType())
                 {
+                    case (int)EquipWeaponType.Sword:
                     case (int)EquipWeaponType.Gun://火枪
                     case (int)EquipWeaponType.Dart://飞镖
                     case (int)EquipWeaponType.Guillotines://飞轮
@@ -3137,7 +3138,6 @@ public partial class MeteorUnit : LockBehaviour
                     case (int)EquipWeaponType.Brahchthrust://双刺
                         posMng.ChangeAction(CommonAction.DLeft1, 0.1f);
                         break;
-                    case (int)EquipWeaponType.Sword:
                     case (int)EquipWeaponType.Blade:
                         posMng.ChangeAction(CommonAction.DLeft2, 0.1f);
                         break;
@@ -3159,6 +3159,7 @@ public partial class MeteorUnit : LockBehaviour
             case 3://右
                 switch (GetWeaponType())
                 {
+                    case (int)EquipWeaponType.Sword:
                     case (int)EquipWeaponType.Gun://火枪
                     case (int)EquipWeaponType.Dart://飞镖
                     case (int)EquipWeaponType.Guillotines://飞轮
@@ -3168,7 +3169,6 @@ public partial class MeteorUnit : LockBehaviour
                     case (int)EquipWeaponType.Brahchthrust://双刺
                         posMng.ChangeAction(CommonAction.DRight1, 0.1f);
                         break;
-                    case (int)EquipWeaponType.Sword:
                     case (int)EquipWeaponType.Blade:
                         posMng.ChangeAction(CommonAction.DRight2, 0.1f);
                         break;

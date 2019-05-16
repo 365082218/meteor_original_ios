@@ -168,7 +168,7 @@ public class FrameReplay : MonoBehaviour {
     public int LogicFrameIndex = 0;
     private int AccumilatedTime = 0;
     public const float deltaTime = LogicFrameLength / 1000.0f;
-    public const int LogicFrameLength = 20;
+    public const int LogicFrameLength = 1;
     public int TurnIndex = 0;
     TurnFrames nowTurn;//当前的Turn
     public static event Action UpdateEvent;

@@ -67,19 +67,6 @@ public class PMDSaveInspector : Editor
     }
 }
 
-[CustomEditor(typeof(WeaponLoaderEx))]
-public class WeaponLoaderExInspector : Editor
-{
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-        WeaponLoaderEx myTarget = (WeaponLoaderEx)target;
-        if (GUILayout.Button("LoadWeapon"))
-        {
-            myTarget.EquipWeapon();
-        }
-    }
-}
 [CustomEditor(typeof(Loader))]
 public class LoadInspector : Editor
 {
@@ -204,66 +191,6 @@ public class CharacterLoaderInspector : Editor
     {
         base.OnInspectorGUI();
        
-    }
-}
-
-[CustomEditor(typeof(PoseStatusDebug))]
-public class PoseStatusDebugInspector : Editor
-{
-    string pos = "Pos Id";
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-        PoseStatusDebug myTarget = (PoseStatusDebug)target;
-        pos = GUILayout.TextField(pos);
-        if (GUILayout.Button("PlayPos"))
-        {
-            if (!string.IsNullOrEmpty(pos))
-                myTarget.ChangeAction(int.Parse(pos));
-        }
-    }
-}
-
-[CustomEditor(typeof(MeteorUnit))]
-public class MeteorUnitInspector : Editor
-{
-    string WeaponId = "Weapon Id";
-    string ModelId = "Model Id";
-    string source = "source idx";
-    string frame = "frame idx";
-    string pos = "Pos Id";
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-        MeteorUnit myTarget = (MeteorUnit)target;
-        //WeaponId = GUILayout.TextField(WeaponId);
-        //if (GUILayout.Button("EquipWeapon"))
-        //{
-        //    if (!string.IsNullOrEmpty(WeaponId))
-        //        myTarget.EquipWeapon(null);
-        //}
-        ModelId = GUILayout.TextField(ModelId);
-        if (GUILayout.Button("Init"))
-        {
-            if (!string.IsNullOrEmpty(ModelId))
-                myTarget.Init(int.Parse(ModelId));
-        }
-
-        CharacterLoader loader = myTarget.charLoader;
-        source = GUILayout.TextField(source);
-        frame = GUILayout.TextField(frame);
-        if (GUILayout.Button("PlayFrame"))
-        {
-            if (!string.IsNullOrEmpty(source) && !string.IsNullOrEmpty(frame))
-                loader.ChangeFrame(int.Parse(source), int.Parse(frame));
-        }
-
-        pos = GUILayout.TextField(pos);
-        if (GUILayout.Button("PlayPos"))
-        {
-            if (!string.IsNullOrEmpty(pos))
-                myTarget.posMng.ChangeActionSingle(int.Parse(pos));
-        }
     }
 }
 

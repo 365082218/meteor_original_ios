@@ -209,7 +209,11 @@ public class DlcMng:Singleton<DlcMng> {
 
     public List<object> allItem = new List<object>();
     public bool processing = false;
-    public PluginCtrl processingCtrl = null;
+    private PluginCtrl processingCtrl = null;
+    //存储得取消掉得预览图
+    private string cancelPreviewTask = "";
+    //存储得取消掉得下载任务
+    private string cancelDownloadTask = "";
     //放到预览图下载队列里，绑定到一个UI,做任务控制，避免多个UI同时更新自己的预览图.
     List<PluginCtrl> PreviewTask = new List<PluginCtrl>();
     List<string> PreviewTaskCache = new List<string>();//已经下载过预览图的，下次翻页不要再下载.单次运行APP下载一次
@@ -228,6 +232,10 @@ public class DlcMng:Singleton<DlcMng> {
         {
             if (processingCtrl == uiCtrl)
             {
+                if (uiCtrl.Target != null)
+                    cancelPreviewTask = uiCtrl.Target.Preview;
+                else if (uiCtrl.Chapter != null)
+                    cancelPreviewTask = uiCtrl.Chapter.Preview;
                 if (client != null)
                 {
                     client.CancelAsync();
@@ -443,17 +451,21 @@ public class DlcMng:Singleton<DlcMng> {
             handler.Add(() => {
                 if (e.Error != null)
                 {
-                    if (processingCtrl.retryNum >= 3)
+                    if (processingCtrl != null)
                     {
-                        //跳过这个任务，开始下载下一个的预览图
-                        lock (PreviewTask)
+                        if (processingCtrl.retryNum >= 3)
                         {
-                            if (PreviewTask.Contains(processingCtrl))
-                                PreviewTask.Remove(processingCtrl);
+                            //跳过这个任务，开始下载下一个的预览图
+                            lock (PreviewTask)
+                            {
+                                if (PreviewTask.Contains(processingCtrl))
+                                    PreviewTask.Remove(processingCtrl);
+                            }
                         }
+                        else
+                            processingCtrl.retryNum++;
                     }
-                    else
-                        processingCtrl.retryNum++;
+                    
                     if (client != null)
                     {
                         client.Dispose();
@@ -464,6 +476,29 @@ public class DlcMng:Singleton<DlcMng> {
                 }
                 else
                 {
+                    if (processingCtrl == null)
+                    {
+                        //保存到本地，下次直接从本地读取.
+                        //中断得下载预览图任务存储路径
+                        if (!string.IsNullOrEmpty(cancelPreviewTask))
+                        {
+                            byte[] bitPrev = e.Result;
+                            if (bitPrev != null && bitPrev.Length != 0)
+                            {
+                                System.IO.FileStream fs = new System.IO.FileStream(cancelPreviewTask, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.ReadWrite, System.IO.FileShare.None);
+                                fs.Write(bitPrev, 0, bitPrev.Length);
+                                fs.SetLength(bitPrev.Length);
+                                fs.Flush();
+                                fs.Close();
+                                lock (PreviewTaskCache)
+                                {
+                                    PreviewTaskCache.Add(cancelPreviewTask);
+                                }
+                            }
+                        }
+                        processing = false;
+                        return;
+                    }
                     byte[] bitIcon = e.Result;
                     if (bitIcon != null && bitIcon.Length != 0)
                     {
