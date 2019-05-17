@@ -251,6 +251,7 @@ public class CharacterLoader
     }
 
     bool checkStaright = false;
+    bool inlooping = false;//是否处于播放循环帧，若处于播放循环帧中，动画将无法位移.
     bool startCount = false;//开始计算僵直，在循环部分的动画播放一次时，开始减少僵直时长
     public void LockTime(float t)
     {
@@ -315,6 +316,8 @@ public class CharacterLoader
 
         if (loop)
         {
+            if (curIndex > po.LoopStart)
+                inlooping = true;
             if (checkStaright)
             {
                 if (PoseStraight <= 0.0f)
@@ -386,10 +389,11 @@ public class CharacterLoader
             if (i == 0)
             {
                 //Debug.LogError("action move");
-                if (lastPosIdx == po.Idx)
+                if (lastPosIdx == po.Idx && !inlooping)
                 {
                     Vector3 targetPos = status.DummyPos[i];
-                    Vector3 vec = Target.rotation * (targetPos - lastDBasePos) * moveScale;
+                    Vector3 vec = (targetPos - lastDBasePos) * moveScale;
+                    //如果忽略位移，或者在动作的循环帧中，即第一次从循环头开始播放后，不再计算位移.
                     if (IgnoreActionMoves)
                     {
                         vec.x = 0;
@@ -535,6 +539,8 @@ public class CharacterLoader
         //超过末尾了.
         if (loop)
         {
+            if (curIndex >= po.LoopStart)
+                inlooping = true;
             if (checkStaright)
             {
                 if (PoseStraight <= 0.0f)
@@ -616,10 +622,10 @@ public class CharacterLoader
                 if (i == 0)
                 {
                     //Debug.LogError("action move");
-                    if (lastPosIdx == po.Idx)
+                    if (lastPosIdx == po.Idx && !inlooping)
                     {
                         Vector3 targetPos = Vector3.Lerp(lastStatus.DummyPos[i], status.DummyPos[i], timeRatio);
-                        Vector3 vec = Target.rotation * (targetPos - lastDBasePos) * moveScale;
+                        Vector3 vec = (targetPos - lastDBasePos) * moveScale;
                         if (IgnoreActionMoves)
                         {
                             vec.x = 0;
@@ -788,7 +794,11 @@ public class CharacterLoader
             if (checkStaright)
                 return;
             if (mOwner.IsOnGround() && LoopCount > 1)
+            {
+                if (po.Idx >= 60 && po.Idx <= 63)
+                    Debug.LogError("防御受击退出循环");
                 loop = false;
+            }
         }
     }
 
@@ -870,6 +880,7 @@ public class CharacterLoader
     {
         //一些招式，需要把尾部事件执行完才能切换武器.
         LoopCount = 0;
+        inlooping = false;
         if (TheLastFrame != -1 && po != null)
         {
             ActionEvent.HandlerFinalActionFrame(mOwner, po.Idx);
@@ -946,8 +957,8 @@ public class CharacterLoader
         if (curIndex < pos.Start)
             curIndex = pos.Start;
         blendStart = curIndex;
-        if (blendTime != 0.0f && (pos.Idx == CommonAction.JumpFall || pos.Idx == CommonAction.Jump || pos.Idx == CommonAction.JumpFallOnGround))
-            Debug.Log("过渡帧为" + blendStart + " 转换到动作:" + pos.Idx);
+        //if (blendTime != 0.0f && (pos.Idx == CommonAction.JumpFall || pos.Idx == CommonAction.Jump || pos.Idx == CommonAction.JumpFallOnGround))
+        //    Debug.Log("过渡帧为" + blendStart + " 转换到动作:" + pos.Idx);
         effectPlayed = false;
         sfxEffect = null;
         playedTime = 0;

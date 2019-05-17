@@ -926,7 +926,6 @@ public partial class MeteorUnit : LockBehaviour
     public const float yLimitMax = 700;//最大向上速度
     public const float yClimbLimitMax = 180.0f;
     public const float yClimbEndLimit = -30.0f;//爬墙时,Y速度到达此速度，开始计时，时间到就从墙壁落下
-    public const float JumpLimit = 68f;
     //角色跳跃高度74，是以脚趾算最低点，倒过来算出dbase,则需要减去差值。
     public bool IgnoreGravity = false;
     //物体动量(质量*速度)的改变,等于物体所受外力冲量的总和.这就是动量定理
@@ -1013,18 +1012,8 @@ public partial class MeteorUnit : LockBehaviour
         v.y = IgnoreGravity ? 0 : ImpluseVec.y * FrameReplay.deltaTime;
         v.z = ImpluseVec.z * FrameReplay.deltaTime;
         v += charLoader.moveDelta;
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
-        {
-            //联机避免抖动
-            if (v != Vector3.zero)
-                Move(v);
-        }
-        else
-        {
-            if (v != Vector3.zero)
-                Move(v);
-        }
-
+        if (v != Vector3.zero)
+            Move(v);
         if (OnTouchWall)
             ProcessFriction(0.3f);//爬墙或者在墙面滑动，摩擦力是地面的0.2倍
 
@@ -1523,18 +1512,18 @@ public partial class MeteorUnit : LockBehaviour
             {
                 //倒跳
                 SetWorldVelocity(transform.forward * Jump2Velocity);
-                Jump2(JumpLimit / 3, CommonAction.JumpBack);
+                Jump2(CommonAction.JumpBack);
             }
             else if (posMng.mActiveAction.Idx == CommonAction.ClimbRight)
             {
                 //像右
                 SetWorldVelocity(-transform.right * Jump2Velocity);
-                Jump2(JumpLimit / 3, CommonAction.WallLeftJump);
+                Jump2(CommonAction.WallLeftJump);
             }
             else if (posMng.mActiveAction.Idx == CommonAction.ClimbLeft)
             {
                 SetWorldVelocity(transform.right * Jump2Velocity);
-                Jump2(JumpLimit / 3, CommonAction.WallRightJump);
+                Jump2(CommonAction.WallRightJump);
             }
         }
         else
@@ -1566,16 +1555,16 @@ public partial class MeteorUnit : LockBehaviour
                 case -2:
                 case -1:
                     SetWorldVelocity(Vector3.Normalize(vec) * Jump2Velocity);
-                    Jump2(JumpLimit / 2, CommonAction.WallLeftJump);
+                    Jump2(CommonAction.WallLeftJump);
                     break;
                 case 0:
                     SetWorldVelocity(Vector3.Normalize(vec) * Jump2Velocity);
-                    Jump2(JumpLimit / 2, CommonAction.JumpBack);
+                    Jump2(CommonAction.JumpBack);
                     break;
                 case 1:
                 case 2:
                     SetWorldVelocity(Vector3.Normalize(vec) * Jump2Velocity);
-                    Jump2(JumpLimit / 2, CommonAction.WallRightJump);
+                    Jump2(CommonAction.WallRightJump);
                     break;
             }
         }
@@ -1588,18 +1577,18 @@ public partial class MeteorUnit : LockBehaviour
         {
             //倒跳
             SetWorldVelocity(hitNormal * Jump2Velocity);
-            Jump2(JumpLimit / 2, CommonAction.JumpBack);
+            Jump2(CommonAction.JumpBack);
         }
         else if (posMng.mActiveAction.Idx == CommonAction.ClimbRight)
         {
             //像右
             SetWorldVelocity(Quaternion.AngleAxis(-45, Vector3.up) * hitNormal * Jump2Velocity);
-            Jump2(JumpLimit / 2, CommonAction.WallLeftJump);
+            Jump2(CommonAction.WallLeftJump);
         }
         else if (posMng.mActiveAction.Idx == CommonAction.ClimbLeft)
         {
             SetWorldVelocity(Quaternion.AngleAxis(45, Vector3.up) * hitNormal * Jump2Velocity);
-            Jump2(JumpLimit / 2, CommonAction.WallRightJump);
+            Jump2(CommonAction.WallRightJump);
         }
     }
 
@@ -1672,7 +1661,7 @@ public partial class MeteorUnit : LockBehaviour
         bool Floating = false;
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene") | 1 << LayerMask.NameToLayer("Trigger")))
+        if (Physics.SphereCast(transform.position + Vector3.up * 2f, 0.5f, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene") | 1 << LayerMask.NameToLayer("Trigger")))
         {
             MoveOnGroundEx = hit.distance <= 4f;
             //Debug.Log(string.Format("distance:{0}", hit.distance));
@@ -1861,11 +1850,11 @@ public partial class MeteorUnit : LockBehaviour
                     //Debug.LogError(name + " 浮空-落地" + Time.frameCount);
                     //AddYVelocity(-100);//让他快速一点落地
                     //与落地的间隔超过0.3S再切换动作，否则就会抽搐
-                    if (groundTick + 0.3f < Time.timeSinceLevelLoad)
-                        posMng.ChangeAction(CommonAction.JumpFall, 0.0f);
+                    if (groundTick + 0.2f < Time.timeSinceLevelLoad)
+                        posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
                     //看是否被物件推开
-                    ProcessFall();
-                    floatTick = Time.timeSinceLevelLoad;
+                    //ProcessFall();
+                    //floatTick = Time.timeSinceLevelLoad;
                 }
             }
         }
@@ -1875,12 +1864,11 @@ public partial class MeteorUnit : LockBehaviour
         {
             if (MoveOnGroundEx || OnGround)
             {
-                //if ((posMng.mActiveAction.Idx >= CommonAction.Jump && posMng.mActiveAction.Idx <= CommonAction.JumpBackFall) || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
-                //{
-                    //posMng.ChangeAction(0, 0.1f);
-                    //Debug.LogError(name + " 接触地面切换到IDle" + Time.frameCount);
-                    //groundTick = Time.timeSinceLevelLoad;
-                //}
+                if ((posMng.mActiveAction.Idx >= CommonAction.Jump && posMng.mActiveAction.Idx <= CommonAction.JumpBackFall) || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
+                {
+                    posMng.ChangeAction(0, 0.1f);
+                    groundTick = Time.timeSinceLevelLoad;
+                }
                 ResetYVelocity();
             }
         }
@@ -1897,6 +1885,8 @@ public partial class MeteorUnit : LockBehaviour
     {
         if (charController != null && charController.enabled)
         {
+            if (Attr.IsPlayer && posMng.mActiveAction.Idx >= 60 || posMng.mActiveAction.Idx <= 65)
+                Debug.LogError("Move:" + trans);
             CollisionFlags collisionFlags = charController.Move(trans);
             UpdateFlags(collisionFlags);
         }
@@ -1962,17 +1952,15 @@ public partial class MeteorUnit : LockBehaviour
     }
 
     //踏墙壁跳跃,y为正常跳跃高度倍数.
-    public void Jump2(float y, int act = CommonAction.Jump)
+    public void Jump2(int act = CommonAction.Jump)
     {
         canControlOnAir = true;
         OnGround = false;
-        //ImpluseVec.y = CalcVelocity(y);
-        //ImpluseVec.y = 100;
         posMng.JumpTick = 0.0f;
         posMng.CanAdjust = true;
         posMng.CheckClimb = true;
         posMng.ChangeAction(act);
-        //charLoader.SetActionScale(y / JumpLimit);
+        charLoader.SetActionScale(1.0f);
     }
 
     //给3个参数,Y轴完整跳跃的高度缩放(就是按下跳跃的压力缩放)，前方速度，右方速度
@@ -1980,15 +1968,11 @@ public partial class MeteorUnit : LockBehaviour
     {
         canControlOnAir = true;
         OnGround = false;
-        float jumpScale = Short ? (ShortScale * 0.32f) : 1.0f;
-        float h = JumpLimit * jumpScale;
-        //ImpluseVec.y = CalcVelocity(h);
-        //ImpluseVec.y = 100;
         posMng.JumpTick = 0.0f;
         posMng.CanAdjust = true;
         posMng.CheckClimb = true;
         posMng.ChangeAction(act);
-        //charLoader.SetActionScale(jumpScale);
+        charLoader.SetActionScale(Short ? 0.5f : 1.0f);
     }
 
     public void ReleaseDefence()

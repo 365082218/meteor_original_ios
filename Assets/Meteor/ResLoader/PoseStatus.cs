@@ -359,6 +359,11 @@ public class PoseStatus
     public System.Action OnDebugActionFinished;
     public void OnActionFinished()
     {
+        if (mActiveAction.Idx >= 60 && mActiveAction.Idx <= 63)
+        {
+            Debug.LogError("onactionfinished");
+            return;
+        }
         if (OnDebugActionFinished != null)
             OnDebugActionFinished();
         if (waitPause)
