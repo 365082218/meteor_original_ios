@@ -114,6 +114,7 @@ Idx	Name	IgnoreMove	IgnoreGravity	IgnoreCollision	GravityEvent	IgnoreXZVelocity
 325	锤绝升天	0	1	1		
 326	锤绝扔出锤子	1	1	1		
 327	锤绝翻滚落地	1	0	1		
+328	锤绝落地	0	0	0		
 329	脚踢回锤子	1	0	0		
 331	刀落地	1	0	1		
 332	匕首空A落地	1	0	1		

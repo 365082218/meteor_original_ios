@@ -250,16 +250,12 @@ public class CharacterLoader
         }
     }
 
-    bool checkStaright = false;
-    bool inlooping = false;//是否处于播放循环帧，若处于播放循环帧中，动画将无法位移.
-    bool startCount = false;//开始计算僵直，在循环部分的动画播放一次时，开始减少僵直时长
+    bool LockCurrentFrame = false;//开始计算僵直
     public void LockTime(float t)
     {
         PoseStraight = t;
-        if (PoseStraight > 0.0f)
-            checkStaright = true;
-        else
-            checkStaright = false;
+        if (PoseStraight == 0)
+            LockCurrentFrame = false;
     }
 
     public bool IsInStraight()
@@ -295,9 +291,50 @@ public class CharacterLoader
         moveScale = scale;
     }
 
+    public void ChangeFrame(int source, int frame)
+    {
+        Pause = true;
+        BoneStatus status = null;
+        if (source == 0)
+            status = AmbLoader.CharCommon[frame];
+        else if (source == 1)
+            status = AmbLoader.PlayerAnimation[owner.UnitId][frame];
+        else
+            status = AmbLoader.GetBoneStatus(po.SourceIdx, owner.UnitId, frame);
+        for (int i = 0; i < bo.Count; i++)
+        {
+            bo[i].localRotation = status.BoneQuat[i];
+            if (i == 0)
+                bo[i].localPosition = status.BonePos;
+        }
+        for (int i = 0; i < dummy.Count; i++)
+        {
+            //if (i == 0)
+            //{
+                //Debug.LogError("action move");
+                //if (lastPosIdx == po.Idx && !inlooping)
+                //{
+                //    Vector3 targetPos = status.DummyPos[i];
+                //    Vector3 vec = Target.rotation * (targetPos - lastDBasePos) * moveScale;
+                //    //如果忽略位移，或者在动作的循环帧中，即第一次从循环头开始播放后，不再计算位移.
+                //    moveDelta += vec;
+                //    //if (po.Idx == 151)
+                //    //    Debug.LogError(string.Format("pose:{0} frame:{1} move: x ={2}, y ={3} z = {4}", po.Idx, curIndex, moveDelta.x, moveDelta.y, moveDelta.z));
+                //    lastDBasePos = targetPos;
+                //}
+           // }
+           // else
+            {
+                dummy[i].localRotation = status.DummyQuat[i];
+                dummy[i].localPosition = status.DummyPos[i];
+            }
+        }
+
+    }
+
+
     void PlayNextKeyFrame()
     {
-        //Debug.LogError("PlayNextKeyFrame timeratio:" + ratio);
         TryPlayEffect();
         ChangeAttack();
         ChangeWeaponTrail();
@@ -316,22 +353,20 @@ public class CharacterLoader
 
         if (loop)
         {
-            if (curIndex > po.LoopStart)
-                inlooping = true;
-            if (checkStaright)
+            if (LockCurrentFrame)
             {
                 if (PoseStraight <= 0.0f)
                 {
                     loop = false;
                     curIndex = po.LoopEnd + 1;
-                    checkStaright = false;
-                    startCount = false;
+                    LockCurrentFrame = false;
                     return;
                 }
             }
             if (curIndex > po.LoopEnd)
             {
-                startCount = true;
+                if (PoseStraight != 0)
+                    LockCurrentFrame = true;
                 if (curIndex > po.LoopStart)
                 {
                     LoopCount++;
@@ -371,9 +406,7 @@ public class CharacterLoader
         else
             status = AmbLoader.GetBoneStatus(po.SourceIdx, owner.UnitId, curIndex);
 
-        //if (mOwner.Attr.IsPlayer && FightWnd.Exist)
-        //    FightWnd.Instance.UpdatePoseStatus(po.Idx, curIndex);
-
+        //Debug.LogError("play keyframe " + " idx:" + curIndex);
         for (int i = 0; i < bo.Count; i++)
         {
             bo[i].localRotation = status.BoneQuat[i];
@@ -388,11 +421,10 @@ public class CharacterLoader
         {
             if (i == 0)
             {
-                //Debug.LogError("action move");
-                if (lastPosIdx == po.Idx && !inlooping)
+                if (lastPosIdx == po.Idx)
                 {
                     Vector3 targetPos = status.DummyPos[i];
-                    Vector3 vec = (targetPos - lastDBasePos) * moveScale;
+                    Vector3 vec = Target.rotation * (targetPos - lastDBasePos) * moveScale;
                     //如果忽略位移，或者在动作的循环帧中，即第一次从循环头开始播放后，不再计算位移.
                     if (IgnoreActionMoves)
                     {
@@ -529,33 +561,29 @@ public class CharacterLoader
     public System.Action<int, int, int, float> OnAnimationFrame;
     public void PlayFrame(float timeRatio)
     {
-        //Debug.LogError("play frame timeratio:" + timeRatio);
         float speedScale = GetSpeedScale();
         TryPlayEffect();
         ChangeAttack();
         ChangeWeaponTrail();
         if (TestInputLink())
             return;
-        //超过末尾了.
         if (loop)
         {
-            if (curIndex >= po.LoopStart)
-                inlooping = true;
-            if (checkStaright)
+            if (LockCurrentFrame)
             {
                 if (PoseStraight <= 0.0f)
                 {
                     loop = false;
                     curIndex = po.LoopEnd + 1;
-                    checkStaright = false;
-                    startCount = false;
+                    LockCurrentFrame = false;
                     return;
                 }
             }
 
             if (curIndex >= po.LoopEnd)
             {
-                startCount = true;
+                if (PoseStraight != 0)
+                    LockCurrentFrame = true;
                 LoopCount ++;
                 PlayPosEvent();
                 if (loop)
@@ -595,6 +623,8 @@ public class CharacterLoader
             status = AmbLoader.PlayerAnimation[owner.UnitId][curIndex];
         else
             status = AmbLoader.GetBoneStatus(po.SourceIdx, owner.UnitId, curIndex);
+
+        //Debug.LogError("play frame timeratio:" + timeRatio + " idx:" + curIndex);
         //if (mOwner.Attr.IsPlayer && FightWnd.Exist)
         //    FightWnd.Instance.UpdatePoseStatus(po.Idx, lastFrameIndex);
 
@@ -622,10 +652,10 @@ public class CharacterLoader
                 if (i == 0)
                 {
                     //Debug.LogError("action move");
-                    if (lastPosIdx == po.Idx && !inlooping)
+                    if (lastPosIdx == po.Idx)
                     {
                         Vector3 targetPos = Vector3.Lerp(lastStatus.DummyPos[i], status.DummyPos[i], timeRatio);
-                        Vector3 vec = (targetPos - lastDBasePos) * moveScale;
+                        Vector3 vec = Target.rotation * (targetPos - lastDBasePos) * moveScale;
                         if (IgnoreActionMoves)
                         {
                             vec.x = 0;
@@ -659,7 +689,7 @@ public class CharacterLoader
             {
                 lastFramePlayedTimes += FrameReplay.deltaTime;
 
-                if (checkStaright && PoseStraight > 0.0f && startCount)
+                if (LockCurrentFrame && PoseStraight > 0.0f)
                     PoseStraight -= FrameReplay.deltaTime;
 
                 float speedScale = owner.ActionSpeed * GetSpeedScale();
@@ -684,8 +714,6 @@ public class CharacterLoader
             else
             {
                 playedTime += FrameReplay.deltaTime;
-                if (checkStaright && PoseStraight > 0.0f && startCount)
-                    PoseStraight -= FrameReplay.deltaTime;
                 //TryPlayEffect();
                 ChangeWeaponTrail();
 
@@ -752,34 +780,27 @@ public class CharacterLoader
         }
         else if (po.Idx == CommonAction.JumpFallOnGround)
         {
-            mOwner.IgnoreGravitys(false);
             if (mOwner.IsOnGround())
-            {
-                posMng.ChangeAction(0, 0.1f);
                 loop = false;
-            }
         }
         else if (po.Idx == CommonAction.KnifeA2Fall)//匕首空中A2落地
         {
-            mOwner.IgnoreGravitys(false);
             if (mOwner.IsOnGround()) loop = false;
         }
         else if (po.Idx == CommonAction.HammerMaxFall)
         {
-            mOwner.IgnoreGravitys(false);
             if (mOwner.IsOnGround()) loop = false;
         }
         else if (po.Idx == CommonAction.Fall)
         {
-            mOwner.IgnoreGravitys(false);
             if (mOwner.IsOnGround()) loop = false;
         }
         else if (po.Idx == CommonAction.Struggle || po.Idx == CommonAction.Struggle0)
         {
-            if (checkStaright)
+            //在硬直中
+            if (LockCurrentFrame)
                 return;
-            if (mOwner.IsOnGround() && LoopCount > 1)
-                loop = false;
+
         }
         else if ((po.Idx >= CommonAction.Idle && po.Idx <= 21) || (po.Idx >= CommonAction.WalkForward && po.Idx <= CommonAction.RunOnDrug))
         {
@@ -791,14 +812,10 @@ public class CharacterLoader
         }
         else
         {
-            if (checkStaright)
+            if (LockCurrentFrame)
                 return;
-            if (mOwner.IsOnGround() && LoopCount > 1)
-            {
-                if (po.Idx >= 60 && po.Idx <= 63)
-                    Debug.LogError("防御受击退出循环");
-                loop = false;
-            }
+            if (mOwner.IsOnGround()) loop = false;
+            //Debug.Log("PlayPosEvent:" + po.Idx);
         }
     }
 
@@ -880,7 +897,7 @@ public class CharacterLoader
     {
         //一些招式，需要把尾部事件执行完才能切换武器.
         LoopCount = 0;
-        inlooping = false;
+        LockCurrentFrame = false;
         if (TheLastFrame != -1 && po != null)
         {
             ActionEvent.HandlerFinalActionFrame(mOwner, po.Idx);
@@ -977,13 +994,6 @@ public class CharacterLoader
         }
 
         curPos = pos.Idx;
-        //.Log("idx:" + pos.Idx);
-        //如果是倒地动作，僵直为0.5f
-        if (curPos == CommonAction.Struggle || curPos == CommonAction.Struggle0)
-        {
-            if (PoseStraight <= 0.2f)
-                LockTime(0.2f);
-        }
 
         //当从100切换到118时，要把Y的速度重置为0，否则下落很快，导致连招接不上
         if (curPos == CommonAction.Fall && lastPosIdx == CommonAction.BeHurted100)
@@ -1131,7 +1141,8 @@ public class AmbLoader
     //加载通用动作
     public void LoadCharacterAmb()
     {
-        CharCommon = LoadAmb("characteramb");
+        if (CharCommon == null || CharCommon.Count == 0)
+            CharCommon = LoadAmb("characteramb");
     }
 
     public Dictionary<int, BoneStatus> Parse(byte[] memory)

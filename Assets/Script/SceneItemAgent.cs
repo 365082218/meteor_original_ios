@@ -70,18 +70,22 @@ public class SceneItemAgent : LockBehaviour {
         transform.Rotate(new Vector3(0, 90 * FrameReplay.deltaTime, 0));
     }
 
-    private void Awake()
+    protected new void Awake()
     {
+        base.Awake();
         root = transform;
         root.tag = "SceneItemAgent";
         Refresh = false;
     }
 
-
+    private new void OnDestroy()
+    {
+        base.OnDestroy();
+    }
     float refresh_tick;
     bool Refresh;
 
-    public void GameFrameTurn(List<protocol.FrameCommand> acts)
+    protected override void LockUpdate()
     {
         if (MethodOnIdle != null)
             MethodOnIdle.Invoke(Global.Instance.GScript, new object[] { InstanceId });

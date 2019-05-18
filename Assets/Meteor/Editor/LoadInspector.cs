@@ -142,22 +142,40 @@ public class UIMoveInspector : Editor
 
     
 }
-//[CustomEditor(typeof(PoseStatus))]
-//public class PoseStatusInspector : Editor
-//{
-//    string pos = "Pos Id";
-//    public override void OnInspectorGUI()
-//    {
-//        base.OnInspectorGUI();
-//        PoseStatus myTarget = (PoseStatus)target;
-//        pos = GUILayout.TextField(pos);
-//        if (GUILayout.Button("PlayPos"))
-//        {
-//            if (!string.IsNullOrEmpty(pos))
-//                myTarget.ChangeAction(int.Parse(pos));
-//        }
-//    }
-//}
+
+[CustomEditor(typeof(MeteorUnitDebug))]
+public class MeteorUnitDebugInspector : Editor
+{
+    int source = 0;
+    int keyframe = 0;
+    string src = "source";
+    string key = "keyframe";
+    string action = "action";
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+        MeteorUnitDebug myTarget = (MeteorUnitDebug)target;
+        src = GUILayout.TextField(src);
+        key = GUILayout.TextField(key);
+        action = GUILayout.TextField(action);
+
+
+        if (GUILayout.Button("SetKeyFrame"))
+        {
+            keyframe = int.Parse(key);
+            source = int.Parse(src);
+            if (!string.IsNullOrEmpty(src))
+                myTarget.charLoader.ChangeFrame(source, keyframe);
+        }
+
+        if (GUILayout.Button("ChangeAction"))
+        {
+            int act = int.Parse(action);
+            myTarget.posMng.ChangeActionSingle(act);
+        }
+    }
+}
+
 //public class StatusMachineEditor
 //{
 //    [MenuItem("Assets/Create/Meteor/PassCondition")]

@@ -361,7 +361,7 @@ public class PoseStatus
     {
         if (mActiveAction.Idx >= 60 && mActiveAction.Idx <= 63)
         {
-            Debug.LogError("onactionfinished");
+            //_Self.Defence();
             return;
         }
         if (OnDebugActionFinished != null)
@@ -546,11 +546,9 @@ public class PoseStatus
     CharacterLoader load;
     //动作在地面还是空中
     //动作是移动 防守 还是攻击 受伤 待机 
-    bool singleAction = false;
     public void ChangeActionSingle(int idx = CommonAction.Idle)
     {
-        singleAction = true;
-        ChangeAction(idx, 0.1f);
+        ChangeAction(idx, 0);
     }
 
     //被动情况下播放动画，类似，受到攻击，或者防御住对方的攻击
@@ -576,7 +574,7 @@ public class PoseStatus
 
     public void ChangeAction(int idx = CommonAction.Idle, float time = 0.01f)
     {
-        Debug.Log("change action" + idx);
+        //Debug.Log("change action" + idx);
         //if (!_Self.Attr.IsPlayer && _Self.posMng != null && _Self.posMng.mActiveAction != null && _Self.posMng.mActiveAction.Idx == CommonAction.GunIdle && idx != CommonAction.GunIdle)
         //    Debug.LogError("idx:" + idx);
         //if (_Self != null && _Self.Attr.IsPlayer && _Self.posMng != null && _Self.posMng.mActiveAction != null && _Self.posMng.mActiveAction.Idx + 1 == idx && idx > 150)

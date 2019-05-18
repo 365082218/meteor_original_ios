@@ -2919,7 +2919,7 @@ public partial class MeteorUnit : LockBehaviour
                 {
                     if (dam._AttackType == 0)
                     {
-                        //在此时间结束前，不许使用输入设备输入.
+                        //设置硬直时间，待防御受击播放定帧时开始计时硬直，待硬直结束，定帧结束播放后摇
                         if (charLoader != null)
                             charLoader.LockTime(dam.DefenseValue);
                         //Move(-attacker.transform.forward * dam.DefenseMove);

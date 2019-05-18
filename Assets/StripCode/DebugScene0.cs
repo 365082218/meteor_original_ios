@@ -63,7 +63,7 @@ public class DebugScene0 : MonoBehaviour {
     {
         int act = (ScrollView.CurrentData as AnimationCellData).animation;
         if (PoseStatus.ActionExist(Player.UnitId, act))
-            Player.posMng.ChangeAction(act);
+            Player.posMng.ChangeAction(act, 0);
         else
         {
             Debug.LogError("角色不存在动作:" + act);
@@ -149,6 +149,6 @@ public class DebugScene0 : MonoBehaviour {
 
     void OnAnimationFinished()
     {
-        Player.transform.position = Vector3.zero;
+        //Player.transform.position = Vector3.zero;
     }
 }

@@ -51,11 +51,20 @@ public class FMCPose
         return pose;
     }
 }
-public class FMCPlayer : MonoBehaviour {
+public class FMCPlayer : LockBehaviour {
     public FMCFile frames;
     FMCPose pose;
     CombineChildren combine;
     public string fmcFile;
+    private new void Awake()
+    {
+        base.Awake();
+    }
+
+    private new void OnDestroy()
+    {
+        base.OnDestroy();
+    }
     float f = 0;
     // Use this for initialization
     void Start () {
@@ -72,11 +81,11 @@ public class FMCPlayer : MonoBehaviour {
     bool looped = false;
     float tick;
     // Update is called once per frame
-    void Update () {
+    protected override void LockUpdate () {
         int oldframe = currentFrame;
         if (frames == null || state == 1)
             return;
-        tick += Time.deltaTime;
+        tick += FrameReplay.deltaTime;
         if (tick >= f)//不允许跳帧
         {
             currentFrame += 1;

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class IFLLoader : MonoBehaviour {
+public class IFLLoader : LockBehaviour {
     public TextAsset IFLFile;
     public int matIndex;
     public string fileNameReadOnly;
@@ -15,8 +15,9 @@ public class IFLLoader : MonoBehaviour {
     public bool useSharedMaterial = false;//真则使用材质球的共享材质，使用同一材质球的均会被修改. 否则使用自身的新增材质
     // Use this for initialization
     //影响了共用材质的贴图，这样MAX里读IFL文件的贴图序列就可以正常使用了.IFL存储了一系列图片名
-    private void Awake()
+    private new void Awake()
     {
+        base.Awake();
         mesh = GetComponent<MeshRenderer>();
         if (mesh == null)
             mesh = GetComponentInChildren<MeshRenderer>();
@@ -30,9 +31,10 @@ public class IFLLoader : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-        run += Time.deltaTime;
-        
+	protected override void LockUpdate () {
+        run += FrameReplay.deltaTime;
+        if (PlayAnimation)
+            Play();
     }
 
     public void SetTargetMeshRenderer(Renderer mr)
@@ -40,6 +42,7 @@ public class IFLLoader : MonoBehaviour {
         mesh = mr;
     }
 
+    bool PlayAnimation = false;
     public void LoadIFL(bool autoPlay = true)
     {
         AutoPlay = autoPlay;
@@ -59,7 +62,7 @@ public class IFLLoader : MonoBehaviour {
             }
 
             if (tex != null && tex.Length != 0 && autoPlay)
-                StartCoroutine(Play());
+                PlayAnimation = true;
         }
         else
         {
@@ -73,27 +76,23 @@ public class IFLLoader : MonoBehaviour {
         }
     }
 
-    public IEnumerator Play()
+    public void Play()
     {
-        while (true)
+        if (run > delay)
         {
-            if (run > delay)
+            if (mesh != null && tex != null)
             {
-                if (mesh != null && tex != null)
+                nIndex++;
+                nIndex %= tex.Length;
+                if (tex[nIndex] != null)
                 {
-                    nIndex++;
-                    nIndex %= tex.Length;
-                    if (tex[nIndex] != null)
-                    {
-                        if (useSharedMaterial)
-                            mesh.sharedMaterials[matIndex].SetTexture("_MainTex", tex[nIndex]);
-                        else
-                            mesh.materials[matIndex].SetTexture("_MainTex", tex[nIndex]);
-                    }
+                    if (useSharedMaterial)
+                        mesh.sharedMaterials[matIndex].SetTexture("_MainTex", tex[nIndex]);
+                    else
+                        mesh.materials[matIndex].SetTexture("_MainTex", tex[nIndex]);
                 }
-                run = 0.0f;
             }
-            yield return 0;
+            run = 0.0f;
         }
     }
 
