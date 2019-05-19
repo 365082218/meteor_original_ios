@@ -1,6 +1,6 @@
-﻿idx序号	招式名称	忽略动作位移	重力事件	忽略角色碰撞	重力事件	清除XZ轴速度
-Idx	Name	IgnoreMove	IgnoreGravity	IgnoreCollision	GravityEvent	IgnoreXZVelocity
-100	被挑起	0	1	1		
+﻿idx序号	招式名称	冻结所有动作位移	重力事件	忽略角色碰撞	冻结世界XZ轴速度	冻结动作XZ轴位移 
+Idx	Name	IgnoreMove	IgnoreGravity	IgnoreCollision	IgnoreXZVelocity	IgnoreXZMove
+100	被挑起	0	1	1	0	1
 118	挑起到顶	1	0	1		
 151	跳跃起身	0	1	1		
 152	跳跃到顶	0	0	1		
@@ -76,12 +76,12 @@ Idx	Name	IgnoreMove	IgnoreGravity	IgnoreCollision	GravityEvent	IgnoreXZVelocity
 223	轮杀收					
 224	轮怒射	0	0	0		
 225	轮怒收					
-226	刺空旋转	1	1	1		
-227	刺空展臂	1	1	0		1
-228	刺空上A踢	0	1	0		
-229	刺空上A2踢腿	0	1	0		1
-235	双刺空中下A	0	0	1	10969:1-10972:0	1
-236	双刺空中下A2	0	0	0		1
+226	刺空旋转	1	1	1	1	
+227	刺空展臂	1	1	0	1	0
+228	刺空上A踢	0	1	1		
+229	刺空上A2踢腿	0	0	1	0	0
+235	双刺空中下A	0	1	1	1	0
+236	双刺空中下A2	0	0	0	1	0
 245	匕首空A1	0	1	0		
 246	匕首空A2	0	1	0		
 247	匕首空A3	0	1	0		
@@ -89,7 +89,7 @@ Idx	Name	IgnoreMove	IgnoreGravity	IgnoreCollision	GravityEvent	IgnoreXZVelocity
 249	匕首地A2	0	0	0		
 250	匕首前A	0	0	0		
 251	匕首前A2	0	0	0		
-252	匕首空下A	0	0	1		1
+252	匕首空下A	0	0	1	1	1
 253	匕首上上A	0	1	0		
 256	匕首空上下A	0	0	1		
 257	匕首后前A前	0	0	0		
@@ -97,13 +97,13 @@ Idx	Name	IgnoreMove	IgnoreGravity	IgnoreCollision	GravityEvent	IgnoreXZVelocity
 259	匕首大招	0	0	1		
 260	剑空A1	1	1	0		
 261	剑空A2	1	1	0		
-265	剑空下刺	1	0	1		1
+265	剑空下刺	0	0	1		1
 279	长枪A					
-282	枪下扎	1	0	1		0
+282	枪下扎	0	0	1	1	1
 283	枪下扎转地2	0	0	1		
 285	长枪前A挑起					
 289	长枪前前A挑起					
-298	刀空下劈	0	0	1		0
+298	刀空下劈	0	1	1	1	0
 292	枪左右上A	0	0	1		
 310	刀绝招起始	1	0	0		
 311	刀定身	1	0	0		
@@ -124,8 +124,10 @@ Idx	Name	IgnoreMove	IgnoreGravity	IgnoreCollision	GravityEvent	IgnoreXZVelocity
 339	重武器空踢下落	1	0	1		
 340	剑空中出招落地	1	0	1		
 341	剑空中出招落地	1	0	1		
-342	剑空中出招落地	1	0	1		
+342	剑下刺出招落地	1	0	1		
 343	匕首后A	0	0	0		
+346	落地1	0	0	1		
+347	落地2	0	0	1		
 370	匕首左A1	0	0	0		
 371	匕首左A2	0	0	0		
 405	拳套空A	0	1	1		
@@ -142,25 +144,25 @@ Idx	Name	IgnoreMove	IgnoreGravity	IgnoreCollision	GravityEvent	IgnoreXZVelocity
 433	乾坤AA	0	0	0		
 434	乾坤AAA	0	0	1		
 446	乾坤空中下A	0	1	1		1
-451	乾坤大招起手	0	0	0	22	
-452	乾坤怒首斬	0	0	0	37	
-453	乾坤怒雙斬	0	0	0	37	
-454	乾坤怒再雙	0	0	0	37	
-455	乾坤怒終斬	0	0	0	37	
-456	乾坤怒回鞘	0	0	0	37	
+451	乾坤大招起手	0	0	0		
+452	乾坤怒首斬	0	0	0		
+453	乾坤怒雙斬	0	0	0		
+454	乾坤怒再雙	0	0	0		
+455	乾坤怒終斬	0	0	0		
+456	乾坤怒回鞘	0	0	0		
 457	乾坤空砸緩	0	0	0		
 458	乾坤空A	1	1	1		
 459	乾坤空落地	1	0	1		
-465	忍刀下踩	0	1	1		1
+465	忍刀下踩	0	1	1	1	0
 466	忍刀上下A	0	0	0		
 467	忍刀上下A2	1	0	0		
 471	忍刀下上A	0	1	1		
-478	忍刀空A	1	1	1		1
-479	忍刀空A2	1	1	1		
+478	忍刀空A	0	1	1	1	1
+479	忍刀空A2	0	1	1	0	0
 483	忍刀空A落地	1	0	1		
 484	忍刀下上A落地	1	0	1		
 488	拳套大招落地	1	0	1		
-489	拳套-嗜血BUFF	1	0	0	34	
+489	拳套-嗜血BUFF	1	0	0		
 526	忍刀前闪	0	0	0		
 527	忍刀右闪	0	0	0		
 528	忍刀左闪	0	0	0		
@@ -169,13 +171,13 @@ Idx	Name	IgnoreMove	IgnoreGravity	IgnoreCollision	GravityEvent	IgnoreXZVelocity
 531	忍空右闪	0	1	1		
 532	忍空左闪	0	1	1		
 533	忍空后闪	0	1	1		
-535	忍遁地	1	0	0	36	
+535	忍遁地	1	0	0		
 541	忍踩	1	0	0		
 542	忍再踩	1	0	0		
 551	镖空八方绝	1	1	0		
 554	飞轮空吸星	0	1	0		
 556	双刺轮转小绝	0	0	1		
-557	双刺-踏风BUFF	1	0	0	41	
+557	双刺-踏风BUFF	1	0	0		
 558	匕首下下A	0	0	1		
 559	匕首上下下A	0	0	1		
 562	枪小绝起身	0	1	1		

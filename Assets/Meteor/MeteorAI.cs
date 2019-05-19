@@ -1003,6 +1003,21 @@ public class MeteorAI {
 
     void OnFightGotoPosition()
     {
+        if (Global.Instance.GLevelItem.DisableFindWay == 1)
+        {
+            //无路点
+            //距离足够近
+            if (Vector3.SqrMagnitude(TargetPos - owner.transform.position) <= Global.AttackRange)
+            {
+                ChangeState(EAIStatus.Fight);
+                return;
+            }
+
+            owner.FaceToTarget(TargetPos);
+            owner.controller.Input.AIMove(0, 1);
+            return;
+        }
+
         if (Path.Count == 0)
         {
             ChangeState(EAIStatus.FindWay, EAIStatus.Fight, EAISubStatus.FightGotoPosition);
@@ -1081,6 +1096,21 @@ public class MeteorAI {
 
     void OnFightGotoTarget()
     {
+        if (Global.Instance.GLevelItem.DisableFindWay == 1)
+        {
+            //无路点
+            //距离足够近
+            if (Vector3.SqrMagnitude(fightTarget.transform.position - owner.transform.position) <= Global.AttackRange)
+            {
+                ChangeState(EAIStatus.Fight);
+                return;
+            }
+
+            owner.FaceToTarget(fightTarget.mSkeletonPivot);
+            owner.controller.Input.AIMove(0, 1);
+            return;
+        }
+
         if (Path.Count == 0)
         {
             ChangeState(EAIStatus.FindWay, EAIStatus.Fight, EAISubStatus.FightGotoTarget);

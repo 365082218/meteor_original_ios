@@ -226,6 +226,22 @@ public class PoseStatus
 
     public Dictionary<int, int> LinkInput = new Dictionary<int, int>();
 
+    public static bool IgnoreActionMove(int idx)
+    {
+        ActionBase act = GameData.Instance.actionMng.GetRowByIdx(idx) as ActionBase;
+        if (act == null)
+            return false;
+        return act.IgnoreMove == 1;
+    }
+
+    public static bool IgnoreXZMove(int idx)
+    {
+        ActionBase act = GameData.Instance.actionMng.GetRowByIdx(idx) as ActionBase;
+        if (act == null)
+            return false;
+        return act.IgnoreXZMove == 1;
+    }
+
     public static bool IgnoreVelocityXZ(int idx)
     {
         ActionBase act = GameData.Instance.actionMng.GetRowByIdx(idx) as ActionBase;
@@ -233,6 +249,7 @@ public class PoseStatus
             return false;
         return act.IgnoreXZVelocity == 1;
     }
+
     public static bool IgnorePhysical(int idx)
     {
         ActionBase act = GameData.Instance.actionMng.GetRowByIdx(idx) as ActionBase;
@@ -359,11 +376,6 @@ public class PoseStatus
     public System.Action OnDebugActionFinished;
     public void OnActionFinished()
     {
-        if (mActiveAction.Idx >= 60 && mActiveAction.Idx <= 63)
-        {
-            //_Self.Defence();
-            return;
-        }
         if (OnDebugActionFinished != null)
             OnDebugActionFinished();
         if (waitPause)
@@ -574,12 +586,7 @@ public class PoseStatus
 
     public void ChangeAction(int idx = CommonAction.Idle, float time = 0.01f)
     {
-        //Debug.Log("change action" + idx);
-        //if (!_Self.Attr.IsPlayer && _Self.posMng != null && _Self.posMng.mActiveAction != null && _Self.posMng.mActiveAction.Idx == CommonAction.GunIdle && idx != CommonAction.GunIdle)
-        //    Debug.LogError("idx:" + idx);
-        //if (_Self != null && _Self.Attr.IsPlayer && _Self.posMng != null && _Self.posMng.mActiveAction != null && _Self.posMng.mActiveAction.Idx + 1 == idx && idx > 150)
-        //
-        //本局游戏已有结果,播放嘲讽动画.
+        CanAdjust = false;
         if (GameBattleEx.Instance != null && GameBattleEx.Instance.BattleFinished() && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle))
         {
             playResultAction = true;
@@ -606,7 +613,7 @@ public class PoseStatus
         else if ((IsSkillEndPose(idx) || onhurt) && _Self.IsPlaySkill)
             _Self.IsPlaySkill = false;
 
-        //设置招式，是否冻结XZ轴速度，比如忍刀空中A，就冻结XZ轴速度，一下向下的招式都会如此，而水平招式不会
+        //设置招式是否冻结世界轴XZ上得速度.
         _Self.ResetWorldVelocity(IgnoreVelocityXZ(idx));
         if (load != null)
         {
@@ -633,7 +640,8 @@ public class PoseStatus
             else
             if (idx == CommonAction.Jump)
             {
-                CanMove = true;//跳跃后，可以微量移动
+                CanAdjust = true;//跳跃后，可以微量移动
+                CanMove = true;
             }
             else if ((idx >= CommonAction.WalkForward && idx <= CommonAction.RunOnDrug) || idx == CommonAction.Crouch)
             {

@@ -22,6 +22,11 @@ public class DartLoader : LockBehaviour {
         r.useGravity = false;
     }
 
+    protected new void OnDestroy()
+    {
+        base.OnDestroy();
+    }
+
     List<DamageRecord> deleteRec = new List<DamageRecord>();
     protected override void LockUpdate()
     {

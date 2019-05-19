@@ -196,7 +196,7 @@ Pose 19
   EffectType 0
   EffectID   0
 }
-Pose 20      #钵盽篈
+Pose 20      #異常狀態
 {
   source     1
   Start      66 
@@ -216,7 +216,7 @@ Pose 21
   EffectType 0
   EffectID   0
 }
-Pose 22      #秸  笵ㄣ
+Pose 22      #調息  道具
 {
   source     1
   Start      127 
@@ -2317,7 +2317,7 @@ Pose 198
 {}
 Pose 199
 {}
-Pose 200     #穞竟淮
+Pose 200     #暗器輕
 {
   source     0
   Start      3511
@@ -2365,7 +2365,7 @@ NextPose
     Time  0.1
   }
 }
-Pose 201     #灭荡~よも柑糃~摆窥奔*_*b
+Pose 201     #飛鏢地小絕~八方手裡劍~啊．．錢掉了*_*b
 {
   source     0
   Start      12247
@@ -2420,7 +2420,7 @@ Pose 201     #灭荡~よも柑糃~摆窥奔*_*b
     Time  0.1
   }
 }
-Pose 202     #穞竟
+Pose 202     #暗器空
 {
   source     0
   Start      12270
@@ -2457,7 +2457,7 @@ Pose 202     #穞竟
     TargetPoseRight  092
   }
 }
-Pose 203     #穞竟癬も
+Pose 203     #暗器怒起手
 {
   source     0
   Start      3627
@@ -2495,7 +2495,7 @@ Pose 203     #穞竟癬も
     Time  0
   }
 }
-Pose 204     #穞竟┷
+Pose 204     #暗器怒出招
 {
   source     0
   Start      3666
@@ -2533,7 +2533,7 @@ Pose 204     #穞竟┷
     Time  0
   }
 }
-Pose 205     #穞竟Μ┷
+Pose 205     #暗器怒收招
 {
   source     0
   Start      3695
@@ -2548,7 +2548,7 @@ Pose 205     #穞竟Μ┷
     speed 1
   }
 }
-Pose 206     #买淮甮阑
+Pose 206     #鎗輕射擊
 {
   source     0
   Start      3738
@@ -2584,7 +2584,7 @@ Pose 206     #买淮甮阑
     TargetPoseRight  092
   }
 }
-Pose 207     #买甮阑
+Pose 207     #鎗重射擊
 {
   source     0
   Start      9629
@@ -2620,7 +2620,7 @@ Pose 207     #买甮阑
     TargetPoseRight  097
   }
 }
-Pose 208     #买炳甮阑
+Pose 208     #鎗殺射擊
 {
   source     0
   Start      3769
@@ -2662,7 +2662,7 @@ Pose 208     #买炳甮阑
     TargetPoseRight  097
   }
 }
-Pose 209   #穞竟
+Pose 209   #暗器重
 {
   source     0
   Start      3535
@@ -2704,7 +2704,7 @@ Pose 209   #穞竟
     TargetPoseRight  092
   }
 }
-Pose 210    #穞竟炳
+Pose 210    #暗器殺
 {
   source     0
   Start      3576
@@ -2746,7 +2746,7 @@ Pose 210    #穞竟炳
     TargetPoseRight  092
   }
 }
-Pose 211     #穞竟辅
+Pose 211     #暗器落地
 {
   source     0
   Start      12286
@@ -2762,7 +2762,7 @@ Pose 211     #穞竟辅
     speed 1
   }
 }
-Pose 212     #买炳碞
+Pose 212     #鎗殺就位
 {
   source     0
   Start      3855
@@ -2776,7 +2776,7 @@ Pose 212     #买炳碞
     speed 1
   }
 }
-Pose 213     #买炳核非
+Pose 213     #鎗殺瞄準
 {
   source     0
   Start      3886
@@ -2784,7 +2784,7 @@ Pose 213     #买炳核非
   EffectType 0
   EffectID   0
 }
-Pose 214     #穞竟金
+Pose 214     #暗器空踢
 {
   source     0
   Start      12323
@@ -2823,7 +2823,7 @@ Pose 214     #穞竟金
     TargetPoseRight  092
   }
 }
-Pose 215     #买碞
+Pose 215     #鎗怒就位
 {
   source     0
   Start      3915
@@ -4645,7 +4645,7 @@ Pose 251     #淮4 
     Time  0.4
   }
 }
-Pose 252     #1 础癬も
+Pose 252     #匕首空重1 下插起手
 {
   source     0
   Start      9141
@@ -4712,7 +4712,7 @@ Pose 252     #1 础癬も
     Time  0.3
   }
 }
-Pose 253     #2  狜纒
+Pose 253     #匕首重2  昇龍
 {
   Source     0
   Start      9193
@@ -4796,7 +4796,7 @@ Pose 253     #2  狜纒
 }
 Pose 254
 {}
-Pose 255     #凹ю
+Pose 255     #匕首側攻
 {
   Source     0
   Start      9322
@@ -4890,7 +4890,7 @@ Pose 255     #凹ю
     Time  0.35
   }
 }
-Pose 256     #炳金
+Pose 256     #匕首空殺下踢
 {
   Source     0
   Start      9377
@@ -4946,7 +4946,7 @@ Pose 256     #炳金
     Time  0.3
   }
 }
-Pose 257     #瘆ň
+Pose 257     #匕首破防
 {
   Source     0
   Start      9415
@@ -4991,7 +4991,7 @@ Pose 257     #瘆ň
     Time  0.35
   }
 }
-Pose 258     #瘆ň尿硈础
+Pose 258     #匕首破防續連插
 {
   Source     0
   Start      9439
@@ -5122,7 +5122,7 @@ Pose 258     #瘆ň尿硈础
     Time  0.3
   }
 }
-Pose 259     #忌癬Α
+Pose 259     #匕首暴怒起式
 {
   Source     0
   Start      9531
@@ -5179,7 +5179,7 @@ Pose 259     #忌癬Α
     Color  255,255,198
   }
 }
-Pose 260     #糃淮1
+Pose 260     #劍空輕1
 {
   source     0
   Start      9702
@@ -5237,7 +5237,7 @@ Pose 260     #糃淮1
     Time  0.1
   }
 }
-Pose 261     #糃淮2
+Pose 261     #劍空輕2
 {
   source     0
   Start      9724
@@ -5289,7 +5289,7 @@ Pose 261     #糃淮2
     Time  0.2
   }
 }
-Pose 262     #糃淮1伴
+Pose 262     #劍輕1圈
 {
   source     0
   Start      9760
@@ -5346,7 +5346,7 @@ Pose 262     #糃淮1伴
     Time  0.2
   }
 }
-Pose 263     #糃淮2阑
+Pose 263     #劍輕2擊
 {
   source     0
   Start      9796
@@ -5404,7 +5404,7 @@ Pose 263     #糃淮2阑
     Time  0.25
   }
 }
-Pose 264     #糃淮3オ揣
+Pose 264     #劍輕3左揮
 {
   source     0
   Start      9835
@@ -5461,7 +5461,7 @@ Pose 264     #糃淮3オ揣
     Time  0.35
   }
 }
-Pose 265     #糃1 础癬も
+Pose 265     #劍空重1 下插起手
 {
   source     0
   Start      9873
@@ -5482,7 +5482,7 @@ Pose 265     #糃1 础癬も
     speed 1
   }
 }
-Pose 266    #糃發阑
+Pose 266    #劍重追擊
 {
   source     0
   Start      9951
@@ -5539,7 +5539,7 @@ Pose 266    #糃發阑
     Time  0.1
   }
 }
-Pose 267    #糃辟
+Pose 267    #劍重回斬
 {
   source     0
   Start      9995
@@ -5621,7 +5621,7 @@ Pose 267    #糃辟
     Time  0.15
   }
 }
-Pose 268    #糃臂
+Pose 268    #劍旋風
 {
   source     0
   Start      10026
@@ -5680,7 +5680,7 @@ Pose 268    #糃臂
     Time  0.2
   }
 }
-Pose 269     #糃オì挎辅   ┷硈274
+Pose 269     #劍重左足踵落   招連274
 {
   source     0
   Start      10063

@@ -2496,12 +2496,36 @@ MonoBehaviour:
   HeadBone: {fileID: 0}
   Camp: 1
   posMng:
+    mActiveActionIdx: 0
     CanMove: 0
     CanControl: 0
     CanChangeWeapon: 0
     Rotateing: 0
     JumpTick: 0.2
     playResultAction: 0
+  charLoader:
+    bo: []
+    Skin: {fileID: 0}
+    rootBone: {fileID: 0}
+    RootPos: {x: 0, y: 0, z: 0}
+    RootQuat: {x: 0, y: 0, z: 0, w: 0}
+    Target: {fileID: 0}
+    posMng:
+      mActiveActionIdx: 0
+      CanMove: 0
+      CanControl: 0
+      CanChangeWeapon: 0
+      Rotateing: 0
+      JumpTick: 0.2
+      playResultAction: 0
+    owner: {fileID: 0}
+    FPS: 0.033333335
+    moveDelta: {x: 0, y: 0, z: 0}
+    PoseStraight: 0
+    curIndex: 0
+    curPos: 0
+    LoopCount: 0
+    Pause: 0
   weaponLoader: {fileID: 0}
   wayIndex: 0
   OnGroundTick: 0

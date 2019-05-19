@@ -33,7 +33,7 @@ public class Menu : MonoBehaviour {
     {
         UnityWebRequest vFile = new UnityWebRequest();
         vFile.url = string.Format(Main.strSFile, Main.strHost, Main.port, Main.strProjectUrl, Main.strNewVersionName);
-        vFile.timeout = 5;
+        vFile.timeout = 10;
         DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
         vFile.downloadHandler = dH;
         yield return vFile.Send();

@@ -2009,9 +2009,8 @@ public class BattleResultWnd : Window<BattleResultWnd>
     GameObject BattleTitle;
     Transform MeteorResult;
     Transform ButterflyResult;
-    public IEnumerator SetResult(int result)
+    public void SetResult(int result)
     {
-        yield return new WaitForSeconds(0.5f);
         if (result == 1)
         {
             for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
@@ -2022,7 +2021,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
                 MeteorManager.Instance.UnitInfos[i].OnGameResult(result);
             }
         }
-        yield return new WaitForSeconds(1.5f);
+
         if (Global.Instance.GGameMode == GameMode.MENGZHU)
         {
             U3D.InsertSystemMsg("回合结束");

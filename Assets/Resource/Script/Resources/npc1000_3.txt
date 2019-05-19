@@ -30,4 +30,5 @@ end
 
 function class:OnStart()
 	class.g_self = GetSelf(class.g_selfAddr);
+	Perform(class.g_self, "guard", 99999);
 end

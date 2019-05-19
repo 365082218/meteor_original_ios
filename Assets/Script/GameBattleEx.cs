@@ -68,6 +68,8 @@ public partial class GameBattleEx : LockBehaviour {
     }
 
     int Result = -10;
+    bool showResult = false;
+    float showResultTick = 0.0f;
     //显示失败，或者胜利界面 >=1 = win <= 0 = lose 2 == none
     public void GameOver(int result)
     {
@@ -94,12 +96,11 @@ public partial class GameBattleEx : LockBehaviour {
             SfxWnd.Instance.Close();
         if (EscWnd.Exist)
             EscWnd.Instance.Close();
-        //打开结算面板
-        if (BattleResultWnd.Exist)
-            BattleResultWnd.Instance.Close();
-        BattleResultWnd.Instance.Open();
+        
         Result = result;
-        Startup.ins.StartCoroutine(BattleResultWnd.Instance.SetResult(result));
+
+        showResult = true;
+        showResultTick = 0;
 
         if (NGUICameraJoystick.instance)
             NGUICameraJoystick.instance.Lock(true);
@@ -181,6 +182,21 @@ public partial class GameBattleEx : LockBehaviour {
 
     protected override void LockUpdate()
     {
+        if (showResult)
+        {
+            if (showResultTick >= 3.0f)
+            {
+                showResultTick = 0.0f;
+                showResult = false;
+                //打开结算面板
+                if (BattleResultWnd.Exist)
+                    BattleResultWnd.Instance.Close();
+                BattleResultWnd.Instance.Open();
+                BattleResultWnd.Instance.SetResult(this.Result);
+            }
+            showResultTick += FrameReplay.deltaTime;
+            return;
+        }
         for (int i = 0; i < DeleteHandler.Count; i++)
         {
             if (UpdateHandler.Contains(DeleteHandler[i]))

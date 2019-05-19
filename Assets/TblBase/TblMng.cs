@@ -207,8 +207,9 @@ public class ActionBase:TblBase
 {
     public override string TableName { get { return "Action"; } }
     public int Idx;
-    public int IgnoreMove;//忽略动作位移
-    public int IgnoreGravity;//忽略重力
-    public int IgnoreCollision;//忽略与其他角色的碰撞
-    public int IgnoreXZVelocity;
+    public int IgnoreMove;//忽略动作位移.
+    public int IgnoreGravity;//忽略重力.
+    public int IgnoreCollision;//忽略与其他角色的碰撞.
+    public int IgnoreXZVelocity;//忽略角色在世界XZ轴速度.
+    public int IgnoreXZMove;//忽略动作在XZ轴上得位移.
 }

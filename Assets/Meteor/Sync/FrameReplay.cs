@@ -167,8 +167,8 @@ public class FrameReplay : MonoBehaviour {
     }
     public int LogicFrameIndex = 0;
     private int AccumilatedTime = 0;
-    public const float deltaTime = LogicFrameLength / 1000.0f;
-    public const int LogicFrameLength = 20;
+    public static float deltaTime = 20.0f / 1000.0f;
+    public int LogicFrameLength = 20;
     public int TurnIndex = 0;
     TurnFrames nowTurn;//当前的Turn
     public static event Action UpdateEvent;
@@ -245,15 +245,24 @@ public class FrameReplay : MonoBehaviour {
         ProtoHandler.Update();
         if (!TurnStarted)
             return;
-        //Basically same logic as FixedUpdate, but we can scale it by adjusting FrameLength
-        AccumilatedTime = AccumilatedTime + Convert.ToInt32((Time.deltaTime * 1000)); //convert sec to milliseconds
-        //in case the FPS is too slow, we may need to update the game multiple times a frame
-        while (AccumilatedTime > LogicFrameLength)
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
-            UdpClientProxy.Update();
+            //Basically same logic as FixedUpdate, but we can scale it by adjusting FrameLength
+            AccumilatedTime = AccumilatedTime + Convert.ToInt32((Time.deltaTime * 1000)); //convert sec to milliseconds
+                                                                                          //in case the FPS is too slow, we may need to update the game multiple times a frame
+            
+            while (AccumilatedTime > LogicFrameLength)
+            {
+                UdpClientProxy.Update();
+                LogicFrame();
+                //Debug.LogError("logicframe:" + LogicFrameIndex);
+                AccumilatedTime = AccumilatedTime - LogicFrameLength;
+            }
+        }
+        else
+        {
+            FrameReplay.deltaTime = Time.deltaTime;
             LogicFrame();
-            //Debug.LogError("logicframe:" + LogicFrameIndex);
-            AccumilatedTime = AccumilatedTime - LogicFrameLength;
         }
     }
 
@@ -309,9 +318,10 @@ public class FrameReplay : MonoBehaviour {
                     break;
             }
         }
-
-        UpdateEvent();
-        LateUpdateEvent();
+        if (UpdateEvent != null)
+            UpdateEvent();
+        if (LateUpdateEvent != null)
+            LateUpdateEvent();
         LogicFrameIndex++;
         //当逻辑帧为 Turn序号
         if (LogicFrameIndex == (TurnIndex + 1) * TurnMaxFrame)

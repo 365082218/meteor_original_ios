@@ -64,6 +64,9 @@ public enum FrameEvent
     RebornFriend = 34,//运气收招最后一帧复活同伴.
 }
 
+//处理一些动作得特殊事件，类似乾坤刀切换姿态，拳套快速切换武器等.
+//还处理空中下A时，从空中某个帧处开始开启重力，但是在动作播放前一段时忽略重力.
+//大刀下A POSE 298忽略重力一直到，5975帧开启重力
 public class ActionEvent : Singleton<ActionEvent>
 {
     public static List<int> LastEvents;
@@ -214,6 +217,26 @@ public class ActionEvent : Singleton<ActionEvent>
             case FrameEvent.RebornFriend:
                 owner.RebornFriend();
                 break;
+        }
+    }
+
+    //处理类似大刀空中下A，在固定帧5975开启重力
+    public static void HandlerActionEvent(MeteorUnit owner, int pos, int frame)
+    {
+        if (pos == 298 && frame == 5975)
+        {
+            //大刀空中下A
+            owner.IgnoreGravitys(false);
+        }
+        else if (pos == 235 && frame == 10973)
+        {
+            //双刺空中下A
+            owner.IgnoreGravitys(false);
+        }
+        else if (pos == 465 && frame == 14904)
+        {
+            //忍者刀空中下A
+            owner.IgnoreGravitys(false);
         }
     }
 }

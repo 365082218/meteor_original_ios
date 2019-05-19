@@ -5,7 +5,7 @@ function npc31_13()
 	class.Weapon = 55;
 	class.Weapon2 = 545;
 	class.Team = 1;
-	class.View = 400;
+	class.View = 500;
 	class.Think = 100;
 	class.Attack1 = 40;
 	class.Attack2 = 50;

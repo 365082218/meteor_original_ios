@@ -595,6 +595,7 @@ public partial class MeteorUnit : LockBehaviour
                 continue;
             if (unit.Dead)
                 continue;
+            
             float d = Vector3.Distance(transform.position, unit.transform.position);
             //隐身只能在10M内发现目标
             if (HasBuff(EBUFF_Type.HIDE))
@@ -986,29 +987,23 @@ public partial class MeteorUnit : LockBehaviour
         }
     }
 
+    public void ResetWorldVelocity(bool reset)
+    {
+        if (reset)
+        {
+            ImpluseVec.x = 0.3f * ImpluseVec.x;
+            ImpluseVec.z = 0.3f * ImpluseVec.z;
+        }
+    }
 
     public virtual void ProcessGravity()
     {
-        //死亡姿势播放完毕后，会取消掉角色的碰撞盒，就不要再计算角色的落下之类的了.
         if (!charController.enabled)
             return;
-        //计算运动方向
-        //角色forward指向人物背面
-        //根据角色状态计算重力大小，在墙壁，空中，以及空中水平轴的阻力
         float gScale = Global.Instance.gGravity;
-        //跳跃起身与墙壁碰撞.重力模拟为墙壁摩擦
-        //if (OnTouchWall)
-        //{
-        //    if (ImpluseVec.y > 0)
-        //        gScale = gGravity * 0.5f;
-        //    else
-        //        gScale = gGravity * 0.5f;
-        //}
-        //if (OnTopGround)
-        //    ImpluseVec.y = 0;
-
         Vector3 v;
         v.x = ImpluseVec.x * FrameReplay.deltaTime;
+        //过渡帧不计算重力.
         v.y = IgnoreGravity ? 0 : ImpluseVec.y * FrameReplay.deltaTime;
         v.z = ImpluseVec.z * FrameReplay.deltaTime;
         v += charLoader.moveDelta;
@@ -1017,20 +1012,18 @@ public partial class MeteorUnit : LockBehaviour
         if (OnTouchWall)
             ProcessFriction(0.3f);//爬墙或者在墙面滑动，摩擦力是地面的0.2倍
 
-        if (!IsOnGroundEx())
+        if (IgnoreGravity)
         {
-            if (IgnoreGravity)
-            {
 
-            }
-            else
-            {
-                ImpluseVec.y = ImpluseVec.y - gScale * FrameReplay.deltaTime;
-                if (ImpluseVec.y < yLimitMin)
-                    ImpluseVec.y = yLimitMin;
-            }
         }
         else
+        {
+            ImpluseVec.y = ImpluseVec.y - gScale * FrameReplay.deltaTime;
+            if (ImpluseVec.y < yLimitMin)
+                ImpluseVec.y = yLimitMin;
+        }
+
+        if (IsOnGround())
         {
             if (OnGround || OnTopGround)//如果在地面，或者顶到天花板，那么应用摩擦力.
                 ProcessFriction();
@@ -1496,6 +1489,7 @@ public partial class MeteorUnit : LockBehaviour
         if (AngryValue >= 60 || GameData.Instance.gameStatus.EnableInfiniteAngry)
         {
             posMng.ChangeAction(CommonAction.BreakOut);
+            charLoader.LockTime(0);
             AngryValue -= GameData.Instance.gameStatus.EnableInfiniteAngry ? 0 : 60;
             if (Attr.IsPlayer)
                 FightWnd.Instance.UpdateAngryBar();
@@ -1885,19 +1879,11 @@ public partial class MeteorUnit : LockBehaviour
     {
         if (charController != null && charController.enabled)
         {
-            if (Attr.IsPlayer && posMng.mActiveAction.Idx >= 60 || posMng.mActiveAction.Idx <= 65)
-                Debug.LogError("Move:" + trans);
             CollisionFlags collisionFlags = charController.Move(trans);
             UpdateFlags(collisionFlags);
         }
         else
             transform.position += trans;
-    }
-
-    public void ResetWorldVelocity(bool reset)
-    {
-        if (reset)
-            ImpluseVec.x = ImpluseVec.z = 0;
     }
 
     public void SetWorldVelocityExcludeY(Vector3 vec)
@@ -1936,28 +1922,12 @@ public partial class MeteorUnit : LockBehaviour
         //Log.Print("z:" + ImpluseVec.z);
     }
 
-    //计算水平轴的冲量 = 物体的末速度（1S内）
-    public float CalcImpluseVec(float h, float f)
-    {
-        float ret = f * Mathf.Sqrt(2 * h / f);
-        return ret;
-    }
-
-    public float CalcVelocity(float h)
-    {
-        float ret = Global.Instance.gGravity * Mathf.Sqrt(2 * h / Global.Instance.gGravity);
-        if (ret > yLimitMax)
-            ret = yLimitMax;
-        return ret;
-    }
-
     //踏墙壁跳跃,y为正常跳跃高度倍数.
     public void Jump2(int act = CommonAction.Jump)
     {
         canControlOnAir = true;
         OnGround = false;
         posMng.JumpTick = 0.0f;
-        posMng.CanAdjust = true;
         posMng.CheckClimb = true;
         posMng.ChangeAction(act);
         charLoader.SetActionScale(1.0f);
@@ -1969,7 +1939,6 @@ public partial class MeteorUnit : LockBehaviour
         canControlOnAir = true;
         OnGround = false;
         posMng.JumpTick = 0.0f;
-        posMng.CanAdjust = true;
         posMng.CheckClimb = true;
         posMng.ChangeAction(act);
         charLoader.SetActionScale(Short ? 0.5f : 1.0f);
@@ -2290,7 +2259,7 @@ public partial class MeteorUnit : LockBehaviour
     public void WeaponReturned(int poseIdx)
     {
         //219等待回收武器.
-        if (charLoader != null)
+        if (charLoader != null && posMng != null && posMng.mActiveAction != null)
         {
             if (AppInfo.Instance.MeteorVersion.Equals("1.07"))
             {

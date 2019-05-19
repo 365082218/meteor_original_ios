@@ -2035,7 +2035,7 @@ public class MeteorInput
                 {
                     direction.Normalize();
                     Vector2 runTrans = direction * mOwner.MoveSpeed;
-                    float x = runTrans.x * 0.045f, y = runTrans.y * 0.045f;
+                    float x = runTrans.x * 0.035f, y = runTrans.y * 0.035f;
                     mOwner.SetVelocity(y, x);
                     //Debug.LogError("垂直跳跃中轻微滑动摇杆");
                 }

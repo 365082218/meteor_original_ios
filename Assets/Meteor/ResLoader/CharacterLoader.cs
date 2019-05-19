@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using ProtoBuf;
 using System.Linq;
+using System;
 
 public class AABBVector
 {
@@ -11,7 +12,6 @@ public class AABBVector
     public Vector3 max;
 }
 
-//位或
 public enum PoseEvt
 {
     WeaponIsReturned = 1,
@@ -19,6 +19,7 @@ public enum PoseEvt
 
 //读取skc文件并且绘制骨骼
 //负责处理动画帧的播放
+[Serializable]
 public class CharacterLoader
 {
     SkinnedMeshRenderer rend;//绘制顶点UV,贴图，骨骼权重
@@ -250,12 +251,11 @@ public class CharacterLoader
         }
     }
 
-    bool LockCurrentFrame = false;//开始计算僵直
+    bool LockCurrentFrame = false;
     public void LockTime(float t)
     {
         PoseStraight = t;
-        if (PoseStraight == 0)
-            LockCurrentFrame = false;
+        //Debug.LogError("straight:" + t);
     }
 
     public bool IsInStraight()
@@ -338,7 +338,7 @@ public class CharacterLoader
         TryPlayEffect();
         ChangeAttack();
         ChangeWeaponTrail();
-
+        ActionEvent.HandlerActionEvent(owner, po.Idx, curIndex);
         if (PoseEvent.ContainsKey(po.Idx))
         {
             //当218发射飞轮，很快返回，还未到219动作时，下次播放219，就得立即取消循环，221 223
@@ -365,8 +365,6 @@ public class CharacterLoader
             }
             if (curIndex > po.LoopEnd)
             {
-                if (PoseStraight != 0)
-                    LockCurrentFrame = true;
                 if (curIndex > po.LoopStart)
                 {
                     LoopCount++;
@@ -414,9 +412,10 @@ public class CharacterLoader
                 bo[i].localPosition = status.BonePos;
         }
 
-        bool IgnoreActionMoves = IgnoreActionMove(po.Idx);
+        bool IgnoreActionMoves = PoseStatus.IgnoreActionMove(po.Idx);
         if (owner.IsDebugUnit())
             IgnoreActionMoves = false;
+        bool IgnoreActionXZMove = PoseStatus.IgnoreXZMove(po.Idx);
         for (int i = 0; i < dummy.Count; i++)
         {
             if (i == 0)
@@ -432,12 +431,9 @@ public class CharacterLoader
                         vec.z = 0;
                         vec.y = 0;
                     }
-                    else
+                    else if (IgnoreActionXZMove)
                     {
-                        //if (attackTarget != Vector3.zero)
-                        //{
-                        //    vec = vec.sqrMagnitude * attackTarget;
-                        //}
+                        vec.x = vec.z = 0;
                     }
                     moveDelta += vec;
                     //if (po.Idx == 151)
@@ -561,10 +557,18 @@ public class CharacterLoader
     public System.Action<int, int, int, float> OnAnimationFrame;
     public void PlayFrame(float timeRatio)
     {
-        float speedScale = GetSpeedScale();
+        //float speedScale = GetSpeedScale();
         TryPlayEffect();
         ChangeAttack();
         ChangeWeaponTrail();
+        ActionEvent.HandlerActionEvent(owner, po.Idx, curIndex);
+        if (PoseEvent.ContainsKey(po.Idx))
+        {
+            //当218发射飞轮，很快返回，还未到219动作时，下次播放219，就得立即取消循环，221 223
+            PoseEvent.Remove(po.Idx);
+            loop = false;
+            curIndex = po.LoopEnd;
+        }
         if (TestInputLink())
             return;
         if (loop)
@@ -582,8 +586,6 @@ public class CharacterLoader
 
             if (curIndex >= po.LoopEnd)
             {
-                if (PoseStraight != 0)
-                    LockCurrentFrame = true;
                 LoopCount ++;
                 PlayPosEvent();
                 if (loop)
@@ -638,13 +640,16 @@ public class CharacterLoader
             }
         }
 
-        bool IgnoreActionMoves = IgnoreActionMove(po.Idx);
+        bool IgnoreActionMoves = PoseStatus.IgnoreActionMove(po.Idx);
         if (owner.IsDebugUnit())
         {
             if (OnAnimationFrame != null)
                 OnAnimationFrame(po.SourceIdx, po.Idx, curIndex, timeRatio);
             IgnoreActionMoves = false;
         }
+
+        bool IgnoreActionXZMove = PoseStatus.IgnoreXZMove(po.Idx);
+
         if (lastStatus != null && status != null)
         {
             for (int i = 0; i < dummy.Count; i++)
@@ -662,8 +667,9 @@ public class CharacterLoader
                             vec.z = 0;
                             vec.y = 0;
                         }
-                        else
+                        else if (IgnoreActionXZMove)
                         {
+                            vec.x = vec.z = 0;
                         }
                         moveDelta += vec;
                         lastDBasePos = targetPos;
@@ -687,11 +693,10 @@ public class CharacterLoader
             moveDelta = Vector3.zero;
             if (blendTime == 0.0f)
             {
-                lastFramePlayedTimes += FrameReplay.deltaTime;
-
-                if (LockCurrentFrame && PoseStraight > 0.0f)
+                //过渡时间不算硬直，非过渡时间，算在硬直内.
+                if (PoseStraight > 0.0f)
                     PoseStraight -= FrameReplay.deltaTime;
-
+                lastFramePlayedTimes += FrameReplay.deltaTime;
                 float speedScale = owner.ActionSpeed * GetSpeedScale();
                 float fps = Global.Instance.FPS / speedScale;
                 if (lastFramePlayedTimes >= fps)
@@ -757,15 +762,8 @@ public class CharacterLoader
         }
     }
 
-    bool IgnoreActionMove(int idx)
-    {
-        ActionBase act = GameData.Instance.actionMng.GetRowByIdx(idx) as ActionBase;
-        if (act == null)
-            return false;
-        return act.IgnoreMove == 1;
-    }
-
     public float PoseStraight = 0.0f;
+    //循环动作锁定，（一直在2个帧段之间播放，待特定条件打成就退出该帧段）
     void PlayPosEvent()
     {
         if (po.Idx == CommonAction.ChangeWeapon)
@@ -795,12 +793,20 @@ public class CharacterLoader
         {
             if (mOwner.IsOnGround()) loop = false;
         }
-        else if (po.Idx == CommonAction.Struggle || po.Idx == CommonAction.Struggle0)
+        else if (po.Idx == CommonAction.Struggle || po.Idx == CommonAction.Struggle0 || po.Idx == 109 || po.Idx == 110 || po.Idx == 111 || po.Idx == 114 || po.Idx == 115)
         {
-            //在硬直中
+            //不在硬直中
+            if (!IsInStraight())
+            {
+                loop = false;
+                return;
+            }
+
+            //在硬直中锁
             if (LockCurrentFrame)
                 return;
 
+            LockCurrentFrame = true;//开始锁定帧，一直到硬直结束.
         }
         else if ((po.Idx >= CommonAction.Idle && po.Idx <= 21) || (po.Idx >= CommonAction.WalkForward && po.Idx <= CommonAction.RunOnDrug))
         {
@@ -812,8 +818,6 @@ public class CharacterLoader
         }
         else
         {
-            if (LockCurrentFrame)
-                return;
             if (mOwner.IsOnGround()) loop = false;
             //Debug.Log("PlayPosEvent:" + po.Idx);
         }
@@ -858,7 +862,7 @@ public class CharacterLoader
         effectPlayed = true;
     }
 
-    float blendTime = 0.3f;
+    public float blendTime = 0.3f;
     float playedTime = 0;
 
     Pose po;
@@ -999,6 +1003,12 @@ public class CharacterLoader
         if (curPos == CommonAction.Fall && lastPosIdx == CommonAction.BeHurted100)
         {
             mOwner.SetVelocityY(0);
+        }
+        else if (curPos == CommonAction.Struggle || curPos == CommonAction.Struggle0)
+        {
+            //如果是倒地动作，僵直最少为0.5f
+            if (PoseStraight < 0.5f)
+                LockTime(0.5f);
         }
     }
 
