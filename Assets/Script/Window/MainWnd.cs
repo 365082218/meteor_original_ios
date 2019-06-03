@@ -82,7 +82,7 @@ public class RoomChatWnd:Window<RoomChatWnd>
             Startup.ins.Sound.Stop();
             Startup.ins.Music.Stop();
             AudioClip au = AudioClip.Create("talk", audioCache[audioIndex].Length, 1, MicChat.samplingRate, false);
-            SetData(au, audioCache[audioIndex]);
+            MicChat.SetData(au, audioCache[audioIndex]);
             SoundManager.Instance.PlayClip(au);
         }
     }

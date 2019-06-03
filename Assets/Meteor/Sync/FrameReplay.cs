@@ -80,7 +80,7 @@ public class FSS:Singleton<FSS>
                 return;
             }
             TurnFrames t = frameCommand[FrameReplay.Instance.TurnIndex];
-            UdpClientProxy.Exec((int)MeteorMsg.MsgType.SyncTurnReq, t);
+            UdpClientProxy.Exec((int)MeteorMsg.MsgType.SyncCommand, t);
         }
         else
         {
@@ -309,9 +309,9 @@ public class FrameReplay : MonoBehaviour {
                     switch (actions[i].command)
                     {
                         case MeteorMsg.Command.SyncRandomSeed:
-                            UnityEngine.Random.InitState((int)actions[i].data1);
+                            UnityEngine.Random.InitState((int)actions[i].flag1);
                             break;
-                        case MeteorMsg.Command.CreatePlayer:
+                        case MeteorMsg.Command.SpawnPlayer:
                             GameBattleEx.Instance.OnCreateNetPlayer(null);
                             break;
                     }

@@ -67,7 +67,7 @@ public static class MicChat
         bytes = ChatWnd.ConvertBytesZlib(bytes, Ionic.Zlib.CompressionMode.Decompress);
 
         float[] data = new float[bytes.Length / 4];
-        Buffer.BlockCopy(bytes, 0, data, 0, data.Length);
+        System.Buffer.BlockCopy(bytes, 0, data, 0, data.Length);
 
         clip.SetData(data, 0);
     }

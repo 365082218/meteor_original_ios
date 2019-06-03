@@ -114,7 +114,7 @@ class ProtoHandler
                             //    OnUserDead(userDeadRsp);
                             //    break;
                             //收到服务器的帧同步信息.
-                            case (int)MeteorMsg.MsgType.SyncTurnRsp:
+                            case (int)MeteorMsg.MsgType.SyncCommand:
                                 ms = new MemoryStream(each.Value);
                                 TurnFrames t = ProtoBuf.Serializer.Deserialize<TurnFrames>(ms);
                                 FSC.Instance.OnReceiveCommand(t);

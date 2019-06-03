@@ -448,17 +448,19 @@ public class Common
     //离开战斗场景,向帧同步服务器发送帧事件-离开
     public static void SendLeaveLevel()
     {
-        UdpClientProxy.Exec((int)MeteorMsg.MsgType.SyncCommand, );
+        //FrameCommand fc = FSS.Instance.Command();
+        //fc.command
+        //UdpClientProxy.Exec((int)MeteorMsg.MsgType.SyncCommand, );
     }
 
     public static void SendEnterLevel(int model, int weapon, int camp)
     {
         //UnityEngine.Debug.LogError("sendEnterLevel " + UnityEngine.Time.frameCount);
-        EnterLevelReq req = new EnterLevelReq();
-        req.camp = (uint)camp;//暂时全部为盟主模式
-        req.model = (uint)model;
-        req.weapon = (uint)weapon;
-        Exec(TcpClientProxy.sProxy, (int)MeteorMsg.MsgType.EnterLevelReq, req);
+        //EnterLevelReq req = new EnterLevelReq();
+        //req.camp = (uint)camp;//暂时全部为盟主模式
+        //req.model = (uint)model;
+        //req.weapon = (uint)weapon;
+        //Exec(TcpClientProxy.sProxy, (int)MeteorMsg.MsgType.EnterLevelReq, req);
     }
 
     //创建房间.
