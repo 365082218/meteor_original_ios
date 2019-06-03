@@ -128,7 +128,7 @@ public class FSS:Singleton<FSS>
         cmd.message = message;
         cmd.command = command;
         cmd.LogicFrame = (uint)frame;
-        cmd.playerId = 0;
+        cmd.playerId = (uint)NetWorkBattle.Instance.PlayerId;
         t.commands.Add(cmd);
     }
 

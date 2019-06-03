@@ -11,6 +11,7 @@ using Idevgame.Util;
 using System.Net;
 using UnityEngine.Networking;
 using DG.Tweening;
+using Ionic.Zlib;
 
 public class RoomChatWnd:Window<RoomChatWnd>
 {
@@ -44,8 +45,8 @@ public class RoomChatWnd:Window<RoomChatWnd>
     }
 
     //加入声音UI按钮
-    Dictionary<int, List<float>> audioCache = new Dictionary<int, List<float>>();
-    public void Add(int playerId, List<float> audio)
+    Dictionary<int, byte[]> audioCache = new Dictionary<int, byte[]>();
+    public void Add(int playerId, byte[] audio)
     {
         if (Root.transform.childCount >= 20)
         {
@@ -72,14 +73,16 @@ public class RoomChatWnd:Window<RoomChatWnd>
         vscrollBar.value = 0;
     }
 
+
+
     void OnPlayAudio(int audioIndex)
     {
         if (audioCache.ContainsKey(audioIndex))
         {
             Startup.ins.Sound.Stop();
             Startup.ins.Music.Stop();
-            AudioClip au = AudioClip.Create("talk", audioCache[audioIndex].Count, 1, 8000, false);
-            au.SetData(audioCache[audioIndex].ToArray(), 0);
+            AudioClip au = AudioClip.Create("talk", audioCache[audioIndex].Length, 1, MicChat.samplingRate, false);
+            SetData(au, audioCache[audioIndex]);
             SoundManager.Instance.PlayClip(au);
         }
     }
@@ -203,9 +206,24 @@ public class ChatWnd : Window<ChatWnd>
         }
     }
 
+    public static byte[] ConvertBytesZlib(byte[] data, CompressionMode compressionMode)
+    {
+        CompressionMode mode = compressionMode;
+        if (mode != CompressionMode.Compress)
+        {
+            if (mode != CompressionMode.Decompress)
+            {
+                throw new NotImplementedException();
+            }
+            return ZlibStream.UncompressBuffer(data);
+        }
+        return ZlibStream.CompressBuffer(data);
+    }
+
     bool recording = false;
-    float[] audioData;
+    byte[] audioData;
     AudioSource source;
+    AudioClip clip;
     Button Listen;
     GameObject CountDown;
     float RecordTick = 0;
@@ -214,11 +232,12 @@ public class ChatWnd : Window<ChatWnd>
         if (recording)
         {
             SoundManager.Instance.Mute(false);
-            int length = MicChat.GetClipDataLength();
-            audioData = new float[length];
-            MicChat.StopRecord(audioData);
+            int length = 0;
+            clip = null;
+            MicChat.EndRecording(out length, out clip);
             recording = false;
             CountDown.SetActive(false);
+            audioData = clip.GetData();
             if (audioData != null && audioData.Length != 0)
                 Listen.gameObject.SetActive(true);
             Control("Record", WndObject).GetComponentInChildren<Text>().text = "录音";
@@ -230,24 +249,26 @@ public class ChatWnd : Window<ChatWnd>
         {
             //把音效和音乐全部静止
             SoundManager.Instance.Mute(true);
-            MicChat.StartRecord();
-            recording = true;
-            Control("Record", WndObject).GetComponentInChildren<Text>().text = "停止";
-            if (Listen == null)
+            recording = MicChat.TryStartRecording();
+            if (recording)
             {
-                GameObject objListen = Control("Listen", WndObject);
-                Listen = objListen.GetComponent<Button>();
-                objListen.SetActive(false);
+                Control("Record", WndObject).GetComponentInChildren<Text>().text = "停止";
+                if (Listen == null)
+                {
+                    GameObject objListen = Control("Listen", WndObject);
+                    Listen = objListen.GetComponent<Button>();
+                    objListen.SetActive(false);
+                }
+                else
+                {
+                    Listen.gameObject.SetActive(false);
+                }
+                CountDown.SetActive(true);
+                GameBattleEx.Instance.RegisterHandler(Update);
+                RecordTick = 0;
+                nSeconds = Mathf.CeilToInt(MicChat.maxRecordTime - RecordTick);
+                CountDown.GetComponentInChildren<Text>().text = string.Format("录制中{0}", nSeconds);
             }
-            else
-            {
-                Listen.gameObject.SetActive(false);
-            }
-            CountDown.SetActive(true);
-            GameBattleEx.Instance.RegisterHandler(Update);
-            RecordTick = 0;
-            nSeconds = Mathf.CeilToInt(MicChat.MaxLength - RecordTick);
-            CountDown.GetComponentInChildren<Text>().text = string.Format("录制中{0}", nSeconds);
         }
     }
 
@@ -262,7 +283,7 @@ public class ChatWnd : Window<ChatWnd>
         }
         else
         {
-            int i = Mathf.CeilToInt(MicChat.MaxLength - RecordTick);
+            int i = Mathf.CeilToInt(MicChat.maxRecordTime - RecordTick);
             if (nSeconds != i)
             {
                 nSeconds = i;

@@ -334,11 +334,11 @@ public class Common
         Exec(TcpClientProxy.sProxy,(int)MeteorMsg.MsgType.ChatInRoomReq, msg);
     }
 
-    public static void SendAudioMessage(float [] data)
+    public static void SendAudioMessage(byte [] data)
     {
         AudioChatMsg msg = new AudioChatMsg();
         msg.type = 0;
-        msg.audio_data.AddRange(data);
+        msg.audio_data = data;
         msg.playerId = (uint)NetWorkBattle.Instance.PlayerId;
         Exec(TcpClientProxy.sProxy, (int)MeteorMsg.MsgType.AudioChat, msg);
     }
@@ -413,7 +413,7 @@ public class Common
 
     public static void SyncTurn(TurnFrames turn)
     {
-        Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.SyncTurnReq, turn);
+        UdpClientProxy.Exec((int)protocol.MeteorMsg.MsgType.SyncCommand, turn);
     }
 
     public static void SendUpdateGameServer()
@@ -445,9 +445,10 @@ public class Common
         Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.JoinRoomReq, req);
     }
 
+    //离开战斗场景,向帧同步服务器发送帧事件-离开
     public static void SendLeaveLevel()
     {
-        Exec(TcpClientProxy.sProxy, (int)MeteorMsg.MsgType.LeaveRoomReq);
+        UdpClientProxy.Exec((int)MeteorMsg.MsgType.SyncCommand, );
     }
 
     public static void SendEnterLevel(int model, int weapon, int camp)
