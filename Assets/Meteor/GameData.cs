@@ -56,7 +56,7 @@ public class RoomSetting
     public int Mode;//创建单机时选择的模式
     public int Life;//创建单机时选择的生命上限
     public int Weapon0;//创建单机时选择的武器1
-    public int Weapon1;//创建单机时选择的武器2
+    public int Weapon1;//创建单机时选择的武器2-联机无效
     public int ChapterTemplate;//剧本模板+关卡模板，唯一定义了一个地图.
     public int LevelTemplate;//创建单机时选择的场景
     public int Model;//创建单机时的角色模型
@@ -64,6 +64,8 @@ public class RoomSetting
     public int MaxPlayer;//创建单机时的初始角色个数
     public string RoomName;//房间名称
     public bool DisallowSpecialWeapon;//创建房间时禁用远程武器
+    public int Version;//联机时-版本号
+    public int Pattern;//普通/录制/播放录像
     public RoomSetting()
     {
         LevelTemplate = 22;
@@ -75,6 +77,8 @@ public class RoomSetting
         Life = 200;
         Mode = (int)GameMode.MENGZHU;
         DisallowSpecialWeapon = true;
+        Version = AppInfo.Instance.MeteorVersion.Equals("9.07") ? (int)protocol.RoomInfo.MeteorVersion.V907 : (int)protocol.RoomInfo.MeteorVersion.V107;
+        Pattern = 0;
     }
 }
 
@@ -97,12 +101,12 @@ public class GameState
     public bool EnableDebugRobot;//调试角色按钮。
     public bool _EnableInfiniteAngry;
     public float UIAlpha = 1.0f;
-    public RoomSetting Single = new RoomSetting();
-    public RoomSetting NetWork = new RoomSetting();
-    public Dictionary<string, string> LocalMovie = new Dictionary<string, string>();
-    public List<ModelItem> pluginModel = new List<ModelItem>();
-    public List<Chapter> pluginChapter = new List<Chapter>();
-    public List<NpcTemplate> pluginNpc = new List<NpcTemplate>();
+    public RoomSetting Single = new RoomSetting();//单机房间设置
+    public RoomSetting NetWork = new RoomSetting();//联机房间设置
+    public Dictionary<string, string> LocalMovie = new Dictionary<string, string>();//已更新到本地的
+    public List<ModelItem> pluginModel = new List<ModelItem>();//已安装的新模型
+    public List<Chapter> pluginChapter = new List<Chapter>();//已安装的新章节-资料片
+    public List<NpcTemplate> pluginNpc = new List<NpcTemplate>();//已更新的新NPC定义-资料片内有引用
     public void RegisterModel(ModelItem item)
     {
         if (pluginModel == null)

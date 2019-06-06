@@ -65,7 +65,14 @@ public class AppInfo:Singleton<AppInfo>
 
     public const int ProtocolVersion = 20190404;//对战协议版本，在网络初始化后，如果服务器协议版本与此数字相等，则可以进行联机对战，否则需要更新到最新版本
     public string MeteorVersion = "9.07";
-
+    public int MeteorV1()
+    {
+        return (int)Instance.MeteorV2();
+    }
+    public protocol.RoomInfo.MeteorVersion MeteorV2()
+    {
+        return Instance.MeteorVersion.Equals("9.07") ? protocol.RoomInfo.MeteorVersion.V907 : protocol.RoomInfo.MeteorVersion.V107;
+    }
     public int GetWaitForNextInput()
     {
         return Application.targetFrameRate * 12 / 30;

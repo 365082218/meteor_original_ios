@@ -10,7 +10,6 @@ public class NetWorkBattle:Singleton<NetWorkBattle> {
 
     private float mLogicTempTime = 0;
     //在房间的玩家.
-    Dictionary<int, protocol.Player_> playerInfo = new Dictionary<int, Player_>();
     Dictionary<int, MeteorUnit> player = new Dictionary<int, MeteorUnit>();
     public int RoomId = -1;//房间在服务器的编号
     public int LevelId = -1;//房间场景关卡编号

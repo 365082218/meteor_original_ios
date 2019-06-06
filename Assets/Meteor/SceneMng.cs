@@ -183,19 +183,20 @@ class SceneMng:Singleton<SceneMng>
         return null;
     }
 
-    public MonsterEx InitNetPlayer(Player_ player)
+    public MonsterEx InitNetPlayer(PlayerEventData player)
     {
         MonsterEx ret = new MonsterEx();
-        ret.hpCur = player.hp;
         ret.HpMax = (int)RoomMng.Instance.GetRoom(NetWorkBattle.Instance.RoomId).hpMax;
+        ret.hpCur = ret.HpMax;
         ret.AngryValue = 0;
-        ret.Model = player.model;
+        ret.Model = (int)player.model;
         ret.Weapon = (int)player.weapon;
         ret.Weapon2 = (int)0;
         ret.name = player.name;
-        ret.SpawnPoint = player.spawnpoint;
+
+        ret.SpawnPoint = U3D.Rand(16);
         ret.Speed = 1000;
-        ret.IsPlayer = player.id == NetWorkBattle.Instance.PlayerId;
+        ret.IsPlayer = player.playerId == NetWorkBattle.Instance.PlayerId;
         return ret;
     }
 

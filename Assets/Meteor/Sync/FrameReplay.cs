@@ -102,17 +102,21 @@ public class FSS:Singleton<FSS>
         PushAction(frame, message, command);
     }
 
-    //在当前帧推入指令
+    //在当前帧推入指令-鼠标相对上次的偏移，会导致角色绕Y轴旋转
     public void PushMouseDelta(int playerId, float x, float y)
     {
         TurnFrames t = GetTurnByFrame(FrameReplay.Instance.NextFrame);
         FrameCommand cmd = new FrameCommand();
-        cmd.message = MeteorMsg.MsgType.SyncCommand;
+        cmd.command = MeteorMsg.Command.JoyStickMove;
         //cmd.command = MeteorMsg.Command.MouseDelta;
         cmd.LogicFrame = (uint)FrameReplay.Instance.NextFrame % FrameReplay.TurnMaxFrame;
         cmd.playerId = (uint)playerId;
-        //cmd.data5 = x;
-        //cmd.data6 = y;
+        System.IO.MemoryStream ms = new System.IO.MemoryStream();
+        Vector2_ vec = new Vector2_();
+        vec.x = (int)x * 1000;
+        vec.y = (int)y * 1000;
+        ProtoBuf.Serializer.Serialize<Vector2_>(ms, vec);
+        cmd.data = ms.ToArray();
         t.commands.Add(cmd);
     }
 
@@ -125,10 +129,10 @@ public class FSS:Singleton<FSS>
     {
         TurnFrames t = GetTurnByFrame(frame);
         FrameCommand cmd = new FrameCommand();
-        cmd.message = message;
         cmd.command = command;
         cmd.LogicFrame = (uint)frame;
         cmd.playerId = (uint)NetWorkBattle.Instance.PlayerId;
+
         t.commands.Add(cmd);
     }
 
@@ -171,6 +175,8 @@ public class FrameReplay : MonoBehaviour {
     public int LogicFrameLength = 20;
     public int TurnIndex = 0;
     TurnFrames nowTurn;//当前的Turn
+
+
     public static event Action UpdateEvent;
     public static event Action LateUpdateEvent;
 
@@ -200,7 +206,7 @@ public class FrameReplay : MonoBehaviour {
         else
         {
             //发送同步随机种子事件
-            FSS.Instance.Command(1, MeteorMsg.MsgType.SyncCommand, MeteorMsg.Command.SyncRandomSeed);
+            //FSS.Instance.Command(1, MeteorMsg.MsgType.SyncCommand, MeteorMsg.Command.SyncRandomSeed);
             //发送创建主角色事件.
             //FSS.Instance.Command(2, MeteorMsg.MsgType.SyncCommand, MeteorMsg.Command.CreatePlayer);
             //向客户端发送首包.
@@ -244,7 +250,11 @@ public class FrameReplay : MonoBehaviour {
     {
         ProtoHandler.Update();
         if (!TurnStarted)
+        {
+            if (OnUpdates != null)
+                OnUpdates();
             return;
+        }
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
             //Basically same logic as FixedUpdate, but we can scale it by adjusting FrameLength
@@ -266,6 +276,8 @@ public class FrameReplay : MonoBehaviour {
         }
     }
 
+    public delegate void OnUpdate();
+    public event OnUpdate OnUpdates;//在战斗还未开始时
     //取得对应逻辑帧的数据
     List<FrameCommand> cacheActions = new List<FrameCommand>();
     List<FrameCommand> GetAction(List<FrameCommand> acts, int logicF)
@@ -303,18 +315,16 @@ public class FrameReplay : MonoBehaviour {
         //Log.WriteError(string.Format("Turn:{0}, LogicFrame:{1}", nowTurn.turnIndex, LogicFrameIndex));//从这里开始，播放逻辑帧，在取得自己进入场景消息帧时，初始化主角
         for (int i = 0; i < actions.Count; i++)
         {
-            switch (actions[i].message)
+            switch (actions[i].command)
             {
-                case MeteorMsg.MsgType.SyncCommand:
-                    switch (actions[i].command)
-                    {
-                        case MeteorMsg.Command.SyncRandomSeed:
-                            UnityEngine.Random.InitState((int)actions[i].flag1);
-                            break;
-                        case MeteorMsg.Command.SpawnPlayer:
-                            GameBattleEx.Instance.OnCreateNetPlayer(null);
-                            break;
-                    }
+                case MeteorMsg.Command.SyncRandomSeed:
+                    SyncInitData seed = ProtoBuf.Serializer.Deserialize<SyncInitData>(new System.IO.MemoryStream(actions[i].data));
+                    UnityEngine.Random.InitState((int)seed.randomSeed);
+                    break;
+                case MeteorMsg.Command.SpawnPlayer:
+                    System.IO.MemoryStream ms = new System.IO.MemoryStream(actions[i].data);
+                    PlayerEventData evt = ProtoBuf.Serializer.Deserialize<PlayerEventData>(ms);
+                    GameBattleEx.Instance.OnCreateNetPlayer(evt);
                     break;
             }
         }

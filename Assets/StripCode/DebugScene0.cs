@@ -41,8 +41,6 @@ public class DebugScene0 : MonoBehaviour {
     }
 	
     float t = 0;
-
-
     void Update()
     {
         t += Time.deltaTime * DebugUtil.speedScale;
@@ -53,8 +51,8 @@ public class DebugScene0 : MonoBehaviour {
         }
         while (t >= FrameReplay.deltaTime)
         {
-            FrameReplay.InvokeLockUpdate();
-            FrameReplay.InvokeLateUpdate();
+            FrameReplay.InvokeLockUpdate();//锁定帧
+            FrameReplay.InvokeLateUpdate();//在锁定帧后
             t -= FrameReplay.deltaTime;
         }
     }

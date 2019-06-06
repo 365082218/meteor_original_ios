@@ -119,12 +119,6 @@ namespace protocol
       [global::ProtoBuf.ProtoEnum(Name=@"OnBattleResultDetail", Value=143)]
       OnBattleResultDetail = 143,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"OnPlayerSellItem", Value=144)]
-      OnPlayerSellItem = 144,
-            
-      [global::ProtoBuf.ProtoEnum(Name=@"OnPlayerBuyItem", Value=145)]
-      OnPlayerBuyItem = 145,
-            
       [global::ProtoBuf.ProtoEnum(Name=@"OnPlayerQuit", Value=146)]
       OnPlayerQuit = 146,
             
@@ -157,14 +151,26 @@ namespace protocol
       [global::ProtoBuf.ProtoEnum(Name=@"KeyUp", Value=3)]
       KeyUp = 3,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"BtnClick", Value=4)]
-      BtnClick = 4,
+      [global::ProtoBuf.ProtoEnum(Name=@"SpawnPlayer", Value=4)]
+      SpawnPlayer = 4,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"SpawnPlayer", Value=5)]
-      SpawnPlayer = 5,
+      [global::ProtoBuf.ProtoEnum(Name=@"DestroyPlayer", Value=5)]
+      DestroyPlayer = 5,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"DestroyPlayer", Value=6)]
-      DestroyPlayer = 6
+      [global::ProtoBuf.ProtoEnum(Name=@"JoyStickMove", Value=100)]
+      JoyStickMove = 100,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"EquipWeapon", Value=101)]
+      EquipWeapon = 101,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"DropWeapon", Value=102)]
+      DropWeapon = 102,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SellItem", Value=200)]
+      SellItem = 200,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"BuyItem", Value=201)]
+      BuyItem = 201
     }
   
     private global::ProtoBuf.IExtension extensionObject;
@@ -183,23 +189,6 @@ namespace protocol
     {
       get { return _key; }
       set { _key = value; }
-    }
-    private global::ProtoBuf.IExtension extensionObject;
-    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
-      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
-  }
-  
-  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"BtnClickData")]
-  public partial class BtnClickData : global::ProtoBuf.IExtensible
-  {
-    public BtnClickData() {}
-    
-    private uint _id;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public uint id
-    {
-      get { return _id; }
-      set { _id = value; }
     }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
@@ -255,6 +244,13 @@ namespace protocol
     {
       get { return _weapon; }
       set { _weapon = value; }
+    }
+    private string _name;
+    [global::ProtoBuf.ProtoMember(5, IsRequired = true, Name=@"name", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public string name
+    {
+      get { return _name; }
+      set { _name = value; }
     }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
@@ -681,8 +677,11 @@ namespace protocol
       [global::ProtoBuf.ProtoEnum(Name=@"_Normal", Value=1)]
       _Normal = 1,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"_Replay", Value=2)]
-      _Replay = 2
+      [global::ProtoBuf.ProtoEnum(Name=@"_Record", Value=2)]
+      _Record = 2,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"_Replay", Value=3)]
+      _Replay = 3
     }
   
     [global::ProtoBuf.ProtoContract(Name=@"MeteorVersion")]
@@ -730,7 +729,7 @@ namespace protocol
     public GetRoomRsp() {}
     
     private readonly global::System.Collections.Generic.List<RoomInfo> _RoomInLobby = new global::System.Collections.Generic.List<RoomInfo>();
-    [global::ProtoBuf.ProtoMember(2, Name=@"RoomInLobby", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::ProtoBuf.ProtoMember(1, Name=@"RoomInLobby", DataFormat = global::ProtoBuf.DataFormat.Default)]
     public global::System.Collections.Generic.List<RoomInfo> RoomInLobby
     {
       get { return _RoomInLobby; }
@@ -810,11 +809,26 @@ namespace protocol
       get { return _secret; }
       set { _secret = value; }
     }
-    private readonly global::System.Collections.Generic.List<float> _replay_data = new global::System.Collections.Generic.List<float>();
-    [global::ProtoBuf.ProtoMember(10, Name=@"replay_data", DataFormat = global::ProtoBuf.DataFormat.FixedSize)]
-    public global::System.Collections.Generic.List<float> replay_data
+    private byte[] _replay_data = null;
+    [global::ProtoBuf.ProtoMember(10, IsRequired = false, Name=@"replay_data", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue(null)]
+    public byte[] replay_data
     {
       get { return _replay_data; }
+      set { _replay_data = value; }
+    }
+    private readonly global::System.Collections.Generic.List<uint> _models = new global::System.Collections.Generic.List<uint>();
+    [global::ProtoBuf.ProtoMember(11, Name=@"models", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public global::System.Collections.Generic.List<uint> models
+    {
+      get { return _models; }
+    }
+  
+    private readonly global::System.Collections.Generic.List<uint> _weapons = new global::System.Collections.Generic.List<uint>();
+    [global::ProtoBuf.ProtoMember(12, Name=@"weapons", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public global::System.Collections.Generic.List<uint> weapons
+    {
+      get { return _weapons; }
     }
   
     private global::ProtoBuf.IExtension extensionObject;
@@ -932,6 +946,20 @@ namespace protocol
       get { return _playerId; }
       set { _playerId = value; }
     }
+    private readonly global::System.Collections.Generic.List<uint> _models = new global::System.Collections.Generic.List<uint>();
+    [global::ProtoBuf.ProtoMember(6, Name=@"models", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public global::System.Collections.Generic.List<uint> models
+    {
+      get { return _models; }
+    }
+  
+    private readonly global::System.Collections.Generic.List<uint> _weapons = new global::System.Collections.Generic.List<uint>();
+    [global::ProtoBuf.ProtoMember(7, Name=@"weapons", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public global::System.Collections.Generic.List<uint> weapons
+    {
+      get { return _weapons; }
+    }
+  
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
@@ -942,26 +970,40 @@ namespace protocol
   {
     public EnterLevelReq() {}
     
+    private uint _player;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"player", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public uint player
+    {
+      get { return _player; }
+      set { _player = value; }
+    }
     private uint _camp;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"camp", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"camp", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     public uint camp
     {
       get { return _camp; }
       set { _camp = value; }
     }
     private uint _model;
-    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"model", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"model", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     public uint model
     {
       get { return _model; }
       set { _model = value; }
     }
     private uint _weapon;
-    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"weapon", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::ProtoBuf.ProtoMember(4, IsRequired = true, Name=@"weapon", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     public uint weapon
     {
       get { return _weapon; }
       set { _weapon = value; }
+    }
+    private string _name;
+    [global::ProtoBuf.ProtoMember(5, IsRequired = true, Name=@"name", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public string name
+    {
+      get { return _name; }
+      set { _name = value; }
     }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
@@ -992,148 +1034,6 @@ namespace protocol
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
   }
   
-  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"Vector3_")]
-  public partial class Vector3_ : global::ProtoBuf.IExtensible
-  {
-    public Vector3_() {}
-    
-    private int _x;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"x", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public int x
-    {
-      get { return _x; }
-      set { _x = value; }
-    }
-    private int _y;
-    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"y", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public int y
-    {
-      get { return _y; }
-      set { _y = value; }
-    }
-    private int _z;
-    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"z", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public int z
-    {
-      get { return _z; }
-      set { _z = value; }
-    }
-    private global::ProtoBuf.IExtension extensionObject;
-    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
-      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
-  }
-  
-  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"Quaternion_")]
-  public partial class Quaternion_ : global::ProtoBuf.IExtensible
-  {
-    public Quaternion_() {}
-    
-    private int _x;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"x", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public int x
-    {
-      get { return _x; }
-      set { _x = value; }
-    }
-    private int _y;
-    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"y", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public int y
-    {
-      get { return _y; }
-      set { _y = value; }
-    }
-    private int _z;
-    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"z", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public int z
-    {
-      get { return _z; }
-      set { _z = value; }
-    }
-    private int _w;
-    [global::ProtoBuf.ProtoMember(4, IsRequired = true, Name=@"w", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public int w
-    {
-      get { return _w; }
-      set { _w = value; }
-    }
-    private global::ProtoBuf.IExtension extensionObject;
-    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
-      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
-  }
-  
-  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"Player_")]
-  public partial class Player_ : global::ProtoBuf.IExtensible
-  {
-    public Player_() {}
-    
-    private uint _id;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"id", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public uint id
-    {
-      get { return _id; }
-      set { _id = value; }
-    }
-    private string _name;
-    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"name", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    public string name
-    {
-      get { return _name; }
-      set { _name = value; }
-    }
-    private uint _weapon;
-    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"weapon", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public uint weapon
-    {
-      get { return _weapon; }
-      set { _weapon = value; }
-    }
-    private Vector3_ _pos;
-    [global::ProtoBuf.ProtoMember(4, IsRequired = true, Name=@"pos", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    public Vector3_ pos
-    {
-      get { return _pos; }
-      set { _pos = value; }
-    }
-    private Quaternion_ _rotation;
-    [global::ProtoBuf.ProtoMember(5, IsRequired = true, Name=@"rotation", DataFormat = global::ProtoBuf.DataFormat.Default)]
-    public Quaternion_ rotation
-    {
-      get { return _rotation; }
-      set { _rotation = value; }
-    }
-    private int _model;
-    [global::ProtoBuf.ProtoMember(6, IsRequired = true, Name=@"model", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public int model
-    {
-      get { return _model; }
-      set { _model = value; }
-    }
-    private int _hp;
-    [global::ProtoBuf.ProtoMember(7, IsRequired = true, Name=@"hp", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public int hp
-    {
-      get { return _hp; }
-      set { _hp = value; }
-    }
-    private int _camp;
-    [global::ProtoBuf.ProtoMember(8, IsRequired = true, Name=@"camp", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public int camp
-    {
-      get { return _camp; }
-      set { _camp = value; }
-    }
-    private int _spawnpoint;
-    [global::ProtoBuf.ProtoMember(9, IsRequired = true, Name=@"spawnpoint", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public int spawnpoint
-    {
-      get { return _spawnpoint; }
-      set { _spawnpoint = value; }
-    }
-    private global::ProtoBuf.IExtension extensionObject;
-    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
-      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
-  }
-  
   [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"FrameCommand")]
   public partial class FrameCommand : global::ProtoBuf.IExtensible
   {
@@ -1154,51 +1054,19 @@ namespace protocol
       get { return _playerId; }
       set { _playerId = value; }
     }
-    private MeteorMsg.MsgType _message;
-    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"message", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public MeteorMsg.MsgType message
-    {
-      get { return _message; }
-      set { _message = value; }
-    }
     private MeteorMsg.Command _command;
-    [global::ProtoBuf.ProtoMember(4, IsRequired = true, Name=@"command", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"command", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
     public MeteorMsg.Command command
     {
       get { return _command; }
       set { _command = value; }
     }
-    private uint _flag1 = default(uint);
-    [global::ProtoBuf.ProtoMember(5, IsRequired = false, Name=@"flag1", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(uint))]
-    public uint flag1
+    private byte[] _data;
+    [global::ProtoBuf.ProtoMember(4, IsRequired = true, Name=@"data", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public byte[] data
     {
-      get { return _flag1; }
-      set { _flag1 = value; }
-    }
-    private uint _flag2 = default(uint);
-    [global::ProtoBuf.ProtoMember(6, IsRequired = false, Name=@"flag2", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(uint))]
-    public uint flag2
-    {
-      get { return _flag2; }
-      set { _flag2 = value; }
-    }
-    private uint _flag3 = default(uint);
-    [global::ProtoBuf.ProtoMember(7, IsRequired = false, Name=@"flag3", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(uint))]
-    public uint flag3
-    {
-      get { return _flag3; }
-      set { _flag3 = value; }
-    }
-    private uint _flag4 = default(uint);
-    [global::ProtoBuf.ProtoMember(8, IsRequired = false, Name=@"flag4", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    [global::System.ComponentModel.DefaultValue(default(uint))]
-    public uint flag4
-    {
-      get { return _flag4; }
-      set { _flag4 = value; }
+      get { return _data; }
+      set { _data = value; }
     }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)

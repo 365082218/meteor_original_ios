@@ -293,27 +293,18 @@ public class U3D : MonoBehaviour {
         MeteorManager.Instance.LocalPlayer.controller.InputLocked = false;
     }
 
-    public static MeteorUnit InitNetPlayer(Player_ player)
+    public static MeteorUnit InitNetPlayer(PlayerEventData player)
     {
         MonsterEx mon = SceneMng.Instance.InitNetPlayer(player);
         GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
-        Vector3 spawnPos;
-        spawnPos.x = player.pos.x;
-        spawnPos.y = player.pos.y;
-        spawnPos.z = player.pos.z;
-        Quaternion quat;
-        quat.w = player.rotation.w;
-        quat.x = player.rotation.x;
-        quat.y = player.rotation.y;
-        quat.z = player.rotation.z;
-
+        
         GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
         MeteorUnit unit = ins.GetComponent<MeteorUnit>();
         if (mon.IsPlayer)
             MeteorManager.Instance.LocalPlayer = unit;
         unit.Camp = (EUnitCamp)player.camp; 
         unit.Init(mon.Model, mon);
-        MeteorManager.Instance.OnGenerateUnit(unit, (int)player.id);
+        MeteorManager.Instance.OnGenerateUnit(unit, (int)player.playerId);
         unit.SetGround(false);
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
@@ -343,8 +334,10 @@ public class U3D : MonoBehaviour {
         }
         else
         {
-            unit.transform.position = spawnPos;
-            unit.transform.rotation = quat;
+            //Vector3 spawnPos;
+            //Quaternion quat;
+            //unit.transform.position = spawnPos;
+            //unit.transform.rotation = quat;
         }
         return unit;
     }
@@ -1605,5 +1598,13 @@ public class U3D : MonoBehaviour {
         GameData.Instance.gameStatus.pluginNpc.Clear();
         Global.Instance.PluginUpdated = false;
         GameData.Instance.SaveState();
+    }
+
+    /// <summary>
+    /// 加载路径内的指令文件-供播放
+    /// </summary>
+    public static byte[] LoadReplayData()
+    {
+        return null;
     }
 }

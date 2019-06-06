@@ -119,6 +119,12 @@ class ProtoHandler
                                 TurnFrames t = ProtoBuf.Serializer.Deserialize<TurnFrames>(ms);
                                 FSC.Instance.OnReceiveCommand(t);
                                 break;
+                            //case (int)MeteorMsg.MsgType.ExitQueueRsp:
+                            //    OnExitQueue();
+                            //    break;
+                            case (int)MeteorMsg.MsgType.EnterQueueRsp:
+                                OnEnterQueue();
+                                break;
                         }
                     }
                 }
@@ -155,6 +161,19 @@ class ProtoHandler
     {
         lock (messageQueue)
             messageQueue.Add(msg);
+    }
+
+    //进入排队得到了回复
+    static void OnEnterQueue()
+    {
+        if (MatchWnd.Exist)
+            MatchWnd.Instance.OnEnterQueue();
+    }
+    //离开了排队
+    static void OnExitQueue()
+    {
+        if (MatchWnd.Exist)
+            MatchWnd.Instance.OnLeaveQueue();
     }
 
     //某人发来一段语音,显示一个按钮，点击了就播放这段语音即可.
@@ -310,7 +329,7 @@ class ProtoHandler
         }
         else
         {
-            U3D.PopupTip("创建房间失败");
+            U3D.PopupTip("创建房间失败");//无论什么失败，都不开启KCP模块
         }
     }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 
 using System;
+using protocol;
 
 public enum SceneEvent
 {
@@ -167,19 +168,9 @@ public partial class GameBattleEx : LockBehaviour {
     GameObject SelectTarget;
     float timeDelay = 1;
     List<int> UnitActKeyDeleted = new List<int>();
-    List<Action> UpdateHandler = new List<Action>();
-    List<Action> DeleteHandler = new List<Action>();
-    public void DeletesHandler(Action fun)
-    {
-        if (!DeleteHandler.Contains(fun))
-            DeleteHandler.Add(fun);
-    }
-    public void RegisterHandler(Action fun)
-    {
-        if (!UpdateHandler.Contains(fun))
-            UpdateHandler.Add(fun);
-    }
-
+    //战斗场景时，需要每一帧执行的.
+    public delegate void OnUpdate();
+    public event OnUpdate OnUpdates;
     protected override void LockUpdate()
     {
         if (showResult)
@@ -197,16 +188,9 @@ public partial class GameBattleEx : LockBehaviour {
             showResultTick += FrameReplay.deltaTime;
             return;
         }
-        for (int i = 0; i < DeleteHandler.Count; i++)
-        {
-            if (UpdateHandler.Contains(DeleteHandler[i]))
-                UpdateHandler.Remove(DeleteHandler[i]);
-        }
-        DeleteHandler.Clear();
-        for (int i = 0; i < UpdateHandler.Count; i++)
-        {
-            UpdateHandler[i].Invoke();
-        }
+
+        OnUpdates();
+
         if (Global.Instance.PauseAll)
             return;
 
@@ -532,7 +516,7 @@ public partial class GameBattleEx : LockBehaviour {
         }
     }
 
-    public void OnCreateNetPlayer(protocol.Player_ player)
+    public void OnCreateNetPlayer(PlayerEventData player)
     {
         MeteorUnit unit = U3D.InitNetPlayer(player);
         U3D.InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));

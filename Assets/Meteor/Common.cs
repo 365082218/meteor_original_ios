@@ -440,9 +440,20 @@ public class Common
     {
         JoinRoomReq req = new JoinRoomReq();
         req.roomId = (uint)roomId;
-        req.version = AppInfo.Instance.MeteorVersion.Equals("9.07") ? RoomInfo.MeteorVersion.V907:RoomInfo.MeteorVersion.V107;
+        req.version = AppInfo.Instance.MeteorV2();
         req.password = sec;
-        Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.JoinRoomReq, req);
+        Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.JoinRoomReq, req);//进入房间-还未进入战场，战前准备阶段
+    }
+
+    public static void EnterQueue()
+    {
+        Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.EnterQueueReq);
+    }
+
+    //在排队中-退出排队
+    public static void LeaveQueue()
+    {
+        Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ExitQueueReq);
     }
 
     //离开战斗场景,向帧同步服务器发送帧事件-离开
@@ -468,12 +479,19 @@ public class Common
     {
         CreateRoomReq req = new CreateRoomReq();
         req.hpMax = (uint)GameData.Instance.gameStatus.NetWork.Life;
+        //章节编号×1000 + 关卡序号
         req.levelIdx = (uint)GameData.Instance.gameStatus.NetWork.ChapterTemplate * 1000 + (uint)GameData.Instance.gameStatus.NetWork.LevelTemplate;
         req.maxPlayer = (uint)GameData.Instance.gameStatus.NetWork.MaxPlayer;
         req.roomName = name;
         req.roundTime = (uint)GameData.Instance.gameStatus.NetWork.RoundTime;
         req.rule = (RoomInfo.RoomRule)GameData.Instance.gameStatus.NetWork.Mode;
         req.secret = sec;
+        req.version = AppInfo.Instance.MeteorV2();//107 907
+        req.pattern = (RoomInfo.RoomPattern)GameData.Instance.gameStatus.NetWork.Pattern;
+        if (req.pattern == RoomInfo.RoomPattern._Replay)
+            ;//向服务器发送某个录像文件
+        else if (req.pattern == RoomInfo.RoomPattern._Record)
+            ;//服务器保存录像文件，在单轮结束后
         Exec(TcpClientProxy.sProxy, (int)MeteorMsg.MsgType.CreateRoomReq, req);
         //1,人数上限
         //2.关卡模式

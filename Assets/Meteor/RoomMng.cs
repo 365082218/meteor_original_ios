@@ -18,6 +18,8 @@ public class RoomMng : Singleton<RoomMng> {
             info.roomId = (uint)id;
             info.roomName = GameData.Instance.gameStatus.NetWork.RoomName;
             info.rule = (RoomInfo.RoomRule)GameData.Instance.gameStatus.NetWork.Mode;
+            info.version = (RoomInfo.MeteorVersion)GameData.Instance.gameStatus.NetWork.Version;
+            info.pattern = (RoomInfo.RoomPattern)GameData.Instance.gameStatus.NetWork.Pattern;
             rooms.Add(info);
         }
         else

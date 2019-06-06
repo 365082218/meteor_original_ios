@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+
 public class LoadingWnd : Window<LoadingWnd>, LoadingUI
 {
 	Image mProgressBar;
@@ -20,7 +21,7 @@ public class LoadingWnd : Window<LoadingWnd>, LoadingUI
 		
 
         Material loadingTexture = null;
-        if (!string.IsNullOrEmpty(Global.Instance.GLevelItem.BgTexture))
+        if (Global.Instance.GLevelItem != null && !string.IsNullOrEmpty(Global.Instance.GLevelItem.BgTexture))
             loadingTexture = Resources.Load<Material>(Global.Instance.GLevelItem.BgTexture) as Material;
         else
             loadingTexture = Resources.Load<Material>("Scene10") as Material;

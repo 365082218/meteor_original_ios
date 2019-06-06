@@ -307,7 +307,7 @@ class TcpClientProxy
             try
             {
                 int port = 0;
-                port = Global.Instance.Server.ServerPort;
+                port = 7201;//Global.Instance.Server.ServerPort;
                 if (Global.Instance.Server.type == 1)
                 {
                     IPAddress address = IPAddress.Parse(Global.Instance.Server.ServerIP);

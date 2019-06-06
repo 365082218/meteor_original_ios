@@ -242,7 +242,7 @@ public class ChatWnd : Window<ChatWnd>
                 Listen.gameObject.SetActive(true);
             Control("Record", WndObject).GetComponentInChildren<Text>().text = "录音";
             if (GameBattleEx.Instance != null)
-                GameBattleEx.Instance.DeletesHandler(Update);
+                GameBattleEx.Instance.OnUpdates -= Update;
             return;
         }
         else
@@ -264,7 +264,7 @@ public class ChatWnd : Window<ChatWnd>
                     Listen.gameObject.SetActive(false);
                 }
                 CountDown.SetActive(true);
-                GameBattleEx.Instance.RegisterHandler(Update);
+                GameBattleEx.Instance.OnUpdates += Update;
                 RecordTick = 0;
                 nSeconds = Mathf.CeilToInt(MicChat.maxRecordTime - RecordTick);
                 CountDown.GetComponentInChildren<Text>().text = string.Format("录制中{0}", nSeconds);
@@ -276,7 +276,7 @@ public class ChatWnd : Window<ChatWnd>
     void Update()
     {
         Debug.Log("chatwnd update");
-        RecordTick += Time.deltaTime;
+        RecordTick += FrameReplay.deltaTime;
         if (RecordTick >= 8)
         {
             Record();
@@ -324,6 +324,7 @@ public class RoomOptionWnd:Window<RoomOptionWnd>
 
     int[] ConstRoundTime = { 15, 30, 60 };
     int[] ConstPlayer = { 2, 4, 8, 12, 16 };
+    protocol.RoomInfo.RoomPattern[] ConstPattern = { protocol.RoomInfo.RoomPattern._Normal, protocol.RoomInfo.RoomPattern._Record, RoomInfo.RoomPattern._Replay };
     InputField roomName;
     InputField roomSecret;
     void Init()
@@ -401,6 +402,29 @@ public class RoomOptionWnd:Window<RoomOptionWnd>
                     GameData.Instance.gameStatus.NetWork.MaxPlayer = ConstPlayer[k];
             });
         }
+        GameObject GameRecord = Control("GameRecord", WndObject);
+        GameRecord.SetActive(GameData.Instance.gameStatus.NetWork.Pattern != (int)protocol.RoomInfo.RoomPattern._Normal);
+        GameObject UIFuncItem = Control("UIFuncItem", GameRecord);
+        GameObject filePath = Control("FilePath", GameRecord);
+        filePath.GetComponent<Text>().text = "";
+        UIFuncItem.GetComponent<Button>().onClick.AddListener(()=> {
+            if (!RecordSelectWnd.Exist)
+                RecordSelectWnd.Instance.Open();
+        });
+        GameObject PatternGroup = Control("PatternGroup", WndObject);
+        for (int i = 0; i < 3; i++)
+        {
+            Toggle PatternToggle = Control(string.Format("{0}", i), PatternGroup).GetComponent<Toggle>();
+            var k = i;
+            PatternToggle.isOn = GameData.Instance.gameStatus.NetWork.Pattern == (int)ConstPattern[k];
+            PatternToggle.onValueChanged.AddListener((bool selected) =>
+            {
+                if (selected)
+                    GameData.Instance.gameStatus.NetWork.Pattern = (int)ConstPattern[k];
+                //隐藏/打开选择录像文件路径面板.
+                GameRecord.SetActive(GameData.Instance.gameStatus.NetWork.Pattern != (int)protocol.RoomInfo.RoomPattern._Normal);
+            });
+        }
     }
 
     Level select;
@@ -439,6 +463,141 @@ public class RoomOptionWnd:Window<RoomOptionWnd>
         obj.GetComponentInChildren<Text>().text = lev.Name;
         obj.transform.localPosition = Vector3.zero;
         obj.transform.localScale = Vector3.one;
+    }
+}
+
+//显示选择本地录像文件路径（存储到/选择）
+public class RecordSelectWnd:Window<RecordSelectWnd>
+{
+    public override string PrefabName
+    {
+        get
+        {
+            return "RecordSelectWnd";
+        }
+    }
+
+    protected override bool OnOpen()
+    {
+        Init();
+        return base.OnOpen();
+    }
+
+    protected override bool OnClose()
+    {
+        if (refreshRec != null)
+        {
+            Startup.ins.StopCoroutine(refreshRec);
+            refreshRec = null;
+        }
+        return base.OnClose();
+    }
+
+    static int recCurrent;
+    List<string> recList;
+    GameObject root;
+    Coroutine refreshRec;
+    GameObject Prefab;
+    void Init()
+    {
+        if (recList == null)
+            recList = new List<string>();
+        string recDir = string.Format("{0}/record/", Application.persistentDataPath);
+        if (System.IO.Directory.Exists(recDir))
+        {
+            string[] files = System.IO.Directory.GetFiles(recDir);
+            for (int i = 0; i < files.Length; i++)
+                recList.Add(files[i]);
+        }
+        else
+        {
+            System.IO.Directory.CreateDirectory(recDir);
+        }
+
+        //一次加载全部录像存到
+        root = Control("content");
+        recCurrent = 0;
+        //打开本地已存储的录像列表，UI上带新建，选择，删除，关闭/退出等
+        Control("Colse").GetComponent<Button>().onClick.AddListener(()=> {
+            Close();
+        });
+
+        Control("Deleted").GetComponent<Button>().onClick.AddListener(() => {
+            //如果当前选择了某个录像，则删除
+            if (recCurrent != -1 && recList.Count > recCurrent)
+                recList.RemoveAt(recCurrent);
+        });
+
+        Control("Create").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            //创建一个文件
+            for (int i = 0; i < recList.Count; i++)
+            {
+                string s = string.Format("{0}/rec/{1}", Application.persistentDataPath, i + ".mrc");
+                if (recList[i] != s)
+                {
+                    if (!System.IO.File.Exists(s))
+                    {
+                        System.IO.File.Create(s);
+                        recList.Insert(i, s);
+                        RefreshAuto();
+                        return;
+                    }
+                }
+            }
+            
+            string file = string.Format("{0}/rec/{1}", Application.persistentDataPath, recList.Count + ".mrc");
+            if (!System.IO.File.Exists(file))
+            {
+                System.IO.File.Create(file);
+                recList.Add(file);
+                RefreshAuto();
+                return;
+            }
+
+            U3D.PopupTip("无法创建更多录像文件");
+        });
+
+        Prefab = Resources.Load("ButtonNormal") as GameObject;
+        if (recList.Count != 0)
+        {
+            refreshRec = Startup.ins.StartCoroutine(Refresh());
+        }
+    }
+
+    void RefreshAuto()
+    {
+        if (refreshRec != null)
+        {
+            Startup.ins.StopCoroutine(refreshRec);
+            refreshRec = null;
+        }
+
+        refreshRec = Startup.ins.StartCoroutine(Refresh());
+    }
+
+    IEnumerator Refresh()
+    {
+        for (int i = 0; i < recList.Count; i++)
+        {
+            AddRecOnGrid(recList[i]);
+            yield return 0;
+        }
+    }
+
+    void AddRecOnGrid(string rec)
+    {
+        GameObject btn = GameObject.Instantiate(Prefab);
+        btn.transform.SetParent(root.transform);
+        btn.transform.localPosition = Vector3.zero;
+        btn.transform.localRotation = Quaternion.identity;
+        btn.transform.localScale = Vector3.one;
+        btn.GetComponentInChildren<Text>().text = rec;
+        btn.GetComponent<Button>().onClick.AddListener(()=> {
+            string r = rec;
+            recCurrent = recList.IndexOf(r);
+            btn.GetComponentInChildren<Text>().color = Color.blue;
+        });
     }
 }
 
@@ -781,12 +940,94 @@ public class MatchWnd:Window<MatchWnd>
 
     protected override bool OnClose()
     {
+        FrameReplay.Instance.OnUpdates -= Update;
         return base.OnClose();
     }
 
+    Text TimesUsed;
+    GameObject btnLeave;
+    const int EnterQueueTimeOut = 5000;
+    const int LeaveQueueTimeOut = 5001;
     void Init()
     {
+        //排队预计时间-从排队包里取
+        Control("TimesLeft").GetComponent<Text>().text = "03:00";
+        TimesUsed = Control("TimesUsed").GetComponent<Text>();
+        TimesUsed.text = "00:00";
+        btnLeave = Control("Leave");
+        btnLeave.GetComponent<Button>().onClick.AddListener(() => {
+            MainLobby.Instance.Open();
+            Close();
+        });
+        Control("Enter").GetComponent<Button>().onClick.AddListener(()=> {
+            LoadingEX.Instance.Open();
+            Common.EnterQueue();
+            TimersMng.Instance.SetTimer(EnterQueueTimeOut, 5, OnEnterTimeOut);
+        });
+        Control("Quit").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            quit = true;
+            TimesUsed.text = "00:00";
+            tick = 0;
+            LoadingEX.Instance.Open();
+            TimersMng.Instance.SetTimer(LeaveQueueTimeOut, 5, OnLeaveTimeOut);
+            Common.LeaveQueue();
+        });
+    }
 
+    public void OnLeaveTimeOut()
+    {
+        LoadingEX.Instance.Close();
+        TimersMng.Instance.KillTimer(LeaveQueueTimeOut);
+    }
+
+    public void OnEnterTimeOut()
+    {
+        LoadingEX.Instance.Close();
+        TimersMng.Instance.KillTimer(EnterQueueTimeOut);
+    }
+
+    public void OnEnterQueue()
+    {
+        LoadingEX.Instance.Close();
+        TimersMng.Instance.KillTimer(EnterQueueTimeOut);
+        FrameReplay.Instance.OnUpdates += Update;
+        btnLeave.SetActive(false);
+    }
+
+    public void OnLeaveQueue()
+    {
+        LoadingEX.Instance.Close();
+        TimersMng.Instance.KillTimer(EnterQueueTimeOut);
+        FrameReplay.Instance.OnUpdates -= Update;
+        queue = false;
+        btnLeave.SetActive(true);
+    }
+
+    float tick = 0;
+    int TotalSeconds = 0;
+    bool quit = false;//等待退出
+    bool queue = false;//排队中
+    void Update()
+    {
+        tick += Time.deltaTime;
+        if (quit)
+        {
+            if (tick >= 5.0)
+                OnLeaveQueue();
+            return;
+        }
+        int left = Mathf.FloorToInt(tick);
+        if (left < 0)
+            left = 0;
+        if (left <= TotalSeconds)
+            return;
+        TotalSeconds = left;
+        int minute = left / 60;
+        int seconds = left % 60;
+        string t = "";
+        t = string.Format("{0:D2}:{1:D2}", minute, seconds);
+        TimesUsed.text = t;
     }
 }
 

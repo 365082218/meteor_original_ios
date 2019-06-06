@@ -154,7 +154,7 @@ public class FightWnd : Window<FightWnd>
         UpdateUIButton();
         
 
-        GameBattleEx.Instance.RegisterHandler(Update);
+        GameBattleEx.Instance.OnUpdates += Update;
         CanvasGroup[] c = WndObject.GetComponentsInChildren<CanvasGroup>();
         for (int i = 0; i < c.Length; i++)
             c[i].alpha = GameData.Instance.gameStatus.UIAlpha;
@@ -442,7 +442,7 @@ public class FightWnd : Window<FightWnd>
     protected override bool OnClose()
     {
         if (GameBattleEx.Instance != null)
-            GameBattleEx.Instance.DeletesHandler(Update);
+            GameBattleEx.Instance.OnUpdates -= Update;
         return base.OnClose();
     }
 
