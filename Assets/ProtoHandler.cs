@@ -62,11 +62,11 @@ class ProtoHandler
                                 GetRoomRsp rspG = ProtoBuf.Serializer.Deserialize<GetRoomRsp>(ms);
                                 OnGetRoomRsp(rspG);
                                 break;
-                            //case (int)MeteorMsg.MsgType.JoinRoomRsp:
-                            //    ms = new MemoryStream(each.Value);
-                            //    JoinRoomRsp rspJ = ProtoBuf.Serializer.Deserialize<JoinRoomRsp>(ms);
-                            //    ClientJoinRoomRsp(rspJ);
-                            //    break;
+                            case (int)MeteorMsg.MsgType.JoinRoomRsp:
+                                ms = new MemoryStream(each.Value);
+                                JoinRoomRsp rspJ = ProtoBuf.Serializer.Deserialize<JoinRoomRsp>(ms);
+                                ClientJoinRoomRsp(rspJ);
+                                break;
                             //case (int)MeteorMsg.MsgType.OnJoinRoomRsp:
                             //    ms = new MemoryStream(each.Value);
                             //    OnEnterRoomRsp rspE = ProtoBuf.Serializer.Deserialize<OnEnterRoomRsp>(ms);
@@ -113,17 +113,20 @@ class ProtoHandler
                             //    UserId userDeadRsp = ProtoBuf.Serializer.Deserialize<UserId>(ms);
                             //    OnUserDead(userDeadRsp);
                             //    break;
-                            //收到服务器的帧同步信息.
-                            case (int)MeteorMsg.MsgType.SyncCommand:
-                                ms = new MemoryStream(each.Value);
-                                TurnFrames t = ProtoBuf.Serializer.Deserialize<TurnFrames>(ms);
-                                FSC.Instance.OnReceiveCommand(t);
-                                break;
+
                             //case (int)MeteorMsg.MsgType.ExitQueueRsp:
                             //    OnExitQueue();
                             //    break;
                             case (int)MeteorMsg.MsgType.EnterQueueRsp:
                                 OnEnterQueue();
+                                break;
+
+                            //帧同步信息-UDP
+                            //收到服务器的帧同步信息.
+                            case (int)MeteorMsg.MsgType.SyncCommand:
+                                ms = new MemoryStream(each.Value);
+                                GameFrames t = ProtoBuf.Serializer.Deserialize<GameFrames>(ms);
+                                FSC.Instance.OnReceiveCommand(t);
                                 break;
                         }
                     }
@@ -321,11 +324,12 @@ class ProtoHandler
     //自己建房间成功，则转到选人界面.与加入房间一个德行
     static void OnCreateRoomRsp(CreateRoomRsp rsp)
     {
+        U3D.PopupTip("创建房间回应");
         if (rsp.result == 1)
         {
             GameOverlayWnd.Instance.InsertSystemMsg(string.Format("创建房间 编号:{0}", rsp.roomId));
             RoomMng.Instance.Register((int)rsp.roomId, true);
-            Common.SendJoinRoom((int)rsp.roomId);
+            ClientAutoJoinRoom(rsp);
         }
         else
         {
@@ -339,6 +343,27 @@ class ProtoHandler
     //    //显示某某进入房间的文字
     //    GameOverlayWnd.Instance.InsertSystemMsg(string.Format("{0} 进入房间", rsp.playerNick));
     //}
+
+    //创建房间OK时自动进入房间.
+    static void ClientAutoJoinRoom(CreateRoomRsp rsp)
+    {
+        if (NetWorkBattle.Instance.RoomId == -1)
+        {
+            //选人，或者阵营，或者
+            if (MainLobby.Exist)
+                MainLobby.Instance.Close();
+            if (RoomOptionWnd.Exist)
+                RoomOptionWnd.Instance.Close();
+            NetWorkBattle.Instance.OnEnterRoomSuccessed((int)rsp.roomId, (int)rsp.levelId, (int)rsp.playerId);
+            UdpClientProxy.Connect((int)rsp.port, (int)rsp.playerId);
+            RoomInfo r = RoomMng.Instance.GetRoom((int)rsp.roomId);
+            //如果是盟主模式，无需选择阵营
+            if (r.rule == RoomInfo.RoomRule.MZ)
+                RoleSelectWnd.Instance.Open();
+            else
+                CampSelectWnd.Instance.Open();
+        }
+    }
 
     //自己进入房间的消息被服务器处理，返回给自己
     static void ClientJoinRoomRsp(JoinRoomRsp rsp)
@@ -357,6 +382,7 @@ class ProtoHandler
                 if (RoomOptionWnd.Exist)
                     RoomOptionWnd.Instance.Close();
                 NetWorkBattle.Instance.OnEnterRoomSuccessed((int)rsp.roomId, (int)rsp.levelIdx, (int)rsp.playerId);
+                UdpClientProxy.Connect((int)rsp.port, (int)rsp.playerId);
                 RoomInfo r = RoomMng.Instance.GetRoom((int)rsp.roomId);
                 //如果是盟主模式，无需选择阵营
                 if (r.rule == RoomInfo.RoomRule.MZ)
@@ -397,7 +423,8 @@ class ProtoHandler
         }
         else
         {
-            U3D.PopupTip(string.Format("当前版本与服务器版本不匹配,消息{0}", rsp.message));
+            U3D.PopupTip(string.Format("客户端版本过低-无法连接到服务器"));
+            TcpClientProxy.Exit();
         }
     }
 

@@ -1,24 +1,23 @@
 ﻿
 using ProtoBuf;
+using protocol;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using UnityEngine;
 
 //处理与服务器的Udp链接，当进入房间服务器时
 class UdpClientProxy
 {
-    private static IPEndPoint remote;
-    private static UdpClient udp;
-    private static KCP kcp;
-    static PacketProxy packetProxy;
-    private static float updateTime;
-    private static bool willDisconnect;
+    private static IPEndPoint Remote;
+    private static UdpClient Client;
+    private static KCP Kcp;
+    static PacketProxy PacketProxy;
+    private static float UpdateTime;
+    private static bool WillDisconnect;
     public static Dictionary<int, byte[]> Packet;
     public static void Init()
     {
@@ -33,21 +32,20 @@ class UdpClientProxy
         private set;
     }
 
-    public static bool Connect(int port)
+    public static bool Connect(int port, int playerId)
     {
         if (Connected)
         {
             return false;
         }
 
-        udp = new UdpClient(TcpClientProxy.server.Address.ToString(), port);
-        kcp = new KCP(1, SendWrap);
-        kcp.NoDelay(1, 10, 2, 1);
-        kcp.WndSize(128, 128);
+        Client = new UdpClient(TcpClientProxy.server.Address.ToString(), port);
+        Kcp = new KCP((uint)playerId, SendWrap);
+        Kcp.NoDelay(1, 10, 2, 1);
+        Kcp.WndSize(128, 128);
         Receive();
-        updateTime = 0;
+        UpdateTime = 0;
         Connected = true;
-        
         return true;
     }
 
@@ -58,25 +56,25 @@ class UdpClientProxy
             return;
         }
 
-        if (willDisconnect)
+        if (WillDisconnect)
         {
             Disconnect();
-            willDisconnect = false;
+            WillDisconnect = false;
 
             return;
         }
 
-        updateTime += FrameReplay.deltaTime;
-        kcp.Update((uint)Mathf.FloorToInt(updateTime * 1000));
+        UpdateTime += FrameReplay.deltaTime;
+        Kcp.Update((uint)Mathf.FloorToInt(UpdateTime * 1000));
 
-        for (var size = kcp.PeekSize(); size > 0; size = kcp.PeekSize())
+        for (var size = Kcp.PeekSize(); size > 0; size = Kcp.PeekSize())
         {
             var buffer = new byte[size];
-            int n = kcp.Recv(buffer);
+            int n = Kcp.Recv(buffer);
             if (n > 0)
             {
-                packetProxy.SetBuffer(buffer);
-                packetProxy.Analysis(n, Packet);
+                PacketProxy.SetBuffer(buffer);
+                PacketProxy.Analysis(n, Packet);
             }
         }
     }
@@ -88,39 +86,57 @@ class UdpClientProxy
             return false;
         }
         Connected = false;
-        udp.Close();
+        Client.Close();
         return true;
     }
 
     private static void Receive()
     {
-        udp.BeginReceive(ReceiveCallback, null);
+        Client.BeginReceive(ReceiveCallback, null);
     }
 
     private static void ReceiveCallback(IAsyncResult ar)
     {
         try
         {
-            var data = udp.EndReceive(ar, ref remote);
+            var data = Client.EndReceive(ar, ref Remote);
 
             if (data != null)
             {
-                kcp.Input(data);
+                Kcp.Input(data);
             }
 
             Receive();
         }
         catch (SocketException)
         {
-            willDisconnect = true;
+            WillDisconnect = true;
         }
     }
 
     private static void SendCallback(IAsyncResult ar)
     {
-        udp.EndSend(ar);
+        Client.EndSend(ar);
     }
 
+    public static void Exec(int msg)
+    {
+        byte[] Length = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(8));
+        byte[] wIdent = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(msg));
+        byte[] data = new byte[8];
+        Buffer.BlockCopy(Length, 0, data, 0, 4);
+        Buffer.BlockCopy(wIdent, 0, data, 4, 4);
+        try
+        {
+            Kcp.Send(data);
+        }
+        catch (Exception exp)
+        {
+            Log.WriteError(exp.Message);
+        }
+    }
+
+    //发送UDP帧同步包-主消息synccommand
     public static void Exec<T>(int msg, T rsp)
     {
         MemoryStream ms = new MemoryStream();
@@ -135,7 +151,7 @@ class UdpClientProxy
         Buffer.BlockCopy(wIdent, 0, data, 4, 4);
         try
         {
-            kcp.Send(data);
+            Kcp.Send(data);
         }
         catch (Exception exp)
         {
@@ -147,12 +163,33 @@ class UdpClientProxy
     {
         try
         {
-            udp.BeginSend(data, size, SendCallback, null);
+            Client.BeginSend(data, size, SendCallback, null);
         }
         catch (SocketException)
         {
             Disconnect();
         }
+    }
+
+    public static void EnterLevel(int model, int weapon, int camp)
+    {
+        PlayerEventData req = new PlayerEventData();
+        req.camp = (uint)camp;//暂时全部为盟主模式
+        req.model = (uint)model;
+        req.weapon = (uint)weapon;
+        req.playerId = (uint)NetWorkBattle.Instance.PlayerId;
+        Exec((int)MeteorMsg.Command.SpawnPlayer, req);
+    }
+
+    public static void LeaveLevel()
+    {
+        PlayerEventData req = new PlayerEventData();
+        req.camp = (uint)NetWorkBattle.Instance.camp;//暂时全部为盟主模式
+        req.model = (uint)NetWorkBattle.Instance.heroIdx;
+        req.weapon = (uint)NetWorkBattle.Instance.weaponIdx;
+        req.playerId = (uint)NetWorkBattle.Instance.PlayerId;
+        Exec((int)MeteorMsg.Command.DestroyPlayer, req);
+        NetWorkBattle.Instance.OnDisconnect();
     }
 }
 
@@ -170,7 +207,7 @@ class TcpClientProxy
     {
         ProtoHandler.RegisterPacket(Packet);
     }
-
+    const int delay = 10000;
     public static void ReStart()
     {
         quit = false;
@@ -188,6 +225,12 @@ class TcpClientProxy
 
     public static void TryConn(object param)
     {
+        if (sProxy != null && sProxy.Connected)
+        {
+            if (tConn != null)
+                tConn.Change(Timeout.Infinite, Timeout.Infinite);
+            return;
+        }
         sProxy.BeginConnect(server, OnTcpConnect, sProxy);
         if (tConn != null)
             tConn.Change(Timeout.Infinite, Timeout.Infinite);
@@ -211,7 +254,7 @@ class TcpClientProxy
             result.Result = 0;
             ProtoHandler.PostMessage(result);
             if (tConn != null)
-                tConn.Change(5000, 5000);
+                tConn.Change(delay, delay);
             return;
         }
 
@@ -307,7 +350,7 @@ class TcpClientProxy
             try
             {
                 int port = 0;
-                port = 7201;//Global.Instance.Server.ServerPort;
+                port = Global.Instance.Server.ServerPort;
                 if (Global.Instance.Server.type == 1)
                 {
                     IPAddress address = IPAddress.Parse(Global.Instance.Server.ServerIP);
@@ -328,6 +371,16 @@ class TcpClientProxy
     }
 
     public static Socket sProxy = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+    //检查链接是否超过3次失败，超过时
+    public static void CheckNeedReConnect()
+    {
+        //如果没连接上，或者尝试已终止
+        if (quit || sProxy == null || !sProxy.Connected)
+        {
+            ReStart();
+        }
+    }
+
     public static void Exit()
     {
         quit = true;
@@ -375,16 +428,5 @@ class TcpClientProxy
     public static void JoinRoom(int roomId)
     {
         Common.SendJoinRoom(roomId);
-    }
-
-    public static void EnterLevel(int model, int weapon, int camp)
-    {
-        Common.SendEnterLevel(model, weapon, camp);
-    }
-
-    public static void LeaveLevel()
-    {
-        Common.SendLeaveLevel();
-        NetWorkBattle.Instance.OnDisconnect();
     }
 }

@@ -28,15 +28,12 @@ public class AutoMsgCtrl : MonoBehaviour {
         for (int i = 0; i < transform.childCount; i++)
             GameObject.Destroy(transform.GetChild(i).gameObject);
         tick = lastTime + alphaTime;
-        StartCoroutine(SortMessage());
     }
 
-    void Start() {
 
-    }
 
     // Update is called once per frame
-    void Update() {
+    protected void Update() {
         if (type == MsgCtrlType.Default)
         {
             if (transform.childCount == 0)
@@ -62,6 +59,26 @@ public class AutoMsgCtrl : MonoBehaviour {
         else if (type == MsgCtrlType.Stack)
         {
             //最多同时显示2条消息.
+        }
+
+        if (Time.timeSinceLevelLoad - lastTick > 1f && msg.Count != 0)
+        {
+            GameObject obj = new GameObject();
+            obj.name = (transform.childCount + 1).ToString();
+            Text txt = obj.AddComponent<Text>();
+            txt.text = msg[0];
+            //00AAFFFF
+            txt.font = Startup.ins.TextFont;
+            txt.fontSize = 32;
+            txt.alignment = TextAnchor.MiddleLeft;
+            txt.raycastTarget = false;
+            txt.color = new Color(1.0f, 1.0f, 1.0f, 1f);
+            obj.transform.SetParent(transform);
+            obj.transform.localScale = Vector3.one;
+            obj.transform.localPosition = Vector3.zero;
+            obj.transform.localRotation = Quaternion.identity;
+            lastTick = Time.timeSinceLevelLoad;
+            msg.RemoveAt(0);
         }
     }
 
@@ -94,33 +111,5 @@ public class AutoMsgCtrl : MonoBehaviour {
             obj.transform.localRotation = Quaternion.identity;
             lastTick = Time.timeSinceLevelLoad;
         }
-    }
-
-    IEnumerator SortMessage()
-    {
-        while (true)
-        {
-            if (Time.timeSinceLevelLoad - lastTick > 1f && msg.Count != 0)
-            {
-                GameObject obj = new GameObject();
-                obj.name = (transform.childCount + 1).ToString();
-                Text txt = obj.AddComponent<Text>();
-                txt.text = msg[0];
-                //00AAFFFF
-                txt.font = Startup.ins.TextFont;
-                txt.fontSize = 32;
-                txt.alignment = TextAnchor.MiddleLeft;
-                txt.raycastTarget = false;
-                txt.color = new Color(1.0f, 1.0f, 1.0f, 1f);
-                obj.transform.SetParent(transform);
-                obj.transform.localScale = Vector3.one;
-                obj.transform.localPosition = Vector3.zero;
-                obj.transform.localRotation = Quaternion.identity;
-                lastTick = Time.timeSinceLevelLoad;
-                msg.RemoveAt(0);
-            }
-            yield return 0;
-        }
-        
     }
 }

@@ -78,7 +78,7 @@ public class RoomSetting
         Mode = (int)GameMode.MENGZHU;
         DisallowSpecialWeapon = true;
         Version = AppInfo.Instance.MeteorVersion.Equals("9.07") ? (int)protocol.RoomInfo.MeteorVersion.V907 : (int)protocol.RoomInfo.MeteorVersion.V107;
-        Pattern = 0;
+        Pattern = 1;
     }
 }
 

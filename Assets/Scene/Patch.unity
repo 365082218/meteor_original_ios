@@ -4193,9 +4193,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c4a20ab84e0c0241b74ea4b4706a284, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TurnStarted: 0
+  Started: 0
   LogicFrameIndex: 0
-  TurnIndex: 0
+  LogicFrameLength: 20
 --- !u!4 &2044160629
 Transform:
   m_ObjectHideFlags: 0

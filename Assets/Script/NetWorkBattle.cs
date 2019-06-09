@@ -134,6 +134,7 @@ public class NetWorkBattle:Singleton<NetWorkBattle> {
     {
         if (RoomId != -1)
         {
+            UdpClientProxy.Disconnect();
             //在联机战斗场景中.
             GameBattleEx.Instance.Pause();
             SoundManager.Instance.StopAll();
@@ -154,10 +155,12 @@ public class NetWorkBattle:Singleton<NetWorkBattle> {
         RoomName = "";
     }
 
-    //选择好了角色和武器，向服务器发出进入房间请求.
+    //选择好了角色和武器，向服务器发出进入战场请求.
     public void EnterLevel()
     {
-        TcpClientProxy.EnterLevel(heroIdx, weaponIdx, camp);
+        //加载地图场景-开始和服务器同步历史帧信息.
+        LoadNetLevel();
+        UdpClientProxy.EnterLevel(heroIdx, weaponIdx, camp);
     }
 
     //进入房间，还未进入战场，选阵营/人/武器界面

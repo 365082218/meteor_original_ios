@@ -946,10 +946,18 @@ public class MatchWnd:Window<MatchWnd>
 
     Text TimesUsed;
     GameObject btnLeave;
-    const int EnterQueueTimeOut = 5000;
-    const int LeaveQueueTimeOut = 5001;
+    System.Timers.Timer EnterQueueTimeOut;
+    System.Timers.Timer LeaveQueueTimeOut;
     void Init()
     {
+        EnterQueueTimeOut = new System.Timers.Timer(5000);
+        EnterQueueTimeOut.Elapsed += new System.Timers.ElapsedEventHandler(OnEnterTimeOut);
+        EnterQueueTimeOut.AutoReset = false;
+
+        LeaveQueueTimeOut = new System.Timers.Timer(5000);
+        LeaveQueueTimeOut.Elapsed += new System.Timers.ElapsedEventHandler(OnLeaveTimeOut);
+        LeaveQueueTimeOut.AutoReset = false;
+
         //排队预计时间-从排队包里取
         Control("TimesLeft").GetComponent<Text>().text = "03:00";
         TimesUsed = Control("TimesUsed").GetComponent<Text>();
@@ -962,7 +970,7 @@ public class MatchWnd:Window<MatchWnd>
         Control("Enter").GetComponent<Button>().onClick.AddListener(()=> {
             LoadingEX.Instance.Open();
             Common.EnterQueue();
-            TimersMng.Instance.SetTimer(EnterQueueTimeOut, 5, OnEnterTimeOut);
+            EnterQueueTimeOut.Start();
         });
         Control("Quit").GetComponent<Button>().onClick.AddListener(() =>
         {
@@ -970,27 +978,27 @@ public class MatchWnd:Window<MatchWnd>
             TimesUsed.text = "00:00";
             tick = 0;
             LoadingEX.Instance.Open();
-            TimersMng.Instance.SetTimer(LeaveQueueTimeOut, 5, OnLeaveTimeOut);
+            LeaveQueueTimeOut.Start();
             Common.LeaveQueue();
         });
     }
 
-    public void OnLeaveTimeOut()
+    public void OnLeaveTimeOut(object sender, System.Timers.ElapsedEventArgs e)
     {
         LoadingEX.Instance.Close();
-        TimersMng.Instance.KillTimer(LeaveQueueTimeOut);
+        LeaveQueueTimeOut.Stop();
     }
 
-    public void OnEnterTimeOut()
+    public void OnEnterTimeOut(object sender, System.Timers.ElapsedEventArgs e)
     {
         LoadingEX.Instance.Close();
-        TimersMng.Instance.KillTimer(EnterQueueTimeOut);
+        EnterQueueTimeOut.Stop();
     }
 
     public void OnEnterQueue()
     {
         LoadingEX.Instance.Close();
-        TimersMng.Instance.KillTimer(EnterQueueTimeOut);
+        EnterQueueTimeOut.Stop();
         FrameReplay.Instance.OnUpdates += Update;
         btnLeave.SetActive(false);
     }
@@ -998,7 +1006,7 @@ public class MatchWnd:Window<MatchWnd>
     public void OnLeaveQueue()
     {
         LoadingEX.Instance.Close();
-        TimersMng.Instance.KillTimer(EnterQueueTimeOut);
+        EnterQueueTimeOut.Stop();
         FrameReplay.Instance.OnUpdates -= Update;
         queue = false;
         btnLeave.SetActive(true);
@@ -1171,9 +1179,11 @@ public class MainLobby : Window<MainLobby>
 
     void OnEnterQueue()
     {
-        MatchWnd.Instance.Open();
-        if (MainLobby.Exist)
-            MainLobby.Instance.Close();
+        U3D.PopupTip("功能在设计中，暂时无效");
+
+        //MatchWnd.Instance.Open();
+        //if (MainLobby.Exist)
+        //    MainLobby.Instance.Close();
     }
 
     GameObject serverRoot;
@@ -1218,9 +1228,10 @@ public class MainLobby : Window<MainLobby>
         OnGetServerListDone();
     }
 
-    void OnGetServerListDone()
+    public void OnGetServerListDone()
     {
         //拉取到服务器列表后
+        Control("Servercfg").GetComponent<Button>().onClick.RemoveAllListeners();
         Control("Servercfg").GetComponent<Button>().onClick.AddListener(() =>
         {
             ServerListWnd.Instance.Open();
@@ -1229,6 +1240,11 @@ public class MainLobby : Window<MainLobby>
         Global.Instance.Server = Global.Instance.Servers[0];
         GameObject Services = Control("Services", WndObject);
         serverRoot = Control("Content", Services);
+        int childNum = serverRoot.transform.childCount;
+        for (int i = 0; i < childNum; i++)
+        {
+            GameObject.Destroy(serverRoot.transform.GetChild(i).gameObject);
+        }
         for (int i = 0; i < Global.Instance.Servers.Count; i++)
         {
             InsertServerItem(Global.Instance.Servers[i], i);
@@ -1245,7 +1261,10 @@ public class MainLobby : Window<MainLobby>
         btn.transform.localRotation = Quaternion.identity;
         btn.GetComponent<Button>().onClick.AddListener(() => {
             if (Global.Instance.Server == Global.Instance.Servers[i])
+            {
+                TcpClientProxy.CheckNeedReConnect();
                 return;
+            }
             TcpClientProxy.Exit();
             ClearRooms();
             Global.Instance.Server = svr;
@@ -1455,6 +1474,23 @@ public class AddHostWnd:Window<AddHostWnd>
                 if (ServerListWnd.Exist)
                     ServerListWnd.Instance.OnRefresh(ServerListWnd.ADD, info);
                 Global.Instance.OnServiceChanged(1, info);
+                if (MainLobby.Exist)
+                    MainLobby.Instance.OnGetServerListDone();
+                Close();
+            }
+            else if (!string.IsNullOrEmpty(serverIP.text))
+            {
+                ServerInfo info = new ServerInfo();
+                info.type = 1;
+                info.ServerPort = port;
+                info.ServerName = string.IsNullOrEmpty(serverName.text) ? serverHost.text : serverName.text;
+                info.ServerIP = serverIP.text;
+                GameData.Instance.gameStatus.ServerList.Add(info);
+                if (ServerListWnd.Exist)
+                    ServerListWnd.Instance.OnRefresh(ServerListWnd.ADD, info);
+                Global.Instance.OnServiceChanged(1, info);
+                if (MainLobby.Exist)
+                    MainLobby.Instance.OnGetServerListDone();
                 Close();
             }
         });
@@ -1489,7 +1525,7 @@ public class NickName : Window<NickName>
         });
         Nick = Control("Nick").GetComponent<InputField>();
         if (string.IsNullOrEmpty(GameData.Instance.gameStatus.NickName))
-            Nick.text = "流星杀手";
+            Nick.text = "昱泉杀手";
         else
             Nick.text = GameData.Instance.gameStatus.NickName;
     }
@@ -2335,7 +2371,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
                 GameOverlayWnd.Instance.ClearSystemMsg();
             //离开副本
             if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
-                TcpClientProxy.LeaveLevel();
+                UdpClientProxy.LeaveLevel();
             else
                 FrameReplay.Instance.OnDisconnected();
 

@@ -365,6 +365,7 @@ public class Common
 
     public static void Exec<T>(Socket s, int msg, T rsp)
     {
+        UnityEngine.Debug.LogError("send msg:" + msg);
         if (s != null && s.Connected)
         {
             MemoryStream ms = new MemoryStream();
@@ -379,6 +380,7 @@ public class Common
             Buffer.BlockCopy(wIdent, 0, data, 4, 4);
             try
             {
+                UnityEngine.Debug.LogError("send msg 2:" + msg);
                 s.Send(data, length, SocketFlags.None);
             }
             catch (Exception exp)
@@ -409,11 +411,6 @@ public class Common
     public static void SendJoinLobbyRequest()
     {
         //Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ProtocolVeritify);
-    }
-
-    public static void SyncTurn(TurnFrames turn)
-    {
-        UdpClientProxy.Exec((int)protocol.MeteorMsg.MsgType.SyncCommand, turn);
     }
 
     public static void SendUpdateGameServer()
@@ -456,23 +453,6 @@ public class Common
         Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ExitQueueReq);
     }
 
-    //离开战斗场景,向帧同步服务器发送帧事件-离开
-    public static void SendLeaveLevel()
-    {
-        //FrameCommand fc = FSS.Instance.Command();
-        //fc.command
-        //UdpClientProxy.Exec((int)MeteorMsg.MsgType.SyncCommand, );
-    }
-
-    public static void SendEnterLevel(int model, int weapon, int camp)
-    {
-        //UnityEngine.Debug.LogError("sendEnterLevel " + UnityEngine.Time.frameCount);
-        //EnterLevelReq req = new EnterLevelReq();
-        //req.camp = (uint)camp;//暂时全部为盟主模式
-        //req.model = (uint)model;
-        //req.weapon = (uint)weapon;
-        //Exec(TcpClientProxy.sProxy, (int)MeteorMsg.MsgType.EnterLevelReq, req);
-    }
 
     //创建房间.
     public static void CreateRoom(string name, string sec)
@@ -492,6 +472,12 @@ public class Common
             ;//向服务器发送某个录像文件
         else if (req.pattern == RoomInfo.RoomPattern._Record)
             ;//服务器保存录像文件，在单轮结束后
+        //把本地的武器ID，模型ID传过去，其他人进入房间后，选择角色或者武器，就受到房间此信息限制
+        //req.weapons.Add();
+        //只包含外接模型-基础0-19无论如何都可以使用.
+        int total = GameData.Instance.gameStatus.pluginModel.Count;
+        for (int i = 0; i < total; i++)
+            req.models.Add((uint)GameData.Instance.gameStatus.pluginModel[i].ModelId);
         Exec(TcpClientProxy.sProxy, (int)MeteorMsg.MsgType.CreateRoomReq, req);
         //1,人数上限
         //2.关卡模式
