@@ -338,7 +338,6 @@ public partial class MeteorUnit : LockBehaviour
     MeteorUnit lockTarget = null;//攻击目标.主角主动攻击敌方后，没解锁前，都以这个目标作为锁定攻击目标，摄像机自动以主角和此目标，做一个自动视围盒，
     Vector3 pos2 = Vector3.zero;
     public Vector3 mPos2d { get { pos2 = transform.position; pos2.y = 0; return pos2; } }
-    public Vector3 mPos { get { return transform.position; } }
     public Vector3 mSkeletonPivot { get { return transform.position + Global.Instance.BodyHeight; } }
     public bool Crouching { get { return posMng.mActiveAction.Idx == CommonAction.Crouch || (posMng.mActiveAction.Idx >= CommonAction.CrouchForw && posMng.mActiveAction.Idx <= CommonAction.CrouchBack); } }
     public bool Climbing { get { return posMng.mActiveAction.Idx == CommonAction.ClimbLeft || posMng.mActiveAction.Idx == CommonAction.ClimbRight || posMng.mActiveAction.Idx == CommonAction.ClimbUp; } }
@@ -1045,7 +1044,7 @@ public partial class MeteorUnit : LockBehaviour
         while (true)
         {
             if (GameBattleEx.Instance != null && GameBattleEx.Instance.autoTarget != null && GetWeaponType() != (int)EquipWeaponType.Guillotines)
-                HeadLookAtTarget(GameBattleEx.Instance.autoTarget.mPos);
+                HeadLookAtTarget(GameBattleEx.Instance.autoTarget.transform.position);
             yield return 0;
         }
     }
@@ -1154,12 +1153,12 @@ public partial class MeteorUnit : LockBehaviour
     //角色是否面向指定位置.
     public bool IsFacetoVector3(Vector3 target)
     {
-        return Vector3.Dot(-transform.forward, (new Vector3(target.x, 0, target.z) - new Vector3(mPos.x, 0, mPos.z)).normalized) >= 0;
+        return Vector3.Dot(-transform.forward, (new Vector3(target.x, 0, target.z) - new Vector3(transform.position.x, 0, transform.position.z)).normalized) >= 0;
     }
 
     public bool IsFacetoTarget(MeteorUnit target)
     {
-        return Vector3.Dot(-transform.forward, (new Vector3(target.mPos.x, 0, target.mPos.z) - new Vector3(mPos.x, 0, mPos.z)).normalized) >= 0;
+        return Vector3.Dot(-transform.forward, (new Vector3(target.transform.position.x, 0, target.transform.position.z) - new Vector3(transform.position.x, 0, transform.position.z)).normalized) >= 0;
     }
 
     //战斗场景,控制视角相机
@@ -1536,9 +1535,9 @@ public partial class MeteorUnit : LockBehaviour
             int idx = -3;//0左侧，1中间，2右侧
             for (int i = -2; i < 3; i++)
             {
-                if (Physics.Raycast(mPos, Quaternion.AngleAxis(i * 45, Vector3.up) * -transform.forward, out hit, charController.radius + 5, 1 << LayerMask.NameToLayer("Scene")))
+                if (Physics.Raycast(transform.position, Quaternion.AngleAxis(i * 45, Vector3.up) * -transform.forward, out hit, charController.radius + 5, 1 << LayerMask.NameToLayer("Scene")))
                 {
-                    vec = mPos - hit.point;
+                    vec = transform.position - hit.point;
                     vec.y = 0;
                     // = vec.magnitude;
                     if (length > vec.magnitude)
@@ -1763,12 +1762,12 @@ public partial class MeteorUnit : LockBehaviour
                                 float left = 100;
                                 float middle = 100;
                                 float right = 100;
-                                if (Physics.Raycast(mPos, Quaternion.AngleAxis(-5, Vector3.up) * -transform.forward, out hit, charController.radius + 5, 1 << LayerMask.NameToLayer("Scene")))
-                                    left = Vector3.Distance(hit.point, mPos);
-                                if (Physics.Raycast(mPos, -transform.forward, out hit, charController.radius + 5, 1 << LayerMask.NameToLayer("Scene")))
-                                    middle = Vector3.Distance(hit.point, mPos);
-                                if (Physics.Raycast(mPos, Quaternion.AngleAxis(5, Vector3.up) * -transform.forward, out hit, charController.radius + 5, 1 << LayerMask.NameToLayer("Scene")))
-                                    right = Vector3.Distance(hit.point, mPos);
+                                if (Physics.Raycast(transform.position, Quaternion.AngleAxis(-5, Vector3.up) * -transform.forward, out hit, charController.radius + 5, 1 << LayerMask.NameToLayer("Scene")))
+                                    left = Vector3.Distance(hit.point, transform.position);
+                                if (Physics.Raycast(transform.position, -transform.forward, out hit, charController.radius + 5, 1 << LayerMask.NameToLayer("Scene")))
+                                    middle = Vector3.Distance(hit.point, transform.position);
+                                if (Physics.Raycast(transform.position, Quaternion.AngleAxis(5, Vector3.up) * -transform.forward, out hit, charController.radius + 5, 1 << LayerMask.NameToLayer("Scene")))
+                                    right = Vector3.Distance(hit.point, transform.position);
                                 float fMin = Mathf.Min(left, middle, right);
                                 if (fMin != 100)
                                 {
@@ -2223,7 +2222,7 @@ public partial class MeteorUnit : LockBehaviour
         if (hit.gameObject.transform.root.tag.Equals("meteorUnit"))
         {
             MeteorUnit hitUnit = hit.gameObject.transform.root.GetComponent<MeteorUnit>();
-            Vector3 vec = hitUnit.mPos - transform.position;
+            Vector3 vec = hitUnit.transform.position - transform.position;
             vec.y = 0;
             //在防御中.不受推挤.
             if (hitUnit.posMng != null && hitUnit.posMng.onDefence)
@@ -2586,8 +2585,8 @@ public partial class MeteorUnit : LockBehaviour
     //计算其他人在我的哪一个方位，每个方位控制90度范围。
     int CalcDirection(MeteorUnit other)
     {
-        Vector3 otherVec = new Vector3(other.mPos.x, 0, other.mPos.z);
-        Vector3 Vec = new Vector3(mPos.x, 0, mPos.z);
+        Vector3 otherVec = new Vector3(other.transform.position.x, 0, other.transform.position.z);
+        Vector3 Vec = new Vector3(transform.position.x, 0, transform.position.z);
         Vector3 VecOffset = Vector3.Normalize(otherVec - Vec);
         float angle = Vector3.Dot(VecOffset, -transform.forward);
         float angleLeft = Vector3.Dot(VecOffset, transform.right);

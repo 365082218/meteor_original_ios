@@ -344,7 +344,7 @@ public class MeteorAI {
                                 SubStatus = EAISubStatus.FindWait;
                                 break;
                             case EAISubStatus.FightGotoTarget:
-                                RefreshPath(owner.mPos, fightTarget.mSkeletonPivot);
+                                RefreshPath(owner.transform.position, fightTarget.mSkeletonPivot);
                                 SubStatus = EAISubStatus.FindWait;
                                 break;
                         }
@@ -1285,7 +1285,7 @@ public class MeteorAI {
                     //如果是远程武器，先检查角度是否相差过大.过大先调整角度
                     if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
                     {
-                        if (GetAngleBetween(fightTarget.mPos) >= Global.Instance.AimDegree)
+                        if (GetAngleBetween(fightTarget.transform.position) >= Global.Instance.AimDegree)
                         {
                             //停止连击，方向需要调整
                             return;
@@ -2409,7 +2409,7 @@ public class MeteorAI {
     {
         vec.y = 0;
         //同位置，无法计算夹角.
-        if (vec.x == owner.mPos.x && vec.z == owner.mPos.z)
+        if (vec.x == owner.transform.position.x && vec.z == owner.transform.position.z)
             return 0;
 
         Vector3 vec1 = -owner.transform.forward;
@@ -2437,13 +2437,13 @@ public class MeteorAI {
     Coroutine GetItemRotateToTargetCoroutine;
     IEnumerator GetItemRotateToTarget(Vector3 vec)
     {
-        if (vec.x == owner.mPos.x && vec.z == owner.mPos.z)
+        if (vec.x == owner.transform.position.x && vec.z == owner.transform.position.z)
         {
             GetItemRotateToTargetCoroutine = null;
             SubStatus = EAISubStatus.GetItemGotoItem;
             yield break;
         }
-        Vector3 diff = (vec - owner.mPos);
+        Vector3 diff = (vec - owner.transform.position);
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
@@ -2479,13 +2479,13 @@ public class MeteorAI {
     Coroutine AttackRotateToTargetCoroutine;
     IEnumerator AttackRotateToTarget(Vector3 vec, EAISubStatus subStatus)
     {
-        if (vec.x == owner.mPos.x && vec.z == owner.mPos.z)
+        if (vec.x == owner.transform.position.x && vec.z == owner.transform.position.z)
         {
             AttackRotateToTargetCoroutine = null;
             SubStatus = subStatus;
             yield break;
         }
-        Vector3 diff = (vec - owner.mPos);
+        Vector3 diff = (vec - owner.transform.position);
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
@@ -2522,13 +2522,13 @@ public class MeteorAI {
     Coroutine KillRotateToPositionCoroutine;
     IEnumerator KillRotateToPosition(Vector3 vec, EAISubStatus onFinishSubStatus)
     {
-        if (vec.x == owner.mPos.x && vec.z == owner.mPos.z)
+        if (vec.x == owner.transform.position.x && vec.z == owner.transform.position.z)
         {
             FollowRotateToTargetCoroutine = null;
             SubStatus = onFinishSubStatus;
             yield break;
         }
-        Vector3 diff = (vec - owner.mPos);
+        Vector3 diff = (vec - owner.transform.position);
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
@@ -2563,13 +2563,13 @@ public class MeteorAI {
 
     IEnumerator KillRotateToTarget(Vector3 vec, EAISubStatus onFinishSubStatus)
     {
-        if (vec.x == owner.mPos.x && vec.z == owner.mPos.z)
+        if (vec.x == owner.transform.position.x && vec.z == owner.transform.position.z)
         {
             FollowRotateToTargetCoroutine = null;
             SubStatus = onFinishSubStatus;
             yield break;
         }
-        Vector3 diff = (vec - owner.mPos);
+        Vector3 diff = (vec - owner.transform.position);
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
@@ -2605,13 +2605,13 @@ public class MeteorAI {
     Coroutine FollowRotateToPositionCoroutine;
     IEnumerator FollowRotateToPosition(Vector3 vec, EAISubStatus onFinishSubStatus)
     {
-        if (vec.x == owner.mPos.x && vec.z == owner.mPos.z)
+        if (vec.x == owner.transform.position.x && vec.z == owner.transform.position.z)
         {
             FollowRotateToTargetCoroutine = null;
             SubStatus = onFinishSubStatus;
             yield break;
         }
-        Vector3 diff = (vec - owner.mPos);
+        Vector3 diff = (vec - owner.transform.position);
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
@@ -2646,13 +2646,13 @@ public class MeteorAI {
 
     IEnumerator FollowRotateToTarget(Vector3 vec, EAISubStatus onFinishSubStatus)
     {
-        if (vec.x == owner.mPos.x && vec.z == owner.mPos.z)
+        if (vec.x == owner.transform.position.x && vec.z == owner.transform.position.z)
         {
             FollowRotateToTargetCoroutine = null;
             SubStatus = onFinishSubStatus;
             yield break;
         }
-        Vector3 diff = (vec - owner.mPos);
+        Vector3 diff = (vec - owner.transform.position);
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
@@ -2688,14 +2688,14 @@ public class MeteorAI {
     Coroutine PatrolRotateToTargetCoroutine;
     IEnumerator PatrolRotateToTarget(Vector3 vec)
     {
-        if (vec.x == owner.mPos.x && vec.z == owner.mPos.z)
+        if (vec.x == owner.transform.position.x && vec.z == owner.transform.position.z)
         {
             PatrolRotateToTargetCoroutine = null;
             SubStatus = EAISubStatus.PatrolSubGotoTarget;
             yield break;
         }
         //WsGlobal.AddDebugLine(vec, vec + Vector3.up * 10, Color.red, "PatrolPoint", 20.0f);
-        Vector3 diff = (vec - owner.mPos);
+        Vector3 diff = (vec - owner.transform.position);
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
@@ -2731,14 +2731,14 @@ public class MeteorAI {
     Coroutine PatrolRotateToPatrolPointCoroutine;
     IEnumerator PatrolRotateToPatrolPoint(Vector3 vec)
     {
-        if (vec.x == owner.mPos.x && vec.z == owner.mPos.z)
+        if (vec.x == owner.transform.position.x && vec.z == owner.transform.position.z)
         {
             PatrolRotateToPatrolPointCoroutine = null;
             SubStatus = EAISubStatus.PatrolGotoFirstPoint;
             yield break;
         }
         //WsGlobal.AddDebugLine(vec, vec + Vector3.up * 10, Color.red, "PatrolPoint", 20.0f);
-        Vector3 diff = (vec - owner.mPos);
+        Vector3 diff = (vec - owner.transform.position);
         diff.y = 0;
         float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);

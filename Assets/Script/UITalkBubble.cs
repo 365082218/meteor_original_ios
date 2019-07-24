@@ -33,14 +33,14 @@ public class UITalkBubble : MonoBehaviour {
             {
                 if (gameObject.activeInHierarchy)
                 {
-                    if (Vector3.Distance(transform.position, MeteorManager.Instance.LocalPlayer.mPos) >= 50.0f)
+                    if (Vector3.Distance(transform.position, MeteorManager.Instance.LocalPlayer.transform.position) >= 50.0f)
                     {
                         gameObject.SetActive(false);
                     }
                 }
                 else
                 {
-                    if (Vector3.Distance(transform.position, MeteorManager.Instance.LocalPlayer.mPos) < 50.0f)
+                    if (Vector3.Distance(transform.position, MeteorManager.Instance.LocalPlayer.transform.position) < 50.0f)
                     {
                         gameObject.SetActive(true);
                     }

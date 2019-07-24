@@ -15,7 +15,7 @@ public class DropMng:Singleton<DropMng>{
         //obj.Add(trigget);
         //ExplosionObject01.iTweenExplosion01(1, ref obj, player.transform.position);
         player.Attr.Weapon2 = 0;
-        ExplosionObject01.DropItem(trigget, player.mPos, -player.transform.forward);
+        ExplosionObject01.DropItem(trigget, player.transform.position, -player.transform.forward);
     }
 
     public void DropWeapon2(int weaponId)
@@ -24,7 +24,7 @@ public class DropMng:Singleton<DropMng>{
         WeaponBase wb = U3D.GetWeaponProperty(weaponId);
         string des = wb.WeaponR;
         GameObject trigget = CreateTriggerObj(des, player.transform, -player.transform.forward);
-        ExplosionObject01.DropItem(trigget, player.mPos, -player.transform.forward);
+        ExplosionObject01.DropItem(trigget, player.transform.position, -player.transform.forward);
     }
 
     public void Drop(MeteorUnit player)
@@ -38,7 +38,7 @@ public class DropMng:Singleton<DropMng>{
         GameObject trigget = CreateTriggerObj(wb.WeaponR, player.transform, -player.transform.forward);
         //obj.Add(trigget);
         //ExplosionObject01.iTweenExplosion01(1, ref obj, player.transform.position);
-        ExplosionObject01.DropItem(trigget, player.mPos, -player.transform.forward);
+        ExplosionObject01.DropItem(trigget, player.transform.position, -player.transform.forward);
         //如果角色拥有第二武器，那么第一武器扔掉时，切换到第二武器
         player.DropAndChangeWeapon();
 
@@ -46,7 +46,7 @@ public class DropMng:Singleton<DropMng>{
         if (player.GetFlag)
         {
             trigget = CreateObj(player.GetFlagItem.model, player.transform, -player.transform.forward);
-            ExplosionObject01.DropItem(trigget, player.mPos, Quaternion.AngleAxis(30, Vector3.up) * -player.transform.forward);
+            ExplosionObject01.DropItem(trigget, player.transform.position, Quaternion.AngleAxis(30, Vector3.up) * -player.transform.forward);
         }
     }
 

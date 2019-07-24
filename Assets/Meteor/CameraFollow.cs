@@ -18,6 +18,8 @@ public class CameraFollow : LockBehaviour {
     public static CameraFollow Ins { get { return Instance; } }
     static CameraFollow Instance;
     //public Transform[] m_Targets;//摄像机的各个视角的调试对象.
+    public Transform Target;
+    public Transform LockTarget;//锁定目标，战斗系统里的摄像机针对的除了主角外的第二目标.
     public float followDistance = 50;//在角色身后多远
     public float followHeight = 0;//离跟随点多高。
     public float m_MinSize = 55;//fov最小55
@@ -56,6 +58,43 @@ public class CameraFollow : LockBehaviour {
         DisableLockTarget = false;
     }
 
+    /// <summary>
+    /// 当跟随目标发生俯仰或旋转
+    /// </summary>
+    float yRotate = 0.0f;
+    float xRotate = 0.0f;
+    public void OnTargetRotate(float xDelta, float yDelta)
+    {
+        yRotate = yDelta;
+        xRotate = xDelta;
+    }
+
+    /// <summary>
+    /// 当跟随目标切换了锁定目标(战斗对象)时
+    /// </summary>
+    public void OnChangeLockTarget(Transform trans)
+    {
+        if (DisableLockTarget)
+            return;
+        LockTarget = trans;
+    }
+
+    //跟踪对象
+    public void FollowTarget(Transform followTarget)
+    {
+        Target = followTarget;
+        if (Target != null)
+        {
+            cameraLookAt = new Vector3(Target.position.x, Target.position.y + BodyHeight, Target.position.z);
+            Vector3 vpos = new Vector3(0, followHeight, 0) + cameraLookAt + followDistance * (Target.forward);
+            transform.position = vpos;
+            Vector3 vdiff = Target.position - transform.position;
+            transform.rotation = Quaternion.LookRotation(new Vector3(vdiff.x, 0, vdiff.z), Vector3.up);
+            lastY = Target.position.y;
+        }
+        enabled = true;
+    }
+
     public void Init()
     {
         DisableLockTarget = !GameData.Instance.gameStatus.AutoLock;
@@ -79,16 +118,6 @@ public class CameraFollow : LockBehaviour {
         //    m_Targets[i].gameObject.layer = LayerMask.NameToLayer("Debug");
         //    m_Targets[i].localScale = 10 * Vector3.one;
         //}
-
-        if (MeteorManager.Instance.LocalPlayer != null)
-        {
-            cameraLookAt = new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, MeteorManager.Instance.LocalPlayer.transform.position.y + BodyHeight, MeteorManager.Instance.LocalPlayer.mPos.z);
-            Vector3 vpos = new Vector3(0, followHeight, 0) + cameraLookAt + followDistance * (MeteorManager.Instance.LocalPlayer.transform.forward);
-            transform.position = vpos;
-            Vector3 vdiff = MeteorManager.Instance.LocalPlayer.transform.position - transform.position;
-            transform.rotation = Quaternion.LookRotation(new Vector3(vdiff.x, 0, vdiff.z), Vector3.up);
-        }
-        enabled = true;
     }
 
     public void ForceUpdate()
@@ -135,6 +164,13 @@ public class CameraFollow : LockBehaviour {
                 OnAutoMove();
             }
         }
+        ResetState();
+    }
+
+    private void ResetState()
+    {
+        xRotate = 0;
+        yRotate = 0;
     }
 
     //该角色背后肩膀处
@@ -190,9 +226,6 @@ public class CameraFollow : LockBehaviour {
                     {
                         transform.LookAt(cameraLookAt);
                         Vector3 vec = transform.eulerAngles;
-                        //vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
-                        //vec.y = transform.eulerAngles.y;
-                        //vec.y = Mathf.SmoothDampAngle(vec.y, transform.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
                         vec.z = 0;
                         transform.eulerAngles = vec;
                     }
@@ -205,16 +238,12 @@ public class CameraFollow : LockBehaviour {
                 newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime, f_speedMax);
                 newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime, f_speedMax);
                 transform.position = newPos;
-                //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
-                //transform.rotation = to;
                 if (cameraLookAt != Vector3.zero)
                 {
                     Vector3 vec = transform.eulerAngles;
                     transform.LookAt(cameraLookAt);
-
                     vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
                     vec.y = transform.eulerAngles.y;
-                    //vec.y = Mathf.SmoothDampAngle(vec.y, transform.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
                     vec.z = 0;
                     transform.eulerAngles = vec;
                 }
@@ -278,6 +307,8 @@ public class CameraFollow : LockBehaviour {
     float currentEulerVelocityY;
     float currentEulerVelocityZ;
 
+    bool YLagStart = false;//高度上的延迟跟随是否已开始
+
     public Vector3[] newViewIndex = new Vector3[3];
     int ViewIndex = 0;
     //只允许改摄像机的矩阵，不允许修改其他场景对象的矩阵
@@ -303,14 +334,14 @@ public class CameraFollow : LockBehaviour {
         //过程1：由固定视角，切换到电影视角
         //过程2: 由电影视角，切换到固定视角
 
-        if (MeteorManager.Instance.LocalPlayer.GetLockedTarget() != null && !DisableLockTarget)
+        if (LockTarget != null && !DisableLockTarget)
         {
             //有锁定目标
             //开启摄像机锁定系统
-            cameraLookAt = (MeteorManager.Instance.LocalPlayer.mPos + MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + new Vector3(0, 25, 0);
-            CameraRadis = Vector3.Distance(MeteorManager.Instance.LocalPlayer.mPos, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos) / 2 + 60;
-            float dis = Vector3.Distance(new Vector3(MeteorManager.Instance.LocalPlayer.mPos.x, 0, MeteorManager.Instance.LocalPlayer.mPos.z), new Vector3(MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos.x, 0, MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos.z));
-            Vector3 vecDiff = MeteorManager.Instance.LocalPlayer.mPos - MeteorManager.Instance.LocalPlayer.GetLockedTarget().mPos;
+            cameraLookAt = (Target.position + LockTarget.position) / 2 + new Vector3(0, 25, 0);
+            CameraRadis = Vector3.Distance(Target.position, LockTarget.position) / 2 + 60;
+            float dis = Vector3.Distance(new Vector3(Target.position.x, 0, Target.position.z), new Vector3(LockTarget.position.x, 0, LockTarget.position.z));
+            Vector3 vecDiff = Target.position - LockTarget.position;
             Vector3 vecForward = Vector3.Normalize(new Vector3(vecDiff.x, 0, vecDiff.z));
 
             //最远时，15度，最近时95度，其他值。10码 = 80度 140码 15度 约为 y = -0.5x + 85
@@ -322,7 +353,7 @@ public class CameraFollow : LockBehaviour {
 
             newViewIndex[1] = cameraLookAt + Quaternion.AngleAxis(angleY, Vector3.up) * vecForward * CameraRadis;
             newViewIndex[1].y += yHeight;
-            newViewIndex[2] = cameraLookAt + Quaternion.AngleAxis(-angleY, MeteorManager.Instance.LocalPlayer.transform.right) * vecForward * CameraRadis;//顶部最后考虑
+            newViewIndex[2] = cameraLookAt + Quaternion.AngleAxis(-angleY, Target.right) * vecForward * CameraRadis;//顶部最后考虑
 
             //vecTarget[0] = newViewIndex[ViewIndex];
             //vecTarget[1] = newViewIndex[(ViewIndex + 1) % 3];
@@ -380,8 +411,6 @@ public class CameraFollow : LockBehaviour {
         }
         else
         {
-            float yRotate = MeteorManager.Instance.LocalPlayer.yRotateDelta;
-            float xRotate = MeteorManager.Instance.LocalPlayer.xRotateDelta;
             if (xRotate != 0.0f)
             {
                 //根据参数调整高度，和距离.
@@ -406,39 +435,40 @@ public class CameraFollow : LockBehaviour {
                 }
             }
 
-            cameraLookAt.x = MeteorManager.Instance.LocalPlayer.mPos.x;
-            cameraLookAt.y = MeteorManager.Instance.LocalPlayer.transform.position.y + BodyHeight;//朝向焦点
-            cameraLookAt.z = MeteorManager.Instance.LocalPlayer.mPos.z;
+            cameraLookAt.x = Target.position.x;
+            cameraLookAt.y = Target.position.y + BodyHeight;//朝向焦点
+            cameraLookAt.z = Target.position.z;
 
             //Debug.Log("followHeight:" + followHeight);
             newPos = cameraLookAt + MeteorManager.Instance.LocalPlayer.transform.forward * followDistance;
             newPos.y += followHeight;
-            RaycastHit wallHit;
-            bool hitWall = false;
-            if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
-                1 << LayerMask.NameToLayer("Scene") |
-                (1 << LayerMask.NameToLayer("Default")) |
-                (1 << LayerMask.NameToLayer("Wall")) |
-                (1 << LayerMask.NameToLayer("Water"))))
-            {
-                if (!wallHit.collider.isTrigger)
-                {
-                    hitWall = true;
-                    //Debug.LogError("hitWall" + wallHit.transform.name);
-                    //摄像机与角色间有物件遮挡住角色，开始自动计算摄像机位置.
-                    //Debug.LogError("camera linecast with:" + wallHit.transform.name);
-                    newPos = wallHit.point + Vector3.Normalize(cameraLookAt - wallHit.point) * 5;
-                    //if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
-                    //1 << LayerMask.NameToLayer("Scene") |
-                    //(1 << LayerMask.NameToLayer("Default")) |
-                    //(1 << LayerMask.NameToLayer("Wall")) |
-                    //(1 << LayerMask.NameToLayer("Water"))))
-                    //{
-                    //    m_Targets[2].position = wallHit.point;
-                    //    Debug.LogError("?????");
-                    //}
-                }
-            }
+           
+            //RaycastHit wallHit;
+            //bool hitWall = false;
+            //if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
+            //    1 << LayerMask.NameToLayer("Scene") |
+            //    (1 << LayerMask.NameToLayer("Default")) |
+            //    (1 << LayerMask.NameToLayer("Wall")) |
+            //    (1 << LayerMask.NameToLayer("Water"))))
+            //{
+            //    if (!wallHit.collider.isTrigger)
+            //    {
+            //        hitWall = true;
+            //        //Debug.LogError("hitWall" + wallHit.transform.name);
+            //        //摄像机与角色间有物件遮挡住角色，开始自动计算摄像机位置.
+            //        //Debug.LogError("camera linecast with:" + wallHit.transform.name);
+            //        newPos = wallHit.point + Vector3.Normalize(cameraLookAt - wallHit.point) * 5;
+            //        //if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
+            //        //1 << LayerMask.NameToLayer("Scene") |
+            //        //(1 << LayerMask.NameToLayer("Default")) |
+            //        //(1 << LayerMask.NameToLayer("Wall")) |
+            //        //(1 << LayerMask.NameToLayer("Water"))))
+            //        //{
+            //        //    m_Targets[2].position = wallHit.point;
+            //        //    Debug.LogError("?????");
+            //        //}
+            //    }
+            //}
 
             //由电影视角，切换到单人视角之间的动画.
             if (animationPlay)
@@ -468,10 +498,18 @@ public class CameraFollow : LockBehaviour {
             }
             else
             {
-                //只有高度是缓动的，其他轴上都是即刻
-                //没被墙壁阻隔，可以缓动Y
-                if (smooth && !hitWall)
-                    newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, 0.1f);
+                //只有高度是缓动的，其他轴上都是即刻,Y轴要有延迟，避免瞬移
+                if (YLagStart)
+                {
+                    YLagTime += FrameReplay.deltaTime;
+                    newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, YLagTime);
+                    YLagStart = CheckLagEnd();
+                }
+                else
+                {
+                    newPos.y = transform.position.y;
+                    YLagStart = CheckLagStart();
+                }
 
                 transform.position = newPos;
                 //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
@@ -488,11 +526,45 @@ public class CameraFollow : LockBehaviour {
         }
     }
 
+    /// <summary>
+    /// 检查延迟缓动是否该结束，当延迟缓动一段时间内无超过阈值的高度变化时，延迟缓动结束
+    /// </summary>
+    /// <returns></returns>
+    bool CheckLagEnd()
+    {
+        //大于3
+        if (Mathf.Abs(Target.position.y - lastY) >= lagYMin)
+        {
+            lastY = Target.position.y;
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// 检查延迟缓动是否该开始，当延迟缓动超出阈值指定的高度变化时，延迟缓动开始
+    /// </summary>
+    /// <returns></returns>
+    const float lagYMax = 30.0f;
+    const float lagYMin = 5.0f;
+    float lastY = 0.0f;
+    float YLagTime = 0.1f;
+    bool CheckLagStart()
+    {
+        if (Mathf.Abs(Target.position.y - lastY) >= lagYMax)
+        {
+            lastY = Target.position.y;
+            YLagTime = 0.1f;
+            return true;
+        }
+        return false;
+    }
+
     //由玩家Y轴25位置向摄像机期望点发射线，如果碰到墙壁返回false，否则true
     bool CameraCanLookTarget(Vector3 pos, out Vector3 hit)
     {
         RaycastHit wallHit;
-        Vector3 targetPos = MeteorManager.Instance.LocalPlayer.mPos + new Vector3(0, 25, 0);
+        Vector3 targetPos = MeteorManager.Instance.LocalPlayer.transform.position + new Vector3(0, 25, 0);
         if (Physics.Linecast(targetPos, pos, out wallHit,
             1 << LayerMask.NameToLayer("Scene") |
             (1 << LayerMask.NameToLayer("Default")) |

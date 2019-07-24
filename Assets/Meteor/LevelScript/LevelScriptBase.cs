@@ -252,7 +252,7 @@ public class ScriptBase
             for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
                 if (MeteorManager.Instance.UnitInfos[i].InstanceId == param)
                 {
-                    vec = MeteorManager.Instance.UnitInfos[i].mPos;
+                    vec = MeteorManager.Instance.UnitInfos[i].transform.position;
                     break;
                 }
         }

@@ -1,12 +1,14 @@
-﻿using protocol;
+﻿using ProtoBuf;
+using protocol;
 using System;
 using System.Collections.Generic;
+using System.IO;
 //using System.Diagnostics;
 using UnityEngine;
 //帧指令接收器，用于存储从服务器/单机 时发送来的帧指令.FSC=FRAMESYNCCLIENT
 public class FSC:Singleton<FSC>
 {
-    List<GameFrames> frames = new List<GameFrames>();//指令序列.没一个下标都是一帧的.
+    List<GameFrames> KeyFrames = new List<GameFrames>();//指令序列.没一个下标都是一帧的.
     public void OnReceiveCommand(GameFrames turn)
     {
         frames.Add(turn);
@@ -38,7 +40,7 @@ public class FSC:Singleton<FSC>
 
     public void Reset()
     {
-        frames.Clear();
+        KeyFrames.Clear();
     }
 
     public void OnDisconnected()
@@ -66,7 +68,7 @@ public class FSC:Singleton<FSC>
 //存储客户端操作序列.
 public class FSS:Singleton<FSS>
 {
-    List<GameFrames> frames = new List<GameFrames>();
+    List<GameFrames> KeyFrames = new List<GameFrames>();
     public void OnDisconnected()
     {
         Reset();
@@ -74,12 +76,18 @@ public class FSS:Singleton<FSS>
 
     public void Reset()
     {
-        frames.Clear();
+        KeyFrames.Clear();
     }
 
-    
-    public void SyncTurn()
+    /// <summary>
+    /// 向服务器同步本地上一个关键帧的操作
+    /// </summary>
+    int KeyFrameIndex = 0;
+    public void SyncKeyFrame()
     {
+        //如果是回放历史帧状态，不上传操作.
+        if (FrameReplay.Instance.bReplay)
+            return;
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
             //联机时客户端并没有操作,可以不向服务器发送之间的帧指令。但是服务器会生成默认的空操作
@@ -99,12 +107,7 @@ public class FSS:Singleton<FSS>
             GameFrames f = frames[FrameReplay.Instance.LogicTurnIndex];
             FSC.Instance.OnReceiveCommand(f);
         }
-    }
-
-    //在指定帧推入数据.
-    public void Command(int frame, MeteorMsg.MsgType message, MeteorMsg.Command command)
-    {
-        PushAction(frame, message, command);
+        KeyFrameIndex++;
     }
 
     //在当前帧推入指令-鼠标相对上次的偏移，会导致角色绕Y轴旋转
@@ -129,29 +132,33 @@ public class FSS:Singleton<FSS>
         PushAction(FrameReplay.Instance.NextTurn, MeteorMsg.MsgType.SyncCommand, (MeteorMsg.Command)action);
     }
 
-    public void PushAction(int frame, MeteorMsg.MsgType message, MeteorMsg.Command command)
+    public void PushAction<T>(MeteorMsg.Command command, T req)
     {
-        GameFrames t = GetFrame(frame);
+        GameFrames t = GetFrame(FrameReplay.Instance.KeyFrameIndex + 1);
         FrameCommand cmd = new FrameCommand();
         cmd.command = command;
-        cmd.LogicFrame = (uint)frame;
+        cmd.fillFrameIndex = (uint)FrameReplay.Instance.FillFrameIndex;
         cmd.playerId = (uint)NetWorkBattle.Instance.PlayerId;
+        MemoryStream ms = new MemoryStream();
+        Serializer.Serialize(ms, req);
+        byte[] coreData = ms.ToArray();
+        cmd.data = coreData;
         t.commands.Add(cmd);
     }
 
     //补齐从过去到未来的帧号中间的帧
-    public GameFrames GetFrame(int frame)
+    public GameFrames GetFrame(int Key)
     {
-        if (frames.Count <= frame)
+        if (KeyFrames.Count <= Key)
         {
-            int min = frames.Count;
-            for (int i = min; i < frame + 1; i++)
+            int min = KeyFrames.Count;
+            for (int i = min; i < Key + 1; i++)
             {
                 GameFrames t = new GameFrames();
-                frames.Add(t);
+                KeyFrames.Add(t);
             }
         }
-        return frames[frame];
+        return KeyFrames[Key];
     }
 }
 
@@ -195,17 +202,33 @@ public class FrameReplay : MonoBehaviour {
             LateUpdateEvent();
     }
 
-    public void OnSyncCommands()
+    //加载历史指令中
+    int serverKeyFrameIndex = 0;//当前取得的最新的帧
+    public void OnLoading()
     {
-        bSync = true;
-        LogicFrameLength = 5;
+        bReplay = true;
+        LogicFrameLength = 2;//4倍速
+        UdpClientProxy.Exec<int>((int)MeteorMsg.Command.FetchCommand, serverKeyFrameIndex);
+    }
+
+    public void OnLoaingComplete()
+    {
+        bReplay = false;
+        LogicFrameLength = 17;
+
+        PlayerEventData req = new PlayerEventData();
+        req.camp = (uint)NetWorkBattle.Instance.camp;//暂时全部为盟主模式
+        req.model = (uint)NetWorkBattle.Instance.heroIdx;
+        req.weapon = (uint)NetWorkBattle.Instance.weaponIdx;
+        req.playerId = (uint)NetWorkBattle.Instance.PlayerId;
+        FSS.Instance.PushAction(MeteorMsg.Command.SpawnPlayer, req);
     }
 
     bool playRecord = false;
     //当场景以及物件全部加载完成，重新开局时
     public void OnBattleStart()
     {
-        currentFrame = null;
+        clientFrame = null;
         Started = true;
         LogicTurnIndex = 0;
         LogicFrameIndex = 0;
@@ -248,25 +271,43 @@ public class FrameReplay : MonoBehaviour {
         {
             if (OnUpdates != null)
                 OnUpdates();
+
+            //播放历史帧-追赶上当前速度
+            if (bReplay)
+            {
+                if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+                {
+                    AccumilatedTime = AccumilatedTime + Convert.ToInt32((Time.deltaTime * 1000));
+                    while (AccumilatedTime > LogicFrameLength)
+                    {
+                        UdpClientProxy.Update();
+                        LogicFrame();
+                        AccumilatedTime = AccumilatedTime - LogicFrameLength;
+                    }
+                }
+            }
             return;
         }
+
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
             //Basically same logic as FixedUpdate, but we can scale it by adjusting FrameLength
-            AccumilatedTime = AccumilatedTime + Convert.ToInt32((Time.deltaTime * 1000)); //convert sec to milliseconds
+            AccumilatedTime = AccumilatedTime + Convert.ToInt32((Time.deltaTime * 1000));
             while (AccumilatedTime > LogicFrameLength)
             {
                 UdpClientProxy.Update();
-                
                 LogicFrame();
-                //Debug.LogError("logicframe:" + LogicFrameIndex);
                 AccumilatedTime = AccumilatedTime - LogicFrameLength;
             }
         }
         else
         {
-            FrameReplay.deltaTime = Time.deltaTime;
-            LogicFrame();
+            AccumilatedTime = AccumilatedTime + Convert.ToInt32((Time.deltaTime * 1000));
+            while (AccumilatedTime > LogicFrameLength)
+            {
+                LogicFrame();
+                AccumilatedTime = AccumilatedTime - LogicFrameLength;
+            }
         }
     }
 
@@ -274,12 +315,12 @@ public class FrameReplay : MonoBehaviour {
     public event OnUpdate OnUpdates;//在战斗还未开始时
     //取得对应逻辑帧的数据
     List<FrameCommand> cacheActions = new List<FrameCommand>();
-    List<FrameCommand> GetAction(List<FrameCommand> acts, int logicF)
+    List<FrameCommand> GetAction(List<FrameCommand> acts, int fillFrame)
     {
         cacheActions.Clear();
         for (int i = 0; i < acts.Count; i++)
         {
-            if (acts[i].LogicFrame == logicF)
+            if (acts[i].fillFrameIndex == fillFrame)
                 cacheActions.Add(acts[i]);
         }
         return cacheActions;
@@ -288,7 +329,7 @@ public class FrameReplay : MonoBehaviour {
     private void LogicFrame()
     {
         //得到当前逻辑帧数据，对普通事件数据，调用对应的事件函数，对按键，在更新每个对象使，应用到每个对象上.
-        if (currentFrame == null)
+        if (clientFrame == null)
         {
             //等待从服务器收到接下来一帧的信息.
             currentFrame = FSC.Instance.NextFrame(LogicTurnIndex);
@@ -322,6 +363,7 @@ public class FrameReplay : MonoBehaviour {
                     break;
             }
         }
+
         if (UpdateEvent != null)
             UpdateEvent();
         if (LateUpdateEvent != null)
