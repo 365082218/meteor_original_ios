@@ -159,7 +159,7 @@ public class NetWorkBattle:Singleton<NetWorkBattle> {
     public void EnterLevel()
     {
         //加载地图场景-开始和服务器同步历史帧信息.
-        LoadNetLevel();
+        //LoadNetLevel();
         UdpClientProxy.EnterLevel(heroIdx, weaponIdx, camp);
     }
 
@@ -178,7 +178,8 @@ public class NetWorkBattle:Singleton<NetWorkBattle> {
         Global.Instance.Chapter = DlcMng.Instance.FindChapter((LevelId / 1000) * 1000);
         Global.Instance.GLevelItem = lev;
         Global.Instance.GLevelMode = LevelMode.MultiplyPlayer;
-        Global.Instance.GGameMode = GameMode.MENGZHU;
+        RoomInfo r = RoomMng.Instance.GetRoom((int)RoomId);
+        Global.Instance.GGameMode = (GameMode)r.rule;
         LoadingWnd.Instance.Open();
         U3D.LoadLevelEx();
     }

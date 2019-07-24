@@ -2,43 +2,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public enum WindowStyle{
-	WS_Normal,
-	WS_Ext,
-    WS_Modal,//模态
-	WS_CullingMask,
-};
-
-public class WindowMng
-{
-    static Dictionary<GameObject, Windows> WndList = new Dictionary<GameObject, Windows>();
-    public static void AddWindow(GameObject obj, Windows win)
-    {
-        if (obj != null && !WndList.ContainsKey(obj))
-            WndList.Add(obj, win);
-    }
-    public static void RemoveWindow(GameObject obj, Windows win)
-    {
-        if (obj != null && WndList.ContainsKey(obj))
-            WndList.Remove(obj);
-    }
-    public static void OnModalClick(GameObject obj)
-    {
-        if (obj != null && WndList.ContainsKey(obj))
-            WndList[obj].OnClick();
-    }
-    public static void CloseAll()
-    {
-        List<Windows> all = new List<Windows>();
-        foreach (var each in WndList)
-            all.Add(each.Value);
-        for (int i = 0; i < all.Count; i++)
-        {
-            all[i].Close();
-        }
-    }
-}
-
 public abstract class  Windows
 {
     public virtual void Close() { }
@@ -92,22 +55,16 @@ public abstract class Window<T> :Windows where T : class, new()
     {
         return false;
     }
+
     protected virtual bool CanvasMode()
     {
         return false;
     }
 
-	public WindowStyle mWindowStyle = WindowStyle.WS_Normal;
-	public WindowStyle WinStyle { get { return mWindowStyle; } set { mWindowStyle = value; }}
-
-
-	//这个函数能够是拿到在编辑状态SetActive为false的控件的，并且递归下去拿 add by Lindean 20141018
 	public GameObject ldaControl(string name)
 	{
 		if (msInstance == null)
 			return null;
-
-        //return Control(name, mWndObject);
 		return ldaControl(name, mWndObject);
 	}
 
@@ -172,25 +129,10 @@ public abstract class Window<T> :Windows where T : class, new()
 		return null;
 	}
 
-    public void DoModal()
-    {
-        mWindowStyle = WindowStyle.WS_Modal;
-        Open();
-    }
-
     public void Open()
     {
-		//Debug.Log("Open Window:"+PrefabName);
         if (mWndObject)
-        {
-            ////Debug.LogError("Window:" + PrefabName + "The window already opened!!!!");
-            WindowMng.RemoveWindow(mWndObject, this);
-            GameObject.Destroy(mWndObject);//这句话会导致一个界面上的成员变量没清理
-            if (WindowStyle.WS_Ext <= mWindowStyle)
-                GameObject.Destroy(mExtBackground);
-            //return;
-            
-        }
+            return;
 #if UNITY_2017 || UNITY_5_5
         if (Use3DCanvas())
         {
@@ -231,117 +173,22 @@ public abstract class Window<T> :Windows where T : class, new()
             if (rectTran != null)
                 rectTran.anchoredPosition3D = new Vector3(0, 0, GetZ());
         }
-        else
-        {
-            //mRootUI = GameObject.Find("Anchor");
-            //if (mRootUI != null)
-            //    WndObject.transform.SetParent(mRootUI.transform);
-        }
 #else
         mRootUI = GameObject.Find("Anchor");
         WndObject.transform.parent = mRootUI.transform;
 #endif
         WndObject.transform.localScale = Vector3.one;
-		//WndObject.transform.localPosition = new Vector3(GetX(), GetY(), GetZ());
-        WindowMng.AddWindow(mWndObject, this);
-
         OnOpen();
-
-        //attention Order
-        //mCamera = GameObject.Find("Camera-CloseUp");
-        //if (mCamera != null)
-        //    mCullingMask = mCamera.GetComponent<Camera>().cullingMask;
-
-        //阻挡UI之后其他的UI响应
-        if (mWindowStyle >= WindowStyle.WS_Ext)
-        {
-			mExtBackground = GameObject.Instantiate(Resources.Load("BackgroundExtWnd")) as GameObject;
-            mExtBackground.transform.SetParent(WndObject.transform);
-            mExtBackground.transform.localPosition = new Vector3(0.0f, 0.0f, 0.0f);
-            mExtBackground.transform.localScale = Vector3.one;
-            mExtBackground.transform.localRotation = Quaternion.identity;
-            mExtBackground.transform.SetAsFirstSibling();
-        }
-
-        //if (WindowStyle.WS_CullingMask <= mWindowStyle)
-        //{
-        //    Debug.Log("LayerMask NGUI : = " + LayerMask.NameToLayer("NGUI"));
-        //    //attention Order
-        //    if (mCamera != null)
-        //        mCamera.GetComponent<Camera>().cullingMask = LayerMask.NameToLayer("NGUI");
-        //}
-        //AutoAdaptGUI();
-    }
-
-    //当前窗口是模态窗口，且相机上挂了UICamera时，设置了消息响应层，模态背景被触摸时，自动关闭此窗口
-    public override void OnClick()
-    {
-        if (mWindowStyle >= WindowStyle.WS_Ext)
-            Close();
     }
 
     public override void Close()
     {
-        if (mWndObject)
-            WindowMng.RemoveWindow(mWndObject, this);
         OnClose();
         if (mWndObject != null)
         {
             GameObject.Destroy(mWndObject);
             mWndObject = null;
         }
-        if (WindowStyle.WS_Ext <= mWindowStyle
-            && mExtBackground != null)
-        {
-            GameObject.Destroy(mExtBackground);
-            mExtBackground = null;
-        }
         msInstance = null;
-    }
-
-    public override void Show()
-    {
-        if (Exist)
-        {
-            WndObject.SetActive(true);
-            if (WindowStyle.WS_Ext <= mWindowStyle)
-                mExtBackground.SetActive(true);
-        }
-
-        OnShow();
-    }
-
-    public override void Hide()
-    {
-        if (Exist)
-        {
-            WndObject.SetActive(false);
-            if (WindowStyle.WS_Ext <= mWindowStyle)
-                mExtBackground.SetActive(false);
-        }
-
-        OnHide();
-	}
-
-	
-	void OnClickedTimeOutQuit( GameObject go )
-	{
-		Application.Quit();
-	}
-
-    public bool WndShown { get { return WndObject.activeSelf; } }
-    public void BtnSetAble(GameObject go, bool bStatus)
-    {
-        GameObject goDis = go.transform.Find("Disable").gameObject;
-        if (goDis == null)
-            return;
-
-        go.GetComponent<BoxCollider>().enabled = bStatus;
-        goDis.SetActive(!bStatus);
-        if (bStatus)
-        {
-            UIImageButton uiib = go.GetComponent<UIImageButton>();
-            go.transform.Find("Background").GetComponent<UISprite>().spriteName = uiib.normalSprite;
-        }
     }
 }

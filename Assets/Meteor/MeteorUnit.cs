@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using protocol;
 
 public enum EBUFF_ID
 { 
@@ -679,6 +680,7 @@ public partial class MeteorUnit : LockBehaviour
     {
         if (!gameObject.activeInHierarchy)
             return;
+        ProcessCommand();
         if (Climbing)
             ClimbingTime += FrameReplay.deltaTime;
         else
@@ -789,8 +791,8 @@ public partial class MeteorUnit : LockBehaviour
                 yRotate = Input.GetAxis("Mouse X") * 5;
 #endif
                 }
-                if (yRotate != 0)
-                    MeteorManager.Instance.LocalPlayer.SetOrientation(yRotate, false);
+                //if (yRotate != 0)
+                //    MeteorManager.Instance.LocalPlayer.SetOrientation(yRotate, false);
 
                 float xRotate = 0;
 #if STRIP_KEYBOARD
@@ -799,29 +801,34 @@ public partial class MeteorUnit : LockBehaviour
             xRotate = Input.GetAxis("Mouse Y") * 2;
 #endif
                 //把Mouse的移动事件/触屏的拖拽事件发送到
-                if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+                if (xRotate != 0 || yRotate != 0)
                 {
+                    Debug.LogError("push mouse move");
                     FSS.Instance.PushMouseDelta(InstanceId, xRotate, yRotate);
                 }
-                else
-                    OnPlayerMouseDelta(xRotate, yRotate);
             }
-            ProcessCommand();
         }
     }
 
     //解析角色的真动作.
     protected void ProcessCommand()
     {
-        var command = FSC.Instance.GetCommand(FrameReplay.Instance.LogicFrameIndex);
-        for (int i = 0; i < command.Count; i++)
+        List<FrameCommand> command = FrameReplay.Instance.actions;
+        if (command != null)
         {
-            //取得该角色得操作指令，并且执行.
-            switch (command[i].command)
+            for (int i = 0; i < command.Count; i++)
             {
-                //case protocol.MeteorMsg.Command.MouseDelta:
-                //    OnPlayerMouseDelta(command.data5, command.data6);
-                //    break;
+                if (command[i].playerId != InstanceId)
+                    continue;
+                //取得该角色得操作指令，并且执行.
+                switch (command[i].command)
+                {
+                    case protocol.MeteorMsg.Command.MouseMove:
+                        Debug.LogError("mouse move");
+                        Vector2_ vec = ProtoBuf.Serializer.Deserialize<Vector2_>(new System.IO.MemoryStream(command[i].data));
+                        OnPlayerMouseDelta(vec.x / 1000.0f, vec.y / 1000.0f);
+                        break;
+                }
             }
         }
     }

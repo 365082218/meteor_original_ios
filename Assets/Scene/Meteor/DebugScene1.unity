@@ -2503,29 +2503,6 @@ MonoBehaviour:
     Rotateing: 0
     JumpTick: 0.2
     playResultAction: 0
-  charLoader:
-    bo: []
-    Skin: {fileID: 0}
-    rootBone: {fileID: 0}
-    RootPos: {x: 0, y: 0, z: 0}
-    RootQuat: {x: 0, y: 0, z: 0, w: 0}
-    Target: {fileID: 0}
-    posMng:
-      mActiveActionIdx: 0
-      CanMove: 0
-      CanControl: 0
-      CanChangeWeapon: 0
-      Rotateing: 0
-      JumpTick: 0.2
-      playResultAction: 0
-    owner: {fileID: 0}
-    FPS: 0.033333335
-    moveDelta: {x: 0, y: 0, z: 0}
-    PoseStraight: 0
-    curIndex: 0
-    curPos: 0
-    LoopCount: 0
-    Pause: 0
   weaponLoader: {fileID: 0}
   wayIndex: 0
   OnGroundTick: 0
@@ -4240,7 +4217,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u89D2\u8272:XXX"
+  m_Text: 
 --- !u!222 &1278500245
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5216,7 +5193,6 @@ GameObject:
   - component: {fileID: 1590408364}
   - component: {fileID: 1590408363}
   - component: {fileID: 1590408367}
-  - component: {fileID: 1590408368}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -5304,20 +5280,6 @@ MonoBehaviour:
   - {fileID: 891961299}
   - {fileID: 1919307289}
   - {fileID: 1617964270}
---- !u!114 &1590408368
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1590408361}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0d2ca8320e712324e90a06861523ec0c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SkcMng: {fileID: 0}
-  EffectMng: {fileID: 1154550806}
-  MeshMng: {fileID: 765094584}
 --- !u!1 &1605983479
 GameObject:
   m_ObjectHideFlags: 0

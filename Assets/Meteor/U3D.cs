@@ -604,7 +604,7 @@ public class U3D : MonoBehaviour {
     {
         if (Global.Instance.GLevelItem != null)
         {
-            EscWnd.Instance.DoModal();
+            EscWnd.Instance.Open();
             if (NGUIJoystick.instance != null)
                 NGUIJoystick.instance.Lock(true);
             return;
@@ -627,7 +627,6 @@ public class U3D : MonoBehaviour {
     {
         if (FightWnd.Exist)
             FightWnd.Instance.Close();
-        WindowMng.CloseAll();
         //暂时不允许使用声音管理器，在切换场景时不允许播放
         SoundManager.Instance.StopAll();
         SoundManager.Instance.Enable(false);
@@ -645,7 +644,6 @@ public class U3D : MonoBehaviour {
     {
         if (FightWnd.Exist)
             FightWnd.Instance.Close();
-        WindowMng.CloseAll();
         //暂时不允许使用声音管理器，在切换场景时不允许播放
         SoundManager.Instance.StopAll();
         SoundManager.Instance.Enable(false);

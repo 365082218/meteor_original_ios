@@ -9,20 +9,31 @@ public class FSC:Singleton<FSC>
     List<GameFrames> frames = new List<GameFrames>();//指令序列.没一个下标都是一帧的.
     public void OnReceiveCommand(GameFrames turn)
     {
-        Debug.LogError("OnReceiveCommand Udp");
         frames.Add(turn);
         //收到服务端的帧同步的回应.
-        UdpClientProxy.Exec<int>((int)MeteorMsg.MsgType.SyncCommand, FrameReplay.Instance.LogicFrameIndex);
+        //UdpClientProxy.Exec<int>((int)MeteorMsg.MsgType.SyncCommand, FrameReplay.Instance.LogicFrameIndex);
     }
 
-    public GameFrames NextFrame(int logicFrame)
+    public GameFrames NextFrame(int logicTurn)
     {
-        if (frames.Count > logicFrame && logicFrame >= 0)
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
-            return frames[logicFrame];
+            if (frames.Count > logicTurn && logicTurn >= 0)
+            {
+                return frames[logicTurn];
+            }
+            return null;
         }
-
-        return null;
+        else
+        {
+            int i = frames.Count;
+            for (;i <= logicTurn; i++)
+            {
+                GameFrames f = new GameFrames();
+                frames.Add(f);
+            }
+            return frames[logicTurn];
+        }
     }
 
     public void Reset()
@@ -38,9 +49,12 @@ public class FSC:Singleton<FSC>
     public List<FrameCommand> GetCommand(int frame)
     {
         cmdCache.Clear();
-        for (int i = 0; i < frames[frame].commands.Count; i++)
+        if (frames.Count > frame)
         {
-            cmdCache.Add(frames[frame].commands[i]);
+            for (int i = 0; i < frames[frame].commands.Count; i++)
+            {
+                cmdCache.Add(frames[frame].commands[i]);
+            }
         }
         return cmdCache;
     }
@@ -69,23 +83,20 @@ public class FSS:Singleton<FSS>
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
             //联机时客户端并没有操作,可以不向服务器发送之间的帧指令。但是服务器会生成默认的空操作
-            if (FrameReplay.Instance.LogicFrameIndex >= frames.Count)
-            {
+            if (FrameReplay.Instance.LogicTurnIndex >= frames.Count)
                 return;
-            }
-            GameFrames t = frames[FrameReplay.Instance.LogicFrameIndex];
+            GameFrames t = frames[FrameReplay.Instance.LogicTurnIndex];
             UdpClientProxy.Exec((int)MeteorMsg.MsgType.SyncCommand, t);
         }
         else
         {
             //如果是单机下，所有更新者都没有操作.生成默认的空操作，填充进来
-            if (FrameReplay.Instance.LogicFrameIndex >= frames.Count)
+            if (FrameReplay.Instance.LogicTurnIndex >= frames.Count)
             {
                 GameFrames frame = new GameFrames();
-                
                 frames.Add(frame);
             }
-            GameFrames f = frames[FrameReplay.Instance.LogicFrameIndex];
+            GameFrames f = frames[FrameReplay.Instance.LogicTurnIndex];
             FSC.Instance.OnReceiveCommand(f);
         }
     }
@@ -99,11 +110,10 @@ public class FSS:Singleton<FSS>
     //在当前帧推入指令-鼠标相对上次的偏移，会导致角色绕Y轴旋转
     public void PushMouseDelta(int playerId, float x, float y)
     {
-        GameFrames t = GetFrame(FrameReplay.Instance.NextFrame);
+        GameFrames t = GetFrame(FrameReplay.Instance.NextTurn);
         FrameCommand cmd = new FrameCommand();
-        cmd.command = MeteorMsg.Command.JoyStickMove;
-        //cmd.command = MeteorMsg.Command.MouseDelta;
-        cmd.LogicFrame = (uint)FrameReplay.Instance.NextFrame;
+        cmd.command = MeteorMsg.Command.MouseMove;
+        cmd.LogicFrame = (uint)FrameReplay.Instance.LogicFrameIndex;
         cmd.playerId = (uint)playerId;
         System.IO.MemoryStream ms = new System.IO.MemoryStream();
         Vector2_ vec = new Vector2_();
@@ -116,7 +126,7 @@ public class FSS:Singleton<FSS>
 
     public void Push(int action)
     {
-        PushAction(FrameReplay.Instance.NextFrame, MeteorMsg.MsgType.SyncCommand, (MeteorMsg.Command)action);
+        PushAction(FrameReplay.Instance.NextTurn, MeteorMsg.MsgType.SyncCommand, (MeteorMsg.Command)action);
     }
 
     public void PushAction(int frame, MeteorMsg.MsgType message, MeteorMsg.Command command)
@@ -154,19 +164,21 @@ public class FrameReplay : MonoBehaviour {
     public bool Started;
     public bool bSync;//开始同步历史帧
     //返回下一帧,单机插入指令，都需要在下一帧插入
-    public int NextFrame
+    public int NextTurn
     {
         get
         {
-            return LogicFrameIndex + 1;
+            return LogicTurnIndex + 1;
         }
     }
     public int LogicFrameIndex = 0;
+    public int LogicTurnIndex = 0;
+    const int TurnFrameMax = 8;
     private int AccumilatedTime = 0;
     public static float deltaTime = 20.0f / 1000.0f;
     public int LogicFrameLength = 20;
     GameFrames currentFrame;//当前的Turn
-
+    public List<FrameCommand> actions;
 
     public static event Action UpdateEvent;
     public static event Action LateUpdateEvent;
@@ -188,12 +200,16 @@ public class FrameReplay : MonoBehaviour {
         bSync = true;
         LogicFrameLength = 5;
     }
-    
+
+    bool playRecord = false;
     //当场景以及物件全部加载完成，重新开局时
     public void OnBattleStart()
     {
         currentFrame = null;
         Started = true;
+        LogicTurnIndex = 0;
+        LogicFrameIndex = 0;
+        playRecord = false;
     }
 
     private void Awake()
@@ -208,6 +224,7 @@ public class FrameReplay : MonoBehaviour {
         Started = false;
         AccumilatedTime = 0;
         LogicFrameIndex = 0;
+        LogicTurnIndex = 0;
         FSS.Instance.Reset();
         FSC.Instance.Reset();
     }
@@ -219,6 +236,7 @@ public class FrameReplay : MonoBehaviour {
         //如果重新开始,那么所有指令需要全部清除
         Started = false;
         LogicFrameIndex = 0;
+        LogicTurnIndex = 0;
         AccumilatedTime = 0;
     }
 
@@ -273,7 +291,7 @@ public class FrameReplay : MonoBehaviour {
         if (currentFrame == null)
         {
             //等待从服务器收到接下来一帧的信息.
-            currentFrame = FSC.Instance.NextFrame(LogicFrameIndex);
+            currentFrame = FSC.Instance.NextFrame(LogicTurnIndex);
             if (currentFrame == null)
                 return;
         }
@@ -282,7 +300,7 @@ public class FrameReplay : MonoBehaviour {
 
         }
 
-        List<FrameCommand> actions = GetAction(currentFrame.commands, LogicFrameIndex);
+        actions = GetAction(currentFrame.commands, LogicFrameIndex);
         //gameTurnSW.Start();
 
         //update game
@@ -308,6 +326,14 @@ public class FrameReplay : MonoBehaviour {
             UpdateEvent();
         if (LateUpdateEvent != null)
             LateUpdateEvent();
-        LogicFrameIndex++;
+        if (LogicFrameIndex % TurnFrameMax == 0)
+        {
+            FSS.Instance.SyncTurn();
+            LogicTurnIndex++;
+            currentFrame = null;
+            LogicFrameIndex = 0;
+        }
+        else
+            LogicFrameIndex++;
     }
 }

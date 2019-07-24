@@ -19,7 +19,6 @@ public enum PoseEvt
 
 //读取skc文件并且绘制骨骼
 //负责处理动画帧的播放
-[Serializable]
 public class CharacterLoader
 {
     SkinnedMeshRenderer rend;//绘制顶点UV,贴图，骨骼权重
