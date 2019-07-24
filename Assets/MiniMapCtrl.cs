@@ -34,7 +34,7 @@ public class MiniMapCtrl : MonoBehaviour {
                 obj.transform.localScale = Vector3.one;
                 obj.transform.localRotation = Quaternion.Euler(0, 0, -MeteorManager.Instance.UnitInfos[i].transform.eulerAngles.y);
 
-                Vector2 vec = ConvertToMainPlayer(MeteorManager.Instance.UnitInfos[i].mPos);
+                Vector2 vec = ConvertToMainPlayer(MeteorManager.Instance.UnitInfos[i].transform.position);
                 obj.transform.localPosition = new Vector3(vec.x, vec.y, 0);
                 //主角放最上面,依次是伙伴,最后是敌人
                 if (MeteorManager.Instance.LocalPlayer == MeteorManager.Instance.UnitInfos[i])
@@ -47,7 +47,7 @@ public class MiniMapCtrl : MonoBehaviour {
             else
             {
                 Notify[MeteorManager.Instance.UnitInfos[i].InstanceId].transform.localRotation = Quaternion.Euler(0, 0, -MeteorManager.Instance.UnitInfos[i].transform.eulerAngles.y); //MeteorManager.Instance.UnitInfos[i].transform.rotation.y;
-                Vector2 vec = ConvertToMainPlayer(MeteorManager.Instance.UnitInfos[i].mPos);
+                Vector2 vec = ConvertToMainPlayer(MeteorManager.Instance.UnitInfos[i].transform.position);
                 Notify[MeteorManager.Instance.UnitInfos[i].InstanceId].transform.localPosition = new Vector3(vec.x, vec.y, 0);
             }
         }	
@@ -55,7 +55,7 @@ public class MiniMapCtrl : MonoBehaviour {
 
     Vector2 ConvertToMainPlayer(Vector3 vec)
     {
-        Vector3 vec2 = MeteorManager.Instance.LocalPlayer.mPos - vec;
+        Vector3 vec2 = MeteorManager.Instance.LocalPlayer.transform.position - vec;
         return new Vector2(vec2.x / 10.0f, vec2.z / 10.0f); //224像素-从左侧往右侧 224 * 20 = 4480码,角色的视力范围约为450码,角色高度38码
     }
 

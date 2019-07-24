@@ -47,7 +47,7 @@ public class CameraFree : MonoBehaviour {
 
         if (target != null)
         {
-            cameraLookAt = new Vector3(target.mPos.x, target.transform.position.y + BodyHeight, target.mPos.z);
+            cameraLookAt = new Vector3(target.transform.position.x, target.transform.position.y + BodyHeight, target.transform.position.z);
             Vector3 vpos = new Vector3(0, followHeight, 0) + cameraLookAt + followDistance * (target.transform.forward);
             transform.position = vpos;
             Vector3 vdiff = target.transform.position - transform.position;
@@ -162,10 +162,10 @@ public class CameraFree : MonoBehaviour {
         {
             //有锁定目标
             //开启摄像机锁定系统
-            cameraLookAt = (Target.mPos + Target.GetLockedTarget().mPos) / 2 + new Vector3(0, 25, 0);
-            CameraRadis = Vector3.Distance(Target.mPos, Target.GetLockedTarget().mPos) / 2 + 60;
-            float dis = Vector3.Distance(new Vector3(Target.mPos.x, 0, Target.mPos.z), new Vector3(Target.GetLockedTarget().mPos.x, 0, Target.GetLockedTarget().mPos.z));
-            Vector3 vecDiff = Target.mPos - Target.GetLockedTarget().mPos;
+            cameraLookAt = (Target.transform.position + Target.GetLockedTarget().transform.position) / 2 + new Vector3(0, 25, 0);
+            CameraRadis = Vector3.Distance(Target.transform.position, Target.GetLockedTarget().transform.position) / 2 + 60;
+            float dis = Vector3.Distance(new Vector3(Target.transform.position.x, 0, Target.transform.position.z), new Vector3(Target.GetLockedTarget().transform.position.x, 0, Target.GetLockedTarget().transform.position.z));
+            Vector3 vecDiff = Target.transform.position - Target.GetLockedTarget().transform.position;
             Vector3 vecForward = Vector3.Normalize(new Vector3(vecDiff.x, 0, vecDiff.z));
 
             //最远时，15度，最近时95度，其他值。10码 = 80度 140码 15度 约为 y = -0.5x + 85
@@ -228,9 +228,9 @@ public class CameraFree : MonoBehaviour {
         }
         else
         {
-            cameraLookAt.x = Target.mPos.x;
+            cameraLookAt.x = Target.transform.position.x;
             cameraLookAt.y = Target.transform.position.y + BodyHeight;//朝向焦点
-            cameraLookAt.z = Target.mPos.z;
+            cameraLookAt.z = Target.transform.position.z;
             newPos = cameraLookAt + Target.transform.forward * followDistance;
             newPos.y += followHeight;
             RaycastHit wallHit;
@@ -293,7 +293,7 @@ public class CameraFree : MonoBehaviour {
     bool CameraCanLookTarget(Vector3 pos, out Vector3 hit)
     {
         RaycastHit wallHit;
-        Vector3 targetPos = Target.mPos + new Vector3(0, 25, 0);
+        Vector3 targetPos = Target.transform.position + new Vector3(0, 25, 0);
         if (Physics.Linecast(targetPos, pos, out wallHit,
             1 << LayerMask.NameToLayer("Scene") |
             (1 << LayerMask.NameToLayer("Default")) |

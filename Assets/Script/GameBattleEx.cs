@@ -537,6 +537,7 @@ public partial class GameBattleEx : LockBehaviour {
         //角色摄像机跟随者着角色.
         CameraFollow followCamera = GameObject.Find("CameraEx").GetComponent<CameraFollow>();
         followCamera.Init();
+        followCamera.FollowTarget(MeteorManager.Instance.LocalPlayer.transform);
         m_CameraControl = followCamera;
 
         if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
@@ -782,7 +783,7 @@ public partial class GameBattleEx : LockBehaviour {
                             else
                             {
                                 float k = UnityEngine.Random.Range(-(100 - unit.Attr.Aim) / 3.0f, (100 - unit.Attr.Aim) / 3.0f);
-                                Vector3 vec = unit.GetLockedTarget().mPos + new Vector3(k, UnityEngine.Random.Range(10, 38), k);
+                                Vector3 vec = unit.GetLockedTarget().transform.position + new Vector3(k, UnityEngine.Random.Range(10, 38), k);
                                 forw = (vec - vecSpawn).normalized;
                             }
                             //要加一点随机，否则每次都打一个位置不正常

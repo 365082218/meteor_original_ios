@@ -121,9 +121,9 @@ public class FlyWheel : LockBehaviour {
     {
         if (auto_target != null)
         {
-            TargetPosCache = auto_target.mPos + Vector3.up * 25.0f;
+            TargetPosCache = auto_target.transform.position + Vector3.up * 25.0f;
             //计算一个坐标，终点，作为贝塞尔曲线的控制点.
-            Vector3 vecforw = (new Vector3(auto_target.mPos.x, 0, auto_target.mPos.z) - new Vector3(owner.mPos.x, 0, owner.mPos.z)).normalized;
+            Vector3 vecforw = (new Vector3(auto_target.transform.position.x, 0, auto_target.transform.position.z) - new Vector3(owner.transform.position.x, 0, owner.transform.position.z)).normalized;
             //主角面向向量与（主角朝目标向量）的夹角的一半
             float angle = Mathf.Acos(Mathf.Clamp(Vector3.Dot(-owner.transform.forward, vecforw), -1.0f, 1.0f));
             if (angle * Mathf.Rad2Deg > 90.0f)
@@ -139,7 +139,7 @@ public class FlyWheel : LockBehaviour {
             //左侧
             Vector3 vec = Quaternion.AngleAxis((isLeft ? -angle / 2.0f : angle / 2.0f) * Mathf.Rad2Deg, Vector3.up) * (-owner.transform.forward);
             //Debug.LogError("vec:" + vec);
-            Vector3 vecPosition = vec * (Vector3.Distance(new Vector3(auto_target.mPos.x, 0, auto_target.mPos.z), new Vector3(owner.mPos.x, 0, owner.mPos.z))) + owner.WeaponR.position - 0.5f * Vector3.up * (owner.mPos.y - auto_target.mPos.y);
+            Vector3 vecPosition = vec * (Vector3.Distance(new Vector3(auto_target.transform.position.x, 0, auto_target.transform.position.z), new Vector3(owner.transform.position.x, 0, owner.transform.position.z))) + owner.WeaponR.position - 0.5f * Vector3.up * (owner.transform.position.y - auto_target.transform.position.y);
             //Debug.LogError("vecPosition:" + vecPosition);
             spline.SetControlPoint(1, vecPosition);
             spline.SetControlPoint(2, TargetPosCache);
@@ -157,7 +157,7 @@ public class FlyWheel : LockBehaviour {
         //出击时就确定反向的，不能刷新跟踪
         if (outofArea)
             return;
-        TargetPosCache = auto_target.mPos + Vector3.up * 25.0f;
+        TargetPosCache = auto_target.transform.position + Vector3.up * 25.0f;
         spline.SetControlPoint(2, TargetPosCache);
         //tTotal = tTick + spline.GetLength() / speed;
     }
