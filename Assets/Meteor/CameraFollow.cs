@@ -154,6 +154,8 @@ public class CameraFollow : LockBehaviour {
     {
         if (MeteorManager.Instance.LocalPlayer != null && !Global.Instance.PauseAll)
         {
+            if (MeteorManager.Instance.LocalPlayer.IsOnGroundEx())
+                currentEulerVelocityY = 0;
             CameraSmoothFollow(Smooth);
         }
         else
@@ -499,17 +501,19 @@ public class CameraFollow : LockBehaviour {
             else
             {
                 //只有高度是缓动的，其他轴上都是即刻,Y轴要有延迟，避免瞬移
-                if (YLagStart)
-                {
-                    YLagTime += FrameReplay.deltaTime;
-                    newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, YLagTime);
-                    YLagStart = CheckLagEnd();
-                }
-                else
-                {
-                    newPos.y = transform.position.y;
-                    YLagStart = CheckLagStart();
-                }
+                //if (YLagStart)
+                //{
+                    //YLagTime -= FrameReplay.deltaTime;
+                    newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, 0.1f);
+                    //YLagStart = CheckLagEnd();
+                    //lastY = Target.position.y;
+                //}
+                //else
+                //{
+                //    newPos.y = transform.position.y;
+                //    YLagStart = CheckLagStart();
+                //    currentEulerVelocityY = 0;
+                //}
 
                 transform.position = newPos;
                 //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
@@ -527,17 +531,24 @@ public class CameraFollow : LockBehaviour {
     }
 
     /// <summary>
-    /// 检查延迟缓动是否该结束，当延迟缓动一段时间内无超过阈值的高度变化时，延迟缓动结束
+    /// 检查延迟缓动是否该结束，当延迟缓动一段时间(10帧内)无超过阈值的高度变化时，延迟缓动结束
     /// </summary>
-    /// <returns></returns>
+    int nLagFrame = 0;
     bool CheckLagEnd()
     {
         //大于3
         if (Mathf.Abs(Target.position.y - lastY) >= lagYMin)
         {
-            lastY = Target.position.y;
+            //还需要继续跟随Y
             return true;
         }
+        nLagFrame += 1;
+        if (nLagFrame >= 30)
+        {
+            nLagFrame = 0;
+            return false;
+        }
+        Debug.LogError("end lag:" + Time.frameCount);
         return false;
     }
 
@@ -545,8 +556,8 @@ public class CameraFollow : LockBehaviour {
     /// 检查延迟缓动是否该开始，当延迟缓动超出阈值指定的高度变化时，延迟缓动开始
     /// </summary>
     /// <returns></returns>
-    const float lagYMax = 30.0f;
-    const float lagYMin = 5.0f;
+    const float lagYMax = 20.0f;
+    const float lagYMin = 3.0f;
     float lastY = 0.0f;
     float YLagTime = 0.1f;
     bool CheckLagStart()
@@ -555,6 +566,7 @@ public class CameraFollow : LockBehaviour {
         {
             lastY = Target.position.y;
             YLagTime = 0.1f;
+            Debug.LogError("start lag:" + Time.frameCount);
             return true;
         }
         return false;

@@ -123,17 +123,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b3816a170720804a83040ea265133ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  orderType: 1
+  Target: {fileID: 0}
+  LockTarget: {fileID: 0}
   followDistance: 50
   followHeight: 40
-  followRotationDamping: 5
-  followHeightDamping: 5
   m_MinSize: 30
+  f_speedMax: 150
+  f_eulerMax: 60
   m_Camera: {fileID: 0}
   cameraLookAt: {x: 0, y: 0, z: 0}
   fRadis: 0
   lastAngle: 0
-  smoothIntensity: 20
-  RotateIntensity: 8
+  Smooth: 1
+  SmoothDampTime: 0.15
+  SmoothDampYTime: 0.1
   LookAtAngle: 15
   BodyHeight: 32
   newViewIndex:
