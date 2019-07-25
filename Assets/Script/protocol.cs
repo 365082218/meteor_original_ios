@@ -135,7 +135,10 @@ namespace protocol
       OnPlayerReConnect = 149,
             
       [global::ProtoBuf.ProtoEnum(Name=@"AudioChat", Value=150)]
-      AudioChat = 150
+      AudioChat = 150,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SyncCommand", Value=888)]
+      SyncCommand = 888
     }
   
     [global::ProtoBuf.ProtoContract(Name=@"Command")]
@@ -173,16 +176,7 @@ namespace protocol
       SellItem = 200,
             
       [global::ProtoBuf.ProtoEnum(Name=@"BuyItem", Value=201)]
-      BuyItem = 201,
-            
-      [global::ProtoBuf.ProtoEnum(Name=@"SyncToSvr", Value=888)]
-      SyncToSvr = 888,
-            
-      [global::ProtoBuf.ProtoEnum(Name=@"SyncToClient", Value=889)]
-      SyncToClient = 889,
-            
-      [global::ProtoBuf.ProtoEnum(Name=@"FetchCommand", Value=890)]
-      FetchCommand = 890
+      BuyItem = 201
     }
   
     private global::ProtoBuf.IExtension extensionObject;
@@ -1020,12 +1014,12 @@ namespace protocol
   {
     public FrameCommand() {}
     
-    private uint _fillFrameIndex;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"fillFrameIndex", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public uint fillFrameIndex
+    private uint _LogicFrame;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"LogicFrame", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public uint LogicFrame
     {
-      get { return _fillFrameIndex; }
-      set { _fillFrameIndex = value; }
+      get { return _LogicFrame; }
+      set { _LogicFrame = value; }
     }
     private uint _playerId = default(uint);
     [global::ProtoBuf.ProtoMember(2, IsRequired = false, Name=@"playerId", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
@@ -1059,15 +1053,8 @@ namespace protocol
   {
     public GameFrames() {}
     
-    private uint _keyframeIndex;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"keyframeIndex", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public uint keyframeIndex
-    {
-      get { return _keyframeIndex; }
-      set { _keyframeIndex = value; }
-    }
     private readonly global::System.Collections.Generic.List<FrameCommand> _commands = new global::System.Collections.Generic.List<FrameCommand>();
-    [global::ProtoBuf.ProtoMember(2, Name=@"commands", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::ProtoBuf.ProtoMember(1, Name=@"commands", DataFormat = global::ProtoBuf.DataFormat.Default)]
     public global::System.Collections.Generic.List<FrameCommand> commands
     {
       get { return _commands; }

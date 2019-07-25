@@ -517,7 +517,9 @@ public class SceneItemAgent : LockBehaviour {
 
                 }
                 else
-                    Debug.LogError(na + " can not alysis:" + custom_feature[i]);
+                {
+                    //Debug.LogError(na + " can not alysis:" + custom_feature[i]);
+                }
             }
         }
     }

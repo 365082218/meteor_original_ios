@@ -2211,6 +2211,12 @@ public class MeteorAI {
             owner.StopCoroutine(PatrolRotateToTargetCoroutine);
             PatrolRotateToTargetCoroutine = null;
         }
+
+        if (RefreshPathCoroutine != null)
+        {
+            Startup.ins.StopCoroutine(RefreshPathCoroutine);
+            RefreshPathCoroutine = null;
+        }
     }
 
     public void ResetAIKey()

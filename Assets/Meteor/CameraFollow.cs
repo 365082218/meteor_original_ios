@@ -24,6 +24,7 @@ public class CameraFollow : LockBehaviour {
     public float followHeight = 0;//离跟随点多高。
     public float m_MinSize = 55;//fov最小55
     public float f_speedMax = 150.0f;//移动速度最大限制
+    public float f_speedYMax = 30.0f;//Y轴阻尼速度限制
     public float f_eulerMax = 60.0f;//角速度最大值
     [HideInInspector]
     public Camera m_Camera;
@@ -75,7 +76,10 @@ public class CameraFollow : LockBehaviour {
     public void OnChangeLockTarget(Transform trans)
     {
         if (DisableLockTarget)
+        {
+            LockTarget = null;
             return;
+        }
         LockTarget = trans;
     }
 
@@ -90,7 +94,7 @@ public class CameraFollow : LockBehaviour {
             transform.position = vpos;
             Vector3 vdiff = Target.position - transform.position;
             transform.rotation = Quaternion.LookRotation(new Vector3(vdiff.x, 0, vdiff.z), Vector3.up);
-            lastY = Target.position.y;
+            //lastY = Target.position.y;
         }
         enabled = true;
     }
@@ -122,7 +126,7 @@ public class CameraFollow : LockBehaviour {
 
     public void ForceUpdate()
     {
-        if (MeteorManager.Instance.LocalPlayer != null && !Global.Instance.PauseAll)
+        if (Target != null && !Global.Instance.PauseAll)
             CameraSmoothFollow();
         else
         {
@@ -156,7 +160,7 @@ public class CameraFollow : LockBehaviour {
         {
             if (MeteorManager.Instance.LocalPlayer.IsOnGroundEx())
                 currentEulerVelocityY = 0;
-            CameraSmoothFollow(Smooth);
+            CameraSmoothFollow();
         }
         else
         {
@@ -444,33 +448,33 @@ public class CameraFollow : LockBehaviour {
             //Debug.Log("followHeight:" + followHeight);
             newPos = cameraLookAt + MeteorManager.Instance.LocalPlayer.transform.forward * followDistance;
             newPos.y += followHeight;
-           
-            //RaycastHit wallHit;
-            //bool hitWall = false;
-            //if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
-            //    1 << LayerMask.NameToLayer("Scene") |
-            //    (1 << LayerMask.NameToLayer("Default")) |
-            //    (1 << LayerMask.NameToLayer("Wall")) |
-            //    (1 << LayerMask.NameToLayer("Water"))))
-            //{
-            //    if (!wallHit.collider.isTrigger)
-            //    {
-            //        hitWall = true;
-            //        //Debug.LogError("hitWall" + wallHit.transform.name);
-            //        //摄像机与角色间有物件遮挡住角色，开始自动计算摄像机位置.
-            //        //Debug.LogError("camera linecast with:" + wallHit.transform.name);
-            //        newPos = wallHit.point + Vector3.Normalize(cameraLookAt - wallHit.point) * 5;
-            //        //if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
-            //        //1 << LayerMask.NameToLayer("Scene") |
-            //        //(1 << LayerMask.NameToLayer("Default")) |
-            //        //(1 << LayerMask.NameToLayer("Wall")) |
-            //        //(1 << LayerMask.NameToLayer("Water"))))
-            //        //{
-            //        //    m_Targets[2].position = wallHit.point;
-            //        //    Debug.LogError("?????");
-            //        //}
-            //    }
-            //}
+
+            RaycastHit wallHit;
+            bool hitWall = false;
+            if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
+                1 << LayerMask.NameToLayer("Scene") |
+                (1 << LayerMask.NameToLayer("Default")) |
+                (1 << LayerMask.NameToLayer("Wall")) |
+                (1 << LayerMask.NameToLayer("Water"))))
+            {
+                if (!wallHit.collider.isTrigger)
+                {
+                    hitWall = true;
+                    Debug.LogError("hitWall" + wallHit.transform.name);
+                    //摄像机与角色间有物件遮挡住角色，开始自动计算摄像机位置.
+                    //Debug.LogError("camera linecast with:" + wallHit.transform.name);
+                    newPos = wallHit.point + Vector3.Normalize(cameraLookAt - wallHit.point) * 5;
+                    //if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
+                    //1 << LayerMask.NameToLayer("Scene") |
+                    //(1 << LayerMask.NameToLayer("Default")) |
+                    //(1 << LayerMask.NameToLayer("Wall")) |
+                    //(1 << LayerMask.NameToLayer("Water"))))
+                    //{
+                    //    m_Targets[2].position = wallHit.point;
+                    //    Debug.LogError("?????");
+                    //}
+                }
+            }
 
             //由电影视角，切换到单人视角之间的动画.
             if (animationPlay)
@@ -501,75 +505,20 @@ public class CameraFollow : LockBehaviour {
             else
             {
                 //只有高度是缓动的，其他轴上都是即刻,Y轴要有延迟，避免瞬移
-                //if (YLagStart)
-                //{
-                    //YLagTime -= FrameReplay.deltaTime;
-                    newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, 0.1f);
-                    //YLagStart = CheckLagEnd();
-                    //lastY = Target.position.y;
-                //}
-                //else
-                //{
-                //    newPos.y = transform.position.y;
-                //    YLagStart = CheckLagStart();
-                //    currentEulerVelocityY = 0;
-                //}
-
+                //if (!MeteorManager.Instance.LocalPlayer.IsOnGroundEx())
+                    newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, 0.1f, f_speedYMax);
                 transform.position = newPos;
                 //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
                 //transform.rotation = to;
                 Vector3 vec = transform.eulerAngles;
                 transform.LookAt(cameraLookAt);
 
-                vec.x = transform.eulerAngles.x;
-                vec.y = transform.eulerAngles.y;
-                //vec.y = Mathf.SmoothDampAngle(vec.y, transform.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
+                vec.x = transform.eulerAngles.x;//MeteorManager.Instance.LocalPlayer.IsOnGroundEx() ? transform.eulerAngles.x : Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, 0.1f);
+                vec.y = transform.eulerAngles.y;//Mathf.SmoothDampAngle(vec.y, , ref currentEulerVelocityY, 0.1f);
                 vec.z = 0;
                 transform.eulerAngles = vec;
             }
         }
-    }
-
-    /// <summary>
-    /// 检查延迟缓动是否该结束，当延迟缓动一段时间(10帧内)无超过阈值的高度变化时，延迟缓动结束
-    /// </summary>
-    int nLagFrame = 0;
-    bool CheckLagEnd()
-    {
-        //大于3
-        if (Mathf.Abs(Target.position.y - lastY) >= lagYMin)
-        {
-            //还需要继续跟随Y
-            return true;
-        }
-        nLagFrame += 1;
-        if (nLagFrame >= 30)
-        {
-            nLagFrame = 0;
-            return false;
-        }
-        Debug.LogError("end lag:" + Time.frameCount);
-        return false;
-    }
-
-    /// <summary>
-    /// 检查延迟缓动是否该开始，当延迟缓动超出阈值指定的高度变化时，延迟缓动开始
-    /// </summary>
-    /// <returns></returns>
-    const float lagYMax = 20.0f;
-    const float lagYMin = 3.0f;
-    float lastY = 0.0f;
-    float YLagTime = 0.1f;
-    bool CheckLagStart()
-    {
-        if (Mathf.Abs(Target.position.y - lastY) >= lagYMax)
-        {
-            lastY = Target.position.y;
-            YLagTime = 0.1f;
-            Debug.LogError("start lag:" + Time.frameCount);
-            return true;
-        }
-        return false;
     }
 
     //由玩家Y轴25位置向摄像机期望点发射线，如果碰到墙壁返回false，否则true

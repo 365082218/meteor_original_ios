@@ -802,7 +802,7 @@ public partial class MeteorUnit : LockBehaviour
                 //把Mouse的移动事件/触屏的拖拽事件发送到
                 if (xRotate != 0 || yRotate != 0)
                 {
-                    Debug.LogError("push mouse move");
+                    //Debug.LogError("push mouse move");
                     FSS.Instance.PushMouseDelta(InstanceId, xRotate, yRotate);
                 }
             }
@@ -823,7 +823,7 @@ public partial class MeteorUnit : LockBehaviour
                 switch (command[i].command)
                 {
                     case protocol.MeteorMsg.Command.MouseMove:
-                        Debug.LogError("mouse move");
+                        //Debug.LogError("mouse move");
                         Vector2_ vec = ProtoBuf.Serializer.Deserialize<Vector2_>(new System.IO.MemoryStream(command[i].data));
                         OnPlayerMouseDelta(vec.x / 1000.0f, vec.y / 1000.0f);
                         break;
@@ -839,6 +839,8 @@ public partial class MeteorUnit : LockBehaviour
         //存储上一帧鼠标或者触屏的偏移.
         xRotateDelta = x;
         yRotateDelta = y;
+        if (this == MeteorManager.Instance.LocalPlayer)
+            CameraFollow.Ins.OnTargetRotate(xRotateDelta, yRotateDelta);
     }
 
     //刷新敌人，视野内的可拾取道具

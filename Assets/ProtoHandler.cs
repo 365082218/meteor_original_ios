@@ -123,7 +123,7 @@ class ProtoHandler
 
                             //帧同步信息-UDP
                             //收到服务器的帧同步信息.
-                            case (int)MeteorMsg.Command.SyncToClient:
+                            case (int)MeteorMsg.MsgType.SyncCommand:
                                 ms = new MemoryStream(each.Value);
                                 GameFrames t = ProtoBuf.Serializer.Deserialize<GameFrames>(ms);
                                 FSC.Instance.OnReceiveCommand(t);
