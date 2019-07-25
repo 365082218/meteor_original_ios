@@ -8,17 +8,6 @@ using System.Collections.Generic;
 
 public class BuildLevelBytes
 {
-    //[MenuItem("MeteorTool/Build/Package")]
-    //public static void Package()
-    //{
-    //    string path = "Assets/";
-    //    if (!File.Exists(VerMng.GetPlatformPath(BuildTarget.Android) + "/" + "0.0.0.1"))
-    //        System.IO.Directory.CreateDirectory(VerMng.GetPlatformPath(BuildTarget.Android) + "/" + "0.0.0.1");
-    //    path = VerMng.GetPlatformPath(BuildTarget.Android) + "/" + "0.0.0.1";
-    //    BuildPipeline.BuildAssetBundles(path, BuildAssetBundleOptions.None, BuildTarget.Android);
-    //    AssetDatabase.Refresh();
-    //}
-
     [MenuItem("Meteor/SceDesMng/SaveLevelItem")]
     public static void ConvertLevelDataToBytes()
     {

@@ -24,6 +24,7 @@ public enum LevelMode
     Teach,//教学
     SinglePlayerTask,//剧情任务
     CreateWorld,//单机-创建世界
+    //小于他的全是单机.
     MultiplyPlayer,//联机-看GameMode
 }
 
@@ -36,7 +37,8 @@ public enum GameMode
     ANSHA = 4,//分为蝴蝶和流星阵营`每一边人数一般都是8个才开始玩，暗杀有队长和队友，队长脚下有个圈圈，流星阵营是蓝的，蝴蝶阵营是红的，
     //杀死对方队长算胜利，队友死了队长可以复活队友，复活的对友血量只有一半，以地图上的流星蝴蝶阵营的位置为出生点
     SIDOU = 5,//分为蝴蝶和流星阵营，不分队长和队友，死了不能复活。杀死对方全部敌人才算胜利
-    Normal = 6,//单机关卡,以路点作为出生点,剧本关卡
+    Normal = 6,//单机关卡,以路点作为出生点,剧本关卡.
+    GroupRPG = 7,//联机剧本模式.
 }
 
 [ProtoBuf.ProtoContract(ImplicitFields = ProtoBuf.ImplicitFields.AllFields)]

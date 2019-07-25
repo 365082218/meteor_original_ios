@@ -27,7 +27,6 @@ public class LoadingWnd : Window<LoadingWnd>, LoadingUI
             loadingTexture = Resources.Load<Material>("Scene10") as Material;
         if (loadingTexture != null)
             Control("ShowLoading").GetComponent<Image>().material = loadingTexture;
-        WinStyle = WindowStyle.WS_Ext;
         SetLoadingNoticeLabel();
 		mProgressBar.fillAmount = 0f;
         return base.OnOpen();

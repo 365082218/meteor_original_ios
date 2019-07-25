@@ -60,7 +60,8 @@ public class DebugScene1 : MonoBehaviour {
         
         int sfx = (ScrollView.CurrentData as SfxCellData).Sfx;
         sfxDebugTarget = SFXLoader.Instance.PlayEffect(sfx, Player.charLoader);
-        sfxDebugTarget.setAsDebug();
+        if (sfxDebugTarget != null)
+            sfxDebugTarget.setAsDebug();
     }
 
     public void Far()

@@ -483,7 +483,7 @@ public partial class GameBattleEx : LockBehaviour {
             }
         }
 
-        if (Global.Instance.GGameMode == GameMode.ANSHA)
+        if (Global.Instance.GGameMode == GameMode.ANSHA || Global.Instance.GLevelItem.Pass == 2)
         {
             MeteorUnit uEnemy = U3D.GetTeamLeader(EUnitCamp.EUC_ENEMY);
             SFXLoader.Instance.PlayEffect("vipblue.ef", MeteorManager.Instance.LocalPlayer.gameObject, false);

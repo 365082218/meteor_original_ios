@@ -91,7 +91,7 @@ public class Main : MonoBehaviour {
         else
 		if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
         {
-            Debug.LogError("download:" + string.Format(strVFile, strHost, Main.port, strProjectUrl, strPlatform, strVFileName));
+            //Debug.LogError("download:" + string.Format(strVFile, strHost, Main.port, strProjectUrl, strPlatform, strVFileName));
             UnityWebRequest vFile = new UnityWebRequest();
             vFile.url = string.Format(strVFile, strHost, Main.port, strProjectUrl, strPlatform, strVFileName);
             vFile.timeout = 5;

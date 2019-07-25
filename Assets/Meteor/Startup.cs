@@ -18,7 +18,7 @@ public class Startup : MonoBehaviour {
 
     void Awake()
     {
-        Debug.LogError(Application.persistentDataPath);
+        //Debug.LogError(Application.persistentDataPath);
         ins = this;
         DontDestroyOnLoad(gameObject);
         Log.WriteError(string.Format("GameStart AppVersion:{0}", AppInfo.Instance.AppVersion()));

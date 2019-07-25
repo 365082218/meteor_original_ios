@@ -35,13 +35,6 @@ public class MeteorManager {
         DropThing.Add(obj);
     }
 
-    public void OnCloneUnit(MeteorUnit unit, MeteorUnit clone)
-    {
-        clone.InstanceId = unit.InstanceId;
-        UnitInfos.Remove(unit);
-        UnitInfos.Add(clone);
-    }
-
     public void OnGenerateUnit(MeteorUnit unit, int playerId = 0)
     {
         if (UnitInfos.Contains(unit))

@@ -2373,9 +2373,10 @@ public class BattleResultWnd : Window<BattleResultWnd>
             if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
                 UdpClientProxy.LeaveLevel();
             else
+            {
                 FrameReplay.Instance.OnDisconnected();
-
-            Startup.ins.PlayEndMovie(result == 1);
+                Startup.ins.PlayEndMovie(result == 1);
+            }
         });
     }
 

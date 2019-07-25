@@ -365,7 +365,7 @@ public class Common
 
     public static void Exec<T>(Socket s, int msg, T rsp)
     {
-        UnityEngine.Debug.LogError("send msg:" + msg);
+        //UnityEngine.Debug.LogError("send msg:" + msg);
         if (s != null && s.Connected)
         {
             MemoryStream ms = new MemoryStream();
@@ -380,7 +380,7 @@ public class Common
             Buffer.BlockCopy(wIdent, 0, data, 4, 4);
             try
             {
-                UnityEngine.Debug.LogError("send msg 2:" + msg);
+                //UnityEngine.Debug.LogError("send msg 2:" + msg);
                 s.Send(data, length, SocketFlags.None);
             }
             catch (Exception exp)

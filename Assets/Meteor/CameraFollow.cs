@@ -120,11 +120,10 @@ public class CameraFollow : LockBehaviour {
         //}
     }
 
-    public bool Smooth = true;
     public void ForceUpdate()
     {
         if (MeteorManager.Instance.LocalPlayer != null && !Global.Instance.PauseAll)
-            CameraSmoothFollow(Smooth);
+            CameraSmoothFollow();
         else
         {
             if (FreeCamera)
@@ -152,6 +151,7 @@ public class CameraFollow : LockBehaviour {
 
     protected override void LockUpdate()
     {
+        //Debug.LogError("lockupdate:" + Time.frameCount);
         if (MeteorManager.Instance.LocalPlayer != null && !Global.Instance.PauseAll)
         {
             if (MeteorManager.Instance.LocalPlayer.IsOnGroundEx())

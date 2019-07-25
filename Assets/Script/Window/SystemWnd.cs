@@ -215,7 +215,6 @@ public class EscWnd : Window<EscWnd>
         }
 
         InitLevel();
-        mWindowStyle = WindowStyle.WS_Modal;
     }
 
     void OnChangeSpeed(bool fast)
