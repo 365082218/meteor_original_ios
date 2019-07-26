@@ -18,28 +18,32 @@ public class CameraFollow : LockBehaviour {
     public static CameraFollow Ins { get { return Instance; } }
     static CameraFollow Instance;
     //public Transform[] m_Targets;//摄像机的各个视角的调试对象.
+    public Transform CameraLookAt;//摄像机注视的目标
+    public Transform CameraPosition;//摄像机经过缓动后的期望位置
     public Transform Target;
     public Transform LockTarget;//锁定目标，战斗系统里的摄像机针对的除了主角外的第二目标.
     public float followDistance = 50;//在角色身后多远
     public float followHeight = 0;//离跟随点多高。
     public float m_MinSize = 55;//fov最小55
     public float f_speedMax = 150.0f;//移动速度最大限制
-    public float f_speedYMax = 30.0f;//Y轴阻尼速度限制
+    public float f_DampTime = 0.1f;
     public float f_eulerMax = 60.0f;//角速度最大值
     [HideInInspector]
     public Camera m_Camera;
-    public Vector3 cameraLookAt = Vector3.zero;
-    //Transform cameraPosFollow;
     public float fRadis;
     public float lastAngle;
     float angleMax = 75.0f;
     float angleMin = -75.0f;
+    CameraFollow2 cam;
     protected new void Awake()
     {
         this.orderType = OrderType.Late;
         base.Awake();
+        CameraPosition = new GameObject("CameraPosition").transform;
+        CameraLookAt = new GameObject("CameraLookAt").transform;
         enabled = false;
         Instance = this;
+        cam = gameObject.AddComponent<CameraFollow2>();
     }
 
     private new void OnDestroy()
@@ -89,12 +93,12 @@ public class CameraFollow : LockBehaviour {
         Target = followTarget;
         if (Target != null)
         {
-            cameraLookAt = new Vector3(Target.position.x, Target.position.y + BodyHeight, Target.position.z);
-            Vector3 vpos = new Vector3(0, followHeight, 0) + cameraLookAt + followDistance * (Target.forward);
-            transform.position = vpos;
-            Vector3 vdiff = Target.position - transform.position;
+            cam.target = Target;
+            CameraLookAt.position = new Vector3(Target.position.x, Target.position.y + BodyHeight, Target.position.z);
+            CameraPosition.position = new Vector3(0, followHeight, 0) + CameraLookAt.position + followDistance * (Target.forward);
+            transform.position = CameraPosition.position;
+            Vector3 vdiff = CameraLookAt.position - transform.position;
             transform.rotation = Quaternion.LookRotation(new Vector3(vdiff.x, 0, vdiff.z), Vector3.up);
-            //lastY = Target.position.y;
         }
         enabled = true;
     }
@@ -213,7 +217,7 @@ public class CameraFollow : LockBehaviour {
         if (AutoTarget != null)
         {
             Vector3 newPos = CalcPosition(AutoTarget);
-            cameraLookAt = CalcLookat(AutoTarget);
+            CameraLookAt.position = CalcLookat(AutoTarget);
             if (animationPlay)
             {
                 if (animationTick >= SmoothDampTime)
@@ -228,9 +232,9 @@ public class CameraFollow : LockBehaviour {
                     newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime, f_speedMax);
                     newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime, f_speedMax);
                     transform.position = newPos;
-                    if (cameraLookAt != Vector3.zero)
+                    if (CameraLookAt.position != Vector3.zero)
                     {
-                        transform.LookAt(cameraLookAt);
+                        transform.LookAt(CameraLookAt.position);
                         Vector3 vec = transform.eulerAngles;
                         vec.z = 0;
                         transform.eulerAngles = vec;
@@ -244,10 +248,10 @@ public class CameraFollow : LockBehaviour {
                 newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime, f_speedMax);
                 newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime, f_speedMax);
                 transform.position = newPos;
-                if (cameraLookAt != Vector3.zero)
+                if (CameraLookAt.position != Vector3.zero)
                 {
                     Vector3 vec = transform.eulerAngles;
-                    transform.LookAt(cameraLookAt);
+                    transform.LookAt(CameraLookAt.position);
                     vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
                     vec.y = transform.eulerAngles.y;
                     vec.z = 0;
@@ -308,6 +312,7 @@ public class CameraFollow : LockBehaviour {
 
     float currentVelocityX;
     float currentVelocityY;
+    float currentVelocityY2;
     float currentVelocityZ;
     float currentEulerVelocityX;
     float currentEulerVelocityY;
@@ -344,7 +349,7 @@ public class CameraFollow : LockBehaviour {
         {
             //有锁定目标
             //开启摄像机锁定系统
-            cameraLookAt = (Target.position + LockTarget.position) / 2 + new Vector3(0, 25, 0);
+            CameraLookAt.position = (Target.position + LockTarget.position) / 2 + new Vector3(0, 25, 0);
             CameraRadis = Vector3.Distance(Target.position, LockTarget.position) / 2 + 60;
             float dis = Vector3.Distance(new Vector3(Target.position.x, 0, Target.position.z), new Vector3(LockTarget.position.x, 0, LockTarget.position.z));
             Vector3 vecDiff = Target.position - LockTarget.position;
@@ -354,12 +359,12 @@ public class CameraFollow : LockBehaviour {
             //半径最低65，最高
             angleY = -0.5f * dis + 95;
             float yHeight = Mathf.Tan(LookAtAngle * Mathf.Deg2Rad) * CameraRadis;
-            newViewIndex[0] = cameraLookAt + Quaternion.AngleAxis(-angleY, Vector3.up) * vecForward * CameraRadis;
+            newViewIndex[0] = CameraLookAt.position + Quaternion.AngleAxis(-angleY, Vector3.up) * vecForward * CameraRadis;
             newViewIndex[0].y += yHeight;
 
-            newViewIndex[1] = cameraLookAt + Quaternion.AngleAxis(angleY, Vector3.up) * vecForward * CameraRadis;
+            newViewIndex[1] = CameraLookAt.position + Quaternion.AngleAxis(angleY, Vector3.up) * vecForward * CameraRadis;
             newViewIndex[1].y += yHeight;
-            newViewIndex[2] = cameraLookAt + Quaternion.AngleAxis(-angleY, Target.right) * vecForward * CameraRadis;//顶部最后考虑
+            newViewIndex[2] = CameraLookAt.position + Quaternion.AngleAxis(-angleY, Target.right) * vecForward * CameraRadis;//顶部最后考虑
 
             //vecTarget[0] = newViewIndex[ViewIndex];
             //vecTarget[1] = newViewIndex[(ViewIndex + 1) % 3];
@@ -383,7 +388,7 @@ public class CameraFollow : LockBehaviour {
                 else
                 {
                     float fdis = Vector3.Distance(wallHitPos, transform.position);
-                    float disWall = Vector3.Distance(wallHitPos, cameraLookAt);//墙壁与看向目标的距离一定要足够，否则视角堵着很难受.
+                    float disWall = Vector3.Distance(wallHitPos, CameraLookAt.position);//墙壁与看向目标的距离一定要足够，否则视角堵着很难受.
                     if (fdis < dis && disWall > 40.0f)
                     {
                         dis = fdis;
@@ -408,7 +413,7 @@ public class CameraFollow : LockBehaviour {
             newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime);
             transform.position = newPos;
             //摄像机朝向观察目标,平滑的旋转视角
-            Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
+            Quaternion to = Quaternion.LookRotation(CameraLookAt.position - transform.position, Vector3.up);
             Vector3 vec = to.eulerAngles;
             vec.x = Mathf.SmoothDampAngle(transform.eulerAngles.x, to.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
             vec.y = Mathf.SmoothDampAngle(transform.eulerAngles.y, to.eulerAngles.y, ref currentEulerVelocityY, SmoothDampTime);
@@ -441,17 +446,23 @@ public class CameraFollow : LockBehaviour {
                 }
             }
 
-            cameraLookAt.x = Target.position.x;
-            cameraLookAt.y = Target.position.y + BodyHeight;//朝向焦点
-            cameraLookAt.z = Target.position.z;
+            float y = Mathf.SmoothDamp(CameraPosition.position.y, Target.position.y + BodyHeight + followHeight, ref currentVelocityY, f_DampTime);
+            newPos.x = Target.transform.position.x;
+            newPos.y = y;
+            newPos.z = Target.transform.position.z;
+            newPos += MeteorManager.Instance.LocalPlayer.transform.forward * followDistance;
 
-            //Debug.Log("followHeight:" + followHeight);
-            newPos = cameraLookAt + MeteorManager.Instance.LocalPlayer.transform.forward * followDistance;
-            newPos.y += followHeight;
+            CameraPosition.position = newPos;
+
+            vecTarget.x = Target.position.x;
+            vecTarget.y = Mathf.SmoothDamp(CameraLookAt.position.y, Target.position.y + BodyHeight, ref currentVelocityY2, f_DampTime);
+            vecTarget.z = Target.position.z;
+
+            CameraLookAt.position = vecTarget;
 
             RaycastHit wallHit;
             bool hitWall = false;
-            if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
+            if (Physics.Linecast(CameraLookAt.position, CameraPosition.position, out wallHit,
                 1 << LayerMask.NameToLayer("Scene") |
                 (1 << LayerMask.NameToLayer("Default")) |
                 (1 << LayerMask.NameToLayer("Wall")) |
@@ -463,7 +474,7 @@ public class CameraFollow : LockBehaviour {
                     Debug.LogError("hitWall" + wallHit.transform.name);
                     //摄像机与角色间有物件遮挡住角色，开始自动计算摄像机位置.
                     //Debug.LogError("camera linecast with:" + wallHit.transform.name);
-                    newPos = wallHit.point + Vector3.Normalize(cameraLookAt - wallHit.point) * 5;
+                    CameraPosition.position = wallHit.point + Vector3.Normalize(CameraLookAt.position - wallHit.point) * 5;
                     //if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
                     //1 << LayerMask.NameToLayer("Scene") |
                     //(1 << LayerMask.NameToLayer("Default")) |
@@ -492,7 +503,7 @@ public class CameraFollow : LockBehaviour {
                     newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime, f_speedMax);
                     newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime, f_speedMax);
                     transform.position = newPos;
-                    transform.LookAt(cameraLookAt);
+                    transform.LookAt(CameraLookAt.position);
                     Vector3 vec = transform.eulerAngles;
                     //vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
                     //vec.y = transform.eulerAngles.y;
@@ -505,18 +516,14 @@ public class CameraFollow : LockBehaviour {
             else
             {
                 //只有高度是缓动的，其他轴上都是即刻,Y轴要有延迟，避免瞬移
-                //if (!MeteorManager.Instance.LocalPlayer.IsOnGroundEx())
-                    newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, 0.1f, f_speedYMax);
-                transform.position = newPos;
-                //Quaternion to = Quaternion.LookRotation(cameraLookAt - transform.position, Vector3.up);
-                //transform.rotation = to;
+                //newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, f_DampTime, 200.0f);
+                transform.position = CameraPosition.position;
                 Vector3 vec = transform.eulerAngles;
-                transform.LookAt(cameraLookAt);
-
-                vec.x = transform.eulerAngles.x;//MeteorManager.Instance.LocalPlayer.IsOnGroundEx() ? transform.eulerAngles.x : Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, 0.1f);
-                vec.y = transform.eulerAngles.y;//Mathf.SmoothDampAngle(vec.y, , ref currentEulerVelocityY, 0.1f);
-                vec.z = 0;
-                transform.eulerAngles = vec;
+                transform.LookAt(CameraLookAt.position);
+                //vec.x = transform.eulerAngles.x;//MeteorManager.Instance.LocalPlayer.IsOnGroundEx() ? transform.eulerAngles.x : ;
+                //vec.y = transform.eulerAngles.y;//Mathf.SmoothDampAngle(vec.y, , ref currentEulerVelocityY, 0.1f);
+                //vec.z = 0;
+                //transform.eulerAngles = vec;
             }
         }
     }

@@ -958,6 +958,7 @@ public partial class GameBattleEx : LockBehaviour {
             }
             lockedTarget = null;
             bLocked = false;
+            CameraFollow.Ins.OnChangeLockTarget(null);
         }
         else
         {
@@ -970,6 +971,7 @@ public partial class GameBattleEx : LockBehaviour {
             lockedTarget = unit;
             lockedEffect = SFXLoader.Instance.PlayEffect("lock.ef", lockedTarget.gameObject);
             bLocked = true;
+            CameraFollow.Ins.OnChangeLockTarget(lockedTarget.transform);
         }
         if (FightWnd.Exist)
             FightWnd.Instance.OnChangeLock(bLocked);

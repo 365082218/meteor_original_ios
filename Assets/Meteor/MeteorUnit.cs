@@ -1640,7 +1640,7 @@ public partial class MeteorUnit : LockBehaviour
     }
 
     float floatTick = -1.0f;//浮空时刻
-    float groundTick = -1.0f;//贴地面时刻
+    public float groundTick = -1.0f;//贴地面时刻
     void UpdateFlags(CollisionFlags flag)
     {
         if ((flag & CollisionFlags.Sides) != 0)
@@ -1851,8 +1851,8 @@ public partial class MeteorUnit : LockBehaviour
 
                     //Debug.LogError(name + " 浮空-落地" + Time.frameCount);
                     //AddYVelocity(-100);//让他快速一点落地
-                    //与落地的间隔超过0.3S再切换动作，否则就会抽搐
-                    if (groundTick + 0.2f < Time.timeSinceLevelLoad)
+                    //与落地的间隔超过0.2S再切换动作，否则就会抽搐
+                    if (groundTick + 0.2f < FrameReplay.Instance.time)
                         posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
                     //看是否被物件推开
                     //ProcessFall();
@@ -1869,7 +1869,7 @@ public partial class MeteorUnit : LockBehaviour
                 if ((posMng.mActiveAction.Idx >= CommonAction.Jump && posMng.mActiveAction.Idx <= CommonAction.JumpBackFall) || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
                 {
                     posMng.ChangeAction(0, 0.1f);
-                    groundTick = Time.timeSinceLevelLoad;
+                    groundTick = FrameReplay.Instance.time;
                 }
                 ResetYVelocity();
             }
@@ -1930,15 +1930,55 @@ public partial class MeteorUnit : LockBehaviour
         //Log.Print("z:" + ImpluseVec.z);
     }
 
+    //计算水平轴的冲量 = 物体的末速度（1S内）
+    public float CalcImpluseVec(float h, float f)
+    {
+        float ret = f * Mathf.Sqrt(2 * h / f);
+        return ret;
+    }
+
+    public float CalcVelocity(float h)
+    {
+        float ret = Global.Instance.gGravity * Mathf.Sqrt(2 * h / Global.Instance.gGravity);
+        if (ret > yLimitMax)
+            ret = yLimitMax;
+        return ret;
+    }
+
+    ////踏墙壁跳跃,y为正常跳跃高度倍数.
+    //public void Jump2(int act = CommonAction.Jump)
+    //{
+    //    canControlOnAir = true;
+    //    OnGround = false;
+    //    posMng.JumpTick = 0.0f;
+    //    posMng.CheckClimb = true;
+    //    posMng.ChangeAction(act);
+    //    charLoader.SetActionScale(0.5f);
+    //}
+
+    ////给3个参数,Y轴完整跳跃的高度缩放(就是按下跳跃的压力缩放)，前方速度，右方速度
+    //public void Jump(bool Short, float ShortScale, int act = CommonAction.Jump)
+    //{
+    //    canControlOnAir = true;
+    //    OnGround = false;
+    //    posMng.JumpTick = 0.0f;
+    //    posMng.CheckClimb = true;
+    //    posMng.ChangeAction(act);
+    //    charLoader.SetActionScale(Short ? 0.5f : 1.0f);
+    //}
+
+    public const float JumpLimit = 68f;
     //踏墙壁跳跃,y为正常跳跃高度倍数.
-    public void Jump2(int act = CommonAction.Jump)
+    public void Jump2(float y, int act = CommonAction.Jump)
     {
         canControlOnAir = true;
         OnGround = false;
+        ImpluseVec.y = CalcVelocity(y);
         posMng.JumpTick = 0.0f;
+        posMng.CanAdjust = true;
         posMng.CheckClimb = true;
-        posMng.ChangeAction(act);
-        charLoader.SetActionScale(1.0f);
+        posMng.ChangeAction(act, 0.1f);
+        //charLoader.SetActionScale(y / JumpLimit);
     }
 
     //给3个参数,Y轴完整跳跃的高度缩放(就是按下跳跃的压力缩放)，前方速度，右方速度
@@ -1946,10 +1986,14 @@ public partial class MeteorUnit : LockBehaviour
     {
         canControlOnAir = true;
         OnGround = false;
+        float jumpScale = Short ? (ShortScale * 0.5f) : 1.0f;
+        float h = JumpLimit * jumpScale;
+        ImpluseVec.y = CalcVelocity(h);
         posMng.JumpTick = 0.0f;
+        posMng.CanAdjust = true;
         posMng.CheckClimb = true;
-        posMng.ChangeAction(act);
-        charLoader.SetActionScale(Short ? 0.5f : 1.0f);
+        posMng.ChangeAction(act, 0.1f);
+        //charLoader.SetActionScale(jumpScale);
     }
 
     public void ReleaseDefence()

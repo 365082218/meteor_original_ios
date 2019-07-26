@@ -175,6 +175,7 @@ public class FrameReplay : MonoBehaviour {
     public int LogicTurnIndex = 0;
     const int TurnFrameMax = 8;
     private int AccumilatedTime = 0;
+    public float time;
     public static float deltaTime = 20.0f / 1000.0f;
     public int LogicFrameLength = 20;
     GameFrames currentFrame;//当前的Turn
@@ -261,12 +262,14 @@ public class FrameReplay : MonoBehaviour {
                 LogicFrame();
                 //Debug.LogError("logicframe:" + LogicFrameIndex);
                 AccumilatedTime = AccumilatedTime - LogicFrameLength;
+                time += (LogicFrameLength / 1000.0f);
             }
         }
         else
         {
             FrameReplay.deltaTime = Time.deltaTime;
             LogicFrame();
+            time += Time.deltaTime;
         }
     }
 
