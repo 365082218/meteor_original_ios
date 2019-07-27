@@ -188,9 +188,9 @@ public class MeteorInput
                 float kValue = Input.GetAxisRaw(keyStatus.AxisName);
                 bool pressed = kValue > 0;
                 if (pressed && keyStatus.Pressed == 0 && !keyStatus.IsAI)
-                    OnKeyDown(keyStatus, false);
+                    OnKeyDownProxy(keyStatus, false);
                 else if (!pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
-                    OnKeyUp(keyStatus);
+                    OnKeyUpProxy(keyStatus);
                 else if (pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
                     OnKeyPressing(keyStatus);
             }
