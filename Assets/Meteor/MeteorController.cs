@@ -26,6 +26,7 @@ public class MeteorInput
     InputModule InputCore;
     MeteorController mController = null;
     public Vector2 mInputVector = Vector2.zero;
+    public Vector2 mInputCache = Vector2.zero;//采集输入后发送给服务器
     //Vector2 mLastInputVector = Vector2.one;
     public float OffX;
     public float OffZ;
@@ -125,31 +126,33 @@ public class MeteorInput
     {
         if (!Global.Instance.PauseAll)
         {
+            Vector2 vec = Vector2.zero;
             if (!mOwner.controller.InputLocked)
             {
                 if (mOwner.Attr.IsPlayer && NGUIJoystick.instance != null)
                 {
                     //如果方向键按下了
                     if (NGUIJoystick.instance.mJoyPressed)
-                        mInputVector = new Vector2(NGUIJoystick.instance.Delta.x, NGUIJoystick.instance.Delta.y);
+                        vec = new Vector2(NGUIJoystick.instance.Delta.x, NGUIJoystick.instance.Delta.y);
                     else if (NGUIJoystick.instance.ArrowPressed)
-                        mInputVector = new Vector2(NGUIJoystick.instance.Delta.x, NGUIJoystick.instance.Delta.y);
+                        vec = new Vector2(NGUIJoystick.instance.Delta.x, NGUIJoystick.instance.Delta.y);
                     else
                     {
-                        mInputVector = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-                        //Log.Print(string.Format("horz:{0} vert:{1}", mInputVector.x, mInputVector.y));
+                        vec = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
                     }
                 }
                 else
-                    mInputVector = new Vector2(OffX, OffZ);//AIMove 自动战斗输入
+                    vec = new Vector2(OffX, OffZ);//AIMove 自动战斗输入
             }
             else
-                mInputVector = Vector2.zero;
+                vec = Vector2.zero;
+            if (Mathf.Abs(vec.x - mInputCache.x) > 0.1f || Mathf.Abs(vec.y - mInputCache.y) > 0.1f)
+            {
+                mInputCache = vec;
+                FSS.Instance.PushJoyDelta(mOwner.InstanceId, mInputCache.x, mInputCache.y);
+            }
         }
 
-        //如果正在旋转角色，且动作ID不是前跑，那么是无法移动的，原地旋转角色.
-        //if (mOwner.posMng.Rotateing && mOwner.posMng.mActiveAction.Idx != CommonAction.Run)
-        //    mInputVector = Vector2.zero;
         if (!mOwner.controller.InputLocked)
         {
             InputCore.Update();
@@ -193,99 +196,6 @@ public class MeteorInput
             }
 #endif
         }
-
-        //if (!Application.isMobilePlatform || GameData.Instance.gameStatus.useJoystickOrKeyBoard)
-        //{
-        //    //处理同轴2个按键抵消的问题
-        //    //没有同时按下相反方向键的时候
-        //    bool w = Input.GetKey(KeyCode.W);
-        //    bool s = Input.GetKey(KeyCode.S);
-        //    bool a = Input.GetKey(KeyCode.A);
-        //    bool d = Input.GetKey(KeyCode.D);
-
-        //    Vector2 vec = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        //    //Debug.Log("w s a d" + w + " " + s + " " + a + " " + d);
-        //    if (vec.x != 0)
-        //    {
-        //        if (vec.x > 0)
-        //        {
-        //            if (KeyStates[(int)EKeyList.KL_KeyD].Pressed == 0)
-        //                OnKeyDown(KeyStates[(int)EKeyList.KL_KeyD], false);
-        //            else
-        //                OnKeyPressing(KeyStates[(int)EKeyList.KL_KeyD]);
-        //        }
-
-        //        if (vec.x > 0 && KeyStates[(int)EKeyList.KL_KeyA].Pressed != 0)
-        //            OnKeyUp(KeyStates[(int)EKeyList.KL_KeyA]);
-
-        //        if (vec.x < 0)
-        //        {
-        //            if (KeyStates[(int)EKeyList.KL_KeyA].Pressed == 0)
-        //                OnKeyDown(KeyStates[(int)EKeyList.KL_KeyA], false);
-        //            else
-        //                OnKeyPressing(KeyStates[(int)EKeyList.KL_KeyA]);
-        //        }
-
-        //        if (vec.x < 0 && KeyStates[(int)EKeyList.KL_KeyD].Pressed != 0)
-        //            OnKeyUp(KeyStates[(int)EKeyList.KL_KeyD]);
-        //    }
-        //    else
-        //    {
-        //        //2个都没有按下，或者2个都按下。
-        //        if (KeyStates[(int)EKeyList.KL_KeyD].Pressed != 0 && !d)
-        //            OnKeyUp(KeyStates[(int)EKeyList.KL_KeyD]);
-        //        else if (KeyStates[(int)EKeyList.KL_KeyD].Pressed == 0 && d)
-        //            OnKeyDown(KeyStates[(int)EKeyList.KL_KeyD], false);
-
-        //        if (KeyStates[(int)EKeyList.KL_KeyA].Pressed != 0 && !a)
-        //            OnKeyUp(KeyStates[(int)EKeyList.KL_KeyA]);
-        //        else if (KeyStates[(int)EKeyList.KL_KeyA].Pressed == 0 && a)
-        //            OnKeyDown(KeyStates[(int)EKeyList.KL_KeyA], false);
-        //    }
-
-        //    if (vec.y != 0)
-        //    {
-        //        //同向键按下，
-        //        if (vec.y > 0)
-        //        {
-        //            if (KeyStates[(int)EKeyList.KL_KeyW].Pressed == 0)
-        //                OnKeyDown(KeyStates[(int)EKeyList.KL_KeyW], false);
-        //            else
-        //                OnKeyPressing(KeyStates[(int)EKeyList.KL_KeyW]);
-        //        }
-
-        //        if (vec.y < 0 && KeyStates[(int)EKeyList.KL_KeyW].Pressed != 0)
-        //            OnKeyUp(KeyStates[(int)EKeyList.KL_KeyW]);
-
-        //        //反向键抬起,
-        //        if (vec.y > 0 && KeyStates[(int)EKeyList.KL_KeyS].Pressed != 0)
-        //            OnKeyUp(KeyStates[(int)EKeyList.KL_KeyS]);
-        //        if (vec.y < 0)
-        //        {
-        //            if (KeyStates[(int)EKeyList.KL_KeyS].Pressed == 0)
-        //                OnKeyDown(KeyStates[(int)EKeyList.KL_KeyS], false);
-        //            else
-        //                OnKeyPressing(KeyStates[(int)EKeyList.KL_KeyS]);
-        //        }
-
-        //    }
-        //    else
-        //    {
-        //        //2个都没有按下，或者2个都按下。
-        //        if (KeyStates[(int)EKeyList.KL_KeyW].Pressed != 0 && !w)
-        //            OnKeyUp(KeyStates[(int)EKeyList.KL_KeyW]);
-        //        else if (KeyStates[(int)EKeyList.KL_KeyW].Pressed == 0 && w)
-        //        {
-        //            OnKeyDown(KeyStates[(int)EKeyList.KL_KeyW], false);
-        //        }
-        //        if (KeyStates[(int)EKeyList.KL_KeyS].Pressed != 0 && !s)
-        //            OnKeyUp(KeyStates[(int)EKeyList.KL_KeyS]);
-        //        else if (KeyStates[(int)EKeyList.KL_KeyS].Pressed == 0 && s)
-        //        {
-        //            OnKeyDown(KeyStates[(int)EKeyList.KL_KeyS], false);
-        //        }
-        //    }
-        //}
     }
 
 /*
@@ -1936,7 +1846,7 @@ public class MeteorInput
     {
         if (mOwner.controller.InputLocked)
             return;
-        lastKeyHandler = Time.time;
+        lastKeyHandler = FrameReplay.Instance.time;
         if (genFreq.ContainsKey(keyStatus.Key))
         {
             genFreq[keyStatus.Key]--;
@@ -1954,7 +1864,6 @@ public class MeteorInput
     {
         if (mOwner.controller.InputLocked && !KeyStates[(int)key].IsAI)
             return;
-        //WSLog.LogInfo("OnKeyUp key:" + key);
         OnKeyUp(KeyStates[(int)key]);
     }
 
@@ -1962,7 +1871,7 @@ public class MeteorInput
     {
         if (mOwner.controller.InputLocked && !isAI)
             return;
-        lastKeyHandler = Time.time;
+        lastKeyHandler = FrameReplay.Instance.time;
         if (InputCore.OnKeyDown(keyStatus))
             InputCore.Reset();
         //任意的按下一个按键，
@@ -1976,10 +1885,22 @@ public class MeteorInput
 
     public void OnKeyUp(KeyState keyStatus)
     {
-        lastKeyHandler = Time.time;
+        lastKeyHandler = FrameReplay.Instance.time;
         keyStatus.Pressed = 0;
         keyStatus.ReleasedTime = 0.0f;
         keyStatus.IsAI = false;
+    }
+
+    public void OnKeyUpProxy(KeyState keyStatus)
+    {
+        FSS.Instance.PushKeyUp(mOwner.InstanceId, keyStatus);
+    }
+
+    public void OnKeyDownProxy(KeyState keyStatus, bool isAI)
+    {
+        if (mOwner.controller.InputLocked && !isAI)
+            return;
+        FSS.Instance.PushKeyDown(mOwner.InstanceId, keyStatus);
     }
 
     void UpdateMoveInput()
@@ -2090,7 +2011,7 @@ public class MeteorInput
     float lastKeyHandler = 0.0f;
     public bool IsKeyQuiet()
     {
-        return (Time.time - lastKeyHandler >= 1.0f);
+        return (FrameReplay.Instance.time - lastKeyHandler >= 1.0f);
     }
 }
 

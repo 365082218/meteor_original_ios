@@ -107,6 +107,47 @@ public class FSS:Singleton<FSS>
         PushAction(frame, message, command);
     }
 
+    public void PushKeyUp(int playerId, KeyState key)
+    {
+        PushKeyEvent(MeteorMsg.Command.KeyUp, playerId, key);
+    }
+
+    public void PushKeyDown(int playerId, KeyState key)
+    {
+        PushKeyEvent(MeteorMsg.Command.KeyDown, playerId, key);
+    }
+
+    void PushKeyEvent(MeteorMsg.Command command, int playerId, KeyState key)
+    {
+        GameFrames t = GetFrame(FrameReplay.Instance.NextTurn);
+        FrameCommand cmd = new FrameCommand();
+        cmd.command = command;
+        cmd.LogicFrame = (uint)FrameReplay.Instance.LogicFrameIndex;
+        cmd.playerId = (uint)playerId;
+        System.IO.MemoryStream ms = new System.IO.MemoryStream();
+        KeyData k = new KeyData();
+        k.key = (uint)key.Key;
+        ProtoBuf.Serializer.Serialize<KeyData>(ms, k);
+        cmd.data = ms.ToArray();
+        t.commands.Add(cmd);
+    }
+
+    public void PushJoyDelta(int playerId, float x, float y)
+    {
+        GameFrames t = GetFrame(FrameReplay.Instance.NextTurn);
+        FrameCommand cmd = new FrameCommand();
+        cmd.command = MeteorMsg.Command.JoyStickMove;
+        cmd.LogicFrame = (uint)FrameReplay.Instance.LogicFrameIndex;
+        cmd.playerId = (uint)playerId;
+        System.IO.MemoryStream ms = new System.IO.MemoryStream();
+        Vector2_ vec = new Vector2_();
+        vec.x = (int)(x * 1000);
+        vec.y = (int)(y * 1000);
+        ProtoBuf.Serializer.Serialize<Vector2_>(ms, vec);
+        cmd.data = ms.ToArray();
+        t.commands.Add(cmd);
+    }
+
     //在当前帧推入指令-鼠标相对上次的偏移，会导致角色绕Y轴旋转
     public void PushMouseDelta(int playerId, float x, float y)
     {

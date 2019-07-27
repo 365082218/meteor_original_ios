@@ -34,7 +34,6 @@ public class CameraFollow : LockBehaviour {
     public float lastAngle;
     float angleMax = 75.0f;
     float angleMin = -75.0f;
-    CameraFollow2 cam;
     protected new void Awake()
     {
         this.orderType = OrderType.Late;
@@ -43,7 +42,6 @@ public class CameraFollow : LockBehaviour {
         CameraLookAt = new GameObject("CameraLookAt").transform;
         enabled = false;
         Instance = this;
-        cam = gameObject.AddComponent<CameraFollow2>();
     }
 
     private new void OnDestroy()
@@ -93,7 +91,6 @@ public class CameraFollow : LockBehaviour {
         Target = followTarget;
         if (Target != null)
         {
-            cam.target = Target;
             CameraLookAt.position = new Vector3(Target.position.x, Target.position.y + BodyHeight, Target.position.z);
             CameraPosition.position = new Vector3(0, followHeight, 0) + CameraLookAt.position + followDistance * (Target.forward);
             transform.position = CameraPosition.position;

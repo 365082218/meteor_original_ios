@@ -4,6 +4,14 @@ using System.Collections.Generic;
 using System;
 using protocol;
 
+public enum Direct
+{
+    Back = 0,
+    Front = 1,
+    Right = 2,
+    Left = 3
+}
+
 public enum EBUFF_ID
 { 
     Drug = 10,//钝筋
@@ -393,98 +401,98 @@ public partial class MeteorUnit : LockBehaviour
     //当前武器
     public int GetWeaponSubType() { return weaponLoader == null ? 0 : weaponLoader.WeaponSubType(); }
     public int GetWeaponType() { return weaponLoader == null ? -1 : weaponLoader.WeaponType(); }
-    public int GetGuardPose(int direction)
+    public int GetGuardPose(Direct direction)
     {
         switch ((EquipWeaponType)GetWeaponType())
         {
+            case EquipWeaponType.Brahchthrust:
+                if (direction == Direct.Back)
+                    return 52;
+                else if (direction == Direct.Front)
+                    return 53;
+                else if (direction == Direct.Right)
+                    return 54;
+                else if (direction == Direct.Left)
+                    return 55;
+                break;
             case EquipWeaponType.Knife:
-                if (direction == 0)//左侧
+                if (direction == Direct.Back)//背后
                     return 56;
-                else if (direction == 1)//背后
-                    return 85;
-                else if (direction == 2)//右侧
+                else if (direction == Direct.Front)//正面
+                    return 57;
+                else if (direction == Direct.Right)//右侧
                     return 58;
-                else if (direction == 3)
+                else if (direction == Direct.Left)//左侧
                     return 59;
                 break;
             case EquipWeaponType.Sword:
-                if (direction == 0)
+                if (direction == Direct.Back)
                     return 60;
-                else if (direction == 1)
+                else if (direction == Direct.Front)
                     return 61;
-                else if (direction == 2)
+                else if (direction == Direct.Right)
                     return 62;
-                else if (direction == 3)
+                else if (direction == Direct.Left)
                     return 63;
                 break;
-            case EquipWeaponType.Blade:
-                if (direction == 0)
-                    return 68;
-                else if (direction == 1)
-                    return 82;
-                else if (direction == 2)
-                    return 70;
-                else if (direction == 3)
-                    return 71;
-                break;
             case EquipWeaponType.Lance:
-                if (direction == 0)
+                if (direction == Direct.Back)
                     return 64;
-                else if (direction == 1)
-                    return 88;
-                else if (direction == 2)
+                else if (direction == Direct.Front)
+                    return 65;
+                else if (direction == Direct.Right)
                     return 66;
-                else if (direction == 3)
+                else if (direction == Direct.Left)
                     return 67;
                 break;
-            case EquipWeaponType.Brahchthrust:
-                if (direction == 0)
-                    return 52;
-                else if (direction == 1)
-                    return 53;
-                else if (direction == 2)
-                    return 54;
-                else if (direction == 3)
-                    return 55;
+            case EquipWeaponType.Blade:
+                if (direction == Direct.Back)
+                    return 68;
+                else if (direction == Direct.Front)
+                    return 69;
+                else if (direction == Direct.Right)
+                    return 70;
+                else if (direction == Direct.Left)
+                    return 71;
                 break;
             case EquipWeaponType.Gloves:
-                if (direction == 0)
+                if (direction == Direct.Back)
                     return 490;//491防地
-                else if (direction == 1)
-                    return 515;
-                else if (direction == 2)
+                else if (direction == Direct.Front)
+                    return 491;
+                else if (direction == Direct.Right)
                     return 492;
-                else if (direction == 3)
+                else if (direction == Direct.Left)
                     return 493;
                 break;
             case EquipWeaponType.Hammer:
-                if (direction == 0)
+                if (direction == Direct.Back)
                     return 72;
-                else if (direction == 1)
-                    return 79;
-                else if (direction == 2)
+                else if (direction == Direct.Front)
+                    return 73;
+                else if (direction == Direct.Right)
                     return 74;
-                else if (direction == 3)
+                else if (direction == Direct.Left)
                     return 75;
                 break;
             case EquipWeaponType.NinjaSword:
-                if (direction == 0)
+                if (direction == Direct.Back)
                     return 516;
-                else if (direction == 1)
-                    return 477;
-                else if (direction == 2)
+                else if (direction == Direct.Front)
+                    return 517;
+                else if (direction == Direct.Right)
                     return 518;
-                else if (direction == 3)
+                else if (direction == Direct.Left)
                     return 519;
                 break;
             case EquipWeaponType.HeavenLance:
-                if (direction == 0)
+                if (direction == Direct.Back)
                     return 494;
-                else if (direction == 1)
-                    return 500;
-                else if (direction == 2)
+                else if (direction == Direct.Front)
+                    return 495;
+                else if (direction == Direct.Right)
                     return 496;
-                else if (direction == 3)
+                else if (direction == Direct.Left)
                     return 497;
                 break;
             case EquipWeaponType.Gun: Debug.LogError("Gun can't guard"); break;
@@ -819,17 +827,37 @@ public partial class MeteorUnit : LockBehaviour
             {
                 if (command[i].playerId != InstanceId)
                     continue;
+                if (command[i].LogicFrame != FrameReplay.Instance.LogicFrameIndex)
+                    continue;
                 //取得该角色得操作指令，并且执行.
                 switch (command[i].command)
                 {
-                    case protocol.MeteorMsg.Command.MouseMove:
+                    case MeteorMsg.Command.MouseMove:
                         //Debug.LogError("mouse move");
                         Vector2_ vec = ProtoBuf.Serializer.Deserialize<Vector2_>(new System.IO.MemoryStream(command[i].data));
                         OnPlayerMouseDelta(vec.x / 1000.0f, vec.y / 1000.0f);
                         break;
+                    case MeteorMsg.Command.JoyStickMove:
+                        Vector2_ vec2 = ProtoBuf.Serializer.Deserialize<Vector2_>(new System.IO.MemoryStream(command[i].data));
+                        OnPlayerJoyMove(vec2.x / 1000.0f, vec2.y / 1000.0f);
+                        break;
+                    case MeteorMsg.Command.KeyDown:
+                        KeyData k0 = ProtoBuf.Serializer.Deserialize<KeyData>(new System.IO.MemoryStream(command[i].data));
+                        controller.Input.OnKeyDown((EKeyList)k0.key);
+                        break;
+                    case MeteorMsg.Command.KeyUp:
+                        KeyData k1 = ProtoBuf.Serializer.Deserialize<KeyData>(new System.IO.MemoryStream(command[i].data));
+                        controller.Input.OnKeyUp((EKeyList)k1.key);
+                        break;
                 }
             }
         }
+    }
+
+    protected void OnPlayerJoyMove(float x, float y)
+    {
+        controller.Input.mInputVector.x = x;
+        controller.Input.mInputVector.y = y;
     }
 
     protected void OnPlayerMouseDelta(float x, float y)
@@ -2629,7 +2657,7 @@ public partial class MeteorUnit : LockBehaviour
     }
 
     //计算其他人在我的哪一个方位，每个方位控制90度范围。
-    int CalcDirection(MeteorUnit other)
+    Direct CalcDirection(MeteorUnit other)
     {
         Vector3 otherVec = new Vector3(other.transform.position.x, 0, other.transform.position.z);
         Vector3 Vec = new Vector3(transform.position.x, 0, transform.position.z);
@@ -2646,20 +2674,20 @@ public partial class MeteorUnit : LockBehaviour
         if (degree <= 45)
         {
             //Debug.LogError("正面");
-            return 0;
+            return Direct.Front;
         }
         if (degree <= 135 && angleLeft > 0)
         {
             //Debug.LogError("左侧");
-            return 2;
+            return Direct.Left;
         }
         if (degree <= 135 && angleLeft < 0)
         {
             //Debug.LogError("右侧");
-            return 3;
+            return Direct.Right;
         }
         //Debug.LogError("背面");
-        return 1;
+        return Direct.Back;
     }
 
     public void OnBuffDamage(int buffDamage)
@@ -2712,14 +2740,14 @@ public partial class MeteorUnit : LockBehaviour
         {
             //到此处均无须判读阵营等。
             AttackDes dam = attackdes;
-            int direction = CalcDirection(attacker);
+            Direct direction = CalcDirection(attacker);
             int directionAct = dam.TargetPose;
             switch (direction)
             {
-                case 0: directionAct = dam.TargetPoseFront; break;//这个是前后左右，武器防御受击是 上下左右，上下指角色面朝方向头顶和底部
-                case 1: directionAct = dam.TargetPoseBack; break;
-                case 2: directionAct = dam.TargetPoseLeft; break;
-                case 3: directionAct = dam.TargetPoseRight; break;
+                case Direct.Front: directionAct = dam.TargetPoseFront; break;//这个是前后左右，武器防御受击是 上下左右，上下指角色面朝方向头顶和底部
+                case Direct.Back: directionAct = dam.TargetPoseBack; break;
+                case Direct.Left: directionAct = dam.TargetPoseLeft; break;
+                case Direct.Right: directionAct = dam.TargetPoseRight; break;
             }
             if (attacker.Attr.IsPlayer && GameData.Instance.gameStatus.EnableGodMode)
             {
@@ -2913,14 +2941,14 @@ public partial class MeteorUnit : LockBehaviour
         {
             //到此处均无须判读阵营等。
             AttackDes dam = attacker.damage;
-            int direction = CalcDirection(attacker);
+            Direct direction = CalcDirection(attacker);
             int directionAct = dam.TargetPose;
             switch (direction)
             {
-                case 0: directionAct = dam.TargetPoseFront; break;//这个是前后左右，武器防御受击是 上下左右，上下指角色面朝方向头顶和底部
-                case 1: directionAct = dam.TargetPoseBack; break;
-                case 2: directionAct = dam.TargetPoseLeft; break;
-                case 3: directionAct = dam.TargetPoseRight; break;
+                case Direct.Front: directionAct = dam.TargetPoseFront; break;//这个是前后左右，武器防御受击是 上下左右，上下指角色面朝方向头顶和底部
+                case Direct.Back: directionAct = dam.TargetPoseBack; break;
+                case Direct.Left: directionAct = dam.TargetPoseLeft; break;
+                case Direct.Right: directionAct = dam.TargetPoseRight; break;
             }
 
             if (attacker.Attr.IsPlayer && GameData.Instance.gameStatus.EnableGodMode)
