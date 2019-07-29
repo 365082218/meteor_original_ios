@@ -107,28 +107,38 @@ public class FSS:Singleton<FSS>
         PushAction(frame, message, command);
     }
 
-    public void PushKeyUp(int playerId, KeyState key)
+    public void PushKeyUp(int playerId, EKeyList key)
     {
         PushKeyEvent(MeteorMsg.Command.KeyUp, playerId, key);
     }
 
-    public void PushKeyDown(int playerId, KeyState key)
+    public void PushKeyDown(int playerId, EKeyList key)
     {
         PushKeyEvent(MeteorMsg.Command.KeyDown, playerId, key);
     }
 
-    void PushKeyEvent(MeteorMsg.Command command, int playerId, KeyState key)
+    public void PushKeyEvent(MeteorMsg.Command command, int playerId, EKeyList key)
     {
         GameFrames t = GetFrame(FrameReplay.Instance.NextTurn);
+        for (int i = 0; i < t.commands.Count; i++)
+        {
+            if ((t.commands[i].command == MeteorMsg.Command.KeyDown ||
+                t.commands[i].command == MeteorMsg.Command.KeyUp ||
+                t.commands[i].command == MeteorMsg.Command.KeyLast) && 
+                playerId == t.commands[i].playerId &&
+                t.commands[i].LogicFrame == (uint)FrameReplay.Instance.LogicFrameIndex &&
+                (uint)key == (uint)t.commands[i].data[0])
+            {
+                Debug.LogError("同一帧同一个按键无法响应2次???");
+                return;
+            }
+        }
         FrameCommand cmd = new FrameCommand();
         cmd.command = command;
         cmd.LogicFrame = (uint)FrameReplay.Instance.LogicFrameIndex;
         cmd.playerId = (uint)playerId;
-        System.IO.MemoryStream ms = new System.IO.MemoryStream();
-        KeyData k = new KeyData();
-        k.key = (uint)key.Key;
-        ProtoBuf.Serializer.Serialize<KeyData>(ms, k);
-        cmd.data = ms.ToArray();
+        cmd.data = new byte[1];
+        cmd.data[0] = (byte)key;
         t.commands.Add(cmd);
     }
 
@@ -214,7 +224,7 @@ public class FrameReplay : MonoBehaviour {
     }
     public int LogicFrameIndex = 0;
     public int LogicTurnIndex = 0;
-    const int TurnFrameMax = 8;
+    const int TurnFrameMax = 4;
     private int AccumilatedTime = 0;
     public float time;
     public static float deltaTime = 20.0f / 1000.0f;
@@ -370,6 +380,7 @@ public class FrameReplay : MonoBehaviour {
             UpdateEvent();
         if (LateUpdateEvent != null)
             LateUpdateEvent();
+        LogicFrameIndex++;
         if (LogicFrameIndex % TurnFrameMax == 0)
         {
             FSS.Instance.SyncTurn();
@@ -377,7 +388,5 @@ public class FrameReplay : MonoBehaviour {
             currentFrame = null;
             LogicFrameIndex = 0;
         }
-        else
-            LogicFrameIndex++;
     }
 }

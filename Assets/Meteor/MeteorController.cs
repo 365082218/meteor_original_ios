@@ -57,7 +57,7 @@ public class MeteorInput
         if (!keyStateOnActive.Contains(k))
         {
             keyStateOnActive.Add(k);
-            OnKeyDown(k);
+            OnKeyDownProxy(k, false);
         }
         else
             OnKeyPressing(k);
@@ -68,7 +68,7 @@ public class MeteorInput
     {
         if (keyStateOnActive.Contains(k))
             keyStateOnActive.Remove(k);
-        OnKeyUp(k);
+        OnKeyUpProxy(k);
     }
     
     //键盘控制模块
@@ -192,7 +192,7 @@ public class MeteorInput
                 else if (!pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
                     OnKeyUpProxy(keyStatus);
                 else if (pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
-                    OnKeyPressing(keyStatus);
+                    OnKeyPressingProxy(keyStatus);
             }
 #endif
         }
@@ -1812,23 +1812,19 @@ public class MeteorInput
         return result;
     }
 
-    public void ResetJoy()
-    {
-        OnKeyUp(KeyStates[(int)EKeyList.KL_KeyA]);
-        OnKeyUp(KeyStates[(int)EKeyList.KL_KeyD]);
-        OnKeyUp(KeyStates[(int)EKeyList.KL_KeyW]);
-        OnKeyUp(KeyStates[(int)EKeyList.KL_KeyS]);
-    }
-
     public void ResetInput()
     {
         foreach (KeyState keyState in KeyStates)
         {
             if (keyState.Pressed != 0)
-                OnKeyUp(keyState);
+                OnKeyUpProxy(keyState);
         }
-
         InputCore.Reset();
+    }
+
+    public void OnKeyDownProxy(EKeyList key, bool isAI)
+    {
+        OnKeyDownProxy(KeyStates[(int)key], isAI);
     }
 
     public void OnKeyDown(EKeyList key, bool isAI = false)
@@ -1844,8 +1840,6 @@ public class MeteorInput
     Dictionary<EKeyList, int> genFreq = new Dictionary<EKeyList, int>();
     public void OnKeyPressing(KeyState keyStatus)
     {
-        if (mOwner.controller.InputLocked)
-            return;
         lastKeyHandler = FrameReplay.Instance.time;
         if (genFreq.ContainsKey(keyStatus.Key))
         {
@@ -1860,6 +1854,25 @@ public class MeteorInput
             genFreq.Add(keyStatus.Key, AppInfo.Instance.GetWaitForNextInput() + 1);
     }
 
+    public void OnKeyPressingProxy(EKeyList key)
+    {
+        if (mOwner.controller.InputLocked)
+            return;
+        OnKeyPressingProxy(KeyStates[(int)key]);
+    }
+
+    public void OnKeyPressingProxy(KeyState keyStatus)
+    {
+        FSS.Instance.PushKeyEvent(protocol.MeteorMsg.Command.KeyLast, mOwner.InstanceId, keyStatus.Key);
+    }
+
+    public void OnKeyUpProxy(EKeyList key)
+    {
+        if (mOwner.controller.InputLocked && !KeyStates[(int)key].IsAI)
+            return;
+        OnKeyUpProxy(KeyStates[(int)key]);
+    }
+
     public void OnKeyUp(EKeyList key)
     {
         if (mOwner.controller.InputLocked && !KeyStates[(int)key].IsAI)
@@ -1869,18 +1882,8 @@ public class MeteorInput
 
     public void OnKeyDown(KeyState keyStatus, bool isAI)
     {
-        if (mOwner.controller.InputLocked && !isAI)
-            return;
-        lastKeyHandler = FrameReplay.Instance.time;
         if (InputCore.OnKeyDown(keyStatus))
             InputCore.Reset();
-        //任意的按下一个按键，
-        EKeyList[] keys = genFreq.Keys.ToArray();
-        for (int i = 0; i < keys.Length; i++)
-            genFreq[keys[i]] = AppInfo.Instance.GetWaitForNextInput() + 1;
-        keyStatus.Pressed = keyStatus.PressedTime < DoubleClickTime ? 2 : 1;
-        keyStatus.PressedTime = 0.0f;
-        keyStatus.IsAI = isAI;
     }
 
     public void OnKeyUp(KeyState keyStatus)
@@ -1893,14 +1896,26 @@ public class MeteorInput
 
     public void OnKeyUpProxy(KeyState keyStatus)
     {
-        FSS.Instance.PushKeyUp(mOwner.InstanceId, keyStatus);
+        lastKeyHandler = FrameReplay.Instance.time;
+        keyStatus.Pressed = 0;
+        keyStatus.ReleasedTime = 0.0f;
+        keyStatus.IsAI = false;
+        FSS.Instance.PushKeyUp(mOwner.InstanceId, keyStatus.Key);
     }
 
     public void OnKeyDownProxy(KeyState keyStatus, bool isAI)
     {
         if (mOwner.controller.InputLocked && !isAI)
             return;
-        FSS.Instance.PushKeyDown(mOwner.InstanceId, keyStatus);
+        lastKeyHandler = FrameReplay.Instance.time;
+        //任意的按下一个按键，
+        EKeyList[] keys = genFreq.Keys.ToArray();
+        for (int i = 0; i < keys.Length; i++)
+            genFreq[keys[i]] = AppInfo.Instance.GetWaitForNextInput() + 1;
+        keyStatus.Pressed = keyStatus.PressedTime < DoubleClickTime ? 2 : 1;
+        keyStatus.PressedTime = 0.0f;
+        keyStatus.IsAI = isAI;
+        FSS.Instance.PushKeyDown(mOwner.InstanceId, keyStatus.Key);
     }
 
     void UpdateMoveInput()

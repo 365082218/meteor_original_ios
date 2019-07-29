@@ -154,48 +154,34 @@ namespace protocol
       [global::ProtoBuf.ProtoEnum(Name=@"KeyUp", Value=3)]
       KeyUp = 3,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"SpawnPlayer", Value=4)]
-      SpawnPlayer = 4,
+      [global::ProtoBuf.ProtoEnum(Name=@"KeyLast", Value=4)]
+      KeyLast = 4,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"DestroyPlayer", Value=5)]
-      DestroyPlayer = 5,
+      [global::ProtoBuf.ProtoEnum(Name=@"SpawnPlayer", Value=5)]
+      SpawnPlayer = 5,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"JoyStickMove", Value=6)]
-      JoyStickMove = 6,
+      [global::ProtoBuf.ProtoEnum(Name=@"DestroyPlayer", Value=6)]
+      DestroyPlayer = 6,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"MouseMove", Value=7)]
-      MouseMove = 7,
+      [global::ProtoBuf.ProtoEnum(Name=@"JoyStickMove", Value=7)]
+      JoyStickMove = 7,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"EquipWeapon", Value=101)]
-      EquipWeapon = 101,
+      [global::ProtoBuf.ProtoEnum(Name=@"MouseMove", Value=8)]
+      MouseMove = 8,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"DropWeapon", Value=102)]
-      DropWeapon = 102,
+      [global::ProtoBuf.ProtoEnum(Name=@"EquipWeapon", Value=9)]
+      EquipWeapon = 9,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"SellItem", Value=200)]
-      SellItem = 200,
+      [global::ProtoBuf.ProtoEnum(Name=@"DropWeapon", Value=10)]
+      DropWeapon = 10,
             
-      [global::ProtoBuf.ProtoEnum(Name=@"BuyItem", Value=201)]
-      BuyItem = 201
+      [global::ProtoBuf.ProtoEnum(Name=@"SellItem", Value=11)]
+      SellItem = 11,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"BuyItem", Value=12)]
+      BuyItem = 12
     }
   
-    private global::ProtoBuf.IExtension extensionObject;
-    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
-      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
-  }
-  
-  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"KeyData")]
-  public partial class KeyData : global::ProtoBuf.IExtensible
-  {
-    public KeyData() {}
-    
-    private uint _key;
-    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"key", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
-    public uint key
-    {
-      get { return _key; }
-      set { _key = value; }
-    }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }

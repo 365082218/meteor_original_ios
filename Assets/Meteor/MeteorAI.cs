@@ -1990,9 +1990,9 @@ public class MeteorAI {
         while (true)
         {
             yield return 0;
-            owner.controller.Input.OnKeyDown(struggleKey[k], true);
+            owner.controller.Input.OnKeyDownProxy(struggleKey[k], true);
             yield return 0;
-            owner.controller.Input.OnKeyUp(struggleKey[k]);
+            owner.controller.Input.OnKeyUpProxy(struggleKey[k]);
             break;
         }
         struggleCoroutine = null;
@@ -2109,7 +2109,7 @@ public class MeteorAI {
         else if (type == EAIStatus.Guard)
         {
             waitDefence = 2.0f;//2秒后开始随机决定能否释放防御键
-            owner.controller.Input.OnKeyDown(EKeyList.KL_Defence, true);//防御
+            owner.controller.Input.OnKeyDownProxy(EKeyList.KL_Defence, true);//防御
         }
         else if (type == EAIStatus.AttackTarget)
         {
@@ -2221,7 +2221,7 @@ public class MeteorAI {
 
     public void ResetAIKey()
     {
-        owner.controller.Input.OnKeyUp(EKeyList.KL_Defence);
+        owner.controller.Input.OnKeyUpProxy(EKeyList.KL_Defence);
     }
 
     Coroutine PlayWeaponPoseCorout;
@@ -2243,16 +2243,16 @@ public class MeteorAI {
 
     IEnumerator VirtualKeyEvent2(EKeyList key)
     {
-        owner.controller.Input.OnKeyDown(key, true);
+        owner.controller.Input.OnKeyDownProxy(key, true);
         yield return 0;
         yield return 0;
-        owner.controller.Input.OnKeyUp(key);
+        owner.controller.Input.OnKeyUpProxy(key);
         yield return 0;
         yield return 0;
-        owner.controller.Input.OnKeyDown(key, true);
+        owner.controller.Input.OnKeyDownProxy(key, true);
         yield return 0;
         yield return 0;
-        owner.controller.Input.OnKeyUp(key);
+        owner.controller.Input.OnKeyUpProxy(key);
         yield return 0;
         yield return 0;
         Burst = null;
@@ -2261,9 +2261,9 @@ public class MeteorAI {
     //单键输入.
     IEnumerator VirtualKeyEvent(EKeyList key)
     {
-        owner.controller.Input.OnKeyDown(key, true);
+        owner.controller.Input.OnKeyDownProxy(key, true);
         yield return 0;
-        owner.controller.Input.OnKeyUp(key);
+        owner.controller.Input.OnKeyUpProxy(key);
         yield return 0;
         InputCorout = null;
     }
@@ -2271,10 +2271,10 @@ public class MeteorAI {
     Coroutine AttackTargetCoroutine;
     IEnumerator Attack()
     {
-        owner.controller.Input.OnKeyDown(EKeyList.KL_Attack, true);
+        owner.controller.Input.OnKeyDownProxy(EKeyList.KL_Attack, true);
         yield return 0;
         yield return 0;
-        owner.controller.Input.OnKeyUp(EKeyList.KL_Attack);
+        owner.controller.Input.OnKeyUpProxy(EKeyList.KL_Attack);
         yield return 0;
         yield return 0;
         AttackTargetCoroutine = null;
@@ -2285,9 +2285,9 @@ public class MeteorAI {
         List<VirtualInput> skill = VirtualInput.CalcPoseInput(KeyMap);
         for (int i = 0; i < skill.Count; i++)
         {
-            owner.controller.Input.OnKeyDown(skill[i].key, true);
+            owner.controller.Input.OnKeyDownProxy(skill[i].key, true);
             yield return 0;
-            owner.controller.Input.OnKeyUp(skill[i].key);
+            owner.controller.Input.OnKeyUpProxy(skill[i].key);
             yield return 0;
         }
         PlayWeaponPoseCorout = null;
@@ -3049,11 +3049,11 @@ public class MeteorAI {
     //满距离跳跃.
     IEnumerator AIJumpCorout()
     {
-        owner.controller.Input.OnKeyDown(EKeyList.KL_Jump, true);
+        owner.controller.Input.OnKeyDownProxy(EKeyList.KL_Jump, true);
         int k = AppInfo.Instance.GetWaitForNextInput();
         for (int i = 0; i < k; i++)
             yield return 0;
-        owner.controller.Input.OnKeyUp(EKeyList.KL_Jump);
+        owner.controller.Input.OnKeyUpProxy(EKeyList.KL_Jump);
         JumpCoroutine = null;
     }
 

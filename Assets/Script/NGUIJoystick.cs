@@ -420,8 +420,6 @@ public class NGUIJoystick : MonoBehaviour
         JoyCollider.radius = 55;
         target.localPosition = Vector3.zero;
         background.gameObject.SetActive(false);
-        if (Global.Instance.GMeteorInput != null)
-            Global.Instance.GMeteorInput.ResetJoy();
         mDelta = Vector2.zero;
         mLastFingerId = -2;
         mJoyPressed = false;

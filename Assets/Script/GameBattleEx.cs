@@ -1514,6 +1514,7 @@ public enum StackAction
     Use = 14,//使用道具
 }
 
+//基本上只能存在单机模式下,联机不支持
 public class ActionConfig
 {
     public List<ActionItem> action = new List<ActionItem>();
@@ -1575,10 +1576,10 @@ public class ActionConfig
                 MeteorUnit unit = U3D.GetUnit(id);
                 if (action[action.Count - 1].param == 1)
                 {
-                    unit.controller.Input.OnKeyDown(EKeyList.KL_Crouch, true);
+                    unit.controller.Input.OnKeyDownProxy(EKeyList.KL_Crouch, true);
                 }
                 else
-                    unit.controller.Input.OnKeyUp(EKeyList.KL_Crouch);
+                    unit.controller.Input.OnKeyUpProxy(EKeyList.KL_Crouch);
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.BLOCK)

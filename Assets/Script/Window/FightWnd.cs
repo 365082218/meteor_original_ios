@@ -314,7 +314,7 @@ public class FightWnd : Window<FightWnd>
     void OnAttackPress()
     {
         if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-        Global.Instance.GMeteorInput.OnKeyDown(EKeyList.KL_Attack, false);//也可看作普攻
+        Global.Instance.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Attack, false);//也可看作普攻
     }
 
     public void OnChangeLock(bool locked)
@@ -347,13 +347,13 @@ public class FightWnd : Window<FightWnd>
             return;
 
         if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-            Global.Instance.GMeteorInput.OnKeyDown(EKeyList.KL_Crouch);
+            Global.Instance.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Crouch, false);
     }
 
     void OnCrouchRelease()
     {
         if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-            Global.Instance.GMeteorInput.OnKeyUp(EKeyList.KL_Crouch);
+            Global.Instance.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Crouch);
     }
 
     void OnChangeWeaponPress()
@@ -362,7 +362,7 @@ public class FightWnd : Window<FightWnd>
             return;
 
         if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-            Global.Instance.GMeteorInput.OnKeyDown(EKeyList.KL_ChangeWeapon);
+            Global.Instance.GMeteorInput.OnKeyDownProxy(EKeyList.KL_ChangeWeapon, false);
     }
 
     void OnChangeWeaponRelease()
@@ -371,13 +371,13 @@ public class FightWnd : Window<FightWnd>
             return;
 
         if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-            Global.Instance.GMeteorInput.OnKeyUp(EKeyList.KL_ChangeWeapon);
+            Global.Instance.GMeteorInput.OnKeyUpProxy(EKeyList.KL_ChangeWeapon);
     }
 
     void OnAttackRelease()
     {
         if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-        Global.Instance.GMeteorInput.OnKeyUp(EKeyList.KL_Attack);
+        Global.Instance.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Attack);
     }
 
     void OnDefencePress()
@@ -385,7 +385,7 @@ public class FightWnd : Window<FightWnd>
         if (MeteorManager.Instance.LocalPlayer.Dead)
             return;
         if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-            Global.Instance.GMeteorInput.OnKeyDown(EKeyList.KL_Defence, true);//不要被键盘状态同步，否则按下马上就抬起，那么防御姿势就消失了
+            Global.Instance.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Defence, true);//不要被键盘状态同步，否则按下马上就抬起，那么防御姿势就消失了
         
     }
 
@@ -394,7 +394,7 @@ public class FightWnd : Window<FightWnd>
         if (MeteorManager.Instance.LocalPlayer.Dead)
             return;
         if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-            Global.Instance.GMeteorInput.OnKeyUp(EKeyList.KL_Defence);
+            Global.Instance.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Defence);
     }
 
     void OnJumpPress()
@@ -403,13 +403,13 @@ public class FightWnd : Window<FightWnd>
         //    return;
 
         if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-        Global.Instance.GMeteorInput.OnKeyDown(EKeyList.KL_Jump, false);//
+        Global.Instance.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Jump, false);//
     }
 
     void OnJumpRelease()
     {
         if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-        Global.Instance.GMeteorInput.OnKeyUp(EKeyList.KL_Jump);
+        Global.Instance.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Jump);
     }
 
     //按爆气.
@@ -420,7 +420,7 @@ public class FightWnd : Window<FightWnd>
             return;
         if (MeteorManager.Instance.LocalPlayer.AngryValue >= 60 || GameData.Instance.gameStatus.EnableInfiniteAngry)
         {
-            Global.Instance.GMeteorInput.OnKeyDown(EKeyList.KL_BreakOut, false);
+            Global.Instance.GMeteorInput.OnKeyDownProxy(EKeyList.KL_BreakOut, false);
             //Debug.Log("OnKeyDown");
         }
     }

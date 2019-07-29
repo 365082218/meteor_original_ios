@@ -842,12 +842,13 @@ public partial class MeteorUnit : LockBehaviour
                         OnPlayerJoyMove(vec2.x / 1000.0f, vec2.y / 1000.0f);
                         break;
                     case MeteorMsg.Command.KeyDown:
-                        KeyData k0 = ProtoBuf.Serializer.Deserialize<KeyData>(new System.IO.MemoryStream(command[i].data));
-                        controller.Input.OnKeyDown((EKeyList)k0.key);
+                        controller.Input.OnKeyDown((EKeyList)command[i].data[0]);
                         break;
                     case MeteorMsg.Command.KeyUp:
-                        KeyData k1 = ProtoBuf.Serializer.Deserialize<KeyData>(new System.IO.MemoryStream(command[i].data));
-                        controller.Input.OnKeyUp((EKeyList)k1.key);
+                        controller.Input.OnKeyUp((EKeyList)command[i].data[0]);
+                        break;
+                    case MeteorMsg.Command.KeyLast:
+                        controller.Input.OnKeyPressing((EKeyList)command[i].data[0]);
                         break;
                 }
             }

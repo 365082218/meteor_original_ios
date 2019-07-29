@@ -443,23 +443,21 @@ public class CameraFollow : LockBehaviour {
                 }
             }
 
-            float y = Mathf.SmoothDamp(CameraPosition.position.y, Target.position.y + BodyHeight + followHeight, ref currentVelocityY, f_DampTime);
             newPos.x = Target.transform.position.x;
-            newPos.y = y;
+            newPos.y = Target.position.y + BodyHeight + followHeight;
             newPos.z = Target.transform.position.z;
             newPos += MeteorManager.Instance.LocalPlayer.transform.forward * followDistance;
 
-            CameraPosition.position = newPos;
-
             vecTarget.x = Target.position.x;
-            vecTarget.y = Mathf.SmoothDamp(CameraLookAt.position.y, Target.position.y + BodyHeight, ref currentVelocityY2, f_DampTime);
+            vecTarget.y = Target.position.y + BodyHeight;
             vecTarget.z = Target.position.z;
 
             CameraLookAt.position = vecTarget;
 
+            //如果新的位置，与目标注视点中间隔着墙壁
             RaycastHit wallHit;
             bool hitWall = false;
-            if (Physics.Linecast(CameraLookAt.position, CameraPosition.position, out wallHit,
+            if (Physics.Linecast(CameraLookAt.position, newPos, out wallHit,
                 1 << LayerMask.NameToLayer("Scene") |
                 (1 << LayerMask.NameToLayer("Default")) |
                 (1 << LayerMask.NameToLayer("Wall")) |
@@ -468,21 +466,34 @@ public class CameraFollow : LockBehaviour {
                 if (!wallHit.collider.isTrigger)
                 {
                     hitWall = true;
-                    Debug.LogError("hitWall" + wallHit.transform.name);
+                    //Debug.LogError("hitWall" + wallHit.transform.name);
                     //摄像机与角色间有物件遮挡住角色，开始自动计算摄像机位置.
-                    //Debug.LogError("camera linecast with:" + wallHit.transform.name);
-                    CameraPosition.position = wallHit.point + Vector3.Normalize(CameraLookAt.position - wallHit.point) * 5;
-                    //if (Physics.Linecast(cameraLookAt, newPos, out wallHit,
-                    //1 << LayerMask.NameToLayer("Scene") |
-                    //(1 << LayerMask.NameToLayer("Default")) |
-                    //(1 << LayerMask.NameToLayer("Wall")) |
-                    //(1 << LayerMask.NameToLayer("Water"))))
-                    //{
-                    //    m_Targets[2].position = wallHit.point;
-                    //    Debug.LogError("?????");
-                    //}
+                    newPos = wallHit.point + Vector3.Normalize(CameraLookAt.position - wallHit.point) * 5;
                 }
             }
+
+            //没有撞墙
+            if (!hitWall)
+            {
+                newPos.x = Target.transform.position.x;
+                newPos.z = Target.transform.position.z;
+                float y = Mathf.SmoothDamp(CameraPosition.position.y, Target.position.y + BodyHeight + followHeight, ref currentVelocityY, f_DampTime);
+                newPos.y = y;
+                newPos += MeteorManager.Instance.LocalPlayer.transform.forward * followDistance;
+            }
+            else
+            {
+                float y = Mathf.SmoothDamp(CameraPosition.position.y, newPos.y, ref currentVelocityY, f_DampTime);
+                newPos.y = y;
+            }
+
+            CameraPosition.position = newPos;
+
+            vecTarget.x = Target.position.x;
+            vecTarget.y = Mathf.SmoothDamp(CameraLookAt.position.y, Target.position.y + BodyHeight, ref currentVelocityY2, f_DampTime);
+            vecTarget.z = Target.position.z;
+
+            CameraLookAt.position = vecTarget;
 
             //由电影视角，切换到单人视角之间的动画.
             if (animationPlay)
