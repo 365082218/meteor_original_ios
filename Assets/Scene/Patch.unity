@@ -4196,7 +4196,10 @@ MonoBehaviour:
   Started: 0
   bSync: 0
   LogicFrameIndex: 0
+  LogicTurnIndex: 0
+  time: 0
   LogicFrameLength: 20
+  actions: []
 --- !u!4 &2044160629
 Transform:
   m_ObjectHideFlags: 0

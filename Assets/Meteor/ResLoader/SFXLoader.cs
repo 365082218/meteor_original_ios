@@ -140,7 +140,7 @@ public class SfxFile
         }
         MemoryStream ms = new MemoryStream(asset.bytes);
         BinaryReader reader = new BinaryReader(ms);
-        string ver = new string(reader.ReadChars(11));
+        reader.ReadChars(11);
         int effectNum = reader.ReadInt32();
         for (int i = 0; i < effectNum; i++)
         {

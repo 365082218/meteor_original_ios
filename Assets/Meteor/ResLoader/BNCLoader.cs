@@ -154,7 +154,7 @@ public class BncFile
     {
         try
         {
-            int boneCnt = 0; int dummyCnt = 0;
+            //int boneCnt = 0;
             node cur = null;
             string[] lineBone = text.Split(new char[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < lineBone.Length; i++)
@@ -164,8 +164,8 @@ public class BncFile
                     continue;
                 if (eachlineBone[0] == "Bones:" && eachlineBone[2] == "Dummey:")
                 {
-                    boneCnt = int.Parse(eachlineBone[1]);
-                    dummyCnt = int.Parse(eachlineBone[3]);
+                    //boneCnt = int.Parse(eachlineBone[1]);
+                    //dummyCnt = int.Parse(eachlineBone[3]);
                 }
                 else
                 if (eachlineBone[0] == "bone")

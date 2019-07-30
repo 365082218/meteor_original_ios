@@ -297,7 +297,7 @@ namespace Idevgame.Util
         public static bool IsInRange(Transform checkTransform, Vector3 position, int fromAngle, int toAngle, float distance)
         {
             Quaternion r = checkTransform.rotation;
-            Vector3 f0 = (checkTransform.position + (r * Vector3.forward) * distance);
+            //Vector3 f0 = (checkTransform.position + (r * Vector3.forward) * distance);
 
             Quaternion r0 = Quaternion.Euler(checkTransform.rotation.eulerAngles.x, checkTransform.rotation.eulerAngles.y + fromAngle, checkTransform.rotation.eulerAngles.z);
             Quaternion r1 = Quaternion.Euler(checkTransform.rotation.eulerAngles.x, checkTransform.rotation.eulerAngles.y + toAngle, checkTransform.rotation.eulerAngles.z);

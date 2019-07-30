@@ -11,11 +11,11 @@ public class UITalkBubble : MonoBehaviour {
 	GameObject Panel;
 	GameObject bgSprite;
 	Text label;
-    RectTransform rect;
+    //RectTransform rect;
     public bool AutoHide;
     private void Awake()
     {
-        rect = GetComponent<RectTransform>();
+        //rect = GetComponent<RectTransform>();
         TheCamera = Camera.main.transform;
     }
     // Update is called once per frame

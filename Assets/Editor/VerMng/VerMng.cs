@@ -145,164 +145,164 @@ public class VerMng : EditorWindow{
     static void Build(BuildTarget target, string newVersion)
     {
         //检查此版本是否已经存在.
-        List<VersionItem> VersionList = GetAllVersion(target);
-        for (int i = 0; i < VersionList.Count; i++)
-        {
-            if (VersionList[i].strVersion == newVersion)
-            {
-                EditorUtility.DisplayDialog("错误", string.Format("版本库已存在{0}此版本号，请先修改", newVersion), "确定");
-                return;
-            }
-        }
+        //List<VersionItem> VersionList = GetAllVersion(target);
+        //for (int i = 0; i < VersionList.Count; i++)
+        //{
+        //    if (VersionList[i].strVersion == newVersion)
+        //    {
+        //        EditorUtility.DisplayDialog("错误", string.Format("版本库已存在{0}此版本号，请先修改", newVersion), "确定");
+        //        return;
+        //    }
+        //}
 
-        string path = GetPlatformPath(target) + "/" + newVersion;
-        List<string> UpdateScene = VerMng.GetBuildScenes();
-        string[] strDirectory = Directory.GetDirectories("Assets/", "Resources", SearchOption.AllDirectories);
-        List<string> strResDirectory = new List<string>();
-        for (int i = 0; i < strDirectory.Length; i++)
-        {
-            strDirectory[i] = strDirectory[i].Replace("\\", "/");
-            strResDirectory.Add(strDirectory[i]);
-        }
+        //string path = GetPlatformPath(target) + "/" + newVersion;
+        //List<string> UpdateScene = VerMng.GetBuildScenes();
+        //string[] strDirectory = Directory.GetDirectories("Assets/", "Resources", SearchOption.AllDirectories);
+        //List<string> strResDirectory = new List<string>();
+        //for (int i = 0; i < strDirectory.Length; i++)
+        //{
+        //    strDirectory[i] = strDirectory[i].Replace("\\", "/");
+        //    strResDirectory.Add(strDirectory[i]);
+        //}
 
-        List<string> strResItem = new List<string>();
-        //get resources 
-        //get resources used resources
-        //get export's unity used resources
-        //gen it's reference table
-        foreach (var res in strResDirectory)
-        {
-            string[] strFiles = Directory.GetFiles(res, "*.*", SearchOption.AllDirectories);
-            foreach (var eachFile in strFiles)
-            {
-                string strMenu = eachFile.Replace("\\", "/");
-                if (strMenu.ToLower().EndsWith(".cs") || strMenu.ToLower().EndsWith(".js") || strMenu.ToLower().EndsWith(".meta") ||
-                    strMenu.ToLower().EndsWith(".h") || strMenu.ToLower().EndsWith(".dll") || strMenu.ToLower().EndsWith(".mm") ||
-                    strMenu.ToLower().EndsWith(".cpp") || strMenu.EndsWith(".DS_Store") || strMenu.EndsWith(".svn"))
-                    continue;
-                if (!strResItem.Contains(strMenu))
-                    strResItem.Add(strMenu);
-                else
-                    Log.WriteError("already exist:" + strMenu);
-            }
-        }
+        //List<string> strResItem = new List<string>();
+        ////get resources 
+        ////get resources used resources
+        ////get export's unity used resources
+        ////gen it's reference table
+        //foreach (var res in strResDirectory)
+        //{
+        //    string[] strFiles = Directory.GetFiles(res, "*.*", SearchOption.AllDirectories);
+        //    foreach (var eachFile in strFiles)
+        //    {
+        //        string strMenu = eachFile.Replace("\\", "/");
+        //        if (strMenu.ToLower().EndsWith(".cs") || strMenu.ToLower().EndsWith(".js") || strMenu.ToLower().EndsWith(".meta") ||
+        //            strMenu.ToLower().EndsWith(".h") || strMenu.ToLower().EndsWith(".dll") || strMenu.ToLower().EndsWith(".mm") ||
+        //            strMenu.ToLower().EndsWith(".cpp") || strMenu.EndsWith(".DS_Store") || strMenu.EndsWith(".svn"))
+        //            continue;
+        //        if (!strResItem.Contains(strMenu))
+        //            strResItem.Add(strMenu);
+        //        else
+        //            Log.WriteError("already exist:" + strMenu);
+        //    }
+        //}
 
-        string[] sceneDepend = AssetDatabase.GetDependencies(UpdateScene.ToArray());
-        for (int i = 0; i < sceneDepend.Length; i++)
-        {
-            sceneDepend[i] = sceneDepend[i].Replace("\\", "/");
-            if (sceneDepend[i].EndsWith(".cs") || sceneDepend[i].EndsWith(".js"))
-                continue;
-            if (strResItem.Contains(sceneDepend[i]))
-                continue;
-            strResItem.Add(sceneDepend[i]);
-        }
+        //string[] sceneDepend = AssetDatabase.GetDependencies(UpdateScene.ToArray());
+        //for (int i = 0; i < sceneDepend.Length; i++)
+        //{
+        //    sceneDepend[i] = sceneDepend[i].Replace("\\", "/");
+        //    if (sceneDepend[i].EndsWith(".cs") || sceneDepend[i].EndsWith(".js"))
+        //        continue;
+        //    if (strResItem.Contains(sceneDepend[i]))
+        //        continue;
+        //    strResItem.Add(sceneDepend[i]);
+        //}
 
-        //清除系统配置的各个AssetBundle设置
-        ClearAllBundleName();
-        //准备分析全部依赖表.
-        ReferenceNode.Reset();
-        //分析依赖，设置AssetBundle名.
-        for (int i = 0; i < strResItem.Count; i++)
-            ReferenceNode.Alloc(strResItem[i]);
-        for (int i = 0; i < strResItem.Count; i++)
-            MakeDependTabel.OnStep(ReferenceNode.Alloc(strResItem[i]));
-        //准备对每个资源设置bundle名称
-        Dictionary<string, string> bundle = new Dictionary<string, string>();//path=>id+ext
-        //Dictionary<string, string> bundleExt = new Dictionary<string, string>();//path=>ext
-        foreach (var each in ReferenceNode.referenceDict)
-        {
-            int resFirstIndex = each.Key.IndexOf("/Resources/");
-            int resLastIndex = each.Key.LastIndexOf("/Resources/");
-            if (resLastIndex != resFirstIndex)
-                Log.WriteError(string.Format("嵌套的Resources路径是不允许的,{0}", each.Key));
-            else
-            {
-                if (resFirstIndex != -1)
-                {
-                    //在Resources目录下的路径+文件名不能相同.
-                    string res = each.Key.Substring(resFirstIndex + 11);
-                    //文件存在后缀
-                    if (bundle.ContainsValue(res))
-                        Log.WriteError(string.Format("file:{0} allready exist at {1}", res, each.Key));
-                    else
-                        bundle.Add(each.Key, res);
-                }
-                else
-                {
-                    //不在Resources目录下文件名不能相同.
-                    int index = each.Key.LastIndexOf('/');
-                    if (index != -1)
-                    {
-                        string file = each.Key.Substring(index + 1);
-                        //文件存在后缀.
-                        if (bundle.ContainsValue(file))
-                            Log.WriteError(string.Format("file:{0} allready exist at {1}", file, each.Key));
-                        else
-                            bundle.Add(each.Key, file);
-                    }
-                }
-            }
-        }
-        Log.Write(string.Format("file {0}", bundle.Count));
-        //当有重复产生时，不允许打包，文件重复意味着某个文件名+后缀在不同路径出现多次
-        if (bundle.Count != ReferenceNode.referenceDict.Count)
-        {
-            Debug.LogError("bundle length not equal");
-            return;
-        }
+        ////清除系统配置的各个AssetBundle设置
+        //ClearAllBundleName();
+        ////准备分析全部依赖表.
+        //ReferenceNode.Reset();
+        ////分析依赖，设置AssetBundle名.
+        //for (int i = 0; i < strResItem.Count; i++)
+        //    ReferenceNode.Alloc(strResItem[i]);
+        //for (int i = 0; i < strResItem.Count; i++)
+        //    MakeDependTabel.OnStep(ReferenceNode.Alloc(strResItem[i]));
+        ////准备对每个资源设置bundle名称
+        //Dictionary<string, string> bundle = new Dictionary<string, string>();//path=>id+ext
+        ////Dictionary<string, string> bundleExt = new Dictionary<string, string>();//path=>ext
+        //foreach (var each in ReferenceNode.referenceDict)
+        //{
+        //    int resFirstIndex = each.Key.IndexOf("/Resources/");
+        //    int resLastIndex = each.Key.LastIndexOf("/Resources/");
+        //    if (resLastIndex != resFirstIndex)
+        //        Log.WriteError(string.Format("嵌套的Resources路径是不允许的,{0}", each.Key));
+        //    else
+        //    {
+        //        if (resFirstIndex != -1)
+        //        {
+        //            //在Resources目录下的路径+文件名不能相同.
+        //            string res = each.Key.Substring(resFirstIndex + 11);
+        //            //文件存在后缀
+        //            if (bundle.ContainsValue(res))
+        //                Log.WriteError(string.Format("file:{0} allready exist at {1}", res, each.Key));
+        //            else
+        //                bundle.Add(each.Key, res);
+        //        }
+        //        else
+        //        {
+        //            //不在Resources目录下文件名不能相同.
+        //            int index = each.Key.LastIndexOf('/');
+        //            if (index != -1)
+        //            {
+        //                string file = each.Key.Substring(index + 1);
+        //                //文件存在后缀.
+        //                if (bundle.ContainsValue(file))
+        //                    Log.WriteError(string.Format("file:{0} allready exist at {1}", file, each.Key));
+        //                else
+        //                    bundle.Add(each.Key, file);
+        //            }
+        //        }
+        //    }
+        //}
+        //Log.Write(string.Format("file {0}", bundle.Count));
+        ////当有重复产生时，不允许打包，文件重复意味着某个文件名+后缀在不同路径出现多次
+        //if (bundle.Count != ReferenceNode.referenceDict.Count)
+        //{
+        //    Debug.LogError("bundle length not equal");
+        //    return;
+        //}
 
-        //开始设置bundle名称
-        List<ReferenceNode> referenceTable = new List<ReferenceNode>();
-        foreach (var each in bundle)
-        {
-            SetBundleName(each.Key, each.Value, true);
-            //修改依赖项为标识符。
-            ReferenceNode.referenceDict[each.Key].strResources = each.Value;
-            if (!referenceTable.Contains(ReferenceNode.referenceDict[each.Key]))
-                referenceTable.Add(ReferenceNode.referenceDict[each.Key]);
-            else
-                Log.WriteError(string.Format("node all ready exist:{1}", each.Key));
-        }
+        ////开始设置bundle名称
+        //List<ReferenceNode> referenceTable = new List<ReferenceNode>();
+        //foreach (var each in bundle)
+        //{
+        //    SetBundleName(each.Key, each.Value, true);
+        //    //修改依赖项为标识符。
+        //    ReferenceNode.referenceDict[each.Key].strResources = each.Value;
+        //    if (!referenceTable.Contains(ReferenceNode.referenceDict[each.Key]))
+        //        referenceTable.Add(ReferenceNode.referenceDict[each.Key]);
+        //    else
+        //        Log.WriteError(string.Format("node all ready exist:{1}", each.Key));
+        //}
 
-        FileStream fs = File.Open(SavePath + ResMng.RefTable, FileMode.OpenOrCreate);
-        ProtoBuf.Serializer.Serialize<List<ReferenceNode>>(fs, referenceTable);
-        fs.Close();
-        //给bundle添加RefTable.dat
-        bundle.Add(SavePath + ResMng.RefTable, ResMng.RefTable);
+        //FileStream fs = File.Open(SavePath + ResMng.RefTable, FileMode.OpenOrCreate);
+        //ProtoBuf.Serializer.Serialize<List<ReferenceNode>>(fs, referenceTable);
+        //fs.Close();
+        ////给bundle添加RefTable.dat
+        //bundle.Add(SavePath + ResMng.RefTable, ResMng.RefTable);
 
-        BuildPipeline.BuildAssetBundles(path, BuildAssetBundleOptions.None, target);
-        AssetDatabase.Refresh();
+        //BuildPipeline.BuildAssetBundles(path, BuildAssetBundleOptions.None, target);
+        //AssetDatabase.Refresh();
 
-        //清除所有manifest,自己保存依赖
-        string[] deleted = Directory.GetFiles(SavePath, "*.manifest", SearchOption.AllDirectories);
-        for (int i = 0; i < deleted.Length; i++)
-            File.Delete(deleted[i]);
+        ////清除所有manifest,自己保存依赖
+        //string[] deleted = Directory.GetFiles(SavePath, "*.manifest", SearchOption.AllDirectories);
+        //for (int i = 0; i < deleted.Length; i++)
+        //    File.Delete(deleted[i]);
 
-        AssetDatabase.Refresh();
-        //遍历生成的所有bundle，生成资源清单列表，以便与其他版本清单对比，生成更新压缩包。
-        List<PackageItem> package = new List<PackageItem>();
-        foreach (var each in bundle)
-        {
-            PackageItem pkg = new PackageItem();
-            pkg.Iden = each.Value;
-            pkg.Path = each.Key;
-            pkg.Md5 = GetFileMd5(SavePath + "/" + pkg.Iden);
-            package.Add(pkg);
-        }
+        //AssetDatabase.Refresh();
+        ////遍历生成的所有bundle，生成资源清单列表，以便与其他版本清单对比，生成更新压缩包。
+        //List<PackageItem> package = new List<PackageItem>();
+        //foreach (var each in bundle)
+        //{
+        //    PackageItem pkg = new PackageItem();
+        //    pkg.Iden = each.Value;
+        //    pkg.Path = each.Key;
+        //    pkg.Md5 = GetFileMd5(SavePath + "/" + pkg.Iden);
+        //    package.Add(pkg);
+        //}
 
-        string manifest = newVersion + ".json";
-        File.WriteAllText(GetPlatformPath(Target) + "/" + manifest, JsonMapper.ToJson(package));
-        VersionItem curItem = new VersionItem();
-        curItem.strFilelist = manifest;
-        curItem.strVersion = newVersion;
-        curItem.strVersionMax = newVersion;
-        curItem.zip = null;//最新的包，是没有更新可用的.
-        //与之前的各个版本列表对比.
-        UpdateVersionJson(target, curItem, VersionList);
-        VersionList.Add(curItem);
-        File.WriteAllText(VerMng.GetPlatformPath(target) + "/" + Main.strVerFile, JsonMapper.ToJson(VersionList));
-        LZMAHelper.CompressFileLZMA(VerMng.GetPlatformPath(target) + "/" + Main.strVerFile, VerMng.GetPlatformPath(target) + "/" + Main.strVerFile + ".zip");
+        //string manifest = newVersion + ".json";
+        //File.WriteAllText(GetPlatformPath(Target) + "/" + manifest, JsonMapper.ToJson(package));
+        //VersionItem curItem = new VersionItem();
+        //curItem.strFilelist = manifest;
+        //curItem.strVersion = newVersion;
+        //curItem.strVersionMax = newVersion;
+        //curItem.zip = null;//最新的包，是没有更新可用的.
+        ////与之前的各个版本列表对比.
+        //UpdateVersionJson(target, curItem, VersionList);
+        //VersionList.Add(curItem);
+        //File.WriteAllText(VerMng.GetPlatformPath(target) + "/" + Main.strVerFile, JsonMapper.ToJson(VersionList));
+        //LZMAHelper.CompressFileLZMA(VerMng.GetPlatformPath(target) + "/" + Main.strVerFile, VerMng.GetPlatformPath(target) + "/" + Main.strVerFile + ".zip");
     }
 
 	void OnGUI()

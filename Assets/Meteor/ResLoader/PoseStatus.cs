@@ -188,7 +188,7 @@ public class PoseStatus
         CanMove = true;
         if (!ActionList.ContainsKey(UnitId))
         {
-            int TargetIdx = UnitId >= 20 ? 0 : UnitId;
+            //int TargetIdx = UnitId >= 20 ? 0 : UnitId;
             if (UnitId >= 20)
             {
                 //先找到插件里是否包含此Pos文件
@@ -414,7 +414,7 @@ public class PoseStatus
                             if (LinkInput.ContainsKey(mActiveAction.Idx))
                             {
                                 //拿着火枪在空中踢人.
-                                int TargetActionIdx = mActiveAction.Idx;
+                                //int TargetActionIdx = mActiveAction.Idx;
                                 if (mActiveAction.Next != null)
                                     ChangeAction(LinkInput[mActiveAction.Idx], mActiveAction.Next.Time);//
                                 else
@@ -461,7 +461,7 @@ public class PoseStatus
             {
                 if (LinkInput.ContainsKey(mActiveAction.Idx))
                 {
-                    int TargetActionIdx = mActiveAction.Idx;
+                    //int TargetActionIdx = mActiveAction.Idx;
                     if (mActiveAction.Next != null)
                         ChangeAction(LinkInput[mActiveAction.Idx], mActiveAction.Next.Time);//
                     else

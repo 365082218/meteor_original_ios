@@ -18,20 +18,20 @@ public class MapObjectExporter : MonoBehaviour {
     private void Awake()
     {
         return;//这段代码开开会生成所有地图的模型，并保存到项目（SavePath 、ItemSavePath ）内
-        Level[] allLevel = LevelMng.Instance.GetAllItem();
-        for (int i = 0; i < allLevel.Length; i++)
-        {
-            if (!levAll.ContainsKey(allLevel[i].sceneItems))
-            {
-                levAll.Add(allLevel[i].sceneItems, allLevel[i]);
-                LoadSceneAndExportModel(allLevel[i].sceneItems);//导出场景元素.
-            }
-        }
+        //Level[] allLevel = LevelMng.Instance.GetAllItem();
+        //for (int i = 0; i < allLevel.Length; i++)
+        //{
+        //    if (!levAll.ContainsKey(allLevel[i].sceneItems))
+        //    {
+        //        levAll.Add(allLevel[i].sceneItems, allLevel[i]);
+        //        LoadSceneAndExportModel(allLevel[i].sceneItems);//导出场景元素.
+        //    }
+        //}
 
-        for (int i = 0; i < ModelInScene.Count; i++)
-        {
-            LoadItemAndExportModel(null, ModelInScene[i]);
-        }
+        //for (int i = 0; i < ModelInScene.Count; i++)
+        //{
+        //    LoadItemAndExportModel(null, ModelInScene[i]);
+        //}
     }
 
     void Start () {

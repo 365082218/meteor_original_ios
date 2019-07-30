@@ -170,7 +170,7 @@ public class SkcFile
     //考虑网格合并，把使用一个材质的子网格，合并到一起
     int ReadEach(string[] line, int start, int idx)
     {
-        int end = start;
+        //int end = start;
         int left = 0;
         int matidx = -1;
         for (int i = start; i < line.Length; i++)

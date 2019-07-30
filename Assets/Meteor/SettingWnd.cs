@@ -514,7 +514,7 @@ public class SettingWnd : Window<SettingWnd> {
                 webDef.DownloadFile(string.Format(Main.strSFile, Main.strHost, Main.port, Main.strProjectUrl, "Def/Def.zip"), Application.persistentDataPath + "/Plugins/Def.zip");
                 ZipUtility.UnzipFile(Application.persistentDataPath + "/Plugins/Def.zip", Application.persistentDataPath + "/Plugins/Def/", null, cb);
             }
-            catch (Exception exp)
+            catch
             {
                 cb.OnFinished(false);
             }

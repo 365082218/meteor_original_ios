@@ -930,14 +930,14 @@ public class U3D : MonoBehaviour {
             }
             else if (act == "follow")
             {
-                object target = null;
+                //object target = null;
                 if (value[1].GetType() == typeof(int))
                 {
                     GameBattleEx.Instance.PushActionFollow(id, (int)value[1]);
                 }
                 else
                 {
-                    target = value[1] as string;
+                    //target = value[1] as string;
                     if (value[1] as string == "vip")
                     {
                         //跟随己方首领.

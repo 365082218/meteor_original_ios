@@ -14,8 +14,8 @@ public class DebugUtil {
     public static void SpeedSlow()
     {
         speedScale = speedScale / 2;
-        if (speedScale <= 0.02f)
-            speedScale = 0.02f;
+        if (speedScale <= 0.005f)
+            speedScale = 0.005f;
     }
 
     public static void SpeedFast1()

@@ -331,13 +331,13 @@ shader 1
                 objMesh.transform.localRotation = Quaternion.identity;
                 objMesh.transform.localPosition = Vector3.zero;
                 objMesh.transform.localScale = Vector3.one;
-                bool realObject = false;//是不是正常物体，虚拟体无需设置材质球之类
+                //bool realObject = false;//是不是正常物体，虚拟体无需设置材质球之类
                 for (int j = 0; j < gmb.SceneObjectsCount; j++)
                 {
                     if (gmb.mesh[j].name == objMesh.name && j == i)
                     {
 
-                        realObject = true;
+                        //realObject = true;
                         Mesh w = new Mesh();
                         //前者子网格编号，后者 索引缓冲区
                         Dictionary<int, List<int>> tr = new Dictionary<int, List<int>>();

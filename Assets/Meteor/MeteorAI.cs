@@ -2375,7 +2375,7 @@ public class MeteorAI {
         float rotateAngle2 = Random.Range(45, 90);
         bool right = Random.Range(0, 100) >= 50;
         float rotateAngle = right ? rotateAngle2 : rotateAngle1;
-        Quaternion quat = Quaternion.AngleAxis(rotateAngle, Vector3.up);
+        //Quaternion quat = Quaternion.AngleAxis(rotateAngle, Vector3.up);
         float offset = 0.0f;
         float timeTotal = Mathf.Abs(rotateAngle / angleSpeed);
         float timeTick = 0.0f;
@@ -2451,9 +2451,9 @@ public class MeteorAI {
         }
         Vector3 diff = (vec - owner.transform.position);
         diff.y = 0;
-        float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
+        //float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
-        float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
+        //float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
@@ -2493,9 +2493,9 @@ public class MeteorAI {
         }
         Vector3 diff = (vec - owner.transform.position);
         diff.y = 0;
-        float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
+        //float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
-        float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
+        //float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
@@ -2536,9 +2536,9 @@ public class MeteorAI {
         }
         Vector3 diff = (vec - owner.transform.position);
         diff.y = 0;
-        float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
+        //float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
-        float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
+        //float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
@@ -2577,9 +2577,9 @@ public class MeteorAI {
         }
         Vector3 diff = (vec - owner.transform.position);
         diff.y = 0;
-        float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
+        //float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
-        float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
+        //float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
@@ -2619,9 +2619,9 @@ public class MeteorAI {
         }
         Vector3 diff = (vec - owner.transform.position);
         diff.y = 0;
-        float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
+        //float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
-        float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
+        //float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
@@ -2660,9 +2660,9 @@ public class MeteorAI {
         }
         Vector3 diff = (vec - owner.transform.position);
         diff.y = 0;
-        float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
+        //float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
-        float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
+        //float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
@@ -2703,9 +2703,9 @@ public class MeteorAI {
         //WsGlobal.AddDebugLine(vec, vec + Vector3.up * 10, Color.red, "PatrolPoint", 20.0f);
         Vector3 diff = (vec - owner.transform.position);
         diff.y = 0;
-        float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
+        //float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
-        float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
+        //float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
@@ -2746,9 +2746,9 @@ public class MeteorAI {
         //WsGlobal.AddDebugLine(vec, vec + Vector3.up * 10, Color.red, "PatrolPoint", 20.0f);
         Vector3 diff = (vec - owner.transform.position);
         diff.y = 0;
-        float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
+        //float dot = Vector3.Dot(new Vector3(-owner.transform.forward.x, 0, -owner.transform.forward.z).normalized, diff.normalized);
         float dot2 = Vector3.Dot(new Vector3(-owner.transform.right.x, 0, -owner.transform.right.z).normalized, diff.normalized);
-        float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
+        //float angle = Mathf.Abs(Mathf.Acos(Mathf.Clamp(dot, -1.0f, 1.0f)) * Mathf.Rad2Deg);
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);

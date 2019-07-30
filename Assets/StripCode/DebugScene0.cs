@@ -43,25 +43,26 @@ public class DebugScene0 : MonoBehaviour {
     float t = 0;
     void Update()
     {
-        t += Time.deltaTime * DebugUtil.speedScale;
+        FrameReplay.deltaTime = Time.deltaTime * DebugUtil.speedScale;
         if (Player.charLoader != null && Player.charLoader.OnAnimationFrame == null)
         {
             Player.charLoader.OnAnimationFrame += this.OnAnimation;
             Player.posMng.OnDebugActionFinished += this.OnAnimationFinished;
         }
-        while (t >= FrameReplay.deltaTime)
-        {
-            FrameReplay.InvokeLockUpdate();//锁定帧
-            FrameReplay.InvokeLateUpdate();//在锁定帧后
-            t -= FrameReplay.deltaTime;
-        }
+        FrameReplay.InvokeLockUpdate();//锁定帧
+        FrameReplay.InvokeLateUpdate();//在锁定帧后
     }
 
     public void PlayAnimation()
     {
         int act = (ScrollView.CurrentData as AnimationCellData).animation;
         if (PoseStatus.ActionExist(Player.UnitId, act))
-            Player.posMng.ChangeAction(act, 0);
+        {
+            if (act == CommonAction.Jump)
+                Player.Jump(false, 1);
+            else
+                Player.posMng.ChangeAction(act, 0);
+        }
         else
         {
             Debug.LogError("角色不存在动作:" + act);

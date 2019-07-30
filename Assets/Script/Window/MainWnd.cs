@@ -1008,14 +1008,14 @@ public class MatchWnd:Window<MatchWnd>
         LoadingEX.Instance.Close();
         EnterQueueTimeOut.Stop();
         FrameReplay.Instance.OnUpdates -= Update;
-        queue = false;
+        //queue = false;
         btnLeave.SetActive(true);
     }
 
     float tick = 0;
     int TotalSeconds = 0;
     bool quit = false;//等待退出
-    bool queue = false;//排队中
+    //bool queue = false;//排队中
     void Update()
     {
         tick += Time.deltaTime;
@@ -1928,7 +1928,7 @@ public class RobotWnd : Window<RobotWnd>
 
     void Init()
     {
-        RobotRoot = Control("Page");
+        RobotRoot = Control("PageView");
         Control("Close").GetComponent<Button>().onClick.AddListener(Close);
         for (int i = 0; i < 12; i++)
         {
@@ -2026,16 +2026,16 @@ public class SfxWnd: Window<SfxWnd>
 
     protected override bool OnClose()
     {
-        if (load != null)
-            Startup.ins.StopCoroutine(load);
+        //if (load != null)
+        //    Startup.ins.StopCoroutine(load);
         return base.OnClose();
     }
 
-    Coroutine load;
+    //Coroutine load;
     int pageIndex = 32;//1-max
     private const int PageCount = 20;
     int pageMax = 0;
-    int pageMin = 0;
+    //int pageMin = 0;
     void Init()
     {
         pageMax = (SFXLoader.Instance.Eff.Length / PageCount) + ((SFXLoader.Instance.Eff.Length % PageCount) != 0 ? 1 : 0);

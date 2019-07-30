@@ -159,8 +159,6 @@ public class CameraFollow : LockBehaviour {
         //Debug.LogError("lockupdate:" + Time.frameCount);
         if (MeteorManager.Instance.LocalPlayer != null && !Global.Instance.PauseAll)
         {
-            if (MeteorManager.Instance.LocalPlayer.IsOnGroundEx())
-                currentEulerVelocityY = 0;
             CameraSmoothFollow();
         }
         else
@@ -225,34 +223,21 @@ public class CameraFollow : LockBehaviour {
                 else
                 {
                     //当锁定目标丢失，或者死亡时.从双人视角转换为单人视角的摄像机过渡动画.
-                    newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime, f_speedMax);
-                    newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime, f_speedMax);
-                    newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime, f_speedMax);
-                    transform.position = newPos;
+                    transform.position = Vector3.SmoothDamp(transform.position, newPos, ref currentVelocity, SmoothDampTime, f_speedMax);
                     if (CameraLookAt.position != Vector3.zero)
                     {
-                        transform.LookAt(CameraLookAt.position);
-                        Vector3 vec = transform.eulerAngles;
-                        vec.z = 0;
-                        transform.eulerAngles = vec;
+                        Quaternion to = Quaternion.LookRotation(CameraLookAt.position - transform.position);
+                        transform.rotation = Quaternion.Lerp(transform.rotation, to, SmoothDampTime);
                     }
-                    return;
                 }
             }
             else
             {
-                newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime, f_speedMax);
-                newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime, f_speedMax);
-                newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime, f_speedMax);
-                transform.position = newPos;
+                transform.position = Vector3.SmoothDamp(transform.position, newPos, ref currentVelocity, SmoothDampTime, f_speedMax);
                 if (CameraLookAt.position != Vector3.zero)
                 {
-                    Vector3 vec = transform.eulerAngles;
-                    transform.LookAt(CameraLookAt.position);
-                    vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
-                    vec.y = transform.eulerAngles.y;
-                    vec.z = 0;
-                    transform.eulerAngles = vec;
+                    Quaternion to = Quaternion.LookRotation(CameraLookAt.position - transform.position);
+                    transform.rotation = Quaternion.Lerp(transform.rotation, to, SmoothDampTime);
                 }
             }
         }
@@ -282,24 +267,18 @@ public class CameraFollow : LockBehaviour {
     {
         animationTick = 0.0f;
         animationPlay = true;
-        currentVelocityX = 0;
         currentVelocityY = 0;
-        currentVelocityZ = 0;
-        currentEulerVelocityX = 0;
-        currentEulerVelocityY = 0;
-        currentEulerVelocityZ = 0;
+        currentVelocityY2 = 0;
+        currentVelocity = Vector3.zero;
     }
 
     public void OnUnlockTarget()
     {
         animationTick = 0.0f;
         animationPlay = true;
-        currentVelocityX = 0;
         currentVelocityY = 0;
-        currentVelocityZ = 0;
-        currentEulerVelocityX = 0;
-        currentEulerVelocityY = 0;
-        currentEulerVelocityZ = 0;
+        currentVelocityY2 = 0;
+        currentVelocity = Vector3.zero;
     }
 
     public float SmoothDampTime = 0.15f;//平滑到稳定所需时间.
@@ -307,13 +286,9 @@ public class CameraFollow : LockBehaviour {
     public float LookAtAngle = 0.0f;//朝目标俯视角度
     public float BodyHeight = 10.0f;//目标脊椎往上多少
 
-    float currentVelocityX;
+    Vector3 currentVelocity = Vector3.zero;
     float currentVelocityY;
     float currentVelocityY2;
-    float currentVelocityZ;
-    float currentEulerVelocityX;
-    float currentEulerVelocityY;
-    float currentEulerVelocityZ;
 
     bool YLagStart = false;//高度上的延迟跟随是否已开始
 
@@ -405,17 +380,10 @@ public class CameraFollow : LockBehaviour {
 
             newPos = vecTarget;
             //整个视角都是缓动的
-            newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime);
-            newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime);
-            newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime);
-            transform.position = newPos;
+            transform.position = Vector3.SmoothDamp(transform.position, newPos, ref currentVelocity, SmoothDampTime);
             //摄像机朝向观察目标,平滑的旋转视角
             Quaternion to = Quaternion.LookRotation(CameraLookAt.position - transform.position, Vector3.up);
-            Vector3 vec = to.eulerAngles;
-            vec.x = Mathf.SmoothDampAngle(transform.eulerAngles.x, to.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
-            vec.y = Mathf.SmoothDampAngle(transform.eulerAngles.y, to.eulerAngles.y, ref currentEulerVelocityY, SmoothDampTime);
-            vec.z = 0;
-            transform.eulerAngles = vec;
+            transform.rotation = Quaternion.Lerp(transform.rotation, to, SmoothDampTime);
         }
         else
         {
@@ -507,31 +475,16 @@ public class CameraFollow : LockBehaviour {
                 {
                     //当锁定目标丢失，或者死亡时.从双人视角转换为单人视角的摄像机过渡动画.
                     animationTick += FrameReplay.deltaTime;
-                    newPos.x = Mathf.SmoothDamp(transform.position.x, newPos.x, ref currentVelocityX, SmoothDampTime, f_speedMax);
-                    newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, SmoothDampTime, f_speedMax);
-                    newPos.z = Mathf.SmoothDamp(transform.position.z, newPos.z, ref currentVelocityZ, SmoothDampTime, f_speedMax);
-                    transform.position = newPos;
-                    transform.LookAt(CameraLookAt.position);
-                    Vector3 vec = transform.eulerAngles;
-                    //vec.x = Mathf.SmoothDampAngle(vec.x, transform.eulerAngles.x, ref currentEulerVelocityX, SmoothDampTime);
-                    //vec.y = transform.eulerAngles.y;
-                    //vec.y = Mathf.SmoothDampAngle(vec.y, transform.eulerAngles.y, ref currentEulerVelocityY, 0.1f);
-                    vec.z = 0;
-                    transform.eulerAngles = vec;
+                    transform.position = Vector3.SmoothDamp(transform.position, newPos, ref currentVelocity, SmoothDampTime, f_speedMax);
+                    Quaternion to = Quaternion.LookRotation(CameraLookAt.position - transform.position, Vector3.up);
+                    transform.rotation = Quaternion.Lerp(transform.rotation, to, SmoothDampTime);
                     return;
                 }
             }
             else
             {
-                //只有高度是缓动的，其他轴上都是即刻,Y轴要有延迟，避免瞬移
-                //newPos.y = Mathf.SmoothDamp(transform.position.y, newPos.y, ref currentVelocityY, f_DampTime, 200.0f);
                 transform.position = CameraPosition.position;
-                Vector3 vec = transform.eulerAngles;
                 transform.LookAt(CameraLookAt.position);
-                //vec.x = transform.eulerAngles.x;//MeteorManager.Instance.LocalPlayer.IsOnGroundEx() ? transform.eulerAngles.x : ;
-                //vec.y = transform.eulerAngles.y;//Mathf.SmoothDampAngle(vec.y, , ref currentEulerVelocityY, 0.1f);
-                //vec.z = 0;
-                //transform.eulerAngles = vec;
             }
         }
     }

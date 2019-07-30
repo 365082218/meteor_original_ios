@@ -24,7 +24,7 @@ public class MeteorUnitDebug : MeteorUnit
         if (charLoader != null)
             return;
         UnitId %= 20;
-        Debug.LogError("start");
+        //Debug.LogError("start");
         Init(UnitId < 0 ? 0:UnitId, LayerMask.NameToLayer("LocalPlayer"));
     }
 

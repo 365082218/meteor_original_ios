@@ -503,7 +503,7 @@ public class PMDSave : MonoBehaviour {
 
     private void SaveHeader()
     {
-        PMDFormat.Header result = new PMDFormat.Header();
+        //PMDFormat.Header result = new PMDFormat.Header();
         byte[] pmd = new byte[3] { 0X50, 0X6D, 0X64 };
         binary_writer_.Write(pmd);
         float fVersion = 1.0f;

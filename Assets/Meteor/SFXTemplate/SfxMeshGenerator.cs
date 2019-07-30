@@ -99,8 +99,8 @@ public class SfxMeshGenerator:Singleton<SfxMeshGenerator>
                 }
                 mesh.vertices = vec;
             }
-            else
-                mesh.vertices = vertices;
+            //else
+            //    mesh.vertices = vertices;
             mesh.normals = normals;
             mesh.uv = uvs;
 
@@ -268,8 +268,8 @@ public class SfxMeshGenerator:Singleton<SfxMeshGenerator>
             }
             mesh.vertices = vec;
         }
-        else
-            mesh.vertices = vertices;
+        //else
+        //    mesh.vertices = vertices;
         //mesh.vertices = vertices;
         mesh.normals = normals;
         mesh.uv = uv;

@@ -36,7 +36,7 @@ public class DebugScene1 : MonoBehaviour {
     }
     // Use this for initialization
     SFXEffectPlay sfxDebugTarget = null;
-    bool inited = false;
+    //bool inited = false;
     float t = 0;
 	void Update () {
         t += Time.deltaTime * DebugUtil.speedScale;

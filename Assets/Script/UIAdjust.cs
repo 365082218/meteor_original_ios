@@ -16,11 +16,11 @@ public class UIAdjust : MonoBehaviour {
         posLabel.text = string.Format("{0} {1}", GameData.Instance.gameStatus.JoyAnchor.x, GameData.Instance.gameStatus.JoyAnchor.y);
     }
 
-    Vector2 mFingerDownPos;
+    //Vector2 mFingerDownPos;
     int mLastFingerId = -2;
-    bool isPress = false;
-    Vector2 leftDown = UIHelper.ScreenPointToUIPoint(new Vector2(0, 0));
-    Vector2 leftUp = UIHelper.ScreenPointToUIPoint(new Vector2(0, Screen.height));
+    //bool isPress = false;
+    //Vector2 leftDown = UIHelper.ScreenPointToUIPoint(new Vector2(0, 0));
+    //Vector2 leftUp = UIHelper.ScreenPointToUIPoint(new Vector2(0, Screen.height));
 
     public void OnChangeTarget(int uiIndex, RectTransform rect)
     {
@@ -40,7 +40,7 @@ public class UIAdjust : MonoBehaviour {
     {
         if (enabled && gameObject.activeSelf && Target != null)
         {
-            isPress = pressed;
+            //isPress = pressed;
             if (pressed)
             {
                 Vector2 curPos = UICamera.currentTouch.pos;
@@ -50,7 +50,7 @@ public class UIAdjust : MonoBehaviour {
                 if (mLastFingerId == -2 || mLastFingerId != UICamera.currentTouchID)
                 {
                     mLastFingerId = UICamera.currentTouchID;
-                    mFingerDownPos = curPos;
+                    //mFingerDownPos = curPos;
                 }
                 OnDrag(Vector2.zero);
             }

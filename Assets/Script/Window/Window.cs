@@ -22,7 +22,7 @@ public abstract class Window<T> :Windows where T : class, new()
 {
     
    	static T msInstance = null;
-	static int mCullingMask = 0;
+	//static int mCullingMask = 0;
     public static T Instance
     {
         get
@@ -36,7 +36,7 @@ public abstract class Window<T> :Windows where T : class, new()
     public static bool Exist { get { return msInstance != null; } }
 	GameObject mRootUI = null;
     GameObject mWndObject = null;
-	GameObject mExtBackground = null;
+	//GameObject mExtBackground = null;
     public string preWnd = "";
 	
     public virtual string PrefabName { get { return typeof(T).Name; } }

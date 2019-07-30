@@ -85,7 +85,7 @@ public class PathMng:Singleton<PathMng>
 
         if (Global.Instance.GLevelItem.DisableFindWay == 1)
         {
-            List<WayPoint> direct = new List<WayPoint>();
+            //List<WayPoint> direct = new List<WayPoint>();
             wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
             wp.Add(Global.Instance.GLevelItem.wayPoint[end]);
             user.Robot.FindWayFinished = true;
@@ -242,9 +242,9 @@ public class PathMng:Singleton<PathMng>
             Vector3 vecTarget = way.pos;
             Vector3 diff = vecTarget - now;
             float dis = Vector3.SqrMagnitude(diff);
-            //如果与角色超过400，布置的路点可能有问题
-            if (dis > 160000.0f)
-                continue;
+            ////如果与角色超过400，布置的路点可能有问题
+            //if (dis > 160000.0f)
+            //    continue;
             ret = i;
             int k = 0;
             for (int j = 0; j < CandiateDistance.Count; j++)

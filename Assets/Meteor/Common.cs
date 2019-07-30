@@ -469,9 +469,13 @@ public class Common
         req.version = AppInfo.Instance.MeteorV2();//107 907
         req.pattern = (RoomInfo.RoomPattern)GameData.Instance.gameStatus.NetWork.Pattern;
         if (req.pattern == RoomInfo.RoomPattern._Replay)
-            ;//向服务器发送某个录像文件
+        {
+            //向服务器发送某个录像文件
+        }
         else if (req.pattern == RoomInfo.RoomPattern._Record)
-            ;//服务器保存录像文件，在单轮结束后
+        {
+            //服务器保存录像文件，在单轮结束后
+        }
         //把本地的武器ID，模型ID传过去，其他人进入房间后，选择角色或者武器，就受到房间此信息限制
         //req.weapons.Add();
         //只包含外接模型-基础0-19无论如何都可以使用.

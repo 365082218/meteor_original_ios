@@ -122,7 +122,7 @@ public static class TableParser
 
 		if (strText.Length == 0)
 		{
-			Debug.LogError("无法加载表格文件：" + name);
+			Debug.LogError("表格数据为空：" + name);
 			return new T[0];
 		}
 		// try parse the table lines.

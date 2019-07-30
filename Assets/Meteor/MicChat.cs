@@ -16,7 +16,7 @@ public static class MicChat
             Microphone.End(null);
             clip = Microphone.Start(null, false, maxRecordTime, samplingRate);
         }
-        catch (System.Exception e)
+        catch
         {
             return false;
         }

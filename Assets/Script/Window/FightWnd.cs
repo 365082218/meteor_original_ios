@@ -425,7 +425,7 @@ public class FightWnd : Window<FightWnd>
         }
     }
 
-    int lastAngry = 0;
+    //int lastAngry = 0;
     public void UpdateAngryBar()
     {
         if (MeteorManager.Instance.LocalPlayer != null && !MeteorManager.Instance.LocalPlayer.Dead)

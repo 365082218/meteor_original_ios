@@ -227,11 +227,11 @@ public partial class GameBattleEx : LockBehaviour {
         {
             if (UnitActionStack.ContainsKey(UnitActKey[i]))
             {
-                StackAction act = UnitActionStack[UnitActKey[i]].action[UnitActionStack[UnitActKey[i]].action.Count - 1].type;
+                //StackAction act = UnitActionStack[UnitActKey[i]].action[UnitActionStack[UnitActKey[i]].action.Count - 1].type;
                 UnitActionStack[UnitActKey[i]].Update(Time.deltaTime);
                 if (UnitActionStack[UnitActKey[i]].action.Count == 0)
                 {
-                    MeteorUnit unit = U3D.GetUnit(UnitActKey[i]);
+                    //MeteorUnit unit = U3D.GetUnit(UnitActKey[i]);
                     //Debug.Log(string.Format("{0} action call finished:{1}", unit.name, act));
                     UnitActKeyDeleted.Add(UnitActKey[i]);
                 }
@@ -1261,7 +1261,7 @@ public partial class GameBattleEx : LockBehaviour {
     {
         if (CameraFree.Ins == null)
         {
-            GameObject FreeCamera = GameObject.Instantiate(Resources.Load("CameraFreeEx")) as GameObject;
+            //GameObject FreeCamera = GameObject.Instantiate(Resources.Load("CameraFreeEx")) as GameObject;
             
         }
         CameraFree.Ins.GetComponent<Camera>().enabled = true;

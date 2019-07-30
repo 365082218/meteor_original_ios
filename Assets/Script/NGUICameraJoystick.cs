@@ -110,7 +110,7 @@ public class NGUICameraJoystick : MonoBehaviour
             //float angle = 0.0f;
             if (mLastFingerId == UICamera.currentTouchID)
             {
-                Vector2 touchPos = UICamera.currentTouch.pos - mFingerDownPos;
+                //Vector2 touchPos = UICamera.currentTouch.pos - mFingerDownPos;
                 deltaLast = delta;
                 //Debug.LogError(string.Format("{0}:{1}", deltaLast.x, deltaLast.y));
                 mFingerDownPos = UICamera.currentTouch.pos;

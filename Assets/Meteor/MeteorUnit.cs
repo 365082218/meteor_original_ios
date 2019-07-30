@@ -561,7 +561,7 @@ public partial class MeteorUnit : LockBehaviour
         float dis = Attr.View;
         if (dis <= 10)
             dis = 100.0f;
-        int index = -1;
+        //int index = -1;
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
         {
             MeteorUnit unit = MeteorManager.Instance.UnitInfos[i];
@@ -575,7 +575,7 @@ public partial class MeteorUnit : LockBehaviour
             if (dis > d)
             {
                 dis = d;
-                index = i;
+                //index = i;
             }
         }
     }
@@ -907,7 +907,7 @@ public partial class MeteorUnit : LockBehaviour
     SceneItemAgent TargetItem;
     void RefreshTarget()
     {
-        MeteorUnit temp = lockTarget;
+        //MeteorUnit temp = lockTarget;
         if (lockTarget == null || lockTarget.Dead)
             SelectEnemy();
         else
@@ -1037,6 +1037,7 @@ public partial class MeteorUnit : LockBehaviour
     {
         if (!charController.enabled)
             return;
+        //Debug.Log("f:" + Time.frameCount);
         float gScale = Global.Instance.gGravity;
         Vector3 v;
         v.x = ImpluseVec.x * FrameReplay.deltaTime;
@@ -1451,7 +1452,6 @@ public partial class MeteorUnit : LockBehaviour
         {
             if (weaponLoader != null)
                 weaponLoader.UnEquipWeapon();
-            int weapon = Attr.Weapon;
             Attr.Weapon = Attr.Weapon2;
             Attr.Weapon2 = 0;
             IndicatedWeapon = GameData.Instance.MakeEquip(Attr.Weapon);
@@ -1996,7 +1996,7 @@ public partial class MeteorUnit : LockBehaviour
     //    charLoader.SetActionScale(Short ? 0.5f : 1.0f);
     //}
 
-    public const float JumpLimit = 68f;
+    public const float JumpLimit = 70f;
     //踏墙壁跳跃,y为正常跳跃高度倍数.
     public void Jump2(float y, int act = CommonAction.Jump)
     {

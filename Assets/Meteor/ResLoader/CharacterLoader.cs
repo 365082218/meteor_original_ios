@@ -211,7 +211,6 @@ public class CharacterLoader
         foreach (var each in bounds)
         {
             BoxCollider b = each.Key.gameObject.AddComponent<BoxCollider>();
-            Vector3 v = ((each.Value.max + each.Value.min) / 2);
             b.center = Vector3.zero;
             b.size = each.Value.max - each.Value.min;
             b.enabled = true;
@@ -394,7 +393,7 @@ public class CharacterLoader
                 TheLastFrame = -1;
             }
         }
-
+        //Debug.Log("PlayKeyFrame:" + Time.frameCount);
         BoneStatus status = null;
         if (po.SourceIdx == 0)
             status = AmbLoader.CharCommon[curIndex];
@@ -404,47 +403,45 @@ public class CharacterLoader
             status = AmbLoader.GetBoneStatus(po.SourceIdx, owner.UnitId, curIndex);
 
         //Debug.LogError("play keyframe " + " idx:" + curIndex);
-        for (int i = 0; i < bo.Count; i++)
+        if (bo.Count != 0)
         {
-            bo[i].localRotation = status.BoneQuat[i];
-            if (i == 0)
-                bo[i].localPosition = status.BonePos;
+            bo[0].localRotation = status.BoneQuat[0];
+            bo[0].localPosition = status.BonePos;
         }
 
+        for (int i = 1; i < bo.Count; i++)
+            bo[i].localRotation = status.BoneQuat[i];
+
         bool IgnoreActionMoves = PoseStatus.IgnoreActionMove(po.Idx);
-        if (owner.IsDebugUnit())
-            IgnoreActionMoves = false;
+        //if (owner.IsDebugUnit())
+        //    IgnoreActionMoves = false;
         bool IgnoreActionXZMove = PoseStatus.IgnoreXZMove(po.Idx);
-        for (int i = 0; i < dummy.Count; i++)
+
+        if (lastPosIdx == po.Idx)
         {
-            if (i == 0)
+            Vector3 targetPos = status.DummyPos[0];
+            Vector3 vec = Target.rotation * (targetPos - lastDBasePos) * moveScale;
+            //如果忽略位移，或者在动作的循环帧中，即第一次从循环头开始播放后，不再计算位移.
+            if (IgnoreActionMoves)
             {
-                if (lastPosIdx == po.Idx)
-                {
-                    Vector3 targetPos = status.DummyPos[i];
-                    Vector3 vec = Target.rotation * (targetPos - lastDBasePos) * moveScale;
-                    //如果忽略位移，或者在动作的循环帧中，即第一次从循环头开始播放后，不再计算位移.
-                    if (IgnoreActionMoves)
-                    {
-                        vec.x = 0;
-                        vec.z = 0;
-                        vec.y = 0;
-                    }
-                    else if (IgnoreActionXZMove)
-                    {
-                        vec.x = vec.z = 0;
-                    }
-                    moveDelta += vec;
-                    //if (po.Idx == 151)
-                    //    Debug.LogError(string.Format("pose:{0} frame:{1} move: x ={2}, y ={3} z = {4}", po.Idx, curIndex, moveDelta.x, moveDelta.y, moveDelta.z));
-                    lastDBasePos = targetPos;
-                }
+                vec.x = 0;
+                vec.z = 0;
+                vec.y = 0;
             }
-            else
+            else if (IgnoreActionXZMove)
             {
-                dummy[i].localRotation = status.DummyQuat[i];
-                dummy[i].localPosition = status.DummyPos[i];
+                vec.x = vec.z = 0;
             }
+            moveDelta += vec;
+            //if (po.Idx == 151)
+            //    Debug.LogError(string.Format("pose:{0} frame:{1} move: x ={2}, y ={3} z = {4}", po.Idx, curIndex, moveDelta.x, moveDelta.y, moveDelta.z));
+            lastDBasePos = targetPos;
+        }
+
+        for (int i = 1; i < dummy.Count; i++)
+        {
+            dummy[i].localRotation = status.DummyQuat[i];
+            dummy[i].localPosition = status.DummyPos[i];
         }
 
         lastFrameIndex = curIndex;
@@ -556,7 +553,6 @@ public class CharacterLoader
     public System.Action<int, int, int, float> OnAnimationFrame;
     public void PlayFrame(float timeRatio)
     {
-        //float speedScale = GetSpeedScale();
         TryPlayEffect();
         ChangeAttack();
         ChangeWeaponTrail();
@@ -610,7 +606,7 @@ public class CharacterLoader
                 TheLastFrame = -1;
             }
         }
-
+        //Debug.Log("PlayKeyFrame:" + Time.frameCount);
         //curIndex = targetIndex;
         BoneStatus status = null;
         BoneStatus lastStatus = null;
@@ -625,17 +621,13 @@ public class CharacterLoader
         else
             status = AmbLoader.GetBoneStatus(po.SourceIdx, owner.UnitId, curIndex);
 
-        //Debug.LogError("play frame timeratio:" + timeRatio + " idx:" + curIndex);
-        //if (mOwner.Attr.IsPlayer && FightWnd.Exist)
-        //    FightWnd.Instance.UpdatePoseStatus(po.Idx, lastFrameIndex);
-
         if (status != null && lastStatus != null)
         {
-            for (int i = 0; i < bo.Count; i++)
+            bo[0].localRotation = Quaternion.Slerp(lastStatus.BoneQuat[0], status.BoneQuat[0], timeRatio);
+            bo[0].localPosition = Vector3.Lerp(lastStatus.BonePos, status.BonePos, timeRatio);
+            for (int i = 1; i < bo.Count; i++)
             {
                 bo[i].localRotation = Quaternion.Slerp(lastStatus.BoneQuat[i], status.BoneQuat[i], timeRatio);
-                if (i == 0)
-                    bo[i].localPosition = Vector3.Lerp(lastStatus.BonePos, status.BonePos, timeRatio);
             }
         }
 
@@ -644,41 +636,35 @@ public class CharacterLoader
         {
             if (OnAnimationFrame != null)
                 OnAnimationFrame(po.SourceIdx, po.Idx, curIndex, timeRatio);
-            IgnoreActionMoves = false;
+            //IgnoreActionMoves = false;
         }
 
         bool IgnoreActionXZMove = PoseStatus.IgnoreXZMove(po.Idx);
 
         if (lastStatus != null && status != null)
         {
-            for (int i = 0; i < dummy.Count; i++)
+            if (lastPosIdx == po.Idx)
             {
-                if (i == 0)
+                Vector3 targetPos = Vector3.Lerp(lastStatus.DummyPos[0], status.DummyPos[0], timeRatio);
+                Vector3 vec = Target.rotation * (targetPos - lastDBasePos) * moveScale;
+                if (IgnoreActionMoves)
                 {
-                    //Debug.LogError("action move");
-                    if (lastPosIdx == po.Idx)
-                    {
-                        Vector3 targetPos = Vector3.Lerp(lastStatus.DummyPos[i], status.DummyPos[i], timeRatio);
-                        Vector3 vec = Target.rotation * (targetPos - lastDBasePos) * moveScale;
-                        if (IgnoreActionMoves)
-                        {
-                            vec.x = 0;
-                            vec.z = 0;
-                            vec.y = 0;
-                        }
-                        else if (IgnoreActionXZMove)
-                        {
-                            vec.x = vec.z = 0;
-                        }
-                        moveDelta += vec;
-                        lastDBasePos = targetPos;
-                    }
+                    vec.x = 0;
+                    vec.z = 0;
+                    vec.y = 0;
                 }
-                else
+                else if (IgnoreActionXZMove)
                 {
-                    dummy[i].localRotation = Quaternion.Slerp(lastStatus.DummyQuat[i], status.DummyQuat[i], timeRatio);
-                    dummy[i].localPosition = Vector3.Lerp(lastStatus.DummyPos[i], status.DummyPos[i], timeRatio);
+                    vec.x = vec.z = 0;
                 }
+                moveDelta += vec;
+                lastDBasePos = targetPos;
+            }
+
+            for (int i = 1; i < dummy.Count; i++)
+            { 
+                dummy[i].localRotation = Quaternion.Slerp(lastStatus.DummyQuat[i], status.DummyQuat[i], timeRatio);
+                dummy[i].localPosition = Vector3.Lerp(lastStatus.DummyPos[i], status.DummyPos[i], timeRatio);
             }
         }
     }
@@ -712,13 +698,11 @@ public class CharacterLoader
                 else if (lastFramePlayedTimes < fps && lastFramePlayedTimes > 0)
                 {
                     PlayFrame(lastFramePlayedTimes / fps);
-
                 }
             }
             else
             {
                 playedTime += FrameReplay.deltaTime;
-                //TryPlayEffect();
                 ChangeWeaponTrail();
 
                 BoneStatus status = null;
@@ -730,23 +714,17 @@ public class CharacterLoader
                     status = AmbLoader.GetBoneStatus(po.SourceIdx, owner.UnitId, blendStart);
                 if (playedTime < blendTime && blendTime != 0.0f && lastFrameStatus != null && status != null)
                 {
-                    for (int i = 0; i < bo.Count; i++)
+                    bo[0].localRotation = Quaternion.Slerp(lastFrameStatus.BoneQuat[0], status.BoneQuat[0], playedTime / blendTime);
+                    bo[0].localPosition = Vector3.Lerp(lastFrameStatus.BonePos, status.BonePos, playedTime / blendTime);
+                    for (int i = 1; i < bo.Count; i++)
                     {
                         bo[i].localRotation = Quaternion.Slerp(lastFrameStatus.BoneQuat[i], status.BoneQuat[i], playedTime / blendTime);
-                        if (i == 0)
-                            bo[i].localPosition = Vector3.Lerp(lastFrameStatus.BonePos, status.BonePos, playedTime / blendTime);
                     }
-                    for (int i = 0; i < dummy.Count; i++)
+                    lastDBasePos = status.DummyPos[0];
+                    for (int i = 1; i < dummy.Count; i++)
                     {
-                        if (i == 0)
-                        {
-                            lastDBasePos = status.DummyPos[i];
-                        }
-                        else
-                        {
-                            dummy[i].localRotation = Quaternion.Slerp(lastFrameStatus.DummyQuat[i], status.DummyQuat[i], playedTime / blendTime);
-                            dummy[i].localPosition = Vector3.Lerp(lastFrameStatus.DummyPos[i], status.DummyPos[i], playedTime / blendTime);
-                        }
+                        dummy[i].localRotation = Quaternion.Slerp(lastFrameStatus.DummyQuat[i], status.DummyQuat[i], playedTime / blendTime);
+                        dummy[i].localPosition = Vector3.Lerp(lastFrameStatus.DummyPos[i], status.DummyPos[i], playedTime / blendTime);
                     }
                 }
                 else
@@ -1162,7 +1140,7 @@ public class AmbLoader
         int bone = binRead.ReadInt32();
         int dummy = binRead.ReadInt32();
         int frames = binRead.ReadInt32();
-        int unknown = binRead.ReadInt32();
+        binRead.ReadInt32();
         Dictionary<int, BoneStatus> innerValue = new Dictionary<int, BoneStatus>();
         for (int i = 0; i < frames; i++)
         {
