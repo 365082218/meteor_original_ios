@@ -361,9 +361,19 @@ public class MeteorAI {
                     OnFindWayEnd();
                     break;
                 }
+                if (Path.Count == 0 && RefreshPathCoroutine == null)
+                {
+                    OnFindWayEnd();
+                    break;
+                }
                 break;
             case EAISubStatus.FindWaitPatrol:
                 if (PatrolPath.Count != 0 && FindPatrolFinished)
+                {
+                    OnFindWayEnd();
+                    break;
+                }
+                if (PatrolPath.Count == 0 && RefreshPathCoroutine == null)
                 {
                     OnFindWayEnd();
                     break;
@@ -1582,7 +1592,7 @@ public class MeteorAI {
 
     //撞到墙壁.如果在移动到目标更远处时，切换为攻击状态，避免一直对着墙跑.
     float touchLast = 0.0f;
-    const float touchWallLimit = 5.0f;
+    const float touchWallLimit = 1.0f;
     public void CheckStatus()
     {
         if (touchLast >= touchWallLimit)

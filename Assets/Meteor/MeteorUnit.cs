@@ -2015,7 +2015,7 @@ public partial class MeteorUnit : LockBehaviour
     {
         canControlOnAir = true;
         OnGround = false;
-        float jumpScale = Short ? (ShortScale * 0.5f) : 1.0f;
+        float jumpScale = Short ? (ShortScale * 0.32f) : 1.0f;
         float h = JumpLimit * jumpScale;
         ImpluseVec.y = CalcVelocity(h);
         posMng.JumpTick = 0.0f;

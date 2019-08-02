@@ -1119,6 +1119,11 @@ public class U3D : MonoBehaviour {
             if (MeteorManager.Instance.UnitInfos[i].InstanceId == id)
                 return MeteorManager.Instance.UnitInfos[i].Attr.hpCur;
         }
+        for (int i = 0; i < MeteorManager.Instance.DeadUnits.Count; i++)
+        {
+            if (MeteorManager.Instance.DeadUnits[i].InstanceId == id)
+                return MeteorManager.Instance.DeadUnits[i].Attr.hpCur;
+        }
         return 0;
     }
     public static int GetMaxHP(int id)
@@ -1127,6 +1132,11 @@ public class U3D : MonoBehaviour {
         {
             if (MeteorManager.Instance.UnitInfos[i].InstanceId == id)
                 return MeteorManager.Instance.UnitInfos[i].Attr.HpMax;
+        }
+        for (int i = 0; i < MeteorManager.Instance.DeadUnits.Count; i++)
+        {
+            if (MeteorManager.Instance.DeadUnits[i].InstanceId == id)
+                return MeteorManager.Instance.DeadUnits[i].Attr.HpMax;
         }
         return 0;
     }

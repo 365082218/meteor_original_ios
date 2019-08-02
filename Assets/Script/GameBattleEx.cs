@@ -1300,8 +1300,8 @@ public partial class GameBattleEx : LockBehaviour {
     {
         if (lockedTarget != null)
             Unlock();
-        else if (autoTarget != null)
-            Lock();
+        //else if (autoTarget != null)
+        //    Lock();
     }
     //每个角色拥有的动作堆栈
     Dictionary<int, ActionConfig> UnitActionStack = new Dictionary<int, ActionConfig>();
@@ -1486,16 +1486,16 @@ public partial class GameBattleEx : LockBehaviour {
                 //capsule.center = Vector3.zero;
                 obj.name = string.Format("WayPoint{0}", Global.Instance.GLevelItem.wayPoint[i].index);
 
-                foreach (var each in  Global.Instance.GLevelItem.wayPoint[i].link)
-                {
-                    GameObject objArrow = GameObject.Instantiate(Resources.Load("PathArrow")) as GameObject;
-                    objArrow.transform.position = Global.Instance.GLevelItem.wayPoint[i].pos;
-                    Vector3 vec = Global.Instance.GLevelItem.wayPoint[each.Key].pos - Global.Instance.GLevelItem.wayPoint[i].pos;
-                    objArrow.transform.forward = vec.normalized;
-                    objArrow.transform.localScale = new Vector3(30, 30, vec.magnitude / 2.2f);
-                    objArrow.name = string.Format("Way{0}->Way{1}", Global.Instance.GLevelItem.wayPoint[each.Key].index, Global.Instance.GLevelItem.wayPoint[i].index);
-                    wayArrowList.Add(objArrow);
-                }
+                //foreach (var each in  Global.Instance.GLevelItem.wayPoint[i].link)
+                //{
+                //    GameObject objArrow = GameObject.Instantiate(Resources.Load("PathArrow")) as GameObject;
+                //    objArrow.transform.position = Global.Instance.GLevelItem.wayPoint[i].pos;
+                //    Vector3 vec = Global.Instance.GLevelItem.wayPoint[each.Key].pos - Global.Instance.GLevelItem.wayPoint[i].pos;
+                //    objArrow.transform.forward = vec.normalized;
+                //    objArrow.transform.localScale = new Vector3(30, 30, vec.magnitude / 2.2f);
+                //    objArrow.name = string.Format("Way{0}->Way{1}", Global.Instance.GLevelItem.wayPoint[each.Key].index, Global.Instance.GLevelItem.wayPoint[i].index);
+                //    wayArrowList.Add(objArrow);
+                //}
             }
         }
 

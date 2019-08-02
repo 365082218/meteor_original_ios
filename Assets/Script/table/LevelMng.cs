@@ -101,12 +101,6 @@ public class Level : ITableItem
     public int Key() { return ID; }
     public string BgmName;
     public string BgTexture;
-    public string Param;//通过参数
-    public int Pass;//通关条件
-    public int Template;//能否单机创建-作为场景模板 1能-即可在创建房间里创建
-    //public string Des;
-    //public string Comment;
-    public int DesType;//读取*.des的种类 0-原作 1-新des 2-不读取des
 };
 
 public class LevelMng : TableManager<Level, LevelMng>

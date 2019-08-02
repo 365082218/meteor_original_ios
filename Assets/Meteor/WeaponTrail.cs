@@ -419,8 +419,11 @@ public class WeaponTrail : MonoBehaviour
 			_trailMesh.colors = newColors;
 			_trailMesh.uv = newUV;
 			_trailMesh.triangles = newTriangles;
-            _trailObject.GetComponent<Renderer>().material.SetColor("_TintColor", _colors[0]);
-            _trailObject.GetComponent<Renderer>().material.SetFloat("_Alpha", 0.5f);
+            if (_trailObject != null)
+            {
+                _trailObject.GetComponent<Renderer>().material.SetColor("_TintColor", _colors[0]);
+                _trailObject.GetComponent<Renderer>().material.SetFloat("_Alpha", 0.5f);
+            }
         }
 	}
 

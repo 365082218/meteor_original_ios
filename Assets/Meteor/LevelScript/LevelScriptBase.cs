@@ -5810,6 +5810,7 @@ public class LevelScript_sn13 : LevelScriptBase
             {
                 Say(c, "我﹒﹒竟然会哉在你﹒﹒的手下﹒﹒﹒");
                 trg4 = 2;
+                GameOver(1);
             }
         }
         return 1;

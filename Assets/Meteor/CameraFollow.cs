@@ -279,6 +279,7 @@ public class CameraFollow : LockBehaviour {
         currentVelocityY = 0;
         currentVelocityY2 = 0;
         currentVelocity = Vector3.zero;
+        LockTarget = null;
     }
 
     public float SmoothDampTime = 0.15f;//平滑到稳定所需时间.
