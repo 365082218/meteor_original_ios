@@ -119,7 +119,7 @@ class SceneMng:Singleton<SceneMng>
         unit.SetGround(false);
         if (Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
         {
-            if (Global.Instance.GLevelItem.DisableFindWay == 1)
+            if (Global.Instance.GScript.DisableFindWay())
             {
                 //不许寻路，无寻路点的关卡，使用
                 unit.transform.position = Global.Instance.GLevelSpawn[mon.SpawnPoint >= Global.Instance.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
@@ -133,7 +133,7 @@ class SceneMng:Singleton<SceneMng>
         {
             if (Global.Instance.GGameMode == GameMode.Normal)
             {
-                if (Global.Instance.GLevelItem.DisableFindWay == 1)
+                if (Global.Instance.GScript.DisableFindWay())
                 {
                     //不许寻路，无寻路点的关卡，使用
                     unit.transform.position = Global.Instance.GLevelSpawn[mon.SpawnPoint >= Global.Instance.GLevelSpawn.Length ? 0 : mon.SpawnPoint];

@@ -374,7 +374,7 @@ public class RoomOptionWnd:Window<RoomOptionWnd>
         for (int i = 0; i < allLevel.Length; i++)
         {
             Level lev = allLevel[i];
-            if (lev == null || lev.Template == 0)
+            if (lev == null)
                 continue;
             AddGridItem(lev, TemplateRoot.transform);
         }
@@ -683,7 +683,7 @@ public class WorldTemplateWnd : Window<WorldTemplateWnd>
         for (int i = 0; i < allLevel.Length; i++)
         {
             Level lev = allLevel[i];
-            if (lev == null || lev.Template == 0)
+            if (lev == null)
                 continue;
             AddGridItem(lev, TemplateRoot.transform);
         }

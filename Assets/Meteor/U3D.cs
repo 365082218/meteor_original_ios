@@ -355,7 +355,7 @@ public class U3D : MonoBehaviour {
         unit.SetGround(false);
         if (Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
         {
-            if (Global.Instance.GLevelItem.DisableFindWay == 1)
+            if (Global.Instance.GScript.DisableFindWay())
             {
                 //不许寻路，无寻路点的关卡，使用
                 bool setPosition = false;
@@ -380,7 +380,7 @@ public class U3D : MonoBehaviour {
         {
             if (Global.Instance.GGameMode == GameMode.Normal)
             {
-                if (Global.Instance.GLevelItem.DisableFindWay == 1)
+                if (Global.Instance.GScript.DisableFindWay())
                 {
                     //不许寻路，无寻路点的关卡，使用
                     unit.transform.position = Global.Instance.GLevelSpawn[mon.SpawnPoint >= Global.Instance.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
@@ -1604,5 +1604,14 @@ public class U3D : MonoBehaviour {
     public static byte[] LoadReplayData()
     {
         return null;
+    }
+
+    public static void ShowLeaderSfx()
+    {
+        MeteorUnit uEnemy = U3D.GetTeamLeader(EUnitCamp.EUC_ENEMY);
+        MeteorUnit uPlayer = U3D.GetUnit(0);
+        SFXLoader.Instance.PlayEffect("vipblue.ef", uPlayer.gameObject, false);
+        if (uEnemy != null)
+            SFXLoader.Instance.PlayEffect("vipred.ef", uEnemy.gameObject, false);
     }
 }

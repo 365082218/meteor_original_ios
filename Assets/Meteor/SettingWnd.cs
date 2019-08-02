@@ -505,19 +505,6 @@ public class SettingWnd : Window<SettingWnd> {
             //{
             //    InsertModel(DlcMng.Instance.Models[i]);
             //}
-
-            //更新定义文件
-            UnzipCallbackEx cb = new UnzipCallbackEx(0);
-            try
-            {
-                WebClient webDef = new WebClient();
-                webDef.DownloadFile(string.Format(Main.strSFile, Main.strHost, Main.port, Main.strProjectUrl, "Def/Def.zip"), Application.persistentDataPath + "/Plugins/Def.zip");
-                ZipUtility.UnzipFile(Application.persistentDataPath + "/Plugins/Def.zip", Application.persistentDataPath + "/Plugins/Def/", null, cb);
-            }
-            catch
-            {
-                cb.OnFinished(false);
-            }
             DlcMng.Instance.ClearDlc();
             for (int i = 0; i < js["Dlc"].Count; i++)
             {

@@ -453,7 +453,7 @@ public class DlcMng:Singleton<DlcMng> {
                 {
                     if (processingCtrl != null)
                     {
-                        if (processingCtrl.retryNum >= 3)
+                        if (processingCtrl.retryNum >= 1)
                         {
                             //跳过这个任务，开始下载下一个的预览图
                             lock (PreviewTask)

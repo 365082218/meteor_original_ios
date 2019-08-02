@@ -108,11 +108,13 @@ public partial class GameBattleEx : LockBehaviour {
         if (NGUIJoystick.instance)
             NGUIJoystick.instance.Lock(true);
         //如果胜利，且不是最后一关，打开最新关标志.
-        if (result == 1 && (Global.Instance.GLevelItem.ID == GameData.Instance.gameStatus.Level) && Global.Instance.GLevelItem.ID < Global.Instance.LEVELMAX)
+        if (result == 1)
         {
             if (Global.Instance.Chapter == null)
             {
                 GameData.Instance.gameStatus.Level++;
+                if (GameData.Instance.gameStatus.Level >= Global.Instance.LEVELMAX)
+                    GameData.Instance.gameStatus.Level = Global.Instance.LEVELMAX;
                 GameData.Instance.SaveState();
             }
             else
@@ -348,8 +350,11 @@ public partial class GameBattleEx : LockBehaviour {
     {
         for (int i = 0; i < colist.Count; i++)
         {
-            //if (colist[i] == null)//协程中删除
-            //    continue;
+            if (colist[i] == null)//协程中删除
+            {
+                colist.RemoveAt(i);
+                continue;
+            }
             if (!colist[i].enabled)
                 continue;
             for (int j = 0; j < ondamaged.hitList.Count; j++)
@@ -481,14 +486,20 @@ public partial class GameBattleEx : LockBehaviour {
                 if (MeteorManager.Instance.UnitInfos[i].Attr != null)
                     MeteorManager.Instance.UnitInfos[i].Attr.OnStart();//AI脚本必须在所有角色都加载完毕后再调用
             }
-        }
 
-        if (Global.Instance.GGameMode == GameMode.ANSHA || Global.Instance.GLevelItem.Pass == 2)
+            //游戏开始前最后给脚本处理事件的机会
+            if (Global.Instance.GScript != null)
+                Global.Instance.GScript.OnLateStart();
+        }
+        else
         {
-            MeteorUnit uEnemy = U3D.GetTeamLeader(EUnitCamp.EUC_ENEMY);
-            SFXLoader.Instance.PlayEffect("vipblue.ef", MeteorManager.Instance.LocalPlayer.gameObject, false);
-            if (uEnemy != null)
-                SFXLoader.Instance.PlayEffect("vipred.ef", uEnemy.gameObject, false);
+            if (Global.Instance.GGameMode == GameMode.ANSHA)
+            {
+                MeteorUnit uEnemy = U3D.GetTeamLeader(EUnitCamp.EUC_ENEMY);
+                SFXLoader.Instance.PlayEffect("vipblue.ef", MeteorManager.Instance.LocalPlayer.gameObject, false);
+                if (uEnemy != null)
+                    SFXLoader.Instance.PlayEffect("vipred.ef", uEnemy.gameObject, false);
+            }
         }
     }
 
@@ -1213,18 +1224,20 @@ public partial class GameBattleEx : LockBehaviour {
                 Unlock();
             if (Global.Instance.GLevelMode == LevelMode.SinglePlayerTask)
             {
-                //检测关卡通关或者失败条件。
-                if (Global.Instance.GLevelItem.Pass == 1)//敌方阵营全死
-                {
-                    int totalEnemy = U3D.GetEnemyCount();
-                    if (totalEnemy == 0)
-                        GameOver(1);
-                }
-                else if (Global.Instance.GLevelItem.Pass == 2)//敌方指定脚本角色死亡
-                {
-                    if (unit.Attr.NpcTemplate == Global.Instance.GLevelItem.Param)
-                        GameOver(1);
-                }
+                int result = Global.Instance.GScript.OnUnitDead(unit);
+                if (result != 0)
+                    GameOver(result);
+                //if (Global.Instance.GLevelItem.Pass == 1)//敌方阵营全死
+                //{
+                //    int totalEnemy = U3D.GetEnemyCount();
+                //    if (totalEnemy == 0)
+                //        GameOver(1);
+                //}
+                //else if (Global.Instance.GLevelItem.Pass == 2)//敌方指定脚本角色死亡
+                //{
+                //    if (unit.Attr.NpcTemplate == Global.Instance.GLevelItem.Param)
+                //        GameOver(1);
+                //}
             }
             //如果是
             else if (Global.Instance.GLevelMode == LevelMode.CreateWorld)

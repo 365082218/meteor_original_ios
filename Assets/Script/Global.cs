@@ -117,8 +117,7 @@ public class Global
         Level[] baseLevel = LevelMng.Instance.GetAllItem();
         for (int i = 0; i < baseLevel.Length; i++)
         {
-            if (baseLevel[i].Template == 1)
-                AllLevel.Add(baseLevel[i]);
+            AllLevel.Add(baseLevel[i]);
         }
 
         for (int i = 0; i < GameData.Instance.gameStatus.pluginChapter.Count; i++)
@@ -126,8 +125,7 @@ public class Global
             baseLevel = DlcMng.Instance.GetDlcLevel(GameData.Instance.gameStatus.pluginChapter[i].ChapterId);
             for (int j = 0; j < baseLevel.Length; j++)
             {
-                if (baseLevel[j].Template == 1)
-                    AllLevel.Add(baseLevel[j]);
+                AllLevel.Add(baseLevel[j]);
             }
         }
         return AllLevel.ToArray();

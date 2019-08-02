@@ -129,7 +129,7 @@ public class FSS:Singleton<FSS>
                 t.commands[i].LogicFrame == (uint)FrameReplay.Instance.LogicFrameIndex &&
                 (uint)key == (uint)t.commands[i].data[0])
             {
-                Debug.LogError("同一帧同一个按键无法响应2次???");
+                //Debug.LogError("同一帧同一个按键无法响应2次???");
                 return;
             }
         }

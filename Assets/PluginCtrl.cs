@@ -133,11 +133,11 @@ public class PluginCtrl : MonoBehaviour {
         //扫描该文件夹下的所有图片文件，作为查找skc贴图文件的素材库.
         if (Target != null)
         {
-            string[] files = System.IO.Directory.GetFiles(Target.LocalPath.Substring(0, Target.LocalPath.Length - 4));
+            string[] files = System.IO.Directory.GetFiles(Target.LocalPath.Substring(0, Target.LocalPath.Length - 4), "*.*", System.IO.SearchOption.AllDirectories);
             Target.resPath = new string[files.Length];
             for (int i = 0; i < files.Length; i++)
             {
-                Debug.Log(files[i]);
+                
                 Target.resPath[i] = files[i].Replace("\\", "/");
             }
             Target.Installed = true;
@@ -146,11 +146,33 @@ public class PluginCtrl : MonoBehaviour {
         
         if (Chapter != null)
         {
-            string[] files = System.IO.Directory.GetFiles(Chapter.LocalPath.Substring(0, Chapter.LocalPath.Length - 4));
+            string[] files = System.IO.Directory.GetFiles(Chapter.LocalPath.Substring(0, Chapter.LocalPath.Length - 4), "*.*", System.IO.SearchOption.AllDirectories);
             Chapter.resPath = new string[files.Length];
             for (int i = 0; i < files.Length; i++)
             {
                 Debug.Log(files[i]);
+                System.IO.FileInfo fi = new System.IO.FileInfo(files[i]);
+                if (fi.Extension == ".txt")
+                {
+                    if (fi.FullName.Contains("npc/") || fi.FullName.Contains("npc\\"))
+                    {
+                        NpcTemplate template = new NpcTemplate();
+                        template.npcTemplate = fi.Name.Substring(0, fi.Name.Length - fi.Extension.Length);
+                        template.filePath = fi.FullName.Replace("\\", "/");
+                        //如果该文件的父目录是npc,且
+                        bool find = false;
+                        for (int j = 0; j < GameData.Instance.gameStatus.pluginNpc.Count; j++)
+                        {
+                            if (GameData.Instance.gameStatus.pluginNpc[j].npcTemplate == template.npcTemplate)
+                            {
+                                find = true;
+                                break;
+                            }
+                        }
+                        if (!find)
+                            GameData.Instance.gameStatus.pluginNpc.Add(template);
+                    }
+                }
                 Chapter.resPath[i] = files[i].Replace("\\", "/");
             }
             Chapter.Installed = true;
@@ -203,7 +225,7 @@ public class PluginCtrl : MonoBehaviour {
         {
             
         }
-        Title.text = string.Format("「角色模型-{0}」", it.Name);
+        Title.text = string.Format("「模型-{0}」", it.Name);
         Desc.text = it.Desc ?? "";
         Progress.fillAmount = 0;
     }
@@ -243,13 +265,6 @@ public class UnzipCallbackEx: ZipUtility.UnzipCallback
     {
         Target = ctrl;
     }
-
-    int OwnerType = -1;
-    public UnzipCallbackEx(int messageType)
-    {
-        OwnerType = messageType;
-    }
-
     /// <summary>
     /// 解压执行完毕后的回调
     /// </summary>
@@ -266,34 +281,5 @@ public class UnzipCallbackEx: ZipUtility.UnzipCallback
                 Target.OnUnZipFailed();//安装失败，可能是磁盘空间不足
 
         }
-
-        //NPC定义解压完毕.
-        if (OwnerType == 0)
-            OnScanNpcFiles();
-    }
-
-    void OnScanNpcFiles()
-    {
-        GameData.Instance.gameStatus.pluginNpc.Clear();
-        try
-        {
-            string[] files = System.IO.Directory.GetFiles(Application.persistentDataPath + "/Plugins/Def/Npc/");
-            for (int i = 0; i < files.Length; i++)
-            {
-                System.IO.FileInfo fi = new System.IO.FileInfo(files[i]);
-                NpcTemplate template = new NpcTemplate();
-                template.npcTemplate = fi.Name.Substring(0, fi.Name.Length - fi.Extension.Length);
-                template.filePath = fi.FullName.Replace("\\", "/");
-                GameData.Instance.gameStatus.pluginNpc.Add(template);
-            }
-        }
-        catch (Exception exp)
-        {
-            Debug.LogError(exp.Message);
-        }
-
-        PluginItemMng.Instance.ReLoad();
-        PluginWeaponMng.Instance.ReLoad();
-        GameData.Instance.SaveState();
     }
 }

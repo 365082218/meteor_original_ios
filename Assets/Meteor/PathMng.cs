@@ -83,7 +83,7 @@ public class PathMng:Singleton<PathMng>
             yield break;
         }
 
-        if (Global.Instance.GLevelItem.DisableFindWay == 1)
+        if (Global.Instance.GScript.DisableFindWay())
         {
             //List<WayPoint> direct = new List<WayPoint>();
             wp.Add(Global.Instance.GLevelItem.wayPoint[start]);

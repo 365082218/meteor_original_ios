@@ -387,7 +387,10 @@ public class MeteorAI {
     {
         PatrolTemp.Clear();
         for (int i = 0; i < patrolData.Count; i++)
-            PatrolTemp.Add(Global.Instance.GLevelItem.wayPoint[patrolData[i]]);
+        {
+            if (patrolData[i] < Global.Instance.GLevelItem.wayPoint.Count)
+                PatrolTemp.Add(Global.Instance.GLevelItem.wayPoint[patrolData[i]]);
+        }
 
         //计算从第一个点到最后一个点的完整路径，放到完整巡逻点钟
         List<int> idx = new List<int>();
@@ -1003,7 +1006,7 @@ public class MeteorAI {
 
     void OnFightGotoPosition()
     {
-        if (Global.Instance.GLevelItem.DisableFindWay == 1)
+        if (Global.Instance.GScript.DisableFindWay())
         {
             //无路点
             //距离足够近
@@ -1096,7 +1099,7 @@ public class MeteorAI {
 
     void OnFightGotoTarget()
     {
-        if (Global.Instance.GLevelItem.DisableFindWay == 1)
+        if (Global.Instance.GScript.DisableFindWay())
         {
             //无路点
             //距离足够近

@@ -1146,6 +1146,14 @@ public class LevelScriptBase:ScriptBase {
     public virtual string GetDesName() { return ""; }
     public virtual bool OnPlayerSpawn(MeteorUnit unit) { return false; }//角色生成后调整
     public virtual void Scene_OnCharacterEvent(int id, int evt) { }
+    public virtual bool DisableFindWay() { return false; }//是否不允许寻路, false，表示允许寻路，true，表示不允许寻路
+
+    public virtual int OnUnitDead(MeteorUnit deadUnit)
+    {
+        //0游戏将继续 其他将结束(1游戏胜利 2平 3败)
+        return 0;
+        //检测游戏是否结束
+    }
     //负责关卡剧本等
     //额外呼叫怪物脚本
     public virtual void OnStart()
@@ -1155,6 +1163,12 @@ public class LevelScriptBase:ScriptBase {
             if (ScriptMng.Instance != null)
                 ScriptMng.Instance.CallFunc(Global.Instance.GLevelItem.StartScript);
         }
+    }
+
+    //部分关卡属于暗杀模式，会在角色脚下加上队长圈圈
+    public virtual void OnLateStart()
+    {
+
     }
 
     public virtual int OnUpdate() { return 0; }
@@ -3985,7 +3999,8 @@ public class LevelScript_sn07: LevelScriptBase
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
 }
-//毒牙阵-非剧本关卡,需要房主把房间信息发来.
+
+//毒牙阵
 public class LevelScript_sn08: LevelScriptBase
 {
     int RoundTime = 15;
@@ -4374,10 +4389,9 @@ public class LevelScript_sn09 : LevelScriptBase
     }
 }
 
-//
+// 炼铁狱
 public class LevelScript_sn10: LevelScriptBase
 {
-    // 炼铁狱
     int RoundTime = 30;
     int PlayerSpawn = 38;
     int PlayerSpawnDir = 100;
@@ -4887,7 +4901,7 @@ public class LevelScript_sn10: LevelScriptBase
     }
 }
 
-//毒牙阵
+//五爪峰
 public class LevelScript_sn11 : LevelScriptBase
 {
     int RoundTime = 30;
@@ -5211,7 +5225,7 @@ public class LevelScript_sn11 : LevelScriptBase
     }
 
 }
-//五爪峰
+//烽火雷
 public class LevelScript_sn12 : LevelScriptBase
 {
     int RoundTime = 30;
@@ -5389,6 +5403,11 @@ public class LevelScript_sn13 : LevelScriptBase
         AddNPC("npc13_07");
         AddNPC("npc13_08");
         base.OnStart();
+    }
+
+    public override void OnLateStart()
+    {
+        U3D.ShowLeaderSfx();
     }
 
     public override int OnUpdate()
@@ -6207,7 +6226,10 @@ public class LevelScript_sn15 : LevelScriptBase
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
-
+    public override void OnLateStart()
+    {
+        U3D.ShowLeaderSfx();
+    }
     int RoundTime = 25;
     int PlayerSpawn = 30;
     int PlayerSpawnDir = 80;
@@ -7420,6 +7442,10 @@ public class LevelScript_sn22 : LevelScriptBase
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
+    public override bool DisableFindWay()
+    {
+        return true;
+    }
     int DeathMatch = 1;
     int TeamDeathMatch = 5;
     int GameMod;
@@ -8017,6 +8043,10 @@ public class LevelScript_sn23 : LevelScriptBase
     public override int GetPlayerModel() { return PlayerModel; }
     public override string GetPlayerName() { return PlayerName; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
+    public override bool DisableFindWay()
+    {
+        return true;
+    }
     public override void OnStart()
     {
         AddNPC("npc23_01");//屠大鹏
@@ -8355,6 +8385,10 @@ public class LevelScript_sn25 : LevelScriptBase
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
+    public override bool DisableFindWay()
+    {
+        return true;
+    }
     int RoundTime = 20;
     int PlayerSpawn = 0;
     int PlayerSpawnDir = 200;
@@ -8559,6 +8593,7 @@ public class LevelScript_sn1000 : LevelScriptBase
     }
 }
 
+//威震八方-教学关卡
 public class LevelScript_sn31 : LevelScript_sn22
 {
     int RoundTime = 60;
@@ -8581,6 +8616,10 @@ public class LevelScript_sn31 : LevelScript_sn22
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
+    public override bool DisableFindWay()
+    {
+        return true;
+    }
     public override bool OnPlayerSpawn(MeteorUnit unit)
     {
         Vector3 vec = Global.Instance.GLevelSpawn[14];

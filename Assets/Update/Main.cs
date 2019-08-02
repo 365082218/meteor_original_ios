@@ -11,7 +11,7 @@ public class Main : MonoBehaviour {
 	public static Main Ins = null;
 #if LOCALHOST
     public static string strHost = "127.0.0.1";
-    public static int port = 8080;
+    public static int port = 80;
 #else
     public static string strHost = "www.idevgame.com";
     public static int port = 80;

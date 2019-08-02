@@ -321,7 +321,7 @@ public partial class MeteorUnit : LockBehaviour
     public void SetPosition(int spawnPoint)
     {
         //禁止寻路，代表场景无路点.只能用来联机.
-        if (Global.Instance.GLevelItem.DisableFindWay == 1)
+        if (Global.Instance.GScript.DisableFindWay())
         {
             //不许寻路，无寻路点的关卡，使用
             if (Global.Instance.GLevelSpawn != null && Global.Instance.GLevelSpawn.Length != 0)
@@ -2146,7 +2146,7 @@ public partial class MeteorUnit : LockBehaviour
         else if (Global.Instance.GLevelMode == LevelMode.SinglePlayerTask)
         {
             //闪现到出生点
-            if (Global.Instance.GLevelItem.DisableFindWay != 1)
+            if (!Global.Instance.GScript.DisableFindWay())
             {
                 if (Attr.SpawnPoint < Global.Instance.GLevelItem.wayPoint.Count)
                     transform.position = Global.Instance.GLevelItem.wayPoint[Attr.SpawnPoint].pos;

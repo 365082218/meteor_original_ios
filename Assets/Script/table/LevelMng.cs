@@ -107,7 +107,6 @@ public class Level : ITableItem
     //public string Des;
     //public string Comment;
     public int DesType;//读取*.des的种类 0-原作 1-新des 2-不读取des
-    public int DisableFindWay;//禁止寻路
 };
 
 public class LevelMng : TableManager<Level, LevelMng>
