@@ -19,11 +19,6 @@ public class Global
         }
     }
 
-    public float GameTime()
-    {
-        return FrameReplay.Instance.LogicFrameIndex * 0.02f;
-    }
-
     public ServerInfo Server;//当前选择的服务器.
     public List<ServerInfo> Servers = new List<ServerInfo>();
     public float FPS = 1.0f / 30.0f;//动画设计帧率

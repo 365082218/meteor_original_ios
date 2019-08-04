@@ -118,7 +118,7 @@ public class PathMng:Singleton<PathMng>
             no.wayPointIdx = start;
             no.parent = -1;
             user.Robot.PathInfo[0].Add(no);
-            yield return CollectPathInfo(user, start, end);
+            CollectPathInfo(user, start, end);
             //int scan = 0;
             //foreach (var each in user.Robot.PathInfo)
             //{
@@ -194,26 +194,26 @@ public class PathMng:Singleton<PathMng>
     }
 
     //从起点开始 构造寻路树.
-    IEnumerator CollectPathInfo(MeteorUnit user, int start, int end, int layer = 1)
+    void CollectPathInfo(MeteorUnit user, int start, int end, int layer = 1)
     {
-        yield return CollectPathLayer(user, start, end, layer);
+        CollectPathLayer(user, start, end, layer);
         if (PathLayerExist(user, end))
-            yield break;
+            return;
         while (user.Robot.PathInfo.ContainsKey(layer))
         {
             int nextLayer = layer + 1;
             for (int i = 0; i < user.Robot.PathInfo[layer].Count; i++)
             {
-                yield return CollectPathLayer(user, user.Robot.PathInfo[layer][i].wayPointIdx, end, nextLayer);
+                CollectPathLayer(user, user.Robot.PathInfo[layer][i].wayPointIdx, end, nextLayer);
                 if (PathLayerExist(user, end))
-                    yield break;
+                    return;
             }
             layer = nextLayer;
         }
     }
 
     //收集从起点到终点经过的所有层级路点,一旦遇见最近层级的终点就结束，用于计算最短路径.
-    IEnumerator CollectPathLayer(MeteorUnit user, int start, int end, int layer = 1)
+    void CollectPathLayer(MeteorUnit user, int start, int end, int layer = 1)
     {
         Dictionary<int, WayLength> ways = Global.Instance.GLevelItem.wayPoint[start].link;
         foreach (var each in ways)
@@ -230,7 +230,6 @@ public class PathMng:Singleton<PathMng>
                     user.Robot.PathInfo.Add(layer, new List<PathNode> { no });
             }
         }
-        yield return 0;
     }
 
     //得到当前位置所处路点临近的路点其中之一

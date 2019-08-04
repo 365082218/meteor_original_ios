@@ -65,7 +65,7 @@ public class SceneItemAgent : LockBehaviour {
     //float yHeight = 5.0f;
     void yMove()
     {
-        float y = curve.Evaluate(Global.Instance.GameTime());
+        float y = curve.Evaluate(FrameReplay.Instance.time);
         transform.position = new Vector3(transform.position.x, initializeY + 5 * y, transform.position.z);
         transform.Rotate(new Vector3(0, 90 * FrameReplay.deltaTime, 0));
     }
