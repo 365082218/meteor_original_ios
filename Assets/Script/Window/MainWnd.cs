@@ -2144,7 +2144,7 @@ public class BattleStatusWnd: Window<BattleStatusWnd>
     //GameObject BattleTitle;
     Transform MeteorResult;
     Transform ButterflyResult;
-    Dictionary<string, BattleResultItem> battleResult = new Dictionary<string, BattleResultItem>();
+    Dictionary<int, BattleResultItem> battleResult = new Dictionary<int, BattleResultItem>();
     public void Init()
     {
         //拷贝一份对战数据
@@ -2168,20 +2168,20 @@ public class BattleStatusWnd: Window<BattleStatusWnd>
         //BattleTitle = Global.ldaControlX("BattleTitle", WndObject);
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
         {
-            if (battleResult.ContainsKey(MeteorManager.Instance.UnitInfos[i].name))
+            if (battleResult.ContainsKey(MeteorManager.Instance.UnitInfos[i].InstanceId))
             {
-                InsertPlayerResult(MeteorManager.Instance.UnitInfos[i].name, battleResult[MeteorManager.Instance.UnitInfos[i].name]);
-                battleResult.Remove(MeteorManager.Instance.UnitInfos[i].name);
+                InsertPlayerResult(MeteorManager.Instance.UnitInfos[i].InstanceId, battleResult[MeteorManager.Instance.UnitInfos[i].InstanceId]);
+                battleResult.Remove(MeteorManager.Instance.UnitInfos[i].InstanceId);
             }
             else
-                InsertPlayerResult(MeteorManager.Instance.UnitInfos[i].name, MeteorManager.Instance.UnitInfos[i].InstanceId, 0, 0, MeteorManager.Instance.UnitInfos[i].Camp);
+                InsertPlayerResult(MeteorManager.Instance.UnitInfos[i].InstanceId, MeteorManager.Instance.UnitInfos[i].InstanceId, 0, 0, MeteorManager.Instance.UnitInfos[i].Camp);
         }
 
         foreach (var each in battleResult)
             InsertPlayerResult(each.Key, each.Value);
     }
 
-    void InsertPlayerResult(string name_, int id, int killed, int dead, EUnitCamp camp)
+    void InsertPlayerResult(int instance, int id, int killed, int dead, EUnitCamp camp)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
         if (Global.Instance.GGameMode == GameMode.MENGZHU)
@@ -2210,7 +2210,7 @@ public class BattleStatusWnd: Window<BattleStatusWnd>
         Text Killed = ldaControl("Killed", obj).GetComponent<Text>();
         Text Dead = ldaControl("Dead", obj).GetComponent<Text>();
         Idx.text = (id + 1).ToString();
-        Name.text = name_;
+        Name.text = U3D.GetUnit(instance).Name;
         
         Killed.text = killed.ToString();
         Dead.text = dead.ToString();
@@ -2235,7 +2235,7 @@ public class BattleStatusWnd: Window<BattleStatusWnd>
         }
     }
 
-    void InsertPlayerResult(string name_, BattleResultItem result)
+    void InsertPlayerResult(int instanceId, BattleResultItem result)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
         if (Global.Instance.GGameMode == GameMode.MENGZHU)
@@ -2263,7 +2263,7 @@ public class BattleStatusWnd: Window<BattleStatusWnd>
         Text Killed = ldaControl("Killed", obj).GetComponent<Text>();
         Text Dead = ldaControl("Dead", obj).GetComponent<Text>();
         Idx.text = (result.id + 1).ToString();
-        Name.text = name_;
+        Name.text = U3D.GetUnit(instanceId).Name;
         //Camp.text = result.camp == 1 ""
         Killed.text = result.killCount.ToString();
         Dead.text = result.deadCount.ToString();
@@ -2338,12 +2338,13 @@ public class BattleResultWnd : Window<BattleResultWnd>
                     txt.text = "1";
                     break;
                 case 1:
+                case 2:
                     mat = "BattleWin";
                     txt = Control("MeteorWin").GetComponent<Text>();
                     U3D.InsertSystemMsg("流星阵营 获胜");
                     txt.text = "1";
                     break;
-                case 2:
+                case 3:
                     mat = "BattleNone";
                     U3D.InsertSystemMsg("和局");
                     break;
@@ -2401,13 +2402,13 @@ public class BattleResultWnd : Window<BattleResultWnd>
 
         for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
         {
-            if (GameBattleEx.Instance.BattleResult.ContainsKey(MeteorManager.Instance.UnitInfos[i].name))
+            if (GameBattleEx.Instance.BattleResult.ContainsKey(MeteorManager.Instance.UnitInfos[i].InstanceId))
             {
-                InsertPlayerResult(MeteorManager.Instance.UnitInfos[i].name, GameBattleEx.Instance.BattleResult[MeteorManager.Instance.UnitInfos[i].name]);
-                GameBattleEx.Instance.BattleResult.Remove(MeteorManager.Instance.UnitInfos[i].name);
+                InsertPlayerResult(MeteorManager.Instance.UnitInfos[i].InstanceId, GameBattleEx.Instance.BattleResult[MeteorManager.Instance.UnitInfos[i].InstanceId]);
+                GameBattleEx.Instance.BattleResult.Remove(MeteorManager.Instance.UnitInfos[i].InstanceId);
             }
             else
-                InsertPlayerResult(MeteorManager.Instance.UnitInfos[i].name, MeteorManager.Instance.UnitInfos[i].InstanceId, 0, 0, MeteorManager.Instance.UnitInfos[i].Camp);
+                InsertPlayerResult(MeteorManager.Instance.UnitInfos[i].InstanceId, MeteorManager.Instance.UnitInfos[i].InstanceId, 0, 0, MeteorManager.Instance.UnitInfos[i].Camp);
         }
 
         foreach (var each in GameBattleEx.Instance.BattleResult)
@@ -2415,7 +2416,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
         GameBattleEx.Instance.BattleResult.Clear();
     }
 
-    void InsertPlayerResult(string name_, int id, int killed, int dead, EUnitCamp camp)
+    void InsertPlayerResult(int instanceId, int id, int killed, int dead, EUnitCamp camp)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
         if (Global.Instance.GGameMode == GameMode.MENGZHU)
@@ -2445,7 +2446,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
         Text Killed = ldaControl("Killed", obj).GetComponent<Text>();
         Text Dead = ldaControl("Dead", obj).GetComponent<Text>();
         Idx.text = (id + 1).ToString();
-        Name.text = name_;
+        Name.text = U3D.GetUnit(instanceId).Name;
         //Camp.text = result.camp == 1 ""
         Killed.text = killed.ToString();
         Dead.text = dead.ToString();
@@ -2470,7 +2471,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
         }
     }
 
-    void InsertPlayerResult(string name_, BattleResultItem result)
+    void InsertPlayerResult(int instanceId, BattleResultItem result)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
         if (Global.Instance.GGameMode == GameMode.MENGZHU)
@@ -2489,7 +2490,7 @@ public class BattleResultWnd : Window<BattleResultWnd>
         Text Killed = ldaControl("Killed", obj).GetComponent<Text>();
         Text Dead = ldaControl("Dead", obj).GetComponent<Text>();
         Idx.text = (result.id + 1).ToString();
-        Name.text = name_;
+        Name.text = U3D.GetUnit(instanceId).Name;
         if (Global.Instance.GGameMode == GameMode.MENGZHU)
         {
 

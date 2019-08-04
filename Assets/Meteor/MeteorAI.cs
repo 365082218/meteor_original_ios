@@ -79,7 +79,6 @@ public class MeteorAI {
         ThinkCheckTick = MeteorAI.ThinkDelay;
         for (int i = 0; i < count; i++)
             nodeContainer[i] = new PathNode();
-        PathInfo.Add(0, new List<PathNode>());
     }
 
     public void PathReset()
@@ -88,6 +87,8 @@ public class MeteorAI {
         {
             each.Value.Clear();
         }
+        PathInfo.Clear();
+        PathInfo.Add(0, new List<PathNode>());
         for (int i = 0; i < nodeContainer.Length; i++)
         {
             nodeContainer[i].wayPointIdx = 0;
@@ -103,8 +104,6 @@ public class MeteorAI {
     public EAIStatus StatusOnComplete { get; set; }//当寻路完成时，切换回去的主状态，若中途没有被打断.
     public EAISubStatus SubStatusOnComplete { get; set; }//当寻路完成时，切换回去的子状态
     public EAISubStatus SubStatus { get; set; }
-    public int lastFollowTargetIndex = -1;
-    float RefreshFollowPathTick = 30.0f;
     MeteorUnit owner;//自己
     MeteorUnit followTarget;//跟随目标
     public MeteorUnit killTarget;//无视视野
@@ -149,7 +148,7 @@ public class MeteorAI {
         ChangeWeaponTick -= FrameReplay.deltaTime;
         AIJumpDelay += FrameReplay.deltaTime;
         lookTick += FrameReplay.deltaTime;
-        RefreshFollowPathTick -= FrameReplay.deltaTime;
+        //RefreshFollowPathTick -= FrameReplay.deltaTime;
         //如果在硬直中
         if (owner.charLoader.IsInStraight())
             return;
@@ -329,11 +328,11 @@ public class MeteorAI {
                         }
                         break;
                     case EAIStatus.Follow:
-                        RefreshPath(owner.mSkeletonPivot, followTarget.mSkeletonPivot);
+                        RefreshPathEx(followTarget);
                         SubStatus = EAISubStatus.FindWait;
                         break;
                     case EAIStatus.AttackTarget:
-                        RefreshPath(owner.mSkeletonPivot, AttackTarget);
+                        RefreshPath(owner.transform.position, AttackTarget);
                         SubStatus = EAISubStatus.FindWait;
                         break;
                     case EAIStatus.Fight:
@@ -344,13 +343,13 @@ public class MeteorAI {
                                 SubStatus = EAISubStatus.FindWait;
                                 break;
                             case EAISubStatus.FightGotoTarget:
-                                RefreshPath(owner.transform.position, fightTarget.mSkeletonPivot);
+                                RefreshPathEx(fightTarget);
                                 SubStatus = EAISubStatus.FindWait;
                                 break;
                         }
                         break;
                     case EAIStatus.Kill:
-                        RefreshPath(owner.mSkeletonPivot, killTarget.mSkeletonPivot);
+                        RefreshPathEx(killTarget);
                         SubStatus = EAISubStatus.FindWait;
                         break;
                 }
@@ -381,9 +380,38 @@ public class MeteorAI {
                 break;
         }   
     }
-
+    //GameObject line = null;
+    //LineRenderer l;
+    //List<GameObject> wayDebug = new List<GameObject>();
     void OnFindWayEnd()
     {
+        //Debug.LogError("寻路完成，路径点个数:" + Mathf.Max(Path.Count, PatrolPath.Count));
+        //if (line == null)
+        //{
+        //    line = new GameObject();
+        //    l = line.AddComponent<LineRenderer>();
+        //    l.startWidth = 1.0f;
+        //    l.endWidth = 1.0f;
+        //    l.startColor = Color.red;
+        //    l.endColor = Color.red;
+        //    line.name = "debugPath";
+        //}
+        //l.numPositions = Path.Count;
+        //for (int i = 0; i < wayDebug.Count; i++)
+        //    GameObject.Destroy(wayDebug[i].gameObject);
+        //wayDebug.Clear();
+        //for (int i = 0; i < Path.Count; i++)
+        //{
+        //    GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        //    obj.name = string.Format("Way{0}:WayIndex{1}", i, Path[i].index);
+        //    BoxCollider b = obj.GetComponent<BoxCollider>();
+        //    if (b != null)
+        //        b.enabled = false;
+        //    obj.transform.position = Path[i].pos;
+        //    l.SetPosition(i, Path[i].pos);
+        //    wayDebug.Add(obj);
+        //}
+
         if (RefreshPathCoroutine != null)
         {
             Startup.ins.StopCoroutine(RefreshPathCoroutine);
@@ -506,6 +534,7 @@ public class MeteorAI {
 
                 if (Path.Count == 0)
                 {
+                    //Debug.LogError("拾取物品进入寻路");
                     ChangeState(EAIStatus.FindWay, EAIStatus.GetItem, EAISubStatus.GetItemGotoItem);
                     return;
                 }
@@ -539,7 +568,8 @@ public class MeteorAI {
                     {
                         if (PathMng.Instance.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround())
                         {
-                            AIJump();
+                            owner.controller.Input.AIMove(0, 0);
+                            AIJump(Path[targetIndex].pos);
                             AIJumpDelay = 0.0f;
                             return;
                         }
@@ -814,6 +844,7 @@ public class MeteorAI {
             case EAISubStatus.AttackGotoTarget:
                 if (Path.Count == 0)
                 {
+                    //Debug.LogError("攻击指定位置进入寻路");
                     ChangeState(EAIStatus.FindWay, EAIStatus.AttackTarget, EAISubStatus.AttackGotoTarget);
                     return false;
                 }
@@ -873,8 +904,8 @@ public class MeteorAI {
                             if (owner.IsOnGround())
                             {
                                 owner.FaceToTarget(Path[targetIndex].pos);
-                                owner.controller.Input.AIMove(0, 0.65f);
-                                AIJump();
+                                owner.controller.Input.AIMove(0, 0);
+                                AIJump(Path[targetIndex].pos);
                                 AIJumpDelay = 0.0f;
                                 return false;
                             }
@@ -1033,6 +1064,7 @@ public class MeteorAI {
 
         if (Path.Count == 0)
         {
+            //Debug.LogError("战斗走向指定位置，路径为空进入寻路");
             ChangeState(EAIStatus.FindWay, EAIStatus.Fight, EAISubStatus.FightGotoPosition);
             return;
         }
@@ -1087,8 +1119,8 @@ public class MeteorAI {
                     if (owner.IsOnGround())
                     {
                         owner.FaceToTarget(Path[targetIndex].pos);
-                        owner.controller.Input.AIMove(0, 0.65f);
-                        AIJump();
+                        owner.controller.Input.AIMove(0, 0);
+                        AIJump(Path[targetIndex].pos);
                         AIJumpDelay = 0.0f;
                         return;
                     }
@@ -1126,22 +1158,24 @@ public class MeteorAI {
 
         if (Path.Count == 0)
         {
+            //Debug.LogError("战斗走向目标，路径为空进入寻路");
             ChangeState(EAIStatus.FindWay, EAIStatus.Fight, EAISubStatus.FightGotoTarget);
             return;
         }
 
         //间隔一段时间，刷新下攻击目标的路点，如果跟随目标所在路点发生变化.
-        if (RefreshFollowPathTick <= 0.0f)
-        {
-            int FollowTargetWayIndex = PathMng.Instance.GetWayIndex(fightTarget.mSkeletonPivot, fightTarget);
-            RefreshFollowPathTick = Global.RefreshFollowPathDelay;
-            if (FollowTargetWayIndex != lastFollowTargetIndex)
-            {
-                Path.Clear();
-                ChangeState(EAIStatus.FindWay, EAIStatus.Fight, EAISubStatus.FightGotoTarget);
-                return;
-            }
-        }
+        //if (RefreshFollowPathTick <= 0.0f)
+        //{
+        //    int FollowTargetWayIndex = PathMng.Instance.GetWayIndex(fightTarget.mSkeletonPivot, fightTarget);
+        //    RefreshFollowPathTick = Global.RefreshFollowPathDelay;
+        //    if (FollowTargetWayIndex != lastFollowTargetIndex)
+        //    {
+        //        Path.Clear();
+        //        Debug.LogError("目标角色所在路点刷新，重新计算寻路路径");
+        //        ChangeState(EAIStatus.FindWay, EAIStatus.Fight, EAISubStatus.FightGotoTarget);
+        //        return;
+        //    }
+        //}
 
         if (curIndex == -1)
             targetIndex = 0;
@@ -1164,17 +1198,7 @@ public class MeteorAI {
             }
             else
             {
-                if (owner.IsOnGround())
-                {
-                    int random = Random.Range(0, 100);
-                    if (AIJumpDelay >= 2.5f && random <= owner.Attr.Jump)
-                    {
-                        owner.controller.Input.AIMove(0, 0.65f);
-                        AIJump();
-                        AIJumpDelay = 0.0f;
-                        return;
-                    }
-                }
+                owner.controller.Input.AIMove(0, 1);
             }
         }
         else
@@ -1207,8 +1231,8 @@ public class MeteorAI {
                     if (owner.IsOnGround())
                     {
                         owner.FaceToTarget(Path[targetIndex].pos);
-                        owner.controller.Input.AIMove(0, 0.65f);
-                        AIJump();
+                        owner.controller.Input.AIMove(0, 0);
+                        AIJump(Path[targetIndex].pos);
                         AIJumpDelay = 0.0f;
                         return;
                     }
@@ -1229,18 +1253,7 @@ public class MeteorAI {
             }
             else
             {
-                if (owner.IsOnGround())
-                {
-                    int random = Random.Range(0, 100);
-                    if (AIJumpDelay >= 2.5f && random <= owner.Attr.Jump)
-                    {
-                        owner.FaceToTarget(fightTarget.mSkeletonPivot);
-                        owner.controller.Input.AIMove(0, 0.65f);
-                        AIJump();
-                        AIJumpDelay = 0.0f;
-                        return;
-                    }
-                }
+                owner.controller.Input.AIMove(0, 1);
             }
         }
 
@@ -1470,8 +1483,8 @@ public class MeteorAI {
                 if (attack < owner.Attr.Attack1)
                 {
                     //判定攻击
-                    if (fightTarget == null)
-                        Debug.LogError("fightTarget == null");
+                    //if (fightTarget == null)
+                    //    Debug.LogError("fightTarget == null");
                     attacked = TryAttack(attack);
                 }
                 else
@@ -1515,7 +1528,7 @@ public class MeteorAI {
         }
     }
 
-    //除了攻击以外的概率
+    //除了攻击以外的概率,此刻一定在地面
     private void DoOtherAction()
     {
         int defence = Random.Range(0, 100);
@@ -1537,27 +1550,17 @@ public class MeteorAI {
             }
             else
             {
-                int jump = Random.Range(0, 100);
-                if (JumpCoroutine == null && jump < owner.Attr.Jump)
-                {
-                    //最好不要带方向跳跃，否则可能跳到障碍物外被场景卡住
-                    StopMove();
-                    AIJump();
-                }
+                int burst = Random.Range(0, 100);
+                //判断速冲.
+                if (burst < owner.Attr.Burst)
+                    AIBurst((EKeyList.KL_KeyA) + defence % 4);
                 else
                 {
-                    int burst = Random.Range(0, 100);
-                    //判断速冲.
-                    if (burst < owner.Attr.Burst)
-                        AIBurst((EKeyList.KL_KeyA) + defence % 4);
-                    else
+                    int pickup = Random.Range(0, 100);
+                    if (pickup < owner.Attr.GetItem)
                     {
-                        int pickup = Random.Range(0, 100);
-                        if (pickup < owner.Attr.GetItem)
-                        {
-                            if (owner.GetSceneItemTarget() != null && owner.GetSceneItemTarget().CanPickup())
-                                ChangeState(EAIStatus.GetItem);
-                        }
+                        if (owner.GetSceneItemTarget() != null && owner.GetSceneItemTarget().CanPickup())
+                            ChangeState(EAIStatus.GetItem);
                     }
                 }
             }
@@ -1698,6 +1701,27 @@ public class MeteorAI {
         }
     }
 
+    void RefreshPathEx(MeteorUnit target)
+    {
+        if (Path.Count == 0)
+        {
+            if (RefreshPathCoroutine == null)
+            {
+                RefreshPathCoroutine = Startup.ins.StartCoroutine(PathMng.Instance.FindPathEx(owner, target, Path));
+                curIndex = -1;
+                targetIndex = -1;
+            }
+            else
+            {
+                Debug.Log("寻路中");
+            }
+        }
+        else
+        {
+
+        }
+    }
+
     //在其他角色上使用的插槽位置，
     Dictionary<MeteorUnit, int> SlotCache = new Dictionary<MeteorUnit, int>();
     Vector3 vecTarget;
@@ -1754,22 +1778,24 @@ public class MeteorAI {
 
                 if (Path.Count == 0)
                 {
+                    //Debug.LogError("跟随目标，距离足够大，路径为空进入寻路");
                     ChangeState(EAIStatus.FindWay, EAIStatus.Follow, EAISubStatus.FollowGotoTarget);
                     return;
                 }
 
                 //间隔一段时间，刷新下跟随目标的路点，如果跟随目标所在路点发生变化.
-                if (RefreshFollowPathTick <= 0.0f)
-                {
-                    int FollowTargetWayIndex = PathMng.Instance.GetWayIndex(followTarget.mSkeletonPivot, followTarget);
-                    RefreshFollowPathTick = Global.RefreshFollowPathDelay;
-                    if (FollowTargetWayIndex != lastFollowTargetIndex)
-                    {
-                        Path.Clear();
-                        ChangeState(EAIStatus.FindWay, EAIStatus.Follow, EAISubStatus.FollowGotoTarget);
-                        return;
-                    }
-                }
+                //if (RefreshFollowPathTick <= 0.0f)
+                //{
+                //    int FollowTargetWayIndex = PathMng.Instance.GetWayIndex(followTarget.mSkeletonPivot, followTarget);
+                //    RefreshFollowPathTick = Global.RefreshFollowPathDelay;
+                //    if (FollowTargetWayIndex != lastFollowTargetIndex)
+                //    {
+                //        Path.Clear();
+                //        Debug.LogError("目标角色所在路点刷新，重新计算寻路路径");
+                //        ChangeState(EAIStatus.FindWay, EAIStatus.Follow, EAISubStatus.FollowGotoTarget);
+                //        return;
+                //    }
+                //}
 
                 if (targetIndex >= Path.Count)
                 {
@@ -1783,7 +1809,7 @@ public class MeteorAI {
 
                     if (targetIndex < 0 || targetIndex >= Path.Count)
                     {
-                        Debug.LogError("follow path idx error");
+                        //Debug.LogError("follow path idx error");
                         return;
                     }
                     //检查这一帧是否会走过目标，因为跨步太大.
@@ -1815,8 +1841,8 @@ public class MeteorAI {
                             if (owner.IsOnGround())
                             {
                                 owner.FaceToTarget(Path[targetIndex].pos);
-                                owner.controller.Input.AIMove(0, 0.65f);
-                                AIJump();
+                                owner.controller.Input.AIMove(0, 0);
+                                AIJump(Path[targetIndex].pos);
                                 AIJumpDelay = 0.0f;
                                 return;
                             }
@@ -1882,6 +1908,7 @@ public class MeteorAI {
 
                     if (Path.Count == 0)
                     {
+                        //Debug.LogError("战斗-追杀敌人，路径为空进入寻路");
                         ChangeState(EAIStatus.FindWay, EAIStatus.Kill, EAISubStatus.KillGotoTarget);
                         return;
                     }
@@ -1919,8 +1946,8 @@ public class MeteorAI {
                                 if (owner.IsOnGround())
                                 {
                                     owner.FaceToTarget(Path[targetIndex].pos);
-                                    owner.controller.Input.AIMove(0, 0.65f);
-                                    AIJump();
+                                    owner.controller.Input.AIMove(0, 0);
+                                    AIJump(Path[targetIndex].pos);
                                     AIJumpDelay = 0.0f;
                                     return;
                                 }
@@ -2173,12 +2200,6 @@ public class MeteorAI {
         {
             owner.StopCoroutine(FollowRotateToTargetCoroutine);
             FollowRotateToTargetCoroutine = null;
-        }
-
-        if (JumpCoroutine != null)
-        {
-            owner.StopCoroutine(JumpCoroutine);
-            JumpCoroutine = null;
         }
 
         //普通控制输入.
@@ -2437,8 +2458,8 @@ public class MeteorAI {
         float radian = Vector3.Dot(vec1, vec2);
         float degree = Mathf.Acos(Mathf.Clamp(radian, -1.0f, 1.0f)) * Mathf.Rad2Deg;
         //Debug.LogError("夹角:" + degree);
-        if (float.IsNaN(degree))
-            Debug.LogError("NAN");
+        //if (float.IsNaN(degree))
+        //    Debug.LogError("NAN");
         return degree;
     }
 
@@ -2795,6 +2816,8 @@ public class MeteorAI {
     int GetPatrolIndex()
     {
         int k = PathMng.Instance.GetWayIndex(owner.mSkeletonPivot, owner);
+        if (k == -1)
+            return -1;
         for (int i = 0; i < PatrolPath.Count; i++)
         {
             if (PatrolPath[i].index == k)
@@ -2827,6 +2850,7 @@ public class MeteorAI {
                 {
                     if (PatrolPath.Count == 0)
                     {
+                        //Debug.LogError("巡逻，路径为空进入寻路");
                         ChangeState(EAIStatus.FindWay, EAIStatus.Patrol, EAISubStatus.Patrol);
                         return;
                     }
@@ -2838,6 +2862,7 @@ public class MeteorAI {
                         targetPatrolIndex = n;//目的地
                         //当不在任何一个巡逻点中时，跑到第一个巡逻点的过程
                         //SubStatus = EAISubStatus.PatrolGotoFirstPoint;
+                        //Debug.LogError("巡逻，从当前位置走到第一个巡逻点寻路");
                         ChangeState(EAIStatus.FindWay, EAIStatus.Patrol, EAISubStatus.PatrolGotoFirstPoint);
                         return;
                     }
@@ -2947,21 +2972,21 @@ public class MeteorAI {
                     {
                         if (owner.IsOnGround())
                         {
-                            owner.FaceToTarget(new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z));
-                            owner.controller.Input.AIMove(0, 0.65f);
-                            AIJump();
+                            owner.FaceToTarget(PatrolPath[targetPatrolIndex].pos);
+                            owner.controller.Input.AIMove(0, 0);
+                            AIJump(PatrolPath[targetPatrolIndex].pos);
                             AIJumpDelay = 0.0f;
                         }
                     }
                     else
                     {
-                        owner.FaceToTarget(new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z));
+                        owner.FaceToTarget(PatrolPath[targetPatrolIndex].pos);
                         owner.controller.Input.AIMove(0, 1);
                     }
                 }
                 else
                 {
-                    owner.FaceToTarget(new Vector3(PatrolPath[targetPatrolIndex].pos.x, 0, PatrolPath[targetPatrolIndex].pos.z));
+                    owner.FaceToTarget(PatrolPath[targetPatrolIndex].pos);
                     owner.controller.Input.AIMove(0, 1);
                 }
                 break;
@@ -3020,8 +3045,8 @@ public class MeteorAI {
                             if (owner.IsOnGround())
                             {
                                 owner.FaceToTarget(Path[targetIndex].pos);
-                                owner.controller.Input.AIMove(0, 0.65f);
-                                AIJump();
+                                owner.controller.Input.AIMove(0, 0);
+                                AIJump(Path[targetIndex].pos);
                                 AIJumpDelay = 0.0f;
                                 return;
                             }
@@ -3046,28 +3071,23 @@ public class MeteorAI {
         }
     }
 
-    //AI模拟按键
+    void AIJump2()
+    {
 
+    }
     /// <summary>
-    /// 寻路中模拟跳跃.爬向房顶之类的
+    /// 寻路中模拟跳跃.跳到指定位置
     /// </summary>
     /// 不要随便关掉owner，否则其上所有协程都会失效.
-    Coroutine JumpCoroutine;
-    void AIJump()
+    void AIJump(Vector3 vec)
     {
-        if (JumpCoroutine == null)
-            JumpCoroutine = owner.StartCoroutine(AIJumpCorout());
-    }
-
-    //满距离跳跃.
-    IEnumerator AIJumpCorout()
-    {
-        owner.controller.Input.OnKeyDownProxy(EKeyList.KL_Jump, true);
-        int k = AppInfo.Instance.GetWaitForNextInput();
-        for (int i = 0; i < k; i++)
-            yield return 0;
-        owner.controller.Input.OnKeyUpProxy(EKeyList.KL_Jump);
-        JumpCoroutine = null;
+        float height = vec.y - owner.transform.position.y;
+        vec.y = 0;
+        Vector3 vec2 = owner.transform.position;
+        vec2.y = 0;
+        float sz = Vector3.Distance(vec, vec2);
+        owner.Jump2(Mathf.Abs(height));
+        owner.SetVelocity(sz / (2 * owner.ImpluseVec.y / Global.Instance.gGravity), 0);
     }
 
     public void OnGotoWayPoint(int wayIndex)

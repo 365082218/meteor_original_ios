@@ -291,8 +291,6 @@ public class CameraFollow : LockBehaviour {
     float currentVelocityY;
     float currentVelocityY2;
 
-    bool YLagStart = false;//高度上的延迟跟随是否已开始
-
     public Vector3[] newViewIndex = new Vector3[3];
     int ViewIndex = 0;
     //只允许改摄像机的矩阵，不允许修改其他场景对象的矩阵

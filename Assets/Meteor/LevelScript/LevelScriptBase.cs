@@ -1148,11 +1148,11 @@ public class LevelScriptBase:ScriptBase {
     public virtual void Scene_OnCharacterEvent(int id, int evt) { }
     public virtual bool DisableFindWay() { return false; }//是否不允许寻路, false，表示允许寻路，true，表示不允许寻路
 
-    public virtual int OnUnitDead(MeteorUnit deadUnit)
+    public virtual GameResult OnUnitDead(MeteorUnit deadUnit)
     {
-        //0游戏将继续 其他将结束(1游戏胜利 2平 3败)
-        return 0;
-        //检测游戏是否结束
+        if (U3D.AllEnemyDead())
+            return GameResult.Win;
+        return GameResult.None;
     }
     //负责关卡剧本等
     //额外呼叫怪物脚本
@@ -2018,7 +2018,11 @@ public class LevelScript_sn03 : LevelScriptBase
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
-
+    public override GameResult OnUnitDead(MeteorUnit deadUnit)
+    {
+        //通关由拾取了镖物后走到过关区
+        return GameResult.None;
+    }
     //负责关卡物件属性等
     int g_bStone01Active;
     int g_bStone02Active;
@@ -2523,6 +2527,11 @@ public class LevelScript_sn04: LevelScriptBase
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
+    public override GameResult OnUnitDead(MeteorUnit deadUnit)
+    {
+        //必须打破障碍物，由关卡脚本处理关卡胜利条件
+        return GameResult.None;
+    }
     int trg0 = 0;
     int trg1 = 0;
     int trg2 = 0;
@@ -2845,7 +2854,6 @@ public class LevelScript_sn04: LevelScriptBase
 
     public override void Scene_OnInit()
     {
-        string name = "";
         int i = 0;
 
         InitBoxes(g_iNumBoxes);
@@ -4064,6 +4072,11 @@ public class LevelScript_sn09 : LevelScriptBase
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
+    public override GameResult OnUnitDead(MeteorUnit deadUnit)
+    {
+        //任意死都算失败
+        return GameResult.Fail;
+    }
     int trg0 = 0;
     int trg1 = 0;
     int timer0 = 0;
@@ -4404,6 +4417,13 @@ public class LevelScript_sn10: LevelScriptBase
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
+    public override GameResult OnUnitDead(MeteorUnit deadUnit)
+    {
+        //屠城死算作游戏结束
+        if (deadUnit.Attr.NpcTemplate == "npc10_01")
+            return GameResult.Win;
+        return GameResult.None;
+    }
     int trg0 = 0;
     int trg1 = 0;
     int trg2 = 0;
@@ -5375,6 +5395,13 @@ public class LevelScript_sn13 : LevelScriptBase
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
+    public override GameResult OnUnitDead(MeteorUnit deadUnit)
+    {
+        //捕头王强被击杀后，认为游戏胜利.
+        if (deadUnit.Attr.NpcTemplate == "npc13_02")
+            return GameResult.Win;
+        return GameResult.None;
+    }
     int RoundTime = 15;
     int PlayerSpawn = 249;
     int PlayerSpawnDir = 90;
@@ -5999,6 +6026,7 @@ public class LevelScript_sn14 : LevelScriptBase
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
+
     public override void OnStart()
     {
 	    AddNPC("npc14_01");
@@ -6227,6 +6255,12 @@ public class LevelScript_sn15 : LevelScriptBase
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
+    public override GameResult OnUnitDead(MeteorUnit deadUnit)
+    {
+        if (deadUnit.Attr.NpcTemplate == "npc15_01")
+            return GameResult.Win;
+        return GameResult.None;
+    }
     public override void OnLateStart()
     {
         U3D.ShowLeaderSfx();

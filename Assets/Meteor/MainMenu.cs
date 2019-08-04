@@ -54,6 +54,8 @@ public class MainMenu : Window<MainMenu> {
         {
             //单机全部是普通关卡对待.
             U3D.LoadLevel(select.ID, LevelMode.SinglePlayerTask, GameMode.Normal);
+            if (background.material == null)
+                Close();
         }
         else
             Log.WriteError("select == null");
@@ -128,6 +130,8 @@ public class DlcLevelSelect : Window<DlcLevelSelect>
         {
             //单机全部是普通关卡对待.
             Global.Instance.Chapter.LoadLevel(select.ID);
+            if (background.material == null)
+                Close();
         }
         else
             Log.WriteError("select == null");

@@ -257,3 +257,27 @@ public class CalcDistanceInspector : Editor
         }
     }
 }
+
+[CustomEditor(typeof(MeteorUnit))]
+public class MeteorUnitInspector : Editor
+{
+    public int wayIndex = -1;
+    public string way = "";
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+        MeteorUnit myTarget = (MeteorUnit)target;
+        way = GUILayout.TextField(way);
+        if (GUILayout.Button("GetWayIndex"))
+        {
+            wayIndex = PathMng.Instance.GetWayIndex(myTarget.transform.position, myTarget);
+            way = wayIndex.ToString();
+        }
+
+        if (GUILayout.Button("GetWayIndex2"))
+        {
+            wayIndex = PathMng.Instance.GetWayIndex(myTarget.transform.position, null);
+            way = wayIndex.ToString();
+        }
+    }
+}

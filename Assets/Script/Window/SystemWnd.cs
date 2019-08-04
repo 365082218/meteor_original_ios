@@ -190,6 +190,12 @@ public class EscWnd : Window<EscWnd>
         toggleDisableJoyStick.onValueChanged.AddListener(OnDisableJoyStick);
         OnDisableJoyStick(toggleDisableJoyStick.isOn);
 
+        //观察AI行为，调试AI是否存在问题
+        Toggle toggleFollowEnemy = Control("FollowEnemy").GetComponent<Toggle>();
+        toggleFollowEnemy.isOn = false;
+        toggleFollowEnemy.onValueChanged.AddListener(OnFollowEnemy);
+
+        
         //把一些模式禁用，例如作弊之类的.
         if (GameData.Instance.gameStatus.GodLike)
         {
@@ -240,6 +246,34 @@ public class EscWnd : Window<EscWnd>
                 NGUIJoystick.instance.OnDisabled();
             else
                 NGUIJoystick.instance.OnEnabled();
+        }
+    }
+
+    bool followEnemy = false;
+    void OnFollowEnemy(bool follow)
+    {
+        followEnemy = follow;
+        if (followEnemy)
+        {
+            //找到第一个未死亡的敌对角色
+            MeteorUnit watchTarget = null;
+            for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+            {
+                if (MeteorManager.Instance.UnitInfos[i].Dead)
+                    continue;
+                if (MeteorManager.Instance.UnitInfos[i].SameCamp(MeteorManager.Instance.LocalPlayer))
+                    continue;
+                watchTarget = MeteorManager.Instance.UnitInfos[i];
+                break;
+            }
+
+            GameBattleEx.Instance.InitFreeCamera(watchTarget);
+            GameBattleEx.Instance.EnableFollowCamera(false);
+        }
+        else
+        {
+            GameBattleEx.Instance.EnableFollowCamera(true);
+            GameBattleEx.Instance.EnableFreeCamera(false);
         }
     }
 

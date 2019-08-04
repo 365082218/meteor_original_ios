@@ -287,6 +287,15 @@ public partial class MeteorUnit : LockBehaviour
     public CharacterLoader charLoader;
     public MeteorController controller;
     public WeaponLoader weaponLoader;
+    //与主角的距离
+    public float distance;
+    //与主角的夹角
+    public float angle;
+    public float TargetWeight()
+    {
+        //以此判定-越小表示更该被设定为自动目标
+        return distance + angle;
+    }
     public int wayIndex;
     public uint OnGroundTick = 0;
     public float RebornTick = 0;//复活需要在死亡后多久间隔
@@ -1338,7 +1347,7 @@ public partial class MeteorUnit : LockBehaviour
             charController = gameObject.AddComponent<CharacterController>();
         charController.center = new Vector3(0, 16, 0);
         charController.height = 32;
-        charController.radius = 9.0f;//不这么大碰不到寻路点.
+        charController.radius = 8.0f;//不这么大碰不到寻路点.
         charController.stepOffset = 7.6f;
 
         posMng.ChangeAction();
@@ -1959,43 +1968,15 @@ public partial class MeteorUnit : LockBehaviour
         //Log.Print("z:" + ImpluseVec.z);
     }
 
-    //计算水平轴的冲量 = 物体的末速度（1S内）
-    public float CalcImpluseVec(float h, float f)
-    {
-        float ret = f * Mathf.Sqrt(2 * h / f);
-        return ret;
-    }
-
     public float CalcVelocity(float h)
     {
-        float ret = Global.Instance.gGravity * Mathf.Sqrt(2 * h / Global.Instance.gGravity);
+        //vt2 - v02 = 2AS;
+        float ret = Mathf.Sqrt(2 * h * Global.Instance.gGravity);
         if (ret > yLimitMax)
             ret = yLimitMax;
         return ret;
     }
-
-    ////踏墙壁跳跃,y为正常跳跃高度倍数.
-    //public void Jump2(int act = CommonAction.Jump)
-    //{
-    //    canControlOnAir = true;
-    //    OnGround = false;
-    //    posMng.JumpTick = 0.0f;
-    //    posMng.CheckClimb = true;
-    //    posMng.ChangeAction(act);
-    //    charLoader.SetActionScale(0.5f);
-    //}
-
-    ////给3个参数,Y轴完整跳跃的高度缩放(就是按下跳跃的压力缩放)，前方速度，右方速度
-    //public void Jump(bool Short, float ShortScale, int act = CommonAction.Jump)
-    //{
-    //    canControlOnAir = true;
-    //    OnGround = false;
-    //    posMng.JumpTick = 0.0f;
-    //    posMng.CheckClimb = true;
-    //    posMng.ChangeAction(act);
-    //    charLoader.SetActionScale(Short ? 0.5f : 1.0f);
-    //}
-
+    
     public const float JumpLimit = 70f;
     //踏墙壁跳跃,y为正常跳跃高度倍数.
     public void Jump2(float y, int act = CommonAction.Jump)
@@ -2331,9 +2312,15 @@ public partial class MeteorUnit : LockBehaviour
     //该函数只能用来计算角色所处于的路点.
     public bool PassThrough(Vector3 target)
     {
-        RaycastHit ray = new RaycastHit();
-        if (Physics.SphereCast(mSkeletonPivot, 2.0f, (target - mSkeletonPivot).normalized, out ray, Vector3.Distance(target, mSkeletonPivot), 1 << LayerMask.NameToLayer("Scene")))
+        if (Physics.Linecast(mSkeletonPivot, target, 1 << LayerMask.NameToLayer("Scene")))
+        {
+            //GameObject l = new GameObject("line");
+            //LineRenderer lr = l.AddComponent<LineRenderer>();
+            //lr.numPositions = 2;
+            //lr.SetPosition(0, mSkeletonPivot);
+            //lr.SetPosition(1, target);
             return false;
+        }
         return true;
     }
 

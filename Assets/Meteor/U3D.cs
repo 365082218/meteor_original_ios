@@ -1327,9 +1327,11 @@ public class U3D : MonoBehaviour {
     public static void RemoveNPC(int id)
     {
         MeteorUnit unit = GetUnit(id);
+        bool dead = unit.Dead;
         string message = unit.name + " 离开战场";
         MeteorManager.Instance.OnRemoveUnit(unit);
-        InsertSystemMsg(message);
+        if (!dead)
+            InsertSystemMsg(message);
     }
 
     public static void UpdateAIAttrib(int id)
@@ -1351,7 +1353,6 @@ public class U3D : MonoBehaviour {
             if (MeteorManager.Instance.DeadUnits[i].InstanceId == id)
                 return MeteorManager.Instance.DeadUnits[i];
         }
-
         return null;
     }
 

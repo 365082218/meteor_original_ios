@@ -12,12 +12,20 @@ public class WayLength
 [Serializable]
 public class WayPoint
 {
-    public int index;
+    public int index;//-1表示仅为一个地点，并不在路点列表中
     public Vector3 pos;
     public int size;
     public Dictionary<int, WayLength> link;
 }
 
+public enum GameResult
+{
+    None = -10,
+    Fail = 0,
+    Win = 1,
+    Win2 = 2,
+    TimeOut = 3,
+}
 //决定了入口是从单机任务来，还是开房间，进房间
 public enum LevelMode
 {

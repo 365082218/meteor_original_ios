@@ -4,13 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 //查找亲儿子,给个时间显示,之后渐变Alpha,之后删除
-public class AutoMsgCtrl : MonoBehaviour {
-    public enum MsgCtrlType
-    {
-        Default = 0,//系统信息，默认样式
-        Stack = 1,//左侧剧情，每个角色有自己谈话堆栈，互相之间是顺序，自身多条信息用堆栈，每个信息间可能包含间隔
-    }
-    MsgCtrlType type = MsgCtrlType.Default;
+public class AutoMsgCtrl : LockBehaviour {
     float lastTime = 2.0f;
     float alphaTime = 0.5f;
     Coroutine fade;
@@ -22,23 +16,21 @@ public class AutoMsgCtrl : MonoBehaviour {
         tick = lastTime + alphaTime;
     }
 
-    private void Awake()
+    public new void Awake()
     {
-        type = MsgCtrlType.Default;
+        orderType = OrderType.Normal;
         for (int i = 0; i < transform.childCount; i++)
             GameObject.Destroy(transform.GetChild(i).gameObject);
         tick = lastTime + alphaTime;
+        base.Awake();
     }
 
 
-
     // Update is called once per frame
-    protected void Update() {
-        if (type == MsgCtrlType.Default)
+    protected override void LockUpdate() {
+        tick -= FrameReplay.deltaTime;
+        if (transform.childCount != 0)
         {
-            if (transform.childCount == 0)
-                return;
-            tick -= Time.deltaTime;
             if (tick <= 0.0f)
             {
                 Transform son = transform.GetChild(0);
@@ -56,12 +48,8 @@ public class AutoMsgCtrl : MonoBehaviour {
                 crossFade = true;
             }
         }
-        else if (type == MsgCtrlType.Stack)
-        {
-            //最多同时显示2条消息.
-        }
 
-        if (Time.timeSinceLevelLoad - lastTick > 1f && msg.Count != 0)
+        if (FrameReplay.Instance.time - lastTick > 1f && msg.Count != 0)
         {
             GameObject obj = new GameObject();
             obj.name = (transform.childCount + 1).ToString();
@@ -77,7 +65,7 @@ public class AutoMsgCtrl : MonoBehaviour {
             obj.transform.localScale = Vector3.one;
             obj.transform.localPosition = Vector3.zero;
             obj.transform.localRotation = Quaternion.identity;
-            lastTick = Time.timeSinceLevelLoad;
+            lastTick = FrameReplay.Instance.time;
             msg.RemoveAt(0);
         }
     }
@@ -89,9 +77,10 @@ public class AutoMsgCtrl : MonoBehaviour {
     List<string> msg = new List<string>();
     public void PushMessage(string text)
     {
-        if (Time.timeSinceLevelLoad - lastTick <= 1f || msg.Count != 0)
+        if (FrameReplay.Instance.time - lastTick <= 1f || msg.Count != 0)
         {
             msg.Add(text);
+            //Debug.LogError("pushmessage");
         }
         else
         {
@@ -109,7 +98,8 @@ public class AutoMsgCtrl : MonoBehaviour {
             obj.transform.localScale = Vector3.one;
             obj.transform.localPosition = Vector3.zero;
             obj.transform.localRotation = Quaternion.identity;
-            lastTick = Time.timeSinceLevelLoad;
+            lastTick = FrameReplay.Instance.time;
+            //Debug.LogError("pushmessage2");
         }
     }
 }

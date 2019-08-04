@@ -18,8 +18,8 @@ public class DartLoader : LockBehaviour {
     protected new void Awake()
     {
         base.Awake();
-        Rigidbody r = GetComponent<Rigidbody>();
-        r.useGravity = false;
+        //Rigidbody r = GetComponent<Rigidbody>();
+        //r.useGravity = false;
     }
 
     protected new void OnDestroy()
@@ -49,7 +49,7 @@ public class DartLoader : LockBehaviour {
         _speed += gspeed * FrameReplay.deltaTime;
         float dis = FrameReplay.deltaTime * _speed;
         transform.position = transform.position + velocity * FrameReplay.deltaTime;
-        velocity += velocity * gspeed * FrameReplay.deltaTime;
+        velocity += velocity.normalized * gspeed * FrameReplay.deltaTime;
         maxDistance -= dis;
         if (maxDistance <= 0.0f)
             DestroyObject(gameObject);

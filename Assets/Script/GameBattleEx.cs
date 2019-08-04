@@ -32,6 +32,7 @@ public partial class GameBattleEx : LockBehaviour {
     public new void Awake()
     {
         base.Awake();
+        this.orderType = OrderType.Normal;
         Instance = this;
 #if !STRIP_DBG_SETTING
         WSDebug.Ins.AddDebuggableObject(this);
@@ -50,7 +51,7 @@ public partial class GameBattleEx : LockBehaviour {
 
     public bool BattleWin()
     {
-        return Result >= 1;
+        return Result == 1 || Result == 2;
     }
 
     public bool BattleLose()
@@ -60,7 +61,7 @@ public partial class GameBattleEx : LockBehaviour {
 
     public bool BattleTimeup()
     {
-        return Result == 2;
+        return Result == 3;
     }
 
     public bool BattleFinished()
@@ -89,6 +90,11 @@ public partial class GameBattleEx : LockBehaviour {
         GameObject.Destroy(Startup.ins.playerListener);
         Startup.ins.playerListener = null;
         Startup.ins.listener.enabled = true;
+        if (CameraFree.Ins != null && CameraFree.Ins.enabled)
+        {
+            EnableFreeCamera(false);
+            EnableFollowCamera(true);
+        }
         SoundManager.Instance.StopAll();
         //关闭界面的血条缓动和动画
         if (FightWnd.Exist)
@@ -201,7 +207,7 @@ public partial class GameBattleEx : LockBehaviour {
             timeClock += FrameReplay.deltaTime;
             if (timeClock > (float)time)//时间超过，平局
             {
-                GameOver(2);
+                GameOver((int)GameResult.TimeOut);
                 return;
             }
         }
@@ -264,6 +270,7 @@ public partial class GameBattleEx : LockBehaviour {
             Global.Instance.GScript.Scene_OnIdle();//每一帧调用一次场景物件更新.
         RefreshAutoTarget();
         CollisionCheck();
+        UpdateTime();
     }
 
     //每一个攻击盒，与所有受击盒碰撞测试.
@@ -478,7 +485,7 @@ public partial class GameBattleEx : LockBehaviour {
         {
             OnCreatePlayer();
 
-            if (Global.Instance.GScript != null)
+            if (Global.Instance.GScript != null && Global.Instance.GLevelMode == LevelMode.SinglePlayerTask)
                 Global.Instance.GScript.OnStart();
 
             for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
@@ -487,8 +494,8 @@ public partial class GameBattleEx : LockBehaviour {
                     MeteorManager.Instance.UnitInfos[i].Attr.OnStart();//AI脚本必须在所有角色都加载完毕后再调用
             }
 
-            //游戏开始前最后给脚本处理事件的机会
-            if (Global.Instance.GScript != null)
+            //单机剧本时游戏开始前最后给脚本处理事件的机会,
+            if (Global.Instance.GScript != null && Global.Instance.GLevelMode == LevelMode.SinglePlayerTask)
                 Global.Instance.GScript.OnLateStart();
         }
         else
@@ -638,7 +645,7 @@ public partial class GameBattleEx : LockBehaviour {
         {
             if (unit.Attr.IsPlayer)
             {
-                Ray r = CameraFollow.Ins.m_Camera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, DartLoader.MaxDistance));
+                Ray r = CameraFollow.Ins.m_Camera.ScreenPointToRay(new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, DartLoader.MaxDistance));
                 RaycastHit[] allHit = Physics.RaycastAll(r, DartLoader.MaxDistance, 1 << LayerMask.NameToLayer("Bone") | 1 << LayerMask.NameToLayer("Scene") | 1 << LayerMask.NameToLayer("Monster") | 1 << LayerMask.NameToLayer("LocalPlayer") | 1 << LayerMask.NameToLayer("Trigger"));
                 RaycastHit[] allHitSort = SortRaycastHit(allHit);
                 bool showEffect = false;
@@ -768,8 +775,17 @@ public partial class GameBattleEx : LockBehaviour {
                     Vector3 forw = Vector3.zero;
                     if (unit.Attr.IsPlayer)
                     {
-                        Vector3 vec = CameraFollow.Ins.m_Camera.ScreenToWorldPoint(new Vector3(Screen.width / 2, (Screen.height) / 2, DartLoader.MaxDistance));
-                        forw = (vec - vecSpawn).normalized;
+                        //远程锁定目标为空时
+                        if (lockedTarget2 == null)
+                        {
+                            Vector3 vec = CameraFollow.Ins.m_Camera.ScreenToWorldPoint(new Vector3(Screen.width / 2, (Screen.height) * 0.65f, DartLoader.MaxDistance));
+                            forw = (vec - vecSpawn).normalized;
+                        }
+                        else
+                        {
+                            Vector3 vec = lockedTarget2.mSkeletonPivot;
+                            forw = (vec - vecSpawn).normalized;
+                        }
                     }
                     else
                     {
@@ -930,7 +946,8 @@ public partial class GameBattleEx : LockBehaviour {
         Global.Instance.PauseAll = false;
     }
 
-    public MeteorUnit lockedTarget;
+    public MeteorUnit lockedTarget;//近战武器-自动锁定目标
+    public MeteorUnit lockedTarget2;//远程武器-自动锁定目标
     public MeteorUnit autoTarget;
     public SFXEffectPlay lockedEffect;
     public SFXEffectPlay autoEffect;
@@ -1011,6 +1028,25 @@ public partial class GameBattleEx : LockBehaviour {
         DisableCameraLock = false;
     }
 
+    //远程目标的解除锁定
+    public void Unlock2()
+    {
+        if (lockedEffect != null)
+        {
+            lockedEffect.OnPlayAbort();
+            lockedEffect = null;
+        }
+        lockedTarget2 = null;
+
+        if (autoEffect != null)
+        {
+            autoEffect.OnPlayAbort();
+            autoEffect = null;
+        }
+        autoTarget = null;
+        //远程武器与摄像机锁定系统无关
+    }
+
     public void Unlock()
     {
         if (lockedEffect != null)
@@ -1032,26 +1068,14 @@ public partial class GameBattleEx : LockBehaviour {
         if (FightWnd.Exist)
             FightWnd.Instance.OnChangeLock(bLocked);
     }
-    
-    //敌方角色移动时，不用整个刷新，只需要用当前的自动目标和这个对象对比下角度就OK
-    public void RefreshAutoTarget()
+
+    //远程武器自动锁定系统.血滴子算特殊武器，
+    public void RefreshAutoTarget2()
     {
-        if (MeteorManager.Instance.LocalPlayer == null)
-            return;
-        if (MeteorManager.Instance.LocalPlayer.GetWeaponType() == (int)EquipWeaponType.Dart || MeteorManager.Instance.LocalPlayer.GetWeaponType() == (int)EquipWeaponType.Gun)
-            return;
-        if (lockedTarget != null)
-        {
-            Vector3 vec = lockedTarget.transform.position - MeteorManager.Instance.LocalPlayer.transform.position;
-            float v = vec.sqrMagnitude;
-            if (v > ViewLimit)
-                Unlock();
-            return;
-        }
+        //夹角超过限制
         MeteorUnit player = MeteorManager.Instance.LocalPlayer;
         float angleMax = 75;//cos值越大，角度越小
-        float autoAngle = 0.0f;//自动目标与主角的夹角
-        float autoDis = 180.0f;//自动目标与主角的距离，距离近，优先
+        float autoDis = ViewLimit;//自动目标与主角的距离，距离近，优先
         MeteorUnit wantRotation = null;//夹角最小的
         MeteorUnit wantDis = null;//距离最近的
         Vector3 vecPlayer = -player.transform.forward;
@@ -1066,6 +1090,98 @@ public partial class GameBattleEx : LockBehaviour {
                 continue;
             Vector3 vec = MeteorManager.Instance.UnitInfos[i].transform.position - player.transform.position;
             float v = vec.sqrMagnitude;
+            MeteorManager.Instance.UnitInfos[i].distance = v;
+            vec.y = 0;
+            //先判断夹角是否在限制范围内.
+            vec = Vector3.Normalize(vec);
+            float angle = Mathf.Acos(Vector3.Dot(vecPlayer.normalized, vec)) * Mathf.Rad2Deg;
+            MeteorManager.Instance.UnitInfos[i].angle = angle;
+            //角度小于75则可以成为自动对象.
+            if (angle < angleMax)
+            {
+                angleMax = angle;
+                wantRotation = MeteorManager.Instance.UnitInfos[i];
+                
+            }
+            if (v < autoDis)
+            {
+                autoDis = v;
+                wantDis = MeteorManager.Instance.UnitInfos[i];
+            }
+        }
+
+        MeteorUnit finallyTarget = wantRotation;
+        //如果一个角色较近，但是角度差更大，一个距离较远但是角度差较小，判定2者该挑选谁作为最终目标
+        if (wantDis != null && wantDis != wantRotation && finallyTarget != null)
+        {
+            finallyTarget = wantRotation.TargetWeight() < wantDis.TargetWeight() ? wantRotation : wantDis;
+            wantRotation = wantDis;
+        }
+                
+        //与角色的夹角不能大于75度,否则主角脑袋骨骼可能注视不到自动目标.
+        if (finallyTarget != autoTarget)
+        {
+            if (autoEffect != null)
+            {
+                autoEffect.OnPlayAbort();
+                autoEffect = null;
+            }
+            autoTarget = finallyTarget;
+            //Debug.Log("切换目标");
+            if (autoTarget != null)
+                autoEffect = SFXLoader.Instance.PlayEffect("Track.ef", autoTarget.gameObject);
+            return;
+        }
+
+        //如果当前的自动目标存在，且夹角超过75度，即在主角背后，那么自动目标清空
+        if (autoTarget != null && autoTarget.angle > 90)
+        {
+            autoEffect.OnPlayAbort();
+            autoTarget = null;
+            Debug.LogError("夹角太大，自动目标重置");
+        }
+    }
+
+    //敌方角色移动时，不用整个刷新，只需要用当前的自动目标和这个对象对比下角度就OK
+    public void RefreshAutoTarget()
+    {
+        if (MeteorManager.Instance.LocalPlayer == null)
+            return;
+        if (MeteorManager.Instance.LocalPlayer.GetWeaponType() == (int)EquipWeaponType.Dart || MeteorManager.Instance.LocalPlayer.GetWeaponType() == (int)EquipWeaponType.Gun)
+        {
+            //远程武器，自动锁定系统.
+            RefreshAutoTarget2();
+            lockedTarget2 = autoTarget;
+            return;
+        }
+        //超出距离，并没有考虑角色背后-方向导致的解除锁定
+        if (lockedTarget != null)
+        {
+            Vector3 vec = lockedTarget.transform.position - MeteorManager.Instance.LocalPlayer.transform.position;
+            float v = vec.sqrMagnitude;
+            if (v > ViewLimit)
+                Unlock();
+            return;
+        }
+        MeteorUnit player = MeteorManager.Instance.LocalPlayer;
+        float angleMax = 75;//cos值越大，角度越小
+        float autoAngle = 0.0f;//自动目标与主角的夹角
+        float autoDis = ViewLimit;//自动目标与主角的距离，距离近，优先
+        MeteorUnit wantRotation = null;//夹角最小的
+        MeteorUnit wantDis = null;//距离最近的
+        Vector3 vecPlayer = -player.transform.forward;
+        vecPlayer.y = 0;
+        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        {
+            if (MeteorManager.Instance.UnitInfos[i] == player)
+                continue;
+            if (player.SameCamp(MeteorManager.Instance.UnitInfos[i]))
+                continue;
+            if (MeteorManager.Instance.UnitInfos[i].Dead)
+                continue;
+            Vector3 vec = MeteorManager.Instance.UnitInfos[i].transform.position - player.transform.position;
+            float v = vec.sqrMagnitude;
+            MeteorManager.Instance.UnitInfos[i].distance = v;
             //飞轮时，无限角度距离
             if (v > ViewLimit && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
                 continue;
@@ -1076,43 +1192,43 @@ public partial class GameBattleEx : LockBehaviour {
             //先判断夹角是否在限制范围内.
             vec = Vector3.Normalize(vec);
             float angle = Mathf.Acos(Vector3.Dot(vecPlayer.normalized, vec)) * Mathf.Rad2Deg;
+            MeteorManager.Instance.UnitInfos[i].angle = angle;
             //角度小于75则可以成为自动对象.
             if (angle < angleMax)
             {
                 angleMax = angle;
                 wantRotation = MeteorManager.Instance.UnitInfos[i];
-                float d = Vector3.Magnitude(vec);
-                if (d < autoDis)
-                {
-                    autoDis = d;
-                    wantDis = MeteorManager.Instance.UnitInfos[i];
-                }
-
-                //保存自动对象 与主角的角度
-                if (autoTarget == MeteorManager.Instance.UnitInfos[i])
-                    autoAngle = angle;
+            }
+            if (v < autoDis)
+            {
+                autoDis = v;
+                wantDis = MeteorManager.Instance.UnitInfos[i];
             }
         }
 
-        //如果更近距离有与角色正方向夹角较大的其他敌方，优先选择近距离的敌人。
-        if (wantDis != null && wantDis != wantRotation)
+        MeteorUnit finallyTarget = wantRotation;
+        //如果一个角色较近，但是角度差更大，一个距离较远但是角度差较小，判定2者该挑选谁作为最终目标
+        if (wantDis != null && wantDis != wantRotation && finallyTarget != null)
+        {
+            finallyTarget = wantRotation.TargetWeight() < wantDis.TargetWeight() ? wantRotation : wantDis;
             wantRotation = wantDis;
+        }
         //与角色的夹角不能大于75度,否则主角脑袋骨骼可能注视不到自动目标.
-        if (wantRotation != null && wantRotation != autoTarget)
+        if (finallyTarget != autoTarget)
         {
             if (autoEffect != null)
             {
                 autoEffect.OnPlayAbort();
                 autoEffect = null;
             }
-            autoTarget = wantRotation;
-            //Debug.Log("切换目标");
-            autoEffect = SFXLoader.Instance.PlayEffect("Track.ef", autoTarget.gameObject);
+            autoTarget = finallyTarget;
+            if (autoTarget != null)
+                autoEffect = SFXLoader.Instance.PlayEffect("Track.ef", autoTarget.gameObject);
             return;
         }
 
         //如果当前的自动目标存在，且夹角超过75度，即在主角背后，那么自动目标清空
-        if (autoTarget != null && autoAngle > 90 && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
+        if (autoTarget != null && autoTarget.angle > 90 && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
         {
             autoEffect.OnPlayAbort();
             autoTarget = null;
@@ -1120,16 +1236,14 @@ public partial class GameBattleEx : LockBehaviour {
 
         if (autoTarget != null && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
         {
-            Vector3 vec = autoTarget.transform.position - player.transform.position;
-            float v = vec.sqrMagnitude;
-            if (v > ViewLimit)
+            if (autoTarget.distance > ViewLimit)
                 Unlock();
         }
     }
 
     
-    Dictionary<string, BattleResultItem> battleResult = new Dictionary<string, BattleResultItem>();
-    public Dictionary<string, BattleResultItem> BattleResult { get { return battleResult; } }
+    Dictionary<int, BattleResultItem> battleResult = new Dictionary<int, BattleResultItem>();
+    public Dictionary<int, BattleResultItem> BattleResult { get { return battleResult; } }
     public void OnUnitDead(MeteorUnit unit, MeteorUnit killer = null)
     {
         if (Scene_OnCharacterEvent != null)
@@ -1138,33 +1252,33 @@ public partial class GameBattleEx : LockBehaviour {
         if (killer != null)
         {
             //统计杀人计数
-            if (!battleResult.ContainsKey(killer.name))
+            if (!battleResult.ContainsKey(killer.InstanceId))
             {
                 BattleResultItem it = new BattleResultItem();
                 it.camp = (int)killer.Camp;
                 it.id = killer.InstanceId;
                 it.deadCount = 0;
                 it.killCount = 1;
-                battleResult.Add(killer.name, it);
+                battleResult.Add(killer.InstanceId, it);
             }
             else
-                battleResult[killer.name].killCount += 1;
+                battleResult[killer.InstanceId].killCount += 1;
         }
 
         if (unit != null)
         {
             //统计被杀次数
-            if (!battleResult.ContainsKey(unit.name))
+            if (!battleResult.ContainsKey(unit.InstanceId))
             {
                 BattleResultItem it = new BattleResultItem();
                 it.camp = (int)unit.Camp;
                 it.id = unit.InstanceId;
                 it.deadCount = 1;
                 it.killCount = 0;
-                battleResult.Add(unit.name, it);
+                battleResult.Add(unit.InstanceId, it);
             }
             else
-                battleResult[unit.name].deadCount += 1;
+                battleResult[unit.InstanceId].deadCount += 1;
         }
 
         if (unit == MeteorManager.Instance.LocalPlayer)
@@ -1224,9 +1338,9 @@ public partial class GameBattleEx : LockBehaviour {
                 Unlock();
             if (Global.Instance.GLevelMode == LevelMode.SinglePlayerTask)
             {
-                int result = Global.Instance.GScript.OnUnitDead(unit);
-                if (result != 0)
-                    GameOver(result);
+                GameResult result = Global.Instance.GScript.OnUnitDead(unit);
+                if (result != GameResult.None)
+                    GameOver((int)result);
                 //if (Global.Instance.GLevelItem.Pass == 1)//敌方阵营全死
                 //{
                 //    int totalEnemy = U3D.GetEnemyCount();
@@ -1266,29 +1380,33 @@ public partial class GameBattleEx : LockBehaviour {
 
     public void EnableFollowCamera(bool enable)
     {
-        CameraFollow.Ins.GetComponent<Camera>().enabled = enable;
+        CameraFollow.Ins.m_Camera.enabled = enable;
         CameraFollow.Ins.enabled = enable;
     }
 
-    public void InitFreeCamera()
+    public void EnableFreeCamera(bool enable)
+    {
+        CameraFree.Ins.m_Camera.enabled = enable;
+        CameraFree.Ins.enabled = enable;
+    }
+
+    public void InitFreeCamera(MeteorUnit target = null)
     {
         if (CameraFree.Ins == null)
         {
-            //GameObject FreeCamera = GameObject.Instantiate(Resources.Load("CameraFreeEx")) as GameObject;
-            
+            GameObject FreeCamera = GameObject.Instantiate(Resources.Load("CameraFreeEx")) as GameObject;
+            FreeCamera.name = "FreeCamera";
         }
         CameraFree.Ins.GetComponent<Camera>().enabled = true;
         CameraFree.Ins.enabled = true;
         //找一个正在打斗的目标，随便谁都行
-        MeteorUnit watchTarget = null;
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        MeteorUnit watchTarget = target;
+        if (watchTarget == null)
         {
-            if (MeteorManager.Instance.UnitInfos[i].Dead)
-                continue;
-            if (watchTarget == null)
-                watchTarget = MeteorManager.Instance.UnitInfos[i];
-            if (MeteorManager.Instance.UnitInfos[i].GetLockedTarget() != null)
+            for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
             {
+                if (MeteorManager.Instance.UnitInfos[i].Dead)
+                    continue;
                 watchTarget = MeteorManager.Instance.UnitInfos[i];
                 break;
             }
@@ -1486,16 +1604,16 @@ public partial class GameBattleEx : LockBehaviour {
                 //capsule.center = Vector3.zero;
                 obj.name = string.Format("WayPoint{0}", Global.Instance.GLevelItem.wayPoint[i].index);
 
-                //foreach (var each in  Global.Instance.GLevelItem.wayPoint[i].link)
-                //{
-                //    GameObject objArrow = GameObject.Instantiate(Resources.Load("PathArrow")) as GameObject;
-                //    objArrow.transform.position = Global.Instance.GLevelItem.wayPoint[i].pos;
-                //    Vector3 vec = Global.Instance.GLevelItem.wayPoint[each.Key].pos - Global.Instance.GLevelItem.wayPoint[i].pos;
-                //    objArrow.transform.forward = vec.normalized;
-                //    objArrow.transform.localScale = new Vector3(30, 30, vec.magnitude / 2.2f);
-                //    objArrow.name = string.Format("Way{0}->Way{1}", Global.Instance.GLevelItem.wayPoint[each.Key].index, Global.Instance.GLevelItem.wayPoint[i].index);
-                //    wayArrowList.Add(objArrow);
-                //}
+                foreach (var each in Global.Instance.GLevelItem.wayPoint[i].link)
+                {
+                    GameObject objArrow = GameObject.Instantiate(Resources.Load("PathArrow")) as GameObject;
+                    objArrow.transform.position = Global.Instance.GLevelItem.wayPoint[i].pos;
+                    Vector3 vec = Global.Instance.GLevelItem.wayPoint[each.Key].pos - Global.Instance.GLevelItem.wayPoint[i].pos;
+                    objArrow.transform.forward = vec.normalized;
+                    objArrow.transform.localScale = new Vector3(30, 30, vec.magnitude / 2.2f);
+                    objArrow.name = string.Format("Way{0}->Way{1}", Global.Instance.GLevelItem.wayPoint[each.Key].index, Global.Instance.GLevelItem.wayPoint[i].index);
+                    wayArrowList.Add(objArrow);
+                }
             }
         }
 
@@ -1541,7 +1659,8 @@ public class ActionConfig
                 if (action[action.Count - 1].first)
                 {
                     MeteorUnit unit = U3D.GetUnit(id);
-                    unit.AIPause(true, action[action.Count - 1].pause_time);
+                    if (unit != null)
+                        unit.AIPause(true, action[action.Count - 1].pause_time);
                     action[action.Count - 1].first = false;
                 }
                 action[action.Count - 1].pause_time -= time;
@@ -1549,15 +1668,14 @@ public class ActionConfig
                 if (action[action.Count - 1].pause_time <= 0.0f)
                 {
                     MeteorUnit unit = U3D.GetUnit(id);
-                    unit.AIPause(false);
+                    if (unit != null)
+                        unit.AIPause(false);
                     action.RemoveAt(action.Count - 1);
                 }
             }
             else if (action[action.Count - 1].type == StackAction.SAY)
             {
                 MeteorUnit unit = U3D.GetUnit(id);//, action[action.Count - 1])
-                if (unit == null)
-                    Debug.LogError("can not find unit:" + id);
                 if (FightWnd.Exist && unit != null)
                     FightWnd.Instance.InsertFightMessage(unit.name + " : " + action[action.Count - 1].text);
                 action.RemoveAt(action.Count - 1);
@@ -1565,14 +1683,14 @@ public class ActionConfig
             else if (action[action.Count - 1].type == StackAction.SKILL)
             {
                 MeteorUnit unit = U3D.GetUnit(id);
-                if (!unit.Dead)
+                if (unit && !unit.Dead)
                     unit.PlaySkill();
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.Aggress)
             {
                 MeteorUnit unit = U3D.GetUnit(id);
-                if (!unit.Dead)
+                if (unit && !unit.Dead)
                 {
                     //在攻击或防御中,无法嘲讽其他
                     if (unit.posMng.IsAttackPose() || unit.posMng.IsHurtPose())
@@ -1587,20 +1705,26 @@ public class ActionConfig
             else if (action[action.Count - 1].type == StackAction.CROUCH)
             {
                 MeteorUnit unit = U3D.GetUnit(id);
-                if (action[action.Count - 1].param == 1)
+                if (unit != null)
                 {
-                    unit.controller.Input.OnKeyDownProxy(EKeyList.KL_Crouch, true);
+                    if (action[action.Count - 1].param == 1)
+                    {
+                        unit.controller.Input.OnKeyDownProxy(EKeyList.KL_Crouch, true);
+                    }
+                    else
+                        unit.controller.Input.OnKeyUpProxy(EKeyList.KL_Crouch);
                 }
-                else
-                    unit.controller.Input.OnKeyUpProxy(EKeyList.KL_Crouch);
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.BLOCK)
             {
                 MeteorUnit unit = U3D.GetUnit(id);
-                unit.controller.LockInput(action[action.Count - 1].param == 1);
-                if (!unit.Dead)
-                    unit.posMng.LinkAction(0);
+                if (unit != null)
+                {
+                    unit.controller.LockInput(action[action.Count - 1].param == 1);
+                    if (!unit.Dead)
+                        unit.posMng.LinkAction(0);
+                }
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.GUARD)
@@ -1608,14 +1732,14 @@ public class ActionConfig
                 if (action[action.Count - 1].pause_time > 0)
                 {
                     MeteorUnit unit = U3D.GetUnit(id);
-                    if (!unit.Dead)
+                    if (unit && !unit.Dead)
                         unit.Guard(true);
                     action[action.Count - 1].pause_time -= time;
                 }
                 else
                 {
                     MeteorUnit unit = U3D.GetUnit(id);
-                    if (!unit.Dead)
+                    if (unit && !unit.Dead)
                         unit.Guard(false);
                     action.RemoveAt(action.Count - 1);
                 }
@@ -1667,7 +1791,7 @@ public class ActionConfig
             {
                 //攻击指定位置
                 MeteorUnit unit = U3D.GetUnit(id);
-                if (unit.Robot != null && !unit.Dead)
+                if (unit != null && unit.Robot != null && !unit.Dead)
                 {
                     if (unit.Robot.Status != EAIStatus.AttackTarget)
                     {

@@ -15,6 +15,7 @@ public class WayPointTrigger : MonoBehaviour {
 	//}
 
     public int WayIndex;
+    public int OverlapSphereIndex = 0;
     private void OnTriggerEnter(Collider other)
     {
         MeteorUnit user = other.GetComponentInParent<MeteorUnit>();

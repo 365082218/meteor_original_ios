@@ -2461,6 +2461,7 @@ MonoBehaviour:
   IgnoreGravity: 0
   ImpluseVec: {x: 0, y: 0, z: 0}
   charController: {fileID: 0}
+  groundTick: -1
   IgnorePhysical: 0
   hitList: []
   CameraTarget: {fileID: 0}

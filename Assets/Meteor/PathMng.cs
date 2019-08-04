@@ -24,24 +24,34 @@ public class PathMng:Singleton<PathMng>
     public IEnumerator FindPath(MeteorUnit user, Vector3 source, Vector3 target, List<WayPoint> wp)
     {
         int startPathIndex = GetWayIndex(source, user);
+        //Debug.LogError("起始点:" + startPathIndex);
         int endPathIndex = GetWayIndex(target, null);
-        
-        //跟随玩家时，玩家跟随的对象所处于的路点，如果在后面跟随的对象移动，这个路点会发生变化
-        user.Robot.lastFollowTargetIndex = endPathIndex;
+        //Debug.LogError("终点:" + endPathIndex);
+        if (startPathIndex == -1 || endPathIndex == -1)
+        {
+            Debug.LogError("无法得到该位置所属路点");
+            yield break;
+        }
         looked.Clear();
         wp.Clear();
-        return FindPathCore(user, startPathIndex, endPathIndex, wp);
+        yield return FindPathCore(user, startPathIndex, endPathIndex, wp);
     }
 
-    //public IEnumerator FindPathForPet(PetController user, Vector3 source, Vector3 target, List<WayPoint> wp)
-    //{
-    //    int startPathIndex = GetWayIndex(source, null);
-    //    int endPathIndex = GetWayIndex(target, null);
-    //    user.lastFollowWayPointIdx = endPathIndex;
-    //    looked.Clear();
-    //    wp.Clear();
-    //    return FindPathCoreForPet(user, startPathIndex, endPathIndex, wp);
-    //}
+    public IEnumerator FindPathEx(MeteorUnit user, MeteorUnit target, List<WayPoint> wp)
+    {
+        int startPathIndex = GetWayIndex(user.transform.position, user);
+        //Debug.LogError("起始点:" + startPathIndex);
+        int endPathIndex = GetWayIndex(target.transform.position, target);
+        //Debug.LogError("终点:" + endPathIndex);
+        if (startPathIndex == -1 || endPathIndex == -1)
+        {
+            //Debug.LogError("无法得到该位置所属路点");
+            yield break;
+        }
+        looked.Clear();
+        wp.Clear();
+        yield return FindPathCore(user, startPathIndex, endPathIndex, wp);
+    }
 
     public WalkType GetWalkMethod(int start, int end)
     {
@@ -109,52 +119,60 @@ public class PathMng:Singleton<PathMng>
             no.parent = -1;
             user.Robot.PathInfo[0].Add(no);
             yield return CollectPathInfo(user, start, end);
-
-            //计算最短路径.从A-B，路径越少，越短，2边之和大于第3边
+            //int scan = 0;
+            //foreach (var each in user.Robot.PathInfo)
+            //{
+            //    scan += each.Value.Count;
+            //}
+            //Debug.LogError("层信息:" + user.Robot.PathInfo.Count + " 总结点:" + scan);
+            //计算最短路径.
             int target = end;
-            bool goOut = false;
-            while (true)
+            bool find = false;
+            foreach (var each in user.Robot.PathInfo)
             {
-                bool find = false;
-                foreach (var each in user.Robot.PathInfo)
+                for (int i = 0; i < each.Value.Count; i++)
                 {
-                    for (int i = 0; i < each.Value.Count; i++)
+                    if (each.Value[i].wayPointIdx == end)
                     {
-                        if (each.Value[i].wayPointIdx == target)
+                        find = true;
+                        //Debug.LogError("找到目标点:" + end);
+                        if (wp.Count == 0)
+                            wp.Add(Global.Instance.GLevelItem.wayPoint[target]);
+                        else
+                            wp.Insert(0, Global.Instance.GLevelItem.wayPoint[target]);
+                        PathNode p = each.Value[i];
+                        while (p.parent != start)
                         {
-                            find = true;
+                            target = p.parent;
+                            p = user.Robot.nodeContainer[target];
                             if (wp.Count == 0)
                                 wp.Add(Global.Instance.GLevelItem.wayPoint[target]);
                             else
                                 wp.Insert(0, Global.Instance.GLevelItem.wayPoint[target]);
-                            while (each.Value[i].parent != start)
+                            //Debug.LogError("找到父节点:" +  target);
+                            if (wp.Count >= 100)
                             {
-                                target = each.Value[i].parent;
+                                Debug.LogError("寻路链路超过100！！！");
                                 break;
                             }
-                            if (each.Value[i].parent == start)
-                                goOut = true;
-                            //goOut = true;
-                            break;
-                        }                       
-                    }
-                    yield return 0;
-                    if (find)
+                            //if (p.parent == start)
+                            //    Debug.LogError("找到起点:" + start);
+                        }
                         break;
+                    }                       
                 }
-
-                if (!find)
-                {
-                    Debug.LogError(string.Format("孤立的寻路点:{0},没有点可以走向目标", target));
-                    if (wp.Count == 0)
-                        wp.Add(Global.Instance.GLevelItem.wayPoint[target]);
-                    else
-                        wp.Insert(0, Global.Instance.GLevelItem.wayPoint[target]);
+                //yield return 0;
+                if (find)
                     break;
-                }
+            }
 
-                if (goOut)
-                    break;
+            if (!find)
+            {
+                Debug.LogError(string.Format("孤立的寻路点:{0},没有点可以走向目标", target));
+                if (wp.Count == 0)
+                    wp.Add(Global.Instance.GLevelItem.wayPoint[target]);
+                else
+                    wp.Insert(0, Global.Instance.GLevelItem.wayPoint[target]);
             }
             wp.Insert(0, Global.Instance.GLevelItem.wayPoint[start]);
         }
@@ -179,12 +197,16 @@ public class PathMng:Singleton<PathMng>
     IEnumerator CollectPathInfo(MeteorUnit user, int start, int end, int layer = 1)
     {
         yield return CollectPathLayer(user, start, end, layer);
+        if (PathLayerExist(user, end))
+            yield break;
         while (user.Robot.PathInfo.ContainsKey(layer))
         {
             int nextLayer = layer + 1;
             for (int i = 0; i < user.Robot.PathInfo[layer].Count; i++)
             {
                 yield return CollectPathLayer(user, user.Robot.PathInfo[layer][i].wayPointIdx, end, nextLayer);
+                if (PathLayerExist(user, end))
+                    yield break;
             }
             layer = nextLayer;
         }
@@ -207,8 +229,8 @@ public class PathMng:Singleton<PathMng>
                 else
                     user.Robot.PathInfo.Add(layer, new List<PathNode> { no });
             }
-            yield return 0;
         }
+        yield return 0;
     }
 
     //得到当前位置所处路点临近的路点其中之一
@@ -236,29 +258,30 @@ public class PathMng:Singleton<PathMng>
         CandidateList.Clear();
         CandiateDistance.Clear();
         int ret = -1;
-        for (int i = 0; i < Global.Instance.GLevelItem.wayPoint.Count; i++)
+
+        Collider[] other = Physics.OverlapSphere(now, 500, 1 << LayerMask.NameToLayer("WayPoint"));
+        for (int i = 0; i < other.Length; i++)
         {
-            WayPoint way = Global.Instance.GLevelItem.wayPoint[i];
+            WayPointTrigger wayPointTrigger = other[i].gameObject.GetComponent<WayPointTrigger>();
+            wayPointTrigger.OverlapSphereIndex = i;
+            WayPoint way = Global.Instance.GLevelItem.wayPoint[wayPointTrigger.WayIndex];
             Vector3 vecTarget = way.pos;
             Vector3 diff = vecTarget - now;
             float dis = Vector3.SqrMagnitude(diff);
-            ////如果与角色超过400，布置的路点可能有问题
-            //if (dis > 160000.0f)
-            //    continue;
-            ret = i;
+            ret = wayPointTrigger.WayIndex;
             int k = 0;
             for (int j = 0; j < CandiateDistance.Count; j++)
             {
-                if (CandiateDistance[j] < dis)
-                    continue;
                 k = j;
+                if (CandiateDistance[j] < dis)
+                    continue;   
                 break;
             }
             CandiateDistance.Insert(k, dis);
-            CandidateList.Insert(k , Global.Instance.GLevelItem.wayPoint[i]);
+            CandidateList.Insert(k, way);
         }
 
-        //在最多5个候选节点里，找到最近的一个未被场景遮挡的.
+        //找到最近的一个未被场景遮挡的.
         if (user != null)
         {
             //玩家的所处于的位置.要看这个玩家和该路点间有无阻碍，有则不是符合的路点.
@@ -273,7 +296,12 @@ public class PathMng:Singleton<PathMng>
             return ret;
         }
         else
-            return CandidateList[0].index;
+        {
+            if (CandidateList.Count > 0)
+                return CandidateList[0].index;
+            Debug.LogError("无法找到指定位置所处的路点???");
+            return -1;
+        }
     }
     #endregion
 }
