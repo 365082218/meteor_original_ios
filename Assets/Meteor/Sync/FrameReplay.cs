@@ -319,7 +319,16 @@ public class FrameReplay : MonoBehaviour {
         else
         {
             FrameReplay.deltaTime = Time.deltaTime;
-            LogicFrame();
+            if (UpdateEvent != null)
+                UpdateEvent();
+            if (LateUpdateEvent != null)
+                LateUpdateEvent();
+            LogicFrameIndex++;
+            if (LogicFrameIndex % TurnFrameMax == 0)
+            {
+                LogicTurnIndex++;
+                LogicFrameIndex = 0;
+            }
             time += Time.deltaTime;
         }
     }

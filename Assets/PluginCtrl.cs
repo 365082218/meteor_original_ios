@@ -158,7 +158,7 @@ public class PluginCtrl : MonoBehaviour {
                     {
                         NpcTemplate template = new NpcTemplate();
                         template.npcTemplate = fi.Name.Substring(0, fi.Name.Length - fi.Extension.Length);
-                        template.filePath = fi.FullName.Replace("\\", "/");
+                        template.filePath = files[i].Replace("\\", "/");
                         //如果该文件的父目录是npc,且
                         bool find = false;
                         for (int j = 0; j < GameData.Instance.gameStatus.pluginNpc.Count; j++)

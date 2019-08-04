@@ -149,7 +149,10 @@ public class MeteorInput
             if (Mathf.Abs(vec.x - mInputCache.x) > 0.1f || Mathf.Abs(vec.y - mInputCache.y) > 0.1f)
             {
                 mInputCache = vec;
-                FSS.Instance.PushJoyDelta(mOwner.InstanceId, mInputCache.x, mInputCache.y);
+                if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+                    FSS.Instance.PushJoyDelta(mOwner.InstanceId, mInputCache.x, mInputCache.y);
+                else
+                    mInputVector = mInputCache;
             }
         }
 
@@ -1900,7 +1903,10 @@ public class MeteorInput
         keyStatus.Pressed = 0;
         keyStatus.ReleasedTime = 0.0f;
         keyStatus.IsAI = false;
-        FSS.Instance.PushKeyUp(mOwner.InstanceId, keyStatus.Key);
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+            FSS.Instance.PushKeyUp(mOwner.InstanceId, keyStatus.Key);
+        else
+            OnKeyUp(keyStatus.Key);
     }
 
     public void OnKeyDownProxy(KeyState keyStatus, bool isAI)
@@ -1915,7 +1921,11 @@ public class MeteorInput
         keyStatus.Pressed = keyStatus.PressedTime < DoubleClickTime ? 2 : 1;
         keyStatus.PressedTime = 0.0f;
         keyStatus.IsAI = isAI;
-        FSS.Instance.PushKeyDown(mOwner.InstanceId, keyStatus.Key);
+
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+            FSS.Instance.PushKeyDown(mOwner.InstanceId, keyStatus.Key);
+        else
+            OnKeyDown(keyStatus.Key, isAI);
     }
 
     void UpdateMoveInput()

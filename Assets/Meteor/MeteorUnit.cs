@@ -696,7 +696,10 @@ public partial class MeteorUnit : LockBehaviour
     {
         if (!gameObject.activeInHierarchy)
             return;
-        ProcessCommand();
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+        {
+            ProcessCommand();
+        }
         if (Climbing)
             ClimbingTime += FrameReplay.deltaTime;
         else
@@ -820,7 +823,10 @@ public partial class MeteorUnit : LockBehaviour
                 if (xRotate != 0 || yRotate != 0)
                 {
                     //Debug.LogError("push mouse move");
-                    FSS.Instance.PushMouseDelta(InstanceId, xRotate, yRotate);
+                    if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+                        FSS.Instance.PushMouseDelta(InstanceId, xRotate, yRotate);
+                    else
+                        OnPlayerMouseDelta(xRotate, yRotate);
                 }
             }
         }

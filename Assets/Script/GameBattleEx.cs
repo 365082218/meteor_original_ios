@@ -485,7 +485,7 @@ public partial class GameBattleEx : LockBehaviour {
         {
             OnCreatePlayer();
 
-            if (Global.Instance.GScript != null && Global.Instance.GLevelMode == LevelMode.SinglePlayerTask)
+            if (Global.Instance.GScript != null && Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
                 Global.Instance.GScript.OnStart();
 
             for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
@@ -495,7 +495,7 @@ public partial class GameBattleEx : LockBehaviour {
             }
 
             //单机剧本时游戏开始前最后给脚本处理事件的机会,
-            if (Global.Instance.GScript != null && Global.Instance.GLevelMode == LevelMode.SinglePlayerTask)
+            if (Global.Instance.GScript != null && Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
                 Global.Instance.GScript.OnLateStart();
         }
         else
