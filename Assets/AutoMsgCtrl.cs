@@ -28,9 +28,9 @@ public class AutoMsgCtrl : LockBehaviour {
 
     // Update is called once per frame
     protected override void LockUpdate() {
-        tick -= FrameReplay.deltaTime;
         if (transform.childCount != 0)
         {
+            tick -= FrameReplay.deltaTime;
             if (tick <= 0.0f)
             {
                 Transform son = transform.GetChild(0);

@@ -697,9 +697,7 @@ public partial class MeteorUnit : LockBehaviour
         if (!gameObject.activeInHierarchy)
             return;
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
-        {
             ProcessCommand();
-        }
         if (Climbing)
             ClimbingTime += FrameReplay.deltaTime;
         else
@@ -817,7 +815,7 @@ public partial class MeteorUnit : LockBehaviour
 #if STRIP_KEYBOARD
                 xRotate = NGUICameraJoystick.instance.deltaLast.y * GameData.Instance.gameStatus.AxisSensitivity.y;
 #else
-            xRotate = Input.GetAxis("Mouse Y") * 2;
+                xRotate = Input.GetAxis("Mouse Y") * 2;
 #endif
                 //把Mouse的移动事件/触屏的拖拽事件发送到
                 if (xRotate != 0 || yRotate != 0)
