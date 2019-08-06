@@ -984,8 +984,8 @@ public class CharacterLoader
         else if (curPos == CommonAction.Struggle || curPos == CommonAction.Struggle0)
         {
             //如果是倒地动作，僵直最少为0.5f
-            if (PoseStraight < 0.5f)
-                LockTime(0.5f);
+            if (PoseStraight < 0.4f)
+                LockTime(0.4f);
         }
     }
 

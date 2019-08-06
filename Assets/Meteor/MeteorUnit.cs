@@ -1897,7 +1897,7 @@ public partial class MeteorUnit : LockBehaviour
                     //AddYVelocity(-100);//让他快速一点落地
                     //与落地的间隔超过0.2S再切换动作，否则就会抽搐
                     if (groundTick + 0.2f < FrameReplay.Instance.time)
-                        posMng.ChangeAction(CommonAction.JumpFall, 0.1f);
+                        posMng.ChangeAction(CommonAction.JumpFall, 0.2f);
                     //看是否被物件推开
                     //ProcessFall();
                     //floatTick = Time.timeSinceLevelLoad;
