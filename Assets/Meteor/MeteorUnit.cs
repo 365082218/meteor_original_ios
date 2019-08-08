@@ -2199,9 +2199,6 @@ public partial class MeteorUnit : LockBehaviour
             if (Attr.IsPlayer && GameData.Instance.gameStatus.Undead)
                 return;
             Dead = true;
-
-            //如果有镖物，丢弃
-            SetFlag(null, 0);
             //盟主模式，玩家在几秒后会复活.
             //暗杀模式，需要队长去复活.
             if (Global.Instance.GLevelMode == LevelMode.CreateWorld && (Global.Instance.GGameMode == GameMode.MENGZHU))

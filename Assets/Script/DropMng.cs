@@ -47,6 +47,7 @@ public class DropMng:Singleton<DropMng>{
         {
             trigget = CreateObj(player.GetFlagItem.model, player.transform, -player.transform.forward);
             ExplosionObject01.DropItem(trigget, player.transform.position, Quaternion.AngleAxis(30, Vector3.up) * -player.transform.forward);
+            player.SetFlag(null, 0);
         }
     }
 
