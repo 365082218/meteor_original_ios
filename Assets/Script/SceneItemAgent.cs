@@ -28,11 +28,12 @@ public class SceneItemAgent : LockBehaviour {
     System.Reflection.MethodInfo MethodOnIdle;
     System.Func<int, int, int, int> OnAttackCallBack;
     System.Action<int, int> OnIdle;
-    System.Reflection.MethodInfo OnTouch;
-    bool syncTouched = false;
+    MethodInfo OnTouch;
+    MethodInfo OnPickUp;
     float initializeY;
     bool billBoard = false;
     bool animate = false;
+    
     //场景初始化调用，或者爆出物品，待物品落地时调用
     public void OnStart(LevelScriptBase script = null)
     {
@@ -56,7 +57,28 @@ public class SceneItemAgent : LockBehaviour {
         {
             MethodOnAttack = script.GetType().GetMethod(gameObject.name + "_OnAttack");
             MethodOnIdle = script.GetType().GetMethod(gameObject.name + "_OnIdle");
+            OnTouch = Global.Instance.GScriptType.GetMethod(name + "_OnTouch", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (OnTouch == null)
+            {
+                System.Type typeParent = Global.Instance.GScriptType.BaseType;
+                while (typeParent != null && OnTouch == null)
+                {
+                    OnTouch = typeParent.GetMethod(name + "_OnTouch", BindingFlags.NonPublic | BindingFlags.Instance);
+                    typeParent = typeParent.BaseType;
+                }
+            }
+            OnPickUp = Global.Instance.GScriptType.GetMethod(name + "_OnPickUp", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (OnPickUp == null)
+            {
+                System.Type typeParent = Global.Instance.GScriptType.BaseType;
+                while (typeParent != null && OnPickUp == null)
+                {
+                    OnPickUp = typeParent.GetMethod(name + "_OnPickUp", BindingFlags.NonPublic | BindingFlags.Instance);
+                    typeParent = typeParent.BaseType;
+                }
+            }
         }
+
         if (MethodOnAttack != null || OnAttackCallBack != null)
             RefreshCollision();
     }
@@ -100,11 +122,11 @@ public class SceneItemAgent : LockBehaviour {
                 OnRefresh();
             }
         }
-        if (animate)
+        if (animate && root != null && root.gameObject.activeInHierarchy)
             yMove();
     }
 
-    public void OnPickup(MeteorUnit unit)
+    public void OnPickUped(MeteorUnit unit)
     {
         //场景上的模型物件捡取
         if (unit.Dead)
@@ -179,6 +201,9 @@ public class SceneItemAgent : LockBehaviour {
                 U3D.InsertSystemMsg(unit.name + " 夺得镖物");
                 unit.SetFlag(ItemInfo, ItemInfo.first[2].flag[1]);
             }
+
+            if (OnPickUp != null)
+                OnPickUp.Invoke(Global.Instance.GScript, null);
         }
         else if (ItemInfoEx != null)
         {
@@ -231,27 +256,10 @@ public class SceneItemAgent : LockBehaviour {
         }
         else
         {
-            if (syncTouched)
-            {
-                
-            }
-            else
-            {
-                OnTouch = Global.Instance.GScriptType.GetMethod(name + "_OnTouch", BindingFlags.Instance | BindingFlags.NonPublic);
-                if (OnTouch == null)
-                {
-                    System.Type typeParent = Global.Instance.GScriptType.BaseType;
-                    while (typeParent != null && OnTouch == null)
-                    {
-                        OnTouch = typeParent.GetMethod(name + "_OnTouch", BindingFlags.Instance | BindingFlags.NonPublic);
-                        typeParent = typeParent.BaseType;
-                    }
-                }
-                syncTouched = true;
-            }
-
             if (OnTouch != null)
                 OnTouch.Invoke(Global.Instance.GScript, new object[] { 0, unit.InstanceId });
+            else if (OnPickUp != null)
+                OnPickUp.Invoke(Global.Instance.GScript, null);
         }
     }
 
@@ -599,6 +607,7 @@ public class SceneItemAgent : LockBehaviour {
             }
             else if (sub_features == "active")
             {
+                gameObject.SetActive(value != 0);
                 root.gameObject.SetActive(value != 0);
                 //删除受击框
                 if (value == 0)

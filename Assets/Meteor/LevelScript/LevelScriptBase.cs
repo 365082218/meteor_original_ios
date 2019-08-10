@@ -1147,7 +1147,7 @@ public class LevelScriptBase:ScriptBase {
     public virtual bool OnPlayerSpawn(MeteorUnit unit) { return false; }//角色生成后调整
     public virtual void Scene_OnCharacterEvent(int id, int evt) { }
     public virtual bool DisableFindWay() { return false; }//是否不允许寻路, false，表示允许寻路，true，表示不允许寻路
-
+    public virtual void OnLoad(){}//当关卡被加载最初时，可在此修改游戏类型，让一些与关卡类型相关的地图元素显示出来， ticket=xx
     public virtual GameResult OnUnitDead(MeteorUnit deadUnit)
     {
         if (U3D.AllEnemyDead())
@@ -1657,7 +1657,7 @@ public class LevelScript_sn02: LevelScriptBase
         SetSceneItem("D_IPItem01", "attribute", "active", 1);
     }
 
-    public void D_IPItem01_OnPickUp()
+    void D_IPItem01_OnPickUp()
     {
         //
 
@@ -7477,6 +7477,10 @@ public class LevelScript_sn22 : LevelScriptBase
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
+    public override void OnLoad()
+    {
+        Global.Instance.GGameMode = GameMode.SIDOU;
+    }
     public override bool DisableFindWay()
     {
         return true;
@@ -8078,10 +8082,6 @@ public class LevelScript_sn23 : LevelScriptBase
     public override int GetPlayerModel() { return PlayerModel; }
     public override string GetPlayerName() { return PlayerName; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
-    public override bool DisableFindWay()
-    {
-        return true;
-    }
     public override void OnStart()
     {
         AddNPC("npc23_01");//屠大鹏
@@ -8622,6 +8622,7 @@ public class LevelScript_sn1000 : LevelScriptBase
     public override int GetPlayerModel() { return _GetPlayerModel(); }
     public override string GetPlayerName() { return _GetPlayerName(); }
     public override string GetDesName() { return ""; }
+
     public override void OnStart()
     {
         base.OnStart();
@@ -8810,6 +8811,31 @@ public class LevelScript_sn31 : LevelScript_sn22
 
         //当玩家离开各个卦位时，停止AI
 
+        return 0;
+    }
+}
+
+public class LevelScript_sn02_1:LevelScript_sn02
+{
+    public override void OnLoad()
+    {
+        //Global.Instance.GGameMode = GameMode.Rob;
+    }
+
+    public override void OnStart()
+    {
+        base.OnStart();
+    }
+
+    int tag1 = 0;
+    public override int OnUpdate()
+    {
+        if (tag1 == 0)
+        {
+            int c1 = GetChar("皇陵使");
+            ChangeBehavior(c1, "patrol", 1, 2, 3);
+            tag1 = 1;
+        }
         return 0;
     }
 }

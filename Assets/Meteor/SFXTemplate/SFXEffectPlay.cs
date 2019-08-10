@@ -8,31 +8,6 @@ public class SFXEffectPlay : LockBehaviour {
     List<SFXUnit> played = new List<SFXUnit>();
     MeteorUnit owner;
     public string file;
-    bool _audioUpdate = false;
-    bool audioUpdate
-    {
-        get
-        {
-            return this._audioUpdate;
-        }
-        set
-        {
-            this._audioUpdate = value;
-            if (value)
-            {
-                EffectIns.Clear();
-                int i = 0;
-                foreach (var each in audioList)
-                {
-                    //如果一开始的时间跳跃过第一帧，或跳跃过第二帧，就忽略此特效 重复播放的特效除外
-                    if (((each.frames[0].startTime < playedTime) || (each.frames[1].startTime < playedTime)) && each.audioLoop == 1)
-                        EffectIns.Add(i++, -2);
-                    else
-                        EffectIns.Add(i++, -1);
-                }
-            }
-        }
-    }
 
     new void Awake()
     {
@@ -45,8 +20,8 @@ public class SFXEffectPlay : LockBehaviour {
         base.OnDestroy();
     }
 
-    bool loop;
-    float playedTime = 0.0f;
+    public bool loop;
+    public float playedTime = 0.0f;
 
     protected override void LockUpdate()
     {
@@ -57,8 +32,7 @@ public class SFXEffectPlay : LockBehaviour {
         }
 
         playedTime += FrameReplay.deltaTime;
-        if (audioUpdate)
-            PlayAudioEffect();
+        PlayAudioEffect();
     }
 
     public System.Action<float> OnSfxFrame;
@@ -89,16 +63,11 @@ public class SFXEffectPlay : LockBehaviour {
             Destroy(played[i].gameObject);
         }
         played.Clear();
-        if (audioUpdate)
-            audioUpdate = false;
-        foreach (var each in EffectIns)
-            SoundManager.Instance.StopEffect(each.Value);
-        EffectIns.Clear();
         Destroy(this);
     }
 
     int sfxDoneCnt = 0;
-    public void OnPlayDone(SFXUnit sfx)
+    public void OnPlayDone(SFXUnit sfx = null)
     {
         sfxDoneCnt++;
         if (sfx != null && !loop)
@@ -109,10 +78,6 @@ public class SFXEffectPlay : LockBehaviour {
             {
                 for (int i = 0; i < played.Count; i++)
                     played[i].RePlay();
-                if (audioUpdate)
-                    audioUpdate = false;
-                if (audioList.Count != 0)
-                    audioUpdate = true;
                 sfxDoneCnt = 0;
             }
             else
@@ -129,7 +94,7 @@ public class SFXEffectPlay : LockBehaviour {
     }
 
     //character 对应d_base
-    List<SfxEffect> audioList = new List<SfxEffect>();
+    List<SFXAudio> audioList = new List<SFXAudio>();
     public void Load(SfxFile effectFile, bool once = false, bool preload = false)
     {
         loop = !once;
@@ -143,7 +108,7 @@ public class SFXEffectPlay : LockBehaviour {
             GameObject objSfx = null;
             SFXUnit sfx = null;
             if (effectList[i].EffectType == "AUDIO")
-                audioList.Add(effectList[i]);
+                audioList.Add(new SFXAudio(this, effectList[i]));
             else if (effectList[i].EffectType == "BILLBOARD")
             {
                 objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
@@ -226,10 +191,6 @@ public class SFXEffectPlay : LockBehaviour {
             if (each.Value != null)
                 each.Value.Init(effectList[each.Key], this, each.Key, 0, preload);
         }
-        if (audioList.Count != 0)
-        {
-            audioUpdate = true;
-        }
     }
 
     public void Load(SfxFile effectFile, float timePlayed, bool preLoad = false)
@@ -245,7 +206,7 @@ public class SFXEffectPlay : LockBehaviour {
             GameObject objSfx = null;
             SFXUnit sfx = null;
             if (effectList[i].EffectType.Equals("AUDIO"))
-                audioList.Add(effectList[i]);
+                audioList.Add(new SFXAudio(this, effectList[i]));
             else if (effectList[i].EffectType.Equals("BILLBOARD"))
             {
                 objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
@@ -326,61 +287,22 @@ public class SFXEffectPlay : LockBehaviour {
             if (each.Value != null)
                 each.Value.Init(effectList[each.Key], this, each.Key, timePlayed, preLoad);
         }
-        if (audioList.Count != 0)
-            audioUpdate = true;
     }
 
     //-1未播放
     //-2播放完成
     //大于0，播放返回的实例id,后面时间到了用来调用去停止循环声音
-    Dictionary<int, int> EffectIns = new Dictionary<int, int>();
     void PlayAudioEffect()
     {
         //AUDIO是第一帧放，第二帧删
-        int i = 0;
-        bool startCheck = true;
-        foreach (var each in audioList)
+        bool playDone = false;
+        for (int i = 0; i < audioList.Count; i++)
         {
-            if (each.frames[1].startTime < playedTime && EffectIns[i] == -1 && each.audioLoop == 1)
-            {
-                //音效跳过，因为动作已经播放完毕.
-                EffectIns[i] = -2;
-                startCheck = true;
-            }
-            else
-            if (each.frames[0].startTime < playedTime && EffectIns[i] == -1)
-            {
-                //带loop的是环境音效
-                //有个问题是绑定到对象上一起运动还是只是在那里初始化不跟随移动.
-                bool use3DAudio = loop;
-                //use3DAudio = true;
-                int idx = SoundManager.Instance.Play3DSound(each.Tails[0], transform.position, each.audioLoop != 0, use3DAudio);
-                EffectIns[i] = idx;
-                startCheck = true;
-            }
-            else if (each.frames[1].startTime < playedTime && EffectIns[i] > 0)
-            {
-                SoundManager.Instance.StopEffect(EffectIns[i]);
-                EffectIns[i] = -2;
-                //Debug.LogError("soundPlay Complete");
-                startCheck = true;
-            }
-
-            //检查能否退出协程
-            bool canB = true;
-            foreach (var eachS in EffectIns)
-            {
-                if (eachS.Value != -2)
-                    canB = false;
-            }
-
-            i++;
-            if (canB && startCheck)
-            {
-                OnPlayDone(null);
-                audioUpdate = false;
-                return;
-            }
+            SFXAudio audioEffect = audioList[i];
+            playDone = playDone && audioEffect.Update();
         }
+
+        if (playDone)
+            this.OnPlayDone();
     }
 }

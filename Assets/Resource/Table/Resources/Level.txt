@@ -23,7 +23,7 @@ Id	Scene	Template	DisableFindWay	Name	LevelType	LevelScript	StartScript	sceneIte
 21	Meteor_22	1	1	威震八方	5	sn22		sn22	S5			
 22	Meteor_06	1	0	四方阵	5	sn06		sn06	S5			
 23	Meteor_02	1	0	秦皇陵	5	sn02		sn02	S2			
-24	Meteor_23	0	1	韩棠-大决战	6	sn23		sn23	S11		1	
+24	Meteor_23	0	1	大决战	6	sn23		sn23	S11		1	
 25	Meteor_25	0	1	往生幻境	5	sn25		sn25	S11		1	
 26	Meteor_06	0	0	近战AI测试	5	sn1000	sn1000_1	sn06	S5		1	
 27	Meteor_06	0	0	远程AI测试	5	sn1000	sn1000_2	sn06	S5		1	
@@ -31,3 +31,4 @@ Id	Scene	Template	DisableFindWay	Name	LevelType	LevelScript	StartScript	sceneIte
 29	Meteor_06	0	0	火枪测试	5	sn1000	sn1000_4	sn06	S5		1	
 30	Meteor_06	0	0	跟随测试	5	sn1000	sn1000_5	sn06	S5		1	
 31	Meteor_22	0	1	威震八方	5	sn31		sn22	S5			
+32	Meteor_02	0	0	秦皇陵机关	5	sn02_1		sn02	S5			

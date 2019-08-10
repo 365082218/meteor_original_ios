@@ -86,6 +86,7 @@ public class FSS:Singleton<FSS>
             if (FrameReplay.Instance.LogicTurnIndex >= frames.Count)
                 return;
             GameFrames t = frames[FrameReplay.Instance.LogicTurnIndex];
+            //同步一个关键帧（一段渲染帧的指令到服务器）
             UdpClientProxy.Exec((int)MeteorMsg.MsgType.SyncCommand, t);
         }
         else
@@ -99,12 +100,6 @@ public class FSS:Singleton<FSS>
             GameFrames f = frames[FrameReplay.Instance.LogicTurnIndex];
             FSC.Instance.OnReceiveCommand(f);
         }
-    }
-
-    //在指定帧推入数据.
-    public void Command(int frame, MeteorMsg.MsgType message, MeteorMsg.Command command)
-    {
-        PushAction(frame, message, command);
     }
 
     public void PushKeyUp(int playerId, EKeyList key)
@@ -172,21 +167,6 @@ public class FSS:Singleton<FSS>
         vec.y = (int)(y * 1000);
         ProtoBuf.Serializer.Serialize<Vector2_>(ms, vec);
         cmd.data = ms.ToArray();
-        t.commands.Add(cmd);
-    }
-
-    public void Push(int action)
-    {
-        PushAction(FrameReplay.Instance.NextTurn, MeteorMsg.MsgType.SyncCommand, (MeteorMsg.Command)action);
-    }
-
-    public void PushAction(int frame, MeteorMsg.MsgType message, MeteorMsg.Command command)
-    {
-        GameFrames t = GetFrame(frame);
-        FrameCommand cmd = new FrameCommand();
-        cmd.command = command;
-        cmd.LogicFrame = (uint)frame;
-        cmd.playerId = (uint)NetWorkBattle.Instance.PlayerId;
         t.commands.Add(cmd);
     }
 

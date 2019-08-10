@@ -2510,7 +2510,7 @@ public partial class MeteorUnit : LockBehaviour
                         return;
                     if (trigger.root != null)
                     {
-                        trigger.OnPickup(this);
+                        trigger.OnPickUped(this);
                         touchDelay[trigger] = 2.0f;
                         if (TargetItem == trigger)
                             TargetItem = null;
@@ -2563,7 +2563,7 @@ public partial class MeteorUnit : LockBehaviour
                         return;
                     if (trigger.root != null)
                     {
-                        trigger.OnPickup(this);
+                        trigger.OnPickUped(this);
                         touchDelay[trigger] = 2.0f;
                         if (TargetItem == trigger)
                             TargetItem = null;

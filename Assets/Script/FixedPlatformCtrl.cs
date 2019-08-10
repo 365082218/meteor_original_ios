@@ -3,7 +3,7 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 
-public class FixedPlatformCtrl : MonoBehaviour {
+public class FixedPlatformCtrl : LockBehaviour {
 	public int Trigger = 0;
     [SerializeField] bool AllowShake = true;
     [HideInInspector] private AnimationCurve curve = null;
@@ -15,8 +15,9 @@ public class FixedPlatformCtrl : MonoBehaviour {
     [SerializeField] private bool InitializePose = false;
     [SerializeField] private bool LoopPose = false;
     [SerializeField] private int StartPose;
-    private void Awake()
+    private new void Awake()
     {
+        this.orderType = OrderType.Late;
         if (modelLoader != null)
             modelLoader.Load(model);
         if (fmcPlayer != null)
@@ -26,6 +27,7 @@ public class FixedPlatformCtrl : MonoBehaviour {
             if (InitializePose)
                 fmcPlayer.ChangePose(StartPose, LoopPose ? 1 : 0);
         }
+        base.Awake();
     }
 
     public void Start()
@@ -35,7 +37,7 @@ public class FixedPlatformCtrl : MonoBehaviour {
         {
             Keyframe[] ks = new Keyframe[2];
             ks[0] = new Keyframe(0, 0);
-            ks[1] = new Keyframe(4, 2);
+            ks[1] = new Keyframe(10, 2);
             curve = new AnimationCurve(ks);
             curve.postWrapMode = WrapMode.PingPong;
             curve.preWrapMode = WrapMode.PingPong;
@@ -51,13 +53,14 @@ public class FixedPlatformCtrl : MonoBehaviour {
 	
 	}
 
-    private void LateUpdate()
+    protected override void LockUpdate()
     {
         if (AllowShake)
         {
             float y = curve.Evaluate(Time.time);
             transform.position = new Vector3(transform.position.x, initializeY + hScale * y, transform.position.z);
         }
+        base.LockUpdate();
     }
 
     public void OnTriggerEnter(Collider other)
@@ -71,6 +74,18 @@ public class FixedPlatformCtrl : MonoBehaviour {
             //任意角色进来，都会触发掉落动画，之后其他角色进来无法再触发.
             if (fmcPlayer != null)
                 this.enabled = false;
+            //u.transform.SetParent(transform);
+            //u._ignoreGravityEx = true; 
         }
+    }
+
+    public void OnTriggerExit(Collider other)
+    {
+        //MeteorUnit u = other.gameObject.GetComponent<MeteorUnit>();
+        //if (u != null)
+        //{
+        //    u._ignoreGravityEx = false;
+        //    u.transform.SetParent(null);
+        //}
     }
 }

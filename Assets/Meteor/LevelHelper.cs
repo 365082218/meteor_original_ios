@@ -108,6 +108,7 @@ public class LevelHelper : MonoBehaviour
         }
 
         Global.Instance.GScript = script;
+        script.OnLoad();
         //加载场景配置数据
         SceneMng.Instance.OnEnterLevel();
 

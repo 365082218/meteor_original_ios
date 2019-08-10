@@ -242,10 +242,6 @@ public class Loader : MonoBehaviour {
             }
             else
                 active = true;
-            if (!active)
-                continue;
-
-            //某些类型的不要加载，包括有ticket却不包含6类型的,
             GameObject obj = new GameObject();
             obj.name = des.SceneItems[i].name;
             string model;
@@ -257,6 +253,8 @@ public class Loader : MonoBehaviour {
                 target.Load(model);
                 target.LoadCustom(des.SceneItems[i].name, des.SceneItems[i].custom);//自定义的一些属性，name=damage100
                 target.ApplyPost();
+                if (target.root != null)
+                    target.root.gameObject.SetActive(active);
                 MeteorManager.Instance.OnGenerateSceneItem(target);
             }
             //环境特效.一直存在的特效.和特效挂载点
