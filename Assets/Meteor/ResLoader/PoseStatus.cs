@@ -74,6 +74,8 @@ public class PoseStatus
                 return false;
             if (mActiveAction.Idx >= CommonAction.HitStart && mActiveAction.Idx <= CommonAction.HitEnd)
                 return false;
+            if (mActiveAction.Idx == CommonAction.HammerMaxFall)
+                return false;
             return true;
         }
     }

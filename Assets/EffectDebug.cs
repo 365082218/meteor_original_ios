@@ -17,11 +17,11 @@ public class EffectDebug : MonoBehaviour {
     public void PlayEffect(string sfx)
     {
         sfx += ".ef";
-        SFXLoader.Instance.PlayEffect(sfx, gameObject, false);
+        SFXLoader.Instance.PlayEffect(sfx, gameObject);
     }
 
     public void PlayEffect(int idx)
     {
-        SFXLoader.Instance.PlayEffect(idx, gameObject, false);
+        SFXLoader.Instance.PlayEffect(idx, gameObject);
     }
 }

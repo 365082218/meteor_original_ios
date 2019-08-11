@@ -879,7 +879,7 @@ public class U3D : MonoBehaviour {
             SFXLoader.Instance.PlayEffect(effect, objEffect, !loop);
     }
 
-    public static void CreateEffect(int id, string effect)
+    public static void CreateEffect(int id, string effect, bool loop = false)
     {
         SceneItemAgent[] agents = FindObjectsOfType<SceneItemAgent>();
         SceneItemAgent objEffect = null;
@@ -892,7 +892,7 @@ public class U3D : MonoBehaviour {
             }
         }
         if (SFXLoader.Instance != null && objEffect != null)
-            SFXLoader.Instance.PlayEffect(effect, objEffect.gameObject, true);
+            SFXLoader.Instance.PlayEffect(effect, objEffect.gameObject, loop);
     }
 
     public static MeteorUnit GetTeamLeader(EUnitCamp camp)

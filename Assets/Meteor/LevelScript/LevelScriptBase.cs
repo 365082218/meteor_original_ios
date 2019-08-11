@@ -356,7 +356,7 @@ public class ScriptBase
     }
     public static void CreateEffect(int target, string effect)
     {
-        U3D.CreateEffect(target, string.Format("{0}.ef", effect));
+        U3D.CreateEffect(target, string.Format("{0}.ef", effect), false);
     }
     public static void CreateEffect(string target, string effect, bool loop)
     {

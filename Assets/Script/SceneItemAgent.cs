@@ -197,7 +197,7 @@ public class SceneItemAgent : LockBehaviour {
                 GameObject.Destroy(root.gameObject);
                 root = null;
                 if (ItemInfo.first[1].flag[1] != 0)
-                    SFXLoader.Instance.PlayEffect(ItemInfo.first[1].flag[1], unit.gameObject, false);
+                    SFXLoader.Instance.PlayEffect(ItemInfo.first[1].flag[1], unit.gameObject, true);
                 U3D.InsertSystemMsg(unit.name + " 夺得镖物");
                 unit.SetFlag(ItemInfo, ItemInfo.first[2].flag[1]);
             }

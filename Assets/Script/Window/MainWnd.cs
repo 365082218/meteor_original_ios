@@ -2115,7 +2115,7 @@ public class SfxWnd: Window<SfxWnd>
 
     void PlaySfx(int idx)
     {
-        SFXLoader.Instance.PlayEffect(idx, MeteorManager.Instance.LocalPlayer.gameObject, false);
+        SFXLoader.Instance.PlayEffect(idx, MeteorManager.Instance.LocalPlayer.gameObject, true);
     }
 }
 
