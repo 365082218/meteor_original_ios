@@ -1913,7 +1913,7 @@ public partial class MeteorUnit : LockBehaviour
                     posMng.ChangeAction(0, 0.1f);
                     groundTick = FrameReplay.Instance.time;
                 }
-                ResetYVelocity();
+                //ResetYVelocity();
             }
         }
 
@@ -1992,7 +1992,7 @@ public partial class MeteorUnit : LockBehaviour
         posMng.CanAdjust = true;
         posMng.CheckClimb = true;
         posMng.ChangeAction(act, 0.1f);
-        //charLoader.SetActionScale(y / JumpLimit);
+        controller.Input.ResetLink();
     }
 
     //给3个参数,Y轴完整跳跃的高度缩放(就是按下跳跃的压力缩放)，前方速度，右方速度
@@ -2000,14 +2000,15 @@ public partial class MeteorUnit : LockBehaviour
     {
         canControlOnAir = true;
         OnGround = false;
-        float jumpScale = Short ? (ShortScale * 0.32f) : 1.0f;
+        //float jumpScale = Short ? (ShortScale * 0.32f) : 1.0f;
+        float jumpScale = Short ? (0.32f) : 1.0f;
         float h = JumpLimit * jumpScale;
         ImpluseVec.y = CalcVelocity(h);
         posMng.JumpTick = 0.0f;
         posMng.CanAdjust = true;
         posMng.CheckClimb = true;
         posMng.ChangeAction(act, 0.1f);
-        //charLoader.SetActionScale(jumpScale);
+        controller.Input.ResetLink();
     }
 
     public void ReleaseDefence()
@@ -2284,7 +2285,7 @@ public partial class MeteorUnit : LockBehaviour
             //在防御中.不受推挤.
             if (hitUnit.posMng != null && hitUnit.posMng.onDefence)
                 return;
-            hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 30);
+            hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 20);
         }
         else if (hit.gameObject.transform.root.tag.Equals("SceneItemAgent"))
         {

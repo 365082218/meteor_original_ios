@@ -184,6 +184,7 @@ public class PoseStatus
         _Self = owner;
         CheckClimb = false;
         CanAdjust = true;
+        playResultAction = false;
         ClimbFallTick = 0.0f;
         load = owner.charLoader;
         UnitId = _Self == null ? 0 : _Self.UnitId;

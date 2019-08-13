@@ -83,36 +83,22 @@ public class Patch : MonoBehaviour {
         ActionInterrupt.Instance.Whole.Clear();
         ActionInterrupt.Instance.Root = null;
         ActionInterrupt.Instance.Init();
-        yield return 0;
-        toProgress = 40;
-        while (displayProgress < toProgress)
-        {
-            displayProgress++;
-            progress.fillAmount = (float)displayProgress / 100.0f;
-            percent.text = string.Format("{0}%", displayProgress);
-            yield return 0;
-        }
         MenuResLoader.Instance.Init();
-        yield return 0;
-        toProgress = 50;
-        while (displayProgress < toProgress)
-        {
-            displayProgress++;
-            progress.fillAmount = (float)displayProgress / 100.0f;
-            percent.text = string.Format("{0}%", displayProgress);
-            yield return 0;
-        }
+
         //加载默认角色，这个角色有用的
         //AmbLoader.Ins.LoadCharacterAmb(0);
         for (int i = 0; i < 20; i++)
         {
             AmbLoader.Ins.LoadCharacterAmb(i);
+            displayProgress++;
+            progress.fillAmount = (float)displayProgress / 100.0f;
+            percent.text = string.Format("{0}%", displayProgress);
             yield return 0;
         }
         AmbLoader.Ins.LoadCharacterAmb();
         AmbLoader.Ins.LoadCharacterAmbEx();
         PoseStatus.Clear();
-        PoseStatus.LoadAll();
+        //PoseStatus.LoadAll();
         toProgress = 100;
         while (displayProgress < toProgress)
         {

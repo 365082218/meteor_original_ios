@@ -89,7 +89,7 @@ Idx	Name	IgnoreMove	IgnoreGravity	IgnoreCollision	IgnoreXZVelocity	IgnoreXZMove
 249	匕首地A2	0	0	0		
 250	匕首前A	0	0	0		
 251	匕首前A2	0	0	0		
-252	匕首空下A	0	0	1	1	1
+252	匕首空下A	0	0	0	0	0
 253	匕首上上A	0	1	0		
 256	匕首空上下A	0	0	1		
 257	匕首后前A前	0	0	0		

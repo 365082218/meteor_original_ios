@@ -1815,6 +1815,12 @@ public class MeteorInput
         return result;
     }
 
+    //释放连招检测，地面的输入在跳跃瞬间丢弃，避免空中按下A，变为空中上下A
+    public void ResetLink()
+    {
+        InputCore.Reset();
+    }
+
     public void ResetInput()
     {
         foreach (KeyState keyState in KeyStates)
@@ -1866,7 +1872,10 @@ public class MeteorInput
 
     public void OnKeyPressingProxy(KeyState keyStatus)
     {
-        FSS.Instance.PushKeyEvent(protocol.MeteorMsg.Command.KeyLast, mOwner.InstanceId, keyStatus.Key);
+        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+            FSS.Instance.PushKeyEvent(protocol.MeteorMsg.Command.KeyLast, mOwner.InstanceId, keyStatus.Key);
+        else
+            OnKeyPressing(keyStatus.Key);
     }
 
     public void OnKeyUpProxy(EKeyList key)

@@ -8,7 +8,6 @@ public class FixedPlatformCtrl : LockBehaviour {
     [SerializeField] bool AllowShake = true;
     [HideInInspector] private AnimationCurve curve = null;
     [SerializeField] private FMCPlayer fmcPlayer = null;
-    [SerializeField] private GMBLoader modelLoader = null;
     [SerializeField] private TextAsset model = null;
     [SerializeField] private TextAsset ani = null;
     [Header("Pose")]
@@ -18,8 +17,9 @@ public class FixedPlatformCtrl : LockBehaviour {
     private new void Awake()
     {
         this.orderType = OrderType.Late;
-        if (modelLoader != null)
-            modelLoader.Load(model);
+        GMBLoader.Instance.Load(model);
+        int index = model.name.IndexOf(".");
+        WsGlobal.ShowMeteorObject(model.name.Substring(0, index), transform);
         if (fmcPlayer != null)
         {
             fmcPlayer.Init(ani);

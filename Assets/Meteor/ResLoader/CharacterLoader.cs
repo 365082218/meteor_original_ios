@@ -684,21 +684,16 @@ public class CharacterLoader
                 lastFramePlayedTimes += FrameReplay.deltaTime;
                 float speedScale = owner.ActionSpeed * GetSpeedScale();
                 float fps = Global.Instance.FPS / speedScale;
-                if (lastFramePlayedTimes >= fps)
+                while (lastFramePlayedTimes >= fps)
                 {
-                    do
-                    {
-                        PlayNextKeyFrame();
-                        lastFramePlayedTimes -= fps;
-                        speedScale = GetSpeedScale();
-                        fps = Global.Instance.FPS / speedScale;
-                    }
-                    while (lastFramePlayedTimes >= fps);
+                    PlayNextKeyFrame();
+                    lastFramePlayedTimes -= fps;
+                    speedScale = GetSpeedScale();
+                    fps = Global.Instance.FPS / speedScale;
                 }
-                else if (lastFramePlayedTimes < fps && lastFramePlayedTimes > 0)
-                {
+
+                if (lastFramePlayedTimes < fps && lastFramePlayedTimes > 0)
                     PlayFrame(lastFramePlayedTimes / fps);
-                }
             }
             else
             {
@@ -743,7 +738,11 @@ public class CharacterLoader
     //循环动作锁定，（一直在2个帧段之间播放，待特定条件打成就退出该帧段）
     void PlayPosEvent()
     {
-        if (po.Idx == CommonAction.ChangeWeapon)
+        if (po.Idx == CommonAction.Run && GameBattleEx.Instance.BattleFinished())
+        {
+            owner.posMng.ChangeAction(CommonAction.Idle);
+        }
+        else if (po.Idx == CommonAction.ChangeWeapon)
         {
             owner.ChangeNextWeapon();
             loop = false;
