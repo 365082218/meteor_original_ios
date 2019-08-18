@@ -666,13 +666,13 @@ public class PoseStatus
                     {
                         if (_Self.GunReady)
                         {
-                            if (!GunShootUI.Exist)
-                                GunShootUI.Instance.Open();
+                            //if (!GunShootUI.Exist)
+                            //    GunShootUI.Instance.Open();
                         }
                         else
                         {
-                            if (GunShootUI.Exist)
-                                GunShootUI.Instance.Close();
+                            //if (GunShootUI.Exist)
+                            //    GunShootUI.Instance.Close();
                         }
                     }
                 }
@@ -680,15 +680,15 @@ public class PoseStatus
                 {
                     if (_Self.Attr.IsPlayer)
                     {
-                        if (GunShootUI.Exist)
-                            GunShootUI.Instance.Close();
+                        //if (GunShootUI.Exist)
+                        //    GunShootUI.Instance.Close();
                     }
                 }
             }
             else if (_Self.Attr.IsPlayer)
             {
-                if (GunShootUI.Exist)
-                    GunShootUI.Instance.Close();
+                //if (GunShootUI.Exist)
+                //    GunShootUI.Instance.Close();
             }
 
             //除了受击，防御，其他动作在有锁定目标下，都要转向锁定目标.

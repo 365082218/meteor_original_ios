@@ -472,9 +472,9 @@ public class U3D : MonoBehaviour {
 
     public static void InsertSystemMsg(string msg)
     {
-        if (!GameOverlayWnd.Exist)
-            GameOverlayWnd.Instance.Open();
-        GameOverlayWnd.Instance.InsertSystemMsg(msg);
+        //if (!GameOverlayWnd.Exist)
+        //    GameOverlayWnd.Instance.Open();
+        //GameOverlayWnd.Instance.InsertSystemMsg(msg);
     }
 
     //弹出一个简单提示
@@ -529,7 +529,7 @@ public class U3D : MonoBehaviour {
 
     void OnLoadMainFinished(Action t)
     {
-        MainWnd.Instance.Open();
+        //MainWnd.Instance.Open();
         GameData.Instance.SaveState();
         if (t != null)
             t.Invoke();
@@ -577,34 +577,34 @@ public class U3D : MonoBehaviour {
 
     public static void OpenRobotWnd()
     {
-        if (RobotWnd.Exist)
-            RobotWnd.Instance.Close();
-        else
-            RobotWnd.Instance.Open();
+        //if (RobotWnd.Exist)
+        //    RobotWnd.Instance.Close();
+        //else
+        //    RobotWnd.Instance.Open();
     }
 
     public static void OpenSfxWnd()
     {
-        if (SfxWnd.Exist)
-            SfxWnd.Instance.Close();
-        else
-            SfxWnd.Instance.Open();
+        //if (SfxWnd.Exist)
+        //    SfxWnd.Instance.Close();
+        //else
+        //    SfxWnd.Instance.Open();
     }
 
     //打开武器界面，主角色调试切换主手武器.
     public static void OpenWeaponWnd()
     {
-        if (WeaponWnd.Exist)
-            WeaponWnd.Instance.Close();
-        else
-            WeaponWnd.Instance.Open();
+        //if (WeaponWnd.Exist)
+        //    WeaponWnd.Instance.Close();
+        //else
+        //    WeaponWnd.Instance.Open();
     }
 
     public static void OpenSystemWnd()
     {
         if (Global.Instance.GLevelItem != null)
         {
-            EscWnd.Instance.Open();
+            //EscWnd.Instance.Open();
             if (NGUIJoystick.instance != null)
                 NGUIJoystick.instance.Lock(true);
             return;
@@ -625,13 +625,13 @@ public class U3D : MonoBehaviour {
     //加载当前设置的关卡.在打开模组剧本时/联机时
     public static void LoadLevelEx()
     {
-        if (FightWnd.Exist)
-            FightWnd.Instance.Close();
+        //if (FightWnd.Exist)
+        //    FightWnd.Instance.Close();
         //暂时不允许使用声音管理器，在切换场景时不允许播放
         SoundManager.Instance.StopAll();
         SoundManager.Instance.Enable(false);
         ClearLevelData();
-        LoadingWnd.Instance.Open();
+        //LoadingWnd.Instance.Open();
         Resources.UnloadUnusedAssets();
         GC.Collect();
         LevelHelper helper = Instance.gameObject.AddComponent<LevelHelper>();
@@ -642,8 +642,8 @@ public class U3D : MonoBehaviour {
     //走参数指定关卡.
     public static void LoadLevel(int id, LevelMode levelmode, GameMode gamemode)
     {
-        if (FightWnd.Exist)
-            FightWnd.Instance.Close();
+        //if (FightWnd.Exist)
+        //    FightWnd.Instance.Close();
         //暂时不允许使用声音管理器，在切换场景时不允许播放
         SoundManager.Instance.StopAll();
         SoundManager.Instance.Enable(false);
@@ -653,7 +653,7 @@ public class U3D : MonoBehaviour {
         Global.Instance.GLevelMode = levelmode;
         Global.Instance.GGameMode = gamemode;
         Global.Instance.Chapter = null;
-        LoadingWnd.Instance.Open();
+        //LoadingWnd.Instance.Open();
         Resources.UnloadUnusedAssets();
         GC.Collect();
         if (!string.IsNullOrEmpty(lev.sceneItems) && !GameData.Instance.gameStatus.SkipVideo && levelmode == LevelMode.SinglePlayerTask && Global.Instance.Chapter == null)
@@ -1585,9 +1585,9 @@ public class U3D : MonoBehaviour {
     {
         GameData.Instance.gameStatus.GodLike = !GameData.Instance.gameStatus.GodLike;
         U3D.InsertSystemMsg(GameData.Instance.gameStatus.GodLike ? "作弊[开]" : "作弊[关]");
-        if (EscWnd.Exist)
-            EscWnd.Instance.Close();
-        EscWnd.Instance.Open();
+        //if (EscWnd.Exist)
+        //    EscWnd.Instance.Close();
+        //EscWnd.Instance.Open();
     }
 
     public static WeaponBase GetWeaponProperty(int weaponIdx)

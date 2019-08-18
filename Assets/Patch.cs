@@ -19,7 +19,7 @@ public class Patch : MonoBehaviour {
 #endif
         GameData.Instance.LoadState();
         GameData.Instance.InitTable();
-        Startup.ins.ShowFps(GameData.Instance.gameStatus.ShowFPS);
+        Main.Ins.ShowFps(GameData.Instance.gameStatus.ShowFPS);
         //清理数据
         ResMng.Reload();
         StartCoroutine(LoadData());
@@ -64,8 +64,8 @@ public class Patch : MonoBehaviour {
         border.gameObject.SetActive(true);
         int toProgress = 0;
         int displayProgress = 0;
-        if (ConnectWnd.Exist)
-            ConnectWnd.Instance.Close();
+        //if (ConnectWnd.Exist)
+        //    ConnectWnd.Instance.Close();
         yield return SFXLoader.Instance.Init();
         //GameObject sfx = new GameObject("preload");
         //SFXLoader.Instance.PlayEffect("defup.ef", sfx, true, true);

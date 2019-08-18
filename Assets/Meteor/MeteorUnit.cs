@@ -113,11 +113,11 @@ public class Buff
         if (refresh_type == 99999)//按固定时间0.1秒刷新.
             Units[unit].refresh_round_tick = (refresh_delay == 0 ? 0.1f : refresh_delay);//没有值就每0.1S刷新，否则就以值为刷新
 
-        if (unit.Attr.IsPlayer)
-        {
-            //FightWnd.Instance.AddBuff(this);
-            FightWnd.Instance.UpdatePlayerInfo();
-        }
+        //if (unit.Attr.IsPlayer)
+        //{
+        //    //FightWnd.Instance.AddBuff(this);
+        //    //FightWnd.Instance.UpdatePlayerInfo();
+        //}
     }
 
     public void Clear()
@@ -233,10 +233,10 @@ public class Buff
                             continue;
                         }
                     }
-                    if (each.Key.Attr.IsPlayer)
-                        FightWnd.Instance.UpdatePlayerInfo();
-                    else if (!each.Key.SameCamp(MeteorManager.Instance.LocalPlayer) && GameData.Instance.gameStatus.ShowBlood)
-                        FightWnd.Instance.UpdateMonsterInfo(each.Key);
+                    //if (each.Key.Attr.IsPlayer)
+                    //    FightWnd.Instance.UpdatePlayerInfo();
+                    //else if (!each.Key.SameCamp(MeteorManager.Instance.LocalPlayer) && GameData.Instance.gameStatus.ShowBlood)
+                    //    FightWnd.Instance.UpdateMonsterInfo(each.Key);
                 }
                 break;
             case -1://状态，持续时间到了取消状态，且删除对象
@@ -403,8 +403,8 @@ public partial class MeteorUnit : LockBehaviour
         set
         {
             Attr.AngryValue = Mathf.Clamp(value, 0, 100);
-            if (Attr.IsPlayer)
-                FightWnd.Instance.UpdateAngryBar();
+            //if (Attr.IsPlayer)
+            //    FightWnd.Instance.UpdateAngryBar();
         }
     }
     //当前武器
@@ -1541,8 +1541,8 @@ public partial class MeteorUnit : LockBehaviour
             posMng.ChangeAction(CommonAction.BreakOut);
             charLoader.LockTime(0);
             AngryValue -= GameData.Instance.gameStatus.EnableInfiniteAngry ? 0 : 60;
-            if (Attr.IsPlayer)
-                FightWnd.Instance.UpdateAngryBar();
+            //if (Attr.IsPlayer)
+            //    FightWnd.Instance.UpdateAngryBar();
         }
     }
 
@@ -2180,11 +2180,11 @@ public partial class MeteorUnit : LockBehaviour
             OnReborn(1.0f);
             if (Attr.IsPlayer)
             {
-                if (FightWnd.Exist)
-                {
-                    FightWnd.Instance.UpdatePlayerInfo();
-                    FightWnd.Instance.OnBattleStart();
-                }
+                //if (FightWnd.Exist)
+                //{
+                //    FightWnd.Instance.UpdatePlayerInfo();
+                //    FightWnd.Instance.OnBattleStart();
+                //}
             }
             RebornTick = 0.0f;
         }
@@ -2208,14 +2208,14 @@ public partial class MeteorUnit : LockBehaviour
                 WaitReborn = true;
             }
 
-            if (killer == null)
-            {
-                GameOverlayWnd.Instance.InsertSystemMsg(string.Format("{0}死亡", name));
-            }
-            else
-            {
-                GameOverlayWnd.Instance.InsertSystemMsg(string.Format("{0}击败{1}", killer.name, name));
-            }
+            //if (killer == null)
+            //{
+            //    GameOverlayWnd.Instance.InsertSystemMsg(string.Format("{0}死亡", name));
+            //}
+            //else
+            //{
+            //    GameOverlayWnd.Instance.InsertSystemMsg(string.Format("{0}击败{1}", killer.name, name));
+            //}
             posMng.ChangeAction(CommonAction.Dead);
             posMng.WaitPause();//等待这个动作完毕后，暂停播放
             posMng.OnDead();
@@ -2224,11 +2224,11 @@ public partial class MeteorUnit : LockBehaviour
             BuffMng.Instance.RemoveUnit(this);
             MeteorManager.Instance.OnUnitDead(this);
             GameBattleEx.Instance.OnUnitDead(this, killer);
-            if (FightWnd.Exist)
-            {
-                if (Attr.IsPlayer)
-                    FightWnd.Instance.UpdatePlayerInfo();
-            }
+            //if (FightWnd.Exist)
+            //{
+            //    if (Attr.IsPlayer)
+            //        FightWnd.Instance.UpdatePlayerInfo();
+            //}
             if (Attr.IsPlayer && NGUICameraJoystick.instance)
                 NGUICameraJoystick.instance.ResetJoystick();
         }
@@ -2892,14 +2892,14 @@ public partial class MeteorUnit : LockBehaviour
             }
         }
 
-        if (FightWnd.Exist)
-        {
-            //先飘血。
-            if (Attr.IsPlayer)
-                FightWnd.Instance.UpdatePlayerInfo();
-            else if (GameData.Instance.gameStatus.ShowBlood && !SameCamp(MeteorManager.Instance.LocalPlayer))
-                FightWnd.Instance.UpdateMonsterInfo(this);
-        }
+        //if (FightWnd.Exist)
+        //{
+        //    //先飘血。
+        //    if (Attr.IsPlayer)
+        //        FightWnd.Instance.UpdatePlayerInfo();
+        //    else if (GameData.Instance.gameStatus.ShowBlood && !SameCamp(MeteorManager.Instance.LocalPlayer))
+        //        FightWnd.Instance.UpdateMonsterInfo(this);
+        //}
     }
 
     //除了，武器碰撞，特效碰撞，还可以是buff，机关
@@ -3051,14 +3051,14 @@ public partial class MeteorUnit : LockBehaviour
                 }
             }
         }
-        if (FightWnd.Exist)
-        {
-            //先飘血。
-            if (Attr.IsPlayer)
-                FightWnd.Instance.UpdatePlayerInfo();
-            else if (GameData.Instance.gameStatus.ShowBlood && !SameCamp(MeteorManager.Instance.LocalPlayer))
-                FightWnd.Instance.UpdateMonsterInfo(this);
-        }
+        //if (FightWnd.Exist)
+        //{
+        //    //先飘血。
+        //    if (Attr.IsPlayer)
+        //        FightWnd.Instance.UpdatePlayerInfo();
+        //    else if (GameData.Instance.gameStatus.ShowBlood && !SameCamp(MeteorManager.Instance.LocalPlayer))
+        //        FightWnd.Instance.UpdateMonsterInfo(this);
+        //}
     }
 
     public void CrouchRush(int dir = 0)
@@ -3402,11 +3402,11 @@ public partial class MeteorUnit : LockBehaviour
                 }
             }
 
-            if (Attr.IsPlayer)
-            {
-                if (FightWnd.Exist)
-                    FightWnd.Instance.UpdatePlayerInfo();
-            }
+            //if (Attr.IsPlayer)
+            //{
+            //    if (FightWnd.Exist)
+            //        FightWnd.Instance.UpdatePlayerInfo();
+            //}
         }
         else
             OnChangeWeaponType(ItemInfo.first[3].flag[1]);

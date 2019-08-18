@@ -170,16 +170,16 @@ public class Global
     //旋转的圈圈百分比，类似网络下载时候的提示.
     public static void ShowLoadingStart()
     {
-        if (EmptyForLoadingWnd.Exist)
-            EmptyForLoadingWnd.Instance.Show();
-        else
-            EmptyForLoadingWnd.Instance.Open();
+        //if (FirstLoadingController.Exist)
+        //    FirstLoadingController.Instance.Show();
+        //else
+        //    FirstLoadingController.Instance.Open();
     }
 
     public static void ShowLoadingEnd()
     {
-        if (EmptyForLoadingWnd.Exist)
-            EmptyForLoadingWnd.Instance.Close();
+        //if (FirstLoadingController.Exist)
+        //    FirstLoadingController.Instance.Close();
     }
 
     //不区分大小写字母.

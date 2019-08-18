@@ -1,21 +1,28 @@
 ﻿using UnityEngine;
 using System.Collections;
-
-//正在检查是否有更新
-public class ConnectWnd : Window<ConnectWnd> {
-    public override string PrefabName { get { return "ConnectWnd"; } }
-}
-
-public class ReconnectWnd:Window<ReconnectWnd>
-{
-    public override string PrefabName
+using Idevgame.GameState.DialogState;
+public class ConnectDialogState : CommonDialogState<Dialog>{
+    public ConnectDialogState(MainDialogStateManager stateMgr) :base(stateMgr)
     {
-        get { return "ReConnectWnd"; }
+
     }
+    public override string DialogName { get { return "ConnectWnd"; } }
 }
 
-//显示稍等-转圈
-public class LoadingEX : Window<LoadingEX>
+public class ReconnectDialogState: CommonDialogState<Dialog>
 {
-    public override string PrefabName { get { return "LoadingEX"; } }
+    public ReconnectDialogState(MainDialogStateManager stateMgr) :base(stateMgr)
+    {
+
+    }
+    public override string DialogName { get { return "ReConnectWnd"; } }
+}
+
+public class LoadingEXDialogState : CommonDialogState<Dialog>
+{
+    public LoadingEXDialogState(MainDialogStateManager stateMgr) :base(stateMgr)
+    {
+
+    }
+    public override string DialogName { get { return "LoadingEX"; } }
 }

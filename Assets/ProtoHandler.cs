@@ -169,29 +169,29 @@ class ProtoHandler
     //进入排队得到了回复
     static void OnEnterQueue()
     {
-        if (MatchWnd.Exist)
-            MatchWnd.Instance.OnEnterQueue();
+        //if (MatchWnd.Exist)
+        //    MatchWnd.Instance.OnEnterQueue();
     }
     //离开了排队
     static void OnExitQueue()
     {
-        if (MatchWnd.Exist)
-            MatchWnd.Instance.OnLeaveQueue();
+        //if (MatchWnd.Exist)
+        //    MatchWnd.Instance.OnLeaveQueue();
     }
 
     //某人发来一段语音,显示一个按钮，点击了就播放这段语音即可.
     static void OnReceiveAudioMsg(AudioChatMsg msg)
     {
-        if (!RoomChatWnd.Exist)
-            RoomChatWnd.Instance.Open();
-        RoomChatWnd.Instance.Add((int)msg.playerId, msg.audio_data);
+        //if (!RoomChatWnd.Exist)
+        //    RoomChatWnd.Instance.Open();
+        //RoomChatWnd.Instance.Add((int)msg.playerId, msg.audio_data);
     }
 
     static void OnReceiveChatMsg(ChatMsg msg)
     {
-        if (!RoomChatWnd.Exist)
-            RoomChatWnd.Instance.Open();
-        RoomChatWnd.Instance.Add((int)msg.playerId, msg.chatMessage);
+        //if (!RoomChatWnd.Exist)
+        //    RoomChatWnd.Instance.Open();
+        //RoomChatWnd.Instance.Add((int)msg.playerId, msg.chatMessage);
     }
 
     //看是自己挂了还是其他人挂了
@@ -327,7 +327,7 @@ class ProtoHandler
         U3D.PopupTip("创建房间回应");
         if (rsp.result == 1)
         {
-            GameOverlayWnd.Instance.InsertSystemMsg(string.Format("创建房间 编号:{0}", rsp.roomId));
+            //GameOverlayWnd.Instance.InsertSystemMsg(string.Format("创建房间 编号:{0}", rsp.roomId));
             RoomMng.Instance.Register((int)rsp.roomId, true);
             ClientAutoJoinRoom(rsp);
         }
@@ -350,18 +350,18 @@ class ProtoHandler
         if (NetWorkBattle.Instance.RoomId == -1)
         {
             //选人，或者阵营，或者
-            if (MainLobby.Exist)
-                MainLobby.Instance.Close();
-            if (RoomOptionWnd.Exist)
-                RoomOptionWnd.Instance.Close();
+            //if (MainLobby.Exist)
+            //    MainLobby.Instance.Close();
+            //if (RoomOptionWnd.Exist)
+            //    RoomOptionWnd.Instance.Close();
             NetWorkBattle.Instance.OnEnterRoomSuccessed((int)rsp.roomId, (int)rsp.levelId, (int)rsp.playerId);
             UdpClientProxy.Connect((int)rsp.port, (int)rsp.playerId);
             RoomInfo r = RoomMng.Instance.GetRoom((int)rsp.roomId);
             //如果是盟主模式，无需选择阵营
-            if (r.rule == RoomInfo.RoomRule.MZ)
-                RoleSelectWnd.Instance.Open();
-            else
-                CampSelectWnd.Instance.Open();
+            //if (r.rule == RoomInfo.RoomRule.MZ)
+            //    RoleSelectWnd.Instance.Open();
+            //else
+            //    CampSelectWnd.Instance.Open();
         }
     }
 
@@ -377,18 +377,18 @@ class ProtoHandler
             {
                 //选人，或者阵营，或者
                 //UnityEngine.Debug.LogError("OnJoinRoom successful");
-                if (MainLobby.Exist)
-                    MainLobby.Instance.Close();
-                if (RoomOptionWnd.Exist)
-                    RoomOptionWnd.Instance.Close();
+                //if (MainLobby.Exist)
+                //    MainLobby.Instance.Close();
+                //if (RoomOptionWnd.Exist)
+                //    RoomOptionWnd.Instance.Close();
                 NetWorkBattle.Instance.OnEnterRoomSuccessed((int)rsp.roomId, (int)rsp.levelIdx, (int)rsp.playerId);
                 UdpClientProxy.Connect((int)rsp.port, (int)rsp.playerId);
                 RoomInfo r = RoomMng.Instance.GetRoom((int)rsp.roomId);
                 //如果是盟主模式，无需选择阵营
-                if (r.rule == RoomInfo.RoomRule.MZ)
-                    RoleSelectWnd.Instance.Open();
-                else
-                    CampSelectWnd.Instance.Open();
+                //if (r.rule == RoomInfo.RoomRule.MZ)
+                //    RoleSelectWnd.Instance.Open();
+                //else
+                //    CampSelectWnd.Instance.Open();
             }
             //U3D.LoadNetLevel((int)rsp.levelIdx, LevelMode.MultiplyPlayer, GameMode.MENGZHU);
         }
@@ -406,10 +406,10 @@ class ProtoHandler
                 case 2:U3D.PopupTip("房间已解散");break;
                 case 3:U3D.PopupTip("需要先退出房间");break;
                 //密码不正确
-                case 4: PsdWnd.Instance.Open();PsdWnd.Instance.OnConfirm =()=> {
-                    Common.SendJoinRoom((int)rsp.roomId, PsdWnd.Instance.Control("PsdField").GetComponent<UnityEngine.UI.InputField>().text);
-                    PsdWnd.Instance.Close();
-                };
+                //case 4: PsdWnd.Instance.Open();PsdWnd.Instance.OnConfirm =()=> {
+                //    Common.SendJoinRoom((int)rsp.roomId, PsdWnd.Instance.Control("PsdField").GetComponent<UnityEngine.UI.InputField>().text);
+                //    PsdWnd.Instance.Close();
+                //};
                 break;
             }
         }
@@ -431,8 +431,8 @@ class ProtoHandler
     static void OnGetRoomRsp(GetRoomRsp rsp)
     {
         //Debug.LogError("get room rsp");
-        if (MainLobby.Exist)
-            MainLobby.Instance.OnGetRoom(rsp);
+        //if (MainLobby.Exist)
+        //    MainLobby.Instance.OnGetRoom(rsp);
         RoomMng.Instance.RegisterRooms(rsp.RoomInLobby);
     }
 
@@ -445,8 +445,8 @@ class ProtoHandler
             retryNum = 3;
             Debug.Log("connected AutoLogin");
             TcpClientProxy.AutoLogin();//验证客户端的合法性
-            if (MainLobby.Exist)
-                MainLobby.Instance.OnSelectService();
+            //if (MainLobby.Exist)
+            //    MainLobby.Instance.OnSelectService();
         }
         else
         {
@@ -467,8 +467,8 @@ class ProtoHandler
     static void OnDisconnect()
     {
         NetWorkBattle.Instance.OnDisconnect();
-        if (!MainWnd.Exist && GameBattleEx.Instance != null)
-            U3D.GoBack();
+        //if (!MainWnd.Exist && GameBattleEx.Instance != null)
+        //    U3D.GoBack();
     }
 
     static void OnSendComplete(int result, int sendFileCount)

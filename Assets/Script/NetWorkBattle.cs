@@ -140,15 +140,15 @@ public class NetWorkBattle:Singleton<NetWorkBattle> {
             SoundManager.Instance.StopAll();
             BuffMng.Instance.Clear();
             MeteorManager.Instance.Clear();
-            if (FightWnd.Exist)
-                FightWnd.Instance.Close();
+            //if (FightWnd.Exist)
+            //    FightWnd.Instance.Close();
             RoomId = -1;
             RoomName = "";
             FrameReplay.Instance.OnDisconnected();
             FrameIndex = ServerFrameIndex = 0;
             U3D.InsertSystemMsg("与服务器断开链接.");
-            if (!MainWnd.Exist)
-                U3D.GoBack();            
+            //if (!MainWnd.Exist)
+            //    U3D.GoBack();            
         }
         RoomId = -1;
         waitReborn = false;
@@ -180,7 +180,7 @@ public class NetWorkBattle:Singleton<NetWorkBattle> {
         Global.Instance.GLevelMode = LevelMode.MultiplyPlayer;
         RoomInfo r = RoomMng.Instance.GetRoom((int)RoomId);
         Global.Instance.GGameMode = (GameMode)r.rule;
-        LoadingWnd.Instance.Open();
+        //LoadingWnd.Instance.Open();
         U3D.LoadLevelEx();
     }
 }

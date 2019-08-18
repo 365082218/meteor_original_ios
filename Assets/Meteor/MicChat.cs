@@ -58,18 +58,18 @@ public static class MicChat
 
         byte[] bytes = new byte[data.Length * 4];
         System.Buffer.BlockCopy(data, 0, bytes, 0, bytes.Length);
-
-        return ChatWnd.ConvertBytesZlib(bytes, Ionic.Zlib.CompressionMode.Compress);
+        return null;
+        //return ChatWnd.ConvertBytesZlib(bytes, Ionic.Zlib.CompressionMode.Compress);
     }
 
     public static void SetData(this AudioClip clip, byte[] bytes)
     {
-        bytes = ChatWnd.ConvertBytesZlib(bytes, Ionic.Zlib.CompressionMode.Decompress);
+        //bytes = ChatWnd.ConvertBytesZlib(bytes, Ionic.Zlib.CompressionMode.Decompress);
 
-        float[] data = new float[bytes.Length / 4];
-        System.Buffer.BlockCopy(bytes, 0, data, 0, data.Length);
+        //float[] data = new float[bytes.Length / 4];
+        //System.Buffer.BlockCopy(bytes, 0, data, 0, data.Length);
 
-        clip.SetData(data, 0);
+        //clip.SetData(data, 0);
     }
 
     public static int GetClipDataLength()

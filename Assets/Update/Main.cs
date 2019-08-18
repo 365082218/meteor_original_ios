@@ -32,6 +32,14 @@ public class Main : MonoBehaviour {
     //版本仓库地址
     public static string strVFile = "http://{0}:{1}/{2}/{3}/{4}";//域名+项目+平台+指定文件
     public static string strSFile = "http://{0}:{1}/{2}/{3}";//域名+项目名称+指定文件
+
+    public Font TextFont;
+    public GameObject fpsCanvas;
+    public AudioSource Music;
+    public AudioSource Sound;
+    public AudioListener listener;
+    public AudioListener playerListener;
+
     public static HttpClient UpdateClient = null;
     void OnApplicationQuit()
     {
@@ -39,29 +47,75 @@ public class Main : MonoBehaviour {
         HttpManager.Instance.Quit();
         //释放日志占用
         Log.Uninit();
-        //保存下载进度
+        TcpClientProxy.Exit();
+        FtpLog.Uninit();
         GlobalUpdate.Instance.SaveCache();
     }
 
     private void Awake()
     {
         Ins = this;
-        Log.WriteError("Awake");
         GlobalUpdate.Instance.LoadCache();
         GameData.Instance.LoadState();
         GameData.Instance.InitTable();
         ResMng.Reload();
+        DontDestroyOnLoad(gameObject);
+        Log.WriteError(string.Format("GameStart AppVersion:{0}", AppInfo.Instance.AppVersion()));
+    }
+
+    public void ShowFps(bool active)
+    {
+        fpsCanvas.SetActive(active);
     }
 
     Coroutine checkUpdate;
     void Start()
     {
-        ConnectWnd.Instance.Open();
+        UnityEngine.Random.InitState((int)System.DateTime.UtcNow.Ticks);
+        //ConnectWnd.Instance.Open();
         if (checkUpdate == null)
             checkUpdate = StartCoroutine(CheckNeedUpdate());
     }
 
-	public void GameStart()
+    public void OnGameStart()
+    {
+        //MainWnd.Instance.Open();
+    }
+
+    public void PlayEndMovie(bool play)
+    {
+        if (!string.IsNullOrEmpty(Global.Instance.GLevelItem.sceneItems) && play && Global.Instance.GLevelMode == LevelMode.SinglePlayerTask && Global.Instance.Chapter == null)
+        {
+            string num = Global.Instance.GLevelItem.sceneItems.Substring(2);
+            int number = 0;
+            if (int.TryParse(num, out number))
+            {
+                if (Global.Instance.GLevelItem.ID >= 0 && Global.Instance.GLevelItem.ID <= 9)
+                {
+                    string movie = string.Format(Main.strSFile, Main.strHost, Main.port, Main.strProjectUrl, "mmv/" + "v" + number + ".mv");
+                    U3D.PlayMovie(movie);
+                }
+            }
+        }
+
+        GotoMenu();
+    }
+
+    void GotoMenu()
+    {
+        MeteorManager.Instance.Clear();
+        //FightWnd.Instance.Close();
+        //if (Global.Instance.GLevelMode == LevelMode.Teach || Global.Instance.GLevelMode == LevelMode.CreateWorld)
+        //    U3D.GoBack(() => { MainWnd.Instance.Open(); });
+        //else if (Global.Instance.Chapter != null)
+        //{
+        //    U3D.GoBack(() => { DlcLevelSelect.Instance.Open(); });
+        //}
+        //else
+        //    U3D.GoBack(() => { MainMenu.Instance.Open(); });
+    }
+
+    public void GameStart()
 	{
         GlobalUpdate.Instance.SaveCache();
         if (checkUpdate != null)
@@ -208,6 +262,24 @@ public class Main : MonoBehaviour {
             ExtractUPK(Complete);
             Complete = null;
         }
+
+        if (GameBattleEx.Instance != null && !GameBattleEx.Instance.BattleFinished() && Global.Instance.GLevelMode <= LevelMode.CreateWorld)
+        {
+            if (Input.GetKeyUp(KeyCode.Escape))
+            {
+//                if (EscWnd.Exist)
+//                {
+//                    EscWnd.Instance.Close();
+//#if UNITY_STANDALONE
+//                    Cursor.lockState = CursorLockMode.Locked;
+//#endif
+//                }
+//                else
+//                    EscWnd.Instance.Open();
+            }
+        }
+        if (Global.Instance.GLevelItem == null)
+            DlcMng.Instance.Update();
     }
 
     UpdateVersion Complete = null;
@@ -237,14 +309,14 @@ public class Main : MonoBehaviour {
                 string str = "Checking Update..." + string.Format("{0:d}KB/s    {1:d}/{2:d}", HttpManager.Instance.Kbps, 0, 1);
                 while (source < target)
                 {
-                    LoadingNotice.Instance.UpdateProgress((float)source / (float)HttpManager.Instance.TotalBytes, str);
+                    //LoadingNotice.Instance.UpdateProgress((float)source / (float)HttpManager.Instance.TotalBytes, str);
                     source += (target / 10);
                     yield return 0;
                 }
                 yield return 0;
                 if (HttpManager.Instance.LoadBytes == HttpManager.Instance.TotalBytes)
                 {
-                    LoadingNotice.Instance.UpdateProgress(1.0f, str);
+                    //LoadingNotice.Instance.UpdateProgress(1.0f, str);
                     yield break;
                 }
             }

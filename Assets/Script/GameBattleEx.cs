@@ -97,12 +97,12 @@ public partial class GameBattleEx : LockBehaviour {
         }
         SoundManager.Instance.StopAll();
         //关闭界面的血条缓动和动画
-        if (FightWnd.Exist)
-            FightWnd.Instance.OnBattleEnd();
-        if (SfxWnd.Exist)
-            SfxWnd.Instance.Close();
-        if (EscWnd.Exist)
-            EscWnd.Instance.Close();
+        //if (FightWnd.Exist)
+        //    FightWnd.Instance.OnBattleEnd();
+        //if (SfxWnd.Exist)
+        //    SfxWnd.Instance.Close();
+        //if (EscWnd.Exist)
+        //    EscWnd.Instance.Close();
         
         Result = result;
 
@@ -169,8 +169,8 @@ public partial class GameBattleEx : LockBehaviour {
     //多久触发一次.
     void UpdateTime()
     {
-        if (FightWnd.Exist)
-            FightWnd.Instance.UpdateTime(GetTimeClock());
+        //if (FightWnd.Exist)
+        //    FightWnd.Instance.UpdateTime(GetTimeClock());
     }
 
     GameObject SelectTarget;
@@ -188,10 +188,10 @@ public partial class GameBattleEx : LockBehaviour {
                 showResultTick = 0.0f;
                 showResult = false;
                 //打开结算面板
-                if (BattleResultWnd.Exist)
-                    BattleResultWnd.Instance.Close();
-                BattleResultWnd.Instance.Open();
-                BattleResultWnd.Instance.SetResult(this.Result);
+                //if (BattleResultWnd.Exist)
+                //    BattleResultWnd.Instance.Close();
+                //BattleResultWnd.Instance.Open();
+                //BattleResultWnd.Instance.SetResult(this.Result);
             }
             showResultTick += FrameReplay.deltaTime;
             return;
@@ -562,7 +562,7 @@ public partial class GameBattleEx : LockBehaviour {
             SpawnAllRobot();
 
         //摄像机完毕后
-        FightWnd.Instance.Open();
+        //FightWnd.Instance.Open();
         if (!string.IsNullOrEmpty(Global.Instance.GLevelItem.BgmName))
             SoundManager.Instance.PlayMusic(Global.Instance.GLevelItem.BgmName);
 
@@ -576,8 +576,8 @@ public partial class GameBattleEx : LockBehaviour {
         }
 
         U3D.InsertSystemMsg("新回合开始计时");
-        if (FightWnd.Exist)
-            FightWnd.Instance.OnBattleStart();
+        //if (FightWnd.Exist)
+        //    FightWnd.Instance.OnBattleStart();
     }
 
     //场景物件的受击框
@@ -1001,8 +1001,8 @@ public partial class GameBattleEx : LockBehaviour {
             bLocked = true;
             CameraFollow.Ins.OnChangeLockTarget(lockedTarget.transform);
         }
-        if (FightWnd.Exist)
-            FightWnd.Instance.OnChangeLock(bLocked);
+        //if (FightWnd.Exist)
+        //    FightWnd.Instance.OnChangeLock(bLocked);
     }
     //存在自动目标时，把自动目标删除，然后设置其为锁定目标.
     public bool bLocked = false;
@@ -1065,8 +1065,8 @@ public partial class GameBattleEx : LockBehaviour {
         MeteorManager.Instance.LocalPlayer.SetLockedTarget(null);
         CameraFollow.Ins.OnUnlockTarget();
         bLocked = false;
-        if (FightWnd.Exist)
-            FightWnd.Instance.OnChangeLock(bLocked);
+        //if (FightWnd.Exist)
+        //    FightWnd.Instance.OnChangeLock(bLocked);
     }
 
     //远程武器自动锁定系统.血滴子算特殊武器，
@@ -1676,8 +1676,8 @@ public class ActionConfig
             else if (action[action.Count - 1].type == StackAction.SAY)
             {
                 MeteorUnit unit = U3D.GetUnit(id);//, action[action.Count - 1])
-                if (FightWnd.Exist && unit != null)
-                    FightWnd.Instance.InsertFightMessage(unit.name + " : " + action[action.Count - 1].text);
+                //if (FightWnd.Exist && unit != null)
+                //    FightWnd.Instance.InsertFightMessage(unit.name + " : " + action[action.Count - 1].text);
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.SKILL)

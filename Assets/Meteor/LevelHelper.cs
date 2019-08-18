@@ -41,8 +41,8 @@ public class LevelHelper : MonoBehaviour
             while (displayProgress < toProgress)
             {
                 ++displayProgress;
-                if (LoadingWnd.Exist)
-                    LoadingWnd.Instance.UpdateProgress(displayProgress / 100.0f);
+                //if (LoadingWnd.Exist)
+                //    LoadingWnd.Instance.UpdateProgress(displayProgress / 100.0f);
                 yield return 0;
             }
             yield return 0;
@@ -52,8 +52,8 @@ public class LevelHelper : MonoBehaviour
         while (displayProgress < toProgress)
         {
             ++displayProgress;
-            if (LoadingWnd.Exist)
-                LoadingWnd.Instance.UpdateProgress(displayProgress / 100.0f);
+            //if (LoadingWnd.Exist)
+            //    LoadingWnd.Instance.UpdateProgress(displayProgress / 100.0f);
             yield return 0;
         }
         //WSLog.LogInfo("displayProgress < toProgress");
