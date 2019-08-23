@@ -38,11 +38,11 @@ namespace Idevgame.StateManagement.DialogStateManagement {
             return closed;
         }
 
-        public bool OpenDialog(S dialogState) {
+        protected bool OpenDialog(S dialogState) {
             return OpenDialog(dialogState, null);
         }
 
-        public virtual bool OpenDialog(S dialogState, object data) {
+        protected virtual bool OpenDialog(S dialogState, object data) {
             if (CurrentState != null)
                 return false;
 

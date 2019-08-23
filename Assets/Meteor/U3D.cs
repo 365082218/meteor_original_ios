@@ -480,8 +480,8 @@ public class U3D : MonoBehaviour {
     //弹出一个简单提示
     public static void PopupTip(string str)
     {
-        PopupTip tip = WsWindow.OpenMul<PopupTip>(WsWindow.PopupTip);
-        tip.Popup(str);
+        PopupTipState Tips = new PopupTipState(Main.Instance.PopupStateManager);
+        Main.Instance.PopupStateManager.AutoPopup(Tips, str);
     }
 
     static UnityEngine.AsyncOperation backOp;
@@ -622,15 +622,19 @@ public class U3D : MonoBehaviour {
         NetWorkBattle.Instance.Load();
     }
 
+    public static void LoadScene(string scene, Action OnFinished)
+    {
+        LevelHelper helper = Instance.gameObject.AddComponent<LevelHelper>();
+        helper.LoadScene(scene, OnFinished);
+    }
+
     //加载当前设置的关卡.在打开模组剧本时/联机时
     public static void LoadLevelEx()
     {
-        //if (FightWnd.Exist)
-        //    FightWnd.Instance.Close();
-        //暂时不允许使用声音管理器，在切换场景时不允许播放
         SoundManager.Instance.StopAll();
         SoundManager.Instance.Enable(false);
         ClearLevelData();
+        Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.LoadingDialogState);
         //LoadingWnd.Instance.Open();
         Resources.UnloadUnusedAssets();
         GC.Collect();
@@ -642,8 +646,7 @@ public class U3D : MonoBehaviour {
     //走参数指定关卡.
     public static void LoadLevel(int id, LevelMode levelmode, GameMode gamemode)
     {
-        //if (FightWnd.Exist)
-        //    FightWnd.Instance.Close();
+        Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.LoadingDialogState);
         //暂时不允许使用声音管理器，在切换场景时不允许播放
         SoundManager.Instance.StopAll();
         SoundManager.Instance.Enable(false);
@@ -671,7 +674,6 @@ public class U3D : MonoBehaviour {
         }
         LevelHelper helper = Instance.gameObject.AddComponent<LevelHelper>();
         helper.Load();
-        Log.Write("helper.load end");
     }
 
     public static void ClearLevelData()

@@ -108,6 +108,7 @@ GameObject:
   - component: {fileID: 223818485673314656}
   - component: {fileID: 114238983962659150}
   - component: {fileID: 114126159839896662}
+  - component: {fileID: 114808321428337634}
   m_Layer: 5
   m_Name: GameOverlayWnd
   m_TagString: Untagged
@@ -316,6 +317,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06b448b35af126e409c397a596c8c162, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  orderType: 0
 --- !u!114 &114305044276905018
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -501,6 +503,19 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114808321428337634
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1613698660968344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e53ba357a0e7bef4eba574e8c0c7fca5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  content: {fileID: 1864537247223766}
+  ctrl: {fileID: 114292046100426136}
 --- !u!114 &114812697171323162
 MonoBehaviour:
   m_ObjectHideFlags: 1

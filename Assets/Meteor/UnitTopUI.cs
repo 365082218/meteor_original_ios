@@ -1,7 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
-public class UnitTopUI : MonoBehaviour {
+using Idevgame.GameState.DialogState;
+
+public class UnitTopState:PersistDialog<UnitTopUI>
+{
+    public override string DialogName { get { return "UnitTopUI"; } }
+    public UnitTopState(MonoBehaviour owner)
+    {
+        Owner = owner;
+    }
+}
+
+public class UnitTopUI : Dialog {
     public Text MonsterName;
     Transform target;
     RectTransform rect;
@@ -9,9 +20,12 @@ public class UnitTopUI : MonoBehaviour {
     UnitDebugInfo Info;
     const float ViewLimit = 250.0f;
     // Use this for initialization
-    private void Awake()
+    public override void OnDialogStateEnter(PersistState ownerState, BaseDialogState previousDialog, object data)
     {
+        base.OnDialogStateEnter(ownerState, previousDialog, data);
         rect = GetComponent<RectTransform>();
+        owner = ownerState.Owner as MeteorUnit;
+        Init(owner.Attr, owner.transform, owner.Camp);
     }
 	
 	// Update is called once per frame
@@ -72,8 +86,8 @@ public class UnitTopUI : MonoBehaviour {
         owner = attach.GetComponent<MeteorUnit>();
         Info = GetComponentInChildren<UnitDebugInfo>(true);
         Info.SetOwner(owner);
-        Transform mainCanvas = GameObject.Find("Canvas").transform;
-        transform.SetParent(mainCanvas);
+        //Transform mainCanvas = GameObject.Find("Canvas").transform;
+        //transform.SetParent(mainCanvas);
         transform.localScale = Vector3.one;
         transform.localRotation = Quaternion.identity;
         transform.localPosition = Vector3.zero;

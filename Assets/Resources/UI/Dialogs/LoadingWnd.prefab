@@ -10,6 +10,7 @@ GameObject:
   - component: {fileID: 224000012325331082}
   - component: {fileID: 222000011549169666}
   - component: {fileID: 114000012795033212}
+  - component: {fileID: 114400680778466458}
   m_Layer: 5
   m_Name: LoadingWnd
   m_TagString: Untagged
@@ -346,6 +347,21 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114400680778466458
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25ed2cc297897ba4ab51295681114ab4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mProgressBar: {fileID: 114000012647086722}
+  ShowLoading: {fileID: 114000012198805920}
+  mProgessLab: {fileID: 114000012183186906}
+  LoadingNoticeLabel: {fileID: 114000011291717720}
 --- !u!222 &222000010651966492
 CanvasRenderer:
   m_ObjectHideFlags: 1

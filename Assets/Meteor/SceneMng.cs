@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using SLua;
+﻿using SLua;
 using UnityEngine;
-
-using System.IO;
 using protocol;
+using Idevgame.GameState;
 
 class SceneMng:Singleton<SceneMng>
 {
@@ -113,6 +110,8 @@ class SceneMng:Singleton<SceneMng>
                 break;
         }
         unit.Init(mon.Model, mon);
+        UnitTopState unitTopState = new UnitTopState(unit);
+        PersistStateMgr.Instance.EnterState(unitTopState);
         MeteorManager.Instance.OnGenerateUnit(unit);
         LuaFunction onInit = mon.sState["OnInit"] as LuaFunction;
         onInit.call(mon.sState, unit.InstanceId);

@@ -72,13 +72,13 @@ public class SettingWnd : Dialog {
 //        ShowTargetBlood.onValueChanged.AddListener((bool selected) => {  GameData.Instance.gameStatus.ShowBlood = selected; });
 //        Toggle ShowFPS = Control("ShowFPS").GetComponent<Toggle>();
 //        ShowFPS.isOn = GameData.Instance.gameStatus.ShowFPS;
-//        ShowFPS.onValueChanged.AddListener((bool selected) => { GameData.Instance.gameStatus.ShowFPS = selected; Startup.ins.ShowFps(selected); });
+//        ShowFPS.onValueChanged.AddListener((bool selected) => { GameData.Instance.gameStatus.ShowFPS = selected; Main.Instance.ShowFps(selected); });
 
 //        Toggle ShowSysMenu2 = Control("ShowSysMenu2").GetComponent<Toggle>();
 //        ShowSysMenu2.isOn = GameData.Instance.gameStatus.ShowSysMenu2;
 //        ShowSysMenu2.onValueChanged.AddListener((bool selected) => { GameData.Instance.gameStatus.ShowSysMenu2 = selected; });
 
-//        if (Startup.ins != null)
+//        if (Main.Instance != null)
 //        {
 //            Control("BGMSlider").GetComponent<Slider>().value = GameData.Instance.gameStatus.MusicVolume;
 //            Control("EffectSlider").GetComponent<Slider>().value = GameData.Instance.gameStatus.SoundVolume;
@@ -375,7 +375,7 @@ public class SettingWnd : Dialog {
 //    void OnMusicVolumeChange(float vo)
 //    {
 //        SoundManager.Instance.SetMusicVolume(vo);
-//        if (Startup.ins != null)
+//        if (Main.Instance != null)
 //            GameData.Instance.gameStatus.MusicVolume = vo;
 //    }
 
@@ -401,7 +401,7 @@ public class SettingWnd : Dialog {
 //        {
 //            if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
 //            {
-//                PluginUpdate = Startup.ins.StartCoroutine(UpdatePluginInfo());//下载插件信息，显示插件
+//                PluginUpdate = Main.Instance.StartCoroutine(UpdatePluginInfo());//下载插件信息，显示插件
 //            }
 //        }
 //    }
@@ -448,7 +448,7 @@ public class SettingWnd : Dialog {
 //                pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
 //                DlcMng.Instance.CollectAll(this.showInstallPlugin);
 //                Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
-//                PluginPageUpdate = Startup.ins.StartCoroutine(PluginPageRefresh());
+//                PluginPageUpdate = Main.Instance.StartCoroutine(PluginPageRefresh());
 //                yield break;
 //            }
 
@@ -559,18 +559,18 @@ public class SettingWnd : Dialog {
 //            pluginPage = 0;
 //            pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
 //            DlcMng.Instance.CollectAll(this.showInstallPlugin);
-//            PluginPageUpdate = Startup.ins.StartCoroutine(PluginPageRefresh());
+//            PluginPageUpdate = Main.Instance.StartCoroutine(PluginPageRefresh());
 //            Global.Instance.PluginUpdated = true;
 //            PluginUpdate = null;
 //        }
 //        else
 //        {
 //            if (PluginPageUpdate != null)
-//                Startup.ins.StopCoroutine(PluginPageUpdate);
+//                Main.Instance.StopCoroutine(PluginPageUpdate);
 //            pluginCount = DlcMng.Instance.Models.Count + DlcMng.Instance.Dlcs.Count;
 //            pluginPage = 0;
 //            pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
-//            PluginPageUpdate = Startup.ins.StartCoroutine(PluginPageRefresh());
+//            PluginPageUpdate = Main.Instance.StartCoroutine(PluginPageRefresh());
 //            //for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
 //            //{
 //            //    InsertModel(DlcMng.Instance.Models[i]);
@@ -605,8 +605,8 @@ public class SettingWnd : Dialog {
 //    {
 //        Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
 //        if (PluginPageUpdate != null)
-//            Startup.ins.StopCoroutine(PluginPageUpdate);
-//        PluginPageUpdate = Startup.ins.StartCoroutine(PluginPageRefresh());
+//            Main.Instance.StopCoroutine(PluginPageUpdate);
+//        PluginPageUpdate = Main.Instance.StartCoroutine(PluginPageRefresh());
 //    }
 
 //    IEnumerator PluginPageRefresh()
@@ -640,24 +640,24 @@ public class SettingWnd : Dialog {
 //    {
 //        if (Update != null)
 //        {
-//            Startup.ins.StopCoroutine(Update);
+//            Main.Instance.StopCoroutine(Update);
 //            Update = null;
 //        }
 //        if (PluginUpdate != null)
 //        {
-//            Startup.ins.StopCoroutine(PluginUpdate);
+//            Main.Instance.StopCoroutine(PluginUpdate);
 //            PluginUpdate = null;
 //        }
 
 //        if (PluginPageUpdate != null)
 //        {
-//            Startup.ins.StopCoroutine(PluginPageUpdate);
+//            Main.Instance.StopCoroutine(PluginPageUpdate);
 //            PluginPageUpdate = null;
 //        }
 
 //        if (GamePageUpdate != null)
 //        {
-//            Startup.ins.StopCoroutine(GamePageUpdate);
+//            Main.Instance.StopCoroutine(GamePageUpdate);
 //            GamePageUpdate = null;
 //        }
 

@@ -3,7 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Idevgame.GameState.DialogState;
+
 //调整按键布局
+public class UIAdjustDialogState:CommonDialogState<UIAdjustWnd>
+{
+    public override string DialogName { get { return "UIAdjustWnd"; } }
+    public UIAdjustDialogState(MainDialogStateManager stateMgr):base(stateMgr)
+    {
+
+    }
+}
+
 public class UIAdjustWnd : Dialog {
     //public override string PrefabName
     //{

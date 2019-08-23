@@ -56,7 +56,7 @@ public class AutoMsgCtrl : LockBehaviour {
             Text txt = obj.AddComponent<Text>();
             txt.text = msg[0];
             //00AAFFFF
-            txt.font = Startup.ins.TextFont;
+            txt.font = Main.Instance.TextFont;
             txt.fontSize = 32;
             txt.alignment = TextAnchor.MiddleLeft;
             txt.raycastTarget = false;
@@ -89,7 +89,7 @@ public class AutoMsgCtrl : LockBehaviour {
             Text txt = obj.AddComponent<Text>();
             txt.text = text;
             //00AAFFFF
-            txt.font = Startup.ins.TextFont;
+            txt.font = Main.Instance.TextFont;
             txt.fontSize = 32;
             txt.alignment = TextAnchor.MiddleLeft;
             txt.raycastTarget = false;

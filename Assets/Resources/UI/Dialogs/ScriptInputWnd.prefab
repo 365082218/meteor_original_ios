@@ -36,6 +36,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 224081450659128612}
+  - component: {fileID: 114327234258811736}
   m_Layer: 5
   m_Name: ScriptInputWnd
   m_TagString: Untagged
@@ -276,17 +277,17 @@ MonoBehaviour:
   onBeginDrag:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.UI.UIDragObject+BeginDragEvent, Assembly-CSharp, Version=0.0.0.0,
+    m_TypeName: UnityEngine.UI.UIDragObject+BeginDragEvent, Assembly-CSharp, Version=0.2.0.0,
       Culture=neutral, PublicKeyToken=null
   onEndDrag:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.UI.UIDragObject+EndDragEvent, Assembly-CSharp, Version=0.0.0.0,
+    m_TypeName: UnityEngine.UI.UIDragObject+EndDragEvent, Assembly-CSharp, Version=0.2.0.0,
       Culture=neutral, PublicKeyToken=null
   onDrag:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.UI.UIDragObject+DragEvent, Assembly-CSharp, Version=0.0.0.0,
+    m_TypeName: UnityEngine.UI.UIDragObject+DragEvent, Assembly-CSharp, Version=0.2.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114055225703925726
 MonoBehaviour:
@@ -443,13 +444,13 @@ MonoBehaviour:
   onTransitionBegin:
     m_PersistentCalls:
       m_Calls: []
-    m_TypeName: UnityEngine.UI.UIWindow+TransitionBeginEvent, Assembly-CSharp, Version=0.0.0.0,
+    m_TypeName: UnityEngine.UI.UIWindow+TransitionBeginEvent, Assembly-CSharp, Version=0.2.0.0,
       Culture=neutral, PublicKeyToken=null
   onTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
     m_TypeName: UnityEngine.UI.UIWindow+TransitionCompleteEvent, Assembly-CSharp,
-      Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      Version=0.2.0.0, Culture=neutral, PublicKeyToken=null
 --- !u!114 &114313705280175586
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -483,6 +484,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\u6210\u529F\u6267\u884C\u79D8\u7C4D"
+--- !u!114 &114327234258811736
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1193043346713070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22155f887dc8d704e9b4d85c80c217e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scriptInput: {fileID: 114874085048423478}
+  result: {fileID: 114313705280175586}
+  Close: {fileID: 114063076116965790}
+  DoScript: {fileID: 114058058960741096}
 --- !u!114 &114335017350224804
 MonoBehaviour:
   m_ObjectHideFlags: 1

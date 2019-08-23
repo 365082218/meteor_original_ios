@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using protocol;
+using Idevgame.GameState;
 
 public enum Direct
 {
@@ -280,7 +281,6 @@ public partial class MeteorUnit : LockBehaviour
     public Transform WeaponR;
     public Transform ROOTNull;
     public Transform RootdBase;
-    public UnitTopUI UnitTopUI;
     public Transform HeadBone;//头部骨骼.在自动目标存在时,头部骨骼朝向自动目标
     public EUnitCamp Camp = EUnitCamp.EUC_FRIEND;
     public PoseStatus posMng;
@@ -530,8 +530,7 @@ public partial class MeteorUnit : LockBehaviour
     protected new void OnDestroy()
     {
         base.OnDestroy();
-        if (UnitTopUI != null)
-            GameObject.DestroyImmediate(UnitTopUI.gameObject);
+        PersistStateMgr.Instance.ExitStateByOwner(this);
         if (weaponLoader != null)
             weaponLoader.RemoveTrail();
     }
@@ -1357,9 +1356,6 @@ public partial class MeteorUnit : LockBehaviour
         posMng.ChangeAction();
         if (controller != null)
             controller.Init(this);
-
-        UnitTopUI = (GameObject.Instantiate(Resources.Load("UnitTopUI")) as GameObject).GetComponentInChildren<UnitTopUI>();
-        UnitTopUI.Init(Attr, transform, Camp);
 
         InventoryItem itWeapon = GameData.Instance.MakeEquip(Attr.Weapon);
         weaponLoader.EquipWeapon(itWeapon);

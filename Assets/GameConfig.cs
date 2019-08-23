@@ -14,6 +14,7 @@ public class AdGame
 public class GameConfig : Singleton<GameConfig> {
     public string newVersion;
     public string apkUrl;
+    public string notice;
     public List<AdGame> moreGame = new List<AdGame>();
     public void LoadGrid(LitJson.JsonData json)
     {
@@ -38,6 +39,16 @@ public class GameConfig : Singleton<GameConfig> {
                     moreGame.Add(g);
                 }
             }
+
+            if (json["Notice"] != null)
+            {
+                notice = json["Notice"].ToString();
+            }
         }
+    }
+
+    public bool HaveNotice()
+    {
+        return !string.IsNullOrEmpty(notice);
     }
 }

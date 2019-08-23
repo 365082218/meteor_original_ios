@@ -6,9 +6,14 @@ using System.IO;
 using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Networking;
+using Idevgame.GameState;
+using Idevgame.GameState.DialogState;
+using Idevgame.StateManagement;
+
+
 
 public class Main : MonoBehaviour {
-	public static Main Ins = null;
+	public static Main Instance = null;
 #if LOCALHOST
     public static string strHost = "127.0.0.1";
     public static int port = 80;
@@ -41,6 +46,13 @@ public class Main : MonoBehaviour {
     public AudioListener playerListener;
 
     public static HttpClient UpdateClient = null;
+
+    public MainGameStateManager GameStateManager;
+    public MainDialogStateManager DialogStateManager;
+    public MainPopupStateManager PopupStateManager;
+    public PersistStateMgr PersistState;
+
+    public bool SplashScreenHidden = false;//开屏splash图是否隐藏.隐藏后其他界面才能开始更新
     void OnApplicationQuit()
     {
         //主线程阻塞到下载线程结束.
@@ -54,7 +66,11 @@ public class Main : MonoBehaviour {
 
     private void Awake()
     {
-        Ins = this;
+        Instance = this;
+        GameStateManager = new MainGameStateManager();
+        DialogStateManager = new MainDialogStateManager(true);
+        PopupStateManager = new MainPopupStateManager();
+        PersistState = PersistStateMgr.Instance;
         GlobalUpdate.Instance.LoadCache();
         GameData.Instance.LoadState();
         GameData.Instance.InitTable();
@@ -71,15 +87,13 @@ public class Main : MonoBehaviour {
     Coroutine checkUpdate;
     void Start()
     {
+        DialogStateManager.Init();
+        PopupStateManager.Init();
+        PersistState.Init();
         UnityEngine.Random.InitState((int)System.DateTime.UtcNow.Ticks);
-        //ConnectWnd.Instance.Open();
+        DialogStateManager.ChangeState(DialogStateManager.ConnectDialogState);
         if (checkUpdate == null)
             checkUpdate = StartCoroutine(CheckNeedUpdate());
-    }
-
-    public void OnGameStart()
-    {
-        //MainWnd.Instance.Open();
     }
 
     public void PlayEndMovie(bool play)
@@ -121,7 +135,11 @@ public class Main : MonoBehaviour {
         if (checkUpdate != null)
             StopCoroutine(checkUpdate);
         checkUpdate = null;
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Startup");
+
+        //加载StartUp场景，成功后，打开开始面板
+        U3D.LoadScene("Startup", ()=> {
+            DialogStateManager.ChangeState(DialogStateManager.StartupDialogState);
+        });
     }
 	
     //这个是热更新打包系统支持的更新，由每一次新打包与上次打包的文件对比组成的
@@ -267,19 +285,23 @@ public class Main : MonoBehaviour {
         {
             if (Input.GetKeyUp(KeyCode.Escape))
             {
-//                if (EscWnd.Exist)
-//                {
-//                    EscWnd.Instance.Close();
-//#if UNITY_STANDALONE
-//                    Cursor.lockState = CursorLockMode.Locked;
-//#endif
-//                }
-//                else
-//                    EscWnd.Instance.Open();
+                //DialogStateManager.OpenDialog(DialogStateManager.escapeDialogState);
             }
         }
-        if (Global.Instance.GLevelItem == null)
-            DlcMng.Instance.Update();
+
+        DialogStateManager.Update();
+        PopupStateManager.Update();
+        PersistState.Update();
+        //if (Global.Instance.GLevelItem == null)
+        //    DlcMng.Instance.Update();
+    }
+
+    private void LateUpdate()
+    {
+        StateManager.AfterUpdate();
+        DialogStateManager.OnLateUpdate();
+        PopupStateManager.OnLateUpdate();
+        PersistState.OnLateUpdate();
     }
 
     UpdateVersion Complete = null;
@@ -378,5 +400,37 @@ public class Main : MonoBehaviour {
             Log.WriteError(exp.Message + "|" + exp.StackTrace);
         }
         Log.WriteError("ExtractUPK End");
+    }
+
+    //拉取Global.json,得到新版本信息和地址.
+    Coroutine GlobalJsonUpdate;
+    bool GlobalJsonLoaded = false;
+    public void UpdateAppInfo()
+    {
+        if (GlobalJsonLoaded)
+            return;
+        GlobalJsonUpdate = StartCoroutine(UpdateAppInfoCoroutine());
+    }
+
+    IEnumerator UpdateAppInfoCoroutine()
+    {
+        UnityWebRequest vFile = new UnityWebRequest();
+        vFile.url = string.Format(Main.strSFile, Main.strHost, Main.port, Main.strProjectUrl, Main.strNewVersionName);
+        vFile.timeout = 10;
+        DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
+        vFile.downloadHandler = dH;
+        yield return vFile.Send();
+        if (vFile.isError || vFile.responseCode != 200)
+        {
+            Debug.LogError(string.Format("update version file:{0} error:{1} or responseCode:{2}", vFile.url, vFile.error, vFile.responseCode));
+            vFile.Dispose();
+            GlobalJsonUpdate = null;
+            GlobalJsonLoaded = true;
+            yield break;
+        }
+        Debug.Log("download:" + vFile.url);
+        LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
+        GameConfig.Instance.LoadGrid(js);
+        GlobalJsonLoaded = true;
     }
 }

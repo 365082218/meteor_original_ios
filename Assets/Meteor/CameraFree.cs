@@ -40,8 +40,8 @@ public class CameraFree : LockBehaviour {
     public void Init(MeteorUnit target)
     {
         CameraType = target != null ? 1 : 0;
-        //GameObject.Destroy(Startup.ins.playerListener);
-        //Startup.ins.playerListener = gameObject.AddComponent<AudioListener>();
+        //GameObject.Destroy(Main.Instance.playerListener);
+        //Main.Instance.playerListener = gameObject.AddComponent<AudioListener>();
         UnitTarget = target;
         Target = target.transform;
         animationPlay = false;

@@ -42,7 +42,6 @@ namespace Idevgame.StateManagement {
 
         public virtual void OnGameStateEnter(object state, object data) {
         }
-
     }
 
     public abstract class StateManager<S,A> : StateManager where S : StateManager<S,A>.State {
@@ -206,7 +205,7 @@ namespace Idevgame.StateManagement {
             return StateManager.StateChanging && newState != null;//Don't ever block if quitting
         }
 
-        protected virtual bool ChangeState(S newState, object data) {
+        public virtual bool ChangeState(S newState, object data) {
             if (BlockStateChange(newState))
                 return false;
 

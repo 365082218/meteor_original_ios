@@ -135,7 +135,7 @@ public class UILabel : UIWidget
 		{
 			if(mLanguages!=""&&isFirst)
 			{
-				mText=LanguagesManager.Instance.GetItem(mLanguages);
+				//mText=LanguagesManager.Instance.GetItem(mLanguages);
 			}
 			
 			
@@ -167,7 +167,7 @@ public class UILabel : UIWidget
 			return mLanguages;
 		}
 		set{
-			text = LanguagesManager.Instance.GetItem(value);
+			//text = LanguagesManager.Instance.GetItem(value);
 			mLanguages=value;
 		}
 	}

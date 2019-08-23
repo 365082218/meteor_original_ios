@@ -1093,7 +1093,7 @@ public class AmbLoader
         //11和9文件重复了.
         if (idx == 11 || idx == 9)
             idx = 9;
-        Dictionary<int, BoneStatus> ret = LoadAmb("p" + idx + ".amb");
+        Dictionary<int, BoneStatus> ret = LoadAmbSync("p" + idx + ".amb");
         if (!PlayerAnimation.ContainsKey(idx))
             PlayerAnimation.Add(idx, ret);
 
@@ -1128,7 +1128,7 @@ public class AmbLoader
     public void LoadCharacterAmb()
     {
         if (CharCommon == null || CharCommon.Count == 0)
-            CharCommon = LoadAmb("characteramb");
+            CharCommon = LoadAmbSync("characteramb");
     }
 
     public Dictionary<int, BoneStatus> Parse(byte[] memory)
@@ -1185,7 +1185,8 @@ public class AmbLoader
 
     //人物自身动作，0帧为TPose
     //招式通用动作，从1帧开始，没有0帧
-    private Dictionary<int, BoneStatus> LoadAmb(string file)
+    //一帧内返回.
+    private Dictionary<int, BoneStatus> LoadAmbSync(string file)
     {
         long s1 = System.DateTime.Now.Ticks;
         TextAsset asset = Resources.Load<TextAsset>(file);
@@ -1195,7 +1196,6 @@ public class AmbLoader
             return null;
         }
         return Parse(asset.bytes);
-        
     }
 }
 [ProtoContract]

@@ -22,7 +22,9 @@ public class UILabelInspector : UIWidgetInspector
 
 	void RegisterUndo () { NGUIEditorTools.RegisterUndo("Label Change", mLabel); }
 
-	void ReLoadLanguage(){LanguagesManager.Instance.ReLoad();}
+	void ReLoadLanguage(){
+        //LanguagesManager.Instance.ReLoad();
+    }
 	/// <summary>
 	/// Font selection callback.
 	/// </summary>

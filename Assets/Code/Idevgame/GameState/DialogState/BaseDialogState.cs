@@ -10,9 +10,6 @@ namespace Idevgame.GameState.DialogState {
 
         public abstract string DialogName { get; }
 
-        public virtual bool IsAngelaVisible { get { return false; } }
-
-
         public virtual bool CanOpen() {
             return true;
         }

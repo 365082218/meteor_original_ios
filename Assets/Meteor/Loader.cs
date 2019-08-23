@@ -176,7 +176,7 @@ public class Loader : MonoBehaviour {
         if (Instance == null)
             Instance = this;
         //单独场景测试时，直接加载
-        //if (Startup.ins == null)
+        //if (Main.Instance == null)
         //    LoadSceneObjs(LevelId);
     }
     void OnDestroy()

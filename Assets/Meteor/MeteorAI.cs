@@ -318,7 +318,7 @@ public class MeteorAI {
                         switch (SubStatusOnComplete)
                         {
                             case EAISubStatus.Patrol:
-                                RefreshPathCoroutine = Startup.ins.StartCoroutine(RefreshPatrolPath());
+                                RefreshPathCoroutine = Main.Instance.StartCoroutine(RefreshPatrolPath());
                                 SubStatus = EAISubStatus.FindWaitPatrol;
                                 break;
                             case EAISubStatus.PatrolGotoFirstPoint:
@@ -414,7 +414,7 @@ public class MeteorAI {
 
         if (RefreshPathCoroutine != null)
         {
-            Startup.ins.StopCoroutine(RefreshPathCoroutine);
+            Main.Instance.StopCoroutine(RefreshPathCoroutine);
             RefreshPathCoroutine = null;
         }
         ChangeState(StatusOnComplete);
@@ -1686,7 +1686,7 @@ public class MeteorAI {
         {
             if (RefreshPathCoroutine == null)
             {
-                RefreshPathCoroutine = Startup.ins.StartCoroutine(PathMng.Instance.FindPath(owner, now, target, Path));
+                RefreshPathCoroutine = Main.Instance.StartCoroutine(PathMng.Instance.FindPath(owner, now, target, Path));
                 curIndex = -1;
                 targetIndex = -1;
             }
@@ -1707,7 +1707,7 @@ public class MeteorAI {
         {
             if (RefreshPathCoroutine == null)
             {
-                RefreshPathCoroutine = Startup.ins.StartCoroutine(PathMng.Instance.FindPathEx(owner, target, Path));
+                RefreshPathCoroutine = Main.Instance.StartCoroutine(PathMng.Instance.FindPathEx(owner, target, Path));
                 curIndex = -1;
                 targetIndex = -1;
             }
@@ -2248,7 +2248,7 @@ public class MeteorAI {
 
         if (RefreshPathCoroutine != null)
         {
-            Startup.ins.StopCoroutine(RefreshPathCoroutine);
+            Main.Instance.StopCoroutine(RefreshPathCoroutine);
             RefreshPathCoroutine = null;
         }
     }

@@ -8,8 +8,9 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 224000013976313020}
+  - component: {fileID: 114741603325839428}
   m_Layer: 5
-  m_Name: LoadingNotice
+  m_Name: UpdateNotice
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -436,8 +437,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114000012139577182}
   m_HandleRect: {fileID: 224000012350837076}
   m_Direction: 2
-  m_Value: 0.33333334
-  m_Size: 0.9999998
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -963,6 +964,22 @@ MonoBehaviour:
   imageComponent: {fileID: 114956113162402478}
   textComponent: {fileID: 0}
   Duration: 0.2
+--- !u!114 &114741603325839428
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 433feadeab62ff341b4e69bfb3ed9d54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Notice: {fileID: 114000010321679070}
+  Accept: {fileID: 114136849430393002}
+  Cancel: {fileID: 114114826632407864}
+  LoadingBar: {fileID: 114693057843843938}
+  SpeedText: {fileID: 114282022386381522}
 --- !u!114 &114919129869075214
 MonoBehaviour:
   m_ObjectHideFlags: 1

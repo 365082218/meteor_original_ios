@@ -293,8 +293,8 @@ class ProtoHandler
     //            AudioListener au = MeteorManager.Instance.LocalPlayer.gameObject.GetComponent<AudioListener>();
     //            if (au == null)
     //            {
-    //                Startup.ins.listener.enabled = false;
-    //                Startup.ins.playerListener = MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
+    //                Main.Instance.listener.enabled = false;
+    //                Main.Instance.playerListener = MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
     //            }
     //            if (FightWnd.Exist)
     //                FightWnd.Instance.UpdatePlayerInfo();
@@ -481,6 +481,6 @@ class ProtoHandler
 
     static void OnGameStart()
     {
-        Main.Ins.GameStart();
+        Main.Instance.GameStart();
     }
 }

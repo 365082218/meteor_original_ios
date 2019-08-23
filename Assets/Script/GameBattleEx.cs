@@ -87,9 +87,9 @@ public partial class GameBattleEx : LockBehaviour {
         Global.Instance.PauseAll = true;
         ShowWayPoint(false);
         MeteorManager.Instance.LocalPlayer.controller.LockInput(true);
-        GameObject.Destroy(Startup.ins.playerListener);
-        Startup.ins.playerListener = null;
-        Startup.ins.listener.enabled = true;
+        GameObject.Destroy(Main.Instance.playerListener);
+        Main.Instance.playerListener = null;
+        Main.Instance.listener.enabled = true;
         if (CameraFree.Ins != null && CameraFree.Ins.enabled)
         {
             EnableFreeCamera(false);
@@ -197,7 +197,8 @@ public partial class GameBattleEx : LockBehaviour {
             return;
         }
 
-        OnUpdates();
+        if (OnUpdates != null)
+            OnUpdates();
 
         if (Global.Instance.PauseAll)
             return;
@@ -545,8 +546,8 @@ public partial class GameBattleEx : LockBehaviour {
         //设置主角属性
         U3D.InitPlayer(Global.Instance.GScript);
         //把音频侦听移到角色
-        Startup.ins.listener.enabled = false;
-        Startup.ins.playerListener = MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
+        Main.Instance.listener.enabled = false;
+        Main.Instance.playerListener = MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
 
         //先创建一个相机
         GameObject camera = GameObject.Instantiate(Resources.Load("CameraEx")) as GameObject;

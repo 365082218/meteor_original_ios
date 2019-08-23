@@ -12,7 +12,7 @@ namespace UnityEngine.UI
 		
 		public Image imageComponent;
 		public Text textComponent;
-		public float Duration = 0.2f;
+		public float Duration = 0.1f;
 		public OnChangeEvent onChange = new OnChangeEvent();
         //public UnityAction onfinished;
 		// Tween controls

@@ -14,11 +14,27 @@ public interface LoadingUI
 
 public class LevelHelper : MonoBehaviour
 {
-	AsyncOperation mAsync;
+    AsyncOperation mAsync;
     public struct LevelParam
     {
         public int id;
         public int gate;
+    }
+
+    public void LoadScene(string scene, Action OnFinished)
+    {
+        StartCoroutine(LoadSceneAsync(scene, OnFinished));
+    }
+
+    IEnumerator LoadSceneAsync(string s, Action OnFinished)
+    {
+        mAsync = SceneManager.LoadSceneAsync(s);
+        mAsync.allowSceneActivation = true;
+        while (!mAsync.isDone)
+            yield return 0;
+        if (OnFinished != null)
+            OnFinished();
+        Destroy(this);
     }
 
     public void Load()
@@ -41,25 +57,23 @@ public class LevelHelper : MonoBehaviour
             while (displayProgress < toProgress)
             {
                 ++displayProgress;
-                //if (LoadingWnd.Exist)
-                //    LoadingWnd.Instance.UpdateProgress(displayProgress / 100.0f);
+                if (LoadingDialogState.Exist)
+                    LoadingDialogState.Instance.UpdateProgress(displayProgress / 100.0f);
                 yield return 0;
             }
             yield return 0;
         }
         toProgress = 100;
-        //WSLog.LogInfo("displayProgress < toProgress");
         while (displayProgress < toProgress)
         {
             ++displayProgress;
-            //if (LoadingWnd.Exist)
-            //    LoadingWnd.Instance.UpdateProgress(displayProgress / 100.0f);
+            if (LoadingDialogState.Exist)
+                LoadingDialogState.Instance.UpdateProgress(displayProgress / 100.0f);
             yield return 0;
         }
-        //WSLog.LogInfo("displayProgress < toProgress");
         mAsync.allowSceneActivation = true;
-        yield return 0;
-        //WSLog.LogInfo("OnLoadFinishedEx");
+        while (!mAsync.isDone)
+            yield return 0;
         OnLoadFinishedEx(lev);
         Destroy(this);
     }

@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 224000013194962864}
   - component: {fileID: 222391503073634346}
   - component: {fileID: 114245435303761488}
+  - component: {fileID: 114698136822843246}
   m_Layer: 5
   m_Name: ConnectWnd
   m_TagString: Untagged
@@ -166,6 +167,17 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114698136822843246
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000012231941516}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 376e704a19a27734bbccc3f941d29c51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!198 &198000013615282642
 ParticleSystem:
   m_ObjectHideFlags: 1

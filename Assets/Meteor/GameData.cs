@@ -269,7 +269,6 @@ public class GameState
 
 public class GameData:Singleton<GameData>
 {
-    public TblMng<LangBase> langMng = TblMng<LangBase>.Instance.GetTable();
     public TblMng<ItemBase> itemMng = TblMng<ItemBase>.Instance.GetTable();
     public TblMng<ActionBase> actionMng = TblMng<ActionBase>.Instance.GetTable();
     public TblMng<InputBase> inputMng = TblMng<InputBase>.Instance.GetTable();
@@ -499,47 +498,45 @@ public class GlobalUpdate:Singleton<GlobalUpdate>
     //应用一个版本
     public void ApplyVersion(VersionItem ver, Main loader)
     {
-        //ConnectWnd.Instance.Close();
-        //LoadingNotice.Instance.Open();
-        //LoadingNotice.Instance.SetNotice(ver.strVersionMax, 
-        //    ()=> 
-        //    {
-        //        LoadingNotice.Instance.DisableAcceptBtn();
-        //        //如果之前有更新进度
-        //        if (updateVersion != null)
-        //        {
-        //            if (updateVersion.Version == ver.strVersion && updateVersion.VersionMax == ver.strVersionMax)
-        //            {
-        //                //不管更新包大小是否超过剩余磁盘空间
-        //                //long freeSpace = AppInfo.GetFreeSpace();
-        //                //if (updateVersion.File.Totalbytes - updateVersion.File.Loadbytes > freeSpace)
-        //                //{
+        Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.UpdateDialogState);
+        UpdateDialogState.Instance.SetNotice(ver.strVersionMax,
+            () =>
+            {
+                UpdateDialogState.Instance.DisableAcceptBtn();
+                //如果之前有更新进度
+                if (updateVersion != null)
+                {
+                    if (updateVersion.Version == ver.strVersion && updateVersion.VersionMax == ver.strVersionMax)
+                    {
+                        //不管更新包大小是否超过剩余磁盘空间
+                        //long freeSpace = AppInfo.GetFreeSpace();
+                        //if (updateVersion.File.Totalbytes - updateVersion.File.Loadbytes > freeSpace)
+                        //{
 
-        //                //}
-        //                //弹一个界面，让玩家决定是否继续更新
-        //                if (updateVersion.File.Totalbytes != 0)
-        //                    LoadingNotice.Instance.UpdateProgress((float)updateVersion.File.Loadbytes / (float)updateVersion.File.Totalbytes , "0");
-        //                loader.StartDownLoad(updateVersion);
-        //            }
-        //            else
-        //            {
-        //                //说明自从上次升级一半，服务端又升级了，丢弃掉之前升级的内容
-        //                CleanVersion();
-        //                DownLoadVersion(ver, loader);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            DownLoadVersion(ver, loader);
-        //        }
-        //    }
-        //    , 
-        //()=> 
-        //{
-        //    LoadingNotice.Instance.Close();
-        //    Main.Ins.GameStart();
-        //});
-        
+                        //}
+                        //弹一个界面，让玩家决定是否继续更新
+                        if (updateVersion.File.Totalbytes != 0)
+                            UpdateDialogState.Instance.UpdateProgress((float)updateVersion.File.Loadbytes / (float)updateVersion.File.Totalbytes, "0");
+                        loader.StartDownLoad(updateVersion);
+                    }
+                    else
+                    {
+                        //说明自从上次升级一半，服务端又升级了，丢弃掉之前升级的内容
+                        CleanVersion();
+                        DownLoadVersion(ver, loader);
+                    }
+                }
+                else
+                {
+                    DownLoadVersion(ver, loader);
+                }
+            }
+            ,
+        () =>
+        {
+            //直接进入游戏
+            Main.Instance.GameStart();
+        });
     }
 
     public void DownLoadVersion(VersionItem ver, Main loader)

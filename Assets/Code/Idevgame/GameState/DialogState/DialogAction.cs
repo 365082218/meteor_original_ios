@@ -11,6 +11,7 @@ namespace Idevgame.GameState.DialogState {
         BackButton,
         Confirm,
         Cancel,
+        PreviousDialog,
         Close,
         Open,
 

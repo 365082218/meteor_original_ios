@@ -40,7 +40,7 @@ public class SoundManager : Singleton<SoundManager>
         get
         {
             if (mAudioMusic == null)
-                mAudioMusic = Startup.ins != null ? Startup.ins.Music : null;
+                mAudioMusic = Main.Instance != null ? Main.Instance.Music : null;
             return mAudioMusic;
         }
         set { mAudioMusic = value; }
@@ -52,7 +52,7 @@ public class SoundManager : Singleton<SoundManager>
         get
         {
             if (mAudioSource == null)
-                mAudioSource = Startup.ins.Sound;
+                mAudioSource = Main.Instance.Sound;
             return mAudioSource;
         }
         set { mAudioSource = value; }
@@ -112,7 +112,7 @@ public class SoundManager : Singleton<SoundManager>
     // Use this for initialization
     public SoundManager()
     {
-        if (Startup.ins != null)
+        if (Main.Instance != null)
         {
             SetMusicVolume(GameData.Instance.gameStatus.MusicVolume);
             SetSoundVolume(GameData.Instance.gameStatus.SoundVolume);
@@ -289,8 +289,8 @@ public class SoundManager : Singleton<SoundManager>
 	{
         if (CurrentMusicSource != null)
             CurrentMusicSource.volume = volume;
-        if (Menu.Instance != null)
-            Menu.Instance.menu.volume = volume;
+        if (MainMenuState.Exist)
+            MainMenuState.Instance.menu.volume = volume;
         MusicVolume = volume;
 	}
 	
@@ -300,8 +300,8 @@ public class SoundManager : Singleton<SoundManager>
         AudioSource[] ASources = GameObject.FindObjectsOfType(typeof(AudioSource)) as AudioSource[];
 		for(int i = 0;i<ASources.Length;i++)
 		{
-            if (Menu.Instance != null)
-                if (ASources[i] == Menu.Instance.menu)
+            if (MainMenuState.Exist)
+                if (ASources[i] == MainMenuState.Instance.menu)
                     continue;
 			if (ASources[i] != CurrentMusicSource)
                 ASources[i].volume = volume;
