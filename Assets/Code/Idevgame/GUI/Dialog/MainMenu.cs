@@ -1661,7 +1661,7 @@ public class MainMenu : Dialog
 
     void OnDlcWnd()
     {
-        //DlcWnd.Instance.Open();
+        Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.DlcDialogState);
     }
 
     //教学关卡.

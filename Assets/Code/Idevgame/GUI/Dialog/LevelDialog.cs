@@ -90,6 +90,15 @@ public class LevelDialog : Dialog {
 
 //资料片关卡选择界面
 //这个可以仿主MainMenu的，主要是显示资料片内的所有关卡信息.
+public class DlcLevelDialogState:CommonDialogState<DlcLevelSelect>
+{
+    public override string DialogName { get { return "DlcLevelSelect"; } }
+    public DlcLevelDialogState(MainDialogStateManager stateMgr):base(stateMgr)
+    {
+
+    }
+}
+
 public class DlcLevelSelect : Dialog
 {
     //public override string PrefabName { get { return "DlcLevelSelect"; } }

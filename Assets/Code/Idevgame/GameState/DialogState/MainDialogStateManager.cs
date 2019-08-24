@@ -24,7 +24,9 @@ namespace Idevgame.GameState.DialogState {
         public EscConfirmDialogState EscConfirmDialogState;
         public StartupDialogState StartupDialogState;
         public LevelDialogState LevelDialogState;//单机关卡选择页面
+        public DlcDialogState DlcDialogState;//资料片剧本选择界面
         public UpdateDialogState UpdateDialogState;
+        public DlcLevelDialogState DlcLevelDialogState;
         public MainDialogStateManager(bool createState) {
             //GameOverDialogState = new GameOverDialogState(this);
             //HelpDialogState = new HelpDialogState(this);
@@ -42,6 +44,8 @@ namespace Idevgame.GameState.DialogState {
                 StartupDialogState = new StartupDialogState(this);
                 LevelDialogState = new LevelDialogState(this);
                 UpdateDialogState = new UpdateDialogState(this);
+                DlcDialogState = new DlcDialogState(this);
+                DlcLevelDialogState = new DlcLevelDialogState(this);
             }
         }
 
