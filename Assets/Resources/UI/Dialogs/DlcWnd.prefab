@@ -881,19 +881,19 @@ MonoBehaviour:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 2
-      time: 0.001344637
-      value: 0.49621943
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
+      time: -0.0041656494
+      value: 0.4933319
+      inSlope: 2.1093748
+      outSlope: 1.0033538
+      tangentMode: 69
     - serializedVersion: 2
-      time: 0.49965638
-      value: 1.4979441
-      inSlope: 3.0317042
-      outSlope: 3.0317042
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
+      time: 0.4999502
+      value: 0.9991385
+      inSlope: 1.0033538
+      outSlope: 2.131944
+      tangentMode: 69
+    m_PreInfinity: 0
+    m_PostInfinity: 0
     m_RotationOrder: 0
   positionCurve:
     serializedVersion: 2
@@ -907,11 +907,11 @@ MonoBehaviour:
     - serializedVersion: 2
       time: 1
       value: 1
-      inSlope: 2
-      outSlope: 2
+      inSlope: 0
+      outSlope: 0
       tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
+    m_PreInfinity: 1
+    m_PostInfinity: 1
     m_RotationOrder: 0
   depthCurve:
     serializedVersion: 2
@@ -920,31 +920,31 @@ MonoBehaviour:
       time: 0
       value: 0
       inSlope: 0
-      outSlope: 0
-      tangentMode: 0
+      outSlope: 2.029412
+      tangentMode: 69
     - serializedVersion: 2
-      time: 0.5
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
+      time: 0.49583334
+      value: 1.0062501
+      inSlope: 2.029412
+      outSlope: -1.9958681
+      tangentMode: 69
     - serializedVersion: 2
       time: 1
       value: 0
-      inSlope: 0
+      inSlope: -1.9958681
       outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
+      tangentMode: 69
+    m_PreInfinity: 0
+    m_PostInfinity: 0
+    m_RotationOrder: 0
   startCenterIndex: 0
-  cellWidth: 200
+  cellWidth: 120
   yFixedPositionValue: 46
-  lerpDuration: 0.2
+  lerpDuration: 0.1
   curHorizontalValue: 0.5
   listEnhanceItems: []
   itemPrefab: {fileID: 1603885852811152}
-  factor: 1
+  factor: 3
 --- !u!114 &114745992302310312
 MonoBehaviour:
   m_ObjectHideFlags: 1
