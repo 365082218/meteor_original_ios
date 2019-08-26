@@ -530,7 +530,7 @@ public partial class MeteorUnit : LockBehaviour
     protected new void OnDestroy()
     {
         base.OnDestroy();
-        PersistStateMgr.Instance.ExitStateByOwner(this);
+        Main.Instance.ExitStateByOwner(this);
         if (weaponLoader != null)
             weaponLoader.RemoveTrail();
     }

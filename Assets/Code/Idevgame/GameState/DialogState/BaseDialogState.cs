@@ -21,6 +21,5 @@ namespace Idevgame.GameState.DialogState {
         public BaseDialogState(MainDialogStateManager stateManager) : base(stateManager) {
             DialogStateManager = stateManager;
         }
-
     }
 }

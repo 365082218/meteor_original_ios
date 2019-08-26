@@ -7,9 +7,9 @@ public class LoadingEx : Dialog {
 
 }
 
-public class LoadingEXDialogState : CommonDialogState<LoadingEx>
+public class LoadingEXDialogState : PersistDialog<LoadingEx>
 {
-    public LoadingEXDialogState(MainDialogStateManager stateMgr) : base(stateMgr)
+    public LoadingEXDialogState()
     {
 
     }

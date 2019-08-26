@@ -72,7 +72,6 @@ public class DlcMng:Singleton<DlcMng> {
         Models.Add(Info);
     }
 
-
     //资料片
     public List<Chapter> Dlcs = new List<Chapter>();
     public void ClearDlc()

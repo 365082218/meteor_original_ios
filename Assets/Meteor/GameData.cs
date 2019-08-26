@@ -82,6 +82,7 @@ public class RoomSetting
     }
 }
 
+
 //整个游戏只有一份的开关状态.就是整个
 [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
 public class GameState
@@ -101,6 +102,10 @@ public class GameState
     public bool EnableDebugRobot;//调试角色按钮。
     public bool _EnableInfiniteAngry;
     public float UIAlpha = 1.0f;
+    public string Account;
+    public string Password;
+    public bool AutoLogin;
+    public bool RememberPassword;
     public RoomSetting Single = new RoomSetting();//单机房间设置
     public RoomSetting NetWork = new RoomSetting();//联机房间设置
     public Dictionary<string, string> LocalMovie = new Dictionary<string, string>();//已更新到本地的
@@ -114,12 +119,27 @@ public class GameState
         pluginModel.Add(item);
     }
 
+    public void UnRegisterModel(ModelItem item)
+    {
+        if (pluginModel == null)
+            return;
+        pluginModel.Remove(item);
+    }
+
     public void RegisterDlc(Chapter dlc)
     {
         if (pluginChapter == null)
             pluginChapter = new List<Chapter>();
         pluginChapter.Add(dlc);
         Global.Instance.ClearLevel();//需要刷新
+    }
+
+    public void UnRegisterDlc(Chapter dlc)
+    {
+        if (pluginChapter == null)
+            return;
+        pluginChapter.Remove(dlc);
+        Global.Instance.ClearLevel();
     }
 
     public bool IsModelInstalled(ModelItem item)
@@ -265,6 +285,19 @@ public class GameState
     public bool DisableJoystick;//不显示摇杆.
     public bool SkipVideo;//忽略过场视频
     public List<ServerInfo> ServerList;//自定义服务器
+
+    public void FixServerList()
+    {
+        if (ServerList == null || ServerList.Count == 0)
+        {
+            ServerInfo svr = new ServerInfo();
+            svr.ServerName = "www.idevgame.com";
+            svr.ServerPort = 7200;
+            svr.type = 0;
+            ServerList = new List<ServerInfo>();//用户自定义的服务器列表.
+            ServerList.Add(svr);
+        }
+    }
 }
 
 public class GameData:Singleton<GameData>
@@ -374,15 +407,7 @@ public class GameData:Singleton<GameData>
         else
         {
             //如果成功加载了存档，检查其中的一些成员是否不符合要求
-            if (gameStatus.ServerList == null || gameStatus.ServerList.Count == 0)
-            {
-                ServerInfo svr = new ServerInfo();
-                svr.ServerName = "www.idevgame.com";
-                svr.ServerPort = 7200;
-                svr.type = 0;
-                gameStatus.ServerList = new List<ServerInfo>();//用户自定义的服务器列表.
-                gameStatus.ServerList.Add(svr);
-            }
+            gameStatus.FixServerList();
         }
         
         AppInfo.Instance.MeteorVersion = gameStatus.MeteorVersion;

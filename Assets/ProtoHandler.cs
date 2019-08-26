@@ -406,11 +406,13 @@ class ProtoHandler
                 case 2:U3D.PopupTip("房间已解散");break;
                 case 3:U3D.PopupTip("需要先退出房间");break;
                 //密码不正确
-                //case 4: PsdWnd.Instance.Open();PsdWnd.Instance.OnConfirm =()=> {
-                //    Common.SendJoinRoom((int)rsp.roomId, PsdWnd.Instance.Control("PsdField").GetComponent<UnityEngine.UI.InputField>().text);
-                //    PsdWnd.Instance.Close();
-                //};
-                break;
+                case 4:
+                    Main.Instance.EnterState(Main.Instance.PsdEditDialogState); PsdEditDialogState.Instance.OnConfirm = ()=>
+                    {
+                        Common.SendJoinRoom((int)rsp.roomId, PsdEditDialogState.Instance.Control("PsdField").GetComponent<UnityEngine.UI.InputField>().text);
+                        PsdEditDialogState.Instance.OnBackPress();
+                    };
+                    break;
             }
         }
     }
@@ -430,9 +432,6 @@ class ProtoHandler
 
     static void OnGetRoomRsp(GetRoomRsp rsp)
     {
-        //Debug.LogError("get room rsp");
-        //if (MainLobby.Exist)
-        //    MainLobby.Instance.OnGetRoom(rsp);
         RoomMng.Instance.RegisterRooms(rsp.RoomInLobby);
     }
 
@@ -443,15 +442,13 @@ class ProtoHandler
         if (result == 1)
         {
             retryNum = 3;
-            Debug.Log("connected AutoLogin");
+            //如果没有账号记录=>显示账号注册和登录页面
+            //否则 是否勾选了自动登录 是->自动登录 否->显示账号注册和登录页面 并填上上一次登录的账号
             TcpClientProxy.AutoLogin();//验证客户端的合法性
-            //if (MainLobby.Exist)
-            //    MainLobby.Instance.OnSelectService();
         }
         else
         {
             //链接失败,重置对战
-            //Debug.LogError("disconnected");
             U3D.PopupTip(message);
             NetWorkBattle.Instance.OnDisconnect();
             retryNum--;
@@ -467,8 +464,6 @@ class ProtoHandler
     static void OnDisconnect()
     {
         NetWorkBattle.Instance.OnDisconnect();
-        //if (!MainWnd.Exist && GameBattleEx.Instance != null)
-        //    U3D.GoBack();
     }
 
     static void OnSendComplete(int result, int sendFileCount)

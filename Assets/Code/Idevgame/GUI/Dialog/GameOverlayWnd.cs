@@ -2,6 +2,22 @@
 using System.Collections;
 using UnityEngine.UI;
 using Idevgame.GameState.DialogState;
+
+public class GameOverlayDialogState : PersistDialog<GameOverlayWnd>
+{
+    public override string DialogName { get { return "GameOverlayWnd"; } }
+    public GameOverlayDialogState() : base()
+    {
+
+    }
+
+    //自带画布，不属于画布之下的预设
+    protected override bool CanvasMode()
+    {
+        return true;
+    }
+}
+
 public class GameOverlayWnd : Dialog  {
 
     public GameObject content;

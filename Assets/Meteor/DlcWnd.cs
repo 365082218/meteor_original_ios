@@ -39,11 +39,6 @@ public class DlcWnd : Dialog {
 
     void Init()
     {
-        //descPanel = Control("DescRoot");
-        //rootMenu = Control("Content");
-        //rootCtrl = rootMenu.GetComponent<EnhanceScrollView>();
-        //background = Control("Background").GetComponent<Image>();
-
         Yes.onClick.AddListener(() =>
         {
             OnEnterChapter();
@@ -117,7 +112,7 @@ public class DlcWnd : Dialog {
             string tip = "";
             if (!DlcMng.Instance.CheckDependence(Global.Instance.Chapter, out tip))
             {
-                Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.DlcLevelDialogState);
+                Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.LevelDialogState, false);
             }
             else
             {

@@ -50,7 +50,7 @@ namespace Idevgame.GameState.DialogState {
     {
         protected GameObject Dialog;
         protected GameObject mRootUI;
-        public static bool Exist() { return DialogController == null; }
+        public static bool Exist() { return DialogController != null; }
         public static T Instance
         {
             get { return DialogController; }
@@ -148,6 +148,8 @@ namespace Idevgame.GameState.DialogState {
             Dialog.transform.localScale = Vector3.one;
             Dialog.name = DialogName;
             DialogController = Dialog.GetComponent<T>();
+            if (DialogController == null)
+                DialogController = Dialog.AddComponent<T>();
         }
     }
 
@@ -190,6 +192,8 @@ namespace Idevgame.GameState.DialogState {
         }
 
         public override void OnExit(BaseDialogState nextState, object data) {
+            if (DialogController != null)
+                DialogController.OnClose();
             DialogController = null;
             if (UnloadGuiOnExit) {
                 UnloadGuiOnExit = false;
@@ -252,6 +256,9 @@ namespace Idevgame.GameState.DialogState {
             Dialog.transform.localScale = Vector3.one;
             Dialog.name = DialogName;
             DialogController = Dialog.GetComponent<T>();
+            //若没找到该组件，那么添加一个，在状态进入中，设置所有成员变量与控件的关系.
+            if (DialogController == null)
+                DialogController = Dialog.AddComponent<T>();
         }
 
         protected void UnloadGui() {

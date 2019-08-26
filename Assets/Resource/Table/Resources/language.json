@@ -3,5 +3,50 @@
     "ID": 1,
     "key": "Startup.Start",
     "chinese": "流星正在启动{0}%"
+  },
+  {
+    "ID": 2,
+    "key": "UnInstall",
+    "chinese": "卸载"
+  },
+  {
+    "ID": 3,
+    "key": "Dlc.Model",
+    "chinese": "「模型-{0}」"
+  },
+  {
+    "ID": 4,
+    "key": "Dlc.Level",
+    "chinese": "「剧本-{0}」"
+  },
+  {
+    "ID": 5,
+    "key": "Cancel",
+    "chinese": "取消"
+  },
+  {
+    "ID": 6,
+    "key": "Install",
+    "chinese": "安装"
+  },
+  {
+    "ID": 7,
+    "key": "InstallIng",
+    "chinese": "安装中"
+  },
+  {
+    "ID": 8,
+    "key": "Install.Model.Complete",
+    "chinese": "安装成功,角色面板新增角色:{0}"
+  },
+  {
+    "ID": 9,
+    "key": "Install.Dlc.Complete",
+    "chinese": "安装成功,新增资料片:{0}"
+  },
+  {
+    "ID": 10,
+    "key": "Install.Failed",
+    "chinese": "安装失败"
   }
 ]

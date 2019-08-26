@@ -47,10 +47,73 @@ public class Main : MonoBehaviour {
 
     public static HttpClient UpdateClient = null;
 
-    public MainGameStateManager GameStateManager;
+    //public MainGameStateManager GameStateManager;
     public MainDialogStateManager DialogStateManager;
     public MainPopupStateManager PopupStateManager;
-    public PersistStateMgr PersistState;
+
+    //常驻状态管理
+    public GameOverlayDialogState GameOverlay;//进入主界面叠加
+    public FightDialogState FightDialogState;//战斗界面叠加
+    public HostEditDialogState HostEditDialogState;//服务器主机编辑界面.
+    public NickNameDialogState NickNameDialogState;//昵称界面.
+    public BattleStatusDialogState BattleStatusDialogState;//当局战斗信息界面
+    public PlayerDialogState PlayerDialogState;
+    public ChatDialogState ChatDialogState;
+    public PsdEditDialogState PsdEditDialogState;
+    public RoomChatDialogState RoomChatDialogState;
+    public LoadingEXDialogState LoadingEx;
+    public ItemInfoDialogState ItemInfoDialogState;
+    List<PersistState> activeState;
+    Dictionary<MonoBehaviour, PersistState> StateHash = new Dictionary<MonoBehaviour, PersistState>();
+
+    public void Init()
+    {
+        activeState = new List<PersistState>();
+        GameOverlay = new GameOverlayDialogState();
+        FightDialogState = new FightDialogState();
+        NickNameDialogState = new NickNameDialogState();
+        BattleStatusDialogState = new BattleStatusDialogState();
+        PlayerDialogState = new PlayerDialogState();
+        ChatDialogState = new ChatDialogState();
+        PsdEditDialogState = new PsdEditDialogState();
+        RoomChatDialogState = new RoomChatDialogState();
+        LoadingEx = new LoadingEXDialogState();
+        ItemInfoDialogState = new ItemInfoDialogState();
+    }
+
+    public void EnterState(PersistState state)
+    {
+        if (activeState.Contains(state))
+            return;
+        state.OnStateEnter();
+        activeState.Add(state);
+        if (state.Owner != null)
+            StateHash.Add(state.Owner, state);
+    }
+
+    public void ExitStateByOwner(UnityEngine.MonoBehaviour Owner)
+    {
+        if (StateHash.ContainsKey(Owner))
+        {
+            PersistState state = StateHash[Owner];
+            ExitState(state);
+        }
+    }
+
+    public void ExitState(PersistState state)
+    {
+        if (!activeState.Contains(state))
+            return;
+        if (state.Owner != null)
+            StateHash.Remove(state.Owner);
+        state.OnStateExit();
+        activeState.Remove(state);
+    }
+
+    public bool StateActive(PersistState state)
+    {
+        return activeState.Contains(state);
+    }
 
     public bool SplashScreenHidden = false;//开屏splash图是否隐藏.隐藏后其他界面才能开始更新
     void OnApplicationQuit()
@@ -67,10 +130,9 @@ public class Main : MonoBehaviour {
     private void Awake()
     {
         Instance = this;
-        GameStateManager = new MainGameStateManager();
+        //GameStateManager = new MainGameStateManager();
         DialogStateManager = new MainDialogStateManager(true);
         PopupStateManager = new MainPopupStateManager();
-        PersistState = PersistStateMgr.Instance;
         GlobalUpdate.Instance.LoadCache();
         GameData.Instance.LoadState();
         GameData.Instance.InitTable();
@@ -87,9 +149,10 @@ public class Main : MonoBehaviour {
     Coroutine checkUpdate;
     void Start()
     {
+        //GameStateManager.Init();
         DialogStateManager.Init();
         PopupStateManager.Init();
-        PersistState.Init();
+        Init();
         UnityEngine.Random.InitState((int)System.DateTime.UtcNow.Ticks);
         DialogStateManager.ChangeState(DialogStateManager.ConnectDialogState);
         if (checkUpdate == null)
@@ -291,9 +354,13 @@ public class Main : MonoBehaviour {
 
         DialogStateManager.Update();
         PopupStateManager.Update();
-        PersistState.Update();
-        //if (Global.Instance.GLevelItem == null)
-        //    DlcMng.Instance.Update();
+        for (int i = 0; i < activeState.Count; i++)
+        {
+            activeState[i].OnUpdate();
+        }
+        //模组管理器下载
+        if (Global.Instance.GLevelItem == null)
+            DlcMng.Instance.Update();
     }
 
     private void LateUpdate()
@@ -301,7 +368,10 @@ public class Main : MonoBehaviour {
         StateManager.AfterUpdate();
         DialogStateManager.OnLateUpdate();
         PopupStateManager.OnLateUpdate();
-        PersistState.OnLateUpdate();
+        for (int i = 0; i < activeState.Count; i++)
+        {
+            activeState[i].OnLateUpdate();
+        }
     }
 
     UpdateVersion Complete = null;
@@ -374,7 +444,6 @@ public class Main : MonoBehaviour {
                     LocalMsg msg = new LocalMsg();
                     msg.Message = (int)LocalMsgType.GameStart;
                     ProtoHandler.PostMessage(msg);
-                    //GameStart();
                 }
             }
             , zipInfo.File.Loadbytes, zipInfo.File);
@@ -383,7 +452,6 @@ public class Main : MonoBehaviour {
 
     void ExtractUPK(UpdateVersion zipInfo)
     {
-        Log.WriteError("ExtractUPK Start");
         try
         {
             string localPak = ResMng.GetUpdateTmpPath() + "/" + Guid.NewGuid().ToString() + ".pak";
@@ -399,7 +467,6 @@ public class Main : MonoBehaviour {
         {
             Log.WriteError(exp.Message + "|" + exp.StackTrace);
         }
-        Log.WriteError("ExtractUPK End");
     }
 
     //拉取Global.json,得到新版本信息和地址.

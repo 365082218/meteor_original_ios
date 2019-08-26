@@ -18,7 +18,7 @@ public class Global
             return _Instance;
         }
     }
-
+    public bool Logined = false;
     public ServerInfo Server;//当前选择的服务器.
     public List<ServerInfo> Servers = new List<ServerInfo>();
     public float FPS = 1.0f / 30.0f;//动画设计帧率
@@ -182,17 +182,16 @@ public class Global
         //    FirstLoadingController.Instance.Close();
     }
 
-    //不区分大小写字母.
 	public static GameObject ldaControlX (string name, GameObject parent) {
         if (parent.name == name)
             return parent;
 		for (int i=0; i < parent.transform.childCount; i++) {
 			GameObject childObj = parent.transform.GetChild(i).gameObject;
-			if(name.ToLower() == childObj.name.ToLower()){
+			if (name == childObj.name){
 				return childObj;
 			}
 			GameObject childchildObj = ldaControlX (name, childObj);
-			if(childchildObj != null)
+			if (childchildObj != null)
 				return childchildObj;
 		}
 		return null;

@@ -111,7 +111,7 @@ class SceneMng:Singleton<SceneMng>
         }
         unit.Init(mon.Model, mon);
         UnitTopState unitTopState = new UnitTopState(unit);
-        PersistStateMgr.Instance.EnterState(unitTopState);
+        Main.Instance.EnterState(unitTopState);
         MeteorManager.Instance.OnGenerateUnit(unit);
         LuaFunction onInit = mon.sState["OnInit"] as LuaFunction;
         onInit.call(mon.sState, unit.InstanceId);

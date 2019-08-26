@@ -23,10 +23,21 @@ namespace Idevgame.GameState.DialogState {
         public UIAdjustDialogState UIAdjustDialogState;
         public EscConfirmDialogState EscConfirmDialogState;
         public StartupDialogState StartupDialogState;
-        public LevelDialogState LevelDialogState;//单机关卡选择页面
-        public DlcDialogState DlcDialogState;//资料片剧本选择界面
+        public LevelDialogState LevelDialogState;//关卡选择页面,单机/剧本
+        public DlcDialogState DlcDialogState;//剧本选择界面
+        public WorldTemplateDialogState WorldTemplateDialogState;
+        public MainLobbyDialogState MainLobbyDialogState;
+        public SettingDialogState SettingDialogState;
         public UpdateDialogState UpdateDialogState;
-        public DlcLevelDialogState DlcLevelDialogState;
+        public RoomOptionDialogState RoomOptionDialogState;
+        public ServerListDialogState ServerListDialogState;
+        public RecordSelectDialogState RecordSelectDialogState;
+        public HostEditDialogState HostEditDialogState;
+        public LoginDialogState LoginDialogState;
+        public DlcInfoDialogState DlcInfoDialogState;
+        public RoleSelectDialogState RoleSelectDialogState;
+        public WeaponSelectDialogState WeaponSelectDialogState;
+        public MatchDialogState MatchDialogState;
         public MainDialogStateManager(bool createState) {
             //GameOverDialogState = new GameOverDialogState(this);
             //HelpDialogState = new HelpDialogState(this);
@@ -45,7 +56,17 @@ namespace Idevgame.GameState.DialogState {
                 LevelDialogState = new LevelDialogState(this);
                 UpdateDialogState = new UpdateDialogState(this);
                 DlcDialogState = new DlcDialogState(this);
-                DlcLevelDialogState = new DlcLevelDialogState(this);
+                WorldTemplateDialogState = new WorldTemplateDialogState(this);
+                MainLobbyDialogState = new MainLobbyDialogState(this);
+                RoomOptionDialogState = new RoomOptionDialogState(this);
+                ServerListDialogState = new ServerListDialogState(this);
+                RecordSelectDialogState = new RecordSelectDialogState(this);
+                HostEditDialogState = new HostEditDialogState(this);
+                SettingDialogState = new SettingDialogState(this);
+                LoginDialogState = new LoginDialogState(this);
+                DlcInfoDialogState = new DlcInfoDialogState(this);
+                WeaponSelectDialogState = new WeaponSelectDialogState(this);
+                MatchDialogState = new MatchDialogState(this);
             }
         }
 

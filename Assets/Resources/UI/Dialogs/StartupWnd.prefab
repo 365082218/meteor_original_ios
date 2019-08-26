@@ -528,7 +528,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u6D41\u661F\u6B63\u5728\u542F\u52A8%c"
+  m_Text: "\u6D41\u661F\u6B63\u5728\u542F\u52A8"
 --- !u!114 &114253976522452934
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1184,7 +1184,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 28, y: 1}
-  m_SizeDelta: {x: 89, y: 16}
+  m_SizeDelta: {x: 45, y: 16}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!224 &224368072814713636
 RectTransform:

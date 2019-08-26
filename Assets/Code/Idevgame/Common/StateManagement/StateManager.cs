@@ -113,6 +113,29 @@ namespace Idevgame.StateManagement {
                 return StateManager.ChangeState(newState, data);
             }
 
+            protected virtual bool ChangeSubState(S newState)
+            {
+                return ChangeSubState(newState, null);
+            }
+
+            private S currentSubState;
+            private S previousSubState;
+            protected virtual bool ChangeSubState(S newState, object data)
+            {
+                if (currentSubState != null)
+                {
+                    previousSubState = currentSubState;
+                    currentSubState.OnExit(newState, data);
+                }
+                if (newState != null)
+                {
+                    currentSubState = newState;
+                    currentSubState.OnEnter(previousSubState, data);
+                }
+                return true;
+            }
+
+
         }
 
         protected virtual string Tag { get { return GetType().Name; } }
@@ -142,9 +165,6 @@ namespace Idevgame.StateManagement {
         public bool ForceStateReload { get; set; }
 
         protected bool OnActionExecuting;
-
-        private const string MsgInvalidToFireAction = "It's invalid to fire an action inside any of the State's methods. Fired action {0} in current state {1}.";
-        private const string MsgCantCallOnActionTwiceFromTheSameStack = "Can't call OnAction from the same stack twice or more...";
 
         public override bool IsActive() {
             return CurrentState != null;

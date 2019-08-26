@@ -31,7 +31,7 @@ public class Chapter
     [ProtoMember(2)]
     public int ChapterId;
     [ProtoMember(3)]
-    public string Path;//zip路径
+    public string Path;//zip路径-非本地路径
     [ProtoMember(4)]
     public Dependence Res;//依赖资源，包括Model,地图(不存在基础场景内的)
     [ProtoMember(5)]
@@ -107,6 +107,20 @@ public class Chapter
             }
         }
     }
+
+    public void CleanRes()
+    {
+        for (int j = 0; j < resPath.Length; j++)
+        {
+            if (System.IO.File.Exists(resPath[j]))
+            {
+                System.IO.File.Delete(resPath[j]);
+            }
+        }
+        if (System.IO.File.Exists(LocalPath))
+            System.IO.File.Delete(LocalPath);
+        Installed = false;
+    }
     
     //加载资料片内得关卡关卡.
     public void LoadLevel(int levelIdx)
@@ -173,5 +187,19 @@ public class ModelItem
         {
             return U3D.GetDefaultFile(Path, 0, true, false);
         }
+    }
+
+    public void CleanRes()
+    {
+        for (int j = 0; j < resPath.Length; j++)
+        {
+            if (System.IO.File.Exists(resPath[j]))
+            {
+                System.IO.File.Delete(resPath[j]);
+            }
+        }
+        if (System.IO.File.Exists(LocalPath))
+            System.IO.File.Delete(LocalPath);
+        Installed = false;
     }
 }

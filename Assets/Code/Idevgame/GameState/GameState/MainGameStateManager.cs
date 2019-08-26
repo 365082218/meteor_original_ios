@@ -8,9 +8,6 @@ namespace Idevgame.GameState {
     public class MainGameStateManager : GameStateManager<BaseGameState,GameAction> {
 
         public static bool BlockUpdatesOnStart = true;
-        // Game Settings
-        //public SettingsState SettingsState { get; private set; }
-        public FightState FightState;
         public MainGameStateManager() {
             //SettingsState = new SettingsState(this);
         }

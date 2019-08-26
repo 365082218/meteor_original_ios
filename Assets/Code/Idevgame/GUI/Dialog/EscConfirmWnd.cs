@@ -54,7 +54,7 @@ public class EscConfirmWnd : Dialog
         BuffMng.Instance.Clear();
         MeteorManager.Instance.Clear();
         OnBackPress();
-        Main.Instance.PersistState.ExitState(Main.Instance.PersistState.FightDialog);
+        Main.Instance.ExitState(Main.Instance.FightDialogState);
         if (GameOverlayDialogState.Exist())
             GameOverlayDialogState.Instance.ClearSystemMsg();
         //离开副本

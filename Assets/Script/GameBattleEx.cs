@@ -177,8 +177,6 @@ public partial class GameBattleEx : LockBehaviour {
     float timeDelay = 1;
     List<int> UnitActKeyDeleted = new List<int>();
     //战斗场景时，需要每一帧执行的.
-    public delegate void OnUpdate();
-    public event OnUpdate OnUpdates;
     protected override void LockUpdate()
     {
         if (showResult)
@@ -196,9 +194,6 @@ public partial class GameBattleEx : LockBehaviour {
             showResultTick += FrameReplay.deltaTime;
             return;
         }
-
-        if (OnUpdates != null)
-            OnUpdates();
 
         if (Global.Instance.PauseAll)
             return;

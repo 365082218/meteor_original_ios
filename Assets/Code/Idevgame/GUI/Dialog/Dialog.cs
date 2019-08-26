@@ -17,7 +17,18 @@ public class Dialog:UIBehaviour
 {
     protected FadeInEffect effectIn = FadeInEffect.None;
     protected float duration = 0.5f;//¹ý³¡¶¯»­0.5s
+    public BaseDialogState State { get { return OwnerState; } }
     private BaseDialogState OwnerState;
+    protected GameObject WndObject { get { return gameObject; } }
+    public GameObject Control(string child)
+    {
+        return Control(child, gameObject);
+    }
+
+    protected GameObject Control(string child, GameObject root)
+    {
+        return Global.ldaControlX(child, root);
+    }
 
     public virtual void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
     {
@@ -35,14 +46,31 @@ public class Dialog:UIBehaviour
 
     }
 
+    public virtual void OnClose()
+    {
+
+    }
+
     public virtual void OnBackPress()
     {
-        OwnerState.DialogStateManager.FireAction(DialogAction.Close);
+        if (Persist != null)
+        {
+            Main.Instance.ExitState(Persist);
+            Persist = null;
+        }
+        if (OwnerState != null)
+            OwnerState.DialogStateManager.FireAction(DialogAction.Close);
     }
 
     public virtual void OnPreviousPress()
     {
-        OwnerState.DialogStateManager.FireAction(DialogAction.Previous);
+        if (Persist != null)
+        {
+            Main.Instance.ExitState(Persist);
+            Persist = null;
+        }
+        if (OwnerState != null)
+            OwnerState.DialogStateManager.FireAction(DialogAction.Previous);
     }
 
 
