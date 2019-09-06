@@ -2888,14 +2888,14 @@ public partial class MeteorUnit : LockBehaviour
             }
         }
 
-        //if (FightWnd.Exist)
-        //{
-        //    //先飘血。
-        //    if (Attr.IsPlayer)
-        //        FightWnd.Instance.UpdatePlayerInfo();
-        //    else if (GameData.Instance.gameStatus.ShowBlood && !SameCamp(MeteorManager.Instance.LocalPlayer))
-        //        FightWnd.Instance.UpdateMonsterInfo(this);
-        //}
+        if (FightDialogState.Exist())
+        {
+            //先飘血。
+            if (Attr.IsPlayer)
+                FightDialogState.Instance.UpdatePlayerInfo();
+            else if (GameData.Instance.gameStatus.ShowBlood && !SameCamp(MeteorManager.Instance.LocalPlayer))
+                FightDialogState.Instance.UpdateMonsterInfo(this);
+        }
     }
 
     //除了，武器碰撞，特效碰撞，还可以是buff，机关
@@ -3047,14 +3047,14 @@ public partial class MeteorUnit : LockBehaviour
                 }
             }
         }
-        //if (FightWnd.Exist)
-        //{
-        //    //先飘血。
-        //    if (Attr.IsPlayer)
-        //        FightWnd.Instance.UpdatePlayerInfo();
-        //    else if (GameData.Instance.gameStatus.ShowBlood && !SameCamp(MeteorManager.Instance.LocalPlayer))
-        //        FightWnd.Instance.UpdateMonsterInfo(this);
-        //}
+        if (FightDialogState.Exist())
+        {
+            //先飘血。
+            if (Attr.IsPlayer)
+                FightDialogState.Instance.UpdatePlayerInfo();
+            else if (GameData.Instance.gameStatus.ShowBlood && !SameCamp(MeteorManager.Instance.LocalPlayer))
+                FightDialogState.Instance.UpdateMonsterInfo(this);
+        }
     }
 
     public void CrouchRush(int dir = 0)

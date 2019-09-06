@@ -1,8 +1,26 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 namespace Idevgame.Util
 {
+    //关卡
+    public static class LevelUtils
+    {
+        public static void AddGridItem(Level lev, Transform parent, System.Action<Level> OnSelect)
+        {
+            GameObject objPrefab = Resources.Load("LevelSelectItem", typeof(GameObject)) as GameObject;
+            GameObject obj = GameObject.Instantiate(objPrefab) as GameObject;
+            obj.transform.SetParent(parent);
+            obj.name = lev.Name;
+            obj.GetComponent<Button>().onClick.AddListener(() => { if (OnSelect != null) OnSelect(lev); });
+            obj.GetComponentInChildren<Text>().text = lev.Name;
+            obj.transform.localPosition = Vector3.zero;
+            obj.transform.localScale = Vector3.one;
+        }
+    }
+
     public static class ObjectUtils 
     {
         public static GameObject Identity(this GameObject obj, Transform parent)

@@ -2,14 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
-using System.IO;
-using ProtoBuf;
 using Idevgame.GameState.DialogState;
-using Idevgame.StateManagement;
-using Idevgame.StateManagement.DialogStateManagement;
-using Idevgame.StateManagement.GameStateManagement;
 
-public class ModelSelectDialogState:CommonDialogState<ModelSelectUiController>
+public class ModelSelectDialogState:CommonDialogState<ModelSelectDialog>
 {
     public override string DialogName { get { return "ModelWnd"; } }
     public ModelSelectDialogState(MainDialogStateManager dialogState):base(dialogState)
@@ -18,7 +13,7 @@ public class ModelSelectDialogState:CommonDialogState<ModelSelectUiController>
     }
 }
 //主角模型选择.
-public class ModelSelectUiController: Dialog
+public class ModelSelectDialog: Dialog
 {
     public GameObject GridViewRoot;
     public Button Close;
@@ -26,8 +21,15 @@ public class ModelSelectUiController: Dialog
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
+        Init();
         Close.onClick.AddListener(() => { OnBackPress(); });
         loadModel = Main.Instance.StartCoroutine(LoadModels());
+    }
+
+    void Init()
+    {
+        Close = Control("Close").GetComponent<Button>();
+        GridViewRoot = Control("GridViewRoot");
     }
 
     IEnumerator LoadModels()

@@ -91,8 +91,6 @@ public class ScriptBase
 
     public void SetScene(string fun, int arg)
     {
-        if (GameData.Instance.gameStatus.DisableParticle)
-            return;
         if (fun == "snow")
         {
             if (arg == 1)

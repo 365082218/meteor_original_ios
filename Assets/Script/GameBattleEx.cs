@@ -186,10 +186,8 @@ public partial class GameBattleEx : LockBehaviour {
                 showResultTick = 0.0f;
                 showResult = false;
                 //打开结算面板
-                //if (BattleResultWnd.Exist)
-                //    BattleResultWnd.Instance.Close();
-                //BattleResultWnd.Instance.Open();
-                //BattleResultWnd.Instance.SetResult(this.Result);
+                Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.BattleResultDialogState);
+                BattleResultDialogState.Instance.SetResult(this.Result);
             }
             showResultTick += FrameReplay.deltaTime;
             return;
@@ -1672,8 +1670,8 @@ public class ActionConfig
             else if (action[action.Count - 1].type == StackAction.SAY)
             {
                 MeteorUnit unit = U3D.GetUnit(id);//, action[action.Count - 1])
-                //if (FightWnd.Exist && unit != null)
-                //    FightWnd.Instance.InsertFightMessage(unit.name + " : " + action[action.Count - 1].text);
+                if (FightDialogState.Exist() && unit != null)
+                    FightDialogState.Instance.InsertFightMessage(unit.name + " : " + action[action.Count - 1].text);
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.SKILL)

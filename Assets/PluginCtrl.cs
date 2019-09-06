@@ -14,6 +14,8 @@ public class PluginCtrl : MonoBehaviour {
     [SerializeField]
     Button Install;
     [SerializeField]
+    Image InstallProgress;
+    [SerializeField]
     Text Title;
     [SerializeField]
     Button Function;
@@ -40,11 +42,11 @@ public class PluginCtrl : MonoBehaviour {
 
         if (downLoadComplete && !instanllComplete)
         {
-            Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("InstallIng");
+            InstallProgress.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("InstallIng", currentPercent);
         }
         else if (downLoadComplete && instanllComplete && !showTips)
         {
-            Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("UnInstall");//安装完成后，该按钮变为卸载按钮.
+            InstallProgress.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("UnInstall");//安装完成后，该按钮变为卸载按钮.
             if (Target != null)
                 U3D.PopupTip(LanguagesMgr.GetText("Install.Model.Complete", Target.Name));
             if (Chapter != null)
@@ -54,7 +56,7 @@ public class PluginCtrl : MonoBehaviour {
         }
         else if (downLoadError)
         {
-            Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Install.Failed");
+            InstallProgress.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Install.Failed");
             downLoadError = false;
         }
     }
@@ -70,7 +72,7 @@ public class PluginCtrl : MonoBehaviour {
             {
                 Target.CleanRes();
                 GameData.Instance.gameStatus.UnRegisterModel(Target);
-                Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Install");
+                InstallProgress.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Install");
                 loading = false;
                 GameData.Instance.SaveState();
                 return;
@@ -79,7 +81,7 @@ public class PluginCtrl : MonoBehaviour {
             {
                 //开始下载
                 DlcMng.Instance.AddDownloadTask(this);
-                Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Cancel");
+                InstallProgress.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Cancel");
                 loading = true;
                 retryNum = 0;
             }
@@ -88,7 +90,7 @@ public class PluginCtrl : MonoBehaviour {
                 //取消下载
                 DlcMng.Instance.RemoveDownloadTask(this);
                 loading = false;
-                Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Install");
+                InstallProgress.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Install");
             }
         }
 
@@ -98,7 +100,7 @@ public class PluginCtrl : MonoBehaviour {
             {
                 Chapter.CleanRes();
                 GameData.Instance.gameStatus.UnRegisterDlc(Chapter);
-                Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Install");
+                InstallProgress.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Install");
                 loading = false;
                 GameData.Instance.SaveState();
                 return;
@@ -106,7 +108,7 @@ public class PluginCtrl : MonoBehaviour {
             if (!loading)
             {
                 DlcMng.Instance.AddDownloadTask(this);
-                Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Cancel");
+                InstallProgress.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Cancel");
                 loading = true;
                 retryNum = 0;
             }
@@ -114,7 +116,7 @@ public class PluginCtrl : MonoBehaviour {
             {
                 DlcMng.Instance.RemoveDownloadTask(this);
                 loading = false;
-                Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Install");
+                InstallProgress.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Install");
             }
         }
     }
@@ -234,7 +236,7 @@ public class PluginCtrl : MonoBehaviour {
         if (GameData.Instance.gameStatus.IsModelInstalled(Target))
         {
             Target.Installed = true;
-            Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("UnInstall");
+            InstallProgress.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("UnInstall");
             wantPercent = 100;
             //从本地读取一张图片，作为预览图
             if (System.IO.File.Exists(it.Preview))
@@ -259,13 +261,13 @@ public class PluginCtrl : MonoBehaviour {
         Chapter = chapter;
         Function.onClick.RemoveAllListeners();
         Function.onClick.AddListener(()=> {
-            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.DlcInfoDialogState);
+            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.DlcInfoDialogState, Chapter);
         });
         //已经安装
         if (GameData.Instance.gameStatus.IsDlcInstalled(Chapter))
         {
             Chapter.Installed = true;
-            Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("UnInstall");
+            InstallProgress.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("UnInstall");
             wantPercent = 100;
             //从本地读取一张图片，作为预览图
             if (System.IO.File.Exists(Chapter.Preview))

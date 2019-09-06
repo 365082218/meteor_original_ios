@@ -19,12 +19,13 @@ public class GameOverlayDialogState : PersistDialog<GameOverlayWnd>
 }
 
 public class GameOverlayWnd : Dialog  {
-
     public GameObject content;
     public AutoMsgCtrl ctrl;
-    public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
+    public override void OnDialogStateEnter(PersistState ownerState, BaseDialogState previousDialog, object data)
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
+        GameObject.DontDestroyOnLoad(gameObject);
+        InsertSystemMsg("OK");
     }
 
     public static int MaxMsg = 10;

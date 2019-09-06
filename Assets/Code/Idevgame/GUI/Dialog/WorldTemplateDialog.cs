@@ -87,7 +87,7 @@ public class WorldTemplateDialog : Dialog
             Level lev = allLevel[i];
             if (lev == null)
                 continue;
-            AddGridItem(lev, TemplateRoot.transform);
+            Idevgame.Util.LevelUtils.AddGridItem(lev, TemplateRoot.transform, OnSelectLevel);
         }
         select = Global.Instance.GetLevel(GameData.Instance.gameStatus.ChapterTemplate, GameData.Instance.gameStatus.Single.LevelTemplate);
         OnSelectLevel(select);
@@ -188,17 +188,5 @@ public class WorldTemplateDialog : Dialog
             Global.Instance.MaxPlayer = GameData.Instance.gameStatus.Single.MaxPlayer;
             U3D.LoadLevel(select.ID, LevelMode.CreateWorld, (GameMode)GameData.Instance.gameStatus.Single.Mode);
         }
-    }
-
-    void AddGridItem(Level lev, Transform parent)
-    {
-        GameObject objPrefab = Resources.Load("LevelSelectItem", typeof(GameObject)) as GameObject;
-        GameObject obj = GameObject.Instantiate(objPrefab) as GameObject;
-        obj.transform.SetParent(parent);
-        obj.name = lev.Name;
-        obj.GetComponent<Button>().onClick.AddListener(() => { OnSelectLevel(lev); });
-        obj.GetComponentInChildren<Text>().text = lev.Name;
-        obj.transform.localPosition = Vector3.zero;
-        obj.transform.localScale = Vector3.one;
     }
 }

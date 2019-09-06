@@ -39,7 +39,7 @@ public class SceneItemAgent : LockBehaviour {
     {
         initializeY = transform.position.y;
         //自转+高度转
-        if (!property.names.ContainsKey("machine") && gameObject.activeSelf && !billBoard)
+        if (!property.names.ContainsKey("machine") && !billBoard)
         {
             if (curve == null)
             {
@@ -608,7 +608,8 @@ public class SceneItemAgent : LockBehaviour {
             else if (sub_features == "active")
             {
                 gameObject.SetActive(value != 0);
-                root.gameObject.SetActive(value != 0);
+                if (root != null)
+                    root.gameObject.SetActive(value != 0);
                 //删除受击框
                 if (value == 0)
                     GameBattleEx.Instance.RemoveCollision(this);

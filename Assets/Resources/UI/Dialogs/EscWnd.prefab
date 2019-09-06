@@ -125,7 +125,6 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 224590770454561946}
-  - component: {fileID: 114633265362824880}
   m_Layer: 5
   m_Name: EscWnd
   m_TagString: Untagged
@@ -1821,7 +1820,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1666066742626368
 GameObject:
   m_ObjectHideFlags: 1
@@ -4497,23 +4496,23 @@ MonoBehaviour:
   m_Interactable: 1
   m_TargetGraphic: {fileID: 114569637047808546}
   toggleTransition: 1
-  graphic: {fileID: 0}
-  m_Group: {fileID: 0}
+  graphic: {fileID: 114298246047868954}
+  m_Group: {fileID: 114475179284782824}
   onValueChanged:
     m_PersistentCalls:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Toggle+ToggleEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_IsOn: 0
-  m_TargetContent: {fileID: 0}
-  m_ImageTarget: {fileID: 0}
-  m_ImageTransition: 0
+  m_TargetContent: {fileID: 1190634543786138}
+  m_ImageTarget: {fileID: 114473387437053410}
+  m_ImageTransition: 1
   m_ImageColors:
     m_NormalColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.5019608}
     m_HighlightedColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.69803923}
     m_PressedColor: {r: 0.34509805, g: 0.34509805, b: 0.34509805, a: 0.69803923}
-    m_ActiveColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.5019608}
-    m_ActiveHighlightedColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.69803923}
+    m_ActiveColor: {r: 1, g: 1, b: 1, a: 1}
+    m_ActiveHighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_ActivePressedColor: {r: 0.34509805, g: 0.34509805, b: 0.34509805, a: 0.69803923}
     m_DisabledColor: {r: 0.2509804, g: 0.2509804, b: 0.2509804, a: 0.5019608}
     m_ColorMultiplier: 1
@@ -4533,14 +4532,14 @@ MonoBehaviour:
     m_ActiveHighlightedTrigger: ActiveHighlighted
     m_ActivePressedTrigger: ActivePressed
     m_DisabledTrigger: Disabled
-  m_TextTarget: {fileID: 0}
-  m_TextTransition: 0
+  m_TextTarget: {fileID: 114923971233258672}
+  m_TextTransition: 1
   m_TextColors:
     m_NormalColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.5019608}
     m_HighlightedColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.69803923}
     m_PressedColor: {r: 0.34509805, g: 0.34509805, b: 0.34509805, a: 0.69803923}
-    m_ActiveColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.5019608}
-    m_ActiveHighlightedColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.69803923}
+    m_ActiveColor: {r: 1, g: 1, b: 1, a: 1}
+    m_ActiveHighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_ActivePressedColor: {r: 0.34509805, g: 0.34509805, b: 0.34509805, a: 0.69803923}
     m_DisabledColor: {r: 0.2509804, g: 0.2509804, b: 0.2509804, a: 0.5019608}
     m_ColorMultiplier: 1
@@ -5752,15 +5751,15 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114363917129975928}
   toggleTransition: 1
   graphic: {fileID: 0}
-  m_Group: {fileID: 0}
+  m_Group: {fileID: 114475179284782824}
   onValueChanged:
     m_PersistentCalls:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Toggle+ToggleEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_IsOn: 0
-  m_TargetContent: {fileID: 0}
-  m_ImageTarget: {fileID: 0}
+  m_TargetContent: {fileID: 1276441463663628}
+  m_ImageTarget: {fileID: 114394747024823930}
   m_ImageTransition: 0
   m_ImageColors:
     m_NormalColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.5019608}
@@ -5787,7 +5786,7 @@ MonoBehaviour:
     m_ActiveHighlightedTrigger: ActiveHighlighted
     m_ActivePressedTrigger: ActivePressed
     m_DisabledTrigger: Disabled
-  m_TextTarget: {fileID: 0}
+  m_TextTarget: {fileID: 114600958918928062}
   m_TextTransition: 0
   m_TextColors:
     m_NormalColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.5019608}
@@ -6041,23 +6040,23 @@ MonoBehaviour:
   m_Interactable: 1
   m_TargetGraphic: {fileID: 114011915985612272}
   toggleTransition: 1
-  graphic: {fileID: 0}
-  m_Group: {fileID: 0}
+  graphic: {fileID: 114725038380038100}
+  m_Group: {fileID: 114475179284782824}
   onValueChanged:
     m_PersistentCalls:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Toggle+ToggleEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_IsOn: 0
-  m_TargetContent: {fileID: 0}
-  m_ImageTarget: {fileID: 0}
-  m_ImageTransition: 0
+  m_TargetContent: {fileID: 1509925070257684}
+  m_ImageTarget: {fileID: 114079739823244380}
+  m_ImageTransition: 1
   m_ImageColors:
     m_NormalColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.5019608}
     m_HighlightedColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.69803923}
     m_PressedColor: {r: 0.34509805, g: 0.34509805, b: 0.34509805, a: 0.69803923}
-    m_ActiveColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.5019608}
-    m_ActiveHighlightedColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.69803923}
+    m_ActiveColor: {r: 1, g: 1, b: 1, a: 1}
+    m_ActiveHighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_ActivePressedColor: {r: 0.34509805, g: 0.34509805, b: 0.34509805, a: 0.69803923}
     m_DisabledColor: {r: 0.2509804, g: 0.2509804, b: 0.2509804, a: 0.5019608}
     m_ColorMultiplier: 1
@@ -6077,14 +6076,14 @@ MonoBehaviour:
     m_ActiveHighlightedTrigger: ActiveHighlighted
     m_ActivePressedTrigger: ActivePressed
     m_DisabledTrigger: Disabled
-  m_TextTarget: {fileID: 0}
-  m_TextTransition: 0
+  m_TextTarget: {fileID: 114462116999345198}
+  m_TextTransition: 1
   m_TextColors:
     m_NormalColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.5019608}
     m_HighlightedColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.69803923}
     m_PressedColor: {r: 0.34509805, g: 0.34509805, b: 0.34509805, a: 0.69803923}
-    m_ActiveColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.5019608}
-    m_ActiveHighlightedColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.69803923}
+    m_ActiveColor: {r: 1, g: 1, b: 1, a: 1}
+    m_ActiveHighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_ActivePressedColor: {r: 0.34509805, g: 0.34509805, b: 0.34509805, a: 0.69803923}
     m_DisabledColor: {r: 0.2509804, g: 0.2509804, b: 0.2509804, a: 0.5019608}
     m_ColorMultiplier: 1
@@ -7437,23 +7436,23 @@ MonoBehaviour:
   m_Interactable: 1
   m_TargetGraphic: {fileID: 114413013770665556}
   toggleTransition: 1
-  graphic: {fileID: 0}
-  m_Group: {fileID: 0}
+  graphic: {fileID: 114191597322552792}
+  m_Group: {fileID: 114475179284782824}
   onValueChanged:
     m_PersistentCalls:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Toggle+ToggleEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
-  m_IsOn: 0
-  m_TargetContent: {fileID: 0}
-  m_ImageTarget: {fileID: 0}
-  m_ImageTransition: 0
+  m_IsOn: 1
+  m_TargetContent: {fileID: 1414983941701400}
+  m_ImageTarget: {fileID: 114542981010833566}
+  m_ImageTransition: 1
   m_ImageColors:
     m_NormalColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.5019608}
     m_HighlightedColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.69803923}
     m_PressedColor: {r: 0.34509805, g: 0.34509805, b: 0.34509805, a: 0.69803923}
-    m_ActiveColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.5019608}
-    m_ActiveHighlightedColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.69803923}
+    m_ActiveColor: {r: 1, g: 1, b: 1, a: 1}
+    m_ActiveHighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_ActivePressedColor: {r: 0.34509805, g: 0.34509805, b: 0.34509805, a: 0.69803923}
     m_DisabledColor: {r: 0.2509804, g: 0.2509804, b: 0.2509804, a: 0.5019608}
     m_ColorMultiplier: 1
@@ -7473,14 +7472,14 @@ MonoBehaviour:
     m_ActiveHighlightedTrigger: ActiveHighlighted
     m_ActivePressedTrigger: ActivePressed
     m_DisabledTrigger: Disabled
-  m_TextTarget: {fileID: 0}
-  m_TextTransition: 0
+  m_TextTarget: {fileID: 114453085549700682}
+  m_TextTransition: 1
   m_TextColors:
     m_NormalColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.5019608}
     m_HighlightedColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.69803923}
     m_PressedColor: {r: 0.34509805, g: 0.34509805, b: 0.34509805, a: 0.69803923}
-    m_ActiveColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.5019608}
-    m_ActiveHighlightedColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.69803923}
+    m_ActiveColor: {r: 1, g: 1, b: 1, a: 1}
+    m_ActiveHighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_ActivePressedColor: {r: 0.34509805, g: 0.34509805, b: 0.34509805, a: 0.69803923}
     m_DisabledColor: {r: 0.2509804, g: 0.2509804, b: 0.2509804, a: 0.5019608}
     m_ColorMultiplier: 1
@@ -7857,50 +7856,6 @@ MonoBehaviour:
   m_Spacing: {x: 0, y: 2}
   m_Constraint: 0
   m_ConstraintCount: 2
---- !u!114 &114633265362824880
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1064718897476908}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d09e7cb9f4f4c3448bf0dffdeac56be4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Continue: {fileID: 114107422261877254}
-  BGMSlider: {fileID: 114605225303762388}
-  EffectSlider: {fileID: 114308222905374126}
-  HSliderBar: {fileID: 114225798519093520}
-  VSliderBar: {fileID: 114184655399524390}
-  QuitGame: {fileID: 114427411586760350}
-  ResetPosition: {fileID: 114908782925223912}
-  ReloadTable: {fileID: 114587786215445948}
-  SetPosition: {fileID: 114856103288004858}
-  DoScript: {fileID: 114181083060090190}
-  Snow: {fileID: 114553220199770866}
-  EnableSFX: {fileID: 114257927002034146}
-  EnableRobot: {fileID: 114297299435033722}
-  EnableDebugStatus: {fileID: 114065570292264416}
-  EnableWeaponChoose: {fileID: 114279215331563620}
-  EnableInfiniteAngry: {fileID: 114426492890225588}
-  CameraLock: {fileID: 114995425637938862}
-  EnableGodMode: {fileID: 114598268117937020}
-  EnableUnDead: {fileID: 114026716472087354}
-  ShowWayPoint: {fileID: 114294484073909122}
-  HighPerformance: {fileID: 114528147659530180}
-  ShowLog: {fileID: 114017298505022258}
-  ShowLevelDebugButton: {fileID: 114381780001729618}
-  ChangeV107: {fileID: 114139818315189500}
-  ChangeV907: {fileID: 114848919226402646}
-  ChangeModel: {fileID: 114182757905281902}
-  UnlockAll: {fileID: 114837532991933430}
-  SpeedFast: {fileID: 114454743034720392}
-  SpeedSlow: {fileID: 114626853248710710}
-  Particle: {fileID: 114321104357134878}
-  Joystick: {fileID: 114674984161073022}
-  FollowEnemy: {fileID: 114490298611050558}
-  LevelRoot: {fileID: 224615341488231788}
 --- !u!114 &114634932866414032
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -11960,10 +11915,10 @@ RectTransform:
   m_Father: {fileID: 224479231120810970}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 234, y: 70}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224223947034235270
 RectTransform:
@@ -13070,7 +13025,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 67, y: -33}
-  m_SizeDelta: {x: 160, y: 0}
+  m_SizeDelta: {x: 160, y: 32}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!224 &224491331468085366
 RectTransform:

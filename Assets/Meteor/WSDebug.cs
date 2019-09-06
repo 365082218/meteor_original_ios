@@ -15,9 +15,6 @@ public interface DebugInstance
 }
 //负责一些辅助功能，加载原流星的gmc转换为level和解析原流星的引用图片等等
 public class WSDebug : MonoBehaviour {
-    //public int MoveSpeed;
-    //public float GameSpeed = 1.0f;
-    //public int level;
     [SerializeField] private GameObject tabRoot;
     [SerializeField] private GameObject contentRoot;
     [SerializeField] private GameObject buttonPrefab;
@@ -27,7 +24,7 @@ public class WSDebug : MonoBehaviour {
     List<GameObject> tabButton = new List<GameObject>();
     List<GameObject> contentButton = new List<GameObject>();
     private List<object> GlobalDebuggableObjects = new List<object>();
-    public static WSDebug Ins = null;
+    public static WSDebug Ins;
     bool Opened;
     void Awake() {
         Ins = this;

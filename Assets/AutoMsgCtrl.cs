@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 //查找亲儿子,给个时间显示,之后渐变Alpha,之后删除
-public class AutoMsgCtrl : LockBehaviour {
+public class AutoMsgCtrl : MonoBehaviour {
     float lastTime = 2.0f;
     float alphaTime = 0.5f;
     Coroutine fade;
@@ -16,18 +16,15 @@ public class AutoMsgCtrl : LockBehaviour {
         tick = lastTime + alphaTime;
     }
 
-    public new void Awake()
+    public void Awake()
     {
-        orderType = OrderType.Normal;
         for (int i = 0; i < transform.childCount; i++)
             GameObject.Destroy(transform.GetChild(i).gameObject);
         tick = lastTime + alphaTime;
-        base.Awake();
     }
 
-
     // Update is called once per frame
-    protected override void LockUpdate() {
+    protected void Update() {
         if (transform.childCount != 0)
         {
             tick -= FrameReplay.deltaTime;
@@ -80,7 +77,6 @@ public class AutoMsgCtrl : LockBehaviour {
         if (FrameReplay.Instance.time - lastTick <= 1f || msg.Count != 0)
         {
             msg.Add(text);
-            //Debug.LogError("pushmessage");
         }
         else
         {
@@ -88,7 +84,6 @@ public class AutoMsgCtrl : LockBehaviour {
             obj.name = (transform.childCount + 1).ToString();
             Text txt = obj.AddComponent<Text>();
             txt.text = text;
-            //00AAFFFF
             txt.font = Main.Instance.TextFont;
             txt.fontSize = 32;
             txt.alignment = TextAnchor.MiddleLeft;
@@ -99,7 +94,6 @@ public class AutoMsgCtrl : LockBehaviour {
             obj.transform.localPosition = Vector3.zero;
             obj.transform.localRotation = Quaternion.identity;
             lastTick = FrameReplay.Instance.time;
-            //Debug.LogError("pushmessage2");
         }
     }
 }

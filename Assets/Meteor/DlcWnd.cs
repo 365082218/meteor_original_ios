@@ -61,8 +61,6 @@ public class DlcWnd : Dialog {
                 if (!lev.Installed)
                     continue;
                 AddGridItem(lev, rootMenu.transform);
-                AddGridItem(lev, rootMenu.transform);
-                AddGridItem(lev, rootMenu.transform);
                 insertCount++;
                 select = lev;
             }

@@ -51,7 +51,7 @@ public class LevelDialog : Dialog {
                 Level lev = LevelMng.Instance.GetItem(i);
                 if (lev == null)
                     continue;
-                AddGridItem(lev, rootMenu.transform);
+                Idevgame.Util.LevelUtils.AddGridItem(lev, rootMenu.transform, OnSelectLevel);
                 select = lev;
             }
         }
@@ -63,7 +63,7 @@ public class LevelDialog : Dialog {
                 Level lev = Global.Instance.Chapter.GetItem(i);
                 if (lev == null)
                     continue;
-                AddGridItem(lev, rootMenu.transform);
+                Idevgame.Util.LevelUtils.AddGridItem(lev, rootMenu.transform, OnSelectLevel);
                 select = lev;
             }
         }
@@ -91,17 +91,5 @@ public class LevelDialog : Dialog {
             if (background.material == null)
                 OnBackPress();
         }
-    }
-
-    void AddGridItem(Level lev, Transform parent)
-    {
-        GameObject objPrefab = Resources.Load("LevelSelectItem", typeof(GameObject)) as GameObject;
-        GameObject obj = GameObject.Instantiate(objPrefab) as GameObject;
-        obj.transform.SetParent(parent);
-        obj.name = lev.Name;
-        obj.GetComponent<Button>().onClick.AddListener(() => { OnSelectLevel(lev); });
-        obj.GetComponentInChildren<Text>().text = lev.Name;
-        obj.transform.localPosition = Vector3.zero;
-        obj.transform.localScale = Vector3.one;
     }
 }

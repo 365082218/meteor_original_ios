@@ -56,11 +56,19 @@ public class SettingDialog : Dialog {
         Control("AppVerText").GetComponent<Text>().text = AppInfo.Instance.AppVersion();
         Control("MeteorVerText").GetComponent<Text>().text = AppInfo.Instance.MeteorVersion;
 
-        Control("Nick").GetComponentInChildren<Text>().text = GameData.Instance.gameStatus.NickName;
+        
+        Control("Nick").GetComponentInChildren<Text>().text = Global.Instance.Logined ?  GameData.Instance.gameStatus.NickName:"未登录";
         Control("Nick").GetComponent<Button>().onClick.AddListener(
             () =>
             {
-                Main.Instance.EnterState(Main.Instance.NickNameDialogState);
+                if (Global.Instance.Logined)
+                {
+                    Main.Instance.EnterState(Main.Instance.NickNameDialogState);
+                }
+                else
+                {
+                    
+                }
             }
         );
         Toggle highPerfor = Control("HighPerformance").GetComponent<Toggle>();
@@ -135,16 +143,6 @@ public class SettingDialog : Dialog {
         toggleShowWayPoint.onValueChanged.AddListener(OnShowWayPoint);
         if (GameData.Instance.gameStatus.ShowWayPoint)
             OnShowWayPoint(true);
-
-        Toggle toggleEnableLog = Control("ShowLog").GetComponent<Toggle>();
-        toggleEnableLog.isOn = GameData.Instance.gameStatus.EnableLog;
-        toggleEnableLog.onValueChanged.AddListener(OnEnableLog);
-        OnEnableLog(toggleEnableLog.isOn);
-
-        Toggle toggleLevelDebug = Control("ShowLevelDebugButton").GetComponent<Toggle>();
-        toggleLevelDebug.isOn = GameData.Instance.gameStatus.LevelDebug;
-        toggleLevelDebug.onValueChanged.AddListener(OnLevelDebug);
-        OnLevelDebug(toggleLevelDebug.isOn);
 
         Control("ChangeV107").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("1.07"); });
         Control("ChangeV907").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("9.07"); });
@@ -262,24 +260,6 @@ public class SettingDialog : Dialog {
             }
 
         }
-    }
-
-    void OnEnableLog(bool toggle)
-    {
-        GameData.Instance.gameStatus.EnableLog = toggle;
-        if (toggle)
-            WSDebug.Ins.OpenLogView();
-        else
-            WSDebug.Ins.CloseLogView();
-    }
-
-    void OnLevelDebug(bool toggle)
-    {
-        GameData.Instance.gameStatus.LevelDebug = toggle;
-        if (toggle)
-            GamePool.Instance.ShowDbg();
-        else
-            GamePool.Instance.CloseDbg();
     }
 
     void OnChangeVer(string ver)

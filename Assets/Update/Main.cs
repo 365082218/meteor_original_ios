@@ -63,6 +63,7 @@ public class Main : MonoBehaviour {
     public RoomChatDialogState RoomChatDialogState;
     public LoadingEXDialogState LoadingEx;
     public ItemInfoDialogState ItemInfoDialogState;
+    public GunShootDialogStatus GunShootDialogStatus;
     List<PersistState> activeState;
     Dictionary<MonoBehaviour, PersistState> StateHash = new Dictionary<MonoBehaviour, PersistState>();
 
@@ -79,6 +80,7 @@ public class Main : MonoBehaviour {
         RoomChatDialogState = new RoomChatDialogState();
         LoadingEx = new LoadingEXDialogState();
         ItemInfoDialogState = new ItemInfoDialogState();
+        GunShootDialogStatus = new GunShootDialogStatus();
     }
 
     public void EnterState(PersistState state)
@@ -483,7 +485,7 @@ public class Main : MonoBehaviour {
     {
         UnityWebRequest vFile = new UnityWebRequest();
         vFile.url = string.Format(Main.strSFile, Main.strHost, Main.port, Main.strProjectUrl, Main.strNewVersionName);
-        vFile.timeout = 10;
+        vFile.timeout = 20;
         DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
         vFile.downloadHandler = dH;
         yield return vFile.Send();

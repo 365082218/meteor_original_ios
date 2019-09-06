@@ -41,7 +41,9 @@ public class EscConfirmWnd : Dialog
 
     void Init()
     {
+        Leave = Control("Leave").GetComponent<Button>();
         Leave.onClick.AddListener(OnLeave);
+        Continue = Control("Continue").GetComponent<Button>();
         Continue.onClick.AddListener(OnBackPress);
     }
 

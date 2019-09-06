@@ -35,9 +35,13 @@ namespace Idevgame.GameState.DialogState {
         public HostEditDialogState HostEditDialogState;
         public LoginDialogState LoginDialogState;
         public DlcInfoDialogState DlcInfoDialogState;
+        public WeaponDialogState WeaponDialogState;
         public RoleSelectDialogState RoleSelectDialogState;
         public WeaponSelectDialogState WeaponSelectDialogState;
         public MatchDialogState MatchDialogState;
+        public BattleResultDialogState BattleResultDialogState;
+        public SfxDialogState SfxDialogState;
+        public RobotDialogState RobotDialogState;
         public MainDialogStateManager(bool createState) {
             //GameOverDialogState = new GameOverDialogState(this);
             //HelpDialogState = new HelpDialogState(this);
@@ -67,6 +71,10 @@ namespace Idevgame.GameState.DialogState {
                 DlcInfoDialogState = new DlcInfoDialogState(this);
                 WeaponSelectDialogState = new WeaponSelectDialogState(this);
                 MatchDialogState = new MatchDialogState(this);
+                BattleResultDialogState = new BattleResultDialogState(this);
+                SfxDialogState = new SfxDialogState(this);
+                RobotDialogState = new RobotDialogState(this);
+                WeaponDialogState = new WeaponDialogState(this);
             }
         }
 
@@ -213,13 +221,7 @@ namespace Idevgame.GameState.DialogState {
             if (this.CurrentState == null)
             {
                 if (!Main.Instance.SplashScreenHidden) return;
-
-                float time = UnityEngine.Time.timeSinceLevelLoad;
-                if (this.NextDialogsAutoOpenCheckTime < time)
-                {
-                    this.NextDialogsAutoOpenCheckTime = time + 0.2f;
-                    this.CheckAndOpenPopupStates(this.AllPopupStates);
-                }
+                this.CheckAndOpenPopupStates(this.AllPopupStates);
             }
             else
             {

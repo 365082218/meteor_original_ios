@@ -32,7 +32,7 @@ public class ScriptInputDialog:Dialog
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
-        Close.onClick.AddListener(() => { OnBackPress(); });
+        Close.onClick.AddListener(() => { OnPreviousPress(); });
         DoScript.onClick.AddListener(() =>
         {
             if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
@@ -42,13 +42,14 @@ public class ScriptInputDialog:Dialog
             }
             try
             {
-                if (!UseCheatCode(scriptInput.text))
-                    ScriptMng.Instance.CallString(scriptInput.text);
-                else
+                if (string.IsNullOrEmpty(scriptInput.text))
                 {
-                    OnBackPress();
+                    result.text = "输入为空";
                     return;
                 }
+
+                if (!UseCheatCode(scriptInput.text))
+                    ScriptMng.Instance.CallString(scriptInput.text);
                 result.text = "秘籍成功执行";
             }
             catch (Exception exp)

@@ -80,6 +80,7 @@ public class Level : ITableItem
 	public int Id;
 	public string Scene;
     public string Name;
+    public string Desc;//关卡任务描述
     List<WayPoint> wayPoints;
     //23关卡前使用旧版本的WP文件，23关卡后使用场景里设置的出生点.
     public List<WayPoint> wayPoint

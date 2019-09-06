@@ -68,7 +68,6 @@ namespace Idevgame.GameState.DialogState {
         public override void OnStateEnter()
         {
             LoadGui();
-            GameObject.DontDestroyOnLoad(Dialog);
             if (DialogController != null)
             {
                 DialogController.OnDialogStateEnter(this, null, null);

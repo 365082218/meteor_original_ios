@@ -83,7 +83,8 @@ public class FightUiConroller : Dialog
     Text TargetName;
     void Init()
     {
-        LevelTalkRoot = Global.ldaControlX("LevelTalk", WndObject).transform;
+        clickPanel = Control("ClickPanel");
+        LevelTalkRoot = Control("LevelTalk", WndObject).transform;
         ctrl = LevelTalkRoot.GetComponent<AutoMsgCtrl>();
         ctrl.SetConfig(2.0f, 1.5f);
         FloatOpen = Control("FloatOpen");
@@ -131,16 +132,33 @@ public class FightUiConroller : Dialog
             (Global.Instance.GLevelMode == LevelMode.SinglePlayerTask && GameData.Instance.gameStatus.ShowSysMenu2) ||
             (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer));
         Global.ldaControlX("Reborn", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnRebornClick);
+
+        //单机
+        if (Global.Instance.GLevelMode == LevelMode.SinglePlayerTask && Global.Instance.GLevelItem.ID == 4)
+            Global.ldaControlX("Reborn", WndObject).SetActive(true);
+        else
+        {
+            //创建关卡，非暗杀，都不允许复活
+            if (Global.Instance.GGameMode != GameMode.ANSHA)
+                Global.ldaControlX("Reborn", WndObject).SetActive(false);
+        }
+
         //联机屏蔽按键-多人游戏
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
+            //联机还无法复活队友.
             Global.ldaControlX("Reborn", WndObject).SetActive(false);
         }
         else
         {
             //非联机屏蔽按键-单人游戏
-            Global.ldaControlX("Chat", WndObject).SetActive(true);
+            Global.ldaControlX("Chat", WndObject).SetActive(false);
         }
+#if !STRIP_DBG_SETTING
+        Global.ldaControlX("DBG", WndObject).GetComponent<Button>().onClick.AddListener(OnDebugCanvas);
+#else
+        Global.ldaControlX("DBG", WndObject).SetActive(false);
+#endif
         if (MeteorManager.Instance.LocalPlayer != null)
         {
             angryBar.fillAmount = 0.0f;
@@ -176,6 +194,13 @@ public class FightUiConroller : Dialog
         else
             Main.Instance.ExitState(Main.Instance.ChatDialogState);
     }
+
+#if !STRIP_DBG_SETTING
+    void OnDebugCanvas()
+    {
+        U3D.Instance.ShowDbg();
+    }
+#endif
 
     void OnStatusPress()
     {
@@ -274,6 +299,9 @@ public class FightUiConroller : Dialog
         Global.ldaControlX("WeaponSelect", gameObject).SetActive(GameData.Instance.gameStatus.EnableWeaponChoose);
         Global.ldaControlX("SfxMenu", gameObject).SetActive(GameData.Instance.gameStatus.EnableDebugSFX);
         Global.ldaControlX("Robot", gameObject).SetActive(GameData.Instance.gameStatus.EnableDebugRobot);
+#if !STRIP_DBG_SETTING
+        Global.ldaControlX("DBG", gameObject).SetActive(GameData.Instance.gameStatus.LevelDebug);
+#endif
         Global.ldaControlX("MiniMap", gameObject).SetActive(true);
 
         if (NGUIJoystick.instance != null)
@@ -283,16 +311,12 @@ public class FightUiConroller : Dialog
             else
                 NGUIJoystick.instance.OnEnabled();
         }
-
-        if (GameData.Instance.gameStatus.LevelDebug)
-            GamePool.Instance.ShowDbg();
-        else
-            GamePool.Instance.CloseDbg();
+#if !STRIP_DBG_SETTING
         if (GameData.Instance.gameStatus.EnableLog)
             WSDebug.Ins.OpenLogView();
         else
             WSDebug.Ins.CloseLogView();
-
+#endif
         if (NGUIJoystick.instance != null)
             NGUIJoystick.instance.SetAnchor(GameData.Instance.gameStatus.JoyAnchor);
         int j = 0;

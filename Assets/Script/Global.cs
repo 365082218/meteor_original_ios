@@ -182,12 +182,13 @@ public class Global
         //    FirstLoadingController.Instance.Close();
     }
 
+    //必须不区分大小写字母.一些关卡原件大小写未明确.
 	public static GameObject ldaControlX (string name, GameObject parent) {
         if (parent.name == name)
             return parent;
 		for (int i=0; i < parent.transform.childCount; i++) {
 			GameObject childObj = parent.transform.GetChild(i).gameObject;
-			if (name == childObj.name){
+			if(name.ToLower() == childObj.name.ToLower()){
 				return childObj;
 			}
 			GameObject childchildObj = ldaControlX (name, childObj);

@@ -19,6 +19,9 @@ public class U3D : MonoBehaviour {
     {
         if (Instance == null)
             Instance = this;
+#if !STRIP_DBG_SETTING
+        InitDebugSetting();
+#endif
     }
 
     public static void ReloadTable()
@@ -486,17 +489,13 @@ public class U3D : MonoBehaviour {
 
     static UnityEngine.AsyncOperation backOp;
     static UnityEngine.AsyncOperation loadMainOp;
-    static Coroutine loadMain;
     //返回到主目录
-    public static void GoBack(Action t = null)
+    public static void GoBack()
     {
         Global.Instance.GLevelItem = null;
-        if (loadMain != null)
-        {
-            Instance.StopCoroutine(loadMain);
-            loadMain = null;
-        }
-        loadMain = Instance.StartCoroutine(Instance.LoadMainWnd(t));
+        U3D.LoadScene("Startup", () => {
+            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.MainMenuState);
+        });
     }
 
     //修改版本号后回到Startup重新加载资源
@@ -504,27 +503,9 @@ public class U3D : MonoBehaviour {
     {
         FrameReplay.Instance.OnDisconnected();
         Global.Instance.GLevelItem = null;
-        if (loadMain != null)
-        {
-            Instance.StopCoroutine(loadMain);
-            loadMain = null;
-        }
-        loadMain = Instance.StartCoroutine(Instance.LoadStartup());
-    }
-
-    IEnumerator LoadStartup()
-    {
-        ResMng.LoadScene("Startup");
-        backOp = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Startup", UnityEngine.SceneManagement.LoadSceneMode.Single);//.LoadSceneAsync_s (1);
-        yield return backOp;
-    }
-
-    IEnumerator LoadMainWnd(Action t)
-    {
-        ResMng.LoadScene("Menu");
-        loadMainOp = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Menu", UnityEngine.SceneManagement.LoadSceneMode.Single);//.LoadSceneAsync_s (1);
-        yield return loadMainOp;
-        OnLoadMainFinished(t);
+        U3D.LoadScene("Startup", () => {
+            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.StartupDialogState);
+        });
     }
 
     void OnLoadMainFinished(Action t)
@@ -577,34 +558,57 @@ public class U3D : MonoBehaviour {
 
     public static void OpenRobotWnd()
     {
-        //if (RobotWnd.Exist)
-        //    RobotWnd.Instance.Close();
-        //else
-        //    RobotWnd.Instance.Open();
+        if (RobotDialogState.Exist)
+            RobotDialogState.Instance.OnBackPress();
+        else
+            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.RobotDialogState);
     }
 
     public static void OpenSfxWnd()
     {
-        //if (SfxWnd.Exist)
-        //    SfxWnd.Instance.Close();
-        //else
-        //    SfxWnd.Instance.Open();
+        if (SfxDialogState.Exist)
+            SfxDialogState.Instance.OnBackPress();
+        else
+            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.SfxDialogState);
     }
 
     //打开武器界面，主角色调试切换主手武器.
     public static void OpenWeaponWnd()
     {
-        //if (WeaponWnd.Exist)
-        //    WeaponWnd.Instance.Close();
-        //else
-        //    WeaponWnd.Instance.Open();
+        if (WeaponDialogState.Exist)
+            WeaponDialogState.Instance.OnBackPress();
+        else
+            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.WeaponDialogState);
     }
+
+#if !STRIP_DBG_SETTING
+    private GameObject DebugCanvas;
+    void InitDebugSetting()
+    {
+        DebugCanvas = GameObject.Instantiate(ResMng.LoadPrefab("DebugCanvas")) as GameObject;
+        DebugCanvas.transform.SetParent(transform);
+        DebugCanvas.transform.localScale = Vector3.one;
+        DebugCanvas.transform.rotation = Quaternion.identity;
+        DebugCanvas.transform.position = Vector3.zero;
+        DebugCanvas.SetActive(false);
+    }
+
+    public void ShowDbg()
+    {
+        DebugCanvas.SetActive(true);
+    }
+
+    public void CloseDbg()
+    {
+        DebugCanvas.SetActive(false);
+    }
+#endif
 
     public static void OpenSystemWnd()
     {
         if (Global.Instance.GLevelItem != null)
         {
-            //EscWnd.Instance.Open();
+            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.EscDialogState);
             if (NGUIJoystick.instance != null)
                 NGUIJoystick.instance.Lock(true);
             return;
@@ -691,7 +695,7 @@ public class U3D : MonoBehaviour {
         Global.Instance.CampBSpawnIndex = 0;
         Global.Instance.SpawnIndex = 0;
 #if !STRIP_DBG_SETTING
-        WSDebug.Ins.Clear();
+        U3D.Instance.CloseDbg();
 #endif
     }
 
@@ -894,7 +898,7 @@ public class U3D : MonoBehaviour {
             }
         }
         if (SFXLoader.Instance != null && objEffect != null)
-            SFXLoader.Instance.PlayEffect(effect, objEffect.gameObject, loop);
+            SFXLoader.Instance.PlayEffect(effect, objEffect.gameObject, !loop);
     }
 
     public static MeteorUnit GetTeamLeader(EUnitCamp camp)
@@ -1418,8 +1422,12 @@ public class U3D : MonoBehaviour {
             local = local.Replace(".mv", ".mp4");
             Debug.Log("file:" + file);
             downloadMovie.DownloadFileCompleted += (object sender, AsyncCompletedEventArgs e) => {
-                if (e.Error != null)
+                if (e.Error == null)
+                {
+                    Debug.Log("download completed");
                     GameData.Instance.gameStatus.LocalMovie.Add(movie, local);
+                    GameData.Instance.SaveState();
+                }
                 downloadMovie.CancelAsync();
                 downloadMovie.Dispose();
                 downloadMovie = null;

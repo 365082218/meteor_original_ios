@@ -787,6 +787,10 @@ public class CharacterLoader
         else if ((po.Idx >= CommonAction.Idle && po.Idx <= 21) || (po.Idx >= CommonAction.WalkForward && po.Idx <= CommonAction.RunOnDrug))
         {
             //这些动作是不具有硬直的循环动作.
+            if (GameBattleEx.Instance.BattleFinished())
+            {
+                owner.posMng.ChangeAction(CommonAction.Idle);
+            }
         }
         else if (po.Idx == 219 || po.Idx == 221 || po.Idx == 223)//飞轮出击后等待接回飞轮
         {

@@ -32,7 +32,7 @@
   {
     "ID": 7,
     "key": "InstallIng",
-    "chinese": "安装中"
+    "chinese": "安装中{0}%"
   },
   {
     "ID": 8,

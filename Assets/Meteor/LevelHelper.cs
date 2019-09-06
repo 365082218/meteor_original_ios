@@ -132,5 +132,7 @@ public class LevelHelper : MonoBehaviour
         GameBattleEx.Instance.Init(script);
 
         FrameReplay.Instance.OnBattleStart();
+
+        Main.Instance.EnterState(Main.Instance.FightDialogState);
     }
 }
