@@ -442,9 +442,8 @@ class ProtoHandler
         if (result == 1)
         {
             retryNum = 3;
-            //如果没有账号记录=>显示账号注册和登录页面
-            //否则 是否勾选了自动登录 是->自动登录 否->显示账号注册和登录页面 并填上上一次登录的账号
-            TcpClientProxy.AutoLogin();//验证客户端的合法性
+            TcpClientProxy.UpdateGameServer();
+            //TcpClientProxy.AutoLogin();//验证客户端的合法性
         }
         else
         {

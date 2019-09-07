@@ -87,7 +87,14 @@ public class LevelDialog : Dialog {
         if (select != null)
         {
             //单机全部是普通关卡对待.
-            U3D.LoadLevel(select.ID, LevelMode.SinglePlayerTask, GameMode.Normal);
+            if (singlePlayer)
+            {
+                U3D.LoadLevel(select.ID, LevelMode.SinglePlayerTask, GameMode.Normal);
+            }
+            else
+            {
+                Global.Instance.Chapter.LoadLevel(select.ID);
+            }
             if (background.material == null)
                 OnBackPress();
         }

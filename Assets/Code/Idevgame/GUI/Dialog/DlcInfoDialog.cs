@@ -5,7 +5,7 @@ using Idevgame.GameState.DialogState;
 using UnityEngine.UI;
 
 //资料片详情页面.和资料片选择界面，点击预览图 展示资料片详情
-public class DlcInfoDialogState:CommonDialogState<Dialog>
+public class DlcInfoDialogState:CommonDialogState<DlcInfoDialog>
 {
     public override string DialogName { get { return "DlcInfo"; } }
     public DlcInfoDialogState(MainDialogStateManager stateMgr):base(stateMgr)
@@ -21,6 +21,7 @@ public class DlcInfoDialog : Dialog {
     Image background;
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
     {
+        base.OnDialogStateEnter(ownerState, previousDialog, data);
         chapter = data as Chapter;
         Init();
     }
@@ -36,11 +37,27 @@ public class DlcInfoDialog : Dialog {
         levelDesc = Control("LevelDescription").GetComponent<Text>();
         LevelRoot = Control("LevelRoot").transform;
         background = Control("Background").GetComponent<Image>();
+        Control("Yes").GetComponent<Button>().onClick.AddListener(OnEnterChapter);
+        Control("Cancel").GetComponent<Button>().onClick.AddListener(OnPreviousPress);
         if (chapter != null)
         {
             //默认选择到当前剧本通关最远的一关
             ScanLevel = StartCoroutine(Scan());
-            //chapter.level
+        }
+        OnSelectLevel(chapter.GetItem(chapter.level));
+    }
+
+    void OnEnterChapter()
+    {
+        Global.Instance.Chapter = this.chapter;
+        string tip = "";
+        if (!DlcMng.Instance.CheckDependence(Global.Instance.Chapter, out tip))
+        {
+            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.LevelDialogState, false);
+        }
+        else
+        {
+            U3D.PopupTip("模组依赖\n" + tip);
         }
     }
 
