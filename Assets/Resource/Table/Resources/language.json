@@ -48,5 +48,10 @@
     "ID": 10,
     "key": "Install.Failed",
     "chinese": "安装失败"
+  },
+  {
+    "ID": 11,
+    "key": "LoadLevelFailed",
+    "chinese": "关卡脚本为空 关卡ID:{0}, 关卡脚本:{1}"
   }
 ]

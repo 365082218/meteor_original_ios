@@ -160,6 +160,29 @@ public class DlcMng:Singleton<DlcMng> {
         return Target;
     }
 
+    public Chapter FindChapterByLevel(Level lev)
+    {
+        if (Dlcs.Count == 0 && GameData.Instance.gameStatus.pluginChapter != null)
+        {
+            for (int i = 0; i < GameData.Instance.gameStatus.pluginChapter.Count; i++)
+            {
+                if (GameData.Instance.gameStatus.pluginChapter[i].Installed)
+                    Dlcs.Add(GameData.Instance.gameStatus.pluginChapter[i]);
+            }
+        }
+
+        for (int i = 0; i < Dlcs.Count; i++)
+        {
+            Level[] all = Dlcs[i].LoadAll();
+            for (int j = 0; j < all.Length; j++)
+            {
+                if (all[j] == lev)
+                    return Dlcs[i];
+            }
+        }
+        return null;
+    }
+
     public Chapter FindChapter(int dlc)
     {
         Chapter Target = null;

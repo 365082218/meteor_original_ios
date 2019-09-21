@@ -169,7 +169,7 @@ class SceneMng:Singleton<SceneMng>
         
         unit.transform.rotation = new Quaternion(0, 0, 0, 1);
         //OnStart.call();
-        U3D.InsertSystemMsg(unit.name + " 加入游戏");
+        U3D.InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
         mon.OnStart();
         return unit;
     }

@@ -78,14 +78,14 @@ public class LevelHelper : MonoBehaviour
         Destroy(this);
     }
 
-    LevelScriptBase GetLevelScript(string sn)
+    public static LevelScriptBase GetLevelScript(string sn)
     {
         string typeIden = string.Format("LevelScript_{0}", sn);
         Type type = Type.GetType(typeIden);
         if (type == null)
         {
             //尝试在chapter的dll里加载
-            if (System.IO.File.Exists(Global.Instance.Chapter.Dll))
+            if (Global.Instance.Chapter != null && System.IO.File.Exists(Global.Instance.Chapter.Dll))
             {
                 Assembly ass = Assembly.Load(System.IO.File.ReadAllBytes(Global.Instance.Chapter.Dll));
                 Type[] t = ass.GetTypes();

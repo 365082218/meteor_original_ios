@@ -2204,14 +2204,14 @@ public partial class MeteorUnit : LockBehaviour
                 WaitReborn = true;
             }
 
-            //if (killer == null)
-            //{
-            //    GameOverlayWnd.Instance.InsertSystemMsg(string.Format("{0}死亡", name));
-            //}
-            //else
-            //{
-            //    GameOverlayWnd.Instance.InsertSystemMsg(string.Format("{0}击败{1}", killer.name, name));
-            //}
+            if (killer == null)
+            {
+                GameOverlayDialogState.Instance.InsertSystemMsg(string.Format("{0}死亡", name));
+            }
+            else
+            {
+                GameOverlayDialogState.Instance.InsertSystemMsg(string.Format("{0}击败{1}", killer.name, name));
+            }
             posMng.ChangeAction(CommonAction.Dead);
             posMng.WaitPause();//等待这个动作完毕后，暂停播放
             posMng.OnDead();
