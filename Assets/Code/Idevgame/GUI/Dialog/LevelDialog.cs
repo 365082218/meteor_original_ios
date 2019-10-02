@@ -75,9 +75,31 @@ public class LevelDialog : Dialog {
     {
         Material loadingTexture = null;
         if (!string.IsNullOrEmpty(lev.BgTexture))
-            loadingTexture = Resources.Load<Material>(lev.BgTexture) as Material;
-        if (loadingTexture != null)
-            background.material = loadingTexture;
+        {
+            if (singlePlayer)
+            {
+                loadingTexture = GameObject.Instantiate(Resources.Load<Material>(lev.BgTexture)) as Material;
+                if (loadingTexture != null)
+                    background.material = loadingTexture;
+            }
+            else
+            {
+                for (int i = 0; i < Global.Instance.Chapter.resPath.Length; i++)
+                {
+                    if (Global.Instance.Chapter.resPath[i].EndsWith(lev.BgTexture + ".jpg"))
+                    {
+                        byte[] array = System.IO.File.ReadAllBytes(Global.Instance.Chapter.resPath[i]);
+                        Texture2D tex = new Texture2D(0, 0);
+                        tex.LoadImage(array);
+                        loadingTexture = GameObject.Instantiate(Resources.Load<Material>("Scene10")) as Material;
+                        loadingTexture.SetTexture("_MainTex", tex);
+                        loadingTexture.SetColor("_TintColor", Color.white);
+                        background.material = loadingTexture;
+                        break;
+                    }
+                }
+            }
+        }
         select = lev;
         Task.text = select.Name;
     }

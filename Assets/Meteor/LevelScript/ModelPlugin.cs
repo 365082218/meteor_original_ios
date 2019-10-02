@@ -110,12 +110,16 @@ public class Chapter
 
     public void CleanRes()
     {
-        for (int j = 0; j < resPath.Length; j++)
+        if (resPath != null)
         {
-            if (System.IO.File.Exists(resPath[j]))
+            for (int j = 0; j < resPath.Length; j++)
             {
-                System.IO.File.Delete(resPath[j]);
+                if (System.IO.File.Exists(resPath[j]))
+                {
+                    System.IO.File.Delete(resPath[j]);
+                }
             }
+            resPath = null;
         }
         if (System.IO.File.Exists(LocalPath))
             System.IO.File.Delete(LocalPath);
@@ -160,7 +164,8 @@ public class ModelItem
     //内存/存档中取
     [ProtoMember(7)]
     public bool Installed;//是否已安装,解压了zip包.
-
+    [ProtoMember(8)]
+    public bool useFemalePos;//使用女性角色动作
     public void Check()
     {
         for (int j = 0; j < resPath.Length; j++)

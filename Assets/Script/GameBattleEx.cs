@@ -169,8 +169,8 @@ public partial class GameBattleEx : LockBehaviour {
     //多久触发一次.
     void UpdateTime()
     {
-        //if (FightWnd.Exist)
-        //    FightWnd.Instance.UpdateTime(GetTimeClock());
+        if (FightDialogState.Exist())
+            FightDialogState.Instance.UpdateTime(GetTimeClock());
     }
 
     GameObject SelectTarget;

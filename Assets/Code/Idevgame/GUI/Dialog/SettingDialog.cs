@@ -43,7 +43,7 @@ public class SettingDialog : Dialog {
         Control("Return").GetComponent<Button>().onClick.AddListener(() =>
         {
             GameData.Instance.SaveState();
-            OnPreviousPress();
+            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.MainMenuState);
         });
 
         Control("DeleteState").GetComponent<Button>().onClick.AddListener(() =>
@@ -482,6 +482,7 @@ public class SettingDialog : Dialog {
                 Info.Path = js["Model"][i]["zip"].ToString();
                 if (js["Model"][i]["desc"] != null)
                     Info.Desc = js["Model"][i]["desc"].ToString();
+                Info.useFemalePos = js["Model"][i]["gender"] != null;
                 DlcMng.Instance.AddModel(Info);
             }
 
@@ -591,7 +592,6 @@ public class SettingDialog : Dialog {
         for (int i = 0; i < pluginList.Count; i++)
         {
             GameObject.Destroy(pluginList[i].gameObject);
-            yield return 0;
         }
         pluginList.Clear();
         for (int i = pluginPage * pluginPerPage; i < Mathf.Min((pluginPage + 1) * pluginPerPage, DlcMng.Instance.allItem.Count); i++)

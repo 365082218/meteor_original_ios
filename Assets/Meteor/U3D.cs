@@ -489,6 +489,14 @@ public class U3D : MonoBehaviour {
 
     static UnityEngine.AsyncOperation backOp;
     static UnityEngine.AsyncOperation loadMainOp;
+
+    //回到关卡选择面板，继续剧本
+    public static void GoToLevelMenu()
+    {
+        U3D.LoadScene("Startup", () => {
+            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.LevelDialogState, Global.Instance.Chapter == null);
+        });
+    }
     //返回到主目录
     public static void GoBack()
     {
@@ -650,6 +658,7 @@ public class U3D : MonoBehaviour {
     //走参数指定关卡.
     public static void LoadLevel(int id, LevelMode levelmode, GameMode gamemode)
     {
+        Global.Instance.Chapter = null;
         Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.LoadingDialogState);
         //暂时不允许使用声音管理器，在切换场景时不允许播放
         SoundManager.Instance.StopAll();
@@ -659,8 +668,6 @@ public class U3D : MonoBehaviour {
         Global.Instance.GLevelItem = lev;
         Global.Instance.GLevelMode = levelmode;
         Global.Instance.GGameMode = gamemode;
-        Global.Instance.Chapter = null;
-        //LoadingWnd.Instance.Open();
         Resources.UnloadUnusedAssets();
         GC.Collect();
         if (!string.IsNullOrEmpty(lev.sceneItems) && !GameData.Instance.gameStatus.SkipVideo && levelmode == LevelMode.SinglePlayerTask && Global.Instance.Chapter == null)

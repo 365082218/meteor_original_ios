@@ -272,7 +272,7 @@ public class DlcMng:Singleton<DlcMng> {
         lock (DownloadTask)
         {
             if (!DownloadTask.Contains(uiCtrl))
-                DownloadTask.Add(uiCtrl);
+                DownloadTask.Insert(0, uiCtrl);
         }
     }
 

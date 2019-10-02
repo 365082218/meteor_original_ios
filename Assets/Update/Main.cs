@@ -183,15 +183,12 @@ public class Main : MonoBehaviour {
     void GotoMenu()
     {
         MeteorManager.Instance.Clear();
-        //FightWnd.Instance.Close();
-        //if (Global.Instance.GLevelMode == LevelMode.Teach || Global.Instance.GLevelMode == LevelMode.CreateWorld)
-        //    U3D.GoBack(() => { MainWnd.Instance.Open(); });
-        //else if (Global.Instance.Chapter != null)
-        //{
-        //    U3D.GoBack(() => { DlcLevelSelect.Instance.Open(); });
-        //}
-        //else
-        //    U3D.GoBack(() => { MainMenu.Instance.Open(); });
+        if (Global.Instance.GLevelMode == LevelMode.Teach || Global.Instance.GLevelMode == LevelMode.CreateWorld)
+            U3D.GoBack();
+        else 
+        {
+            U3D.GoToLevelMenu();
+        }
     }
 
     public void GameStart()

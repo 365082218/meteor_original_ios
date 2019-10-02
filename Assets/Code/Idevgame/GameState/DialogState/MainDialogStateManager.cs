@@ -34,7 +34,6 @@ namespace Idevgame.GameState.DialogState {
         public RecordSelectDialogState RecordSelectDialogState;
         public HostEditDialogState HostEditDialogState;
         public LoginDialogState LoginDialogState;
-        public DlcInfoDialogState DlcInfoDialogState;
         public WeaponDialogState WeaponDialogState;
         public RoleSelectDialogState RoleSelectDialogState;
         public WeaponSelectDialogState WeaponSelectDialogState;
@@ -68,7 +67,6 @@ namespace Idevgame.GameState.DialogState {
                 HostEditDialogState = new HostEditDialogState(this);
                 SettingDialogState = new SettingDialogState(this);
                 LoginDialogState = new LoginDialogState(this);
-                DlcInfoDialogState = new DlcInfoDialogState(this);
                 WeaponSelectDialogState = new WeaponSelectDialogState(this);
                 MatchDialogState = new MatchDialogState(this);
                 BattleResultDialogState = new BattleResultDialogState(this);

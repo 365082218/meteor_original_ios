@@ -208,8 +208,12 @@ public class PoseStatus
                             return;
                         }
                     }
+                    if (m.useFemalePos)
+                        ActionList.Add(UnitId, ActionList[1]);
+                    else
+                        ActionList.Add(UnitId, ActionList[0]);
                 }
-                ActionList.Add(UnitId, ActionList[0]);
+                
             }
             else
             {
