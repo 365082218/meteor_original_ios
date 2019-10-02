@@ -343,6 +343,8 @@ public class Main : MonoBehaviour {
             Complete = null;
         }
 
+        Camera
+
         if (GameBattleEx.Instance != null && !GameBattleEx.Instance.BattleFinished() && Global.Instance.GLevelMode <= LevelMode.CreateWorld)
         {
             if (Input.GetKeyUp(KeyCode.Escape))

@@ -41,6 +41,7 @@ public class MainMenu : Dialog
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
+        Global.Instance.Chapter = null;
         //进入主界面，创建全局
         Main.Instance.EnterState(Main.Instance.GameOverlay);
         Init();
@@ -117,7 +118,7 @@ public class MainMenu : Dialog
     //教学关卡.
     void OnTeachingLevel()
     {
-        U3D.LoadLevel(31, LevelMode.Teach, GameMode.SIDOU);
+        U3D.LoadLevel(LevelMng.Instance.GetAllItem()[30], LevelMode.Teach, GameMode.SIDOU);
     }
 
     void OnCreateRoom()

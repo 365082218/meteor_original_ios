@@ -250,7 +250,7 @@ public partial class GameBattleEx : LockBehaviour {
             UnitActKeyDeleted.Clear();
         }
 
-        if (Global.Instance.GScript != null && Global.Instance.GLevelMode <= LevelMode.CreateWorld)
+        if (Global.Instance.GScript != null && Global.Instance.GLevelMode < LevelMode.CreateWorld)
         {
             if (timeDelay >= 1.0f)
             {

@@ -256,11 +256,11 @@ public class EscDialog : Dialog
         for (int i = 0; i < LevelInfo.Length; i++)
         {
             string strKey = LevelInfo[i].Name;
-            AddGridItem(LevelInfo[i].ID, strKey, EnterLevel, LevelRoot);
+            AddGridItem(LevelInfo[i], strKey, EnterLevel, LevelRoot);
         }
     }
 
-    void AddGridItem(int i, string strTag, UnityEngine.Events.UnityAction<int> call, Transform parent)
+    void AddGridItem(Level i, string strTag, UnityEngine.Events.UnityAction<Level> call, Transform parent)
     {
         GameObject objPrefab = Resources.Load("LevelItem", typeof(GameObject)) as GameObject;
         GameObject obj = GameObject.Instantiate(objPrefab) as GameObject;
@@ -272,11 +272,12 @@ public class EscDialog : Dialog
         obj.transform.localScale = Vector3.one;
     }
 
-    private void EnterLevel(int levelId)
+    private void EnterLevel(Level lev)
     {
         OnBackPress();
         GameBattleEx.Instance.Pause();
-        U3D.LoadLevel(levelId, LevelMode.SinglePlayerTask, (GameMode)LevelMng.Instance.GetItem(levelId).LevelType);
+        
+        U3D.LoadLevel(lev, LevelMode.SinglePlayerTask, (GameMode)lev.LevelType);
     }
 
     void OnChangeVer(string ver)

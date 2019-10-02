@@ -260,7 +260,7 @@ public class U3D : MonoBehaviour {
             Global.Instance.SpawnIndex %= 16;
         }
         
-        //InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
+        InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
         //找寻敌人攻击.因为这个并没有脚本模板
         unit.Robot.ChangeState(EAIStatus.Wait);
 
@@ -475,9 +475,8 @@ public class U3D : MonoBehaviour {
 
     public static void InsertSystemMsg(string msg)
     {
-        //if (!GameOverlayWnd.Exist)
-        //    GameOverlayWnd.Instance.Open();
-        //GameOverlayWnd.Instance.InsertSystemMsg(msg);
+        if (GameOverlayDialogState.Exist())
+            GameOverlayDialogState.Instance.InsertSystemMsg(msg);
     }
 
     //弹出一个简单提示
@@ -604,6 +603,7 @@ public class U3D : MonoBehaviour {
     public void ShowDbg()
     {
         DebugCanvas.SetActive(true);
+        WSDebug.Ins.OpenGUIDebug();
     }
 
     public void CloseDbg()
@@ -656,7 +656,7 @@ public class U3D : MonoBehaviour {
     }
 
     //走参数指定关卡.
-    public static void LoadLevel(int id, LevelMode levelmode, GameMode gamemode)
+    public static void LoadLevel(Level lev, LevelMode levelmode, GameMode gamemode)
     {
         Global.Instance.Chapter = null;
         Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.LoadingDialogState);
@@ -664,7 +664,6 @@ public class U3D : MonoBehaviour {
         SoundManager.Instance.StopAll();
         SoundManager.Instance.Enable(false);
         ClearLevelData();
-        Level lev = LevelMng.Instance.GetItem(id);
         Global.Instance.GLevelItem = lev;
         Global.Instance.GLevelMode = levelmode;
         Global.Instance.GGameMode = gamemode;
@@ -676,7 +675,7 @@ public class U3D : MonoBehaviour {
             int number = 0;
             if (int.TryParse(num, out number))
             {
-                if (id >= 0 && id <= 9)
+                if (lev.Id >= 0 && lev.Id <= 9)
                 {
                     string movie = string.Format(Main.strSFile, Main.strHost, Main.port, Main.strProjectUrl, "mmv/" + "b" + number + ".mv");
                     U3D.PlayMovie(movie);

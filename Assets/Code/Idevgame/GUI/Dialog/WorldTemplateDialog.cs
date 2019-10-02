@@ -186,7 +186,35 @@ public class WorldTemplateDialog : Dialog
             Global.Instance.PlayerModel = GameData.Instance.gameStatus.Single.Model;
             Global.Instance.RoundTime = GameData.Instance.gameStatus.Single.RoundTime;
             Global.Instance.MaxPlayer = GameData.Instance.gameStatus.Single.MaxPlayer;
-            U3D.LoadLevel(select.ID, LevelMode.CreateWorld, (GameMode)GameData.Instance.gameStatus.Single.Mode);
+            bool isPluginLevel = true;
+            Level[] all = LevelMng.Instance.GetAllItem();
+            for (var i = 0; i < all.Length; i++)
+            {
+                if (all[i] == select)
+                {
+                    isPluginLevel = false;
+                    break;
+                }
+            }
+            if (isPluginLevel)
+            {
+                Global.Instance.Chapter = DlcMng.Instance.FindChapterByLevel(select);
+                GameData.Instance.gameStatus.ChapterTemplate = Global.Instance.Chapter.ChapterId;
+                GameData.Instance.gameStatus.Single.LevelTemplate = select.ID;
+            }
+            else
+            {
+                GameData.Instance.gameStatus.ChapterTemplate = 0;
+                GameData.Instance.gameStatus.Single.LevelTemplate = select.ID;
+                Global.Instance.Chapter = null;
+            }
+            LevelScriptBase script = LevelHelper.GetLevelScript(select.LevelScript);
+            if (script == null)
+            {
+                U3D.PopupTip(LanguagesMgr.GetText("LoadLevelFailed", select.ID, select.LevelScript));
+                return;
+            }
+            U3D.LoadLevel(select, LevelMode.CreateWorld, (GameMode)GameData.Instance.gameStatus.Single.Mode);
         }
     }
 }
