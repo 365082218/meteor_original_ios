@@ -208,7 +208,7 @@ public class Buff
     }
 
     List<MeteorUnit> unitRemoved = new List<MeteorUnit>();
-    public void LockUpdate()
+    public void NetUpdate()
     {
         unitRemoved.Clear();
         switch (refresh_type)
@@ -266,7 +266,7 @@ public class Buff
     }
 }
 
-public partial class MeteorUnit : LockBehaviour
+public partial class MeteorUnit : NetBehaviour
 {
     public bool Finished { get { return Dead; } }
     public virtual bool IsDebugUnit() { return false; }
@@ -403,8 +403,8 @@ public partial class MeteorUnit : LockBehaviour
         set
         {
             Attr.AngryValue = Mathf.Clamp(value, 0, 100);
-            //if (Attr.IsPlayer)
-            //    FightWnd.Instance.UpdateAngryBar();
+            if (Attr.IsPlayer && FightDialogState.Exist())
+                FightDialogState.Instance.UpdateAngryBar();
         }
     }
     //当前武器
@@ -691,7 +691,7 @@ public partial class MeteorUnit : LockBehaviour
     List<SceneItemAgent> removedT = new List<SceneItemAgent>();
     public float xRotateDelta = 0;
     public float yRotateDelta = 0;
-    protected override void LockUpdate()
+    public override void NetUpdate()
     {
         if (!gameObject.activeInHierarchy)
             return;
@@ -756,10 +756,10 @@ public partial class MeteorUnit : LockBehaviour
             touchDelay.Remove(removedT[i]);
 
         //动画帧和位置
-        charLoader.LockUpdate();
+        charLoader.NetUpdate();
         //控制者更新
         if (controller != null)
-            controller.LockUpdate();
+            controller.NetUpdate();
 
         if (!Global.Instance.PauseAll)
         {

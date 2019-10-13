@@ -1,11 +1,20 @@
 using UnityEngine;
 using System.Collections;
 
-public class LookAtCamara : LockBehaviour 
+public class LookAtCamara: NetBehaviour 
 {
-    protected override void LockUpdate()
+    protected new void Awake()
     {
-        base.LockUpdate();
+        base.Awake();
+    }
+
+    protected new void OnDestroy()
+    {
+        base.OnDestroy();
+    }
+
+    public override void NetLateUpdate()
+    {
         if (CameraFollow.Ins != null)
         {
             transform.LookAt(CameraFollow.Ins.transform);

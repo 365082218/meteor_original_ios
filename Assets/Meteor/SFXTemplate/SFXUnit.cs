@@ -6,7 +6,7 @@ using System.Collections.Generic;
 //自己追踪目标的位置和旋转。
 //子Mesh设置自己的本地坐标和旋转。
 [System.Serializable]
-public class SFXUnit : LockBehaviour
+public class SFXUnit :NetBehaviour
 {
     public SFXEffectPlay parentSfx;
     public int effectIndex;
@@ -26,10 +26,6 @@ public class SFXUnit : LockBehaviour
     public bool PlayDone = false;
     public bool pause = false;
     bool LookAtC = false;
-    protected new void Awake()
-    {
-        base.Awake();
-    }
     /* BOX 立体模型、
 AUDIO 声音指向、Audio_3音效 Audio_0 UI音效 Audio_15 多一个字节？
 PLANE 平面模型、
@@ -42,6 +38,10 @@ BILLBOARD 连接模板、公告板
 DRAG*/
     //第一个参数 控制层级关系
     //第二个参数，本地坐标系跟随，
+    protected new void Awake()
+    {
+        base.Awake();
+    }
     protected new void OnDestroy()
     {
         base.OnDestroy();
@@ -363,7 +363,7 @@ DRAG*/
     Vector3 temp2 = new Vector3(0, 0, 0);
 
     // Update is called once per frame
-    protected override void LockUpdate()
+    public override void NetUpdate()
     {
         playedTime += FrameReplay.deltaTime;
         if (pause || PlayDone)

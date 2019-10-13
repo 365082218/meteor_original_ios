@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PickupItemAgent : LockBehaviour {
+public class PickupItemAgent : NetBehaviour {
     protected new void Awake()
     {
         base.Awake();
@@ -14,7 +14,7 @@ public class PickupItemAgent : LockBehaviour {
         base.OnDestroy();
     }
 
-    protected override void LockUpdate()
+    public override void NetUpdate()
     {
         if (isWeapon)
         {

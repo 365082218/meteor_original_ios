@@ -21,17 +21,8 @@ public class FightUiConroller : Dialog
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
         Init();
-        OnShow();
     }
 
-    protected void OnShow()
-    {
-        int size = UIMoveControl.mUIMoveControlList.Count;
-        for (int i = 0; i < size; i++)
-        {
-            UIMoveControl.mUIMoveControlList[i].ShowAction();
-        }
-    }
 
     Text timeLabel;
     Image hpBar;

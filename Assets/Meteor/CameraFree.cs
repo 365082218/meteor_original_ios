@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 //自由相机，当主角挂掉以后，在场景内随机找1个目标，优先找正在打斗的其中一个.
-public class CameraFree : LockBehaviour {
+public class CameraFree : NetBehaviour {
     public static CameraFree Ins { get { return Instance; } }
     static CameraFree Instance;
     [HideInInspector]
@@ -24,7 +24,7 @@ public class CameraFree : LockBehaviour {
     float angleMin = -75.0f;
     private new void Awake()
     {
-        this.orderType = OrderType.Late;
+        base.Awake();
         CameraPosition = new GameObject("CameraPosition").transform;
         CameraLookAt = new GameObject("CameraLookAt").transform;
         Instance = this;
@@ -32,6 +32,7 @@ public class CameraFree : LockBehaviour {
 
     private new void OnDestroy()
     {
+        base.OnDestroy();
         Instance = null;
     }
 

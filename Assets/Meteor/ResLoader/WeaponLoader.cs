@@ -362,7 +362,7 @@ public class WeaponLoader : MonoBehaviour {
         }
         else
         {
-            Debug.Log("if you want equip you must call unequip first if the weapon exist");
+            Debug.LogError("if you want equip you must call unequip first if the weapon exist");
         }
 
         if (owner != null && owner.Stealth)

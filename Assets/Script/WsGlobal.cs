@@ -16,34 +16,8 @@ public class WsGlobal {
         }
     }
 
-	public static GameObject AddDebugLine(Vector3 pos, Color co, string strTag = "", float fLastTime = float.MaxValue)
-	{
-		GameObject obj = GameObject.Instantiate(Resources.Load("DebugLineRender")) as GameObject;
-		obj.transform.position = pos;
-		LineRenderer line = obj.GetComponent<LineRenderer>();
-		line.startWidth = 1;
-        line.endWidth = 1;
-        line.startColor = co;
-        line.endColor = co;
-		line.numCapVertices = 2;
-		line.SetPosition(0, pos);
-		line.SetPosition(1, pos + Vector3.up * 15);
-		UITalkBubble text = obj.GetComponent<UITalkBubble>();
-		if (text == null)
-			text = obj.AddComponent<UITalkBubble>();
-		text.strText = strTag;
-		text.showtime = fLastTime;
-		text.SetDebugText();
-		int nCount = DebugLine.Count;
-		if (removeNodeIndex.Count != 0)
-		{
-			nCount = removeNodeIndex[0];
-			removeNodeIndex.RemoveAt(0);
-		}
-		DebugLine.Add(obj);
-		return obj;
-	}
 
+#if !STRIP_DBG_SETTING
     public static GameObject AddDebugLine(Vector3 pos, Vector3 pos2, Color co, string strTag = "", float fLastTime = float.MaxValue, bool autoHide = false)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load("DebugLineRender")) as GameObject;
@@ -72,9 +46,10 @@ public class WsGlobal {
         DebugLine.Add(obj);
         return obj;
     }
+#endif
 
     //动态递归改变怪物，英雄所有节点的层
-	public static void SetObjectLayer(GameObject objSelect, int layermask)
+    public static void SetObjectLayer(GameObject objSelect, int layermask)
 	{
 		objSelect.layer = layermask;
 		for (int i = 0; i < objSelect.transform.childCount; i++)

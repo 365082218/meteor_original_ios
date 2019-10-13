@@ -3,7 +3,7 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 
-public class FixedPlatformCtrl : LockBehaviour {
+public class FixedPlatformCtrl :NetBehaviour {
 	public int Trigger = 0;
     [SerializeField] bool AllowShake = true;
     [HideInInspector] private AnimationCurve curve = null;
@@ -14,9 +14,9 @@ public class FixedPlatformCtrl : LockBehaviour {
     [SerializeField] private bool InitializePose = false;
     [SerializeField] private bool LoopPose = false;
     [SerializeField] private int StartPose;
-    private new void Awake()
+    protected new void Awake()
     {
-        this.orderType = OrderType.Late;
+        base.Awake();
         GMBLoader.Instance.Load(model);
         int index = model.name.IndexOf(".");
         WsGlobal.ShowMeteorObject(model.name.Substring(0, index), transform);
@@ -27,7 +27,6 @@ public class FixedPlatformCtrl : LockBehaviour {
             if (InitializePose)
                 fmcPlayer.ChangePose(StartPose, LoopPose ? 1 : 0);
         }
-        base.Awake();
     }
 
     public void Start()
@@ -53,14 +52,13 @@ public class FixedPlatformCtrl : LockBehaviour {
 	
 	}
 
-    protected override void LockUpdate()
+    public override void NetUpdate()
     {
         if (AllowShake)
         {
             float y = curve.Evaluate(Time.time);
             transform.position = new Vector3(transform.position.x, initializeY + hScale * y, transform.position.z);
         }
-        base.LockUpdate();
     }
 
     public void OnTriggerEnter(Collider other)

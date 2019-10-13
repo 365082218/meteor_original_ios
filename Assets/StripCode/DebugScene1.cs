@@ -44,8 +44,8 @@ public class DebugScene1 : MonoBehaviour {
             sfxDebugTarget.OnSfxFrame += this.OnSfxFrame;
         while (t >= FrameReplay.deltaTime)
         {
-            FrameReplay.InvokeLockUpdate();
-            FrameReplay.InvokeLateUpdate();
+            FrameReplay.Instance.NetUpdate();
+            FrameReplay.Instance.NetLateUpdate();
             t -= FrameReplay.deltaTime;
         }
 	}

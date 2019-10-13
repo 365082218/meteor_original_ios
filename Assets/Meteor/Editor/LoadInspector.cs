@@ -123,26 +123,6 @@ public class IFLInspector : Editor
     }
 }
 
-[CustomEditor(typeof(UIMoveControl))]
-public class UIMoveInspector : Editor
-{
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-        UIMoveControl myTarget = (UIMoveControl)target;
-        if (GUILayout.Button("ShowAction"))
-        {
-            myTarget.ShowAction();
-        }
-        if (GUILayout.Button("HideAction"))
-        {
-            myTarget.HideAction();
-        }
-    }
-
-    
-}
-
 [CustomEditor(typeof(MeteorUnitDebug))]
 public class MeteorUnitDebugInspector : Editor
 {

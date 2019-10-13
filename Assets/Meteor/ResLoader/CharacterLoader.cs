@@ -669,7 +669,7 @@ public class CharacterLoader
         }
     }
 
-    public void LockUpdate()
+    public void NetUpdate()
     {
         if (Pause)
             return;

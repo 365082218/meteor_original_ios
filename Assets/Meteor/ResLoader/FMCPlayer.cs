@@ -51,21 +51,20 @@ public class FMCPose
         return pose;
     }
 }
-public class FMCPlayer : LockBehaviour {
+public class FMCPlayer :NetBehaviour {
     public FMCFile frames;
     FMCPose pose;
     CombineChildren combine;
     public string fmcFile;
-    private new void Awake()
+    float f = 0;
+    protected new void Awake()
     {
         base.Awake();
     }
-
-    private new void OnDestroy()
+    protected new void OnDestroy()
     {
         base.OnDestroy();
     }
-    float f = 0;
     // Use this for initialization
     void Start () {
         if (frames != null)
@@ -81,7 +80,7 @@ public class FMCPlayer : LockBehaviour {
     bool looped = false;
     float tick;
     // Update is called once per frame
-    protected override void LockUpdate () {
+    public override void NetUpdate () {
         int oldframe = currentFrame;
         if (frames == null || state == 1)
             return;
@@ -91,11 +90,15 @@ public class FMCPlayer : LockBehaviour {
             currentFrame += 1;
             if (currentFrame >= end)
             {
-                state = 3;
                 if (looped)
+                {
                     currentFrame = start;
+                }
                 else
+                {
+                    state = 3;
                     currentFrame = end;
+                }
             }
             tick -= f;
         }

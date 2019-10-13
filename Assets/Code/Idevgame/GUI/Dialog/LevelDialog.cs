@@ -10,6 +10,25 @@ public class LevelDialogState:CommonDialogState<LevelDialog>
     {
 
     }
+
+    public override void OnAction(DialogAction dialogAction, object data)
+    {
+        switch (dialogAction)
+        {
+            case DialogAction.Close:
+            case DialogAction.BackButton:
+                ChangeState(null);
+                break;
+            case DialogAction.Previous:
+                if (previousS != null)
+                    ChangeState(previousS);
+                else
+                    ChangeState(Main.Instance.DialogStateManager.MainMenuState);
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 //关卡选择界面

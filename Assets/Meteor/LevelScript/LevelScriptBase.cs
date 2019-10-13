@@ -354,6 +354,7 @@ public class ScriptBase
     }
     public static void CreateEffect(int target, string effect)
     {
+        Debug.Log("create effect:" + effect);
         U3D.CreateEffect(target, string.Format("{0}.ef", effect), false);
     }
     public static void CreateEffect(string target, string effect, bool loop)
@@ -371,12 +372,12 @@ public class ScriptBase
 
     public static void Output(string i, int a, int b)
     {
-
+        Debug.Log(i +  " index:" + a + " value:" + b);
     }
 
     public static void Output(string s, int id, string e, int evt)
     {
-
+        Debug.Log(s);
     }
 
     public static void Output(int i, int j)
@@ -390,7 +391,7 @@ public class ScriptBase
     }
     public static void Output(string s, int i = 0)
     {
-        //Debug.Log(s + i);
+        Debug.Log(s + " index" + i);
     }
 
     public static void AddNPC(string npc)

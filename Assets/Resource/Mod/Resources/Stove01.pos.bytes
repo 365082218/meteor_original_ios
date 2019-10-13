@@ -6,7 +6,7 @@ pose
 pose
 {
 	start 0
-	start 10
+	end 10
 }
 pose
 {

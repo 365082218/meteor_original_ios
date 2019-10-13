@@ -87,7 +87,7 @@ public class LevelHelper : MonoBehaviour
             //尝试在chapter的dll里加载
             if (Global.Instance.Chapter != null && System.IO.File.Exists(Global.Instance.Chapter.Dll))
             {
-                Assembly ass = Assembly.Load(System.IO.File.ReadAllBytes(Global.Instance.Chapter.Dll));
+                Assembly ass = Assembly.Load(System.IO.File.ReadAllBytes(Global.Instance.Chapter.Dll));           
                 Type[] t = ass.GetTypes();
                 for (int i = 0; i < t.Length; i++)
                 {

@@ -11,7 +11,7 @@ public enum FlyStatus
 }
 
 //血滴子，敌方无法逃脱，除了防御/或用地形躲避.
-public class FlyWheel : LockBehaviour {
+public class FlyWheel :NetBehaviour {
 
     public static bool FindFlyWheel(MeteorUnit owner)
     {
@@ -46,19 +46,19 @@ public class FlyWheel : LockBehaviour {
     float speed = 350.0f;
     float returnspeed = 300.0f;
     bool outofArea = false;
+
     protected new void Awake()
     {
         base.Awake();
     }
-
     protected new void OnDestroy()
     {
-        FlyWheel.UnRegister(this);
         base.OnDestroy();
+        FlyWheel.UnRegister(this);
     }
 
     // Update is called once per frame
-    protected override void LockUpdate () {
+    public override void NetUpdate() {
         List<MeteorUnit> deleted = new List<MeteorUnit>();
 		foreach (var each in attackTick)
         {

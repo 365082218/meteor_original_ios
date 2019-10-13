@@ -22,17 +22,16 @@ public class BattleResultItem
 
 //负责战斗中相机的位置指定之类，主角色目标组作为摄像机 视锥体范围，参考Tank教程里的简单相机控制
 //负责战斗场景内位置间的寻路缓存
-public partial class GameBattleEx : LockBehaviour {
+public partial class GameBattleEx : NetBehaviour {
     [HideInInspector]
     public CameraFollow m_CameraControl;
     public static GameBattleEx Instance;
     int time = 1000;//秒
     float timeClock = 0.0f;
-    const float ViewLimit = 90000;//300码，自动解除锁定.
+    const float ViewLimit = 40000;//300码，自动解除锁定.
     public new void Awake()
     {
         base.Awake();
-        this.orderType = OrderType.Normal;
         Instance = this;
 #if !STRIP_DBG_SETTING
         WSDebug.Ins.AddDebuggableObject(this);
@@ -72,7 +71,7 @@ public partial class GameBattleEx : LockBehaviour {
     int Result = -10;
     bool showResult = false;
     float showResultTick = 0.0f;
-    //显示失败，或者胜利界面 >=1 = win <= 0 = lose 2 == none
+    //显示失败，或者胜利界面 (2 >= x >= 1 = win)  (x <= 0 = lose) (x == 3) = none
     public void GameOver(int result)
     {
         if (Result != -10)
@@ -85,7 +84,9 @@ public partial class GameBattleEx : LockBehaviour {
         }
 
         Global.Instance.PauseAll = true;
+#if !STRIP_DBG_SETTING
         ShowWayPoint(false);
+#endif
         MeteorManager.Instance.LocalPlayer.controller.LockInput(true);
         GameObject.Destroy(Main.Instance.playerListener);
         Main.Instance.playerListener = null;
@@ -114,7 +115,7 @@ public partial class GameBattleEx : LockBehaviour {
         if (NGUIJoystick.instance)
             NGUIJoystick.instance.Lock(true);
         //如果胜利，且不是最后一关，打开最新关标志.
-        if (result == 1)
+        if (result == 1 || result == 2)
         {
             if (Global.Instance.Chapter == null)
             {
@@ -129,11 +130,14 @@ public partial class GameBattleEx : LockBehaviour {
                 Level[] all = Global.Instance.Chapter.LoadAll();
                 for (int i = 0; i < all.Length; i++)
                 {
-                    if (Global.Instance.Chapter.level == all[i].ID)
+                    if (Global.Instance.GLevelItem.ID == all[i].ID)
+                    {
                         nextLevel = i + 1;
+                        break;
+                    }
                 }
 
-                if (nextLevel < all.Length)
+                if (nextLevel < all.Length && Global.Instance.Chapter.level < all[nextLevel].ID)
                     Global.Instance.Chapter.level = all[nextLevel].ID;
 
                 GameData.Instance.SaveState();
@@ -177,7 +181,7 @@ public partial class GameBattleEx : LockBehaviour {
     float timeDelay = 1;
     List<int> UnitActKeyDeleted = new List<int>();
     //战斗场景时，需要每一帧执行的.
-    protected override void LockUpdate()
+    public override void NetUpdate()
     {
         if (showResult)
         {
@@ -222,7 +226,7 @@ public partial class GameBattleEx : LockBehaviour {
 
         //更新BUFF
         foreach (var each in BuffMng.Instance.BufDict)
-            each.Value.LockUpdate();
+            each.Value.NetUpdate();
 
         //更新左侧角色对话文本
         for (int i = 0; i < UnitActKey.Count; i++)
@@ -1374,14 +1378,20 @@ public partial class GameBattleEx : LockBehaviour {
 
     public void EnableFollowCamera(bool enable)
     {
-        CameraFollow.Ins.m_Camera.enabled = enable;
-        CameraFollow.Ins.enabled = enable;
+        if (CameraFollow.Ins != null)
+        {
+            CameraFollow.Ins.m_Camera.enabled = enable;
+            CameraFollow.Ins.enabled = enable;
+        }
     }
 
     public void EnableFreeCamera(bool enable)
     {
-        CameraFree.Ins.m_Camera.enabled = enable;
-        CameraFree.Ins.enabled = enable;
+        if (CameraFree.Ins != null)
+        {
+            CameraFree.Ins.m_Camera.enabled = enable;
+            CameraFree.Ins.enabled = enable;
+        }
     }
 
     public void InitFreeCamera(MeteorUnit target = null)
@@ -1566,6 +1576,7 @@ public partial class GameBattleEx : LockBehaviour {
             UnitActionStack.Remove(id);
     }
 
+#if !STRIP_DBG_SETTING
     public List<GameObject> wayPointList = new List<GameObject>();
     public List<GameObject> wayArrowList = new List<GameObject>();
     public void ShowWayPoint(bool on)
@@ -1613,7 +1624,7 @@ public partial class GameBattleEx : LockBehaviour {
 
         GameData.Instance.gameStatus.ShowWayPoint = on;
     }
-
+#endif
     public void OnSceneEvent(SceneEvent evt, int unit, GameObject trigger)
     {
         if (Scene_OnEvent != null)

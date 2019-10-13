@@ -64,11 +64,11 @@ public class UITalkBubble : MonoBehaviour {
 		{
 			Panel = GameObject.Instantiate(Resources.Load("BubbleTalk"), vecPos, Quaternion.identity) as GameObject;
             vecPos.y += 15.0f;
-			iTween.MoveTo(Panel, iTween.Hash(
-				"position", vecPos,
-				"time", 0.5f,
-				"easetype", iTween.EaseType.linear,
-				"delay", 0.0f));
+			//iTween.MoveTo(Panel, iTween.Hash(
+			//	"position", vecPos,
+			//	"time", 0.5f,
+			//	"easetype", iTween.EaseType.linear,
+			//	"delay", 0.0f));
 			Panel.transform.parent = unit.transform;
             GetComponentInChildren<Canvas>().worldCamera = GameObject.Find("CameraEx").GetComponent<Camera>();
             Panel.transform.localScale = new Vector3(8.0f / 425.0f, 2.0f / 80.0f, 1.0f);
@@ -94,11 +94,11 @@ public class UITalkBubble : MonoBehaviour {
 			Vector3 vecPos = transform.position;
 			Panel = GameObject.Instantiate(Resources.Load("BubbleTalk"), vecPos, Quaternion.identity) as GameObject;
             vecPos.y += 15.0f;
-			iTween.MoveTo(Panel, iTween.Hash(
-				"position", vecPos,
-				"time", 0.5f,
-				"easetype", iTween.EaseType.linear,
-				"delay", 0.0f));
+			//iTween.MoveTo(Panel, iTween.Hash(
+			//	"position", vecPos,
+			//	"time", 0.5f,
+			//	"easetype", iTween.EaseType.linear,
+			//	"delay", 0.0f));
 			Panel.transform.SetParent(gameObject.transform);
             GetComponentInChildren<Canvas>().worldCamera = GameObject.Find("CameraEx").GetComponent<Camera>();
         }

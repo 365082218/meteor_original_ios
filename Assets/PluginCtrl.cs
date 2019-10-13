@@ -200,7 +200,9 @@ public class PluginCtrl : MonoBehaviour {
                             }
                         }
                         if (!find)
+                        {
                             GameData.Instance.gameStatus.pluginNpc.Add(template);
+                        }
                     }
                 }
                 Chapter.resPath[i] = files[i].Replace("\\", "/");

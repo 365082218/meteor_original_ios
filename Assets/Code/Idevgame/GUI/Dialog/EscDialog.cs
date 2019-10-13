@@ -17,6 +17,7 @@ public class EscDialogState : CommonDialogState<EscDialog>
 
 public class EscDialog : Dialog
 {
+    static bool watchAi = false;//是否在观察AI行为.
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
@@ -77,10 +78,17 @@ public class EscDialog : Dialog
         toggleEnableUndead.onValueChanged.AddListener(OnEnableUndead);
 
         Toggle toggleShowWayPoint = Control("ShowWayPoint").GetComponent<Toggle>();
+#if !STRIP_DBG_SETTING
         toggleShowWayPoint.isOn = GameData.Instance.gameStatus.ShowWayPoint;
         toggleShowWayPoint.onValueChanged.AddListener(OnShowWayPoint);
         if (GameData.Instance.gameStatus.ShowWayPoint)
             OnShowWayPoint(true);
+#else
+        Destroy(toggleShowWayPoint.gameObject);
+#endif
+        Toggle ShowTargetBlood = Control("ShowTargetBlood").GetComponent<Toggle>();
+        ShowTargetBlood.isOn = GameData.Instance.gameStatus.ShowBlood;
+        ShowTargetBlood.onValueChanged.AddListener((bool selected) => { GameData.Instance.gameStatus.ShowBlood = selected; });
 
         Toggle toggleEnableHighPerformance = Control("HighPerformance").GetComponent<Toggle>();
         toggleEnableHighPerformance.isOn = GameData.Instance.gameStatus.TargetFrame == 60;
@@ -123,9 +131,9 @@ public class EscDialog : Dialog
 
         //观察AI行为，调试AI是否存在问题
         Toggle toggleFollowEnemy = Control("FollowEnemy").GetComponent<Toggle>();
-        toggleFollowEnemy.isOn = false;
+        toggleFollowEnemy.isOn = watchAi;
+        OnFollowEnemy(watchAi);
         toggleFollowEnemy.onValueChanged.AddListener(OnFollowEnemy);
-
 
         //把一些模式禁用，例如作弊之类的.
         if (GameData.Instance.gameStatus.GodLike)
@@ -187,31 +195,33 @@ public class EscDialog : Dialog
         }
     }
 
-    bool followEnemy = false;
     void OnFollowEnemy(bool follow)
     {
-        followEnemy = follow;
-        if (followEnemy)
+        if (watchAi != follow)
         {
-            //找到第一个未死亡的敌对角色
-            MeteorUnit watchTarget = null;
-            for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+            watchAi = follow;
+            if (watchAi)
             {
-                if (MeteorManager.Instance.UnitInfos[i].Dead)
-                    continue;
-                if (MeteorManager.Instance.UnitInfos[i].SameCamp(MeteorManager.Instance.LocalPlayer))
-                    continue;
-                watchTarget = MeteorManager.Instance.UnitInfos[i];
-                break;
-            }
+                //找到第一个未死亡的敌对角色
+                MeteorUnit watchTarget = null;
+                for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+                {
+                    if (MeteorManager.Instance.UnitInfos[i].Dead)
+                        continue;
+                    if (MeteorManager.Instance.UnitInfos[i].SameCamp(MeteorManager.Instance.LocalPlayer))
+                        continue;
+                    watchTarget = MeteorManager.Instance.UnitInfos[i];
+                    break;
+                }
 
-            GameBattleEx.Instance.InitFreeCamera(watchTarget);
-            GameBattleEx.Instance.EnableFollowCamera(false);
-        }
-        else
-        {
-            GameBattleEx.Instance.EnableFollowCamera(true);
-            GameBattleEx.Instance.EnableFreeCamera(false);
+                GameBattleEx.Instance.InitFreeCamera(watchTarget);
+                GameBattleEx.Instance.EnableFollowCamera(false);
+            }
+            else
+            {
+                GameBattleEx.Instance.EnableFollowCamera(true);
+                GameBattleEx.Instance.EnableFreeCamera(false);
+            }
         }
     }
 
@@ -401,10 +411,12 @@ public class EscDialog : Dialog
 #endif
     }
 
+#if !STRIP_DBG_SETTING
     void OnShowWayPoint(bool on)
     {
         GameBattleEx.Instance.ShowWayPoint(on);
     }
+#endif
 
     void OnSnow()
     {

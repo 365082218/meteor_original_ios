@@ -11,24 +11,20 @@ public class DamageRecord
 }
 
 //飞镖飞行实现-Flight层
-public class DartLoader : LockBehaviour {
-    InventoryItem weapon;
-    public const float MaxDistance = 5000;
-    // Use this for initialization
+public class DartLoader : NetBehaviour {
     protected new void Awake()
     {
         base.Awake();
-        //Rigidbody r = GetComponent<Rigidbody>();
-        //r.useGravity = false;
     }
 
     protected new void OnDestroy()
     {
         base.OnDestroy();
     }
-
+    InventoryItem weapon;
+    public const float MaxDistance = 5000;
     List<DamageRecord> deleteRec = new List<DamageRecord>();
-    protected override void LockUpdate()
+    public override void NetUpdate()
     {
         deleteRec.Clear();
         for (int i = 0; i < recordList.Count; i++)

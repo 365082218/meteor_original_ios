@@ -430,7 +430,6 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 224000010893422938}
-  - component: {fileID: 114000013242668774}
   m_Layer: 5
   m_Name: UIPanel
   m_TagString: Untagged
@@ -3217,25 +3216,6 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &114000013242668774
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1000012510644294}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 83342e562b2404d438dd2c12c07eabbc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mStartPos: {x: -500, y: 72, z: 0}
-  mRectStartPos: {x: -500, y: 72, z: 0}
-  mDelateTime: 0
-  mDurTime: 0.8
-  isOutElastic: 0
-  isShowWhenWake: 1
-  isShow: 1
-  isShowMoveComplete: 0
 --- !u!114 &114000013378092262
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3324,7 +3304,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114000013917275236}
   m_HandleRect: {fileID: 224000013581843684}
   m_Direction: 0
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

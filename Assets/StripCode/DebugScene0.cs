@@ -49,8 +49,8 @@ public class DebugScene0 : MonoBehaviour {
             Player.charLoader.OnAnimationFrame += this.OnAnimation;
             Player.posMng.OnDebugActionFinished += this.OnAnimationFinished;
         }
-        FrameReplay.InvokeLockUpdate();//锁定帧
-        FrameReplay.InvokeLateUpdate();//在锁定帧后
+        FrameReplay.Instance.NetUpdate();//锁定帧
+        FrameReplay.Instance.NetLateUpdate();
     }
 
     public void PlayAnimation()

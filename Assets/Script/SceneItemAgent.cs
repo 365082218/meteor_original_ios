@@ -16,7 +16,7 @@ public class SceneItemProperty
     public Dictionary<string, int> attribute = new Dictionary<string, int>();//是否激活active 是否有伤害(damage) 是否有碰撞(collision) pose做动作.
 }
 //原版内不需要序列化存储的机关，关卡固有机关,尖刺,摆斧
-public class SceneItemAgent : LockBehaviour {
+public class SceneItemAgent :NetBehaviour {
     // Use this for initialization
     List<Collider> collisions = new List<Collider>();
     [SerializeField]
@@ -57,23 +57,23 @@ public class SceneItemAgent : LockBehaviour {
         {
             MethodOnAttack = script.GetType().GetMethod(gameObject.name + "_OnAttack");
             MethodOnIdle = script.GetType().GetMethod(gameObject.name + "_OnIdle");
-            OnTouch = Global.Instance.GScriptType.GetMethod(name + "_OnTouch", BindingFlags.NonPublic | BindingFlags.Instance);
+            OnTouch = Global.Instance.GScriptType.GetMethod(name + "_OnTouch", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             if (OnTouch == null)
             {
                 System.Type typeParent = Global.Instance.GScriptType.BaseType;
                 while (typeParent != null && OnTouch == null)
                 {
-                    OnTouch = typeParent.GetMethod(name + "_OnTouch", BindingFlags.NonPublic | BindingFlags.Instance);
+                    OnTouch = typeParent.GetMethod(name + "_OnTouch", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     typeParent = typeParent.BaseType;
                 }
             }
-            OnPickUp = Global.Instance.GScriptType.GetMethod(name + "_OnPickUp", BindingFlags.NonPublic | BindingFlags.Instance);
+            OnPickUp = Global.Instance.GScriptType.GetMethod(name + "_OnPickUp", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             if (OnPickUp == null)
             {
                 System.Type typeParent = Global.Instance.GScriptType.BaseType;
                 while (typeParent != null && OnPickUp == null)
                 {
-                    OnPickUp = typeParent.GetMethod(name + "_OnPickUp", BindingFlags.NonPublic | BindingFlags.Instance);
+                    OnPickUp = typeParent.GetMethod(name + "_OnPickUp", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     typeParent = typeParent.BaseType;
                 }
             }
@@ -100,14 +100,15 @@ public class SceneItemAgent : LockBehaviour {
         Refresh = false;
     }
 
-    private new void OnDestroy()
+    protected new void OnDestroy()
     {
         base.OnDestroy();
     }
+
     float refresh_tick;
     bool Refresh;
 
-    protected override void LockUpdate()
+    public override void NetUpdate()
     {
         if (MethodOnIdle != null)
             MethodOnIdle.Invoke(Global.Instance.GScript, new object[] { InstanceId });
@@ -503,12 +504,20 @@ public class SceneItemAgent : LockBehaviour {
                             MeshCollider m = co[c] as MeshCollider;
                             if (m != null)
                             {
-                                m.convex = true;
-                                m.isTrigger = true;
+                                if (!na.StartsWith("Plane"))
+                                {
+                                    m.convex = true;
+                                    m.isTrigger = true;
+                                    co[c].enabled = true;
+                                }
+                                else
+                                    Destroy(m);
                             }
                             else
+                            {
                                 co[c].isTrigger = true;
-                            co[c].enabled = true;
+                                co[c].enabled = true;
+                            }
                         }
                         property.attribute["blockplayer"] = 0;
                     }
@@ -721,6 +730,8 @@ public class SceneItemAgent : LockBehaviour {
         //(((武器攻击力 + buff攻击力) x 招式攻击力） / 100) - （敌方武器防御力 + 敌方buff防御力） / 10
         //你的攻击力，和我的防御力之间的计算
         //attacker.damage.PoseIdx;
+        if (GameData.Instance.gameStatus.EnableGodMode)
+            return 100000;
         int DefTmp = 0;
         AttackDes atk = attacker.CurrentDamage;
         if (atk == null)

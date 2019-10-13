@@ -207,24 +207,21 @@ public class FrameReplay : MonoBehaviour {
     const int TurnFrameMax = 4;
     private int AccumilatedTime = 0;
     public float time;
-    public static float deltaTime = 20.0f / 1000.0f;
+    public static float deltaTime = FrameReplay.delta;
+    const float delta = 20.0f / 1000.0f;
     public int LogicFrameLength = 20;
     GameFrames currentFrame;//当前的Turn
     public List<FrameCommand> actions;
-
-    public static event Action UpdateEvent;
-    public static event Action LateUpdateEvent;
-
-    public static void InvokeLockUpdate()
+    //全部网络更新对象
+    List<NetBehaviour> NetObjects = new List<NetBehaviour>();
+    public void RegisterObject(NetBehaviour netObject)
     {
-        if (UpdateEvent != null)
-            UpdateEvent();
+        NetObjects.Add(netObject);
     }
 
-    public static void InvokeLateUpdate()
+    public void UnRegisterObject(NetBehaviour netObject)
     {
-        if (LateUpdateEvent != null)
-            LateUpdateEvent();
+        NetObjects.Remove(netObject);
     }
 
     public void OnSyncCommands()
@@ -259,6 +256,7 @@ public class FrameReplay : MonoBehaviour {
         LogicTurnIndex = 0;
         FSS.Instance.Reset();
         FSC.Instance.Reset();
+        NetObjects.Clear();
     }
 
     public void OnDisconnected()
@@ -270,28 +268,28 @@ public class FrameReplay : MonoBehaviour {
         LogicFrameIndex = 0;
         LogicTurnIndex = 0;
         AccumilatedTime = 0;
+        OnBattleFinished();
     }
 
     //called once per unity frame
     public void Update()
     {
         ProtoHandler.Update();
-        if (!Started)
-        {
-            if (OnUpdates != null)
-                OnUpdates();
-            return;
-        }
+        //if (!Started)
+        //{
+        //    if (OnUpdates != null)
+        //        OnUpdates();
+        //    return;
+        //}
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
             //Basically same logic as FixedUpdate, but we can scale it by adjusting FrameLength
             AccumilatedTime = AccumilatedTime + Convert.ToInt32((Time.deltaTime * 1000)); //convert sec to milliseconds
             while (AccumilatedTime > LogicFrameLength)
             {
+                FrameReplay.deltaTime = delta;
                 UdpClientProxy.Update();
-                
                 LogicFrame();
-                //Debug.LogError("logicframe:" + LogicFrameIndex);
                 AccumilatedTime = AccumilatedTime - LogicFrameLength;
                 time += (LogicFrameLength / 1000.0f);
             }
@@ -299,10 +297,8 @@ public class FrameReplay : MonoBehaviour {
         else
         {
             FrameReplay.deltaTime = Time.deltaTime;
-            if (UpdateEvent != null)
-                UpdateEvent();
-            if (LateUpdateEvent != null)
-                LateUpdateEvent();
+            NetUpdate();
+            NetLateUpdate();
             LogicFrameIndex++;
             if (LogicFrameIndex % TurnFrameMax == 0)
             {
@@ -310,6 +306,26 @@ public class FrameReplay : MonoBehaviour {
                 LogicFrameIndex = 0;
             }
             time += Time.deltaTime;
+        }
+    }
+
+    public void NetUpdate()
+    {
+        if (NetObjects.Count != 0)
+        {
+            for (int i = 0; i < NetObjects.Count; i++)
+                if (NetObjects[i] != null)
+                    NetObjects[i].NetUpdate();
+        }
+    }
+
+    public void NetLateUpdate()
+    {
+        if (NetObjects.Count != 0)
+        {
+            for (int i = 0; i < NetObjects.Count; i++)
+                if (NetObjects[i] != null)
+                    NetObjects[i].NetLateUpdate();
         }
     }
 
@@ -365,10 +381,9 @@ public class FrameReplay : MonoBehaviour {
                     break;
             }
         }
-        if (UpdateEvent != null)
-            UpdateEvent();
-        if (LateUpdateEvent != null)
-            LateUpdateEvent();
+
+        NetUpdate();
+        NetLateUpdate();
         LogicFrameIndex++;
         if (LogicFrameIndex % TurnFrameMax == 0)
         {

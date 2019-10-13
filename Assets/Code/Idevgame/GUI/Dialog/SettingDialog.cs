@@ -140,10 +140,13 @@ public class SettingDialog : Dialog {
 
         Toggle toggleShowWayPoint = Control("ShowWayPoint").GetComponent<Toggle>();
         toggleShowWayPoint.isOn = GameData.Instance.gameStatus.ShowWayPoint;
+#if !STRIP_DBG_SETTING
         toggleShowWayPoint.onValueChanged.AddListener(OnShowWayPoint);
         if (GameData.Instance.gameStatus.ShowWayPoint)
             OnShowWayPoint(true);
-
+#else
+        Destroy(toggleShowWayPoint.gameObject);
+#endif
         Control("ChangeV107").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("1.07"); });
         Control("ChangeV907").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("9.07"); });
         Control("UnlockAll").GetComponent<Button>().onClick.AddListener(() => { U3D.UnlockLevel(); });
@@ -354,11 +357,13 @@ public class SettingDialog : Dialog {
 #endif
     }
 
+#if !STRIP_DBG_SETTING
     void OnShowWayPoint(bool on)
     {
         if (GameBattleEx.Instance != null)
             GameBattleEx.Instance.ShowWayPoint(on);
     }
+#endif
 
     void OnMusicVolumeChange(float vo)
     {

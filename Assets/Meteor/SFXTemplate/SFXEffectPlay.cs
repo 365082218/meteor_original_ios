@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class SFXEffectPlay : LockBehaviour
+public class SFXEffectPlay :NetBehaviour
 {
     //声音统一由自己处理，其余子特效没一个对应一个SFXUnit处理
 
@@ -35,21 +35,20 @@ public class SFXEffectPlay : LockBehaviour
         }
     }
 
-    new void Awake()
+    protected new void Awake()
     {
         base.Awake();
         owner = GetComponent<MeteorUnit>();
     }
 
-    new void OnDestroy()
+    protected new void OnDestroy()
     {
         base.OnDestroy();
     }
-
     public bool loop;
     float playedTime = 0.0f;
 
-    protected override void LockUpdate()
+    public override void NetUpdate()
     {
         if (isDebug)
         {

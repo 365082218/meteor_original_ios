@@ -2082,7 +2082,7 @@ public class MeteorController {
         }
     }
 
-    public void LockUpdate()
+    public void NetUpdate()
     {
         CheckActionInput(FrameReplay.deltaTime);
         if (Input != null)

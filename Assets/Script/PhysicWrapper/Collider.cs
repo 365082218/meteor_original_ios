@@ -8,26 +8,31 @@ using Jitter.Collision.Shapes;
 using UCollider = UnityEngine.Collider;
 using JMaterial = Jitter.Dynamics.Material;
 using JRigidbody = Jitter.Dynamics.RigidBody;
-
-namespace Game.Field {
+namespace Game.Field
+{
     using Utility;
-    public class Collider : LockBehaviour {
-        public class Rigidbody : JRigidbody {
+    public class Collider : NetBehaviour
+    {
+        public class Rigidbody : JRigidbody
+        {
             public Collider collider;
 
-            public Rigidbody(Collider collider, Shape shape) : base(shape) {
+            public Rigidbody(Collider collider, Shape shape) : base(shape)
+            {
                 this.collider = collider;
             }
         }
 
         public delegate void Delegate(Collider collider, Vector3 point);
-        public enum State {
+        public enum State
+        {
             Enter,
             Stay,
             Exit
         }
 
-        public struct Data {
+        public struct Data
+        {
             public State state;
             public Vector3 point;
         }
@@ -44,53 +49,66 @@ namespace Game.Field {
         private Shape shape;
         private Rigidbody body;
 
-        public Vector3 Position {
-            get {
+        public Vector3 Position
+        {
+            get
+            {
                 return this.body.Position.ToVector3();
             }
-            set {
+            set
+            {
                 this.body.position = value.ToJVector();
                 this.AdjustPosition();
             }
         }
 
-        public Vector3 Velocity {
-            get {
-                if (this.body == null) {
+        public Vector3 Velocity
+        {
+            get
+            {
+                if (this.body == null)
+                {
                     return Vector3.zero;
                 }
 
                 return this.body.LinearVelocity.ToVector3();
             }
-            set {
+            set
+            {
                 this.body.LinearVelocity = value.ToFixed().ToJVector();
             }
         }
 
-        public Vector3 Scale {
-            set {
+        public Vector3 Scale
+        {
+            set
+            {
                 value = value.ToFixed();
                 this.transform.localScale = value;
 
-                if (this.body.Shape is SphereShape) {
+                if (this.body.Shape is SphereShape)
+                {
                     var sphereShape = this.body.Shape as SphereShape;
                     sphereShape.Radius = this.size.x * value.x;
                 }
-                else {
+                else
+                {
                     var boxShape = this.body.Shape as BoxShape;
                     boxShape.Size = new JVector(value.x * this.size.x, value.y * this.size.y, value.z * this.size.z);
                 }
             }
         }
 
-        public bool IsParticle {
-            set {
+        public bool IsParticle
+        {
+            set
+            {
                 this.body.IsParticle = value;
             }
         }
 
-        protected new void Awake() {
-            this.orderType = OrderType.Late;
+        protected new void Awake()
+        {
             base.Awake();
 
             this.collisionMap = new Dictionary<Collider, Data>();
@@ -98,23 +116,27 @@ namespace Game.Field {
 
             var collider = this.GetComponent<UCollider>();
 
-            if (collider is BoxCollider) {
+            if (collider is BoxCollider)
+            {
                 var boxCollider = collider as BoxCollider;
                 var size = boxCollider.size;
 
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < 3; i++)
+                {
                     size[i] *= this.transform.lossyScale[i] / this.transform.localScale[i];
                 }
 
                 this.shape = new BoxShape(size.ToJVector());
                 this.size = size;
             }
-            else if (collider is SphereCollider) {
+            else if (collider is SphereCollider)
+            {
                 var sphereCollider = collider as SphereCollider;
                 this.shape = new SphereShape(sphereCollider.radius);
                 this.size = new Vector3(sphereCollider.radius, sphereCollider.radius, sphereCollider.radius);
             }
-            else {
+            else
+            {
                 var size = collider.bounds.size;
                 size.x /= this.transform.localScale.x;
                 size.y /= this.transform.localScale.y;
@@ -127,45 +149,57 @@ namespace Game.Field {
             Destroy(collider);
             this.size.ToFixed();
         }
-        
-        protected override void LockUpdate() {
-            if (!this.body.IsStaticOrInactive) {
+
+        public override void NetUpdate()
+        {
+            if (!this.body.IsStaticOrInactive)
+            {
                 this.AdjustPosition();
             }
 
-            for (int i = this.collisionList.Count - 1; i > -1; i--) {
+            for (int i = this.collisionList.Count - 1; i > -1; i--)
+            {
                 var key = this.collisionList[i];
                 var value = this.collisionMap[key];
-                
-                if (value.state == State.Enter) {
-                    if (this.CollisionEnterEvent != null) {
+
+                if (value.state == State.Enter)
+                {
+                    if (this.CollisionEnterEvent != null)
+                    {
                         this.CollisionEnterEvent(key, value.point);
                     }
                 }
-                else if (value.state == State.Exit) {
-                    if (this.CollisionExitEvent != null) {
+                else if (value.state == State.Exit)
+                {
+                    if (this.CollisionExitEvent != null)
+                    {
                         this.CollisionExitEvent(key, value.point);
                     }
-                    
+
                     this.collisionMap.Remove(key);
                     this.collisionList.RemoveAt(i);
                     continue;
                 }
-                else {
-                    if (this.CollisionStayEvent != null) {
+                else
+                {
+                    if (this.CollisionStayEvent != null)
+                    {
                         this.CollisionStayEvent(key, value.point);
                     }
                 }
-                
-                this.collisionMap[key] = new Data() {
+
+                this.collisionMap[key] = new Data()
+                {
                     state = State.Exit,
                     point = value.point
                 };
             }
         }
 
-        protected void OnDrawGizmos() {
-            if (!Application.isPlaying) {
+        protected void OnDrawGizmos()
+        {
+            if (!Application.isPlaying)
+            {
                 return;
             }
 
@@ -173,51 +207,62 @@ namespace Game.Field {
             Gizmos.DrawWireCube(this.body.Position.ToVector3(), size);
         }
 
-        protected void OnEnable() {
+        protected void OnEnable()
+        {
             this.body = new Rigidbody(this, this.shape);
             this.body.IsStatic = this.isStatic;
             this.body.Position = this.transform.position.ToJVector();
             this.Scale = this.transform.localScale;
-            World.AddBody(this.body);
+            Worlds.AddBody(this.body);
         }
 
-        protected void OnDisable() {
-            World.RemoveBody(this.body);
+        protected void OnDisable()
+        {
+            Worlds.RemoveBody(this.body);
             this.body = null;
         }
 
-        public void AddForce(Vector3 power) {
+        public void AddForce(Vector3 power)
+        {
             this.body.AddForce(power.ToJVector());
         }
 
-        public void AdjustPosition() {
+        public void AdjustPosition()
+        {
             this.body.Position = this.body.Position.ToFixed();
             this.transform.position = this.body.Position.ToVector3();
         }
 
-        public void CollisionDetected(Collider collider, Vector3 point) {
-            if (this.CollisionEnterEvent == null && this.CollisionStayEvent == null && this.CollisionExitEvent == null) {
+        public void CollisionDetected(Collider collider, Vector3 point)
+        {
+            if (this.CollisionEnterEvent == null && this.CollisionStayEvent == null && this.CollisionExitEvent == null)
+            {
                 return;
             }
-            
-            if (!this.collisionMap.ContainsKey(collider)) {
-                this.collisionMap.Add(collider, new Data() {
+
+            if (!this.collisionMap.ContainsKey(collider))
+            {
+                this.collisionMap.Add(collider, new Data()
+                {
                     state = State.Enter,
                     point = point
                 });
                 this.collisionList.Add(collider);
             }
-            else {
-                this.collisionMap[collider] = new Data() {
+            else
+            {
+                this.collisionMap[collider] = new Data()
+                {
                     state = State.Stay,
                     point = point
                 };
-            } 
+            }
         }
 
-        public bool Pointcast(Vector3 point) {
+        public bool Pointcast(Vector3 point)
+        {
             var jPoint = point.ToJVector();
-            
+
             return GJKCollide.Pointcast(this.body.Shape, ref this.body.orientation, ref this.body.position, ref jPoint);
         }
     }

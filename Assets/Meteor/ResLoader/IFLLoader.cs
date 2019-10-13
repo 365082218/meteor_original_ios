@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class IFLLoader : LockBehaviour {
+public class IFLLoader :NetBehaviour {
     public TextAsset IFLFile;
     public int matIndex;
     public string fileNameReadOnly;
@@ -23,15 +23,20 @@ public class IFLLoader : LockBehaviour {
             mesh = GetComponentInChildren<MeshRenderer>();
     }
 
+    protected new void OnDestroy()
+    {
+        base.OnDestroy();
+    }
+
     void Start () {
-        delay = 1.0f / 30.0f;
+        delay = 1.0f / 12.0f;
         
         if (AutoPlay)
             LoadIFL();
 	}
 	
 	// Update is called once per frame
-	protected override void LockUpdate () {
+	public override void NetUpdate() {
         run += FrameReplay.deltaTime;
         if (PlayAnimation)
             Play();
