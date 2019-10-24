@@ -27,13 +27,16 @@ class SceneMng:Singleton<SceneMng>
         {
             for (int i = 0; i < 16; i++)
             {
-                Global.Instance.GLevelSpawn[i] = Global.ldaControlX(string.Format("D_user{0:d2}", i + 1), Loader.Instance.gameObject).transform.position;
+                GameObject obj = Global.ldaControlX(string.Format("D_user{0:d2}", i + 1), Loader.Instance.gameObject);
+                Global.Instance.GLevelSpawn[i] = obj == null ? Vector3.zero : obj.transform.position;
             }
 
             for (int i = 0; i < 8; i++)
             {
-                Global.Instance.GCampASpawn[i] = Global.ldaControlX(string.Format("D_teamA{0:d2}", i + 1), Loader.Instance.gameObject).transform.position;
-                Global.Instance.GCampBSpawn[i] = Global.ldaControlX(string.Format("D_teamB{0:d2}", i + 1), Loader.Instance.gameObject).transform.position;
+                GameObject objA = Global.ldaControlX(string.Format("D_teamA{0:d2}", i + 1), Loader.Instance.gameObject);
+                Global.Instance.GCampASpawn[i] = objA == null ? Vector3.zero :objA.transform.position;
+                GameObject objB = Global.ldaControlX(string.Format("D_teamB{0:d2}", i + 1), Loader.Instance.gameObject);
+                Global.Instance.GCampBSpawn[i] = objB == null ? Vector3.zero : objB.transform.position;
             }
         }
         else

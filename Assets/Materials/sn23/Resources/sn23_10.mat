@@ -6,8 +6,8 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: sn14_21
-  m_Shader: {fileID: 4800000, guid: 7444682d20fae524587667993da59ded, type: 3}
+  m_Name: sn23_10
+  m_Shader: {fileID: 4800000, guid: 0341fb4e5c8e70f4394216a96ba7c3e9, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_CustomRenderQueue: -1
@@ -16,24 +16,15 @@ Material:
     serializedVersion: 2
     m_TexEnvs:
     - first:
-        name: <noninit>
-      second:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - first:
         name: _MainTex
       second:
-        m_Texture: {fileID: 2800000, guid: 730064440f058974fac434a62f6d4b1f, type: 3}
+        m_Texture: {fileID: 2800000, guid: 7dcadf91a16605948a993f6f2a703c68, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - first:
-        name: _u
-      second: 0
-    - first:
-        name: _v
-      second: 0
+        name: _Alpha
+      second: 1
     m_Colors:
     - first:
         name: _TintColor

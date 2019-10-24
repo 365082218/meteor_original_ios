@@ -6,9 +6,9 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: sn15_68
-  m_Shader: {fileID: 4800000, guid: 7444682d20fae524587667993da59ded, type: 3}
-  m_ShaderKeywords: 
+  m_Name: sn23_13
+  m_Shader: {fileID: 4800000, guid: 78ac07a11ab986242b5a0043fe57c901, type: 3}
+  m_ShaderKeywords: _REVERSE_ON
   m_LightmapFlags: 5
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -18,17 +18,14 @@ Material:
     - first:
         name: _MainTex
       second:
-        m_Texture: {fileID: 2800000, guid: a5a762feebb56fc4c840c9f8d3074e8f, type: 3}
+        m_Texture: {fileID: 2800000, guid: bd27911affa7ced468914bf85fc14362, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - first:
-        name: _u
-      second: 0
+        name: _AlphaTimes
+      second: 0.2
     - first:
-        name: _v
-      second: 0
-    m_Colors:
-    - first:
-        name: _TintColor
-      second: {r: 1, g: 1, b: 1, a: 1}
+        name: _Reverse
+      second: 1
+    m_Colors: []
