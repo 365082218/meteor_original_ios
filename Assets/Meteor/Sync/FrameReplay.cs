@@ -239,6 +239,7 @@ public class FrameReplay : MonoBehaviour {
         LogicTurnIndex = 0;
         LogicFrameIndex = 0;
         playRecord = false;
+        firstFrame = true;
     }
 
     private void Awake()
@@ -272,15 +273,16 @@ public class FrameReplay : MonoBehaviour {
     }
 
     //called once per unity frame
+    bool firstFrame = true;
     public void Update()
     {
         ProtoHandler.Update();
-        //if (!Started)
-        //{
-        //    if (OnUpdates != null)
-        //        OnUpdates();
-        //    return;
-        //}
+        if (!Started)
+        {
+            //if (OnUpdates != null)
+            //    OnUpdates();
+            return;
+        }
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
             //Basically same logic as FixedUpdate, but we can scale it by adjusting FrameLength
@@ -306,6 +308,11 @@ public class FrameReplay : MonoBehaviour {
                 LogicFrameIndex = 0;
             }
             time += Time.deltaTime;
+            if (firstFrame)
+            {
+                EventBus.Instance.Fire(CommonEvent.OpenCamera);
+                firstFrame = false;
+            }
         }
     }
 

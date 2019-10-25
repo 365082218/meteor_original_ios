@@ -101,6 +101,7 @@ public class CameraFollow : NetBehaviour {
 
     public void Init()
     {
+        GetComponent<Camera>().enabled = false;
         DisableLockTarget = !GameData.Instance.gameStatus.AutoLock;
         animationPlay = false;
         animationTick = 0.0f;
@@ -122,6 +123,13 @@ public class CameraFollow : NetBehaviour {
         //    m_Targets[i].gameObject.layer = LayerMask.NameToLayer("Debug");
         //    m_Targets[i].localScale = 10 * Vector3.one;
         //}
+        EventBus.Instance.SetEvent(CommonEvent.OpenCamera, OpenCamera);
+    }
+
+    public void OpenCamera()
+    {
+        GetComponent<Camera>().enabled = true;
+        EventBus.Instance.RemoveEvent(CommonEvent.OpenCamera, OpenCamera);
     }
 
     public void ForceUpdate()

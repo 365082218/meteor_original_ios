@@ -23,8 +23,6 @@ public class BattleResultItem
 //负责战斗中相机的位置指定之类，主角色目标组作为摄像机 视锥体范围，参考Tank教程里的简单相机控制
 //负责战斗场景内位置间的寻路缓存
 public partial class GameBattleEx : NetBehaviour {
-    [HideInInspector]
-    public CameraFollow m_CameraControl;
     public static GameBattleEx Instance;
     int time = 1000;//秒
     float timeClock = 0.0f;
@@ -506,6 +504,20 @@ public partial class GameBattleEx : NetBehaviour {
                     SFXLoader.Instance.PlayEffect("vipred.ef", uEnemy.gameObject, false);
             }
         }
+
+        CrateCamera();
+    }
+
+    void CrateCamera()
+    {
+        //先创建一个相机
+        GameObject camera = GameObject.Instantiate(Resources.Load("CameraEx")) as GameObject;
+        camera.name = "CameraEx";
+
+        //角色摄像机跟随者着角色.
+        CameraFollow followCamera = GameObject.Find("CameraEx").GetComponent<CameraFollow>();
+        followCamera.Init();
+        followCamera.FollowTarget(MeteorManager.Instance.LocalPlayer.transform);
     }
 
     void SpawnAllRobot()
@@ -546,16 +558,6 @@ public partial class GameBattleEx : NetBehaviour {
         Main.Instance.listener.enabled = false;
         Main.Instance.playerListener = MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
 
-        //先创建一个相机
-        GameObject camera = GameObject.Instantiate(Resources.Load("CameraEx")) as GameObject;
-        camera.name = "CameraEx";
-
-        //角色摄像机跟随者着角色.
-        CameraFollow followCamera = GameObject.Find("CameraEx").GetComponent<CameraFollow>();
-        followCamera.Init();
-        followCamera.FollowTarget(MeteorManager.Instance.LocalPlayer.transform);
-        m_CameraControl = followCamera;
-
         if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
             SpawnAllRobot();
 
@@ -574,8 +576,8 @@ public partial class GameBattleEx : NetBehaviour {
         }
 
         U3D.InsertSystemMsg("新回合开始计时");
-        //if (FightWnd.Exist)
-        //    FightWnd.Instance.OnBattleStart();
+        if (FightDialogState.Exist())
+            FightDialogState.Instance.OnBattleStart();
     }
 
     //场景物件的受击框
