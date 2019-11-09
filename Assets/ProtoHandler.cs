@@ -52,7 +52,7 @@ class ProtoHandler
                         //UnityEngine.Debug.LogError(string.Format("收到:{0}", each.Key));
                         switch (each.Key)
                         {
-                            case (int)MeteorMsg.MsgType.ProtocolVerify:
+                            case (int)MeteorMsg.MsgType.ProtocolVerifyRsp:
                                 ms = new MemoryStream(each.Value);
                                 ProtocolVerifyRsp rspVer = ProtoBuf.Serializer.Deserialize<ProtocolVerifyRsp>(ms);
                                 OnVerifyResult(rspVer);

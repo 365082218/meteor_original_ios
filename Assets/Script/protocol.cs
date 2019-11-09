@@ -26,8 +26,29 @@ namespace protocol
     public enum MsgType
     {
             
-      [global::ProtoBuf.ProtoEnum(Name=@"ProtocolVerify", Value=10)]
-      ProtocolVerify = 10,
+      [global::ProtoBuf.ProtoEnum(Name=@"RegisterSvrReq", Value=3)]
+      RegisterSvrReq = 3,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"RegisterSvrRsp", Value=4)]
+      RegisterSvrRsp = 4,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"UnRegisterSvr", Value=5)]
+      UnRegisterSvr = 5,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"SyncSvrState", Value=6)]
+      SyncSvrState = 6,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"GetSvrReq", Value=7)]
+      GetSvrReq = 7,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"GetSvrRsp", Value=8)]
+      GetSvrRsp = 8,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"ProtocolVerifyReq", Value=9)]
+      ProtocolVerifyReq = 9,
+            
+      [global::ProtoBuf.ProtoEnum(Name=@"ProtocolVerifyRsp", Value=10)]
+      ProtocolVerifyRsp = 10,
             
       [global::ProtoBuf.ProtoEnum(Name=@"GetRoomReq", Value=100)]
       GetRoomReq = 100,
@@ -137,6 +158,9 @@ namespace protocol
       [global::ProtoBuf.ProtoEnum(Name=@"AudioChat", Value=150)]
       AudioChat = 150,
             
+      [global::ProtoBuf.ProtoEnum(Name=@"SystemMessage", Value=160)]
+      SystemMessage = 160,
+            
       [global::ProtoBuf.ProtoEnum(Name=@"SyncCommand", Value=888)]
       SyncCommand = 888
     }
@@ -180,6 +204,156 @@ namespace protocol
             
       [global::ProtoBuf.ProtoEnum(Name=@"BuyItem", Value=12)]
       BuyItem = 12
+    }
+  
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"RegisterSvrReq")]
+  public partial class RegisterSvrReq : global::ProtoBuf.IExtensible
+  {
+    public RegisterSvrReq() {}
+    
+    private string _serverName;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"serverName", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public string serverName
+    {
+      get { return _serverName; }
+      set { _serverName = value; }
+    }
+    private string _ip;
+    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"ip", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public string ip
+    {
+      get { return _ip; }
+      set { _ip = value; }
+    }
+    private uint _port;
+    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"port", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public uint port
+    {
+      get { return _port; }
+      set { _port = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"RegisterSvrRsp")]
+  public partial class RegisterSvrRsp : global::ProtoBuf.IExtensible
+  {
+    public RegisterSvrRsp() {}
+    
+    private string _serverName = "";
+    [global::ProtoBuf.ProtoMember(1, IsRequired = false, Name=@"serverName", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    [global::System.ComponentModel.DefaultValue("")]
+    public string serverName
+    {
+      get { return _serverName; }
+      set { _serverName = value; }
+    }
+    private uint _serverId;
+    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"serverId", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public uint serverId
+    {
+      get { return _serverId; }
+      set { _serverId = value; }
+    }
+    private uint _result;
+    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"result", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public uint result
+    {
+      get { return _result; }
+      set { _result = value; }
+    }
+    private uint _reason = default(uint);
+    [global::ProtoBuf.ProtoMember(4, IsRequired = false, Name=@"reason", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    [global::System.ComponentModel.DefaultValue(default(uint))]
+    public uint reason
+    {
+      get { return _reason; }
+      set { _reason = value; }
+    }
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"SvrList")]
+  public partial class SvrList : global::ProtoBuf.IExtensible
+  {
+    public SvrList() {}
+    
+    private readonly global::System.Collections.Generic.List<SvrInfo> _gameSvrList = new global::System.Collections.Generic.List<SvrInfo>();
+    [global::ProtoBuf.ProtoMember(1, Name=@"gameSvrList", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public global::System.Collections.Generic.List<SvrInfo> gameSvrList
+    {
+      get { return _gameSvrList; }
+    }
+  
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"SvrInfo")]
+  public partial class SvrInfo : global::ProtoBuf.IExtensible
+  {
+    public SvrInfo() {}
+    
+    private uint _Idx;
+    [global::ProtoBuf.ProtoMember(1, IsRequired = true, Name=@"Idx", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public uint Idx
+    {
+      get { return _Idx; }
+      set { _Idx = value; }
+    }
+    private string _Name;
+    [global::ProtoBuf.ProtoMember(2, IsRequired = true, Name=@"Name", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public string Name
+    {
+      get { return _Name; }
+      set { _Name = value; }
+    }
+    private string _Ip;
+    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"Ip", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public string Ip
+    {
+      get { return _Ip; }
+      set { _Ip = value; }
+    }
+    private uint _Port;
+    [global::ProtoBuf.ProtoMember(4, IsRequired = true, Name=@"Port", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public uint Port
+    {
+      get { return _Port; }
+      set { _Port = value; }
+    }
+    private readonly global::System.Collections.Generic.List<RoomInfo> _RoomInLobby = new global::System.Collections.Generic.List<RoomInfo>();
+    [global::ProtoBuf.ProtoMember(5, Name=@"RoomInLobby", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public global::System.Collections.Generic.List<RoomInfo> RoomInLobby
+    {
+      get { return _RoomInLobby; }
+    }
+  
+    private global::ProtoBuf.IExtension extensionObject;
+    global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
+      { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
+  }
+  
+  [global::System.Serializable, global::ProtoBuf.ProtoContract(Name=@"SyncSvrState")]
+  public partial class SyncSvrState : global::ProtoBuf.IExtensible
+  {
+    public SyncSvrState() {}
+    
+    private readonly global::System.Collections.Generic.List<RoomInfo> _RoomInLobby = new global::System.Collections.Generic.List<RoomInfo>();
+    [global::ProtoBuf.ProtoMember(1, Name=@"RoomInLobby", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public global::System.Collections.Generic.List<RoomInfo> RoomInLobby
+    {
+      get { return _RoomInLobby; }
     }
   
     private global::ProtoBuf.IExtension extensionObject;
@@ -539,6 +713,13 @@ namespace protocol
       get { return _message; }
       set { _message = value; }
     }
+    private string _clientV;
+    [global::ProtoBuf.ProtoMember(3, IsRequired = true, Name=@"clientV", DataFormat = global::ProtoBuf.DataFormat.Default)]
+    public string clientV
+    {
+      get { return _clientV; }
+      set { _clientV = value; }
+    }
     private global::ProtoBuf.IExtension extensionObject;
     global::ProtoBuf.IExtension global::ProtoBuf.IExtensible.GetExtensionObject(bool createIfMissing)
       { return global::ProtoBuf.Extensible.GetExtensionObject(ref extensionObject, createIfMissing); }
@@ -632,6 +813,13 @@ namespace protocol
     {
       get { return _maxPlayer; }
       set { _maxPlayer = value; }
+    }
+    private uint _kcpPort;
+    [global::ProtoBuf.ProtoMember(13, IsRequired = true, Name=@"kcpPort", DataFormat = global::ProtoBuf.DataFormat.TwosComplement)]
+    public uint kcpPort
+    {
+      get { return _kcpPort; }
+      set { _kcpPort = value; }
     }
     [global::ProtoBuf.ProtoContract(Name=@"RoomRule")]
     public enum RoomRule

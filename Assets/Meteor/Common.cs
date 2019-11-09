@@ -423,7 +423,7 @@ public class Common
         ProtocolVerifyReq req = new ProtocolVerifyReq();
         req.protocol = AppInfo.ProtocolVersion;
         req.data = GameData.Instance.gameStatus.NickName;
-        Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ProtocolVerify, req);
+        Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ProtocolVerifyReq, req);
     }
 
     //public static void SendRebornRequest(int playerid)

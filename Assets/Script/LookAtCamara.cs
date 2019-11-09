@@ -17,6 +17,7 @@ public class LookAtCamara: NetBehaviour
     {
         if (CameraFollow.Ins != null)
         {
+            
             transform.LookAt(CameraFollow.Ins.transform);
             transform.Rotate(new Vector3(-90, 0, 0));
         }
