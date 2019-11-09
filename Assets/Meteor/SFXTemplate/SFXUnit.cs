@@ -450,7 +450,8 @@ DRAG*/
                 if (source.frames[playedIndex].startTime <= playedTime)
                 {
                     OnNewFrame(vertexColor);
-                    transform.LookAt(Camera.main.transform);
+                    if (Camera.main != null)
+                        transform.LookAt(Camera.main.transform);
                     temp.x = source.origScale.x * source.frames[playedIndex - 1].scale.x;
                     temp.y = source.origScale.y * source.frames[playedIndex - 1].scale.y;
                     temp.z = source.origScale.z * source.frames[playedIndex - 1].scale.z;
@@ -459,7 +460,8 @@ DRAG*/
                 else
                 {
                     OnLastFrame(timeRatio2, vertexColor);
-                    transform.LookAt(Camera.main.transform);
+                    if (Camera.main != null)
+                        transform.LookAt(Camera.main.transform);
                     temp.x = source.origScale.x * source.frames[playedIndex - 1].scale.x;
                     temp.y = source.origScale.y * source.frames[playedIndex - 1].scale.y;
                     temp.z = source.origScale.z * source.frames[playedIndex - 1].scale.z;

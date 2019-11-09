@@ -1353,13 +1353,13 @@ public partial class MeteorUnit : NetBehaviour
         charController.radius = 8.0f;//不这么大碰不到寻路点.
         charController.stepOffset = 7.6f;
 
-        posMng.ChangeAction();
         if (controller != null)
             controller.Init(this);
 
         InventoryItem itWeapon = GameData.Instance.MakeEquip(Attr.Weapon);
         weaponLoader.EquipWeapon(itWeapon);
 
+        posMng.ChangeAction(CommonAction.Idle, 0);
         //换主角模型用
         if (updateModel)
         {
@@ -2165,6 +2165,9 @@ public partial class MeteorUnit : NetBehaviour
         OnGround = false;
         IgnoreGravity = false;
         SetWorldVelocity(new Vector3(0, -100, 0));
+        if (Attr.IsPlayer)
+            if (FightDialogState.Exist())
+                FightDialogState.Instance.UpdatePlayerInfo();
     }
 
     //盟主模式下的自动复活.

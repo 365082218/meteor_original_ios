@@ -8371,45 +8371,6 @@ public class LevelScript_sn23 : LevelScriptBase
     }
 }
 
-//CF-运输船
-public class LevelScript_sn24 : LevelScriptBase
-{
-    int RoundTime = 30;
-    int PlayerSpawn = 7;
-    int PlayerSpawnDir = 84;
-    int PlayerWeapon = 5;
-    int PlayerWeapon2 = 0;
-    int PlayerModel = 10;
-    int PlayerHP = 8000;
-    string PlayerName = "X战警";
-    public override int GetRoundTime() { return RoundTime; }
-    public override int GetPlayerSpawn() { return PlayerSpawn; }
-    public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
-    public override int GetPlayerWeapon() { return PlayerWeapon; }
-    public override int GetPlayerWeapon2() { return PlayerWeapon2; }
-    public override int GetPlayerModel() { return PlayerModel; }
-    public override string GetPlayerName() { return PlayerName; }
-    public override int GetPlayerMaxHp() { return PlayerHP; }
-    public override void OnStart()
-    {
-        base.OnStart();
-    }
-
-
-    public override void Scene_OnInit()
-    {
-        SetSceneItem("D_B01", "name", "machine");
-        SetSceneItem("D_B01", "attribute", "collision", 1);
-        SetSceneItem("D_B01", "attribute", "damagevalue", 30000);
-
-        InitBoxes(g_iNumBoxes);
-        InitBBoxes(g_iNumBBoxes);
-        InitChairs(g_iNumChairs);
-        InitDeskes(g_iNumDeskes);
-        InitJugs(g_iNumJugs);
-    }
-}
-
 //往生幻境.
 public class LevelScript_sn25 : LevelScriptBase
 {
@@ -8814,6 +8775,7 @@ public class LevelScript_sn31 : LevelScript_sn22
     }
 }
 
+//秦皇陵
 public class LevelScript_sn02_1:LevelScript_sn02
 {
     public override void OnLoad()
@@ -8838,3 +8800,38 @@ public class LevelScript_sn02_1:LevelScript_sn02
         return 0;
     }
 }
+
+public class LevelScript_sn24 : LevelScriptBase
+{
+    int Rule = 5;
+    int RoundTime = 15;
+    int PlayerSpawn = 5;
+    int PlayerSpawnDir = 90;
+    int PlayerWeapon = 5;
+    int PlayerWeapon2 = 0;
+    public override int GetRoundTime() { return RoundTime; }
+    public override int GetPlayerSpawn() { return PlayerSpawn; }
+    public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
+    public override int GetPlayerWeapon() { return PlayerWeapon; }
+    public override int GetPlayerWeapon2() { return PlayerWeapon2; }
+    public override bool DisableFindWay()
+    {
+        return true;
+    }
+
+    public override void OnLoad()
+    {
+        //Global.Instance.GGameMode = GameMode.Rob;
+    }
+
+    public override void OnStart()
+    {
+        base.OnStart();
+    }
+
+    public override int OnUpdate()
+    {
+        return 0;
+    }
+}
+
