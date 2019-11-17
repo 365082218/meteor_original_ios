@@ -168,7 +168,7 @@ public class DesFile
             //Debug.LogFormat("共有{0}个对象{1}个虚拟物", ObjectCount, DummyCount);
             if (SceneItems.Count != ObjectCount + DummyCount)
             {
-                Debug.Log("物品数量不对");
+                Debug.Log(string.Format("物品数量不对, 场景物件数量{0}-对象{1}-拷贝对象{2}", SceneItems.Count, ObjectCount, DummyCount));
                 return;
             }
         }

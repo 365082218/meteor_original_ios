@@ -464,6 +464,7 @@ GameObject:
   - component: {fileID: 224000011972379468}
   - component: {fileID: 222000011288211488}
   - component: {fileID: 114000012290418872}
+  - component: {fileID: 114445274170161806}
   m_Layer: 5
   m_Name: bg
   m_TagString: Untagged
@@ -625,7 +626,6 @@ GameObject:
   - component: {fileID: 224000010706548326}
   - component: {fileID: 222000012484521302}
   - component: {fileID: 114000011177241324}
-  - component: {fileID: 114000013106877140}
   m_Layer: 5
   m_Name: GameTime
   m_TagString: Untagged
@@ -2183,11 +2183,11 @@ PolygonCollider2D:
   m_Points:
     m_Paths:
     - - {x: -130, y: -100}
-      - {x: -235, y: 0}
-      - {x: 0, y: 0}
-      - {x: 235, y: 0}
-      - {x: 60, y: -165}
-      - {x: -60, y: -165}
+      - {x: -270, y: 45}
+      - {x: 0, y: 45}
+      - {x: 270, y: 45}
+      - {x: 0, y: -230}
+      - {x: 0, y: -230}
 --- !u!60 &60268748505098388
 PolygonCollider2D:
   m_ObjectHideFlags: 1
@@ -2203,11 +2203,11 @@ PolygonCollider2D:
   m_Points:
     m_Paths:
     - - {x: -130, y: -100}
-      - {x: -235, y: 0}
-      - {x: 0, y: 0}
-      - {x: 235, y: 0}
-      - {x: 60, y: -165}
-      - {x: -60, y: -165}
+      - {x: -270, y: 45}
+      - {x: 0, y: 45}
+      - {x: 270, y: 45}
+      - {x: 0, y: -230}
+      - {x: 0, y: -230}
 --- !u!60 &60680949424560964
 PolygonCollider2D:
   m_ObjectHideFlags: 1
@@ -2223,11 +2223,11 @@ PolygonCollider2D:
   m_Points:
     m_Paths:
     - - {x: -130, y: -100}
-      - {x: -235, y: 0}
-      - {x: 0, y: 0}
-      - {x: 235, y: 0}
-      - {x: 60, y: -165}
-      - {x: -60, y: -165}
+      - {x: -270, y: 45}
+      - {x: 0, y: 45}
+      - {x: 270, y: 45}
+      - {x: 0, y: -230}
+      - {x: 0, y: -230}
 --- !u!60 &60801054603313828
 PolygonCollider2D:
   m_ObjectHideFlags: 1
@@ -2243,11 +2243,11 @@ PolygonCollider2D:
   m_Points:
     m_Paths:
     - - {x: -130, y: -100}
-      - {x: -235, y: 0}
-      - {x: 0, y: 0}
-      - {x: 235, y: 0}
-      - {x: 60, y: -165}
-      - {x: -60, y: -165}
+      - {x: -270, y: 45}
+      - {x: 0, y: 45}
+      - {x: 270, y: 45}
+      - {x: 0, y: -230}
+      - {x: 0, y: -230}
 --- !u!65 &65000011063723772
 BoxCollider:
   m_ObjectHideFlags: 1
@@ -2863,8 +2863,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.49803922}
-  m_RaycastTarget: 0
+  m_Color: {r: 1, g: 1, b: 1, a: 0.07450981}
+  m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -3052,25 +3052,6 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 0
   m_FillOrigin: 2
---- !u!114 &114000013106877140
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1000013231997208}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 83342e562b2404d438dd2c12c07eabbc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mStartPos: {x: 0, y: 100, z: 0}
-  mRectStartPos: {x: 0, y: 100, z: 0}
-  mDelateTime: 0
-  mDurTime: 0.8
-  isOutElastic: 0
-  isShowWhenWake: 1
-  isShow: 1
-  isShowMoveComplete: 0
 --- !u!114 &114000013151547338
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3304,7 +3285,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114000013917275236}
   m_HandleRect: {fileID: 224000013581843684}
   m_Direction: 0
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -4036,7 +4017,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.78431374}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -4044,7 +4025,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Sprite: {fileID: 21300000, guid: b047c843d5b63aa499f4b1ed8463d398, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -4378,7 +4359,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.78431374}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -4386,7 +4367,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Sprite: {fileID: 21300000, guid: b047c843d5b63aa499f4b1ed8463d398, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -5061,6 +5042,22 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &114445274170161806
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000012543586714}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 562b45c4d91574648b6c602685dad82a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  JoyButton:
+  - {fileID: 114501738716205346}
+  - {fileID: 114000014067633898}
+  - {fileID: 114000010652082886}
+  - {fileID: 114000013523931540}
 --- !u!114 &114449983916877798
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -5650,7 +5647,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.78431374}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -5658,7 +5655,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Sprite: {fileID: 21300000, guid: b047c843d5b63aa499f4b1ed8463d398, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -5786,7 +5783,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0.78431374}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -5794,7 +5791,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_Sprite: {fileID: 21300000, guid: b047c843d5b63aa499f4b1ed8463d398, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -7919,7 +7916,7 @@ RectTransform:
   m_GameObject: {fileID: 1000012543586714}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.8, y: 0.8, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_Children: []
   m_Father: {fileID: 224000010945866268}
   m_RootOrder: 4
@@ -7927,7 +7924,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 321, y: 321}
+  m_SizeDelta: {x: 235, y: 235}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224000012067198378
 RectTransform:
@@ -8054,7 +8051,7 @@ RectTransform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000012323132876}
-  m_LocalRotation: {x: -0, y: -0, z: 0.7071068, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -8186,7 +8183,7 @@ RectTransform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000012090013708}
-  m_LocalRotation: {x: -0, y: -0, z: -0.7071068, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []

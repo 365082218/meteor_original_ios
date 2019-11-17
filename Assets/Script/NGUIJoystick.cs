@@ -51,7 +51,7 @@ public class NGUIJoystick : MonoBehaviour
 	static Vector2 mSlipDelta = Vector2.zero;
 	static public Vector2 SlipDelta {get {return mSlipDelta;} set {mSlipDelta = value;} }
 
-    public Transform background;
+    //public Transform background;
     public Transform target;
     public float direction = 100f;//限定轴最远可以离中心多少
     public float reactiveRange = 60f;//激活范围在60-100内，当轴处于这个范围，就会激活相应的连招键。
@@ -66,7 +66,7 @@ public class NGUIJoystick : MonoBehaviour
     {
         ResetJoystick();
         mInstance = this;
-        background.gameObject.SetActive(false);
+        //background.gameObject.SetActive(false);
     }
 
     void OnDestroy()
@@ -160,7 +160,7 @@ public class NGUIJoystick : MonoBehaviour
                 //Debug.Log("NGUIJoystick OnPress");
                 EnableArrowButton(false);
                 JoyCollider.radius = 200;
-                background.gameObject.SetActive(true);
+                //background.gameObject.SetActive(true);
 
                 Vector2 curPos = UICamera.currentTouch.pos;
                 mClickPos = UIHelper.ScreenPointToUIPoint(curPos);
@@ -419,7 +419,7 @@ public class NGUIJoystick : MonoBehaviour
     {
         JoyCollider.radius = 55;
         target.localPosition = Vector3.zero;
-        background.gameObject.SetActive(false);
+        //background.gameObject.SetActive(false);
         mDelta = Vector2.zero;
         mLastFingerId = -2;
         mJoyPressed = false;

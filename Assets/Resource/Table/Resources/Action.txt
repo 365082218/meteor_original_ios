@@ -2,9 +2,9 @@
 Idx	Name	IgnoreMove	IgnoreGravity	IgnoreCollision	IgnoreXZVelocity	IgnoreXZMove
 100	被挑起	0	1	1	0	1
 118	挑起到顶	1	0	1		
-151	跳跃起身	1	0	1		
-152	跳跃到顶	1	0	1		
-153	右跳	1	0	1		
+151	跳跃起身	1	0	0		
+152	跳跃到顶	1	0	0		
+153	右跳	1	0	0		
 154	右跳到顶	1	0	0		
 155	左跳	1	0	0		
 156	左跳到顶	1	0	0		
@@ -12,9 +12,9 @@ Idx	Name	IgnoreMove	IgnoreGravity	IgnoreCollision	IgnoreXZVelocity	IgnoreXZMove
 158	后跳到顶	1	0	0		
 159	右蹬腿	0	1	0		
 160	左蹬腿	0	1	0		
-161	前爬墙	0	0	1		
-162	右爬墙	0	0	1		
-163	左爬墙	0	0	1		
+161	前爬墙	0	0	0		
+162	右爬墙	0	0	0		
+163	左爬墙	0	0	0		
 164	前闪	0	0	0		
 165	剑前闪	0	0	0		
 166	匕首前闪	0	0	0		
@@ -31,7 +31,7 @@ Idx	Name	IgnoreMove	IgnoreGravity	IgnoreCollision	IgnoreXZVelocity	IgnoreXZMove
 177	右滚	0	0	0		
 178	左滚	0	0	0		
 179	后滚	0	0	0		
-180	跳跃脚点地	1	0	1		
+180	跳跃脚点地	1	0	0		
 181	空	0	0	0		
 182	空	0	0	0		
 183	空	0	0	0		

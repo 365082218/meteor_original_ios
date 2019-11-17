@@ -1,35 +1,35 @@
-﻿关卡编号	地图名称	场景能否作为模板	禁止寻路	关卡名称	关卡类型(单机有效)	剧本C#类名	额外初始怪物脚本	场景读取原流星des gmb文件初始化地图	预览图	关卡胜利条件	胜利条件参数
-Id	Scene	Template	DisableFindWay	Name	LevelType	LevelScript	StartScript	sceneItems	BgTexture	Pass	Param
-1	Meteor_14	1	0	炎硫岛	5	sn14		sn14	scene1	1	
-2	Meteor_01	1	0	钟乳洞	5	sn01		sn01	scene2	1	
-3	Meteor_03	1	0	一线天	2	sn03		sn03	scene3		
-4	Meteor_13	1	0	金华城	4	sn13		sn13	scene4	2	npc13_02
-5	Meteor_04	1	0	炽雪城	5	sn04		sn04	scene5		
-6	Meteor_15	1	0	飞鹏堡	4	sn15		sn15	scene6	2	npc15_01
-7	Meteor_05	1	0	皇天城	5	sn05		sn05	scene7	1	
-8	Meteor_09	1	0	决死阵	6	sn09		sn09	scene8		
-9	Meteor_10	1	0	炼铁狱	5	sn10		sn10	scene9	2	npc10_01
-10	Meteor_07	1	0	死阵	5	sn07		sn07			
-11	Meteor_08	1	0	毒牙阵	5	sn08		sn08			
-12	Meteor_11	1	0	五爪峰	5	sn11		sn11			
-13	Meteor_12	1	0	烽火雷	5	sn12		sn12			
-14	Meteor_16	1	0	五雷塔	5	sn16		sn16			
-15	Meteor_17	1	0	伏虎山	5	sn17		sn17			
-16	Meteor_18	1	0	圆满楼	5	sn18		sn18			
-17	Meteor_19	1	0	洛阳城<夜>	5	sn19		sn19			
-18	Meteor_27	1	0	洛阳城<日>	5	sn19		sn19			
-19	Meteor_20	1	0	卧龙窟	5	sn20		sn20			
-20	Meteor_21	1	0	圣诞夜	5	sn21		sn21			
-21	Meteor_22	1	1	威震八方	5	sn22		sn22			
-22	Meteor_06	1	0	四方阵	5	sn06		sn06			
-23	Meteor_02	1	0	秦皇陵	5	sn02		sn02			
-24	Meteor_23	0	1	大决战	6	sn23		sn23		1	
-25	Meteor_25	0	1	往生幻境	5	sn25		sn25		1	
-26	Meteor_06	0	0	近战AI测试	5	sn1000	sn1000_1	sn06		1	
-27	Meteor_06	0	0	远程AI测试	5	sn1000	sn1000_2	sn06		1	
-28	Meteor_06	0	0	防御硬直测试	5	sn1000	sn1000_3	sn06		1	
-29	Meteor_06	0	0	火枪测试	5	sn1000	sn1000_4	sn06		1	
-30	Meteor_06	0	0	跟随测试	5	sn1000	sn1000_5	sn06		1	
-31	Meteor_22	0	1	威震八方	5	sn31		sn22			
-32	Meteor_02	0	0	秦皇陵机关	5	sn02_1		sn02			
-33	Meteor_24	1	1	星梦台	5	sn24		sn24			
+﻿关卡编号	地图名称	场景能否作为模板	禁止寻路	关卡名称	关卡类型(单机有效)	剧本C#类名	背景音乐	额外初始怪物脚本	场景读取原流星des gmb文件初始化地图	预览图	关卡胜利条件	胜利条件参数
+Id	Scene	Template	DisableFindWay	Name	LevelType	LevelScript	BgmName	StartScript	sceneItems	BgTexture	Pass	Param
+1	Meteor_14	1	0	炎硫岛	5	sn14	S1		sn14	scene1	1	
+2	Meteor_01	1	0	钟乳洞	5	sn01	S2		sn01	scene2	1	
+3	Meteor_03	1	0	一线天	2	sn03	S3		sn03	scene3		
+4	Meteor_13	1	0	金华城	4	sn13	S4		sn13	scene4	2	npc13_02
+5	Meteor_04	1	0	炽雪城	5	sn04	S5		sn04	scene5		
+6	Meteor_15	1	0	飞鹏堡	4	sn15	S6		sn15	scene6	2	npc15_01
+7	Meteor_05	1	0	皇天城	5	sn05	S7		sn05	scene7	1	
+8	Meteor_09	1	0	决死阵	6	sn09	S8		sn09	scene8		
+9	Meteor_10	1	0	炼铁狱	5	sn10	S9		sn10	scene9	2	npc10_01
+10	Meteor_07	1	0	死阵	5	sn07	S8		sn07			
+11	Meteor_08	1	0	毒牙阵	5	sn08	S8		sn08			
+12	Meteor_11	1	0	五爪峰	5	sn11	S9		sn11			
+13	Meteor_12	1	0	烽火雷	5	sn12	S1		sn12			
+14	Meteor_16	1	0	五雷塔	5	sn16	S6		sn16			
+15	Meteor_17	1	0	伏虎山	5	sn17	S7		sn17			
+16	Meteor_18	1	0	圆满楼	5	sn18	S5		sn18			
+17	Meteor_19	1	0	洛阳城<夜>	5	sn19	S4		sn19			
+18	Meteor_27	1	0	洛阳城<日>	5	sn19	S4		sn19			
+19	Meteor_20	1	0	卧龙窟	5	sn20	S7		sn20			
+20	Meteor_21	1	0	圣诞夜	5	sn21	S10		sn21			
+21	Meteor_22	1	1	威震八方	5	sn22	S5		sn22			
+22	Meteor_06	1	0	四方阵	5	sn06	S5		sn06			
+23	Meteor_02	1	0	秦皇陵	5	sn02	S2		sn02			
+24	Meteor_23	0	1	大决战	6	sn23	S11		sn23		1	
+25	Meteor_25	0	1	往生幻境	5	sn25	S11		sn25		1	
+26	Meteor_06	0	0	近战AI测试	5	sn1000	S5	sn1000_1	sn06		1	
+27	Meteor_06	0	0	远程AI测试	5	sn1000	S5	sn1000_2	sn06		1	
+28	Meteor_06	0	0	防御硬直测试	5	sn1000	S5	sn1000_3	sn06		1	
+29	Meteor_06	0	0	火枪测试	5	sn1000	S5	sn1000_4	sn06		1	
+30	Meteor_06	0	0	跟随测试	5	sn1000	S5	sn1000_5	sn06		1	
+31	Meteor_22	0	1	威震八方	5	sn31	S5		sn22			
+32	Meteor_02	0	0	秦皇陵机关	5	sn02_1	S5		sn02			
+33	Meteor_24	1	1	星梦台	5	sn24	S5		sn24			
