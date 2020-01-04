@@ -147,6 +147,8 @@ public class ModelItem
     //zip路径
     [ProtoMember(4)]
     public string localPath;
+    [ProtoMember(5)]
+    public string localDir;
     public string LocalPath
     {
         get
@@ -154,6 +156,7 @@ public class ModelItem
             if (!string.IsNullOrEmpty(localPath))
                 return localPath;
             localPath = Application.persistentDataPath + "/Plugins/" + Path;
+            localDir = localPath.Substring(0, localPath.Length - ".zip".Length);
             return localPath; 
         }
     }//本地存储路径，由
@@ -196,15 +199,20 @@ public class ModelItem
 
     public void CleanRes()
     {
-        for (int j = 0; j < resPath.Length; j++)
+        if (resPath != null)
         {
-            if (System.IO.File.Exists(resPath[j]))
+            for (int j = 0; j < resPath.Length; j++)
             {
-                System.IO.File.Delete(resPath[j]);
+                if (System.IO.File.Exists(resPath[j]))
+                {
+                    System.IO.File.Delete(resPath[j]);
+                }
             }
         }
         if (System.IO.File.Exists(LocalPath))
             System.IO.File.Delete(LocalPath);
+        if (System.IO.Directory.Exists(localDir))
+            System.IO.Directory.Delete(localDir);
         Installed = false;
     }
 }

@@ -137,6 +137,7 @@ public class Main : MonoBehaviour {
         PopupStateManager = new MainPopupStateManager();
         GlobalUpdate.Instance.LoadCache();
         GameData.Instance.LoadState();
+        
         GameData.Instance.InitTable();
         ResMng.Reload();
         DontDestroyOnLoad(gameObject);
@@ -215,7 +216,7 @@ public class Main : MonoBehaviour {
             GameStart();
             yield break;
         }
-        else if (Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork)
+        else if (Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork && GameData.Instance.gameStatus.OnlyWifi)
         {
             //3G-4G流量套餐
             //别更新
@@ -223,7 +224,7 @@ public class Main : MonoBehaviour {
             yield break;
         }
         else
-		if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork)
+		if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork || !GameData.Instance.gameStatus.OnlyWifi)
         {
             //Debug.LogError("download:" + string.Format(strVFile, strHost, Main.port, strProjectUrl, strPlatform, strVFileName));
             UnityWebRequest vFile = new UnityWebRequest();

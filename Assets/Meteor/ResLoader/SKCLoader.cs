@@ -287,14 +287,18 @@ public class SkcFile
                             e.Weight = w;
                             boneW.Add(e);
                         }
+                        //重新按权重设置各自的比例
+                        float weightTotal = 0.0f;
+                        for (int k = 0; k < boneW.Count; k++)
+                            weightTotal += boneW[k].Weight;
                         weight.boneIndex0 = boneW.Count >= 1 ? boneW[0].BoneIndex : 0;
-                        weight.weight0 = boneW.Count >= 1 ? boneW[0].Weight : 0;
+                        weight.weight0 = boneW.Count >= 1 ? boneW[0].Weight / weightTotal : 0;
                         weight.boneIndex1 = boneW.Count >= 2 ? boneW[1].BoneIndex : 0;
-                        weight.weight1 = boneW.Count >= 2 ? boneW[1].Weight : 0;
+                        weight.weight1 = boneW.Count >= 2 ? boneW[1].Weight / weightTotal : 0;
                         weight.boneIndex2 = boneW.Count >= 3 ? boneW[2].BoneIndex : 0;
-                        weight.weight2 = boneW.Count >= 3 ? boneW[2].Weight : 0;
+                        weight.weight2 = boneW.Count >= 3 ? boneW[2].Weight / weightTotal : 0;
                         weight.boneIndex3 = boneW.Count >= 4 ? boneW[3].BoneIndex : 0;
-                        weight.weight3 = boneW.Count >= 4 ? boneW[3].Weight : 0;
+                        weight.weight3 = boneW.Count >= 4 ? boneW[3].Weight / weightTotal : 0;
                         boneWeight.Add(weight);
                         vec.Add(v);
                         uv.Add(uvv);

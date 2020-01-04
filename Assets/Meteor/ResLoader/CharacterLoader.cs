@@ -1060,6 +1060,12 @@ public class AmbLoader
 
     public static BoneStatus GetBoneStatus(int source, int unitId, int frame)
     {
+        if (!PlayerAnimationEx.ContainsKey(source))
+            return null;
+        if (!PlayerAnimationEx[source].ContainsKey(unitId))
+            return null;
+        if (!PlayerAnimationEx[source][unitId].ContainsKey(frame))
+            return null;
         return PlayerAnimationEx[source][unitId][frame]; 
     }
 

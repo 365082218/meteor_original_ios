@@ -20,11 +20,7 @@ public class StartupUiController : Dialog {
 #elif UNITY_IOS
         //IosWrapper.Init();
 #endif
-        GameData.Instance.LoadState();
-        GameData.Instance.InitTable();
         Main.Instance.ShowFps(GameData.Instance.gameStatus.ShowFPS);
-        //清理数据
-        ResMng.Reload();
         StartCoroutine(LoadData());
         Global.Instance.Init();//加载全局表.
         SoundManager.Instance.SetMusicVolume(GameData.Instance.gameStatus.MusicVolume);

@@ -106,6 +106,7 @@ public class GameState
     public string Password;
     public bool AutoLogin;
     public bool RememberPassword;
+    public bool OnlyWifi;//仅在WIFI下更新和下载模组.
     public RoomSetting Single = new RoomSetting();//单机房间设置
     public RoomSetting NetWork = new RoomSetting();//联机房间设置
     public Dictionary<string, string> LocalMovie = new Dictionary<string, string>();//已更新到本地的
@@ -403,6 +404,8 @@ public class GameData:Singleton<GameData>
             gameStatus.DisableParticle = true;
             gameStatus.AutoLock = true;
             gameStatus.SkipVideo = true;
+            gameStatus.OnlyWifi = true;
+            SaveState();
         }
         else
         {

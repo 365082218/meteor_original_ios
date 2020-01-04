@@ -167,6 +167,10 @@ public class SettingDialog : Dialog {
         toggleSkipVideo.isOn = GameData.Instance.gameStatus.SkipVideo;
         toggleSkipVideo.onValueChanged.AddListener(OnSkipVideo);
 
+        Toggle toggleOnlyWifi = Control("OnlyWifi").GetComponent<Toggle>();
+        toggleOnlyWifi.isOn = GameData.Instance.gameStatus.OnlyWifi;
+        toggleOnlyWifi.onValueChanged.AddListener(OnOnlyWifi);
+
         GameObject pluginTab = Control("PluginTab", WndObject);
         GameObject debugTab = Control("DebugTab", WndObject);
         Control("PluginPrev").GetComponent<Button>().onClick.AddListener(OnPrevPagePlugin);
@@ -233,6 +237,11 @@ public class SettingDialog : Dialog {
     void OnSetUIPosition()
     {
         Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.UIAdjustDialogState);
+    }
+
+    void OnOnlyWifi(bool only)
+    {
+        GameData.Instance.gameStatus.OnlyWifi = only;
     }
 
     void OnSkipVideo(bool skip)
