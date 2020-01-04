@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
+//using UnityEditor;
 //using UnityEditor;
 
 public class MapLoader : MonoBehaviour {
@@ -315,8 +315,8 @@ shader 1
             mat[x].name = materialName;
             if (generateFile && !exist)
             {
-                AssetDatabase.CreateAsset(mat[x], "Assets/Materials/" + despath + "/Resources/" + mat[x].name + ".mat");
-                AssetDatabase.Refresh();
+                //AssetDatabase.CreateAsset(mat[x], "Assets/Materials/" + despath + "/Resources/" + mat[x].name + ".mat");
+                //AssetDatabase.Refresh();
             }
         }
 
