@@ -64,8 +64,6 @@ public class FightUiConroller : Dialog
 
     AutoMsgCtrl ctrl;
     Transform LevelTalkRoot;
-    Animation actionStatusBarCtrl;
-    GameObject FloatOpen;
     GameObject Unlock;
     Image LockSprite;
     GameObject TargetBlood;
@@ -78,9 +76,6 @@ public class FightUiConroller : Dialog
         LevelTalkRoot = Control("LevelTalk", WndObject).transform;
         ctrl = LevelTalkRoot.GetComponent<AutoMsgCtrl>();
         ctrl.SetConfig(2.0f, 1.5f);
-        FloatOpen = Control("FloatOpen");
-        FloatOpen.GetComponent<Button>().onClick.AddListener(OnChangeActionBarStatus);
-        actionStatusBarCtrl = Control("Slots").GetComponent<Animation>();
         //联机不需要剧情对白面板，而使用房间聊天面板单独代替.
         if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
         {
@@ -167,8 +162,6 @@ public class FightUiConroller : Dialog
 #if (UNITY_EDITOR || UNITY_STANDALONE_WIN) && !STRIP_KEYBOARD
         Control("ClickPanel").SetActive(false);
         Control("JoyArrow").SetActive(false);
-        Control("ActionFloat").SetActive(false);
-        Control("FloatOpen").SetActive(false);
 #endif
     }
 
@@ -265,18 +258,6 @@ public class FightUiConroller : Dialog
     //    }
     //    angryWarning.enabled = false;
     //}
-
-    bool actionBarStatus = false;
-    void OnChangeActionBarStatus()
-    {
-        FloatOpen.GetComponent<Button>().interactable = false;
-        Main.Instance.StartCoroutine(actionStatusBarCtrl.PlayAnimation(actionBarStatus ? "HideActionBar" : "ShowActionBar", false, () =>
-        {
-            FloatOpen.GetComponent<Button>().interactable = true;
-            actionBarStatus = !actionBarStatus;
-            FloatOpen.transform.rotation = Quaternion.Euler(0, 0, actionBarStatus ? 90 : 270);
-        }));
-    }
 
     bool openMiniMap = false;
     void OpenMiniMap()
