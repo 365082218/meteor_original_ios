@@ -65,9 +65,9 @@ public class LevelDialog : Dialog {
         if (singlePlayer)
         {
             //单机关卡
-            for (int i = 1; i <= GameData.Instance.gameStatus.Level; i++)
+            for (int i = 1; i <= Main.Instance.GameStateMgr.gameStatus.Level; i++)
             {
-                Level lev = LevelMng.Instance.GetItem(i);
+                LevelDatas.LevelDatas lev = Main.Instance.DataMgr.GetData<LevelDatas.LevelDatas>(i);
                 if (lev == null)
                     continue;
                 Idevgame.Util.LevelUtils.AddGridItem(lev, rootMenu.transform, OnSelectLevel);
@@ -77,9 +77,9 @@ public class LevelDialog : Dialog {
         else
         {
             //剧本关卡
-            for (int i = 1; i <= Global.Instance.Chapter.level; i++)
+            for (int i = 1; i <= Main.Instance.CombatData.Chapter.level; i++)
             {
-                Level lev = Global.Instance.Chapter.GetItem(i);
+                LevelDatas.LevelDatas lev = Main.Instance.CombatData.Chapter.GetItem(i);
                 if (lev == null)
                     continue;
                 Idevgame.Util.LevelUtils.AddGridItem(lev, rootMenu.transform, OnSelectLevel);
@@ -89,8 +89,8 @@ public class LevelDialog : Dialog {
         OnSelectLevel(select);
     }
 
-    Level select;
-    void OnSelectLevel(Level lev)
+    LevelDatas.LevelDatas select;
+    void OnSelectLevel(LevelDatas.LevelDatas lev)
     {
         Material loadingTexture = null;
         if (!string.IsNullOrEmpty(lev.BgTexture))
@@ -103,11 +103,11 @@ public class LevelDialog : Dialog {
             }
             else
             {
-                for (int i = 0; i < Global.Instance.Chapter.resPath.Length; i++)
+                for (int i = 0; i < Main.Instance.CombatData.Chapter.resPath.Length; i++)
                 {
-                    if (Global.Instance.Chapter.resPath[i].EndsWith(lev.BgTexture + ".jpg"))
+                    if (Main.Instance.CombatData.Chapter.resPath[i].EndsWith(lev.BgTexture + ".jpg"))
                     {
-                        byte[] array = System.IO.File.ReadAllBytes(Global.Instance.Chapter.resPath[i]);
+                        byte[] array = System.IO.File.ReadAllBytes(Main.Instance.CombatData.Chapter.resPath[i]);
                         Texture2D tex = new Texture2D(0, 0);
                         tex.LoadImage(array);
                         loadingTexture = GameObject.Instantiate(Resources.Load<Material>("Scene10")) as Material;
@@ -134,7 +134,7 @@ public class LevelDialog : Dialog {
             }
             else
             {
-                Global.Instance.Chapter.LoadLevel(select.ID);
+                Main.Instance.CombatData.Chapter.LoadLevel(select.ID);
             }
             if (background.material == null)
                 OnBackPress();

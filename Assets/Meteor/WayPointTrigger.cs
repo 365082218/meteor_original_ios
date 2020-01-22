@@ -16,17 +16,17 @@ public class WayPointTrigger : MonoBehaviour {
 
     public int WayIndex;
     public int OverlapSphereIndex = 0;
-    private void OnTriggerEnter(Collider other)
-    {
-        MeteorUnit user = other.GetComponentInParent<MeteorUnit>();
-        if (user.Robot != null)
-            user.Robot.OnGotoWayPoint(WayIndex);
-    }
+    //private void OnTriggerEnter(Collider other)
+    //{
+    //    MeteorUnit user = other.GetComponentInParent<MeteorUnit>();
+    //    if (user.StateMachine != null)
+    //        user.StateMachine.OnGotoWayPoint(WayIndex);
+    //}
 
-    private void OnTriggerStay(Collider other)
-    {
-        MeteorUnit user = other.GetComponentInParent<MeteorUnit>();
-        if (user.Robot != null)
-            user.Robot.OnGotoWayPoint(WayIndex);
-    }
+    //private void OnTriggerStay(Collider other)
+    //{
+    //    MeteorUnit user = other.GetComponentInParent<MeteorUnit>();
+    //    if (user.StateMachine != null)
+    //        user.StateMachine.OnGotoWayPoint(WayIndex);
+    //}
 }

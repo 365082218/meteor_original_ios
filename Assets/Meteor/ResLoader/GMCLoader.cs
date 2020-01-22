@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System;
 
-public class GMCLoader : Singleton<GMCLoader> {
-
+public class GMCLoader
+{
     Dictionary<string, GMCFile> GMCFile = new Dictionary<string, global::GMCFile>();
     public GMCFile Load(string file)
     {

@@ -5,7 +5,8 @@ using System;
 using System.IO;
 using UnityEngine.UI;
 
-public class SkcLoader : Singleton<SkcLoader> {
+public class SkcLoader
+{
     static Dictionary<string, SkcFile> SkcFile = new Dictionary<string, global::SkcFile>();
     static Dictionary<int, SkcFile> PluginSkcFile = new Dictionary<int, global::SkcFile>();
     public SkcFile Load(string file)
@@ -35,11 +36,11 @@ public class SkcLoader : Singleton<SkcLoader> {
     public SkcFile Load(int characterIdx)
     {
         string BoneCnt = "";
-        if (GameData.Instance != null)
+        if (Main.Instance.GameStateMgr != null)
         {
-            if (GameData.Instance.gameStatus != null)
+            if (Main.Instance.GameStateMgr.gameStatus != null)
             {
-                switch (GameData.Instance.gameStatus.Quality)
+                switch (Main.Instance.GameStateMgr.gameStatus.Quality)
                 {
                     case 0:
                         BoneCnt = ""; break;
@@ -50,12 +51,12 @@ public class SkcLoader : Singleton<SkcLoader> {
                 }
 
                 //如果选择 范旋-他300面的模型 骨骼权重最大是5，不好手动调整,用800面的代替
-                if (characterIdx == 16 && GameData.Instance.gameStatus.Quality == 2)
+                if (characterIdx == 16 && Main.Instance.GameStateMgr.gameStatus.Quality == 2)
                     BoneCnt = "_800";
             }
         }
 
-        if (characterIdx >= Global.MaxModel)
+        if (characterIdx >= Main.Instance.CombatData.MaxModel)
             return LoadPluginModel(characterIdx);
 
         return Load(string.Format("p{0}{1}.skc", characterIdx, BoneCnt));
@@ -409,7 +410,7 @@ public class SkcFile
     //0-19内的材质是3个，20-27的是单个
     public Material[] Material(int roleIdx, EUnitCamp camp)
     {
-        if (roleIdx >= Global.MaxModel)
+        if (roleIdx >= Main.Instance.CombatData.MaxModel)
         {
             Material[] ret = new Material[materials.Length];
             for (int i = 0; i < materials.Length; i++)

@@ -129,7 +129,7 @@ public class MonsterEx
     public bool InitMonster(string Script)
     {
         IsPlayer = false;
-        sState = ScriptMng.Instance.DoScript(Script) as LuaTable;
+        sState = Main.Instance.ScriptMng.DoScript(Script) as LuaTable;
         NpcTemplate = Script;
         Model = (int)(double)sState["Model"];
         name = (string)sState["Name"];
@@ -158,7 +158,7 @@ public class MonsterEx
     //脱掉一件物品.
     public void UnEquipItem(InventoryItem item)
     {
-        ItemBase unit = item.Info();
+        ItemDatas.ItemDatas unit = item.Info();
         if (unit != null)
         {
             
@@ -169,7 +169,7 @@ public class MonsterEx
     public InventoryItem EquipItems(InventoryItem item)
     {
         InventoryItem itemUnEquip = null;
-        ItemBase unit = item.Info();
+        ItemDatas.ItemDatas unit = item.Info();
 
 
         if (unit != null)
@@ -292,13 +292,13 @@ public class MonsterEx
             HpMax = hpCur = (int)(double)script.GetPlayerMaxHp();
             if (HpMax == 0)
                 hpCur = HpMax = 1000;
-            if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
+            if (Main.Instance.CombatData.GLevelMode == LevelMode.CreateWorld)
             {
-                HpMax = hpCur = 10 * Global.Instance.PlayerLife;
-                Weapon = U3D.GetWeaponByType(Global.Instance.MainWeapon);
-                Weapon2 = U3D.GetWeaponByType(Global.Instance.SubWeapon);
-                Model = Global.Instance.PlayerModel;
-                name = ModelMng.Instance.GetAllItem()[Model].Name;
+                HpMax = hpCur = 10 * Main.Instance.CombatData.PlayerLife;
+                Weapon = U3D.GetWeaponByType(Main.Instance.CombatData.MainWeapon);
+                Weapon2 = U3D.GetWeaponByType(Main.Instance.CombatData.SubWeapon);
+                Model = Main.Instance.CombatData.PlayerModel;
+                name = Main.Instance.DataMgr.GetDatasArray<ModelDatas.ModelDatas>()[Model].Name;
             }
         } 
         View = 500;

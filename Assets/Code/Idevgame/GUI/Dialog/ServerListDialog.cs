@@ -44,9 +44,9 @@ public class ServerListDialog : Dialog
             GameObject.Destroy(serverList[i]);
         }
         serverList.Clear();
-        for (int i = 0; i < GameData.Instance.gameStatus.ServerList.Count; i++)
+        for (int i = 0; i < Main.Instance.GameStateMgr.gameStatus.ServerList.Count; i++)
         {
-            InsertServerItem(GameData.Instance.gameStatus.ServerList[i], prefab);
+            InsertServerItem(Main.Instance.GameStateMgr.gameStatus.ServerList[i], prefab);
         }
         GameObject defaultServer = Control("SelectListItem");
         Text text = Control("Text", defaultServer).GetComponent<Text>();
@@ -55,17 +55,17 @@ public class ServerListDialog : Dialog
             //不能删除默认
             if (selectServer != null)
             {
-                int selectServerId = GameData.Instance.gameStatus.ServerList.IndexOf(selectServer);
+                int selectServerId = Main.Instance.GameStateMgr.gameStatus.ServerList.IndexOf(selectServer);
                 if (selectServerId != -1)
                 {
                     GameObject.Destroy(serverList[selectServerId]);
                     serverList.RemoveAt(selectServerId);
-                    Global.Instance.OnServiceChanged(-1, GameData.Instance.gameStatus.ServerList[selectServerId]);
-                    GameData.Instance.gameStatus.ServerList.RemoveAt(selectServerId);
+                    Main.Instance.CombatData.OnServiceChanged(-1, Main.Instance.GameStateMgr.gameStatus.ServerList[selectServerId]);
+                    Main.Instance.GameStateMgr.gameStatus.ServerList.RemoveAt(selectServerId);
                 }
                 if (selectServerId >= serverList.Count)
                     selectServerId = 0;
-                selectServer = GameData.Instance.gameStatus.ServerList[selectServerId];
+                selectServer = Main.Instance.GameStateMgr.gameStatus.ServerList[selectServerId];
                 selectedBtn = null;
             }
         });
@@ -75,7 +75,7 @@ public class ServerListDialog : Dialog
             Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.HostEditDialogState);
         });
 
-        text.text = Global.Instance.Server.ServerName + string.Format(":{0}", Global.Instance.Server.ServerPort);
+        text.text = Main.Instance.CombatData.Server.ServerName + string.Format(":{0}", Main.Instance.CombatData.Server.ServerPort);
     }
 
     List<GameObject> serverList = new List<GameObject>();

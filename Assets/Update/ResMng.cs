@@ -40,13 +40,13 @@ public class ResMng {
 
 	public delegate void LoadCallback(object param);
 
-    public static void Reload()
+    public void Reload()
     {
         Clean();
         Load();
     }
 
-    static void Clean()
+    void Clean()
     {
         foreach (var bundle in Bundle)
         {

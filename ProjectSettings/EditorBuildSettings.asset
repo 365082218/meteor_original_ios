@@ -10,8 +10,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scene/Startup.unity
   - enabled: 1
-    path: Assets/Scene/Menu.unity
-  - enabled: 1
     path: Assets/Scene/Meteor/Meteor_01.unity
   - enabled: 1
     path: Assets/Scene/Meteor/Meteor_02.unity

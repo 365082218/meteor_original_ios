@@ -6,7 +6,7 @@ public class EffectDebug : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        SFXLoader.Instance.InitSync();
+        Main.Instance.SFXLoader.InitSync();
 	}
 	
 	// Update is called once per frame
@@ -17,11 +17,11 @@ public class EffectDebug : MonoBehaviour {
     public void PlayEffect(string sfx)
     {
         sfx += ".ef";
-        SFXLoader.Instance.PlayEffect(sfx, gameObject);
+        Main.Instance.SFXLoader.PlayEffect(sfx, gameObject);
     }
 
     public void PlayEffect(int idx)
     {
-        SFXLoader.Instance.PlayEffect(idx, gameObject);
+        Main.Instance.SFXLoader.PlayEffect(idx, gameObject);
     }
 }

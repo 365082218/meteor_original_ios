@@ -4,7 +4,7 @@ using System.Collections.Generic;
 //using System.Diagnostics;
 using UnityEngine;
 //帧指令接收器，用于存储从服务器/单机 时发送来的帧指令.FSC=FRAMESYNCCLIENT
-public class FSC:Singleton<FSC>
+public class FSC
 {
     List<GameFrames> frames = new List<GameFrames>();//指令序列.没一个下标都是一帧的.
     public void OnReceiveCommand(GameFrames turn)
@@ -16,7 +16,7 @@ public class FSC:Singleton<FSC>
 
     public GameFrames NextFrame(int logicTurn)
     {
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
         {
             if (frames.Count > logicTurn && logicTurn >= 0)
             {
@@ -64,7 +64,7 @@ public class FSC:Singleton<FSC>
 
 //帧指令发送器，用于把客户端的操作发送到服务器/或FrameClient FSS=FRAMESYNCSERVER
 //存储客户端操作序列.
-public class FSS:Singleton<FSS>
+public class FSS
 {
     List<GameFrames> frames = new List<GameFrames>();
     public void OnDisconnected()
@@ -80,7 +80,7 @@ public class FSS:Singleton<FSS>
     
     public void SyncTurn()
     {
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
         {
             //联机时客户端并没有操作,可以不向服务器发送之间的帧指令。但是服务器会生成默认的空操作
             if (FrameReplay.Instance.LogicTurnIndex >= frames.Count)
@@ -98,7 +98,7 @@ public class FSS:Singleton<FSS>
                 frames.Add(frame);
             }
             GameFrames f = frames[FrameReplay.Instance.LogicTurnIndex];
-            FSC.Instance.OnReceiveCommand(f);
+            Main.Instance.FSC.OnReceiveCommand(f);
         }
     }
 
@@ -186,6 +186,48 @@ public class FSS:Singleton<FSS>
     }
 }
 
+//平滑帧处理.
+class SmoothDeltaTime
+{
+    private float[] DeltaTimes;
+    private int Count;
+
+    public float DeltaTime { get; private set; }
+
+    public SmoothDeltaTime(int count)
+    {
+        DeltaTimes = new float[count];
+        Count = 0;
+        DeltaTime = 0.0f;
+    }
+
+    public void Reset()
+    {
+        Count = 0;
+    }
+
+    public void Update(float newDeltaTime)
+    {
+        // Add new delta time
+        if (Count >= DeltaTimes.Length)
+        {
+            for (int i = 1; i < DeltaTimes.Length; i++)
+            {
+                DeltaTimes[i - 1] = DeltaTimes[i];
+            }
+            Count--;
+        }
+        DeltaTimes[Count++] = newDeltaTime;
+        // Smooth it
+        DeltaTime = 0.0f;
+        for (int i = 0; i < Count; i++)
+        {
+            DeltaTime += DeltaTimes[i];
+        }
+        DeltaTime = DeltaTime / (float)Count;
+    }
+}
+
 //帧重播器.
 public class FrameReplay : MonoBehaviour {
     public static FrameReplay Instance;
@@ -214,6 +256,8 @@ public class FrameReplay : MonoBehaviour {
     public List<FrameCommand> actions;
     //全部网络更新对象
     List<NetBehaviour> NetObjects = new List<NetBehaviour>();
+    //让帧率更平滑，不知道有没有效果
+    private SmoothDeltaTime SmoothDeltaTime;
     public void RegisterObject(NetBehaviour netObject)
     {
         NetObjects.Add(netObject);
@@ -245,6 +289,7 @@ public class FrameReplay : MonoBehaviour {
     private void Awake()
     {
         Instance = this;
+        SmoothDeltaTime = new SmoothDeltaTime(10);
         TcpClientProxy.Init();
         UdpClientProxy.Init();
     }
@@ -255,15 +300,15 @@ public class FrameReplay : MonoBehaviour {
         AccumilatedTime = 0;
         LogicFrameIndex = 0;
         LogicTurnIndex = 0;
-        FSS.Instance.Reset();
-        FSC.Instance.Reset();
+        Main.Instance.FSS.Reset();
+        Main.Instance.FSC.Reset();
         NetObjects.Clear();
     }
 
     public void OnDisconnected()
     {
-        FSC.Instance.OnDisconnected();
-        FSS.Instance.OnDisconnected();
+        Main.Instance.FSC.OnDisconnected();
+        Main.Instance.FSS.OnDisconnected();
         //如果重新开始,那么所有指令需要全部清除
         Started = false;
         LogicFrameIndex = 0;
@@ -283,7 +328,7 @@ public class FrameReplay : MonoBehaviour {
             //    OnUpdates();
             return;
         }
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
         {
             //Basically same logic as FixedUpdate, but we can scale it by adjusting FrameLength
             AccumilatedTime = AccumilatedTime + Convert.ToInt32((Time.deltaTime * 1000)); //convert sec to milliseconds
@@ -298,7 +343,8 @@ public class FrameReplay : MonoBehaviour {
         }
         else
         {
-            FrameReplay.deltaTime = Time.deltaTime;
+            SmoothDeltaTime.Update(Time.deltaTime);
+            FrameReplay.deltaTime = Mathf.Min(Time.deltaTime, SmoothDeltaTime.DeltaTime);
             NetUpdate();
             NetLateUpdate();
             LogicFrameIndex++;
@@ -307,10 +353,10 @@ public class FrameReplay : MonoBehaviour {
                 LogicTurnIndex++;
                 LogicFrameIndex = 0;
             }
-            time += Time.deltaTime;
+            time += FrameReplay.deltaTime;
             if (firstFrame)
             {
-                EventBus.Instance.Fire(CommonEvent.OpenCamera);
+                Main.Instance.EventBus.Fire(CommonEvent.OpenCamera);
                 firstFrame = false;
             }
         }
@@ -357,7 +403,7 @@ public class FrameReplay : MonoBehaviour {
         if (currentFrame == null)
         {
             //等待从服务器收到接下来一帧的信息.
-            currentFrame = FSC.Instance.NextFrame(LogicTurnIndex);
+            currentFrame = Main.Instance.FSC.NextFrame(LogicTurnIndex);
             if (currentFrame == null)
                 return;
         }
@@ -384,7 +430,7 @@ public class FrameReplay : MonoBehaviour {
                 case MeteorMsg.Command.SpawnPlayer:
                     System.IO.MemoryStream ms = new System.IO.MemoryStream(actions[i].data);
                     PlayerEventData evt = ProtoBuf.Serializer.Deserialize<PlayerEventData>(ms);
-                    GameBattleEx.Instance.OnCreateNetPlayer(evt);
+                    Main.Instance.GameBattleEx.OnCreateNetPlayer(evt);
                     break;
             }
         }
@@ -394,7 +440,7 @@ public class FrameReplay : MonoBehaviour {
         LogicFrameIndex++;
         if (LogicFrameIndex % TurnFrameMax == 0)
         {
-            FSS.Instance.SyncTurn();
+            Main.Instance.FSS.SyncTurn();
             LogicTurnIndex++;
             currentFrame = null;
             LogicFrameIndex = 0;

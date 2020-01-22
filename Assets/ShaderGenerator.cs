@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ShaderGenerator : Singleton<ShaderGenerator> {
+public class ShaderGenerator
+{
     public enum RenderingMode
     {
         Opaque,

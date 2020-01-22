@@ -4,9 +4,8 @@ using SLua;
 using System.Collections.Generic;
 using System.IO;
 
-
 //解决slua脚本如何与内部通信的问题,每个脚本都是一个txt文件.
-public class ScriptMng:Singleton<ScriptMng>
+public class ScriptMng
 {
 	LuaSvr svr;
     LuaFunction save;
@@ -76,12 +75,12 @@ public class ScriptMng:Singleton<ScriptMng>
     public object DoScript(string script)
     {
         //查找模组中是否存在该NPC模板.
-        if (GameData.Instance.gameStatus.pluginNpc != null)
+        if (Main.Instance.GameStateMgr.gameStatus.pluginNpc != null)
         {
-            for (int i = 0; i < GameData.Instance.gameStatus.pluginNpc.Count; i++)
+            for (int i = 0; i < Main.Instance.GameStateMgr.gameStatus.pluginNpc.Count; i++)
             {
-                if (GameData.Instance.gameStatus.pluginNpc[i].npcTemplate == script)
-                    return svr.dofile(GameData.Instance.gameStatus.pluginNpc[i].filePath, script);
+                if (Main.Instance.GameStateMgr.gameStatus.pluginNpc[i].npcTemplate == script)
+                    return svr.dofile(Main.Instance.GameStateMgr.gameStatus.pluginNpc[i].filePath, script);
             }
         }
         return svr.dofile(script);

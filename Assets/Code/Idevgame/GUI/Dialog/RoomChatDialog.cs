@@ -44,7 +44,7 @@ public class RoomChatDialog : Dialog
         }
         GameObject obj = GameObject.Instantiate(Resources.Load("AudioMsg")) as GameObject;
         obj.name = (Root.transform.childCount + 1).ToString();
-        obj.transform.GetChild(0).GetComponent<Text>().text = NetWorkBattle.Instance.GetNetPlayerName(playerId) + "发来了一条语音信息";
+        obj.transform.GetChild(0).GetComponent<Text>().text = Main.Instance.NetWorkBattle.GetNetPlayerName(playerId) + "发来了一条语音信息";
         obj.transform.GetChild(1).GetComponent<UIFunCtrl>().SetEvent((int audioIdx) => { OnPlayAudio(audioIdx); }, Root.transform.childCount);
         obj.transform.SetParent(Root.transform);
         obj.transform.localScale = Vector3.one;
@@ -69,7 +69,7 @@ public class RoomChatDialog : Dialog
             Main.Instance.Music.Stop();
             AudioClip au = AudioClip.Create("talk", audioCache[audioIndex].Length, 1, MicChat.samplingRate, false);
             MicChat.SetData(au, audioCache[audioIndex]);
-            SoundManager.Instance.PlayClip(au);
+            Main.Instance.SoundManager.PlayClip(au);
         }
     }
 
@@ -80,7 +80,7 @@ public class RoomChatDialog : Dialog
         GameObject obj = new GameObject();
         obj.name = (Root.transform.childCount + 1).ToString();
         Text txt = obj.AddComponent<Text>();
-        txt.text = string.Format("{0}:{1}", NetWorkBattle.Instance.GetNetPlayerName(playerId), message);
+        txt.text = string.Format("{0}:{1}", Main.Instance.NetWorkBattle.GetNetPlayerName(playerId), message);
         //00AAFFFF
         txt.font = Main.Instance.TextFont;
         txt.fontSize = 32;

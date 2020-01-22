@@ -63,9 +63,9 @@ public class WsGlobal {
     {
         if (file.EndsWith(".des"))
             file = file.Substring(0, file.Length - 4);
-        DesFile fIns = DesLoader.Instance.Load(file);
-        GMBFile gmb = GMBLoader.Instance.Load(file);
-        GMCFile fModel = GMCLoader.Instance.Load(file);
+        DesFile fIns = Main.Instance.DesLoader.Load(file);
+        GMBFile gmb = Main.Instance.GMBLoader.Load(file);
+        GMCFile fModel = Main.Instance.GMCLoader.Load(file);
         //保存材质球
         if (Application.isEditor)
         {

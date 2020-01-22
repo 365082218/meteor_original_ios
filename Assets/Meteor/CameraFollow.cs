@@ -15,8 +15,6 @@ Nikki Ma
 第一次知乎回答哈，还请指正。
  */
 public class CameraFollow : NetBehaviour {
-    public static CameraFollow Ins { get { return Instance; } }
-    static CameraFollow Instance;
     //public Transform[] m_Targets;//摄像机的各个视角的调试对象.
     public Transform CameraLookAt;//摄像机注视的目标
     public Transform CameraPosition;//摄像机经过缓动后的期望位置
@@ -40,13 +38,11 @@ public class CameraFollow : NetBehaviour {
         CameraPosition = new GameObject("CameraPosition").transform;
         CameraLookAt = new GameObject("CameraLookAt").transform;
         enabled = false;
-        Instance = this;
     }
 
     private new void OnDestroy()
     {
         base.OnDestroy();
-        Instance = null;
     }
 
     bool DisableLockTarget;
@@ -102,7 +98,7 @@ public class CameraFollow : NetBehaviour {
     public void Init()
     {
         GetComponent<Camera>().enabled = false;
-        DisableLockTarget = !GameData.Instance.gameStatus.AutoLock;
+        DisableLockTarget = !Main.Instance.GameStateMgr.gameStatus.AutoLock;
         animationPlay = false;
         animationTick = 0.0f;
         followHeight = 6;
@@ -123,18 +119,18 @@ public class CameraFollow : NetBehaviour {
         //    m_Targets[i].gameObject.layer = LayerMask.NameToLayer("Debug");
         //    m_Targets[i].localScale = 10 * Vector3.one;
         //}
-        EventBus.Instance.SetEvent(CommonEvent.OpenCamera, OpenCamera);
+        Main.Instance.EventBus.SetEvent(CommonEvent.OpenCamera, OpenCamera);
     }
 
     public void OpenCamera()
     {
         GetComponent<Camera>().enabled = true;
-        EventBus.Instance.RemoveEvent(CommonEvent.OpenCamera, OpenCamera);
+        Main.Instance.EventBus.RemoveEvent(CommonEvent.OpenCamera, OpenCamera);
     }
 
     public void ForceUpdate()
     {
-        if (Target != null && !Global.Instance.PauseAll)
+        if (Target != null && !Main.Instance.CombatData.PauseAll)
             CameraSmoothFollow();
         else
         {
@@ -164,7 +160,7 @@ public class CameraFollow : NetBehaviour {
     public override void NetUpdate()
     {
         //Debug.LogError("lockupdate:" + Time.frameCount);
-        if (MeteorManager.Instance.LocalPlayer != null && !Global.Instance.PauseAll)
+        if (Main.Instance.MeteorManager.LocalPlayer != null && !Main.Instance.CombatData.PauseAll)
         {
             CameraSmoothFollow();
         }
@@ -254,17 +250,17 @@ public class CameraFollow : NetBehaviour {
     void ChangeAutoTarget()
     {
         OnLockTarget();
-        if (MeteorManager.Instance.UnitInfos.Count == 0)
+        if (Main.Instance.MeteorManager.UnitInfos.Count == 0)
             return;
         int j = -1;
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
         {
-            if (!MeteorManager.Instance.UnitInfos[i].Dead)
+            if (!Main.Instance.MeteorManager.UnitInfos[i].Dead)
                 break;
             j = i;
         }
-        if (j >= 0 && j < MeteorManager.Instance.UnitInfos.Count)
-            AutoTarget = MeteorManager.Instance.UnitInfos[j];
+        if (j >= 0 && j < Main.Instance.MeteorManager.UnitInfos.Count)
+            AutoTarget = Main.Instance.MeteorManager.UnitInfos[j];
     }
 
     //为真则下一帧摄像机要切换视角模式.
@@ -420,7 +416,7 @@ public class CameraFollow : NetBehaviour {
             newPos.x = Target.transform.position.x;
             newPos.y = Target.position.y + BodyHeight + followHeight;
             newPos.z = Target.transform.position.z;
-            newPos += MeteorManager.Instance.LocalPlayer.transform.forward * followDistance;
+            newPos += Main.Instance.MeteorManager.LocalPlayer.transform.forward * followDistance;
 
             vecTarget.x = Target.position.x;
             vecTarget.y = Target.position.y + BodyHeight;
@@ -453,7 +449,7 @@ public class CameraFollow : NetBehaviour {
                 newPos.z = Target.transform.position.z;
                 float y = Mathf.SmoothDamp(CameraPosition.position.y, Target.position.y + BodyHeight + followHeight, ref currentVelocityY, f_DampTime);
                 newPos.y = y;
-                newPos += MeteorManager.Instance.LocalPlayer.transform.forward * followDistance;
+                newPos += Main.Instance.MeteorManager.LocalPlayer.transform.forward * followDistance;
             }
             else
             {
@@ -499,7 +495,7 @@ public class CameraFollow : NetBehaviour {
     bool CameraCanLookTarget(Vector3 pos, out Vector3 hit)
     {
         RaycastHit wallHit;
-        Vector3 targetPos = MeteorManager.Instance.LocalPlayer.transform.position + new Vector3(0, 25, 0);
+        Vector3 targetPos = Main.Instance.MeteorManager.LocalPlayer.transform.position + new Vector3(0, 25, 0);
         if (Physics.Linecast(targetPos, pos, out wallHit,
             1 << LayerMask.NameToLayer("Scene") |
             (1 << LayerMask.NameToLayer("Default")) |

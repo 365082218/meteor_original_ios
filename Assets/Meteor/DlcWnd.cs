@@ -49,12 +49,12 @@ public class DlcWnd : Dialog {
             Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.MainMenuState);
         });
 
-        if (GameData.Instance.gameStatus.pluginChapter != null)
+        if (Main.Instance.GameStateMgr.gameStatus.pluginChapter != null)
         {
             int insertCount = 0;
-            for (int i = 0; i < GameData.Instance.gameStatus.pluginChapter.Count; i++)
+            for (int i = 0; i < Main.Instance.GameStateMgr.gameStatus.pluginChapter.Count; i++)
             {
-                Chapter lev = GameData.Instance.gameStatus.pluginChapter[i];
+                Chapter lev = Main.Instance.GameStateMgr.gameStatus.pluginChapter[i];
                 if (lev == null)
                     continue;
                 lev.Check();
@@ -106,9 +106,9 @@ public class DlcWnd : Dialog {
         if (select != null)
         {
             //普通关卡对待.
-            Global.Instance.Chapter = select;
+            Main.Instance.CombatData.Chapter = select;
             string tip = "";
-            if (!DlcMng.Instance.CheckDependence(Global.Instance.Chapter, out tip))
+            if (!Main.Instance.DlcMng.CheckDependence(Main.Instance.CombatData.Chapter, out tip))
             {
                 Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.LevelDialogState, false);
             }

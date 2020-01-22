@@ -35,8 +35,7 @@ public class Main : MonoBehaviour {
     public static string strServices = "Services.json";
     public static string strVerFile = "Version.json";
     //版本仓库地址
-    public static string strVFile = "http://{0}:{1}/{2}/{3}/{4}";//域名+项目+平台+指定文件
-    public static string strSFile = "http://{0}:{1}/{2}/{3}";//域名+项目名称+指定文件
+    public static string strFile = "http://{0}:{1}/{2}/{3}";//域名+端口+项目名称+指定文件
 
     public Font TextFont;
     public GameObject fpsCanvas;
@@ -64,31 +63,63 @@ public class Main : MonoBehaviour {
     public LoadingEXDialogState LoadingEx;
     public ItemInfoDialogState ItemInfoDialogState;
     public GunShootDialogStatus GunShootDialogStatus;
-    List<PersistState> activeState;
+    List<PersistState> ActiveState;
     Dictionary<MonoBehaviour, PersistState> StateHash = new Dictionary<MonoBehaviour, PersistState>();
 
-    public void Init()
-    {
-        activeState = new List<PersistState>();
-        GameOverlay = new GameOverlayDialogState();
-        FightDialogState = new FightDialogState();
-        NickNameDialogState = new NickNameDialogState();
-        BattleStatusDialogState = new BattleStatusDialogState();
-        PlayerDialogState = new PlayerDialogState();
-        ChatDialogState = new ChatDialogState();
-        PsdEditDialogState = new PsdEditDialogState();
-        RoomChatDialogState = new RoomChatDialogState();
-        LoadingEx = new LoadingEXDialogState();
-        ItemInfoDialogState = new ItemInfoDialogState();
-        GunShootDialogStatus = new GunShootDialogStatus();
-    }
+    //主摄像机，当切换时，也一起切换.指向当前战场摄像机.
+    public Camera MainCamera;
+    //跟随摄像机
+    public CameraFollow CameraFollow;
+    //自由相机
+    public CameraFree CameraFree;
+
+    //全局唯一对象全挂在Main之下
+    public GameStateMgr GameStateMgr;
+    public UpdateHelper UpdateHelper;
+    public AppInfo AppInfo;
+    public CombatData CombatData;
+    public DlcMng DlcMng;
+    public GameNotice GameNotice;
+    public WayLoader WayLoader;
+    public GMBLoader GMBLoader;
+    public Log Log;
+    public SoundManager SoundManager;
+    public BuffMng BuffMng;
+    public NetWorkBattle NetWorkBattle;
+    public GameBattleEx GameBattleEx;
+    public MeteorManager MeteorManager;
+    public ResMng ResMng;
+    public ScriptMng ScriptMng;
+    public SFXLoader SFXLoader;
+    public PathMng PathMng;
+    public ActionInterrupt ActionInterrupt;
+    public EventBus EventBus;
+    public GMCLoader GMCLoader;
+    public DesLoader DesLoader;
+    public SceneMng SceneMng;
+
+    //帧同步相关
+    public FSS FSS;
+    public FSC FSC;
+
+    public MeteorBehaviour MeteorBehaviour;
+    public MenuResLoader MenuResLoader;
+    public DropMng DropMng;
+    public SkcLoader SkcLoader;
+    public BncLoader BncLoader;
+    public FMCLoader FMCLoader;
+    public FMCPoseLoader FMCPoseLoader;
+
+    public SfxMeshGenerator SfxMeshGenerator;
+    public RoomMng RoomMng;
+    public DataMgr DataMgr;
 
     public void EnterState(PersistState state)
     {
-        if (activeState.Contains(state))
+        if (ActiveState.Contains(state))
             return;
         state.OnStateEnter();
-        activeState.Add(state);
+        ActiveState.Add(state);
         if (state.Owner != null)
             StateHash.Add(state.Owner, state);
     }
@@ -104,17 +135,17 @@ public class Main : MonoBehaviour {
 
     public void ExitState(PersistState state)
     {
-        if (!activeState.Contains(state))
+        if (!ActiveState.Contains(state))
             return;
         if (state.Owner != null)
             StateHash.Remove(state.Owner);
         state.OnStateExit();
-        activeState.Remove(state);
+        ActiveState.Remove(state);
     }
 
     public bool StateActive(PersistState state)
     {
-        return activeState.Contains(state);
+        return ActiveState.Contains(state);
     }
 
     public bool SplashScreenHidden = false;//开屏splash图是否隐藏.隐藏后其他界面才能开始更新
@@ -126,22 +157,65 @@ public class Main : MonoBehaviour {
         Log.Uninit();
         TcpClientProxy.Exit();
         FtpLog.Uninit();
-        GlobalUpdate.Instance.SaveCache();
+        UpdateHelper.SaveCache();
     }
 
     private void Awake()
     {
         Instance = this;
-        //GameStateManager = new MainGameStateManager();
+        Physics.queriesHitBackfaces = true;
+        Log = new Log();
+        ActiveState = new List<PersistState>();
+        GameOverlay = new GameOverlayDialogState();
+        FightDialogState = new FightDialogState();
+        NickNameDialogState = new NickNameDialogState();
+        BattleStatusDialogState = new BattleStatusDialogState();
+        PlayerDialogState = new PlayerDialogState();
+        ChatDialogState = new ChatDialogState();
+        PsdEditDialogState = new PsdEditDialogState();
+        RoomChatDialogState = new RoomChatDialogState();
+        LoadingEx = new LoadingEXDialogState();
+        ItemInfoDialogState = new ItemInfoDialogState();
+        GunShootDialogStatus = new GunShootDialogStatus();
+        //面板管理器.
         DialogStateManager = new MainDialogStateManager(true);
         PopupStateManager = new MainPopupStateManager();
-        GlobalUpdate.Instance.LoadCache();
-        GameData.Instance.LoadState();
+        //各类游戏数据.
+        GameStateMgr = new GameStateMgr();
+        UpdateHelper = new UpdateHelper();
+        AppInfo = new AppInfo();
+        CombatData = new CombatData();
+        GameNotice = new GameNotice();
+        WayLoader = new WayLoader();
+        MeteorManager = new MeteorManager();
+        ScriptMng = new ScriptMng();
+        SFXLoader = new SFXLoader();
+        ActionInterrupt = new ActionInterrupt();
         
-        GameData.Instance.InitTable();
-        ResMng.Reload();
+        BuffMng = new BuffMng();
+        EventBus = new EventBus();
+        NetWorkBattle = new NetWorkBattle();
+        SceneMng = new SceneMng();
+        FSS = new FSS();
+        MeteorBehaviour = new MeteorBehaviour();
+        DropMng = new DropMng();
+        //原版相关资源的加载器.
+        MenuResLoader = new MenuResLoader();
+        SkcLoader = new SkcLoader();
+        BncLoader = new BncLoader();
+        FMCLoader = new FMCLoader();
+        GMBLoader = new GMBLoader();
+        GMCLoader = new GMCLoader();
+        DesLoader = new DesLoader();
+        FMCPoseLoader = new FMCPoseLoader();
+        DataMgr = new DataMgr();
+        SfxMeshGenerator = new SfxMeshGenerator();
+        RoomMng = new RoomMng();
+        SoundManager = new SoundManager();
+        ResMng = new ResMng();
+        DlcMng = new DlcMng();
         DontDestroyOnLoad(gameObject);
-        Log.WriteError(string.Format("GameStart AppVersion:{0}", AppInfo.Instance.AppVersion()));
+        Log.WriteError(string.Format("GameStart AppVersion:{0}", Main.Instance.AppInfo.AppVersion()));
     }
 
     public void ShowFps(bool active)
@@ -152,10 +226,13 @@ public class Main : MonoBehaviour {
     Coroutine checkUpdate;
     void Start()
     {
-        //GameStateManager.Init();
+        UpdateHelper.LoadCache();
+        GameStateMgr.LoadState();
+        DataMgr.LoadAllData();
+        ResMng.Reload();
+        SoundManager.Init();
         DialogStateManager.Init();
         PopupStateManager.Init();
-        Init();
         UnityEngine.Random.InitState((int)System.DateTime.UtcNow.Ticks);
         DialogStateManager.ChangeState(DialogStateManager.ConnectDialogState);
         if (checkUpdate == null)
@@ -164,15 +241,15 @@ public class Main : MonoBehaviour {
 
     public void PlayEndMovie(bool play)
     {
-        if (!string.IsNullOrEmpty(Global.Instance.GLevelItem.sceneItems) && play && Global.Instance.GLevelMode == LevelMode.SinglePlayerTask && Global.Instance.Chapter == null)
+        if (!string.IsNullOrEmpty(CombatData.GLevelItem.sceneItems) && play && CombatData.GLevelMode == LevelMode.SinglePlayerTask && CombatData.Chapter == null)
         {
-            string num = Global.Instance.GLevelItem.sceneItems.Substring(2);
+            string num = CombatData.GLevelItem.sceneItems.Substring(2);
             int number = 0;
             if (int.TryParse(num, out number))
             {
-                if (Global.Instance.GLevelItem.ID >= 0 && Global.Instance.GLevelItem.ID <= 9)
+                if (CombatData.GLevelItem.ID >= 0 && CombatData.GLevelItem.ID <= 9)
                 {
-                    string movie = string.Format(Main.strSFile, Main.strHost, Main.port, Main.strProjectUrl, "mmv/" + "v" + number + ".mv");
+                    string movie = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, "mmv/" + "v" + number + ".mv");
                     U3D.PlayMovie(movie);
                 }
             }
@@ -183,8 +260,8 @@ public class Main : MonoBehaviour {
 
     void GotoMenu()
     {
-        MeteorManager.Instance.Clear();
-        if (Global.Instance.GLevelMode == LevelMode.Teach || Global.Instance.GLevelMode == LevelMode.CreateWorld)
+        MeteorManager.Clear();
+        if (CombatData.GLevelMode == LevelMode.Teach || CombatData.GLevelMode == LevelMode.CreateWorld)
             U3D.GoBack();
         else 
         {
@@ -194,7 +271,7 @@ public class Main : MonoBehaviour {
 
     public void GameStart()
 	{
-        GlobalUpdate.Instance.SaveCache();
+        UpdateHelper.SaveCache();
         if (checkUpdate != null)
             StopCoroutine(checkUpdate);
         checkUpdate = null;
@@ -216,7 +293,7 @@ public class Main : MonoBehaviour {
             GameStart();
             yield break;
         }
-        else if (Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork && GameData.Instance.gameStatus.OnlyWifi)
+        else if (Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork && GameStateMgr.gameStatus.OnlyWifi)
         {
             //3G-4G流量套餐
             //别更新
@@ -224,11 +301,11 @@ public class Main : MonoBehaviour {
             yield break;
         }
         else
-		if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork || !GameData.Instance.gameStatus.OnlyWifi)
+		if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork || !GameStateMgr.gameStatus.OnlyWifi)
         {
             //Debug.LogError("download:" + string.Format(strVFile, strHost, Main.port, strProjectUrl, strPlatform, strVFileName));
             UnityWebRequest vFile = new UnityWebRequest();
-            vFile.url = string.Format(strVFile, strHost, Main.port, strProjectUrl, strPlatform, strVFileName);
+            vFile.url = string.Format(strFile, strHost, Main.port, strProjectUrl, strVFileName);
             vFile.timeout = 5;
             DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
             vFile.downloadHandler = dH;
@@ -261,9 +338,9 @@ public class Main : MonoBehaviour {
             //从版本信息下载指定压缩包
             for (int i = 0; i < v.Count; i++)
             {
-                if (v[i].strVersion == AppInfo.Instance.AppVersion() && v[i].strVersionMax != v[i].strVersion)
+                if (v[i].strVersion == AppInfo.AppVersion() && v[i].strVersionMax != v[i].strVersion)
                 {
-                    GlobalUpdate.Instance.ApplyVersion(v[i], this);
+                    UpdateHelper.ApplyVersion(v[i], this);
                     yield break;
                 }
             }
@@ -344,7 +421,7 @@ public class Main : MonoBehaviour {
             Complete = null;
         }
 
-        if (GameBattleEx.Instance != null && !GameBattleEx.Instance.BattleFinished() && Global.Instance.GLevelMode <= LevelMode.CreateWorld)
+        if (GameBattleEx != null && !GameBattleEx.BattleFinished() && CombatData.GLevelMode <= LevelMode.CreateWorld)
         {
             if (Input.GetKeyUp(KeyCode.Escape))
             {
@@ -354,13 +431,13 @@ public class Main : MonoBehaviour {
 
         DialogStateManager.Update();
         PopupStateManager.Update();
-        for (int i = 0; i < activeState.Count; i++)
+        for (int i = 0; i < ActiveState.Count; i++)
         {
-            activeState[i].OnUpdate();
+            ActiveState[i].OnUpdate();
         }
         //模组管理器下载
-        if (Global.Instance.GLevelItem == null)
-            DlcMng.Instance.Update();
+        if (CombatData.GLevelItem == null)
+            DlcMng.Update();
     }
 
     private void LateUpdate()
@@ -368,9 +445,9 @@ public class Main : MonoBehaviour {
         StateManager.AfterUpdate();
         DialogStateManager.OnLateUpdate();
         PopupStateManager.OnLateUpdate();
-        for (int i = 0; i < activeState.Count; i++)
+        for (int i = 0; i < ActiveState.Count; i++)
         {
-            activeState[i].OnLateUpdate();
+            ActiveState[i].OnLateUpdate();
         }
     }
 
@@ -420,7 +497,7 @@ public class Main : MonoBehaviour {
 	{
         UpdateClient = HttpManager.Instance.Alloc();
         StartCoroutine(UpdateProgress());
-        UpdateClient.AddRequest(string.Format(strVFile, strHost, Main.port, strProjectUrl, strPlatform, zipInfo.File.strFile), zipInfo.File.strLocalPath, 
+        UpdateClient.AddRequest(string.Format(strFile, strHost, Main.port, strProjectUrl, zipInfo.File.strFile), zipInfo.File.strLocalPath, 
             (ref HttpRequest req)=> 
             {
                 zipInfo.File.Loadbytes = req.loadBytes;
@@ -459,8 +536,8 @@ public class Main : MonoBehaviour {
                 File.Delete(localPak);
             LZMAHelper.DeCompressFile(zipInfo.File.strLocalPath, localPak);
             UPKExtra.ExtraUPK(localPak, ResMng.GetResPath());
-            AppInfo.Instance.SetAppVersion(zipInfo.VersionMax);
-            GlobalUpdate.Instance.CleanVersion();
+            AppInfo.SetAppVersion(zipInfo.VersionMax);
+            UpdateHelper.CleanVersion();
             GameStart();
         }
         catch (Exception exp)
@@ -482,7 +559,7 @@ public class Main : MonoBehaviour {
     IEnumerator UpdateAppInfoCoroutine()
     {
         UnityWebRequest vFile = new UnityWebRequest();
-        vFile.url = string.Format(Main.strSFile, Main.strHost, Main.port, Main.strProjectUrl, Main.strNewVersionName);
+        vFile.url = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, Main.strNewVersionName);
         vFile.timeout = 20;
         DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
         vFile.downloadHandler = dH;
@@ -497,7 +574,7 @@ public class Main : MonoBehaviour {
         }
         Debug.Log("download:" + vFile.url);
         LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
-        GameConfig.Instance.LoadGrid(js);
+        GameNotice.LoadGrid(js);
         GlobalJsonLoaded = true;
     }
 }

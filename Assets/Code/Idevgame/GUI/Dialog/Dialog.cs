@@ -27,7 +27,7 @@ public class Dialog:UIBehaviour
 
     protected GameObject Control(string child, GameObject root)
     {
-        return Global.ldaControlX(child, root);
+        return NodeHelper.Find(child, root);
     }
 
     public virtual void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)

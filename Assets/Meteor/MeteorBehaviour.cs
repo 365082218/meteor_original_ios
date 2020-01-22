@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //不BB了，硬编码，很难抽象出层次优化，第一个版本就硬写代码
-public class MeteorBehaviour:Singleton<MeteorBehaviour> {
+public class MeteorBehaviour
+{
     //防御，换武器，爆气3连处理.
     public bool ProcessNormalAction(MeteorUnit Owner)
     {

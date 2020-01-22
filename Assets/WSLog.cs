@@ -1,20 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.IO;
-
-enum LogLevel
-{
-    Verbose,
-    Warn,
-    Debug,
-    Error,
-    None,
-}
-
 public class Log
 {
-    static LogLevel level;
-    static Log()
+    public Log()
     {
         Init();
     }
@@ -109,7 +98,7 @@ public class Log
 #endif
 	}
 
-	public static void Init()
+	public void Init()
 	{
 #if !NOLOG
         fs = File.Open(string.Format("{0}/{1}_debug.log", Application.persistentDataPath, Application.platform), FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite);
@@ -120,7 +109,7 @@ public class Log
 
 	
 	
-    public static void Uninit()
+    public void Uninit()
     {
 #if !NOLOG
         if (fs_thread != null)

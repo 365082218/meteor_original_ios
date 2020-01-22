@@ -11,7 +11,7 @@ public class AdGame
     public string Query;//连接到游戏得标识，用来互相给奖励.
 }
 
-public class GameConfig : Singleton<GameConfig> {
+public class GameNotice {
     public string newVersion;
     public string apkUrl;
     public string notice;

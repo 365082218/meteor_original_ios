@@ -54,31 +54,9 @@ public class UnitDebugInfo : MonoBehaviour {
                 Att.text = "攻击力:" + (target.CalcDamage() + target.Attr.CalcBuffDamage());
                 Def.text = "防御力:" + (target.CalcDef() + target.Attr.CalcBuffDef());
                 Speed.text = "移动速度:" + target.MoveSpeed;
-                Target.text = "锁定目标:" + (target.GetLockedTarget() != null ? target.GetLockedTarget().name : "-");
+                Target.text = "锁定目标:" + (target.LockTarget != null ? target.LockTarget.name : "-");
                 ActionFrame.text = string.Format("动作源{0:d1}-动作ID{1}-帧:{2}", target.posMng.mActiveAction.SourceIdx, target.posMng.mActiveAction.Idx, target.charLoader.curIndex);
                 Straight.text = string.Format("硬直{0}", target.charLoader.PoseStraight);
-                if (target.Robot != null)
-                {
-                    Status.text = string.Format("主状态:{0}", target.Robot.Status);
-                    SubStatus.text = string.Format("子状态:{0}", target.Robot.SubStatus);
-                    if (target.Robot.Status == EAIStatus.Patrol)
-                    {
-                        if (target.Robot.curPatrolIndex != -1)
-                            CurWayPoint.text = string.Format("当前路点:{0}", target.Robot.PatrolPath[target.Robot.curPatrolIndex].index);
-                        if (target.Robot.targetPatrolIndex != -1)
-                            TargetWayPoint.text = string.Format("下个路点:{0}", target.Robot.PatrolPath[target.Robot.targetPatrolIndex].index);
-                    }
-                    else
-                    {
-                        if (target.Robot.Path.Count != 0)
-                        {
-                            if (target.Robot.curIndex >= 0 && target.Robot.curIndex < target.Robot.Path.Count)
-                                CurWayPoint.text = string.Format("当前路点:{0}", target.Robot.Path[target.Robot.curIndex].index);
-                            if (target.Robot.targetIndex >= 0 && target.Robot.targetIndex < target.Robot.Path.Count)
-                                TargetWayPoint.text = string.Format("下个路点:{0}", target.Robot.Path[target.Robot.targetIndex].index);
-                        }
-                    }
-                }
             }
             yield return 0;
         }

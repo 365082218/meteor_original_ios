@@ -4,7 +4,8 @@ using System.IO;
 using I18N.CJK;
 using System.Collections.Generic;
 
-public class MenuResLoader : Singleton<MenuResLoader> {
+public class MenuResLoader
+{
     //文件头 可能是60字节 第53字节开始 2字节是项数+2字节是除去头60字节后文件剩余字节数
     //对象[
     //    [武器]

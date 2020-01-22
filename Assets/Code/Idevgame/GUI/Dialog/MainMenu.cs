@@ -41,19 +41,19 @@ public class MainMenu : Dialog
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
-        Global.Instance.Chapter = null;
+        Main.Instance.CombatData.Chapter = null;
         //进入主界面，创建全局
         Main.Instance.EnterState(Main.Instance.GameOverlay);
         Init();
         Main.Instance.listener.enabled = true;
-        menu.volume = GameData.Instance.gameStatus.MusicVolume;
+        menu.volume = Main.Instance.GameStateMgr.gameStatus.MusicVolume;
         //每次进入主界面，触发一次更新APP信息的操作，如果
         Main.Instance.UpdateAppInfo();
     }
 
     void Init()
     {
-        Version.text = AppInfo.Instance.MeteorVersion;
+        Version.text = Main.Instance.AppInfo.MeteorVersion;
         SinglePlayerMode.onClick.AddListener(() =>
         {
             subMenuOpen = !subMenuOpen;
@@ -90,13 +90,13 @@ public class MainMenu : Dialog
         });
         Quit.onClick.AddListener(() =>
         {
-            GameData.Instance.SaveState();
+            Main.Instance.GameStateMgr.SaveState();
             Application.Quit();
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
 #endif
         });
-        if (GameData.Instance.gameStatus.GodLike)
+        if (Main.Instance.GameStateMgr.gameStatus.GodLike)
         {
             UploadLog.gameObject.SetActive(true);
         }
@@ -118,7 +118,7 @@ public class MainMenu : Dialog
     //教学关卡.
     void OnTeachingLevel()
     {
-        U3D.LoadLevel(LevelMng.Instance.GetAllItem()[30], LevelMode.Teach, GameMode.SIDOU);
+        U3D.LoadLevel(Main.Instance.DataMgr.GetDatasArray<LevelDatas.LevelDatas>()[30], LevelMode.Teach, GameMode.SIDOU);
     }
 
     void OnCreateRoom()

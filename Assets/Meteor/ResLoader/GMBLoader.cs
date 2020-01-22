@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using I18N.CJK;
-public class GMBLoader : Singleton<GMBLoader> {
+public class GMBLoader
+{
     Dictionary<string, GMBFile> GmbFile = new Dictionary<string, GMBFile>();
     public GMBFile Load(string file)
     {

@@ -30,32 +30,34 @@ public class BattleStatusDialog : Dialog
     {
         //拷贝一份对战数据
         battleResult.Clear();
-        foreach (var each in GameBattleEx.Instance.BattleResult)
+        foreach (var each in Main.Instance.GameBattleEx.BattleResult)
         {
             battleResult.Add(each.Key, each.Value);
         }
         MeteorResult = Control("MeteorResult").transform;
         ButterflyResult = Control("ButterflyResult").transform;
-        BattleResult = Global.ldaControlX("AllResult", WndObject);
-        Control("CampImage", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
-        Control("Title", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
-        Control("Result", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
-        Control("CampImage1", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
-        Control("Title1", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
-        Control("Result1", WndObject).SetActive(Global.Instance.GGameMode != GameMode.MENGZHU);
-        Control("CampImageAll", WndObject).SetActive(Global.Instance.GGameMode == GameMode.MENGZHU);
-        Control("TitleAll", WndObject).SetActive(Global.Instance.GGameMode == GameMode.MENGZHU);
-        Control("ResultAll", WndObject).SetActive(Global.Instance.GGameMode == GameMode.MENGZHU);
+        BattleResult = NodeHelper.Find("AllResult", WndObject);
+        bool active1 = Main.Instance.CombatData.GGameMode != GameMode.MENGZHU;
+        bool active2 = Main.Instance.CombatData.GGameMode == GameMode.MENGZHU;
+        Control("CampImage", WndObject).SetActive(active1);
+        Control("Title", WndObject).SetActive(active1);
+        Control("Result", WndObject).SetActive(active1);
+        Control("CampImage1", WndObject).SetActive(active1);
+        Control("Title1", WndObject).SetActive(active1);
+        Control("Result1", WndObject).SetActive(active1);
+        Control("CampImageAll", WndObject).SetActive(active2);
+        Control("TitleAll", WndObject).SetActive(active2);
+        Control("ResultAll", WndObject).SetActive(active2);
         //BattleTitle = Global.ldaControlX("BattleTitle", WndObject);
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
         {
-            if (battleResult.ContainsKey(MeteorManager.Instance.UnitInfos[i].InstanceId))
+            if (battleResult.ContainsKey(Main.Instance.MeteorManager.UnitInfos[i].InstanceId))
             {
-                InsertPlayerResult(MeteorManager.Instance.UnitInfos[i].InstanceId, battleResult[MeteorManager.Instance.UnitInfos[i].InstanceId]);
-                battleResult.Remove(MeteorManager.Instance.UnitInfos[i].InstanceId);
+                InsertPlayerResult(Main.Instance.MeteorManager.UnitInfos[i].InstanceId, battleResult[Main.Instance.MeteorManager.UnitInfos[i].InstanceId]);
+                battleResult.Remove(Main.Instance.MeteorManager.UnitInfos[i].InstanceId);
             }
             else
-                InsertPlayerResult(MeteorManager.Instance.UnitInfos[i].InstanceId, MeteorManager.Instance.UnitInfos[i].InstanceId, 0, 0, MeteorManager.Instance.UnitInfos[i].Camp);
+                InsertPlayerResult(Main.Instance.MeteorManager.UnitInfos[i].InstanceId, Main.Instance.MeteorManager.UnitInfos[i].InstanceId, 0, 0, Main.Instance.MeteorManager.UnitInfos[i].Camp);
         }
 
         foreach (var each in battleResult)
@@ -65,7 +67,7 @@ public class BattleStatusDialog : Dialog
     void InsertPlayerResult(int instance, int id, int killed, int dead, EUnitCamp camp)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
-        if (Global.Instance.GGameMode == GameMode.MENGZHU)
+        if (Main.Instance.CombatData.GGameMode == GameMode.MENGZHU)
         {
             obj.transform.SetParent(BattleResult.transform);
         }
@@ -78,7 +80,7 @@ public class BattleStatusDialog : Dialog
 
         Text Idx = Control("Idx", obj).GetComponent<Text>();
         Text Name = Control("Name", obj).GetComponent<Text>();
-        if (Global.Instance.GGameMode == GameMode.MENGZHU)
+        if (Main.Instance.CombatData.GGameMode == GameMode.MENGZHU)
         {
 
         }
@@ -119,7 +121,7 @@ public class BattleStatusDialog : Dialog
     void InsertPlayerResult(int instanceId, BattleResultItem result)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
-        if (Global.Instance.GGameMode == GameMode.MENGZHU)
+        if (Main.Instance.CombatData.GGameMode == GameMode.MENGZHU)
         {
             obj.transform.SetParent(BattleResult.transform);
         }
@@ -132,7 +134,7 @@ public class BattleStatusDialog : Dialog
 
         Text Idx = Control("Idx", obj).GetComponent<Text>();
         Text Name = Control("Name", obj).GetComponent<Text>();
-        if (Global.Instance.GGameMode == GameMode.MENGZHU)
+        if (Main.Instance.CombatData.GGameMode == GameMode.MENGZHU)
         {
 
         }

@@ -3,22 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-//public class InputRecord
-//{
-//    public EKeyList key;
-//    public bool pressed;//抬起还是按下
-//}
-
-public class InputBase : TblBase
-{
-    public override string TableName { get { return "Input"; } }
-    public int Idx;
-    public string Lines;
-    public string LinesAir;
-    public string InputString;
-    public int DelayFrame;
-}
-
 public class InputItem
 {
     public int state;
@@ -68,7 +52,7 @@ public class InputItem
             }
             else
             {
-                frame = AppInfo.Instance.GetWaitForNextInput();
+                frame = Main.Instance.AppInfo.GetWaitForNextInput();
             }
         }
         return false;
@@ -100,7 +84,7 @@ public class InputItem
             }
             else
             {
-                frame = AppInfo.Instance.GetWaitForNextInput();
+                frame = Main.Instance.AppInfo.GetWaitForNextInput();
             }
         }
         return false;
@@ -123,7 +107,7 @@ public class InputItem
                 targetPose = -1;
                 return false;
             }
-            if (ActionInterrupt.Instance.Whole.ContainsKey(mOwner.posMng.mActiveAction.Idx) || mOwner.GetWeaponType() == (int)EquipWeaponType.Gun)
+            if (Main.Instance.ActionInterrupt.Whole.ContainsKey(mOwner.posMng.mActiveAction.Idx) || mOwner.GetWeaponType() == (int)EquipWeaponType.Gun)
             {
                 int targetIdx = mOwner.posMng.mActiveAction.Idx;
 
@@ -143,14 +127,14 @@ public class InputItem
                     //Debug.LogError("useGun");
                 }
 
-                if (!ActionInterrupt.Instance.Whole.ContainsKey(targetIdx))
+                if (!Main.Instance.ActionInterrupt.Whole.ContainsKey(targetIdx))
                 {
                     //Debug.LogError(string.Format("not contains:{0}", targetIdx));
                     targetPose = -1;
                     return false;
                 }
 
-                ActionNode no = ActionInterrupt.Instance.Whole[targetIdx];
+                ActionNode no = Main.Instance.ActionInterrupt.Whole[targetIdx];
                 //if (targetIdx == 200)
                 //{
                 //    Debug.LogError("200--");
@@ -213,7 +197,7 @@ public class InputItem
     public void Reset()
     {
         state = 0;
-        frame = AppInfo.Instance.GetWaitForNextInput();
+        frame = Main.Instance.AppInfo.GetWaitForNextInput();
     }
 
     public bool Wait()
@@ -252,11 +236,11 @@ public class InputModule
         if (inputs.Count != 0)
             return;
         mOwner = owner;
-        List<InputBase> ipts = GameData.Instance.inputMng.GetFullRow();
+        List<InputDatas.InputDatas> ipts = Main.Instance.DataMgr.GetDatasArray<InputDatas.InputDatas>();
         for (int i = 0; i < ipts.Count; i++)
         {
             InputItem it = new InputItem(owner);
-            it.Idx = ipts[i].Idx;
+            it.Idx = ipts[i].ID;
             it.keyInput = ipts[i].InputString.ToCharArray();
             it.KeyInput = new EKeyList[it.keyInput.Length];
             for (int j = 0; j < it.keyInput.Length; j++)
@@ -290,7 +274,7 @@ public class InputModule
             {
                 it.linesAir.Add(int.Parse(str[j]), new List<int>());
             }
-            it.frame = AppInfo.Instance.GetWaitForNextInput();
+            it.frame = Main.Instance.AppInfo.GetWaitForNextInput();
             it.state = 0;
             it.totalState = it.keyInput.Length;
             int[] lines = new int[it.lines.Keys.Count];
@@ -300,11 +284,11 @@ public class InputModule
 
             for (int j = 0; j < lines.Length; j++)
             {
-                if (ActionInterrupt.Instance.Lines.ContainsKey(lines[j]))
+                if (Main.Instance.ActionInterrupt.Lines.ContainsKey(lines[j]))
                 {
-                    for (int k = 0; k < ActionInterrupt.Instance.Lines[lines[j]].Count; k++)
+                    for (int k = 0; k < Main.Instance.ActionInterrupt.Lines[lines[j]].Count; k++)
                     {
-                        it.lines[lines[j]].Add(ActionInterrupt.Instance.Lines[lines[j]][k]);
+                        it.lines[lines[j]].Add(Main.Instance.ActionInterrupt.Lines[lines[j]][k]);
                     }
                 }
                 else
@@ -312,11 +296,11 @@ public class InputModule
             }
             for (int j = 0; j < linesAir.Length; j++)
             {
-                if (ActionInterrupt.Instance.Lines.ContainsKey(linesAir[j]))
+                if (Main.Instance.ActionInterrupt.Lines.ContainsKey(linesAir[j]))
                 {
-                    for (int k = 0; k < ActionInterrupt.Instance.Lines[linesAir[j]].Count; k++)
+                    for (int k = 0; k < Main.Instance.ActionInterrupt.Lines[linesAir[j]].Count; k++)
                     {
-                        it.linesAir[linesAir[j]].Add(ActionInterrupt.Instance.Lines[linesAir[j]][k]);
+                        it.linesAir[linesAir[j]].Add(Main.Instance.ActionInterrupt.Lines[linesAir[j]][k]);
                     }
                 }
                 else

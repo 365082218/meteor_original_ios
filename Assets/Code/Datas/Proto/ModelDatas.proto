@@ -1,0 +1,13 @@
+message ModelDatastable
+{
+	optional string tname = 1;
+	repeated ModelDatas tlist = 2;
+}
+
+message ModelDatas
+{
+	required int32 ID = 1;
+	optional string Name = 2;
+	optional float Height = 3;
+	optional float Pivot = 4;
+}

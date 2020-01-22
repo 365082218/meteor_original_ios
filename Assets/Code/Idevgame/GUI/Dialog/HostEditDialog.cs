@@ -81,10 +81,10 @@ public class HostEditDialog : Dialog
                 info.ServerPort = port;
                 info.ServerName = string.IsNullOrEmpty(serverName.text) ? serverHost.text : serverName.text;
                 info.ServerHost = serverHost.text;
-                GameData.Instance.gameStatus.ServerList.Add(info);
+                Main.Instance.GameStateMgr.gameStatus.ServerList.Add(info);
                 if (ServerListDialogState.Exist)
                     ServerListDialogState.Instance.OnRefresh(ServerListDialog.ADD, info);
-                Global.Instance.OnServiceChanged(1, info);
+                Main.Instance.CombatData.OnServiceChanged(1, info);
                 OnBackPress();
             }
             else if (!string.IsNullOrEmpty(serverIP.text))
@@ -94,10 +94,10 @@ public class HostEditDialog : Dialog
                 info.ServerPort = port;
                 info.ServerName = string.IsNullOrEmpty(serverName.text) ? serverHost.text : serverName.text;
                 info.ServerIP = serverIP.text;
-                GameData.Instance.gameStatus.ServerList.Add(info);
+                Main.Instance.GameStateMgr.gameStatus.ServerList.Add(info);
                 if (ServerListDialogState.Exist)
                     ServerListDialogState.Instance.OnRefresh(ServerListDialog.ADD, info);
-                Global.Instance.OnServiceChanged(1, info);
+                Main.Instance.CombatData.OnServiceChanged(1, info);
                 OnBackPress();
             }
         });

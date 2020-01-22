@@ -22,12 +22,12 @@ public class DebugScene1 : MonoBehaviour {
         AudioListener[] au = FindObjectsOfType<AudioListener>();
         if (au == null || au.Length == 0)
             gameObject.AddComponent<AudioListener>();
-        SFXLoader.Instance.InitSync();
+        Main.Instance.SFXLoader.InitSync();
         InfiniteScrollRect rect = ScrollView.GetScrollRect();
-        SoundManager.Instance.SetSoundVolume(100);
+        Main.Instance.SoundManager.SetSoundVolume(100);
         rect.SetFullScrollView(false);
         rect.SetModifiedScale(true);
-        for (int i = 0; i < SFXLoader.Instance.Eff.Length; i++)
+        for (int i = 0; i < Main.Instance.SFXLoader.Eff.Length; i++)
         {
             ScrollView.Add(new SfxCellData(i));
         }
@@ -59,7 +59,7 @@ public class DebugScene1 : MonoBehaviour {
         }
         
         int sfx = (ScrollView.CurrentData as SfxCellData).Sfx;
-        sfxDebugTarget = SFXLoader.Instance.PlayEffect(sfx, Player.charLoader);
+        sfxDebugTarget = Main.Instance.SFXLoader.PlayEffect(sfx, Player.charLoader);
         if (sfxDebugTarget != null)
             sfxDebugTarget.setAsDebug();
     }
@@ -100,8 +100,8 @@ public class DebugScene1 : MonoBehaviour {
     {
         if (cameraPosition.Length > i && i >= 0)
         {
-            Camera.main.transform.position = cameraPosition[i].position;
-            Camera.main.transform.rotation = cameraPosition[i].rotation;
+            Main.Instance.MainCamera.transform.position = cameraPosition[i].position;
+            Main.Instance.MainCamera.transform.rotation = cameraPosition[i].rotation;
         }
     }
 

@@ -4,6 +4,7 @@ using System.Collections;
 
 using System;
 using protocol;
+using Idevgame.Meteor.AI;
 
 public enum SceneEvent
 {
@@ -23,14 +24,12 @@ public class BattleResultItem
 //负责战斗中相机的位置指定之类，主角色目标组作为摄像机 视锥体范围，参考Tank教程里的简单相机控制
 //负责战斗场景内位置间的寻路缓存
 public partial class GameBattleEx : NetBehaviour {
-    public static GameBattleEx Instance;
     int time = 1000;//秒
     float timeClock = 0.0f;
     const float ViewLimit = 40000;//300码，自动解除锁定.
     public new void Awake()
     {
         base.Awake();
-        Instance = this;
 #if !STRIP_DBG_SETTING
         WSDebug.Ins.AddDebuggableObject(this);
 #endif
@@ -42,7 +41,6 @@ public partial class GameBattleEx : NetBehaviour {
         if (WSDebug.Ins != null)
             WSDebug.Ins.RemoveDebuggableObject(this);
 #endif
-        Instance = null;
         base.OnDestroy();
     }
 
@@ -75,26 +73,27 @@ public partial class GameBattleEx : NetBehaviour {
         if (Result != -10)
             return;
 
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
         {
             //等待服务器再开一局.逻辑先不处理.
             return;
         }
 
-        Global.Instance.PauseAll = true;
+        Main.Instance.CombatData.PauseAll = true;
 #if !STRIP_DBG_SETTING
         ShowWayPoint(false);
 #endif
-        MeteorManager.Instance.LocalPlayer.controller.LockInput(true);
+        Main.Instance.MeteorManager.LocalPlayer.controller.LockInput(true);
         GameObject.Destroy(Main.Instance.playerListener);
         Main.Instance.playerListener = null;
         Main.Instance.listener.enabled = true;
-        if (CameraFree.Ins != null && CameraFree.Ins.enabled)
+        if (Main.Instance.CameraFree != null && Main.Instance.CameraFree.enabled)
         {
             EnableFreeCamera(false);
             EnableFollowCamera(true);
+            Main.Instance.MainCamera = Main.Instance.CameraFollow.m_Camera;
         }
-        SoundManager.Instance.StopAll();
+        Main.Instance.SoundManager.StopAll();
         //关闭界面的血条缓动和动画
         //if (FightWnd.Exist)
         //    FightWnd.Instance.OnBattleEnd();
@@ -115,30 +114,30 @@ public partial class GameBattleEx : NetBehaviour {
         //如果胜利，且不是最后一关，打开最新关标志.
         if (result == 1 || result == 2)
         {
-            if (Global.Instance.Chapter == null)
+            if (Main.Instance.CombatData.Chapter == null)
             {
-                GameData.Instance.gameStatus.Level++;
-                if (GameData.Instance.gameStatus.Level >= Global.Instance.LEVELMAX)
-                    GameData.Instance.gameStatus.Level = Global.Instance.LEVELMAX;
-                GameData.Instance.SaveState();
+                Main.Instance.GameStateMgr.gameStatus.Level++;
+                if (Main.Instance.GameStateMgr.gameStatus.Level >= Main.Instance.CombatData.LEVELMAX)
+                    Main.Instance.GameStateMgr.gameStatus.Level = Main.Instance.CombatData.LEVELMAX;
+                Main.Instance.GameStateMgr.SaveState();
             }
             else
             {
                 int nextLevel = 0;
-                Level[] all = Global.Instance.Chapter.LoadAll();
-                for (int i = 0; i < all.Length; i++)
+                List<LevelDatas.LevelDatas> all = Main.Instance.CombatData.Chapter.LoadAll();
+                for (int i = 0; i < all.Count; i++)
                 {
-                    if (Global.Instance.GLevelItem.ID == all[i].ID)
+                    if (Main.Instance.CombatData.GLevelItem.ID == all[i].ID)
                     {
                         nextLevel = i + 1;
                         break;
                     }
                 }
 
-                if (nextLevel < all.Length && Global.Instance.Chapter.level < all[nextLevel].ID)
-                    Global.Instance.Chapter.level = all[nextLevel].ID;
+                if (nextLevel < all.Count && Main.Instance.CombatData.Chapter.level < all[nextLevel].ID)
+                    Main.Instance.CombatData.Chapter.level = all[nextLevel].ID;
 
-                GameData.Instance.SaveState();
+                Main.Instance.GameStateMgr.SaveState();
             }
         }
     }
@@ -195,10 +194,10 @@ public partial class GameBattleEx : NetBehaviour {
             return;
         }
 
-        if (Global.Instance.PauseAll)
+        if (Main.Instance.CombatData.PauseAll)
             return;
 
-        if (Global.Instance.GLevelMode <= LevelMode.CreateWorld)
+        if (Main.Instance.CombatData.GLevelMode <= LevelMode.CreateWorld)
         {
             timeClock += FrameReplay.deltaTime;
             if (timeClock > (float)time)//时间超过，平局
@@ -209,21 +208,21 @@ public partial class GameBattleEx : NetBehaviour {
         }
 
         //检查盟主模式下的死亡单位，令其复活
-        if (Global.Instance.GGameMode == GameMode.MENGZHU)
+        if (Main.Instance.CombatData.GGameMode == GameMode.MENGZHU)
         {
-            MeteorManager.Instance.DeadUnitsClone.Clear();
-            for (int i = 0; i < MeteorManager.Instance.DeadUnits.Count; i++)
+            Main.Instance.MeteorManager.DeadUnitsClone.Clear();
+            for (int i = 0; i < Main.Instance.MeteorManager.DeadUnits.Count; i++)
             {
-                MeteorManager.Instance.DeadUnitsClone.Add(MeteorManager.Instance.DeadUnits[i]);
+                Main.Instance.MeteorManager.DeadUnitsClone.Add(Main.Instance.MeteorManager.DeadUnits[i]);
             }
-            for (int i = 0; i < MeteorManager.Instance.DeadUnitsClone.Count; i++)
+            for (int i = 0; i < Main.Instance.MeteorManager.DeadUnitsClone.Count; i++)
             {
-                MeteorManager.Instance.DeadUnitsClone[i].RebornUpdate();
+                Main.Instance.MeteorManager.DeadUnitsClone[i].RebornUpdate();
             }
         }
 
         //更新BUFF
-        foreach (var each in BuffMng.Instance.BufDict)
+        foreach (var each in Main.Instance.BuffMng.BufDict)
             each.Value.NetUpdate();
 
         //更新左侧角色对话文本
@@ -252,18 +251,18 @@ public partial class GameBattleEx : NetBehaviour {
             UnitActKeyDeleted.Clear();
         }
 
-        if (Global.Instance.GScript != null && Global.Instance.GLevelMode < LevelMode.CreateWorld)
+        if (Main.Instance.CombatData.GScript != null && Main.Instance.CombatData.GLevelMode < LevelMode.CreateWorld)
         {
             if (timeDelay >= 1.0f)
             {
-                Global.Instance.GScript.OnUpdate();
+                Main.Instance.CombatData.GScript.OnUpdate();
                 timeDelay = 0.0f;
             }
         }
 
         timeDelay += FrameReplay.deltaTime;
-        if (Global.Instance.GScript != null)
-            Global.Instance.GScript.Scene_OnIdle();//每一帧调用一次场景物件更新.
+        if (Main.Instance.CombatData.GScript != null)
+            Main.Instance.CombatData.GScript.Scene_OnIdle();//每一帧调用一次场景物件更新.
         RefreshAutoTarget();
         CollisionCheck();
         UpdateTime();
@@ -281,7 +280,7 @@ public partial class GameBattleEx : NetBehaviour {
         foreach (var attack in DamageList)
         {
             //攻击盒与角色受击盒碰撞
-            foreach (var each in MeteorManager.Instance.UnitInfos)
+            foreach (var each in Main.Instance.MeteorManager.UnitInfos)
             {
                 if (attack.Key == each)
                     continue;
@@ -429,20 +428,20 @@ public partial class GameBattleEx : NetBehaviour {
     int EventDeath = 202;
     public void Init(LevelScriptBase script)
     {
-        Scene_OnCharacterEvent = Global.Instance.GScriptType.GetMethod("Scene_OnCharacterEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        Scene_OnCharacterEvent = Main.Instance.CombatData.GScriptType.GetMethod("Scene_OnCharacterEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         if (Scene_OnCharacterEvent == null)
         {
-            System.Type typeParent = Global.Instance.GScriptType.BaseType;
+            System.Type typeParent = Main.Instance.CombatData.GScriptType.BaseType;
             while (Scene_OnCharacterEvent == null && typeParent != null)
             {
                 Scene_OnCharacterEvent = typeParent.GetMethod("Scene_OnCharacterEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
                 typeParent = typeParent.BaseType;
             }
         }
-        Scene_OnEvent = Global.Instance.GScriptType.GetMethod("Scene_OnEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        Scene_OnEvent = Main.Instance.CombatData.GScriptType.GetMethod("Scene_OnEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         if (Scene_OnEvent == null)
         {
-            System.Type typeParent = Global.Instance.GScriptType.BaseType;
+            System.Type typeParent = Main.Instance.CombatData.GScriptType.BaseType;
             while (Scene_OnEvent == null && typeParent != null)
             {
                 Scene_OnEvent = typeParent.GetMethod("Scene_OnEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
@@ -450,14 +449,14 @@ public partial class GameBattleEx : NetBehaviour {
             }
         }
 
-        DisableCameraLock = !GameData.Instance.gameStatus.AutoLock;
+        DisableCameraLock = !Main.Instance.GameStateMgr.gameStatus.AutoLock;
         //updateFn = ScriptMng.ins.GetFunc("OnUpdate");
         if (script != null)
         {
-            if (Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
+            if (Main.Instance.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
                 time = script.GetRoundTime() * 60;
-            else if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
-                time = Global.Instance.RoundTime * 60;
+            else if (Main.Instance.CombatData.GLevelMode == LevelMode.CreateWorld)
+                time = Main.Instance.CombatData.RoundTime * 60;
             else
                 time = 30 * 60;
         }
@@ -465,43 +464,43 @@ public partial class GameBattleEx : NetBehaviour {
         //上一局如果暂停了，新局开始都恢复
         Resume();
 
-        if (Global.Instance.GScript != null)
+        if (Main.Instance.CombatData.GScript != null)
         {
-            Global.Instance.GScript.Scene_OnLoad();
-            Global.Instance.GScript.Scene_OnInit();
+            Main.Instance.CombatData.GScript.Scene_OnLoad();
+            Main.Instance.CombatData.GScript.Scene_OnInit();
         }
 
-        for (int i = 0; i < MeteorManager.Instance.SceneItems.Count; i++)
+        for (int i = 0; i < Main.Instance.MeteorManager.SceneItems.Count; i++)
         {
-            MeteorManager.Instance.SceneItems[i].OnStart(Global.Instance.GScript);
-            RegisterCollision(MeteorManager.Instance.SceneItems[i]);
+            Main.Instance.MeteorManager.SceneItems[i].OnStart(Main.Instance.CombatData.GScript);
+            RegisterCollision(Main.Instance.MeteorManager.SceneItems[i]);
         }
 
-        if (Global.Instance.GLevelMode <= LevelMode.CreateWorld)
+        if (Main.Instance.CombatData.GLevelMode <= LevelMode.CreateWorld)
         {
             OnCreatePlayer();
 
-            if (Global.Instance.GScript != null && Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
-                Global.Instance.GScript.OnStart();
+            if (Main.Instance.CombatData.GScript != null && Main.Instance.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
+                Main.Instance.CombatData.GScript.OnStart();
 
-            for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+            for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
             {
-                if (MeteorManager.Instance.UnitInfos[i].Attr != null)
-                    MeteorManager.Instance.UnitInfos[i].Attr.OnStart();//AI脚本必须在所有角色都加载完毕后再调用
+                if (Main.Instance.MeteorManager.UnitInfos[i].Attr != null)
+                    Main.Instance.MeteorManager.UnitInfos[i].Attr.OnStart();//AI脚本必须在所有角色都加载完毕后再调用
             }
 
             //单机剧本时游戏开始前最后给脚本处理事件的机会,
-            if (Global.Instance.GScript != null && Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
-                Global.Instance.GScript.OnLateStart();
+            if (Main.Instance.CombatData.GScript != null && Main.Instance.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
+                Main.Instance.CombatData.GScript.OnLateStart();
         }
         else
         {
-            if (Global.Instance.GGameMode == GameMode.ANSHA)
+            if (Main.Instance.CombatData.GGameMode == GameMode.ANSHA)
             {
                 MeteorUnit uEnemy = U3D.GetTeamLeader(EUnitCamp.EUC_ENEMY);
-                SFXLoader.Instance.PlayEffect("vipblue.ef", MeteorManager.Instance.LocalPlayer.gameObject, false);
+                Main.Instance.SFXLoader.PlayEffect("vipblue.ef", Main.Instance.MeteorManager.LocalPlayer.gameObject, false);
                 if (uEnemy != null)
-                    SFXLoader.Instance.PlayEffect("vipred.ef", uEnemy.gameObject, false);
+                    Main.Instance.SFXLoader.PlayEffect("vipred.ef", uEnemy.gameObject, false);
             }
         }
 
@@ -517,29 +516,31 @@ public partial class GameBattleEx : NetBehaviour {
         //角色摄像机跟随者着角色.
         CameraFollow followCamera = GameObject.Find("CameraEx").GetComponent<CameraFollow>();
         followCamera.Init();
-        followCamera.FollowTarget(MeteorManager.Instance.LocalPlayer.transform);
+        followCamera.FollowTarget(Main.Instance.MeteorManager.LocalPlayer.transform);
+        Main.Instance.MainCamera = followCamera.GetComponent<Camera>();
+        Main.Instance.CameraFollow = followCamera;
     }
 
     void SpawnAllRobot()
     {
-        if (Global.Instance.GGameMode == GameMode.MENGZHU)
+        if (Main.Instance.CombatData.GGameMode == GameMode.MENGZHU)
         {
-            for (int i = 1; i < Global.Instance.MaxPlayer; i++)
+            for (int i = 1; i < Main.Instance.CombatData.MaxPlayer; i++)
             {
-                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), EUnitCamp.EUC_KILLALL, GameData.Instance.gameStatus.Single.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.Instance.PlayerLife);
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), EUnitCamp.EUC_KILLALL, Main.Instance.GameStateMgr.gameStatus.Single.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Main.Instance.CombatData.PlayerLife);
             }
         }
-        else if (Global.Instance.GGameMode == GameMode.ANSHA || Global.Instance.GGameMode == GameMode.SIDOU)
+        else if (Main.Instance.CombatData.GGameMode == GameMode.ANSHA || Main.Instance.CombatData.GGameMode == GameMode.SIDOU)
         {
-            int FriendCount = Global.Instance.MaxPlayer / 2 - 1;
+            int FriendCount = Main.Instance.CombatData.MaxPlayer / 2 - 1;
             for (int i = 0; i < FriendCount; i++)
             {
-                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), MeteorManager.Instance.LocalPlayer.Camp, GameData.Instance.gameStatus.Single.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.Instance.PlayerLife);
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), Main.Instance.MeteorManager.LocalPlayer.Camp, Main.Instance.GameStateMgr.gameStatus.Single.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Main.Instance.CombatData.PlayerLife);
             }
 
-            for (int i = FriendCount + 1; i < Global.Instance.MaxPlayer; i++)
+            for (int i = FriendCount + 1; i < Main.Instance.CombatData.MaxPlayer; i++)
             {
-                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), U3D.GetAnotherCamp(MeteorManager.Instance.LocalPlayer.Camp), GameData.Instance.gameStatus.Single.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Global.Instance.PlayerLife);
+                U3D.SpawnRobot(U3D.GetRandomUnitIdx(), U3D.GetAnotherCamp(Main.Instance.MeteorManager.LocalPlayer.Camp), Main.Instance.GameStateMgr.gameStatus.Single.DisallowSpecialWeapon ? U3D.GetNormalWeaponType() : U3D.GetRandomWeaponType(), Main.Instance.CombatData.PlayerLife);
             }
         }
     }
@@ -549,29 +550,30 @@ public partial class GameBattleEx : NetBehaviour {
         MeteorUnit unit = U3D.InitNetPlayer(player);
         U3D.InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
     }
+
     //单机角色创建
     public void OnCreatePlayer()
     {
         //设置主角属性
-        U3D.InitPlayer(Global.Instance.GScript);
+        U3D.InitPlayer(Main.Instance.CombatData.GScript);
         //把音频侦听移到角色
         Main.Instance.listener.enabled = false;
-        Main.Instance.playerListener = MeteorManager.Instance.LocalPlayer.gameObject.AddComponent<AudioListener>();
+        Main.Instance.playerListener = Main.Instance.MeteorManager.LocalPlayer.gameObject.AddComponent<AudioListener>();
 
-        if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
+        if (Main.Instance.CombatData.GLevelMode == LevelMode.CreateWorld)
             SpawnAllRobot();
 
         //摄像机完毕后
         //FightWnd.Instance.Open();
-        if (!string.IsNullOrEmpty(Global.Instance.GLevelItem.BgmName))
-            SoundManager.Instance.PlayMusic(Global.Instance.GLevelItem.BgmName);
+        if (!string.IsNullOrEmpty(Main.Instance.CombatData.GLevelItem.BgmName))
+            Main.Instance.SoundManager.PlayMusic(Main.Instance.CombatData.GLevelItem.BgmName);
 
         //除了主角的所有角色,开始输出,选择阵营, 进入战场
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
         {
-            if (MeteorManager.Instance.UnitInfos[i] == MeteorManager.Instance.LocalPlayer)
+            if (Main.Instance.MeteorManager.UnitInfos[i] == Main.Instance.MeteorManager.LocalPlayer)
                 continue;
-            MeteorUnit unitLog = MeteorManager.Instance.UnitInfos[i];
+            MeteorUnit unitLog = Main.Instance.MeteorManager.UnitInfos[i];
             U3D.InsertSystemMsg(U3D.GetCampEnterLevelStr(unitLog));
         }
 
@@ -645,7 +647,7 @@ public partial class GameBattleEx : NetBehaviour {
         {
             if (unit.Attr.IsPlayer)
             {
-                Ray r = CameraFollow.Ins.m_Camera.ScreenPointToRay(new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, DartLoader.MaxDistance));
+                Ray r = Main.Instance.CameraFollow.m_Camera.ScreenPointToRay(new Vector3(Screen.width * 0.5f, Screen.height * 0.5f, DartLoader.MaxDistance));
                 RaycastHit[] allHit = Physics.RaycastAll(r, DartLoader.MaxDistance, 1 << LayerMask.NameToLayer("Bone") | 1 << LayerMask.NameToLayer("Scene") | 1 << LayerMask.NameToLayer("Monster") | 1 << LayerMask.NameToLayer("LocalPlayer") | 1 << LayerMask.NameToLayer("Trigger"));
                 RaycastHit[] allHitSort = SortRaycastHit(allHit);
                 bool showEffect = false;
@@ -668,7 +670,7 @@ public partial class GameBattleEx : NetBehaviour {
                         }
                         if (!showEffect)
                         {
-                            SFXLoader.Instance.PlayEffect("GunHit.ef", allHitSort[i].point, true, false);
+                            Main.Instance.SFXLoader.PlayEffect("GunHit.ef", allHitSort[i].point, true, false);
                             showEffect = true;
                         }
                         break;
@@ -688,7 +690,7 @@ public partial class GameBattleEx : NetBehaviour {
                             //在指定位置播放一个特效.
                             if (!showEffect)
                             {
-                                SFXLoader.Instance.PlayEffect("GunHit.ef", allHitSort[i].point, true, false);
+                                Main.Instance.SFXLoader.PlayEffect("GunHit.ef", allHitSort[i].point, true, false);
                                 showEffect = true;
                             }
                             unitAttacked.OnAttack(unit, attackDef);
@@ -704,16 +706,16 @@ public partial class GameBattleEx : NetBehaviour {
                 if (gun != null)
                 {
                     Vector3 vec = Vector3.zero;
-                    if (unit.GetLockedTarget() != null)
+                    if (unit.LockTarget != null)
                     {
-                        Vector3 vecDir = (unit.GetLockedTarget().mSkeletonPivot - gun.transform.position);
+                        Vector3 vecDir = (unit.LockTarget.mSkeletonPivot - gun.transform.position);
                         vec = vecDir;
                         vec.y = 0;
-                        Vector3 vecShootEndPoint = unit.GetLockedTarget().mSkeletonPivot + Quaternion.AngleAxis(90, Vector3.up) * vec.normalized * unit.charController.radius;//角色某侧顶端
+                        Vector3 vecShootEndPoint = unit.LockTarget.mSkeletonPivot + Quaternion.AngleAxis(90, Vector3.up) * vec.normalized * unit.charController.radius;//角色某侧顶端
                         float angle = Mathf.Acos(Mathf.Clamp(Vector3.Dot((vecShootEndPoint - gun.transform.position).normalized, vecDir.normalized), -1.0f, 1.0f)) * Mathf.Rad2Deg;
                         float ratio = ((100.0f - unit.Attr.Aim) / 100.0f);//miss概率                                            //正负1倍角度一定可以射击命中.不在范围内一定不会命中.
                         float angleRatio = UnityEngine.Random.Range(-angle * (1 + ratio), angle * (1 + ratio));
-                        vec = Quaternion.AngleAxis(angleRatio, Vector3.up) * (unit.GetLockedTarget().mSkeletonPivot - gun.transform.position).normalized;
+                        vec = Quaternion.AngleAxis(angleRatio, Vector3.up) * (unit.LockTarget.mSkeletonPivot - gun.transform.position).normalized;
                     }
                     else
                         vec = -gun.transform.forward;
@@ -729,7 +731,7 @@ public partial class GameBattleEx : NetBehaviour {
                             //在指定位置播放一个特效.
                             if (!showEffect)
                             {
-                                SFXLoader.Instance.PlayEffect("GunHit.ef", allHitSort[i].point, true, false);
+                                Main.Instance.SFXLoader.PlayEffect("GunHit.ef", allHitSort[i].point, true, false);
                                 showEffect = true;
                             }
                             break;
@@ -749,7 +751,7 @@ public partial class GameBattleEx : NetBehaviour {
                                 //在指定位置播放一个特效.
                                 if (!showEffect)
                                 {
-                                    SFXLoader.Instance.PlayEffect("GunHit.ef", allHitSort[i].point, true, false);
+                                    Main.Instance.SFXLoader.PlayEffect("GunHit.ef", allHitSort[i].point, true, false);
                                     showEffect = true;
                                 }
                                 unitAttacked.OnAttack(unit, attackDef);
@@ -778,7 +780,7 @@ public partial class GameBattleEx : NetBehaviour {
                         //远程锁定目标为空时
                         if (lockedTarget2 == null)
                         {
-                            Vector3 vec = CameraFollow.Ins.m_Camera.ScreenToWorldPoint(new Vector3(Screen.width / 2, (Screen.height) * 0.65f, DartLoader.MaxDistance));
+                            Vector3 vec = Main.Instance.CameraFollow.m_Camera.ScreenToWorldPoint(new Vector3(Screen.width / 2, (Screen.height) * 0.65f, DartLoader.MaxDistance));
                             forw = (vec - vecSpawn).normalized;
                         }
                         else
@@ -790,7 +792,7 @@ public partial class GameBattleEx : NetBehaviour {
                     else
                     {
                         //AI在未发现敌人时随便发飞镖?
-                        if (unit.GetLockedTarget() == null)
+                        if (unit.LockTarget == null)
                         {
                             //角色的面向 + 一定随机
                             forw = (Quaternion.AngleAxis(UnityEngine.Random.Range(-35, 35), Vector3.up)  * Quaternion.AngleAxis(UnityEngine.Random.Range(-5, 5), Vector3.right)  * - unit.transform.forward).normalized;
@@ -798,7 +800,7 @@ public partial class GameBattleEx : NetBehaviour {
                         else
                         {
                             //判断角色是否面向目标，不面向，则朝身前发射飞镖
-                            MeteorUnit u = unit.GetLockedTarget();
+                            MeteorUnit u = unit.LockTarget;
                             if (u != null)
                             {
                                 if (!unit.IsFacetoTarget(u))
@@ -810,7 +812,7 @@ public partial class GameBattleEx : NetBehaviour {
                             else
                             {
                                 float k = UnityEngine.Random.Range(-(100 - unit.Attr.Aim) / 3.0f, (100 - unit.Attr.Aim) / 3.0f);
-                                Vector3 vec = unit.GetLockedTarget().transform.position + new Vector3(k, UnityEngine.Random.Range(10, 38), k);
+                                Vector3 vec = unit.LockTarget.transform.position + new Vector3(k, UnityEngine.Random.Range(10, 38), k);
                                 forw = (vec - vecSpawn).normalized;
                             }
                             //要加一点随机，否则每次都打一个位置不正常
@@ -834,7 +836,7 @@ public partial class GameBattleEx : NetBehaviour {
                     else
                     {
                         //判断角色是否面向目标，不面向，则朝身前发射飞轮
-                        MeteorUnit u = unit.GetLockedTarget();
+                        MeteorUnit u = unit.LockTarget;
                         if (u != null)
                         {
                             if (!unit.IsFacetoTarget(u))
@@ -875,7 +877,7 @@ public partial class GameBattleEx : NetBehaviour {
     public string GetTimeClock()
     {
         //600 = 10:00
-        if (Global.Instance.GLevelMode <= LevelMode.CreateWorld)
+        if (Main.Instance.CombatData.GLevelMode <= LevelMode.CreateWorld)
         {
             int left = time - Mathf.FloorToInt(timeClock);
             if (left < 0)
@@ -886,9 +888,9 @@ public partial class GameBattleEx : NetBehaviour {
             t = string.Format("{0:D2}:{1:D2}", minute, seconds);
             return t;
         }
-        else if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+        else if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
         {
-            int left = Mathf.FloorToInt(NetWorkBattle.Instance.GameTime / 1000);
+            int left = Mathf.FloorToInt(Main.Instance.NetWorkBattle.GameTime / 1000);
             if (left < 0)
                 left = 0;
             int minute = left / 60;
@@ -910,22 +912,22 @@ public partial class GameBattleEx : NetBehaviour {
     
     public void NetPause()
     {
-        if (MeteorManager.Instance.LocalPlayer != null)
-            MeteorManager.Instance.LocalPlayer.controller.LockInput(true);
+        if (Main.Instance.MeteorManager.LocalPlayer != null)
+            Main.Instance.MeteorManager.LocalPlayer.controller.LockInput(true);
         if (NGUIJoystick.instance != null)
             NGUIJoystick.instance.Lock(true);
         if (NGUICameraJoystick.instance != null)
             NGUICameraJoystick.instance.Lock(true);
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
-            MeteorManager.Instance.UnitInfos[i].EnableAI(false);
-        Global.Instance.PauseAll = true;
+        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+            Main.Instance.MeteorManager.UnitInfos[i].EnableAI(false);
+        Main.Instance.CombatData.PauseAll = true;
     }
 
     //全部AI暂停，游戏时间停止，任何依据时间做动画的物件，全部要停止.
     public void Pause()
     {
         //联机时不许暂停
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             return;
 
         NetPause();
@@ -933,17 +935,17 @@ public partial class GameBattleEx : NetBehaviour {
 
     public void Resume()
     {
-        if (MeteorManager.Instance.LocalPlayer != null)
+        if (Main.Instance.MeteorManager.LocalPlayer != null)
         {
-            MeteorManager.Instance.LocalPlayer.controller.LockInput(false);
+            Main.Instance.MeteorManager.LocalPlayer.controller.LockInput(false);
         }
         if (NGUIJoystick.instance != null)
             NGUIJoystick.instance.Lock(false);
         if (NGUICameraJoystick.instance != null)
             NGUICameraJoystick.instance.Lock(false);
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
-            MeteorManager.Instance.UnitInfos[i].EnableAI(true);
-        Global.Instance.PauseAll = false;
+        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+            Main.Instance.MeteorManager.UnitInfos[i].EnableAI(true);
+        Main.Instance.CombatData.PauseAll = false;
     }
 
     public MeteorUnit lockedTarget;//近战武器-自动锁定目标
@@ -954,7 +956,7 @@ public partial class GameBattleEx : NetBehaviour {
     public bool CanLockTarget(MeteorUnit unit)
     {
         //使用枪械/远程武器时
-        int weapon = MeteorManager.Instance.LocalPlayer.GetWeaponType();
+        int weapon = Main.Instance.MeteorManager.LocalPlayer.GetWeaponType();
         if (weapon == (int) EquipWeaponType.Dart || 
             weapon == (int)EquipWeaponType.Gun || 
             weapon == (int)EquipWeaponType.Guillotines)
@@ -966,7 +968,7 @@ public partial class GameBattleEx : NetBehaviour {
         {
             if (unit.Dead)
                 return false;
-            Vector3 vec = unit.transform.position - MeteorManager.Instance.LocalPlayer.transform.position;
+            Vector3 vec = unit.transform.position - Main.Instance.MeteorManager.LocalPlayer.transform.position;
             float v = vec.sqrMagnitude;
             if (v > ViewLimit)
                 return false;
@@ -986,7 +988,7 @@ public partial class GameBattleEx : NetBehaviour {
             }
             lockedTarget = null;
             bLocked = false;
-            CameraFollow.Ins.OnChangeLockTarget(null);
+            Main.Instance.CameraFollow.OnChangeLockTarget(null);
         }
         else
         {
@@ -997,9 +999,9 @@ public partial class GameBattleEx : NetBehaviour {
             }
             autoTarget = null;
             lockedTarget = unit;
-            lockedEffect = SFXLoader.Instance.PlayEffect("lock.ef", lockedTarget.gameObject);
+            lockedEffect = Main.Instance.SFXLoader.PlayEffect("lock.ef", lockedTarget.gameObject);
             bLocked = true;
-            CameraFollow.Ins.OnChangeLockTarget(lockedTarget.transform);
+            Main.Instance.CameraFollow.OnChangeLockTarget(lockedTarget.transform);
         }
         //if (FightWnd.Exist)
         //    FightWnd.Instance.OnChangeLock(bLocked);
@@ -1011,9 +1013,9 @@ public partial class GameBattleEx : NetBehaviour {
         if (autoTarget != null)
         {
             MeteorUnit lockTarget = autoTarget;
-            MeteorManager.Instance.LocalPlayer.SetLockedTarget(lockTarget);
+            Main.Instance.MeteorManager.LocalPlayer.SetLockedTarget(lockTarget);
             ChangeLockedTarget(lockTarget);
-            CameraFollow.Ins.OnLockTarget();
+            Main.Instance.CameraFollow.OnLockTarget();
         }
     }
 
@@ -1062,8 +1064,8 @@ public partial class GameBattleEx : NetBehaviour {
             autoEffect = null;
         }
         autoTarget = null;
-        MeteorManager.Instance.LocalPlayer.SetLockedTarget(null);
-        CameraFollow.Ins.OnUnlockTarget();
+        Main.Instance.MeteorManager.LocalPlayer.SetLockedTarget(null);
+        Main.Instance.CameraFollow.OnUnlockTarget();
         bLocked = false;
         //if (FightWnd.Exist)
         //    FightWnd.Instance.OnChangeLock(bLocked);
@@ -1073,40 +1075,40 @@ public partial class GameBattleEx : NetBehaviour {
     public void RefreshAutoTarget2()
     {
         //夹角超过限制
-        MeteorUnit player = MeteorManager.Instance.LocalPlayer;
+        MeteorUnit player = Main.Instance.MeteorManager.LocalPlayer;
         float angleMax = 75;//cos值越大，角度越小
         float autoDis = ViewLimit;//自动目标与主角的距离，距离近，优先
         MeteorUnit wantRotation = null;//夹角最小的
         MeteorUnit wantDis = null;//距离最近的
         Vector3 vecPlayer = -player.transform.forward;
         vecPlayer.y = 0;
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
         {
-            if (MeteorManager.Instance.UnitInfos[i] == player)
+            if (Main.Instance.MeteorManager.UnitInfos[i] == player)
                 continue;
-            if (player.SameCamp(MeteorManager.Instance.UnitInfos[i]))
+            if (player.SameCamp(Main.Instance.MeteorManager.UnitInfos[i]))
                 continue;
-            if (MeteorManager.Instance.UnitInfos[i].Dead)
+            if (Main.Instance.MeteorManager.UnitInfos[i].Dead)
                 continue;
-            Vector3 vec = MeteorManager.Instance.UnitInfos[i].transform.position - player.transform.position;
+            Vector3 vec = Main.Instance.MeteorManager.UnitInfos[i].transform.position - player.transform.position;
             float v = vec.sqrMagnitude;
-            MeteorManager.Instance.UnitInfos[i].distance = v;
+            Main.Instance.MeteorManager.UnitInfos[i].distance = v;
             vec.y = 0;
             //先判断夹角是否在限制范围内.
             vec = Vector3.Normalize(vec);
             float angle = Mathf.Acos(Vector3.Dot(vecPlayer.normalized, vec)) * Mathf.Rad2Deg;
-            MeteorManager.Instance.UnitInfos[i].angle = angle;
+            Main.Instance.MeteorManager.UnitInfos[i].angle = angle;
             //角度小于75则可以成为自动对象.
             if (angle < angleMax)
             {
                 angleMax = angle;
-                wantRotation = MeteorManager.Instance.UnitInfos[i];
+                wantRotation = Main.Instance.MeteorManager.UnitInfos[i];
                 
             }
             if (v < autoDis)
             {
                 autoDis = v;
-                wantDis = MeteorManager.Instance.UnitInfos[i];
+                wantDis = Main.Instance.MeteorManager.UnitInfos[i];
             }
         }
 
@@ -1129,7 +1131,7 @@ public partial class GameBattleEx : NetBehaviour {
             autoTarget = finallyTarget;
             //Debug.Log("切换目标");
             if (autoTarget != null)
-                autoEffect = SFXLoader.Instance.PlayEffect("Track.ef", autoTarget.gameObject);
+                autoEffect = Main.Instance.SFXLoader.PlayEffect("Track.ef", autoTarget.gameObject);
             return;
         }
 
@@ -1145,9 +1147,9 @@ public partial class GameBattleEx : NetBehaviour {
     //敌方角色移动时，不用整个刷新，只需要用当前的自动目标和这个对象对比下角度就OK
     public void RefreshAutoTarget()
     {
-        if (MeteorManager.Instance.LocalPlayer == null)
+        if (Main.Instance.MeteorManager.LocalPlayer == null)
             return;
-        if (MeteorManager.Instance.LocalPlayer.GetWeaponType() == (int)EquipWeaponType.Dart || MeteorManager.Instance.LocalPlayer.GetWeaponType() == (int)EquipWeaponType.Gun)
+        if (Main.Instance.MeteorManager.LocalPlayer.GetWeaponType() == (int)EquipWeaponType.Dart || Main.Instance.MeteorManager.LocalPlayer.GetWeaponType() == (int)EquipWeaponType.Gun)
         {
             //远程武器，自动锁定系统.
             RefreshAutoTarget2();
@@ -1157,13 +1159,13 @@ public partial class GameBattleEx : NetBehaviour {
         //超出距离，并没有考虑角色背后-方向导致的解除锁定
         if (lockedTarget != null)
         {
-            Vector3 vec = lockedTarget.transform.position - MeteorManager.Instance.LocalPlayer.transform.position;
+            Vector3 vec = lockedTarget.transform.position - Main.Instance.MeteorManager.LocalPlayer.transform.position;
             float v = vec.sqrMagnitude;
             if (v > ViewLimit)
                 Unlock();
             return;
         }
-        MeteorUnit player = MeteorManager.Instance.LocalPlayer;
+        MeteorUnit player = Main.Instance.MeteorManager.LocalPlayer;
         float angleMax = 75;//cos值越大，角度越小
         float autoAngle = 0.0f;//自动目标与主角的夹角
         float autoDis = ViewLimit;//自动目标与主角的距离，距离近，优先
@@ -1171,38 +1173,38 @@ public partial class GameBattleEx : NetBehaviour {
         MeteorUnit wantDis = null;//距离最近的
         Vector3 vecPlayer = -player.transform.forward;
         vecPlayer.y = 0;
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
         {
-            if (MeteorManager.Instance.UnitInfos[i] == player)
+            if (Main.Instance.MeteorManager.UnitInfos[i] == player)
                 continue;
-            if (player.SameCamp(MeteorManager.Instance.UnitInfos[i]))
+            if (player.SameCamp(Main.Instance.MeteorManager.UnitInfos[i]))
                 continue;
-            if (MeteorManager.Instance.UnitInfos[i].Dead)
+            if (Main.Instance.MeteorManager.UnitInfos[i].Dead)
                 continue;
-            Vector3 vec = MeteorManager.Instance.UnitInfos[i].transform.position - player.transform.position;
+            Vector3 vec = Main.Instance.MeteorManager.UnitInfos[i].transform.position - player.transform.position;
             float v = vec.sqrMagnitude;
-            MeteorManager.Instance.UnitInfos[i].distance = v;
+            Main.Instance.MeteorManager.UnitInfos[i].distance = v;
             //飞轮时，无限角度距离
-            if (v > ViewLimit && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
+            if (v > ViewLimit && Main.Instance.MeteorManager.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
                 continue;
             //高度差2个角色，不要成为自动对象，否则摄像机位置有问题
-            if (Mathf.Abs(vec.y) >= 75 && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
+            if (Mathf.Abs(vec.y) >= 75 && Main.Instance.MeteorManager.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
                 continue;
             vec.y = 0;
             //先判断夹角是否在限制范围内.
             vec = Vector3.Normalize(vec);
             float angle = Mathf.Acos(Vector3.Dot(vecPlayer.normalized, vec)) * Mathf.Rad2Deg;
-            MeteorManager.Instance.UnitInfos[i].angle = angle;
+            Main.Instance.MeteorManager.UnitInfos[i].angle = angle;
             //角度小于75则可以成为自动对象.
             if (angle < angleMax)
             {
                 angleMax = angle;
-                wantRotation = MeteorManager.Instance.UnitInfos[i];
+                wantRotation = Main.Instance.MeteorManager.UnitInfos[i];
             }
             if (v < autoDis)
             {
                 autoDis = v;
-                wantDis = MeteorManager.Instance.UnitInfos[i];
+                wantDis = Main.Instance.MeteorManager.UnitInfos[i];
             }
         }
 
@@ -1223,18 +1225,18 @@ public partial class GameBattleEx : NetBehaviour {
             }
             autoTarget = finallyTarget;
             if (autoTarget != null)
-                autoEffect = SFXLoader.Instance.PlayEffect("Track.ef", autoTarget.gameObject);
+                autoEffect = Main.Instance.SFXLoader.PlayEffect("Track.ef", autoTarget.gameObject);
             return;
         }
 
         //如果当前的自动目标存在，且夹角超过75度，即在主角背后，那么自动目标清空
-        if (autoTarget != null && autoTarget.angle > 90 && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
+        if (autoTarget != null && autoTarget.angle > 90 && Main.Instance.MeteorManager.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
         {
             autoEffect.OnPlayAbort();
             autoTarget = null;
         }
 
-        if (autoTarget != null && MeteorManager.Instance.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
+        if (autoTarget != null && Main.Instance.MeteorManager.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
         {
             if (autoTarget.distance > ViewLimit)
                 Unlock();
@@ -1247,7 +1249,7 @@ public partial class GameBattleEx : NetBehaviour {
     public void OnUnitDead(MeteorUnit unit, MeteorUnit killer = null)
     {
         if (Scene_OnCharacterEvent != null)
-            Scene_OnCharacterEvent.Invoke(Global.Instance.GScript, new object[] { unit.InstanceId, EventDeath });
+            Scene_OnCharacterEvent.Invoke(Main.Instance.CombatData.GScript, new object[] { unit.InstanceId, EventDeath });
         //无阵营的角色,杀死人，不统计信息
         if (killer != null)
         {
@@ -1281,22 +1283,22 @@ public partial class GameBattleEx : NetBehaviour {
                 battleResult[unit.InstanceId].deadCount += 1;
         }
 
-        if (unit == MeteorManager.Instance.LocalPlayer)
+        if (unit == Main.Instance.MeteorManager.LocalPlayer)
         {
             //如果是
-            if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
+            if (Main.Instance.CombatData.GLevelMode == LevelMode.CreateWorld)
             {
-                if (Global.Instance.GGameMode == GameMode.MENGZHU)
+                if (Main.Instance.CombatData.GGameMode == GameMode.MENGZHU)
                 {
                     //等一段时间后复活.
                 }
-                else if (Global.Instance.GGameMode == GameMode.ANSHA)
+                else if (Main.Instance.CombatData.GGameMode == GameMode.ANSHA)
                 {
                     //检查是否是队长
                     if (unit.IsLeader)
                         GameOver(0);
                 }
-                else if (Global.Instance.GGameMode == GameMode.SIDOU)
+                else if (Main.Instance.CombatData.GGameMode == GameMode.SIDOU)
                 {
                     //检查双方是否有一边全部战败
                     if (U3D.AllEnemyDead())
@@ -1313,13 +1315,13 @@ public partial class GameBattleEx : NetBehaviour {
             }
             else
                 GameOver(0);
-            DropMng.Instance.Drop(unit);
+            Main.Instance.DropMng.Drop(unit);
             Unlock();
         }
         else
         {
             //无论谁杀死，都要爆东西
-            DropMng.Instance.Drop(unit);
+            Main.Instance.DropMng.Drop(unit);
             //如果是被任意流星角色的伤害，特效，技能，等那么主角得到经验，如果是被场景环境杀死，
             //爆钱和东西
             //检查剧情
@@ -1336,9 +1338,9 @@ public partial class GameBattleEx : NetBehaviour {
             }
             if (unit == lockedTarget)
                 Unlock();
-            if (Global.Instance.GLevelMode == LevelMode.SinglePlayerTask)
+            if (Main.Instance.CombatData.GLevelMode == LevelMode.SinglePlayerTask)
             {
-                GameResult result = Global.Instance.GScript.OnUnitDead(unit);
+                GameResult result = Main.Instance.CombatData.GScript.OnUnitDead(unit);
                 if (result != GameResult.None)
                     GameOver((int)result);
                 //if (Global.Instance.GLevelItem.Pass == 1)//敌方阵营全死
@@ -1354,19 +1356,19 @@ public partial class GameBattleEx : NetBehaviour {
                 //}
             }
             //如果是
-            else if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
+            else if (Main.Instance.CombatData.GLevelMode == LevelMode.CreateWorld)
             {
-                if (Global.Instance.GGameMode == GameMode.MENGZHU)
+                if (Main.Instance.CombatData.GGameMode == GameMode.MENGZHU)
                 {
                     //等一段时间后复活.
                 }
-                else if (Global.Instance.GGameMode == GameMode.ANSHA)
+                else if (Main.Instance.CombatData.GGameMode == GameMode.ANSHA)
                 {
                     //检查是否是队长
                     if (unit.IsLeader)
                         GameOver(1);
                 }
-                else if (Global.Instance.GGameMode == GameMode.SIDOU)
+                else if (Main.Instance.CombatData.GGameMode == GameMode.SIDOU)
                 {
                     //检查双方是否有一边全部战败
                     if (U3D.AllEnemyDead())
@@ -1380,44 +1382,46 @@ public partial class GameBattleEx : NetBehaviour {
 
     public void EnableFollowCamera(bool enable)
     {
-        if (CameraFollow.Ins != null)
+        if (Main.Instance.CameraFollow != null)
         {
-            CameraFollow.Ins.m_Camera.enabled = enable;
-            CameraFollow.Ins.enabled = enable;
+            Main.Instance.CameraFollow.m_Camera.enabled = enable;
+            Main.Instance.CameraFollow.enabled = enable;
         }
     }
 
     public void EnableFreeCamera(bool enable)
     {
-        if (CameraFree.Ins != null)
+        if (Main.Instance.CameraFree != null)
         {
-            CameraFree.Ins.m_Camera.enabled = enable;
-            CameraFree.Ins.enabled = enable;
+            Main.Instance.CameraFree.m_Camera.enabled = enable;
+            Main.Instance.CameraFree.enabled = enable;
         }
     }
 
     public void InitFreeCamera(MeteorUnit target = null)
     {
-        if (CameraFree.Ins == null)
+        if (Main.Instance.CameraFree == null)
         {
             GameObject FreeCamera = GameObject.Instantiate(Resources.Load("CameraFreeEx")) as GameObject;
             FreeCamera.name = "FreeCamera";
+            Main.Instance.CameraFree = FreeCamera.GetComponent<CameraFree>();
         }
-        CameraFree.Ins.GetComponent<Camera>().enabled = true;
-        CameraFree.Ins.enabled = true;
+        Main.Instance.CameraFree.GetComponent<Camera>().enabled = true;
+        Main.Instance.CameraFree.enabled = true;
+        Main.Instance.MainCamera = Main.Instance.CameraFree.m_Camera;
         //找一个正在打斗的目标，随便谁都行
         MeteorUnit watchTarget = target;
         if (watchTarget == null)
         {
-            for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+            for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
             {
-                if (MeteorManager.Instance.UnitInfos[i].Dead)
+                if (Main.Instance.MeteorManager.UnitInfos[i].Dead)
                     continue;
-                watchTarget = MeteorManager.Instance.UnitInfos[i];
+                watchTarget = Main.Instance.MeteorManager.UnitInfos[i];
                 break;
             }
         }
-        CameraFree.Ins.Init(watchTarget);
+        Main.Instance.CameraFree.Init(watchTarget);
     }
 
     public void ChangeLockStatus()
@@ -1630,7 +1634,7 @@ public partial class GameBattleEx : NetBehaviour {
     public void OnSceneEvent(SceneEvent evt, int unit, GameObject trigger)
     {
         if (Scene_OnEvent != null)
-            Scene_OnEvent.Invoke(Global.Instance.GScript, new object[] { trigger, unit, (int)evt});
+            Scene_OnEvent.Invoke(Main.Instance.CombatData.GScript, new object[] { trigger, unit, (int)evt});
     }
 }
 
@@ -1754,24 +1758,24 @@ public class ActionConfig
             else if (action[action.Count - 1].type == StackAction.Wait)
             {
                 MeteorUnit unit = U3D.GetUnit(id);
-                if (unit != null && unit.Robot != null)
-                    unit.Robot.ChangeState(EAIStatus.Wait);
+                if (unit != null && unit.StateMachine != null)
+                    unit.StateMachine.ChangeState(unit.StateMachine.WaitState);
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.Follow)
             {
                 MeteorUnit unit = U3D.GetUnit(id);
-                if (unit != null && unit.Robot != null)
-                    unit.Robot.FollowTarget(action[action.Count - 1].param);
+                if (unit != null && unit.StateMachine != null)
+                    unit.StateMachine.FollowTarget(action[action.Count - 1].param);
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.Patrol)
             {
                 MeteorUnit unit = U3D.GetUnit(id);
-                if (unit != null && unit.Robot != null)
+                if (unit != null && unit.StateMachine != null)
                 {
-                    unit.Robot.SetPatrolPath(action[action.Count - 1].Path);
-                    unit.Robot.ChangeState(EAIStatus.Patrol);//多点巡逻.
+                    unit.StateMachine.SetPatrolPath(action[action.Count - 1].Path);
+                    unit.StateMachine.ChangeState(unit.StateMachine.PatrolState);//多点巡逻.
                 }
                 action.RemoveAt(action.Count - 1);
             }
@@ -1791,28 +1795,27 @@ public class ActionConfig
                 MeteorUnit unit = U3D.GetUnit(id);
                 MeteorUnit target = U3D.GetUnit(action[action.Count - 1].param);
                 if (unit != null && target != null)
-                    unit.KillTarget(target);
+                    unit.Kill(target);
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.AttackTarget)
             {
                 //攻击指定位置
                 MeteorUnit unit = U3D.GetUnit(id);
-                if (unit != null && unit.Robot != null && !unit.Dead)
+                if (unit != null && unit.StateMachine != null && !unit.Dead)
                 {
-                    if (unit.Robot.Status != EAIStatus.AttackTarget)
-                    {
-                        unit.Robot.AttackCount = action[action.Count - 1].param;
-                        unit.Robot.AttackTarget = action[action.Count - 1].target;
-                        unit.Robot.ChangeState(EAIStatus.AttackTarget);
-                    }
+                    if (!unit.StateMachine.IsFighting())
+                        unit.StateMachine.ChangeFightState();
                     //部分情况下，子状态不正确会导致很多奇怪的情况
-                    if (unit.Robot.SubStatus != EAISubStatus.AttackGotoTarget && unit.Robot.SubStatus != EAISubStatus.AttackTarget && unit.Robot.SubStatus != EAISubStatus.AttackTargetSubRotateToTarget)
-                        unit.Robot.SubStatus = EAISubStatus.AttackGotoTarget;
-                    if (unit.Robot.OnAttackTarget())
+                    //if (unit.StateMachine.SubStatus != EAISubStatus.AttackGotoTarget && unit.StateMachine.SubStatus != EAISubStatus.AttackTarget && unit.StateMachine.SubStatus != EAISubStatus.AttackTargetSubRotateToTarget)
+                    //    unit.StateMachine.SubStatus = EAISubStatus.AttackGotoTarget;
+                    FightState fs = unit.StateMachine.CurrentState as FightState;
+                    fs.AttackCount = action[action.Count - 1].param;
+                    fs.AttackTarget = action[action.Count - 1].target;
+                    if (fs.AttackTargetComplete())
                     {
                         action.RemoveAt(action.Count - 1);
-                        unit.Robot.ChangeState(EAIStatus.Wait);
+                        unit.StateMachine.ChangeState(unit.StateMachine.WaitState);
                     }
                 }
             }

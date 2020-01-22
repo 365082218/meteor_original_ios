@@ -9,11 +9,10 @@ public class MiniPose
     public int end;
 }
 
-public class FMCPose
+public class FMCPoseLoader
 {
-    public static Dictionary<string, FMCPose> fmcPose = new Dictionary<string, FMCPose>();
-    public List<MiniPose> pos = new List<MiniPose>();
-    public static FMCPose LoadPose(string file)
+    public Dictionary<string, FMCPose> fmcPose = new Dictionary<string, FMCPose>();
+    public FMCPose LoadPose(string file)
     {
         file += ".pos";
         if (fmcPose.ContainsKey(file))
@@ -51,6 +50,12 @@ public class FMCPose
         return pose;
     }
 }
+
+public class FMCPose
+{
+    public List<MiniPose> pos = new List<MiniPose>();
+}
+
 public class FMCPlayer :NetBehaviour {
     public FMCFile frames;
     FMCPose pose;
@@ -158,16 +163,16 @@ public class FMCPlayer :NetBehaviour {
     {
         int i = asset.name.IndexOf('.');
         fmcFile = asset.name.Substring(0, i);
-        frames = FMCLoader.Instance.Load(asset);
-        pose = FMCPose.LoadPose(fmcFile);
+        frames = Main.Instance.FMCLoader.Load(asset);
+        pose = Main.Instance.FMCPoseLoader.LoadPose(fmcFile);
         state = 1;
     }
 
     public void Init(string file, FMCFile f = null)
     {
         fmcFile = file;
-        frames = f != null ? f : FMCLoader.Instance.Load(fmcFile);
-        pose = FMCPose.LoadPose(fmcFile);
+        frames = f != null ? f : Main.Instance.FMCLoader.Load(fmcFile);
+        pose = Main.Instance.FMCPoseLoader.LoadPose(fmcFile);
         state = 1;
         //ChangePose(0, 0);
     }

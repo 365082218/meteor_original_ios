@@ -27,7 +27,7 @@ public class SfxDialog : Dialog
     int pageMax = 0;
     void Init()
     {
-        pageMax = (SFXLoader.Instance.Eff.Length / PageCount) + ((SFXLoader.Instance.Eff.Length % PageCount) != 0 ? 1 : 0);
+        pageMax = (Main.Instance.SFXLoader.Eff.Length / PageCount) + ((Main.Instance.SFXLoader.Eff.Length % PageCount) != 0 ? 1 : 0);
         SfxRoot = Control("Page");
         Control("Close").GetComponent<Button>().onClick.AddListener(OnBackPress);
         Control("PagePrev").GetComponent<Button>().onClick.AddListener(PrevPage);
@@ -69,7 +69,7 @@ public class SfxDialog : Dialog
                 SFXList[j].SetActive(false);
         }
 
-        for (int i = (page - 1) * PageCount; i < Mathf.Min((page) * PageCount, SFXLoader.Instance.TotalSfx); i++)
+        for (int i = (page - 1) * PageCount; i < Mathf.Min((page) * PageCount, Main.Instance.SFXLoader.TotalSfx); i++)
         {
             AddSFX(i, (page - 1) * PageCount);
             yield return 0;
@@ -86,13 +86,13 @@ public class SfxDialog : Dialog
             SFXList[j].GetComponent<Button>().onClick.RemoveAllListeners();
             SFXList[j].GetComponent<RectTransform>().sizeDelta = Vector2.zero;
             SFXList[j].GetComponent<Button>().onClick.AddListener(() => { PlaySfx(Idx); });
-            SFXList[j].GetComponentInChildren<Text>().text = SFXLoader.Instance.Eff[Idx];
+            SFXList[j].GetComponentInChildren<Text>().text = Main.Instance.SFXLoader.Eff[Idx];
         }
         else
         {
             GameObject obj = GameObject.Instantiate(Resources.Load("GridItemBtn")) as GameObject;
             obj.GetComponent<Button>().onClick.AddListener(() => { PlaySfx(Idx); });
-            obj.GetComponentInChildren<Text>().text = SFXLoader.Instance.Eff[Idx];
+            obj.GetComponentInChildren<Text>().text = Main.Instance.SFXLoader.Eff[Idx];
             obj.transform.SetParent(SfxRoot.transform);
             obj.gameObject.layer = SfxRoot.layer;
             obj.transform.localScale = Vector3.one;
@@ -104,6 +104,6 @@ public class SfxDialog : Dialog
 
     void PlaySfx(int idx)
     {
-        SFXLoader.Instance.PlayEffect(idx, MeteorManager.Instance.LocalPlayer.gameObject, true);
+        Main.Instance.SFXLoader.PlayEffect(idx, Main.Instance.MeteorManager.LocalPlayer.gameObject, true);
     }
 }

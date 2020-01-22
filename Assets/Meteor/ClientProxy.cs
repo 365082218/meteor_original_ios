@@ -177,19 +177,19 @@ class UdpClientProxy
         req.camp = (uint)camp;//暂时全部为盟主模式
         req.model = (uint)model;
         req.weapon = (uint)weapon;
-        req.playerId = (uint)NetWorkBattle.Instance.PlayerId;
+        req.playerId = (uint)Main.Instance.NetWorkBattle.PlayerId;
         Exec((int)MeteorMsg.Command.SpawnPlayer, req);
     }
 
     public static void LeaveLevel()
     {
         PlayerEventData req = new PlayerEventData();
-        req.camp = (uint)NetWorkBattle.Instance.camp;//暂时全部为盟主模式
-        req.model = (uint)NetWorkBattle.Instance.heroIdx;
-        req.weapon = (uint)NetWorkBattle.Instance.weaponIdx;
-        req.playerId = (uint)NetWorkBattle.Instance.PlayerId;
+        req.camp = (uint)Main.Instance.NetWorkBattle.camp;//暂时全部为盟主模式
+        req.model = (uint)Main.Instance.NetWorkBattle.heroIdx;
+        req.weapon = (uint)Main.Instance.NetWorkBattle.weaponIdx;
+        req.playerId = (uint)Main.Instance.NetWorkBattle.PlayerId;
         Exec((int)MeteorMsg.Command.DestroyPlayer, req);
-        NetWorkBattle.Instance.OnDisconnect();
+        Main.Instance.NetWorkBattle.OnDisconnect();
     }
 }
 
@@ -350,15 +350,15 @@ class TcpClientProxy
             try
             {
                 int port = 0;
-                port = Global.Instance.Server.ServerPort;
-                if (Global.Instance.Server.type == 1)
+                port = Main.Instance.CombatData.Server.ServerPort;
+                if (Main.Instance.CombatData.Server.type == 1)
                 {
-                    IPAddress address = IPAddress.Parse(Global.Instance.Server.ServerIP);
+                    IPAddress address = IPAddress.Parse(Main.Instance.CombatData.Server.ServerIP);
                     server = new IPEndPoint(address, port);
                 }
                 else
                 {
-                    IPAddress[] addr = Dns.GetHostAddresses(Global.Instance.Server.ServerHost);
+                    IPAddress[] addr = Dns.GetHostAddresses(Main.Instance.CombatData.Server.ServerHost);
                     if (addr.Length != 0)
                         server = new IPEndPoint(addr[0], port);
                 }

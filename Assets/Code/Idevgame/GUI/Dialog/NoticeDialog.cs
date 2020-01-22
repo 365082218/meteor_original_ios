@@ -19,7 +19,7 @@ public class NoticeDialogState : CommonDialogState<NoticeDialog>
     {
         if (read)
             return false;
-        if (GameConfig.Instance.HaveNotice())
+        if (Main.Instance.GameNotice.HaveNotice())
             return true;
         return false;
     }
@@ -39,7 +39,7 @@ public class NoticeDialog : Dialog
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
-        Notice.text = GameConfig.Instance.notice;
+        Notice.text = Main.Instance.GameNotice.notice;
         Close.onClick.AddListener(() => { OnBackPress(); });
     }
 }

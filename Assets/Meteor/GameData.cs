@@ -77,7 +77,7 @@ public class RoomSetting
         Life = 200;
         Mode = (int)GameMode.MENGZHU;
         DisallowSpecialWeapon = true;
-        Version = AppInfo.Instance.MeteorVersion.Equals("9.07") ? (int)protocol.RoomInfo.MeteorVersion.V907 : (int)protocol.RoomInfo.MeteorVersion.V107;
+        Version = Main.Instance.AppInfo.MeteorVersion.Equals("9.07") ? (int)protocol.RoomInfo.MeteorVersion.V907 : (int)protocol.RoomInfo.MeteorVersion.V107;
         Pattern = 1;
     }
 }
@@ -132,7 +132,7 @@ public class GameState
         if (pluginChapter == null)
             pluginChapter = new List<Chapter>();
         pluginChapter.Add(dlc);
-        Global.Instance.ClearLevel();//需要刷新
+        Main.Instance.CombatData.ClearLevel();//需要刷新
     }
 
     public void UnRegisterDlc(Chapter dlc)
@@ -140,7 +140,7 @@ public class GameState
         if (pluginChapter == null)
             return;
         pluginChapter.Remove(dlc);
-        Global.Instance.ClearLevel();
+        Main.Instance.CombatData.ClearLevel();
     }
 
     public bool IsModelInstalled(ModelItem item)
@@ -179,13 +179,13 @@ public class GameState
     {
         get
         {
-            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
                 return false;
             return _EnableInfiniteAngry;
         }
         set
         {
-            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 return;
             }
@@ -200,13 +200,13 @@ public class GameState
     {
         get
         {
-            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
                 return false;
             return _EnableGodMode;
         }
         set
         {
-            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 return;
             }
@@ -219,13 +219,13 @@ public class GameState
     {
         get
         {
-            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
                 return false;
             return _Undead;
         }
         set
         {
-            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 return;
             }
@@ -238,13 +238,13 @@ public class GameState
     {
         get
         {
-            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
                 return false;
             return _GodLike;
         }
         set
         {
-            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 return;
             }
@@ -267,13 +267,13 @@ public class GameState
     {
         get
         {
-            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
                 return false;
             return _LevelDebug;
         }
         set
         {
-            if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 return;
             }
@@ -301,37 +301,29 @@ public class GameState
     }
 }
 
-public class GameData:Singleton<GameData>
+//存档数据 类似于设置.
+public class GameStateMgr
 {
-    public TblMng<ItemBase> itemMng = TblMng<ItemBase>.Instance.GetTable();
-    public TblMng<ActionBase> actionMng = TblMng<ActionBase>.Instance.GetTable();
-    public TblMng<InputBase> inputMng = TblMng<InputBase>.Instance.GetTable();
     public GameState gameStatus;
-
-    //必须放在这里，因为其成员会初始化表格类数据
-    public void InitTable()
-    {
-        TblCore.Instance.Init();
-    }
-
     public InventoryItem MakeEquip(int unitIdx)
     {
-        ItemBase info = FindItemByIdx(unitIdx);
+        ItemDatas.ItemDatas info = FindItemByIdx(unitIdx);
         if (info == null)
             return null;
         InventoryItem item = new InventoryItem();
         item.Count = 1;
-        item.Idx = info.Idx;
+        item.Idx = info.ID;
         return item;
     }
 
-    public ItemBase FindItemByIdx(int itemid)
+    public ItemDatas.ItemDatas FindItemByIdx(int itemid)
     {
-        object obj = itemMng.GetRowByIdx(itemid);
-        if (obj == null)
-            obj = PluginItemMng.Instance.GetItem(itemid);
-        if (obj != null)
-            return obj as ItemBase ;
+        ItemDatas.ItemDatas ItemProperty = Main.Instance.DataMgr.GetData<ItemDatas.ItemDatas>(itemid);
+        //缺失读取外部加载的部分
+        //if (ItemProperty == null)
+        //    ItemProperty = Main.Instance..GetItem(itemid);
+        if (ItemProperty != null)
+            return ItemProperty;
         return null;
     }
 
@@ -413,7 +405,7 @@ public class GameData:Singleton<GameData>
             gameStatus.FixServerList();
         }
         
-        AppInfo.Instance.MeteorVersion = gameStatus.MeteorVersion;
+        Main.Instance.AppInfo.MeteorVersion = gameStatus.MeteorVersion;
     }
 
     public void SaveState()
@@ -444,8 +436,8 @@ public class GameData:Singleton<GameData>
     public int GetWeaponCode(string model)
     {
         int unitId = -1;
-        WeaponBase[] wItems = WeaponMng.Instance.GetAllItem();
-        for (int i = 0; i < wItems.Length; i++)
+        List<WeaponDatas.WeaponDatas> wItems = Main.Instance.DataMgr.GetDatasArray<WeaponDatas.WeaponDatas>();
+        for (int i = 0; i < wItems.Count; i++)
         {
             if (wItems[i].WeaponR == model)
             {
@@ -454,31 +446,31 @@ public class GameData:Singleton<GameData>
             }
         }
 
-        if (unitId == -1)
-        {
-            WeaponBase[] wItems2 = PluginWeaponMng.Instance.GetAllItem();
-            for (int i = 0; i < wItems2.Length; i++)
-            {
-                if (wItems2[i].WeaponR == model)
-                {
-                    unitId = wItems2[i].ID;
-                    break;
-                }
-            }
-        }
+        //if (unitId == -1)
+        //{
+        //    WeaponBase[] wItems2 = PluginWeaponMng.Instance.GetAllItem();
+        //    for (int i = 0; i < wItems2.Length; i++)
+        //    {
+        //        if (wItems2[i].WeaponR == model)
+        //        {
+        //            unitId = wItems2[i].ID;
+        //            break;
+        //        }
+        //    }
+        //}
 
-        List<ItemBase> items = itemMng.GetFullRow();
+        List<ItemDatas.ItemDatas> items = Main.Instance.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
         for (int i = 0; i < items.Count; i++)
         {
             if (items[i].UnitId == unitId && items[i].MainType == 1)
-                return items[i].Idx;
+                return items[i].ID;
         }
         return -1;
     }
 }
 
 //处理版本更新相关
-public class GlobalUpdate:Singleton<GlobalUpdate>
+public class UpdateHelper
 {
     public UpdateVersion updateVersion;
     public void LoadCache()
@@ -593,4 +585,208 @@ public class GlobalUpdate:Singleton<GlobalUpdate>
             updateVersion = null;
         }
     }
+}
+
+public class CombatData
+{
+    public bool Logined = false;
+    public ServerInfo Server;//当前选择的服务器.
+    public List<ServerInfo> Servers = new List<ServerInfo>();
+    public float FPS = 1.0f / 30.0f;//动画设计帧率
+    public float gGravity = 980;
+    public const float angularVelocity = 540.0f;
+    public const float RebornDelay = 15.0f;//复活队友的CD间隔
+    public const float RebornRange = 125.0f;//复活队友的距离最大限制
+    public const float RefreshFollowPathDelay = 5.0f;//如果跟随一个动态的目标，那么每5秒刷新一次位置
+    public bool useShadowInterpolate = true;//是否使用影子跟随插值
+    public bool PluginUpdated = false;//是否已成功更新过资料片配置文件
+    public int MaxPlayer;
+    public int RoundTime;
+    public int MainWeapon;
+    public int SubWeapon;
+    public int PlayerLife;
+    public int PlayerModel;
+    public int ComboProbability = 5;//连击率
+    public int SpecialWeaponProbability = 98;//100-98=2几率切换到远程武器，每次Think都有2%几率
+    public float AimDegree = 30.0f;//夹角超过30度，需要重新瞄准
+    public MeteorInput GMeteorInput = null;
+    public LevelDatas.LevelDatas GLevelItem = null;//普通关卡
+    public LevelMode GLevelMode;//建立房间时选择的类型，从主界面进，都是Normal
+    public GameMode GGameMode;//游戏玩法类型
+    public Vector3[] GLevelSpawn;
+    public Vector3[] GCampASpawn;
+    public Vector3[] GCampBSpawn;
+    public List<WayPoint> wayPoints;
+    public int CampASpawnIndex;
+    public int CampBSpawnIndex;
+    public int SpawnIndex;
+    public LevelScriptBase GScript;
+    public Type GScriptType;
+    public System.Random Rand = new System.Random((int)DateTime.Now.ToFileTime());
+    bool mPauseAll;
+    public Vector3 BodyHeight = new Vector3(0, 28, 0);
+    public Chapter Chapter;
+    public bool PauseAll
+    {
+        get { return mPauseAll; }
+        set { mPauseAll = value; }
+    }
+
+    public const float ClimbLimit = 1.5f;//爬墙持续提供向上的力
+    public const float JumpTimeLimit = 0.15f;//最少要跳跃这么久之后才能攀爬
+    public const int LEVELSTART = 1;//初始关卡ID
+    public int LEVELMAX = 29;//最大关卡29
+    public const int ANGRYMAX = 100;
+    public const int ANGRYBURST = 60;
+    public const float AttackRangeMinD = 1225;//最小约35码
+    public const float AttackRange = 8100.0f;//90 * 90换近战武器
+    public const float FollowDistanceEnd = 3600.0f;//结束跟随60
+    public const float FollowDistanceStart = 6400.0f;//开始跟随80
+    public const int BreakChange = 3;//3%爆气几率
+    public int MaxModel = 20;//内置角色模型20个
+    public void Init()
+    {
+        LEVELMAX = U3D.GetMaxLevel();
+    }
+
+    public void OnServiceChanged(int i, ServerInfo Info)
+    {
+        if (Servers == null)
+            return;
+        if (i == -1)
+        {
+            if (Servers.Contains(Info))
+            {
+                Servers.Remove(Info);
+                if (Server == Info)
+                    Server = Servers[0];
+            }
+        }
+        else if (i == 1)
+        {
+            if (!Servers.Contains(Info))
+                Servers.Add(Info);
+        }
+    }
+
+    private List<LevelDatas.LevelDatas> AllLevel;
+    public void ClearLevel()
+    {
+        AllLevel = null;
+    }
+
+    public LevelDatas.LevelDatas[] GetAllLevel()
+    {
+        if (AllLevel != null)
+            return AllLevel.ToArray();
+        if (AllLevel == null)
+            AllLevel = new List<LevelDatas.LevelDatas>();
+        List<LevelDatas.LevelDatas> baseLevel = Main.Instance.DataMgr.GetDatasArray<LevelDatas.LevelDatas>();
+        for (int i = 0; i < baseLevel.Count; i++)
+        {
+            AllLevel.Add(baseLevel[i]);
+        }
+
+        for (int i = 0; i < Main.Instance.GameStateMgr.gameStatus.pluginChapter.Count; i++)
+        {
+            baseLevel = Main.Instance.DlcMng.GetDlcLevel(Main.Instance.GameStateMgr.gameStatus.pluginChapter[i].ChapterId);
+            for (int j = 0; j < baseLevel.Count; j++)
+            {
+                AllLevel.Add(baseLevel[j]);
+            }
+        }
+        return AllLevel.ToArray();
+    }
+
+    public LevelDatas.LevelDatas GetGlobalLevel(int mix)
+    {
+        int c = (mix / 1000) * 1000;
+        int l = mix % 1000;
+        return GetLevel(c, l);
+    }
+
+    public LevelDatas.LevelDatas GetLevel(int chapterId, int id)
+    {
+        if (chapterId == 0)
+        {
+            LevelDatas.LevelDatas lev = Main.Instance.DataMgr.GetData<LevelDatas.LevelDatas>(id);
+            if (lev != null)
+                return lev;
+        }
+
+        List<LevelDatas.LevelDatas> l = Main.Instance.DlcMng.GetDlcLevel(chapterId);
+        for (int i = 0; i < l.Count; i++)
+        {
+            if (l[i].ID == id)
+                return l[i];
+        }
+        Debug.LogError(string.Format("无法找到指定的剧本{0}关卡{1}", chapterId, id));
+        return null;
+    }
+
+    public string GetCharacterName(int id)
+    {
+        if (id >= Main.Instance.CombatData.MaxModel)
+        {
+            return DlcMng.GetPluginModel(id).Name;
+        }
+        return Main.Instance.DataMgr.GetData<ModelDatas.ModelDatas>(id).Name;
+    }
+
+    public static List<WayPoint> GetWayPoint(LevelDatas.LevelDatas level)
+    {
+        List<WayPoint> wayPoint = new List<WayPoint>();
+        string items = level.sceneItems;
+        if (WayMng.Instance != null)
+            wayPoint = WayMng.Instance.wayPoints;
+        else if (wayPoint == null && !string.IsNullOrEmpty(items))
+            wayPoint = Main.Instance.WayLoader.ReLoad(items);
+        return wayPoint;
+    }
+}
+
+public class WayLength
+{
+    public int mode;//0 run 1 jump
+    public float length;
+}
+
+[Serializable]
+public class WayPoint
+{
+    public int index;//-1表示仅为一个地点，并不在路点列表中
+    public Vector3 pos;
+    public int size;
+    public Dictionary<int, WayLength> link;
+}
+
+public enum GameResult
+{
+    None = -10,
+    Fail = 0,
+    Win = 1,
+    Win2 = 2,
+    TimeOut = 3,
+}
+//决定了入口是从单机任务来，还是开房间，进房间
+public enum LevelMode
+{
+    Teach,//教学
+    SinglePlayerTask,//剧情任务
+    CreateWorld,//单机-创建世界
+    //小于他的全是单机.
+    MultiplyPlayer,//联机-看GameMode
+}
+
+public enum GameMode
+{
+    None,//还未进入关卡.
+    MENGZHU = 1,//时间限制回合，不分阵营
+    Rob = 2,//劫镖
+    Defence = 3,//护城
+    ANSHA = 4,//分为蝴蝶和流星阵营`每一边人数一般都是8个才开始玩，暗杀有队长和队友，队长脚下有个圈圈，流星阵营是蓝的，蝴蝶阵营是红的，
+    //杀死对方队长算胜利，队友死了队长可以复活队友，复活的对友血量只有一半，以地图上的流星蝴蝶阵营的位置为出生点
+    SIDOU = 5,//分为蝴蝶和流星阵营，不分队长和队友，死了不能复活。杀死对方全部敌人才算胜利
+    Normal = 6,//单机关卡,以路点作为出生点,剧本关卡.
+    GroupRPG = 7,//联机剧本模式.
 }

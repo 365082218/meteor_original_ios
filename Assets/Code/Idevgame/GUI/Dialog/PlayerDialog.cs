@@ -31,15 +31,15 @@ public class PlayerDialog : Dialog
         RectTransform rectTran = WndObject.GetComponent<RectTransform>();
         if (rectTran != null)
             rectTran.anchoredPosition = new Vector2((1920f - rectTran.sizeDelta.x) / 2.0f, -(1080f - rectTran.sizeDelta.y) / 2.0f);
-        GameObject obj = Global.ldaControlX("3DParent", WndObject);
+        GameObject obj = NodeHelper.Find("3DParent", WndObject);
         GameObject objPlayer = GameObject.Instantiate(Resources.Load("3DUIPlayer")) as GameObject;
         MeteorUnitDebug d = objPlayer.GetComponent<MeteorUnitDebug>();
         objPlayer.transform.position = Vector3.zero;
         objPlayer.transform.rotation = Quaternion.identity;
         objPlayer.transform.localScale = Vector3.one;
         d.gameObject.layer = obj.gameObject.layer;
-        d.Init(MeteorManager.Instance.LocalPlayer.UnitId, LayerMask.NameToLayer("3DUIPlayer"));
-        WeaponBase weaponProperty = U3D.GetWeaponProperty(MeteorManager.Instance.LocalPlayer.weaponLoader.GetCurrentWeapon().Info().UnitId);
+        d.Init(Main.Instance.MeteorManager.LocalPlayer.UnitId, LayerMask.NameToLayer("3DUIPlayer"));
+        WeaponDatas.WeaponDatas weaponProperty = U3D.GetWeaponProperty(Main.Instance.MeteorManager.LocalPlayer.weaponLoader.GetCurrentWeapon().Info().UnitId);
         d.weaponLoader.StrWeaponR = weaponProperty.WeaponR;
         d.weaponLoader.StrWeaponL = weaponProperty.WeaponL;
         //d.weaponLoader.EquipWeapon();
@@ -47,17 +47,17 @@ public class PlayerDialog : Dialog
         d.transform.localScale = 8 * Vector3.one;
         d.transform.localPosition = new Vector3(0, 0, -300);
         d.transform.localRotation = Quaternion.identity;
-        Global.ldaControlX("Close Button", WndObject).GetComponent<Button>().onClick.AddListener(OnBackPress);
+        NodeHelper.Find("Close Button", WndObject).GetComponent<Button>().onClick.AddListener(OnBackPress);
 
-        SetStat("Stat Label 1", MeteorManager.Instance.LocalPlayer.Attr.hpCur + "/" + MeteorManager.Instance.LocalPlayer.Attr.HpMax);
-        SetStat("Stat Label 2", MeteorManager.Instance.LocalPlayer.AngryValue.ToString());
-        SetStat("Stat Label 3", MeteorManager.Instance.LocalPlayer.CalcDamage().ToString());
-        SetStat("Stat Label 4", MeteorManager.Instance.LocalPlayer.CalcDef().ToString());
-        SetStat("Stat Label 5", MeteorManager.Instance.LocalPlayer.MoveSpeed.ToString());
-        SetStat("Stat Label 6", string.Format("{0:f2}", MeteorManager.Instance.LocalPlayer.MoveSpeed / 1000.0f));
+        SetStat("Stat Label 1", Main.Instance.MeteorManager.LocalPlayer.Attr.hpCur + "/" + Main.Instance.MeteorManager.LocalPlayer.Attr.HpMax);
+        SetStat("Stat Label 2", Main.Instance.MeteorManager.LocalPlayer.AngryValue.ToString());
+        SetStat("Stat Label 3", Main.Instance.MeteorManager.LocalPlayer.CalcDamage().ToString());
+        SetStat("Stat Label 4", Main.Instance.MeteorManager.LocalPlayer.CalcDef().ToString());
+        SetStat("Stat Label 5", Main.Instance.MeteorManager.LocalPlayer.MoveSpeed.ToString());
+        SetStat("Stat Label 6", string.Format("{0:f2}", Main.Instance.MeteorManager.LocalPlayer.MoveSpeed / 1000.0f));
 
         //处理背包的点击
-        UIItemSlot[] slots = Global.ldaControlX("Slots Grid", WndObject).GetComponentsInChildren<UIItemSlot>();
+        UIItemSlot[] slots = NodeHelper.Find("Slots Grid", WndObject).GetComponentsInChildren<UIItemSlot>();
         for (int i = 0; i < slots.Length; i++)
             slots[i].onClick.AddListener(OnClickItem);
     }
@@ -71,7 +71,7 @@ public class PlayerDialog : Dialog
 
     void SetStat(string label, string value)
     {
-        GameObject objStat = Global.ldaControlX(label, WndObject);
+        GameObject objStat = NodeHelper.Find(label, WndObject);
         GameObject objStatValue = Control("Stat Value", objStat);
         objStatValue.GetComponent<Text>().text = value;
     }

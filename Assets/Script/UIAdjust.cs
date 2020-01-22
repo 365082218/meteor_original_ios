@@ -12,8 +12,8 @@ public class UIAdjust : MonoBehaviour {
     public int UIIndex = 0;//0指代调整摇杆的位置 1-所有UIBUTTON的位置
     void Awake()
     {
-        Target.anchoredPosition = GameData.Instance.gameStatus.JoyAnchor;
-        posLabel.text = string.Format("{0} {1}", GameData.Instance.gameStatus.JoyAnchor.x, GameData.Instance.gameStatus.JoyAnchor.y);
+        Target.anchoredPosition = Main.Instance.GameStateMgr.gameStatus.JoyAnchor;
+        posLabel.text = string.Format("{0} {1}", Main.Instance.GameStateMgr.gameStatus.JoyAnchor.x, Main.Instance.GameStateMgr.gameStatus.JoyAnchor.y);
     }
 
     //Vector2 mFingerDownPos;
@@ -71,15 +71,15 @@ public class UIAdjust : MonoBehaviour {
                 Target.anchoredPosition = UICamera.currentTouch.pos - vecOffset;
                 if (UIIndex == 0)
                 {
-                    GameData.Instance.gameStatus.JoyAnchor.x = Target.anchoredPosition.x;
-                    GameData.Instance.gameStatus.JoyAnchor.y = Target.anchoredPosition.y;
+                    Main.Instance.GameStateMgr.gameStatus.JoyAnchor.x = Target.anchoredPosition.x;
+                    Main.Instance.GameStateMgr.gameStatus.JoyAnchor.y = Target.anchoredPosition.y;
                 }
                 else
                 {
                     //左下角是0，0右上方越来越大.
-                    GameData.Instance.gameStatus.UIAnchor[UIIndex - 1].x = Target.anchoredPosition.x;
-                    GameData.Instance.gameStatus.UIAnchor[UIIndex - 1].y = Target.anchoredPosition.y;
-                    GameData.Instance.gameStatus.HasUIAnchor[UIIndex - 1] = true;
+                    Main.Instance.GameStateMgr.gameStatus.UIAnchor[UIIndex - 1].x = Target.anchoredPosition.x;
+                    Main.Instance.GameStateMgr.gameStatus.UIAnchor[UIIndex - 1].y = Target.anchoredPosition.y;
+                    Main.Instance.GameStateMgr.gameStatus.HasUIAnchor[UIIndex - 1] = true;
                 }
                 posLabel.text = string.Format("{0} {1}", Target.anchoredPosition.x, Target.anchoredPosition.y);
             }

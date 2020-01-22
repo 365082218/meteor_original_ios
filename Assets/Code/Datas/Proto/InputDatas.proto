@@ -1,0 +1,16 @@
+message InputDatastable
+{
+	optional string tname = 1;
+	repeated InputDatas tlist = 2;
+}
+
+message InputDatas
+{
+	required int32 ID = 1;
+	optional string Lines = 2;
+	optional string LinesAir = 3;
+	optional string InputString = 4;
+	optional int32 DelayFrame = 5;
+	optional string Desc = 6;
+	optional string DescExtra = 7;
+}

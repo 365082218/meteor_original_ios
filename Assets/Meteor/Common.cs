@@ -29,9 +29,9 @@ public class InventoryItem
     [ProtoMember(5)]
     public int WeaponPos;//武器当前姿态。记录乾坤刀的长枪 短柄 分开，当捡到一件物品的时候，要根据外观设置他武器的姿态，只针对乾坤刀这种可切换单双手的
 
-    public ItemBase Info()
+    public ItemDatas.ItemDatas Info()
     {
-        return GameData.Instance.FindItemByIdx(this.Idx);
+        return Main.Instance.GameStateMgr.FindItemByIdx(this.Idx);
     }
 }
 
@@ -330,7 +330,7 @@ public class Common
         ChatMsg msg = new ChatMsg();
         msg.channelType = 0;
         msg.chatMessage = message;
-        msg.playerId = (uint)NetWorkBattle.Instance.PlayerId;
+        msg.playerId = (uint)Main.Instance.NetWorkBattle.PlayerId;
         Exec(TcpClientProxy.sProxy,(int)MeteorMsg.MsgType.ChatInRoomReq, msg);
     }
 
@@ -339,7 +339,7 @@ public class Common
         AudioChatMsg msg = new AudioChatMsg();
         msg.type = 0;
         msg.audio_data = data;
-        msg.playerId = (uint)NetWorkBattle.Instance.PlayerId;
+        msg.playerId = (uint)Main.Instance.NetWorkBattle.PlayerId;
         Exec(TcpClientProxy.sProxy, (int)MeteorMsg.MsgType.AudioChat, msg);
     }
 
@@ -422,7 +422,7 @@ public class Common
     {
         ProtocolVerifyReq req = new ProtocolVerifyReq();
         req.protocol = AppInfo.ProtocolVersion;
-        req.data = GameData.Instance.gameStatus.NickName;
+        req.data = Main.Instance.GameStateMgr.gameStatus.NickName;
         Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ProtocolVerifyReq, req);
     }
 
@@ -437,7 +437,7 @@ public class Common
     {
         JoinRoomReq req = new JoinRoomReq();
         req.roomId = (uint)roomId;
-        req.version = AppInfo.Instance.MeteorV2();
+        req.version = Main.Instance.AppInfo.MeteorV2();
         req.password = sec;
         Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.JoinRoomReq, req);//进入房间-还未进入战场，战前准备阶段
     }
@@ -458,16 +458,16 @@ public class Common
     public static void CreateRoom(string name, string sec)
     {
         CreateRoomReq req = new CreateRoomReq();
-        req.hpMax = (uint)GameData.Instance.gameStatus.NetWork.Life;
+        req.hpMax = (uint)Main.Instance.GameStateMgr.gameStatus.NetWork.Life;
         //章节编号×1000 + 关卡序号
-        req.levelIdx = (uint)GameData.Instance.gameStatus.NetWork.ChapterTemplate * 1000 + (uint)GameData.Instance.gameStatus.NetWork.LevelTemplate;
-        req.maxPlayer = (uint)GameData.Instance.gameStatus.NetWork.MaxPlayer;
+        req.levelIdx = (uint)Main.Instance.GameStateMgr.gameStatus.NetWork.ChapterTemplate * 1000 + (uint)Main.Instance.GameStateMgr.gameStatus.NetWork.LevelTemplate;
+        req.maxPlayer = (uint)Main.Instance.GameStateMgr.gameStatus.NetWork.MaxPlayer;
         req.roomName = name;
-        req.roundTime = (uint)GameData.Instance.gameStatus.NetWork.RoundTime;
-        req.rule = (RoomInfo.RoomRule)GameData.Instance.gameStatus.NetWork.Mode;
+        req.roundTime = (uint)Main.Instance.GameStateMgr.gameStatus.NetWork.RoundTime;
+        req.rule = (RoomInfo.RoomRule)Main.Instance.GameStateMgr.gameStatus.NetWork.Mode;
         req.secret = sec;
-        req.version = AppInfo.Instance.MeteorV2();//107 907
-        req.pattern = (RoomInfo.RoomPattern)GameData.Instance.gameStatus.NetWork.Pattern;
+        req.version = Main.Instance.AppInfo.MeteorV2();//107 907
+        req.pattern = (RoomInfo.RoomPattern)Main.Instance.GameStateMgr.gameStatus.NetWork.Pattern;
         if (req.pattern == RoomInfo.RoomPattern._Replay)
         {
             //向服务器发送某个录像文件
@@ -479,9 +479,9 @@ public class Common
         //把本地的武器ID，模型ID传过去，其他人进入房间后，选择角色或者武器，就受到房间此信息限制
         //req.weapons.Add();
         //只包含外接模型-基础0-19无论如何都可以使用.
-        int total = GameData.Instance.gameStatus.pluginModel.Count;
+        int total = Main.Instance.GameStateMgr.gameStatus.pluginModel.Count;
         for (int i = 0; i < total; i++)
-            req.models.Add((uint)GameData.Instance.gameStatus.pluginModel[i].ModelId);
+            req.models.Add((uint)Main.Instance.GameStateMgr.gameStatus.pluginModel[i].ModelId);
         Exec(TcpClientProxy.sProxy, (int)MeteorMsg.MsgType.CreateRoomReq, req);
         //1,人数上限
         //2.关卡模式

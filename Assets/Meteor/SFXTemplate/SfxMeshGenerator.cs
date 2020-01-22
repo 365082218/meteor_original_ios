@@ -9,7 +9,7 @@ using System.Collections;
 // note the resulting mesh will be created as an asset in Assets/Editor
 // Author: Wolfram Kresse
 
-public class SfxMeshGenerator:Singleton<SfxMeshGenerator>
+public class SfxMeshGenerator
 {
     public int numVertices = 12;
     public float radiusTop = 0f;

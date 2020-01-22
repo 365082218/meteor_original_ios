@@ -12,7 +12,7 @@ public class MapObjectExporter : MonoBehaviour {
     const string SavePath = "Assets/MeteorObj/";//+sn/xxx.obj xxx.mat
     const string ItemSavePath = "Assets/MeteorObj/Items/";
     public bool saveSceneModel;
-    Dictionary<string, Level> levAll = new Dictionary<string, Level>();
+    Dictionary<string, LevelDatas.LevelDatas> levAll = new Dictionary<string, LevelDatas.LevelDatas>();
     List<string> ModelInScene = new List<string>();
     //List<string> ModelInModel = new List<string>();
     private void Awake()
@@ -50,8 +50,8 @@ public class MapObjectExporter : MonoBehaviour {
         string fullSavePath = ItemSavePath + despath + "/";
         if (!System.IO.Directory.Exists(fullSavePath))
             System.IO.Directory.CreateDirectory(fullSavePath);
-        DesFile des = DesLoader.Instance.Load(despath);
-        GMBFile gmb = GMBLoader.Instance.Load(despath);
+        DesFile des = Main.Instance.DesLoader.Load(despath);
+        GMBFile gmb = Main.Instance.GMBLoader.Load(despath);
         if (des == null || gmb == null)
             return;
         string shaders = "Custom/MeteorVertexL";
@@ -225,8 +225,8 @@ public class MapObjectExporter : MonoBehaviour {
         string fullSavePath = SavePath + despath + "/";
         if (!string.IsNullOrEmpty(overwritesavepath))
             fullSavePath = overwritesavepath + despath;
-        DesFile des = DesLoader.Instance.Load(despath);
-        GMBFile gmb = GMBLoader.Instance.Load(despath);
+        DesFile des = Main.Instance.DesLoader.Load(despath);
+        GMBFile gmb = Main.Instance.GMBLoader.Load(despath);
         if (des == null || gmb == null)
             return;
 

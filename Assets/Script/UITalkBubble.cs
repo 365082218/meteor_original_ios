@@ -29,18 +29,18 @@ public class UITalkBubble : MonoBehaviour {
         }
         else
         {
-            if (AutoHide && MeteorManager.Instance.LocalPlayer != null)
+            if (AutoHide && Main.Instance.MeteorManager.LocalPlayer != null)
             {
                 if (gameObject.activeInHierarchy)
                 {
-                    if (Vector3.Distance(transform.position, MeteorManager.Instance.LocalPlayer.transform.position) >= 50.0f)
+                    if (Vector3.Distance(transform.position, Main.Instance.MeteorManager.LocalPlayer.transform.position) >= 50.0f)
                     {
                         gameObject.SetActive(false);
                     }
                 }
                 else
                 {
-                    if (Vector3.Distance(transform.position, MeteorManager.Instance.LocalPlayer.transform.position) < 50.0f)
+                    if (Vector3.Distance(transform.position, Main.Instance.MeteorManager.LocalPlayer.transform.position) < 50.0f)
                     {
                         gameObject.SetActive(true);
                     }

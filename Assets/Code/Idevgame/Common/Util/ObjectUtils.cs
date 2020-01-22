@@ -8,7 +8,7 @@ namespace Idevgame.Util
     //关卡
     public static class LevelUtils
     {
-        public static void AddGridItem(Level lev, Transform parent, System.Action<Level> OnSelect)
+        public static void AddGridItem(LevelDatas.LevelDatas lev, Transform parent, System.Action<LevelDatas.LevelDatas> OnSelect)
         {
             GameObject objPrefab = Resources.Load("LevelSelectItem", typeof(GameObject)) as GameObject;
             GameObject obj = GameObject.Instantiate(objPrefab) as GameObject;

@@ -44,7 +44,7 @@ public class PoseStatus
             if (_Self.controller.InputLocked)
                 return false;
             //如果有锁定目标，不许转向(在有锁系统下)
-            if (_Self.GetLockedTarget() != null && GameData.Instance.gameStatus.AutoLock)
+            if (_Self.LockTarget != null && Main.Instance.GameStateMgr.gameStatus.AutoLock)
                 return false;
             //攻击动作播放时不许摇杆控制角色转向
             if (IsAttackPose())
@@ -172,7 +172,7 @@ public class PoseStatus
             if (!ActionList.ContainsKey(i))
             {
                 ActionList.Add(i, new List<Pose>());
-                TextAsset asset = Resources.Load<TextAsset>(string.Format("{0}/P{1}.pos", AppInfo.Instance.MeteorVersion, i));
+                TextAsset asset = Resources.Load<TextAsset>(string.Format("{0}/P{1}.pos", Main.Instance.AppInfo.MeteorVersion, i));
                 string text = System.Text.Encoding.ASCII.GetString(asset.bytes);
                 Parse(text, i);
             }
@@ -218,7 +218,7 @@ public class PoseStatus
             else
             {
                 ActionList.Add(UnitId, new List<Pose>());
-                TextAsset asset = Resources.Load<TextAsset>(string.Format("{0}/P{1}.pos", AppInfo.Instance.MeteorVersion, UnitId));
+                TextAsset asset = Resources.Load<TextAsset>(string.Format("{0}/P{1}.pos", Main.Instance.AppInfo.MeteorVersion, UnitId));
                 string text = System.Text.Encoding.ASCII.GetString(asset.bytes);
                 Parse(text, UnitId);
             }
@@ -235,45 +235,44 @@ public class PoseStatus
 
     public static bool IgnoreActionMove(int idx)
     {
-        ActionBase act = GameData.Instance.actionMng.GetRowByIdx(idx) as ActionBase;
+        ActionDatas.ActionDatas act = Main.Instance.DataMgr.GetData<ActionDatas.ActionDatas>(idx);
         if (act == null)
             return false;
-        return act.IgnoreMove == 1;
+        return act.IgnoreMove;
     }
 
     public static bool IgnoreXZMove(int idx)
     {
-        ActionBase act = GameData.Instance.actionMng.GetRowByIdx(idx) as ActionBase;
+        ActionDatas.ActionDatas act = Main.Instance.DataMgr.GetData<ActionDatas.ActionDatas>(idx);
         if (act == null)
             return false;
-        return act.IgnoreXZMove == 1;
+        return act.IgnoreXZMove;
     }
 
     public static bool IgnoreVelocityXZ(int idx)
     {
-        ActionBase act = GameData.Instance.actionMng.GetRowByIdx(idx) as ActionBase;
+        ActionDatas.ActionDatas act = Main.Instance.DataMgr.GetData<ActionDatas.ActionDatas>(idx);
         if (act == null)
             return false;
-        return act.IgnoreXZVelocity == 1;
+        return act.IgnoreXZVelocity;
     }
 
     public static bool IgnorePhysical(int idx)
     {
-        ActionBase act = GameData.Instance.actionMng.GetRowByIdx(idx) as ActionBase;
+        ActionDatas.ActionDatas act = Main.Instance.DataMgr.GetData<ActionDatas.ActionDatas>(idx);
         if (act == null)
             return false;
-        return act.IgnoreCollision == 1;
+        return act.IgnoreCollision;
     }
 
     public static bool IgnoreGravity(int idx)
     {
-        ActionBase act = GameData.Instance.actionMng.GetRowByIdx(idx) as ActionBase;
+        ActionDatas.ActionDatas act = Main.Instance.DataMgr.GetData<ActionDatas.ActionDatas>(idx);
         if (act == null)
         {
-            //Debug.LogError(string.Format("action:{0} ignoregravity:false", idx));
             return false;
         }
-        return act.IgnoreGravity == 1;
+        return act.IgnoreGravity;
     }
 
     public bool IsHurtPose()
@@ -494,7 +493,7 @@ public class PoseStatus
                                 _Self.Defence();
                             }
                             else
-                            if (_Self.GetLockedTarget() != null && GameData.Instance.gameStatus.AutoLock)
+                            if (_Self.LockTarget != null && Main.Instance.GameStateMgr.gameStatus.AutoLock)
                             {
                                 int ReadyAction = 0;
                                 switch ((EquipWeaponType)_Self.GetWeaponType())
@@ -594,15 +593,15 @@ public class PoseStatus
     public void ChangeAction(int idx = CommonAction.Idle, float time = 0.01f)
     {
         CanAdjust = false;
-        if (GameBattleEx.Instance != null && GameBattleEx.Instance.BattleFinished() && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle))
+        if (Main.Instance.GameBattleEx != null && Main.Instance.GameBattleEx.BattleFinished() && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle))
         {
             playResultAction = true;
-            if (_Self.Camp == EUnitCamp.EUC_ENEMY && GameBattleEx.Instance.BattleLose())
+            if (_Self.Camp == EUnitCamp.EUC_ENEMY && Main.Instance.GameBattleEx.BattleLose())
             {
                 ChangeAction(CommonAction.Taunt, 0.1f);
                 return;
             }
-            else if (_Self.Camp == EUnitCamp.EUC_FRIEND && GameBattleEx.Instance.BattleWin())
+            else if (_Self.Camp == EUnitCamp.EUC_FRIEND && Main.Instance.GameBattleEx.BattleWin())
             {
                 ChangeAction(CommonAction.Taunt, 0.1f);
                 return;
@@ -612,7 +611,7 @@ public class PoseStatus
         _Self.IgnoreGravitys(PoseStatus.IgnoreGravity(idx));//设置招式重力
         bool ignorePhy = IgnorePhysical(idx);
         if (ignorePhy != _Self.IgnorePhysical)
-            MeteorManager.Instance.PhysicalIgnore(_Self, ignorePhy);//设置招式是否忽略角色障碍
+            Main.Instance.MeteorManager.PhysicalIgnore(_Self, ignorePhy);//设置招式是否忽略角色障碍
 
         //看是否是大绝的起始招式/结束招式，大绝起始和结束招式之间的招式，不许响应输入切换招式.大绝不可取消.
         if (IsSkillStartPose(idx) && !_Self.IsPlaySkill)
@@ -692,25 +691,27 @@ public class PoseStatus
             }
 
             //除了受击，防御，其他动作在有锁定目标下，都要转向锁定目标.
-            if (_Self.GetLockedTarget() != null && !onDefence && !onhurt)
+            if (_Self.LockTarget != null && !onDefence && !onhurt)
             {
-                //NPC只在处于杀死敌方的状态时会朝角色转向
-                if (_Self.Robot != null && _Self.Robot.Status == EAIStatus.Fight && _Self.Robot.SubStatus == EAISubStatus.Fight)
+                //是否旋转面向目标.
+                if (_Self.StateMachine != null && _Self.StateMachine.IsFighting())
                 {
+                    //NPC.
                     //远程武器无需转向.
                     if (_Self.GetWeaponType() != (int)EquipWeaponType.Guillotines &&
                         _Self.GetWeaponType() != (int)EquipWeaponType.Gun &&
                         _Self.GetWeaponType() != (int)EquipWeaponType.Dart)
                     {
-                        _Self.FaceToTarget(_Self.GetLockedTarget());
+                        _Self.FaceToTarget(_Self.LockTarget);
                     }
                 }
-                else if (_Self.Robot == null && GameData.Instance.gameStatus.AutoLock && idx != CommonAction.Idle)
+                else if (_Self.StateMachine == null && Main.Instance.GameStateMgr.gameStatus.AutoLock && idx != CommonAction.Idle)
                 {
+                    //主角.
                     if (_Self.GetWeaponType() != (int)EquipWeaponType.Guillotines &&
                         _Self.GetWeaponType() != (int)EquipWeaponType.Gun &&
                         _Self.GetWeaponType() != (int)EquipWeaponType.Dart)
-                        _Self.FaceToTarget(_Self.GetLockedTarget());
+                        _Self.FaceToTarget(_Self.LockTarget);
                 }
             }
             load.SetPosData(ActionList[UnitId][idx], time);

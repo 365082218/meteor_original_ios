@@ -8,7 +8,8 @@ public enum CommonEvent
 }
 
 
-public class EventBus : Singleton<EventBus> {
+public class EventBus
+{
     Dictionary<int, List<System.Action>> events = new Dictionary<int, List<System.Action>>();
     public void SetEvent(CommonEvent evt, System.Action fun)
     {

@@ -3,14 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-public class DropMng:Singleton<DropMng>{
+public class DropMng
+{
     public void DropWeapon(MeteorUnit player)
     {
         int mainWeapon = player.Attr.Weapon2;
         if (mainWeapon == 0)
             return;
-        ItemBase ib = GameData.Instance.itemMng.GetRowByIdx(mainWeapon) as ItemBase;
-        WeaponBase wb = U3D.GetWeaponProperty(ib.UnitId);
+        ItemDatas.ItemDatas ib = Main.Instance.DataMgr.GetData<ItemDatas.ItemDatas>(mainWeapon);
+        WeaponDatas.WeaponDatas wb = U3D.GetWeaponProperty(ib.UnitId);
         GameObject trigget = CreateTriggerObj(wb.WeaponR, player.transform, -player.transform.forward);
         //obj.Add(trigget);
         //ExplosionObject01.iTweenExplosion01(1, ref obj, player.transform.position);
@@ -20,8 +21,8 @@ public class DropMng:Singleton<DropMng>{
 
     public void DropWeapon2(int weaponId)
     {
-        MeteorUnit player = MeteorManager.Instance.LocalPlayer;
-        WeaponBase wb = U3D.GetWeaponProperty(weaponId);
+        MeteorUnit player = Main.Instance.MeteorManager.LocalPlayer;
+        WeaponDatas.WeaponDatas wb = U3D.GetWeaponProperty(weaponId);
         string des = wb.WeaponR;
         GameObject trigget = CreateTriggerObj(des, player.transform, -player.transform.forward);
         ExplosionObject01.DropItem(trigget, player.transform.position, -player.transform.forward);
@@ -33,8 +34,8 @@ public class DropMng:Singleton<DropMng>{
         //List<GameObject> obj = new List<GameObject>();
         //一定爆出角色主武器，有Flag爆出Flag,并且这个Flag，会持续一定时间，若无人拾取，则会重置Flag归位.
         int mainWeapon = player.Attr.Weapon;
-        ItemBase ib = GameData.Instance.itemMng.GetRowByIdx(mainWeapon) as ItemBase;
-        WeaponBase wb = U3D.GetWeaponProperty(ib.UnitId);
+        ItemDatas.ItemDatas ib = Main.Instance.DataMgr.GetData<ItemDatas.ItemDatas>(mainWeapon);
+        WeaponDatas.WeaponDatas wb = U3D.GetWeaponProperty(ib.UnitId);
         GameObject trigget = CreateTriggerObj(wb.WeaponR, player.transform, -player.transform.forward);
         //obj.Add(trigget);
         //ExplosionObject01.iTweenExplosion01(1, ref obj, player.transform.position);
@@ -65,7 +66,7 @@ public class DropMng:Singleton<DropMng>{
         agent.Load(des);
         agent.ApplyPost();
         agent.SetAsDrop();
-        MeteorManager.Instance.OnGenerateSceneItem(agent);
+        Main.Instance.MeteorManager.OnGenerateSceneItem(agent);
         return obj;
     }
 

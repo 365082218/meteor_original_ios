@@ -6,8 +6,8 @@ using System;
 using UnityEngine.SceneManagement;
 
 //只能缓存一下房间战斗相关的数据,与联机战斗/房间相关的这里处理.
-public class NetWorkBattle:Singleton<NetWorkBattle> {
-
+public class NetWorkBattle
+{
     private float mLogicTempTime = 0;
     //在房间的玩家.
     Dictionary<int, MeteorUnit> player = new Dictionary<int, MeteorUnit>();
@@ -30,20 +30,20 @@ public class NetWorkBattle:Singleton<NetWorkBattle> {
 
     public MeteorUnit GetNetPlayer(int id)
     {
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
         {
-            if (MeteorManager.Instance.UnitInfos[i].InstanceId == id)
-                return MeteorManager.Instance.UnitInfos[i];
+            if (Main.Instance.MeteorManager.UnitInfos[i].InstanceId == id)
+                return Main.Instance.MeteorManager.UnitInfos[i];
         }
         return null;
     }
 
     public string GetNetPlayerName(int id)
     {
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
         {
-            if (MeteorManager.Instance.UnitInfos[i].InstanceId == id)
-                return MeteorManager.Instance.UnitInfos[i].name;
+            if (Main.Instance.MeteorManager.UnitInfos[i].InstanceId == id)
+                return Main.Instance.MeteorManager.UnitInfos[i].name;
         }
         return "不明身份者";
     }
@@ -136,10 +136,10 @@ public class NetWorkBattle:Singleton<NetWorkBattle> {
         {
             UdpClientProxy.Disconnect();
             //在联机战斗场景中.
-            GameBattleEx.Instance.Pause();
-            SoundManager.Instance.StopAll();
-            BuffMng.Instance.Clear();
-            MeteorManager.Instance.Clear();
+            Main.Instance.GameBattleEx.Pause();
+            Main.Instance.SoundManager.StopAll();
+            Main.Instance.BuffMng.Clear();
+            Main.Instance.MeteorManager.Clear();
             //if (FightWnd.Exist)
             //    FightWnd.Instance.Close();
             RoomId = -1;
@@ -174,12 +174,13 @@ public class NetWorkBattle:Singleton<NetWorkBattle> {
 
     public void Load()
     {
-        Level lev = Global.Instance.GetGlobalLevel(LevelId);
-        Global.Instance.Chapter = DlcMng.Instance.FindChapter((LevelId / 1000) * 1000);
-        Global.Instance.GLevelItem = lev;
-        Global.Instance.GLevelMode = LevelMode.MultiplyPlayer;
-        RoomInfo r = RoomMng.Instance.GetRoom((int)RoomId);
-        Global.Instance.GGameMode = (GameMode)r.rule;
+        LevelDatas.LevelDatas lev = Main.Instance.CombatData.GetGlobalLevel(LevelId);
+        Main.Instance.CombatData.Chapter = Main.Instance.DlcMng.FindChapter((LevelId / 1000) * 1000);
+        Main.Instance.CombatData.GLevelItem = lev;
+        Main.Instance.CombatData.GLevelMode = LevelMode.MultiplyPlayer;
+        RoomInfo r = Main.Instance.RoomMng.GetRoom((int)RoomId);
+        Main.Instance.CombatData.GGameMode = (GameMode)r.rule;
+        Main.Instance.CombatData.wayPoints = null;
         //LoadingWnd.Instance.Open();
         U3D.LoadLevelEx();
     }

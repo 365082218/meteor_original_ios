@@ -250,13 +250,13 @@ public class MeteorUnitInspector : Editor
         way = GUILayout.TextField(way);
         if (GUILayout.Button("GetWayIndex"))
         {
-            wayIndex = PathMng.Instance.GetWayIndex(myTarget.transform.position, myTarget);
+            wayIndex = Main.Instance.PathMng.GetWayIndex(myTarget.transform.position, myTarget);
             way = wayIndex.ToString();
         }
 
         if (GUILayout.Button("GetWayIndex2"))
         {
-            wayIndex = PathMng.Instance.GetWayIndex(myTarget.transform.position, null);
+            wayIndex = Main.Instance.PathMng.GetWayIndex(myTarget.transform.position, null);
             way = wayIndex.ToString();
         }
     }

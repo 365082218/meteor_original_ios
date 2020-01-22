@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-public class AppInfo:Singleton<AppInfo>
+public class AppInfo
 {
     public const string versionKey = "APPVERSION";
     public string localVer = "0.3.0.0";
@@ -67,11 +67,11 @@ public class AppInfo:Singleton<AppInfo>
     public string MeteorVersion = "9.07";
     public int MeteorV1()
     {
-        return (int)Instance.MeteorV2();
+        return (int)MeteorV2();
     }
     public protocol.RoomInfo.MeteorVersion MeteorV2()
     {
-        return Instance.MeteorVersion.Equals("9.07") ? protocol.RoomInfo.MeteorVersion.V907 : protocol.RoomInfo.MeteorVersion.V107;
+        return MeteorVersion.Equals("9.07") ? protocol.RoomInfo.MeteorVersion.V907 : protocol.RoomInfo.MeteorVersion.V107;
     }
     public int GetWaitForNextInput()
     {

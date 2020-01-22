@@ -77,20 +77,20 @@ public class Chapter
     }
 
     //是否已安装(dll能否正常加载,并产出具体得LevelScriptBase)
-    public Level[] LoadAll()
+    public List<LevelDatas.LevelDatas> LoadAll()
     {
         //level.txt
         if (mLevel == null)
             mLevel = new DlcLevelMng(U3D.GetDefaultFile(Path, 2, true, true));
-        return mLevel.GetAllItem();
+        return mLevel.GetAllLevel();
     }
 
     DlcLevelMng mLevel;
-    public Level GetItem(int id)
+    public LevelDatas.LevelDatas GetItem(int id)
     {
         if (mLevel == null)
             mLevel = new DlcLevelMng(U3D.GetDefaultFile(Path, 2, true, true));
-        return mLevel.GetItem(id);
+        return mLevel.GetLevel(id);
     }
 
     [ProtoMember(9)]
@@ -129,7 +129,7 @@ public class Chapter
     //加载资料片内得关卡关卡.
     public void LoadLevel(int levelIdx)
     {
-        DlcMng.Instance.PlayDlc(this, levelIdx);
+        Main.Instance.DlcMng.PlayDlc(this, levelIdx);
     }
 }
 

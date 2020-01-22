@@ -93,13 +93,13 @@ public class RobotDialog : Dialog
         {
             RobotList[Idx].GetComponent<Button>().onClick.RemoveAllListeners();
             RobotList[Idx].GetComponent<Button>().onClick.AddListener(() => { SpawnRobot(Idx, (EUnitCamp)campIdx); });
-            RobotList[Idx].GetComponentInChildren<Text>().text = string.Format("{0}", Global.Instance.GetCharacterName(Idx));
+            RobotList[Idx].GetComponentInChildren<Text>().text = string.Format("{0}", Main.Instance.CombatData.GetCharacterName(Idx));
         }
         else
         {
             GameObject obj = GameObject.Instantiate(Resources.Load("GridItemBtn")) as GameObject;
             obj.GetComponent<Button>().onClick.AddListener(() => { SpawnRobot(Idx, (EUnitCamp)campIdx); });
-            obj.GetComponentInChildren<Text>().text = string.Format("{0}", Global.Instance.GetCharacterName(Idx));
+            obj.GetComponentInChildren<Text>().text = string.Format("{0}", Main.Instance.CombatData.GetCharacterName(Idx));
             obj.transform.SetParent(RobotRoot.transform);
             obj.gameObject.layer = RobotRoot.layer;
             obj.transform.localScale = Vector3.one;

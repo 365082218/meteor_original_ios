@@ -22,16 +22,16 @@ public class EscDialog : Dialog
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
         Init();
-        GameBattleEx.Instance.Pause();
+        Main.Instance.GameBattleEx.Pause();
     }
 
     void Init()
     {
         Control("Continue").GetComponent<Button>().onClick.AddListener(OnClickClose);
-        Control("BGMSlider").GetComponent<Slider>().value = GameData.Instance.gameStatus.MusicVolume;
-        Control("EffectSlider").GetComponent<Slider>().value = GameData.Instance.gameStatus.SoundVolume;
-        Control("HSliderBar").GetComponent<Slider>().value = GameData.Instance.gameStatus.AxisSensitivity.x;
-        Control("VSliderBar").GetComponent<Slider>().value = GameData.Instance.gameStatus.AxisSensitivity.y;
+        Control("BGMSlider").GetComponent<Slider>().value = Main.Instance.GameStateMgr.gameStatus.MusicVolume;
+        Control("EffectSlider").GetComponent<Slider>().value = Main.Instance.GameStateMgr.gameStatus.SoundVolume;
+        Control("HSliderBar").GetComponent<Slider>().value = Main.Instance.GameStateMgr.gameStatus.AxisSensitivity.x;
+        Control("VSliderBar").GetComponent<Slider>().value = Main.Instance.GameStateMgr.gameStatus.AxisSensitivity.y;
         Control("BGMSlider").GetComponent<Slider>().onValueChanged.AddListener(OnMusicVolumeChange);
         Control("EffectSlider").GetComponent<Slider>().onValueChanged.AddListener(OnEffectVolumeChange);
         Control("HSliderBar").GetComponent<Slider>().onValueChanged.AddListener(OnXSensitivityChange);
@@ -45,36 +45,36 @@ public class EscDialog : Dialog
         Control("Snow").GetComponent<Button>().onClick.AddListener(OnSnow);
 
         Toggle toggleDebug = Control("EnableSFX").GetComponent<Toggle>();
-        toggleDebug.isOn = GameData.Instance.gameStatus.EnableDebugSFX;
+        toggleDebug.isOn = Main.Instance.GameStateMgr.gameStatus.EnableDebugSFX;
         toggleDebug.onValueChanged.AddListener(OnEnableDebugSFX);
 
         Toggle toggleRobot = Control("EnableRobot").GetComponent<Toggle>();
-        toggleRobot.isOn = GameData.Instance.gameStatus.EnableDebugRobot;
+        toggleRobot.isOn = Main.Instance.GameStateMgr.gameStatus.EnableDebugRobot;
         toggleRobot.onValueChanged.AddListener(OnEnableDebugRobot);
         //战斗内显示角色信息
         Toggle toggleDebugStatus = Control("EnableDebugStatus").GetComponent<Toggle>();
-        toggleDebugStatus.isOn = GameData.Instance.gameStatus.EnableDebugStatus;
+        toggleDebugStatus.isOn = Main.Instance.GameStateMgr.gameStatus.EnableDebugStatus;
         toggleDebugStatus.onValueChanged.AddListener(OnEnableDebugStatus);
         //显示武器挑选按钮
         Toggle toggleEnableFunc = Control("EnableWeaponChoose").GetComponent<Toggle>();
-        toggleEnableFunc.isOn = GameData.Instance.gameStatus.EnableWeaponChoose;
+        toggleEnableFunc.isOn = Main.Instance.GameStateMgr.gameStatus.EnableWeaponChoose;
         toggleEnableFunc.onValueChanged.AddListener(OnEnableWeaponChoose);
         //无限气
         Toggle toggleEnableInfiniteAngry = Control("EnableInfiniteAngry").GetComponent<Toggle>();
-        toggleEnableInfiniteAngry.isOn = GameData.Instance.gameStatus.EnableInfiniteAngry;
+        toggleEnableInfiniteAngry.isOn = Main.Instance.GameStateMgr.gameStatus.EnableInfiniteAngry;
         toggleEnableInfiniteAngry.onValueChanged.AddListener(OnEnableInfiniteAngry);
 
         //无锁定
         Toggle toggleDisableLock = Control("CameraLock").GetComponent<Toggle>();
-        toggleDisableLock.isOn = !GameData.Instance.gameStatus.AutoLock;
+        toggleDisableLock.isOn = !Main.Instance.GameStateMgr.gameStatus.AutoLock;
         toggleDisableLock.onValueChanged.AddListener(OnDisableLock);
 
         Toggle toggleEnableGodMode = Control("EnableGodMode").GetComponent<Toggle>();
-        toggleEnableGodMode.isOn = GameData.Instance.gameStatus.EnableGodMode;
+        toggleEnableGodMode.isOn = Main.Instance.GameStateMgr.gameStatus.EnableGodMode;
         toggleEnableGodMode.onValueChanged.AddListener(OnEnableGodMode);
 
         Toggle toggleEnableUndead = Control("EnableUnDead").GetComponent<Toggle>();
-        toggleEnableUndead.isOn = GameData.Instance.gameStatus.Undead;
+        toggleEnableUndead.isOn = Main.Instance.GameStateMgr.gameStatus.Undead;
         toggleEnableUndead.onValueChanged.AddListener(OnEnableUndead);
 
         Toggle toggleShowWayPoint = Control("ShowWayPoint").GetComponent<Toggle>();
@@ -87,11 +87,11 @@ public class EscDialog : Dialog
         Destroy(toggleShowWayPoint.gameObject);
 #endif
         Toggle ShowTargetBlood = Control("ShowTargetBlood").GetComponent<Toggle>();
-        ShowTargetBlood.isOn = GameData.Instance.gameStatus.ShowBlood;
-        ShowTargetBlood.onValueChanged.AddListener((bool selected) => { GameData.Instance.gameStatus.ShowBlood = selected; });
+        ShowTargetBlood.isOn = Main.Instance.GameStateMgr.gameStatus.ShowBlood;
+        ShowTargetBlood.onValueChanged.AddListener((bool selected) => { Main.Instance.GameStateMgr.gameStatus.ShowBlood = selected; });
 
         Toggle toggleEnableHighPerformance = Control("HighPerformance").GetComponent<Toggle>();
-        toggleEnableHighPerformance.isOn = GameData.Instance.gameStatus.TargetFrame == 60;
+        toggleEnableHighPerformance.isOn = Main.Instance.GameStateMgr.gameStatus.TargetFrame == 60;
         toggleEnableHighPerformance.onValueChanged.AddListener(OnChangePerformance);
 
 #if !STRIP_DBG_SETTING
@@ -119,13 +119,13 @@ public class EscDialog : Dialog
 
         //粒子特效
         Toggle toggleDisableParticle = Control("Particle").GetComponent<Toggle>();
-        toggleDisableParticle.isOn = GameData.Instance.gameStatus.DisableParticle;
+        toggleDisableParticle.isOn = Main.Instance.GameStateMgr.gameStatus.DisableParticle;
         toggleDisableParticle.onValueChanged.AddListener(OnDisableParticle);
         OnDisableParticle(toggleDisableParticle.isOn);
 
         //关闭摇杆
         Toggle toggleDisableJoyStick = Control("Joystick").GetComponent<Toggle>();
-        toggleDisableJoyStick.isOn = GameData.Instance.gameStatus.DisableJoystick;
+        toggleDisableJoyStick.isOn = Main.Instance.GameStateMgr.gameStatus.DisableJoystick;
         toggleDisableJoyStick.onValueChanged.AddListener(OnDisableJoyStick);
         OnDisableJoyStick(toggleDisableJoyStick.isOn);
 
@@ -136,7 +136,7 @@ public class EscDialog : Dialog
         toggleFollowEnemy.onValueChanged.AddListener(OnFollowEnemy);
 
         //把一些模式禁用，例如作弊之类的.
-        if (GameData.Instance.gameStatus.GodLike)
+        if (Main.Instance.GameStateMgr.gameStatus.GodLike)
         {
 
         }
@@ -164,31 +164,31 @@ public class EscDialog : Dialog
 
     bool IsFreeCameraActive()
     {
-        if (CameraFree.Ins != null && CameraFree.Ins.isActiveAndEnabled)
+        if (Main.Instance.CameraFree != null && Main.Instance.CameraFree.isActiveAndEnabled)
             return true;
         return false;
     }
 
     void OnChangeSpeed(bool fast)
     {
-        if (Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Main.Instance.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
         {
-            if (MeteorManager.Instance.LocalPlayer != null)
+            if (Main.Instance.MeteorManager.LocalPlayer != null)
             {
                 if (fast)
-                    MeteorManager.Instance.LocalPlayer.SpeedFast();
+                    Main.Instance.MeteorManager.LocalPlayer.SpeedFast();
                 else
-                    MeteorManager.Instance.LocalPlayer.SpeedSlow();
+                    Main.Instance.MeteorManager.LocalPlayer.SpeedSlow();
             }
         }
     }
 
     void OnDisableJoyStick(bool disable)
     {
-        GameData.Instance.gameStatus.DisableJoystick = disable;
+        Main.Instance.GameStateMgr.gameStatus.DisableJoystick = disable;
         if (NGUIJoystick.instance != null)
         {
-            if (GameData.Instance.gameStatus.DisableJoystick)
+            if (Main.Instance.GameStateMgr.gameStatus.DisableJoystick)
                 NGUIJoystick.instance.OnDisabled();
             else
                 NGUIJoystick.instance.OnEnabled();
@@ -204,35 +204,37 @@ public class EscDialog : Dialog
             {
                 //找到第一个未死亡的敌对角色
                 MeteorUnit watchTarget = null;
-                for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+                for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
                 {
-                    if (MeteorManager.Instance.UnitInfos[i].Dead)
+                    if (Main.Instance.MeteorManager.UnitInfos[i].Dead)
                         continue;
-                    if (MeteorManager.Instance.UnitInfos[i].SameCamp(MeteorManager.Instance.LocalPlayer))
+                    if (Main.Instance.MeteorManager.UnitInfos[i].SameCamp(Main.Instance.MeteorManager.LocalPlayer))
                         continue;
-                    watchTarget = MeteorManager.Instance.UnitInfos[i];
+                    watchTarget = Main.Instance.MeteorManager.UnitInfos[i];
                     break;
                 }
 
-                GameBattleEx.Instance.InitFreeCamera(watchTarget);
-                GameBattleEx.Instance.EnableFollowCamera(false);
+                Main.Instance.GameBattleEx.InitFreeCamera(watchTarget);
+                Main.Instance.GameBattleEx.EnableFollowCamera(false);
+                Main.Instance.MainCamera = Main.Instance.CameraFree.m_Camera;
             }
             else
             {
-                GameBattleEx.Instance.EnableFollowCamera(true);
-                GameBattleEx.Instance.EnableFreeCamera(false);
+                Main.Instance.GameBattleEx.EnableFollowCamera(true);
+                Main.Instance.GameBattleEx.EnableFreeCamera(false);
+                Main.Instance.MainCamera = Main.Instance.CameraFollow.m_Camera;
             }
         }
     }
 
     void OnDisableParticle(bool disable)
     {
-        GameData.Instance.gameStatus.DisableParticle = disable;
+        Main.Instance.GameStateMgr.gameStatus.DisableParticle = disable;
         if (disable)
         {
-            if (Global.Instance.GScript != null)
+            if (Main.Instance.CombatData.GScript != null)
             {
-                Global.Instance.GScript.CleanSceneParticle();
+                Main.Instance.CombatData.GScript.CleanSceneParticle();
             }
 
         }
@@ -261,16 +263,16 @@ public class EscDialog : Dialog
 
     void InitLevel()
     {
-        Transform LevelRoot = Global.ldaControlX("LevelRoot", WndObject).transform;
-        Level[] LevelInfo = LevelMng.Instance.GetAllItem();
-        for (int i = 0; i < LevelInfo.Length; i++)
+        Transform LevelRoot = NodeHelper.Find("LevelRoot", WndObject).transform;
+        List<LevelDatas.LevelDatas> LevelInfo = Main.Instance.DataMgr.GetDatasArray<LevelDatas.LevelDatas>();
+        for (int i = 0; i < LevelInfo.Count; i++)
         {
             string strKey = LevelInfo[i].Name;
             AddGridItem(LevelInfo[i], strKey, EnterLevel, LevelRoot);
         }
     }
 
-    void AddGridItem(Level i, string strTag, UnityEngine.Events.UnityAction<Level> call, Transform parent)
+    void AddGridItem(LevelDatas.LevelDatas i, string strTag, UnityEngine.Events.UnityAction<LevelDatas.LevelDatas> call, Transform parent)
     {
         GameObject objPrefab = Resources.Load("LevelItem", typeof(GameObject)) as GameObject;
         GameObject obj = GameObject.Instantiate(objPrefab) as GameObject;
@@ -282,36 +284,36 @@ public class EscDialog : Dialog
         obj.transform.localScale = Vector3.one;
     }
 
-    private void EnterLevel(Level lev)
+    private void EnterLevel(LevelDatas.LevelDatas lev)
     {
         OnBackPress();
-        GameBattleEx.Instance.Pause();
+        Main.Instance.GameBattleEx.Pause();
         
         U3D.LoadLevel(lev, LevelMode.SinglePlayerTask, (GameMode)lev.LevelType);
     }
 
     void OnChangeVer(string ver)
     {
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
         {
             U3D.PopupTip("联机中无法切换版本");
             return;
         }
 
-        if (AppInfo.Instance.MeteorVersion == ver)
+        if (Main.Instance.AppInfo.MeteorVersion == ver)
         {
             U3D.PopupTip(string.Format("当前流星版本已为{0}", ver));
             return;
         }
-        AppInfo.Instance.MeteorVersion = ver;
-        GameData.Instance.gameStatus.MeteorVersion = AppInfo.Instance.MeteorVersion;
-        GameData.Instance.SaveState();
+        Main.Instance.AppInfo.MeteorVersion = ver;
+        Main.Instance.GameStateMgr.gameStatus.MeteorVersion = Main.Instance.AppInfo.MeteorVersion;
+        Main.Instance.GameStateMgr.SaveState();
         //提示返回到主场景，然后重新加载数据
-        GameBattleEx.Instance.Pause();
+        Main.Instance.GameBattleEx.Pause();
         Main.Instance.StopAllCoroutines();
-        SoundManager.Instance.StopAll();
-        BuffMng.Instance.Clear();
-        MeteorManager.Instance.Clear();
+        Main.Instance.SoundManager.StopAll();
+        Main.Instance.BuffMng.Clear();
+        Main.Instance.MeteorManager.Clear();
         Main.Instance.ExitState(Main.Instance.FightDialogState);
         Main.Instance.DialogStateManager.CheckAndCloseCurrentDialogIfPresent(Main.Instance.DialogStateManager.EscDialogState);
 
@@ -323,7 +325,7 @@ public class EscDialog : Dialog
     //允许在战斗UI选择武器.
     void OnEnableWeaponChoose(bool on)
     {
-        GameData.Instance.gameStatus.EnableWeaponChoose = on;
+        Main.Instance.GameStateMgr.gameStatus.EnableWeaponChoose = on;
         if (FightDialogState.Exist())
             FightDialogState.Instance.UpdateUIButton();
     }
@@ -331,25 +333,25 @@ public class EscDialog : Dialog
     //禁止UI上的相机切换按钮
     void OnDisableLock(bool on)
     {
-        GameData.Instance.gameStatus.AutoLock = !on;
-        if (CameraFollow.Ins != null)
+        Main.Instance.GameStateMgr.gameStatus.AutoLock = !on;
+        if (Main.Instance.CameraFollow != null)
         {
             if (on)
-                CameraFollow.Ins.DisableLock();
+                Main.Instance.CameraFollow.DisableLock();
             else
-                CameraFollow.Ins.EnableLock();
+                Main.Instance.CameraFollow.EnableLock();
         }
 
-        if (GameBattleEx.Instance != null)
+        if (Main.Instance.GameBattleEx != null)
         {
             if (on)
             {
-                GameBattleEx.Instance.Unlock();
-                GameBattleEx.Instance.DisableLock();
+                Main.Instance.GameBattleEx.Unlock();
+                Main.Instance.GameBattleEx.DisableLock();
             }
             else
             {
-                GameBattleEx.Instance.EnableLock();
+                Main.Instance.GameBattleEx.EnableLock();
             }
         }
 
@@ -367,22 +369,22 @@ public class EscDialog : Dialog
 
     void OnEnableUndead(bool on)
     {
-        GameData.Instance.gameStatus.Undead = on;
+        Main.Instance.GameStateMgr.gameStatus.Undead = on;
     }
 
     void OnEnableGodMode(bool on)
     {
-        GameData.Instance.gameStatus.EnableGodMode = on;
+        Main.Instance.GameStateMgr.gameStatus.EnableGodMode = on;
     }
 
     void OnEnableInfiniteAngry(bool on)
     {
-        GameData.Instance.gameStatus.EnableInfiniteAngry = on;
+        Main.Instance.GameStateMgr.gameStatus.EnableInfiniteAngry = on;
     }
 
     void OnEnableDebugStatus(bool on)
     {
-        GameData.Instance.gameStatus.EnableDebugStatus = on;
+        Main.Instance.GameStateMgr.gameStatus.EnableDebugStatus = on;
         UnitTopUI[] unitsUI = GameObject.FindObjectsOfType(typeof(UnitTopUI)) as UnitTopUI[];
         for (int i = 0; i < unitsUI.Length; i++)
             unitsUI[i].EnableInfo(on);
@@ -390,22 +392,22 @@ public class EscDialog : Dialog
 
     void OnEnableDebugRobot(bool on)
     {
-        GameData.Instance.gameStatus.EnableDebugRobot = on;
+        Main.Instance.GameStateMgr.gameStatus.EnableDebugRobot = on;
         if (FightDialogState.Exist())
             FightDialogState.Instance.UpdateUIButton();
     }
 
     void OnEnableDebugSFX(bool on)
     {
-        GameData.Instance.gameStatus.EnableDebugSFX = on;
+        Main.Instance.GameStateMgr.gameStatus.EnableDebugSFX = on;
         if (FightDialogState.Exist())
             FightDialogState.Instance.UpdateUIButton();
     }
 
     void OnChangePerformance(bool on)
     {
-        GameData.Instance.gameStatus.TargetFrame = on ? 60 : 30;
-        Application.targetFrameRate = GameData.Instance.gameStatus.TargetFrame;
+        Main.Instance.GameStateMgr.gameStatus.TargetFrame = on ? 60 : 30;
+        Application.targetFrameRate = Main.Instance.GameStateMgr.gameStatus.TargetFrame;
 #if UNITY_EDITOR
         Application.targetFrameRate = 120;
 #endif
@@ -420,8 +422,8 @@ public class EscDialog : Dialog
 
     void OnSnow()
     {
-        if (Global.Instance.GScript != null)
-            Global.Instance.GScript.Snow();
+        if (Main.Instance.CombatData.GScript != null)
+            Main.Instance.CombatData.GScript.Snow();
     }
 
     void OnDoScript()
@@ -438,38 +440,38 @@ public class EscDialog : Dialog
     void OnResetPosition()
     {
         //如果在PVP里，是不能这样的。PVP没有寻路，且使用的路点是场景des文件里的user01-user16等
-        if (MeteorManager.Instance.LocalPlayer != null && !MeteorManager.Instance.LocalPlayer.Dead && Global.Instance.GLevelItem != null)
-            MeteorManager.Instance.LocalPlayer.transform.position = Global.Instance.GLevelItem.wayPoint[0].pos;
+        if (Main.Instance.MeteorManager.LocalPlayer != null && !Main.Instance.MeteorManager.LocalPlayer.Dead && Main.Instance.CombatData.GLevelItem != null)
+            Main.Instance.MeteorManager.LocalPlayer.transform.position = Main.Instance.CombatData.wayPoints[0].pos;
     }
 
     void OnClickClose()
     {
-        GameData.Instance.SaveState();
-        GameBattleEx.Instance.Resume();
+        Main.Instance.GameStateMgr.SaveState();
+        Main.Instance.GameBattleEx.Resume();
         OnBackPress();
     }
 
     void OnMusicVolumeChange(float vo)
     {
-        SoundManager.Instance.SetMusicVolume(vo);
+        Main.Instance.SoundManager.SetMusicVolume(vo);
         if (Main.Instance != null)
-            GameData.Instance.gameStatus.MusicVolume = vo;
+            Main.Instance.GameStateMgr.gameStatus.MusicVolume = vo;
     }
 
     void OnXSensitivityChange(float v)
     {
-        GameData.Instance.gameStatus.AxisSensitivity.x = v;
+        Main.Instance.GameStateMgr.gameStatus.AxisSensitivity.x = v;
     }
 
     void OnYSensitivityChange(float v)
     {
-        GameData.Instance.gameStatus.AxisSensitivity.y = v;
+        Main.Instance.GameStateMgr.gameStatus.AxisSensitivity.y = v;
     }
 
     void OnEffectVolumeChange(float vo)
     {
-        SoundManager.Instance.SetSoundVolume(vo);
-        GameData.Instance.gameStatus.SoundVolume = vo;
+        Main.Instance.SoundManager.SetSoundVolume(vo);
+        Main.Instance.GameStateMgr.gameStatus.SoundVolume = vo;
     }
 
     void OnClickQuit()

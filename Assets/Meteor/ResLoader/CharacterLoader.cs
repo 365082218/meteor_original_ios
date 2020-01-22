@@ -41,8 +41,8 @@ public class CharacterLoader
         Skin.transform.localRotation = Quaternion.identity;
         Skin.transform.localScale = Vector3.one;
         Skin.transform.localPosition = Vector3.zero;
-        SkcFile skc = SkcLoader.Instance.Load(id);
-        BncFile bnc = BncLoader.Instance.Load(id);
+        SkcFile skc = Main.Instance.SkcLoader.Load(id);
+        BncFile bnc = Main.Instance.BncLoader.Load(id);
         Skin.name = skc.Skin;
         rend = Skin.AddComponent<SkinnedMeshRenderer>();
         rend.localBounds = skc.mesh.bounds;
@@ -82,9 +82,9 @@ public class CharacterLoader
         List<Transform> tr = new List<Transform>();
         List<Transform> ig = new List<Transform>();
         for (int i = 0; i < bonesBatch.Length; i++)
-            tr.Add(Global.Control(bonesBatch[i], bo[0].gameObject).transform);
+            tr.Add(NodeHelper.Control(bonesBatch[i], bo[0].gameObject).transform);
         for (int i = 0; i < bonesIgnore.Length; i++)
-            ig.Add(Global.Control(bonesIgnore[i], bo[0].gameObject).transform);
+            ig.Add(NodeHelper.Control(bonesIgnore[i], bo[0].gameObject).transform);
 
         meshTrace.transform.position = Vector3.zero;
         meshTrace.transform.rotation = Quaternion.identity;
@@ -145,7 +145,7 @@ public class CharacterLoader
                 bool batched = false;
                 for (int j = 0; j < tr.Count; j++)
                 {
-                    GameObject obj = Global.Control(bo[boneIdx].name, tr[j].gameObject);
+                    GameObject obj = NodeHelper.Control(bo[boneIdx].name, tr[j].gameObject);
                     if (obj != null)
                     {
                         if (bounds.ContainsKey(tr[j]))
@@ -474,7 +474,7 @@ public class CharacterLoader
             try
             {
                 //在其他调试场景里屏蔽掉特效
-                if (GameBattleEx.Instance != null)
+                if (Main.Instance.GameBattleEx != null)
                     PlayEffect();
             }
             catch (System.Exception exp)
@@ -683,13 +683,13 @@ public class CharacterLoader
                     PoseStraight -= FrameReplay.deltaTime;
                 lastFramePlayedTimes += FrameReplay.deltaTime;
                 float speedScale = owner.ActionSpeed * GetSpeedScale();
-                float fps = Global.Instance.FPS / speedScale;
+                float fps = Main.Instance.CombatData.FPS / speedScale;
                 while (lastFramePlayedTimes >= fps)
                 {
                     PlayNextKeyFrame();
                     lastFramePlayedTimes -= fps;
                     speedScale = GetSpeedScale();
-                    fps = Global.Instance.FPS / speedScale;
+                    fps = Main.Instance.CombatData.FPS / speedScale;
                 }
 
                 if (lastFramePlayedTimes < fps && lastFramePlayedTimes > 0)
@@ -738,7 +738,7 @@ public class CharacterLoader
     //循环动作锁定，（一直在2个帧段之间播放，待特定条件打成就退出该帧段）
     void PlayPosEvent()
     {
-        if (po.Idx == CommonAction.Run && GameBattleEx.Instance.BattleFinished())
+        if (po.Idx == CommonAction.Run && Main.Instance.GameBattleEx.BattleFinished())
         {
             owner.posMng.ChangeAction(CommonAction.Idle);
         }
@@ -787,7 +787,7 @@ public class CharacterLoader
         else if ((po.Idx >= CommonAction.Idle && po.Idx <= 21) || (po.Idx >= CommonAction.WalkForward && po.Idx <= CommonAction.RunOnDrug))
         {
             //这些动作是不具有硬直的循环动作.
-            if (GameBattleEx.Instance.BattleFinished())
+            if (Main.Instance.GameBattleEx.BattleFinished())
             {
                 owner.posMng.ChangeAction(CommonAction.Idle);
             }
@@ -817,7 +817,7 @@ public class CharacterLoader
                     break;
                 }
             }
-            frameCost += Global.Instance.FPS / speedScale ;
+            frameCost += Main.Instance.CombatData.FPS / speedScale ;
         }
         return frameCost;
     }
@@ -833,7 +833,7 @@ public class CharacterLoader
         timePlayed = GetTimePlayed(curIndex);
         if (!string.IsNullOrEmpty(po.EffectID) && !string.Equals(po.EffectID, "0"))
         {
-            sfxEffect = SFXLoader.Instance.PlayEffect(string.Format("{0}.ef", po.EffectID), this, timePlayed);
+            sfxEffect = Main.Instance.SFXLoader.PlayEffect(string.Format("{0}.ef", po.EffectID), this, timePlayed);
 
             //表明特效是由动作触发的,不在该动作中关闭特效的攻击盒时,特效攻击盒仍存在
             //这种一般是特效出来后，在角色受到攻击前打开了特效的攻击盒，但角色受到攻击打断了动作，会立刻关闭攻击特效的攻击属性，这种应该是不对的.
@@ -846,8 +846,8 @@ public class CharacterLoader
     float playedTime = 0;
 
     Pose po;
-    public int curIndex = 0;
-    public int curPos = 0;
+    public int curIndex = 0;//帧编号
+    public int curPos = 0;//动作编号
     int blendStart = 0;
     public void SetCurrentFrameIndex(int v) { curIndex = v; }
     public int GetCurrentFrameIndex() { return curIndex; }
@@ -972,7 +972,7 @@ public class CharacterLoader
 
         if (lastPosIdx != 0)
         {
-            Option poseInfo = MenuResLoader.Instance.GetPoseInfo(lastPosIdx);
+            Option poseInfo = Main.Instance.MenuResLoader.GetPoseInfo(lastPosIdx);
             if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 18 && lastPosIdx != 468)//18为，使用招式后获取物品ID 468-469都会调用微尘，hack掉468pose的
                 owner.GetItem(poseInfo.first[0].flag[1]);//忍刀小绝，同归于尽，会获得微尘物品，会即刻死亡
         }
@@ -1115,23 +1115,23 @@ public class AmbLoader
         }
     }
 
-    //加载配表动作
+    //加载配表动作-外部新动作.
     public void LoadCharacterAmbEx()
     {
-        AnimationBase [] items = AnimationMng.Instance.GetAllItem();
-        for (int i = 0; i < items.Length; i++)
-        {
-            if (!string.IsNullOrEmpty(items[i].TableName))
-            {
-                if (!PlayerAnimationEx.ContainsKey(items[i].Source))
-                    PlayerAnimationEx[items[i].Source] = new Dictionary<int, Dictionary<int, BoneStatus>>();
-                if (!PlayerAnimationEx[items[i].Source].ContainsKey(items[i].Unit))
-                {
-                    TextAsset asset = Resources.Load<TextAsset>(items[i].TableName);
-                    PlayerAnimationEx[items[i].Source][items[i].Unit] = Parse(asset.bytes);
-                }
-            }
-        }
+        //AnimationBase [] items = AnimationMng.Instance.GetAllItem();
+        //for (int i = 0; i < items.Length; i++)
+        //{
+        //    if (!string.IsNullOrEmpty(items[i].TableName))
+        //    {
+        //        if (!PlayerAnimationEx.ContainsKey(items[i].Source))
+        //            PlayerAnimationEx[items[i].Source] = new Dictionary<int, Dictionary<int, BoneStatus>>();
+        //        if (!PlayerAnimationEx[items[i].Source].ContainsKey(items[i].Unit))
+        //        {
+        //            TextAsset asset = Resources.Load<TextAsset>(items[i].TableName);
+        //            PlayerAnimationEx[items[i].Source][items[i].Unit] = Parse(asset.bytes);
+        //        }
+        //    }
+        //}
     }
 
     //加载通用动作

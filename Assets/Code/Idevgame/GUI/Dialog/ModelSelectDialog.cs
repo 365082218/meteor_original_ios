@@ -40,13 +40,13 @@ public class ModelSelectDialog: Dialog
             allModel.Add(i);
         }
 
-        if (GameData.Instance.gameStatus.pluginModel != null)
+        if (Main.Instance.GameStateMgr.gameStatus.pluginModel != null)
         {
-            for (int i = 0; i < GameData.Instance.gameStatus.pluginModel.Count; i++)
+            for (int i = 0; i < Main.Instance.GameStateMgr.gameStatus.pluginModel.Count; i++)
             {
-                GameData.Instance.gameStatus.pluginModel[i].Check();
-                if (GameData.Instance.gameStatus.pluginModel[i].Installed)
-                    allModel.Add(GameData.Instance.gameStatus.pluginModel[i].ModelId);
+                Main.Instance.GameStateMgr.gameStatus.pluginModel[i].Check();
+                if (Main.Instance.GameStateMgr.gameStatus.pluginModel[i].Installed)
+                    allModel.Add(Main.Instance.GameStateMgr.gameStatus.pluginModel[i].ModelId);
             }
         }
 
@@ -61,7 +61,7 @@ public class ModelSelectDialog: Dialog
     {
         UIFunCtrl obj = (GameObject.Instantiate(Resources.Load("GridItemBtn")) as GameObject).AddComponent<UIFunCtrl>();
         obj.SetEvent(ChangeModel, Idx);
-        obj.SetText(Global.Instance.GetCharacterName(Idx));
+        obj.SetText(Main.Instance.CombatData.GetCharacterName(Idx));
         obj.transform.SetParent(GridViewRoot.transform);
         obj.gameObject.layer = GridViewRoot.layer;
         obj.transform.localScale = Vector3.one;

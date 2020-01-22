@@ -30,18 +30,18 @@ public class UnitTopUI : Dialog {
 	
 	// Update is called once per frame
 	void LateUpdate () {
-        if (Global.Instance.PauseAll)
+        if (Main.Instance.CombatData.PauseAll)
             return;
         if (owner == null)
             return;
-        if (owner == MeteorManager.Instance.LocalPlayer)
+        if (owner == Main.Instance.MeteorManager.LocalPlayer)
             return;
-        if (MeteorManager.Instance.LocalPlayer == null)
+        if (Main.Instance.MeteorManager.LocalPlayer == null)
             return;
-        bool faceto = MeteorManager.Instance.LocalPlayer.IsFacetoTarget(owner);
+        bool faceto = Main.Instance.MeteorManager.LocalPlayer.IsFacetoTarget(owner);
         if (faceto)
         {
-            float unitDis = Vector3.Distance(owner.transform.position, MeteorManager.Instance.LocalPlayer.transform.position);
+            float unitDis = Vector3.Distance(owner.transform.position, Main.Instance.MeteorManager.LocalPlayer.transform.position);
             //UnityEngine.Debug.LogError(string.Format("主角面向{0}", owner.name));
             if ((unitDis <= ViewLimit) && !MonsterName.gameObject.activeSelf)
                 MonsterName.gameObject.SetActive(true);
@@ -63,11 +63,11 @@ public class UnitTopUI : Dialog {
         //1.6f 1.7666f
         if (MonsterName.gameObject.activeSelf)
         {
-            Vector3 vec = Camera.main.WorldToScreenPoint(new Vector3(target.position.x, target.position.y + 50.0f, target.position.z));
+            Vector3 vec = Main.Instance.MainCamera.WorldToScreenPoint(new Vector3(target.position.x, target.position.y + 50.0f, target.position.z));
             float scalex = vec.x / Screen.width;
             float scaley = vec.y / Screen.height;
             rect.anchoredPosition3D = new Vector3(2160.0f * scalex, 1080f * scaley, vec.z);
-            if (GameData.Instance.gameStatus.EnableDebugStatus)
+            if (Main.Instance.GameStateMgr.gameStatus.EnableDebugStatus)
             {
                 if (!Info.gameObject.activeInHierarchy)
                     Info.gameObject.SetActive(true);
@@ -100,7 +100,7 @@ public class UnitTopUI : Dialog {
         else if (camp == EUnitCamp.EUC_NONE)
             MonsterName.color = Color.white;
         target = attach;
-        if (owner == MeteorManager.Instance.LocalPlayer)
+        if (owner == Main.Instance.MeteorManager.LocalPlayer)
             MonsterName.gameObject.SetActive(false);
      }
 }

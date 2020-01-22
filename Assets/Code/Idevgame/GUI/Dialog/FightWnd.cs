@@ -77,75 +77,75 @@ public class FightUiConroller : Dialog
         ctrl = LevelTalkRoot.GetComponent<AutoMsgCtrl>();
         ctrl.SetConfig(2.0f, 1.5f);
         //联机不需要剧情对白面板，而使用房间聊天面板单独代替.
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
         {
             GameObject.Destroy(Control("BattleInfo").gameObject);
         }
         else
         {
-            Control("BattleInfo").GetComponent<RectTransform>().anchoredPosition = new Vector2(GameData.Instance.gameStatus.ShowSysMenu2 ? 145 : -20, -175);
+            Control("BattleInfo").GetComponent<RectTransform>().anchoredPosition = new Vector2(Main.Instance.GameStateMgr.gameStatus.ShowSysMenu2 ? 145 : -20, -175);
         }
-        Global.ldaControlX("Attack", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnAttackPress);
-        Global.ldaControlX("Attack", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnAttackRelease);
-        Global.ldaControlX("Defence", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnDefencePress);
-        Global.ldaControlX("Defence", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnDefenceRelease);
-        Global.ldaControlX("Jump", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnJumpPress);
-        Global.ldaControlX("Jump", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnJumpRelease);
-        Global.ldaControlX("ChangeWeapon", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnChangeWeaponPress);
-        Global.ldaControlX("ChangeWeapon", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnChangeWeaponRelease);
-        Global.ldaControlX("BreakOut", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnBreakOut);
-        Global.ldaControlX("WeaponSelect", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenWeaponWnd(); });
-        Global.ldaControlX("SceneName", WndObject).GetComponent<Button>().onClick.AddListener(() => { OpenMiniMap(); });
-        Global.ldaControlX("SceneName", WndObject).GetComponentInChildren<Text>().text = Global.Instance.GLevelItem.Name;
-        Global.ldaControlX("System", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSystemWnd(); });
-        Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnCrouchPress);
-        Global.ldaControlX("Crouch", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnCrouchRelease);
-        Global.ldaControlX("Drop", WndObject).GetComponent<Button>().onClick.AddListener(OnClickDrop);
-        Unlock = Global.ldaControlX("Unlock", WndObject);
+        NodeHelper.Find("Attack", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnAttackPress);
+        NodeHelper.Find("Attack", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnAttackRelease);
+        NodeHelper.Find("Defence", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnDefencePress);
+        NodeHelper.Find("Defence", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnDefenceRelease);
+        NodeHelper.Find("Jump", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnJumpPress);
+        NodeHelper.Find("Jump", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnJumpRelease);
+        NodeHelper.Find("ChangeWeapon", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnChangeWeaponPress);
+        NodeHelper.Find("ChangeWeapon", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnChangeWeaponRelease);
+        NodeHelper.Find("BreakOut", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnBreakOut);
+        NodeHelper.Find("WeaponSelect", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenWeaponWnd(); });
+        NodeHelper.Find("SceneName", WndObject).GetComponent<Button>().onClick.AddListener(() => { OpenMiniMap(); });
+        NodeHelper.Find("SceneName", WndObject).GetComponentInChildren<Text>().text = Main.Instance.CombatData.GLevelItem.Name;
+        NodeHelper.Find("System", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSystemWnd(); });
+        NodeHelper.Find("Crouch", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnCrouchPress);
+        NodeHelper.Find("Crouch", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnCrouchRelease);
+        NodeHelper.Find("Drop", WndObject).GetComponent<Button>().onClick.AddListener(OnClickDrop);
+        Unlock = NodeHelper.Find("Unlock", WndObject);
         Unlock.GetComponentInChildren<Button>().onClick.AddListener(OnClickChangeLock);
-        LockSprite = Global.ldaControlX("LockSprite", Unlock).GetComponent<Image>();
-        Global.ldaControlX("SfxMenu", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSfxWnd(); });
-        Global.ldaControlX("Robot", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenRobotWnd(); });
-        timeLabel = Global.ldaControlX("GameTime", WndObject).GetComponent<Text>();
+        LockSprite = NodeHelper.Find("LockSprite", Unlock).GetComponent<Image>();
+        NodeHelper.Find("SfxMenu", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSfxWnd(); });
+        NodeHelper.Find("Robot", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenRobotWnd(); });
+        timeLabel = NodeHelper.Find("GameTime", WndObject).GetComponent<Text>();
         hpBar = Control("HPBar", WndObject).gameObject.GetComponent<Image>();
         angryBar = Control("AngryBar", WndObject).gameObject.GetComponent<Image>();
         hpLabel = Control("HPLabel", WndObject).gameObject.GetComponent<Text>();
-        Global.ldaControlX("Status", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnStatusPress);
-        Global.ldaControlX("Status", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnStatusRelease);
-        Global.ldaControlX("Chat", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnChatClick);
-        Global.ldaControlX("SysMenu2", WndObject).SetActive(
-            (Global.Instance.GLevelMode == LevelMode.CreateWorld && GameData.Instance.gameStatus.ShowSysMenu2) ||
-            (Global.Instance.GLevelMode == LevelMode.SinglePlayerTask && GameData.Instance.gameStatus.ShowSysMenu2) ||
-            (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer));
-        Global.ldaControlX("Reborn", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnRebornClick);
+        NodeHelper.Find("Status", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnStatusPress);
+        NodeHelper.Find("Status", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnStatusRelease);
+        NodeHelper.Find("Chat", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnChatClick);
+        NodeHelper.Find("SysMenu2", WndObject).SetActive(
+            (Main.Instance.CombatData.GLevelMode == LevelMode.CreateWorld && Main.Instance.GameStateMgr.gameStatus.ShowSysMenu2) ||
+            (Main.Instance.CombatData.GLevelMode == LevelMode.SinglePlayerTask && Main.Instance.GameStateMgr.gameStatus.ShowSysMenu2) ||
+            (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer));
+        NodeHelper.Find("Reborn", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnRebornClick);
 
         //单机
-        if (Global.Instance.GLevelMode == LevelMode.SinglePlayerTask && Global.Instance.GLevelItem.ID == 4)
-            Global.ldaControlX("Reborn", WndObject).SetActive(true);
+        if (Main.Instance.CombatData.GLevelMode == LevelMode.SinglePlayerTask && Main.Instance.CombatData.GLevelItem.ID == 4)
+            NodeHelper.Find("Reborn", WndObject).SetActive(true);
         else
         {
             //创建关卡，非暗杀，都不允许复活
-            if (Global.Instance.GGameMode != GameMode.ANSHA)
-                Global.ldaControlX("Reborn", WndObject).SetActive(false);
+            if (Main.Instance.CombatData.GGameMode != GameMode.ANSHA)
+                NodeHelper.Find("Reborn", WndObject).SetActive(false);
         }
 
         //联机屏蔽按键-多人游戏
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
         {
             //联机还无法复活队友.
-            Global.ldaControlX("Reborn", WndObject).SetActive(false);
+            NodeHelper.Find("Reborn", WndObject).SetActive(false);
         }
         else
         {
             //非联机屏蔽按键-单人游戏
-            Global.ldaControlX("Chat", WndObject).SetActive(false);
+            NodeHelper.Find("Chat", WndObject).SetActive(false);
         }
 #if !STRIP_DBG_SETTING
         Global.ldaControlX("DBG", WndObject).GetComponent<Button>().onClick.AddListener(OnDebugCanvas);
 #else
-        Global.ldaControlX("DBG", WndObject).SetActive(false);
+        NodeHelper.Find("DBG", WndObject).SetActive(false);
 #endif
-        if (MeteorManager.Instance.LocalPlayer != null)
+        if (Main.Instance.MeteorManager.LocalPlayer != null)
         {
             angryBar.fillAmount = 0.0f;
             UpdatePlayerInfo();
@@ -158,7 +158,7 @@ public class FightUiConroller : Dialog
         UpdateUIButton();
         CanvasGroup[] c = WndObject.GetComponentsInChildren<CanvasGroup>();
         for (int i = 0; i < c.Length; i++)
-            c[i].alpha = GameData.Instance.gameStatus.UIAlpha;
+            c[i].alpha = Main.Instance.GameStateMgr.gameStatus.UIAlpha;
 #if (UNITY_EDITOR || UNITY_STANDALONE_WIN) && !STRIP_KEYBOARD
         Control("ClickPanel").SetActive(false);
         Control("JoyArrow").SetActive(false);
@@ -202,21 +202,21 @@ public class FightUiConroller : Dialog
 
     void OnRebornClick()
     {
-        if (Global.Instance.GLevelMode == LevelMode.SinglePlayerTask)
+        if (Main.Instance.CombatData.GLevelMode == LevelMode.SinglePlayerTask)
         {
-            if (MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle ||
-                MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Run ||
-                MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
-                MeteorManager.Instance.LocalPlayer.posMng.ChangeAction(CommonAction.Reborn);
+            if (Main.Instance.MeteorManager.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle ||
+                Main.Instance.MeteorManager.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Run ||
+                Main.Instance.MeteorManager.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
+                Main.Instance.MeteorManager.LocalPlayer.posMng.ChangeAction(CommonAction.Reborn);
         }
-        else if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
+        else if (Main.Instance.CombatData.GLevelMode == LevelMode.CreateWorld)
         {
-            if (Global.Instance.GGameMode == GameMode.ANSHA)
+            if (Main.Instance.CombatData.GGameMode == GameMode.ANSHA)
             {
-                if (MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle ||
-                    MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Run ||
-                    MeteorManager.Instance.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
-                    MeteorManager.Instance.LocalPlayer.posMng.ChangeAction(CommonAction.Reborn);
+                if (Main.Instance.MeteorManager.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle ||
+                    Main.Instance.MeteorManager.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Run ||
+                    Main.Instance.MeteorManager.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
+                    Main.Instance.MeteorManager.LocalPlayer.posMng.ChangeAction(CommonAction.Reborn);
             }
         }
     }
@@ -263,22 +263,22 @@ public class FightUiConroller : Dialog
     void OpenMiniMap()
     {
         openMiniMap = !openMiniMap;
-        Global.ldaControlX("MiniMapFrame", WndObject).SetActive(openMiniMap);
+        NodeHelper.Find("MiniMapFrame", WndObject).SetActive(openMiniMap);
     }
     public GameObject clickPanel;
     public void UpdateUIButton()
     {
-        Global.ldaControlX("WeaponSelect", gameObject).SetActive(GameData.Instance.gameStatus.EnableWeaponChoose);
-        Global.ldaControlX("SfxMenu", gameObject).SetActive(GameData.Instance.gameStatus.EnableDebugSFX);
-        Global.ldaControlX("Robot", gameObject).SetActive(GameData.Instance.gameStatus.EnableDebugRobot);
+        NodeHelper.Find("WeaponSelect", gameObject).SetActive(Main.Instance.GameStateMgr.gameStatus.EnableWeaponChoose);
+        NodeHelper.Find("SfxMenu", gameObject).SetActive(Main.Instance.GameStateMgr.gameStatus.EnableDebugSFX);
+        NodeHelper.Find("Robot", gameObject).SetActive(Main.Instance.GameStateMgr.gameStatus.EnableDebugRobot);
 #if !STRIP_DBG_SETTING
         Global.ldaControlX("DBG", gameObject).SetActive(GameData.Instance.gameStatus.LevelDebug);
 #endif
-        Global.ldaControlX("MiniMap", gameObject).SetActive(true);
+        NodeHelper.Find("MiniMap", gameObject).SetActive(true);
 
         if (NGUIJoystick.instance != null)
         {
-            if (GameData.Instance.gameStatus.DisableJoystick)
+            if (Main.Instance.GameStateMgr.gameStatus.DisableJoystick)
                 NGUIJoystick.instance.OnDisabled();
             else
                 NGUIJoystick.instance.OnEnabled();
@@ -290,7 +290,7 @@ public class FightUiConroller : Dialog
             WSDebug.Ins.CloseLogView();
 #endif
         if (NGUIJoystick.instance != null)
-            NGUIJoystick.instance.SetAnchor(GameData.Instance.gameStatus.JoyAnchor);
+            NGUIJoystick.instance.SetAnchor(Main.Instance.GameStateMgr.gameStatus.JoyAnchor);
         int j = 0;
         for (int i = 0; i < clickPanel.transform.childCount; i++)
         {
@@ -298,16 +298,16 @@ public class FightUiConroller : Dialog
             if (tri.name == "Direction")
                 continue;
             RectTransform r = tri.GetComponent<RectTransform>();
-            if (GameData.Instance.gameStatus.HasUIAnchor[j])
-                r.anchoredPosition = GameData.Instance.gameStatus.UIAnchor[j];
+            if (Main.Instance.GameStateMgr.gameStatus.HasUIAnchor[j])
+                r.anchoredPosition = Main.Instance.GameStateMgr.gameStatus.UIAnchor[j];
             j++;
         }
     }
 
     void OnAttackPress()
     {
-        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-        Global.Instance.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Attack, false);//也可看作普攻
+        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
+        Main.Instance.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Attack, false);//也可看作普攻
     }
 
     public void OnChangeLock(bool locked)
@@ -317,77 +317,77 @@ public class FightUiConroller : Dialog
 
     void OnClickChangeLock()
     {
-        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
+        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
         //远程武器禁止切换锁定状态
-        int weaponEquiped = MeteorManager.Instance.LocalPlayer.GetWeaponType();
+        int weaponEquiped = Main.Instance.MeteorManager.LocalPlayer.GetWeaponType();
         if (weaponEquiped == (int)EquipWeaponType.Gun || weaponEquiped == (int)EquipWeaponType.Dart || weaponEquiped == (int)EquipWeaponType.Guillotines)
             return;
 
-        if (GameBattleEx.Instance.bLocked)
-            GameBattleEx.Instance.Unlock();
+        if (Main.Instance.GameBattleEx.bLocked)
+            Main.Instance.GameBattleEx.Unlock();
         else
-            GameBattleEx.Instance.Lock();
+            Main.Instance.GameBattleEx.Lock();
     }
 
     void OnClickDrop()
     {
-        MeteorManager.Instance.LocalPlayer.DropWeapon();
+        Main.Instance.MeteorManager.LocalPlayer.DropWeapon();
     }
 
     void OnCrouchPress()
     {
-        if (MeteorManager.Instance.LocalPlayer.Dead)
+        if (Main.Instance.MeteorManager.LocalPlayer.Dead)
             return;
 
-        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-        Global.Instance.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Crouch, false);
+        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
+        Main.Instance.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Crouch, false);
     }
 
     void OnCrouchRelease()
     {
-        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-        Global.Instance.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Crouch);
+        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
+        Main.Instance.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Crouch);
     }
 
     void OnChangeWeaponPress()
     {
-        if (MeteorManager.Instance.LocalPlayer.Dead)
+        if (Main.Instance.MeteorManager.LocalPlayer.Dead)
             return;
 
-        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-        Global.Instance.GMeteorInput.OnKeyDownProxy(EKeyList.KL_ChangeWeapon, false);
+        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
+        Main.Instance.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_ChangeWeapon, false);
     }
 
     void OnChangeWeaponRelease()
     {
-        if (MeteorManager.Instance.LocalPlayer.Dead)
+        if (Main.Instance.MeteorManager.LocalPlayer.Dead)
             return;
 
-        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-        Global.Instance.GMeteorInput.OnKeyUpProxy(EKeyList.KL_ChangeWeapon);
+        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
+        Main.Instance.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_ChangeWeapon);
     }
 
     void OnAttackRelease()
     {
-        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-        Global.Instance.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Attack);
+        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
+        Main.Instance.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Attack);
     }
 
     void OnDefencePress()
     {
-        if (MeteorManager.Instance.LocalPlayer.Dead)
+        if (Main.Instance.MeteorManager.LocalPlayer.Dead)
             return;
-        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-        Global.Instance.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Defence, true);//不要被键盘状态同步，否则按下马上就抬起，那么防御姿势就消失了
+        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
+        Main.Instance.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Defence, true);//不要被键盘状态同步，否则按下马上就抬起，那么防御姿势就消失了
 
     }
 
     void OnDefenceRelease()
     {
-        if (MeteorManager.Instance.LocalPlayer.Dead)
+        if (Main.Instance.MeteorManager.LocalPlayer.Dead)
             return;
-        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-        Global.Instance.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Defence);
+        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
+        Main.Instance.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Defence);
     }
 
     void OnJumpPress()
@@ -395,25 +395,25 @@ public class FightUiConroller : Dialog
         //if (!MeteorManager.Instance.LocalPlayer.posMng.CanJump)
         //    return;
 
-        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-        Global.Instance.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Jump, false);//
+        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
+        Main.Instance.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Jump, false);//
     }
 
     void OnJumpRelease()
     {
-        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll) return;
-        Global.Instance.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Jump);
+        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
+        Main.Instance.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Jump);
     }
 
     //按爆气.
     public void OnBreakOut()
     {
         //Debug.Log("OnBreakOut");
-        if (Global.Instance.GMeteorInput == null || Global.Instance.PauseAll)
+        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll)
             return;
-        if (MeteorManager.Instance.LocalPlayer.AngryValue >= 60 || GameData.Instance.gameStatus.EnableInfiniteAngry)
+        if (Main.Instance.MeteorManager.LocalPlayer.AngryValue >= 60 || Main.Instance.GameStateMgr.gameStatus.EnableInfiniteAngry)
         {
-            Global.Instance.GMeteorInput.OnKeyDownProxy(EKeyList.KL_BreakOut, false);
+            Main.Instance.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_BreakOut, false);
             //Debug.Log("OnKeyDown");
         }
     }
@@ -421,9 +421,9 @@ public class FightUiConroller : Dialog
     //int lastAngry = 0;
     public void UpdateAngryBar()
     {
-        if (MeteorManager.Instance.LocalPlayer != null && !MeteorManager.Instance.LocalPlayer.Dead)
+        if (Main.Instance.MeteorManager.LocalPlayer != null && !Main.Instance.MeteorManager.LocalPlayer.Dead)
         {
-            angryBar.fillAmount = (float)MeteorManager.Instance.LocalPlayer.AngryValue / (float)Global.ANGRYMAX;
+            angryBar.fillAmount = (float)Main.Instance.MeteorManager.LocalPlayer.AngryValue / (float)CombatData.ANGRYMAX;
         }
     }
 
@@ -441,24 +441,22 @@ public class FightUiConroller : Dialog
 
     public void OnBattleStart()
     {
-        currentHP = nextHp = MeteorManager.Instance.LocalPlayer.Attr.hpCur;
-        hpBar.fillAmount = currentHP / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
+        currentHP = nextHp = Main.Instance.MeteorManager.LocalPlayer.Attr.hpCur;
+        hpBar.fillAmount = currentHP / (float)Main.Instance.MeteorManager.LocalPlayer.Attr.HpMax;
     }
 
     public void OnBattleEnd()
     {
-        Global.ldaControlX("Status", WndObject).SetActive(false);
-        Global.ldaControlX("Chat", WndObject).SetActive(false);
+        NodeHelper.Find("Status", WndObject).SetActive(false);
+        NodeHelper.Find("Chat", WndObject).SetActive(false);
         //hpBar.fillAmount = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
     }
 
-    //：生命值    112155/ 129373
-    //Coroutine hideTargetInfo;
     Dictionary<Buff, GameObject> enemyBuffList = new Dictionary<Buff, GameObject>();
     MeteorUnit CurrentMonster;
     public void UpdateMonsterInfo(MeteorUnit mon)
     {
-        if (!GameData.Instance.gameStatus.ShowBlood)
+        if (!Main.Instance.GameStateMgr.gameStatus.ShowBlood)
             return;
 
         if (!TargetBlood.activeInHierarchy)
@@ -554,7 +552,7 @@ public class FightUiConroller : Dialog
         if (currentHP != nextHp)
         {
             currentHP = Mathf.MoveTowards(currentHP, nextHp, 1000f * Time.deltaTime);
-            hpBar.fillAmount = currentHP / (float)MeteorManager.Instance.LocalPlayer.Attr.TotalHp;
+            hpBar.fillAmount = currentHP / (float)Main.Instance.MeteorManager.LocalPlayer.Attr.TotalHp;
         }
 
         if (currentTargetHp != nextTargetHp)
@@ -587,10 +585,10 @@ public class FightUiConroller : Dialog
     float currentHP = 0;
     public void UpdatePlayerInfo()
     {
-        if (MeteorManager.Instance.LocalPlayer != null && MeteorManager.Instance.LocalPlayer.Attr.hpCur >= 0)
+        if (Main.Instance.MeteorManager.LocalPlayer != null && Main.Instance.MeteorManager.LocalPlayer.Attr.hpCur >= 0)
         {
-            hpLabel.text = ((int)(MeteorManager.Instance.LocalPlayer.Attr.hpCur / 10.0f)).ToString() + "/" + ((int)(MeteorManager.Instance.LocalPlayer.Attr.HpMax / 10.0f)).ToString();
-            nextHp = MeteorManager.Instance.LocalPlayer.Attr.hpCur;
+            hpLabel.text = ((int)(Main.Instance.MeteorManager.LocalPlayer.Attr.hpCur / 10.0f)).ToString() + "/" + ((int)(Main.Instance.MeteorManager.LocalPlayer.Attr.HpMax / 10.0f)).ToString();
+            nextHp = Main.Instance.MeteorManager.LocalPlayer.Attr.hpCur;
             UpdateAngryBar();
         }
     }

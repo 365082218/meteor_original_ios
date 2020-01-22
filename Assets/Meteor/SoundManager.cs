@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Idevgame.Util;
-public class SoundManager : Singleton<SoundManager>
+public class SoundManager
 {
     bool enable = true;
     class AudioClipInfo
@@ -112,10 +112,15 @@ public class SoundManager : Singleton<SoundManager>
     // Use this for initialization
     public SoundManager()
     {
+        
+    }
+
+    public void Init()
+    {
         if (Main.Instance != null)
         {
-            SetMusicVolume(GameData.Instance.gameStatus.MusicVolume);
-            SetSoundVolume(GameData.Instance.gameStatus.SoundVolume);
+            SetMusicVolume(Main.Instance.GameStateMgr.gameStatus.MusicVolume);
+            SetSoundVolume(Main.Instance.GameStateMgr.gameStatus.SoundVolume);
         }
     }
 
@@ -192,11 +197,11 @@ public class SoundManager : Singleton<SoundManager>
         if (!enable)
             return -2;
         Vector3 listenerPos = position;
-        MeteorUnit localPlayer = MeteorManager.Instance.LocalPlayer;
+        MeteorUnit localPlayer = Main.Instance.MeteorManager.LocalPlayer;
         if (localPlayer != null)
         {
-            if (CameraFree.Ins != null)
-                listenerPos = CameraFree.Ins.transform.position;
+            if (Main.Instance.CameraFree != null)
+                listenerPos = Main.Instance.CameraFree.transform.position;
             else
                 listenerPos = localPlayer.transform.position;
         }
@@ -353,8 +358,8 @@ public class SoundManager : Singleton<SoundManager>
         }
         else
         {
-            SetMusicVolume(GameData.Instance.gameStatus.MusicVolume);
-            SetSoundVolume(GameData.Instance.gameStatus.SoundVolume);
+            SetMusicVolume(Main.Instance.GameStateMgr.gameStatus.MusicVolume);
+            SetSoundVolume(Main.Instance.GameStateMgr.gameStatus.SoundVolume);
         }
     }
 }

@@ -126,7 +126,7 @@ public class SfxFile
         TextAsset asset = Resources.Load<TextAsset>(string.Format("{0}", file));
         if (asset == null)
         {
-            SFXLoader.Instance.Miss++;
+            Main.Instance.SFXLoader.Miss++;
             //Debug.LogError(string.Format("sfx:{0} missed", file));
             error = true;
             return false;
@@ -405,7 +405,8 @@ public class SfxEffect
     public float alpha;//0.3透明度
 }
 
-public class SFXLoader :Singleton<SFXLoader>{
+public class SFXLoader
+{
     Dictionary<string, SfxFile> EffectList = new Dictionary<string, SfxFile>();
     public Dictionary<string, SfxFile> Effect { get { return EffectList; } }
     //
