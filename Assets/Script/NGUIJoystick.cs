@@ -27,7 +27,7 @@ public class NGUIJoystick : MonoBehaviour
                 else if (mInstance.dKey.PointDown)
                     mDelta = Vector2.right;
             }
-            return (Time.timeScale != 0) ? mDelta.normalized : Vector2.zero;
+            return Time.timeScale * mDelta.normalized;
         }
     }
 
@@ -53,7 +53,7 @@ public class NGUIJoystick : MonoBehaviour
 
     //public Transform background;
     public Transform target;
-    public float direction = 100f;//限定轴最远可以离中心多少
+    public float direction = 180f;//限定轴最远可以离中心多少
     public float reactiveRange = 60f;//激活范围在60-100内，当轴处于这个范围，就会激活相应的连招键。
     //每个轴拥有一个堆栈，激活后，要再激活，必须先清空堆栈，清空堆栈的前提是，轴离开按键处于的那块范围。或任意激活一个键，其他的键都会被清空
     public GameButton wKey;
@@ -78,8 +78,7 @@ public class NGUIJoystick : MonoBehaviour
     {
         if (target == null)
             target = transform;
-        direction = 140.0f / UIHelper.WorldToScreenModify;
-        reactiveRange = direction * 0.8f;
+        reactiveRange = 145.0f;
         wKey.OnPress.AddListener(() => { Main.Instance.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyW); JoyCollider.enabled = false; });
         sKey.OnPress.AddListener(() => { Main.Instance.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyS); JoyCollider.enabled = false; });
         aKey.OnPress.AddListener(() => { Main.Instance.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyA); JoyCollider.enabled = false; });
@@ -406,9 +405,9 @@ public class NGUIJoystick : MonoBehaviour
 
                 float deltax = touchPos.x / (direction / 2);
                 float deltay = touchPos.y / (direction / 2);
-                mDelta = new Vector2(deltax, deltay) * UIHelper.UIModify;
+                mDelta = new Vector2(deltax, deltay) * UIHelper.Aspect;
 
-                target.localPosition = new Vector3(touchPos.x, touchPos.y, target.localPosition.z) * UIHelper.WorldToScreenModify;
+                target.localPosition = new Vector3(touchPos.x, touchPos.y, target.localPosition.z) * UIHelper.Aspect;
             }
             if (mClickPos.x >= 0)
                 mDelta = Vector2.zero;
@@ -436,25 +435,5 @@ public class NGUIJoystick : MonoBehaviour
         if (!Main.Instance.GameStateMgr.gameStatus.DisableJoystick)
             JoyCollider.enabled = !state;
         //background.gameObject.SetActive(!state);
-    }
-
-    public void SetVectorZ(float z)
-    {
-        mDelta.y = z * direction;
-        target.localPosition = new Vector3(mDelta.x, mDelta.y, target.localPosition.z) * UIHelper.WorldToScreenModify;
-        if (mDelta == Vector2.zero)
-            target.parent.gameObject.SetActive(false);
-        else
-            target.parent.gameObject.SetActive(true);
-    }
-
-    public void SetVectorX(float x)
-    {
-        mDelta.x = x * direction;
-        target.localPosition = new Vector3(mDelta.x, mDelta.y, target.localPosition.z) * UIHelper.WorldToScreenModify;
-        if (mDelta == Vector2.zero)
-            target.parent.gameObject.SetActive(false);
-        else
-            target.parent.gameObject.SetActive(true);
     }
 }

@@ -141,7 +141,7 @@ public class FightUiConroller : Dialog
             NodeHelper.Find("Chat", WndObject).SetActive(false);
         }
 #if !STRIP_DBG_SETTING
-        Global.ldaControlX("DBG", WndObject).GetComponent<Button>().onClick.AddListener(OnDebugCanvas);
+        NodeHelper.Find("DBG", WndObject).GetComponent<Button>().onClick.AddListener(OnDebugCanvas);
 #else
         NodeHelper.Find("DBG", WndObject).SetActive(false);
 #endif
@@ -272,7 +272,7 @@ public class FightUiConroller : Dialog
         NodeHelper.Find("SfxMenu", gameObject).SetActive(Main.Instance.GameStateMgr.gameStatus.EnableDebugSFX);
         NodeHelper.Find("Robot", gameObject).SetActive(Main.Instance.GameStateMgr.gameStatus.EnableDebugRobot);
 #if !STRIP_DBG_SETTING
-        Global.ldaControlX("DBG", gameObject).SetActive(GameData.Instance.gameStatus.LevelDebug);
+        NodeHelper.Find("DBG", gameObject).SetActive(Main.Instance.GameStateMgr.gameStatus.LevelDebug);
 #endif
         NodeHelper.Find("MiniMap", gameObject).SetActive(true);
 
@@ -284,7 +284,7 @@ public class FightUiConroller : Dialog
                 NGUIJoystick.instance.OnEnabled();
         }
 #if !STRIP_DBG_SETTING
-        if (GameData.Instance.gameStatus.EnableLog)
+        if (Main.Instance.GameStateMgr.gameStatus.EnableLog)
             WSDebug.Ins.OpenLogView();
         else
             WSDebug.Ins.CloseLogView();

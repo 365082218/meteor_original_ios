@@ -8,8 +8,6 @@ public class NGUICameraJoystick : MonoBehaviour
 
     static bool mPressed = false;
     static public bool Pressed { get { return mPressed; } }
-
-    public float width = 980f;
     Vector2 mFingerDownPos;
     //public Image CameraF;//ÉãÏñ»ú
     //public Image CameraI;//±³¾°
@@ -27,11 +25,6 @@ public class NGUICameraJoystick : MonoBehaviour
     {
         ResetJoystick();
         mInstance = null;
-    }
-
-    void Start()
-    {
-        width = width / UIHelper.WorldToScreenModify;
     }
 
 	void Update() 
@@ -55,9 +48,6 @@ public class NGUICameraJoystick : MonoBehaviour
 	//Vector2 mClickPos = Vector2.zero;
 	public float mShowTime = 0.1f;
 	bool isPress = false;
-
-	Vector2 leftDown = UIHelper.ScreenPointToUIPoint(new Vector2(0, 0));
-	Vector2 leftUp = UIHelper.ScreenPointToUIPoint(new Vector2(0, Screen.height));
     void OnPress(bool pressed)
     {
         //if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)

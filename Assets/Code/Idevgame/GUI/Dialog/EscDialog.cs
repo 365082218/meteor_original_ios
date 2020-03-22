@@ -79,9 +79,9 @@ public class EscDialog : Dialog
 
         Toggle toggleShowWayPoint = Control("ShowWayPoint").GetComponent<Toggle>();
 #if !STRIP_DBG_SETTING
-        toggleShowWayPoint.isOn = GameData.Instance.gameStatus.ShowWayPoint;
+        toggleShowWayPoint.isOn = Main.Instance.GameStateMgr.gameStatus.ShowWayPoint;
         toggleShowWayPoint.onValueChanged.AddListener(OnShowWayPoint);
-        if (GameData.Instance.gameStatus.ShowWayPoint)
+        if (Main.Instance.GameStateMgr.gameStatus.ShowWayPoint)
             OnShowWayPoint(true);
 #else
         Destroy(toggleShowWayPoint.gameObject);
@@ -96,11 +96,11 @@ public class EscDialog : Dialog
 
 #if !STRIP_DBG_SETTING
         Toggle toggleEnableLog = Control("ShowLog").GetComponent<Toggle>();
-        toggleEnableLog.isOn = GameData.Instance.gameStatus.EnableLog;
+        toggleEnableLog.isOn = Main.Instance.GameStateMgr.gameStatus.EnableLog;
         toggleEnableLog.onValueChanged.AddListener(OnEnableLog);
 
         Toggle toggleLevelDebug = Control("ShowLevelDebugButton").GetComponent<Toggle>();
-        toggleLevelDebug.isOn = GameData.Instance.gameStatus.LevelDebug;
+        toggleLevelDebug.isOn = Main.Instance.GameStateMgr.gameStatus.LevelDebug;
         toggleLevelDebug.onValueChanged.AddListener(OnLevelDebug);
 #else
         Control("ShowLog").gameObject.SetActive(false);
@@ -243,7 +243,7 @@ public class EscDialog : Dialog
 #if !STRIP_DBG_SETTING
     void OnEnableLog(bool toggle)
     {
-        GameData.Instance.gameStatus.EnableLog = toggle;
+        Main.Instance.GameStateMgr.gameStatus.EnableLog = toggle;
         if (toggle)
             WSDebug.Ins.OpenLogView();
         else
@@ -253,7 +253,7 @@ public class EscDialog : Dialog
 
     void OnLevelDebug(bool toggle)
     {
-        GameData.Instance.gameStatus.LevelDebug = toggle;
+        Main.Instance.GameStateMgr.gameStatus.LevelDebug = toggle;
         if (toggle)
             U3D.Instance.ShowDbg();
         else
@@ -416,7 +416,7 @@ public class EscDialog : Dialog
 #if !STRIP_DBG_SETTING
     void OnShowWayPoint(bool on)
     {
-        GameBattleEx.Instance.ShowWayPoint(on);
+        Main.Instance.GameBattleEx.ShowWayPoint(on);
     }
 #endif
 

@@ -163,7 +163,6 @@ public class Main : MonoBehaviour {
     private void Awake()
     {
         Instance = this;
-        Physics.queriesHitBackfaces = true;
         Log = new Log();
         ActiveState = new List<PersistState>();
         GameOverlay = new GameOverlayDialogState();
@@ -197,6 +196,7 @@ public class Main : MonoBehaviour {
         NetWorkBattle = new NetWorkBattle();
         SceneMng = new SceneMng();
         FSS = new FSS();
+        FSC = new FSC();
         MeteorBehaviour = new MeteorBehaviour();
         DropMng = new DropMng();
         //原版相关资源的加载器.
@@ -214,7 +214,9 @@ public class Main : MonoBehaviour {
         SoundManager = new SoundManager();
         ResMng = new ResMng();
         DlcMng = new DlcMng();
+
         DontDestroyOnLoad(gameObject);
+        UIHelper.InitCanvas(GameObject.Find("Canvas").GetComponent<Canvas>());
         Log.WriteError(string.Format("GameStart AppVersion:{0}", Main.Instance.AppInfo.AppVersion()));
     }
 

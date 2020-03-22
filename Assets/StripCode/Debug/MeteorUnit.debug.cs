@@ -31,7 +31,7 @@ public partial class MeteorUnit: DebugInstance
         {
             StateMachine.Stop();
             posMng.ChangeAction(0);
-            StateMachine.ChangeState(StateMachine.WaitState);
+            StateMachine.ChangeState(StateMachine.IdleState);
         }
     }
 

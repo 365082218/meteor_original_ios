@@ -1167,23 +1167,24 @@ public partial class GameBattleEx : NetBehaviour {
         }
         MeteorUnit player = Main.Instance.MeteorManager.LocalPlayer;
         float angleMax = 75;//cos值越大，角度越小
-        float autoAngle = 0.0f;//自动目标与主角的夹角
         float autoDis = ViewLimit;//自动目标与主角的距离，距离近，优先
         MeteorUnit wantRotation = null;//夹角最小的
         MeteorUnit wantDis = null;//距离最近的
         Vector3 vecPlayer = -player.transform.forward;
         vecPlayer.y = 0;
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        Collider[] other = Physics.OverlapSphere(player.transform.position, 200, 1 << LayerMask.NameToLayer("Monster"));
+        for (int i = 0; i < other.Length; i++)
         {
-            if (Main.Instance.MeteorManager.UnitInfos[i] == player)
+            MeteorUnit target = other[i].gameObject.GetComponent<MeteorUnit>();
+            if (other[i].gameObject == player.gameObject)
                 continue;
-            if (player.SameCamp(Main.Instance.MeteorManager.UnitInfos[i]))
+            if (player.SameCamp(target))
                 continue;
-            if (Main.Instance.MeteorManager.UnitInfos[i].Dead)
+            if (target.Dead)
                 continue;
-            Vector3 vec = Main.Instance.MeteorManager.UnitInfos[i].transform.position - player.transform.position;
+            Vector3 vec = target.transform.position - player.transform.position;
             float v = vec.sqrMagnitude;
-            Main.Instance.MeteorManager.UnitInfos[i].distance = v;
+            target.distance = v;
             //飞轮时，无限角度距离
             if (v > ViewLimit && Main.Instance.MeteorManager.LocalPlayer.GetWeaponType() != (int)EquipWeaponType.Guillotines)
                 continue;
@@ -1194,17 +1195,17 @@ public partial class GameBattleEx : NetBehaviour {
             //先判断夹角是否在限制范围内.
             vec = Vector3.Normalize(vec);
             float angle = Mathf.Acos(Vector3.Dot(vecPlayer.normalized, vec)) * Mathf.Rad2Deg;
-            Main.Instance.MeteorManager.UnitInfos[i].angle = angle;
+            target.angle = angle;
             //角度小于75则可以成为自动对象.
             if (angle < angleMax)
             {
                 angleMax = angle;
-                wantRotation = Main.Instance.MeteorManager.UnitInfos[i];
+                wantRotation = target;
             }
             if (v < autoDis)
             {
                 autoDis = v;
-                wantDis = Main.Instance.MeteorManager.UnitInfos[i];
+                wantDis = target;
             }
         }
 
@@ -1587,7 +1588,7 @@ public partial class GameBattleEx : NetBehaviour {
     public List<GameObject> wayArrowList = new List<GameObject>();
     public void ShowWayPoint(bool on)
     {
-        if (Global.Instance.GLevelItem == null)
+        if (Main.Instance.CombatData.GLevelItem == null)
             return;
         if (!on)
         {
@@ -1605,30 +1606,30 @@ public partial class GameBattleEx : NetBehaviour {
         {
             if (wayArrowList.Count != 0 || wayPointList.Count != 0)
                 return;
-            for (int i = 0; i < Global.Instance.GLevelItem.wayPoint.Count; i++)
+            for (int i = 0; i < Main.Instance.CombatData.wayPoints.Count; i++)
             {
-                GameObject obj = WsGlobal.AddDebugLine(Global.Instance.GLevelItem.wayPoint[i].pos - 2 * Vector3.up, Global.Instance.GLevelItem.wayPoint[i].pos + 2 * Vector3.up, Color.red, "WayPoint" + i, float.MaxValue, true);
+                GameObject obj = WsGlobal.AddDebugLine(Main.Instance.CombatData.wayPoints[i].pos - 2 * Vector3.up, Main.Instance.CombatData.wayPoints[i].pos + 2 * Vector3.up, Color.red, "WayPoint" + i, float.MaxValue, true);
                 wayPointList.Add(obj);
                 //BoxCollider capsule = obj.AddComponent<BoxCollider>();
                 //capsule.isTrigger = true;
                 //capsule.size = Vector3.one * (Global.GLevelItem.wayPoint[i].size) * 10;
                 //capsule.center = Vector3.zero;
-                obj.name = string.Format("WayPoint{0}", Global.Instance.GLevelItem.wayPoint[i].index);
+                obj.name = string.Format("WayPoint{0}", Main.Instance.CombatData.wayPoints[i].index);
 
-                foreach (var each in Global.Instance.GLevelItem.wayPoint[i].link)
+                foreach (var each in Main.Instance.CombatData.wayPoints[i].link)
                 {
                     GameObject objArrow = GameObject.Instantiate(Resources.Load("PathArrow")) as GameObject;
-                    objArrow.transform.position = Global.Instance.GLevelItem.wayPoint[i].pos;
-                    Vector3 vec = Global.Instance.GLevelItem.wayPoint[each.Key].pos - Global.Instance.GLevelItem.wayPoint[i].pos;
+                    objArrow.transform.position = Main.Instance.CombatData.wayPoints[i].pos;
+                    Vector3 vec = Main.Instance.CombatData.wayPoints[each.Key].pos - Main.Instance.CombatData.wayPoints[i].pos;
                     objArrow.transform.forward = vec.normalized;
                     objArrow.transform.localScale = new Vector3(30, 30, vec.magnitude / 2.2f);
-                    objArrow.name = string.Format("Way{0}->Way{1}", Global.Instance.GLevelItem.wayPoint[each.Key].index, Global.Instance.GLevelItem.wayPoint[i].index);
+                    objArrow.name = string.Format("Way{0}->Way{1}", Main.Instance.CombatData.wayPoints[each.Key].index, Main.Instance.CombatData.wayPoints[i].index);
                     wayArrowList.Add(objArrow);
                 }
             }
         }
 
-        GameData.Instance.gameStatus.ShowWayPoint = on;
+        Main.Instance.GameStateMgr.gameStatus.ShowWayPoint = on;
     }
 #endif
     public void OnSceneEvent(SceneEvent evt, int unit, GameObject trigger)
@@ -1759,7 +1760,7 @@ public class ActionConfig
             {
                 MeteorUnit unit = U3D.GetUnit(id);
                 if (unit != null && unit.StateMachine != null)
-                    unit.StateMachine.ChangeState(unit.StateMachine.WaitState);
+                    unit.StateMachine.ChangeState(unit.StateMachine.IdleState);
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.Follow)
@@ -1815,7 +1816,7 @@ public class ActionConfig
                     if (fs.AttackTargetComplete())
                     {
                         action.RemoveAt(action.Count - 1);
-                        unit.StateMachine.ChangeState(unit.StateMachine.WaitState);
+                        unit.StateMachine.ChangeState(unit.StateMachine.IdleState);
                     }
                 }
             }

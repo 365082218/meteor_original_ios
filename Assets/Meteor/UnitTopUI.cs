@@ -26,6 +26,7 @@ public class UnitTopUI : Dialog {
         rect = GetComponent<RectTransform>();
         owner = ownerState.Owner as MeteorUnit;
         Init(owner.Attr, owner.transform, owner.Camp);
+        //rectCanvas = c.GetComponent<RectTransform>().sizeDelta;
     }
 	
 	// Update is called once per frame
@@ -63,10 +64,11 @@ public class UnitTopUI : Dialog {
         //1.6f 1.7666f
         if (MonsterName.gameObject.activeSelf)
         {
-            Vector3 vec = Main.Instance.MainCamera.WorldToScreenPoint(new Vector3(target.position.x, target.position.y + 50.0f, target.position.z));
-            float scalex = vec.x / Screen.width;
-            float scaley = vec.y / Screen.height;
-            rect.anchoredPosition3D = new Vector3(2160.0f * scalex, 1080f * scaley, vec.z);
+            Vector3 top = owner.D_top.transform.position;
+            top.y += 10;
+            Vector3 vec = Main.Instance.MainCamera.WorldToScreenPoint(top);
+            vec = UIHelper.ScreenPointToCanvasPoint(vec);
+            rect.anchoredPosition3D = new Vector3(vec.x, vec.y, 1);
             if (Main.Instance.GameStateMgr.gameStatus.EnableDebugStatus)
             {
                 if (!Info.gameObject.activeInHierarchy)

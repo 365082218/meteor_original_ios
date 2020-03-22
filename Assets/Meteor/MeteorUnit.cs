@@ -284,6 +284,7 @@ public partial class MeteorUnit : NetBehaviour
     public Transform ROOTNull;
     public Transform RootdBase;
     public Transform HeadBone;//头部骨骼.在自动目标存在时,头部骨骼朝向自动目标
+    public Transform D_top;//头顶挂点.
     public EUnitCamp Camp = EUnitCamp.EUC_FRIEND;
     public PoseStatus posMng;
     public CharacterLoader charLoader;
@@ -724,7 +725,7 @@ public partial class MeteorUnit : NetBehaviour
             if (StateMachine != null && gameObject.activeInHierarchy)
                 StateMachine.Update();
         }
-
+        Physics.queriesHitBackfaces = true;
         ProcessGravity();
 
         //除了受击，防御，其他动作在有锁定目标下，都要转向锁定目标.
@@ -757,7 +758,7 @@ public partial class MeteorUnit : NetBehaviour
                 {
 #if STRIP_KEYBOARD
                     //Debug.LogError(string.Format("deltaLast.x:{0}", NGUICameraJoystick.instance.deltaLast.x));
-                    yRotate = NGUICameraJoystick.instance.deltaLast.x * GameData.Instance.gameStatus.AxisSensitivity.x;
+                    yRotate = NGUICameraJoystick.instance.deltaLast.x * Main.Instance.GameStateMgr.gameStatus.AxisSensitivity.x;
 #else
                 yRotate = Input.GetAxis("Mouse X") * 5;
 #endif
@@ -767,7 +768,7 @@ public partial class MeteorUnit : NetBehaviour
 
                 float xRotate = 0;
 #if STRIP_KEYBOARD
-                xRotate = NGUICameraJoystick.instance.deltaLast.y * GameData.Instance.gameStatus.AxisSensitivity.y;
+                xRotate = NGUICameraJoystick.instance.deltaLast.y * Main.Instance.GameStateMgr.gameStatus.AxisSensitivity.y;
 #else
                 xRotate = Input.GetAxis("Mouse Y") * 2;
 #endif
@@ -1203,6 +1204,7 @@ public partial class MeteorUnit : NetBehaviour
         WeaponL = NodeHelper.Find("d_wpnL", charLoader.rootBone.gameObject).transform;
         ROOTNull = NodeHelper.Find("b", charLoader.rootBone.gameObject).transform;
         HeadBone = NodeHelper.Find("bau_Head", charLoader.rootBone.gameObject).transform;
+        D_top = NodeHelper.Find("d_top", charLoader.rootBone.gameObject).transform;
         RootdBase = charLoader.rootBone;
 
         weaponLoader = gameObject.GetComponent<WeaponLoader>();
@@ -1214,7 +1216,7 @@ public partial class MeteorUnit : NetBehaviour
         if (weaponLoader == null)
             weaponLoader = gameObject.AddComponent<WeaponLoader>();
         weaponLoader.Init(this);
-
+        
         if (Attr.IsPlayer)
         {
             //CameraFollow followCamera = GameObject.Find("CameraEx").GetComponent<CameraFollow>();
@@ -2361,7 +2363,6 @@ public partial class MeteorUnit : NetBehaviour
     {
         if (Dead)
             return;
-        //Debug.LogError("ontrigger enter:" + other.gameObject.name);
         if (other.tag == "SceneItemAgent" || (other.transform.parent != null && other.transform.parent.tag == "SceneItemAgent"))
         {
             SceneItemAgent trigger = other.gameObject.GetComponentInParent<SceneItemAgent>();
@@ -2463,17 +2464,6 @@ public partial class MeteorUnit : NetBehaviour
         }
 
     }
-
-    //public void OnTriggerExit(Collider other)
-    //{
-    //    if (Dead)
-    //        return;
-    //    SceneItemAgent trigger = other.gameObject.GetComponentInParent<SceneItemAgent>();
-    //    if (trigger == null)
-    //        return;
-    //    if (trigger != null && attackDelay.ContainsKey(trigger))
-    //        attackDelay.Remove(trigger);
-    //}
 
     List<SFXUnit> sfxList = new List<SFXUnit>();
     public void AddAttackSFX(SFXUnit sfx)

@@ -242,20 +242,24 @@ public class Loader : MonoBehaviour {
             }
             else
                 active = true;
+            if (!active)
+                continue;
             GameObject obj = new GameObject();
             obj.name = des.SceneItems[i].name;
             string model;
             if (des.SceneItems[i].ContainsKey("model", out model))
-            if (!string.IsNullOrEmpty(model))
             {
-                SceneItemAgent target = obj.AddComponent<SceneItemAgent>();
-                target.tag = "SceneItemAgent";
-                target.Load(model);
-                target.LoadCustom(des.SceneItems[i].name, des.SceneItems[i].custom);//自定义的一些属性，name=damage100
-                target.ApplyPost();
-                if (target.root != null)
-                    target.root.gameObject.SetActive(active);
-                Main.Instance.MeteorManager.OnGenerateSceneItem(target);
+                if (!string.IsNullOrEmpty(model))
+                {
+                    SceneItemAgent target = obj.AddComponent<SceneItemAgent>();
+                    target.tag = "SceneItemAgent";
+                    target.Load(model);
+                    target.LoadCustom(des.SceneItems[i].name, des.SceneItems[i].custom);//自定义的一些属性，name=damage100
+                    target.ApplyPost();
+                    if (target.root != null)
+                        target.root.gameObject.SetActive(active);
+                    Main.Instance.MeteorManager.OnGenerateSceneItem(target);
+                }
             }
             //环境特效.一直存在的特效.和特效挂载点
             string effect;

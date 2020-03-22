@@ -475,7 +475,7 @@ PlayerSettings:
   webGLCompressionFormat: 1
   scriptingDefineSymbols:
     1: BUILD_PC;RAVEN_COMPILED
-    4: STRIP_KEYBOARD
+    4: 
     7: STRIP_DBG_SETTING
     13: RAVEN_COMPILED
     14: RAVEN_COMPILED

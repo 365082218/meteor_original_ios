@@ -44,16 +44,13 @@ namespace Idevgame.Meteor.AI
 
         public State CurrentState;
         State NextState;
-
-        public WaitState WaitState;
-        public IdleState IdleState;
+        public State IdleState;
         public GuardState GuardState;
         public LookState LookState;//四周观察-未发现敌人时.
         public DangerState DangerState;//处于危险中，逃跑.如果仍被敌人追上，有可能触发决斗-如果脱离了战斗视野，可能继续逃跑
         public KillState KillState;//强制追杀 无视视野.
         public PatrolState PatrolState;//巡逻.
         public FollowState FollowState;
-        public FightWithBladeState FightWithBladeState;
 
         public float BaseTime;//角色当前动作的归一化时间 大于0部分是循环次数，小于0部分是单次播放百分比.
         public int AnimationIndex;//角色当前动画编号
@@ -65,16 +62,18 @@ namespace Idevgame.Meteor.AI
         {
             Player = Unit;
             States = new List<State>();
-            IdleState = new IdleState("IdleState", this);
+            IdleState = new IdleState(this);
             States.Add(IdleState);
-            GuardState = new GuardState("GuardState", this);
+            GuardState = new GuardState(this);
             States.Add(GuardState);
-            KillState = new KillState("KillState", this);
+            KillState = new KillState(this);
             States.Add(KillState);
+            PatrolState = new PatrolState(this);
+            States.Add(PatrolState);
             for (int i = 0; i < States.Count; i++)
                 States[i].Init();
-            CurrentState = WaitState;
-            int dis = Player.Attr.View / 2;
+            CurrentState = IdleState;
+            int dis = Player.Attr.View;
             AttackRangeMin = dis * dis;
             AttackRangeMax = (dis + dis / 2) * (dis + dis / 2);
             stoped = true;
@@ -112,7 +111,6 @@ namespace Idevgame.Meteor.AI
                 Stop();
                 //StopCoroutine();
             }
-            //Debug.Log(string.Format("unit:{0} pause:{1}", owner.name, pause_tick));
         }
 
         public void Update()
@@ -281,12 +279,10 @@ namespace Idevgame.Meteor.AI
         public void SelectEnemy()
         {
             Player.LockTarget = null;
-            float dis = (Player.Attr.View / 2) * (Player.Attr.View / 2);//视野，可能指的是直径，这里变为半径,平方比开方快.
-            if (U3D.IsSpecialWeapon(Player.Attr.Weapon))
-                dis = Player.Attr.View * Player.Attr.View;//远程武器，视野距离翻倍.
+            float dis = AttackRangeMin;//视野，可能指的是直径，这里变为半径,平方比开方快.
             int index = -1;
             MeteorUnit tar = null;
-            Collider[] other = Physics.OverlapSphere(Player.transform.position, dis, 1 << LayerMask.NameToLayer("Monster") | 1 << LayerMask.NameToLayer("LocalPlayer"));
+            Collider[] other = Physics.OverlapSphere(Player.transform.position, Player.Attr.View, 1 << LayerMask.NameToLayer("Monster") | 1 << LayerMask.NameToLayer("LocalPlayer"));
 
             //直接遍历算了
             for (int i = 0; i < other.Length; i++)
@@ -343,18 +339,6 @@ namespace Idevgame.Meteor.AI
             }
             if (index >= 0 && index < Main.Instance.MeteorManager.SceneItems.Count && tar != null)
                 Player.TargetItem = tar;
-        }
-
-        public int FindStateIndex(string name)
-        {
-            for (int i = 0; i < States.Count; i++)
-            {
-                if (States[i].Name == name)
-                {
-                    return i;
-                }
-            }
-            return -1;
         }
 
         public void Stop()
@@ -421,15 +405,7 @@ namespace Idevgame.Meteor.AI
 
         public void SetPatrolPath(List<int> path)
         {
-            //patrolData.Clear();
-            //for (int i = 0; i < path.Count; i++)
-            //    patrolData.Add(path[i]);
-            //PatrolPath.Clear();
-            //FindPatrolFinished = false;
-            //curPatrolIndex = -1;
-            //targetPatrolIndex = -1;
-            //curIndex = -1;
-            //targetIndex = -1;
+            PatrolState.SetPatrolPath(path);
         }
 
         //转换到近身攻击状态，按照角色当前的武装，决定切换目标状态.
@@ -441,12 +417,10 @@ namespace Idevgame.Meteor.AI
 
     public abstract class State
     {
-        public string Name;
         public StateMachine Machine;
         public int Index;//在状态机内的序号.
-        public State(string sn, StateMachine machine)
+        public State(StateMachine machine)
         {
-            Name = sn;
             Machine = machine;
         }
 

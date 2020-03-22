@@ -18,7 +18,7 @@ public class SceneMng
         {
             Debug.LogError("Loader not exist");
         }
-
+        //Main.Instance.CombatData.wayPoints = 
         Main.Instance.CombatData.GLevelSpawn = new Vector3[16];
         Main.Instance.CombatData.GCampASpawn = new Vector3[8];
         Main.Instance.CombatData.GCampBSpawn = new Vector3[8];

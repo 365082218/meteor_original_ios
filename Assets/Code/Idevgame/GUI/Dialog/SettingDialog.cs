@@ -142,7 +142,7 @@ public class SettingDialog : Dialog {
         toggleShowWayPoint.isOn = Main.Instance.GameStateMgr.gameStatus.ShowWayPoint;
 #if !STRIP_DBG_SETTING
         toggleShowWayPoint.onValueChanged.AddListener(OnShowWayPoint);
-        if (GameData.Instance.gameStatus.ShowWayPoint)
+        if (Main.Instance.GameStateMgr.gameStatus.ShowWayPoint)
             OnShowWayPoint(true);
 #else
         Destroy(toggleShowWayPoint.gameObject);
@@ -369,8 +369,8 @@ public class SettingDialog : Dialog {
 #if !STRIP_DBG_SETTING
     void OnShowWayPoint(bool on)
     {
-        if (GameBattleEx.Instance != null)
-            GameBattleEx.Instance.ShowWayPoint(on);
+        if (Main.Instance.GameBattleEx != null)
+            Main.Instance.GameBattleEx.ShowWayPoint(on);
     }
 #endif
 

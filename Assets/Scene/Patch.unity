@@ -4239,6 +4239,10 @@ MonoBehaviour:
   Sound: {fileID: 2044160636}
   listener: {fileID: 2044160635}
   playerListener: {fileID: 0}
+  MainCamera: {fileID: 0}
+  CameraFollow: {fileID: 0}
+  CameraFree: {fileID: 0}
+  GameBattleEx: {fileID: 0}
   SplashScreenHidden: 0
 --- !u!81 &2044160635
 AudioListener:

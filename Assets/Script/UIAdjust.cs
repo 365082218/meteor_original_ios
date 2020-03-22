@@ -46,7 +46,7 @@ public class UIAdjust : MonoBehaviour {
                 Vector2 curPos = UICamera.currentTouch.pos;
                 vecOffset = curPos - Target.anchoredPosition;
                 //Target.anchoredPosition = new Vector3(curPos.x, curPos.y);
-                mClickPos = UIHelper.ScreenPointToUIPoint(curPos);
+                //mClickPos = UIHelper.ScreenPointToUIPoint(curPos);
                 if (mLastFingerId == -2 || mLastFingerId != UICamera.currentTouchID)
                 {
                     mLastFingerId = UICamera.currentTouchID;
