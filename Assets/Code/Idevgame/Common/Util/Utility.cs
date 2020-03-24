@@ -23,6 +23,8 @@ public class Utility
 
 public class StringUtils
 {
+    //读取表就OK了，后续改.
+    public static Dictionary<string, string> language = new Dictionary<string, string>();
     public const string Install = "安裝";
     public const string Cancel = "取消";
     public const string InstallFailed = "安裝失敗";

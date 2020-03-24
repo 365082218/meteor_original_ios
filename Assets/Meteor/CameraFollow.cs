@@ -119,13 +119,13 @@ public class CameraFollow : NetBehaviour {
         //    m_Targets[i].gameObject.layer = LayerMask.NameToLayer("Debug");
         //    m_Targets[i].localScale = 10 * Vector3.one;
         //}
-        Main.Instance.EventBus.SetEvent(CommonEvent.OpenCamera, OpenCamera);
+        Main.Instance.EventBus.Register(EventId.OpenCamera, OpenCamera);
     }
 
     public void OpenCamera()
     {
         GetComponent<Camera>().enabled = true;
-        Main.Instance.EventBus.RemoveEvent(CommonEvent.OpenCamera, OpenCamera);
+        Main.Instance.EventBus.UnRegister(EventId.OpenCamera, OpenCamera);
     }
 
     public void ForceUpdate()

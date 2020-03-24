@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum CommonEvent
+public enum EventId
 {
     OpenCamera = 0,
 }
@@ -11,20 +11,20 @@ public enum CommonEvent
 public class EventBus
 {
     Dictionary<int, List<System.Action>> events = new Dictionary<int, List<System.Action>>();
-    public void SetEvent(CommonEvent evt, System.Action fun)
+    public void Register(EventId evt, System.Action fun)
     {
         if (!events.ContainsKey((int)evt))
             events[(int)evt] = new List<System.Action>();
         events[(int)evt].Add(fun);
     }
 
-    public void RemoveEvent(CommonEvent evt, System.Action fun)
+    public void UnRegister(EventId evt, System.Action fun)
     {
         if (events.ContainsKey((int)evt))
             events[(int)evt].Remove(fun);
     }
 
-    public void Fire(CommonEvent evt)
+    public void Fire(EventId evt)
     {
         if (events.ContainsKey((int)evt))
         {

@@ -521,7 +521,7 @@ public partial class MeteorUnit : NetBehaviour
     }
 
     public SceneItemAgent TargetItem;//当前选择的
-    public MeteorUnit LockTarget = null;//攻击目标.主角主动攻击敌方后，没解锁前，都以这个目标作为锁定攻击目标，摄像机自动以主角和此目标，做一个自动视围盒，
+    public MeteorUnit LockTarget = null;//攻击目标.主角主动攻击敌方后，没解锁前，都以这个目标作为锁定攻击目标
     public MeteorUnit KillTarget = null;//追杀目标.
     public MeteorUnit FollowTarget = null;//跟随目标.
     public void SetLockedTarget(MeteorUnit target)
@@ -956,28 +956,6 @@ public partial class MeteorUnit : NetBehaviour
         }
     }
 
-
-    IEnumerator HeadLookAt()
-    {
-        while (true)
-        {
-            if (Main.Instance.GameBattleEx != null && Main.Instance.GameBattleEx.autoTarget != null && GetWeaponType() != (int)EquipWeaponType.Guillotines)
-                HeadLookAtTarget(Main.Instance.GameBattleEx.autoTarget.transform.position);
-            yield return 0;
-        }
-    }
-
-    //这个转脑袋很多问题，最好事先限制每个轴的转动，否则很容易扭曲脑袋。
-    //没有角速度
-    public void HeadLookAtTarget(Vector3 pos)
-    {
-        if (pos == Vector3.zero)
-            return;
-        pos.y = transform.position.y + 35;
-        HeadBone.LookAt(pos);
-        HeadBone.localEulerAngles = new Vector3(HeadBone.localEulerAngles.x, HeadBone.localEulerAngles.y, HeadBone.localEulerAngles.z + 90);
-    }
-
     public bool CanBurst()
     {
         return (AngryValue >= CombatData.ANGRYBURST);
@@ -1155,7 +1133,6 @@ public partial class MeteorUnit : NetBehaviour
             StateMachine = Attr.IsPlayer ? null : new StateMachine();
             if (StateMachine != null)
                 StateMachine.Init(this);
-
         }
         
         if (controller == null)
@@ -1216,13 +1193,6 @@ public partial class MeteorUnit : NetBehaviour
         if (weaponLoader == null)
             weaponLoader = gameObject.AddComponent<WeaponLoader>();
         weaponLoader.Init(this);
-        
-        if (Attr.IsPlayer)
-        {
-            //CameraFollow followCamera = GameObject.Find("CameraEx").GetComponent<CameraFollow>();
-            //头部骨骼朝向自动目标对象-取消，部分情况下出现扭曲
-            //StartCoroutine("HeadLookAt");
-        }
 
         charController = gameObject.GetComponent<CharacterController>();
         if (charController == null)

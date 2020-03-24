@@ -142,21 +142,6 @@ public partial class GameBattleEx : NetBehaviour {
         }
     }
 
-    //void PlayEndMovie()
-    //{
-    //    //if (!string.IsNullOrEmpty(Global.GLevelItem.sceneItems))
-    //    //{
-    //    //    string num = Global.GLevelItem.sceneItems.Substring(2);
-    //    //    int number = 0;
-    //    //    if (int.TryParse(num, out number))
-    //    //    {
-    //    //        Debug.Log("v" + number);
-    //    //        U3D.PlayMovie("v" + number);
-    //    //    }
-    //    //}
-    //    GotoMenu();
-    //}
-
     public int GetMiscGameTime()
     {
         return Mathf.FloorToInt(1000 * timeClock);
@@ -1806,7 +1791,7 @@ public class ActionConfig
                 if (unit != null && unit.StateMachine != null && !unit.Dead)
                 {
                     if (!unit.StateMachine.IsFighting())
-                        unit.StateMachine.ChangeFightState();
+                        unit.StateMachine.ChangeState(unit.StateMachine.FightState);
                     //部分情况下，子状态不正确会导致很多奇怪的情况
                     //if (unit.StateMachine.SubStatus != EAISubStatus.AttackGotoTarget && unit.StateMachine.SubStatus != EAISubStatus.AttackTarget && unit.StateMachine.SubStatus != EAISubStatus.AttackTargetSubRotateToTarget)
                     //    unit.StateMachine.SubStatus = EAISubStatus.AttackGotoTarget;

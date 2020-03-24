@@ -1,5 +1,8 @@
 ﻿Shader "Custom/MeteorVertexL"
 {
+	//卡通渲染进阶 = toonlighting + outline + rimlighting + hair specular
+	//卡通光影+描边+边缘光晕+头发高光.
+	//Rim Lighting 和 描边 需要学习
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}

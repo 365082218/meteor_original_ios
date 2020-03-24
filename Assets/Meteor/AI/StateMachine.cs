@@ -1,28 +1,9 @@
-﻿using System.Collections;
+﻿using Assets.Code.Idevgame.Common.Util;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 namespace Idevgame.Meteor.AI
 {
-    public enum ParaIndex
-    {
-        BaseTime,//动画归一化时间
-        AnimationIndex,//动画ID
-        ActionIndex,//随机行为ID-按权重随机算，一个Think周期内只进行一次.
-        WeaponIndex,//当前武器ID
-    }
-
-    public enum ParameterType
-    {
-        Int,
-        Float,
-        Bool,
-        Enum,
-        BoolTrigger,
-        IntTrigger,
-        EnumTrigger,
-        EnumBitMask,
-    }
-
     //组行为-差异化各个角色的行为，否则各个AI行为一致，感觉机械.
     //只是控制各个StateMachine的某个行为是否允许随机到.
     //战斗圈-
@@ -37,20 +18,21 @@ namespace Idevgame.Meteor.AI
         //当Think为100时,0.1S一个行为检测,行为频率慢,则连招可能连不起来.行为频率快, 则每个招式在可切换招式的时机, 进行连招的几率越大.
         static readonly float ThinkRound = 1000;
         float ThickTick = 0.0f;
-        //加载一份AI数据，初始化各个AI状态，包括初始状态序号，各个状态有多少个转移.
-        //每个状态的转移条件，条件里的参数还未和游戏中的参数绑定.
-        public List<State> States;
+        Timer<int> InputTimer;//输入计时器，在活动状态下表明，还在输入指令中.
+        List<VirtualInput> InputKeys = new List<VirtualInput>();
         public MeteorUnit Player;
-
+        public State PreviousState;
         public State CurrentState;
-        State NextState;
+        public State NextState;
         public State IdleState;
+        public State ReviveState;//队长复活队友
         public GuardState GuardState;
         public LookState LookState;//四周观察-未发现敌人时.
         public DangerState DangerState;//处于危险中，逃跑.如果仍被敌人追上，有可能触发决斗-如果脱离了战斗视野，可能继续逃跑
         public KillState KillState;//强制追杀 无视视野.
         public PatrolState PatrolState;//巡逻.
         public FollowState FollowState;
+        public FightState FightState;
 
         public float BaseTime;//角色当前动作的归一化时间 大于0部分是循环次数，小于0部分是单次播放百分比.
         public int AnimationIndex;//角色当前动画编号
@@ -61,22 +43,41 @@ namespace Idevgame.Meteor.AI
         public void Init(MeteorUnit Unit)
         {
             Player = Unit;
-            States = new List<State>();
             IdleState = new IdleState(this);
-            States.Add(IdleState);
             GuardState = new GuardState(this);
-            States.Add(GuardState);
             KillState = new KillState(this);
-            States.Add(KillState);
             PatrolState = new PatrolState(this);
-            States.Add(PatrolState);
-            for (int i = 0; i < States.Count; i++)
-                States[i].Init();
-            CurrentState = IdleState;
+            ReviveState = new ReviveState(this);
+            FightState = new FightState(this);
             int dis = Player.Attr.View;
             AttackRangeMin = dis * dis;
             AttackRangeMax = (dis + dis / 2) * (dis + dis / 2);
+            this.EnterDefaultState();
             stoped = true;
+        }
+
+        bool HasInput()
+        {
+            return InputTimer != null;
+        }
+
+        //输入中.
+        void OnInput(int timer)
+        {
+            Player.controller.Input.OnKeyDownProxy(InputKeys[0].key, true);
+            Player.controller.Input.OnKeyUpProxy(InputKeys[0].key);
+            InputKeys.RemoveAt(0);
+            if (InputKeys.Count == 0)
+            {
+                InputTimer.remove(OnInput);
+                InputTimer = null;
+            }
+        }
+
+        void EnterDefaultState()
+        {
+            CurrentState = IdleState;
+            CurrentState.OnEnter();
         }
 
         public bool IsFighting()
@@ -115,6 +116,9 @@ namespace Idevgame.Meteor.AI
 
         public void Update()
         {
+            if (InputTimer != null)
+                InputTimer.Update();
+
             if (stoped)
                 return;
 
@@ -132,17 +136,49 @@ namespace Idevgame.Meteor.AI
             }
 
             ThickTick -= Player.Attr.Think;
+
+            if (Player.OnTouchWall)
+                touchLast += FrameReplay.deltaTime;
+            else
+                touchLast = 0.0f;
+
+            //如果在硬直中
+            if (Player.charLoader.IsInStraight())
+                return;
+
+            //输入队列中存在指令.(有待输入的指令能否继续?-应该是只能等待被强制打断，否则一定要等输入完毕)
+            if (HasInput())
+                return;
+
+            ThickTick -= Player.Attr.Think;
             if (ThickTick > 0)
                 return;
             ThickTick = ThinkRound;
-            NextState = CurrentState.Update();
-            if (NextState != null)
+
+            //更新当前状态，内部自带状态切换.
+            CurrentState.Update();//每当暗杀模式时，若自己是队长，寻找到死亡同伴，有一定概率去复活同伴
+            //复活队友状态
+            //战斗状态
+            //待机状态
+            //防御状态
+            //四处看状态
+            //拾取周围道具状态
+            //躲避状态
+            //巡逻状态
+            //追杀状态-无视距离限定
+            //跟随状态
+            //寻路状态
+        }
+
+        //在空闲，跑步，武器准备，带毒跑时，可以复活队友.
+        bool CanChangeToRevive()
+        {
+            if (Player.posMng.mActiveAction.Idx == CommonAction.Idle || PoseStatus.IsReadyAction(Player.posMng.mActiveAction.Idx) || Player.posMng.mActiveAction.Idx == CommonAction.Run || Player.posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
             {
-                CurrentState.Exit();
-                NextState.Enter();
-                CurrentState = NextState;
-                NextState = null;
+                if (Player.HasRebornTarget())
+                    return true;
             }
+            return false;
         }
 
         public void Enable(bool enable)
@@ -219,8 +255,10 @@ namespace Idevgame.Meteor.AI
         {
             if (CurrentState != Target)
             {
-                CurrentState.Exit();
-                Target.Enter(data);
+                NextState = Target;
+                CurrentState.OnExit();
+                PreviousState = CurrentState;
+                Target.OnEnter(data);
                 CurrentState = Target;
             }
         }
@@ -407,38 +445,45 @@ namespace Idevgame.Meteor.AI
         {
             PatrolState.SetPatrolPath(path);
         }
-
-        //转换到近身攻击状态，按照角色当前的武装，决定切换目标状态.
-        public void ChangeFightState()
-        {
-
-        }
     }
 
     public abstract class State
     {
         public StateMachine Machine;
-        public int Index;//在状态机内的序号.
         public State(StateMachine machine)
         {
             Machine = machine;
         }
 
-        public abstract void Init();
-        public abstract void Enter(Object data = null);
-        public abstract void Exit();
+        public abstract void OnEnter(Object data = null);
+        public abstract void OnExit();
 
         //默认状态-待机，调用待机动作.
         //动作结束后
-        public virtual State Update()
+        public virtual void Update()
         {
-            return null;
+
         }
 
 
         public virtual void OnChangeWeapon()
         {
             //武器发生变化,
+        }
+
+        public void ChangeState(State target)
+        {
+            Machine.ChangeState(target);
+        }
+
+        public MeteorUnit GetKillTarget()
+        {
+            return Machine.Player.GetKillTarget();
+        }
+
+        public MeteorUnit GetLockTarget()
+        {
+            return Machine.Player.LockTarget;
         }
     }
 }
