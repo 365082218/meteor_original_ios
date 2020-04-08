@@ -29,7 +29,7 @@ public class WeaponDialog : Dialog
     {
         if (load != null)
         {
-            Main.Instance.StopCoroutine(load);
+            Main.Ins.StopCoroutine(load);
             load = null;
         }
         if (CameraForWeapon != null)
@@ -60,12 +60,12 @@ public class WeaponDialog : Dialog
             Control(control).GetComponent<UITab>().onValueChanged.AddListener(ChangeWeaponType);
         }
         if (load == null)
-            load = Main.Instance.StartCoroutine(AddWeapon());
+            load = Main.Ins.StartCoroutine(AddWeapon());
     }
 
     IEnumerator AddWeapon()
     {
-        List<ItemDatas.ItemDatas> we = Main.Instance.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
+        List<ItemDatas.ItemDatas> we = Main.Ins.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
         int offset = 0;
         for (int i = 0; i < we.Count; i++)
         {
@@ -108,7 +108,7 @@ public class WeaponDialog : Dialog
 
     void ShowWeapon()
     {
-        List<ItemDatas.ItemDatas> we = Main.Instance.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
+        List<ItemDatas.ItemDatas> we = Main.Ins.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
         for (int i = 0; i < we.Count; i++)
         {
             if (we[i].MainType == 1)
@@ -131,7 +131,7 @@ public class WeaponDialog : Dialog
 
     void ChangeWeaponCode()
     {
-        Main.Instance.MeteorManager.LocalPlayer.ChangeWeaponCode(selectWeapon);
+        Main.Ins.LocalPlayer.ChangeWeaponCode(selectWeapon);
     }
 
     void ChangeWeaponType(bool change)
@@ -156,7 +156,7 @@ public class WeaponDialog : Dialog
         for (int i = 0; i < GridWeapon.Count; i++)
             GridWeapon[i].SetActive(false);
         if (load != null)
-            Main.Instance.StopCoroutine(load);
-        load = Main.Instance.StartCoroutine(AddWeapon());
+            Main.Ins.StopCoroutine(load);
+        load = Main.Ins.StartCoroutine(AddWeapon());
     }
 }

@@ -75,12 +75,12 @@ public class ScriptMng
     public object DoScript(string script)
     {
         //查找模组中是否存在该NPC模板.
-        if (Main.Instance.GameStateMgr.gameStatus.pluginNpc != null)
+        if (Main.Ins.GameStateMgr.gameStatus.pluginNpc != null)
         {
-            for (int i = 0; i < Main.Instance.GameStateMgr.gameStatus.pluginNpc.Count; i++)
+            for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginNpc.Count; i++)
             {
-                if (Main.Instance.GameStateMgr.gameStatus.pluginNpc[i].npcTemplate == script)
-                    return svr.dofile(Main.Instance.GameStateMgr.gameStatus.pluginNpc[i].filePath, script);
+                if (Main.Ins.GameStateMgr.gameStatus.pluginNpc[i].npcTemplate == script)
+                    return svr.dofile(Main.Ins.GameStateMgr.gameStatus.pluginNpc[i].filePath, script);
             }
         }
         return svr.dofile(script);

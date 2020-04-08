@@ -129,7 +129,7 @@ public class MonsterEx
     public bool InitMonster(string Script)
     {
         IsPlayer = false;
-        sState = Main.Instance.ScriptMng.DoScript(Script) as LuaTable;
+        sState = Main.Ins.ScriptMng.DoScript(Script) as LuaTable;
         NpcTemplate = Script;
         Model = (int)(double)sState["Model"];
         name = (string)sState["Name"];
@@ -292,13 +292,13 @@ public class MonsterEx
             HpMax = hpCur = (int)(double)script.GetPlayerMaxHp();
             if (HpMax == 0)
                 hpCur = HpMax = 1000;
-            if (Main.Instance.CombatData.GLevelMode == LevelMode.CreateWorld)
+            if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld)
             {
-                HpMax = hpCur = 10 * Main.Instance.CombatData.PlayerLife;
-                Weapon = U3D.GetWeaponByType(Main.Instance.CombatData.MainWeapon);
-                Weapon2 = U3D.GetWeaponByType(Main.Instance.CombatData.SubWeapon);
-                Model = Main.Instance.CombatData.PlayerModel;
-                name = Main.Instance.DataMgr.GetDatasArray<ModelDatas.ModelDatas>()[Model].Name;
+                HpMax = hpCur = 10 * Main.Ins.CombatData.PlayerLife;
+                Weapon = U3D.GetWeaponByType(Main.Ins.CombatData.MainWeapon);
+                Weapon2 = U3D.GetWeaponByType(Main.Ins.CombatData.SubWeapon);
+                Model = Main.Ins.CombatData.PlayerModel;
+                name = Main.Ins.DataMgr.GetDatasArray<ModelDatas.ModelDatas>()[Model].Name;
             }
         } 
         View = 500;

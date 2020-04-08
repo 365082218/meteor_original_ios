@@ -79,7 +79,7 @@ public class DartLoader : NetBehaviour {
         bc.size = new Vector3(6, 3, 6);
 
         velocity = forward * InitializeSpeed;
-        Main.Instance.GameBattleEx.AddDamageCollision(owner, bc);
+        Main.Ins.GameBattleEx.AddDamageCollision(owner, bc);
     }
 
     public static void Init(Vector3 spawn, Vector3 forw, InventoryItem weapon, AttackDes att, MeteorUnit owner)
@@ -164,14 +164,14 @@ public class DartLoader : NetBehaviour {
                 GameObject weaponPrefab = ResMng.LoadPrefab(weaponR) as GameObject;
                 if (weaponPrefab == null)
                 {
-                    GMCFile fGmcL = Main.Instance.GMCLoader.Load(weaponR);
-                    DesFile fDesL = Main.Instance.DesLoader.Load(weaponR);
+                    GMCFile fGmcL = Main.Ins.GMCLoader.Load(weaponR);
+                    DesFile fDesL = Main.Ins.DesLoader.Load(weaponR);
 
                     if (fGmcL != null && fDesL != null)
                         GenerateWeaponModel(weaponR, fGmcL, fDesL, scale, weaponProperty.TextureL);
                     else if (fGmcL == null && fDesL != null)
                     {
-                        GMBFile fGmbL = Main.Instance.GMBLoader.Load(weaponR);
+                        GMBFile fGmbL = Main.Ins.GMBLoader.Load(weaponR);
                         GenerateWeaponModel(weaponR, fGmbL, fDesL, scale, weaponProperty.TextureL);
                     }
                 }

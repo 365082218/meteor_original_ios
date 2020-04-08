@@ -44,9 +44,9 @@ public class ServerListDialog : Dialog
             GameObject.Destroy(serverList[i]);
         }
         serverList.Clear();
-        for (int i = 0; i < Main.Instance.GameStateMgr.gameStatus.ServerList.Count; i++)
+        for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.ServerList.Count; i++)
         {
-            InsertServerItem(Main.Instance.GameStateMgr.gameStatus.ServerList[i], prefab);
+            InsertServerItem(Main.Ins.GameStateMgr.gameStatus.ServerList[i], prefab);
         }
         GameObject defaultServer = Control("SelectListItem");
         Text text = Control("Text", defaultServer).GetComponent<Text>();
@@ -55,27 +55,27 @@ public class ServerListDialog : Dialog
             //不能删除默认
             if (selectServer != null)
             {
-                int selectServerId = Main.Instance.GameStateMgr.gameStatus.ServerList.IndexOf(selectServer);
+                int selectServerId = Main.Ins.GameStateMgr.gameStatus.ServerList.IndexOf(selectServer);
                 if (selectServerId != -1)
                 {
                     GameObject.Destroy(serverList[selectServerId]);
                     serverList.RemoveAt(selectServerId);
-                    Main.Instance.CombatData.OnServiceChanged(-1, Main.Instance.GameStateMgr.gameStatus.ServerList[selectServerId]);
-                    Main.Instance.GameStateMgr.gameStatus.ServerList.RemoveAt(selectServerId);
+                    Main.Ins.CombatData.OnServiceChanged(-1, Main.Ins.GameStateMgr.gameStatus.ServerList[selectServerId]);
+                    Main.Ins.GameStateMgr.gameStatus.ServerList.RemoveAt(selectServerId);
                 }
                 if (selectServerId >= serverList.Count)
                     selectServerId = 0;
-                selectServer = Main.Instance.GameStateMgr.gameStatus.ServerList[selectServerId];
+                selectServer = Main.Ins.GameStateMgr.gameStatus.ServerList[selectServerId];
                 selectedBtn = null;
             }
         });
         Control("Close").GetComponent<Button>().onClick.AddListener(() => { OnPreviousPress(); });
         Control("AddHost").GetComponent<Button>().onClick.AddListener(() =>
         {
-            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.HostEditDialogState);
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.HostEditDialogState);
         });
 
-        text.text = Main.Instance.CombatData.Server.ServerName + string.Format(":{0}", Main.Instance.CombatData.Server.ServerPort);
+        text.text = Main.Ins.CombatData.Server.ServerName + string.Format(":{0}", Main.Ins.CombatData.Server.ServerPort);
     }
 
     List<GameObject> serverList = new List<GameObject>();

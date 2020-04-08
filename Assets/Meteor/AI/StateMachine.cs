@@ -48,7 +48,10 @@ namespace Idevgame.Meteor.AI
             KillState = new KillState(this);
             PatrolState = new PatrolState(this);
             ReviveState = new ReviveState(this);
+            FollowState = new FollowState(this);
             FightState = new FightState(this);
+            LookState = new LookState(this);
+            DangerState = new DangerState(this);
             int dis = Player.Attr.View;
             AttackRangeMin = dis * dis;
             AttackRangeMax = (dis + dis / 2) * (dis + dis / 2);
@@ -360,9 +363,9 @@ namespace Idevgame.Meteor.AI
             int index = -1;
             SceneItemAgent tar = null;
             //直接遍历算了
-            for (int i = 0; i < Main.Instance.MeteorManager.SceneItems.Count; i++)
+            for (int i = 0; i < Main.Ins.MeteorManager.SceneItems.Count; i++)
             {
-                SceneItemAgent item = Main.Instance.MeteorManager.SceneItems[i].gameObject.GetComponent<SceneItemAgent>();
+                SceneItemAgent item = Main.Ins.MeteorManager.SceneItems[i].gameObject.GetComponent<SceneItemAgent>();
                 if (item == null)
                     continue;
                 if (!item.CanPickup())
@@ -375,7 +378,7 @@ namespace Idevgame.Meteor.AI
                     tar = item;
                 }
             }
-            if (index >= 0 && index < Main.Instance.MeteorManager.SceneItems.Count && tar != null)
+            if (index >= 0 && index < Main.Ins.MeteorManager.SceneItems.Count && tar != null)
                 Player.TargetItem = tar;
         }
 
@@ -434,7 +437,7 @@ namespace Idevgame.Meteor.AI
         public void FollowTarget(int target)
         {
             MeteorUnit followed = U3D.GetUnit(target);
-            if (Main.Instance.MeteorManager.LeavedUnits.ContainsKey(target))
+            if (Main.Ins.MeteorManager.LeavedUnits.ContainsKey(target))
                 return;
             Player.FollowTarget = followed;
             ChangeState(FollowState);

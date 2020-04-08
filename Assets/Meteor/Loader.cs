@@ -17,8 +17,8 @@ public class Loader : MonoBehaviour {
     public void LoadSceneObjsFromDes(string des)
     {
         //mapObjectList.Clear();
-        Main.Instance.DesLoader.Refresh();
-        DesFile desDat = Main.Instance.DesLoader.Load(des);
+        Main.Ins.DesLoader.Refresh();
+        DesFile desDat = Main.Ins.DesLoader.Load(des);
         int j = 0;
         for (int i = desDat.ObjectCount; i < desDat.SceneItems.Count; i++)
         {
@@ -196,7 +196,7 @@ public class Loader : MonoBehaviour {
     //静态固有物件。类似声音，位置点
     public void LoadFixedScene(string sceneItems)
     {
-        DesFile des = Main.Instance.DesLoader.Load(sceneItems);
+        DesFile des = Main.Ins.DesLoader.Load(sceneItems);
         for (int i = des.ObjectCount; i < des.SceneItems.Count; i++)
         {
             //一些特殊物件不需要加脚本，只相当于环境，也不用保存,只设置位置.
@@ -218,7 +218,7 @@ public class Loader : MonoBehaviour {
     {
         //return;
         //mapObjectList.Clear();
-        DesFile des = Main.Instance.DesLoader.Load(sceneItems);
+        DesFile des = Main.Ins.DesLoader.Load(sceneItems);
         for (int i = des.ObjectCount; i < des.SceneItems.Count; i++)
         {
             //一些特殊物件不需要加脚本，只相当于环境，也不用保存,只设置位置.
@@ -233,7 +233,7 @@ public class Loader : MonoBehaviour {
                 string[] subtype = type.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                 for (int t = 0; t < subtype.Length; t++)
                 {
-                    if (int.Parse(subtype[t]) == (int)Main.Instance.CombatData.GGameMode)
+                    if (int.Parse(subtype[t]) == (int)Main.Ins.CombatData.GGameMode)
                     {
                         active = true;
                         break;
@@ -258,13 +258,13 @@ public class Loader : MonoBehaviour {
                     target.ApplyPost();
                     if (target.root != null)
                         target.root.gameObject.SetActive(active);
-                    Main.Instance.MeteorManager.OnGenerateSceneItem(target);
+                    Main.Ins.MeteorManager.OnGenerateSceneItem(target);
                 }
             }
             //环境特效.一直存在的特效.和特效挂载点
             string effect;
             if (des.SceneItems[i].ContainsKey("effect", out effect))
-                Main.Instance.SFXLoader.PlayEffect(string.Format("{0}.ef", effect), obj);
+                Main.Ins.SFXLoader.PlayEffect(string.Format("{0}.ef", effect), obj);
             obj.transform.position = des.SceneItems[i].pos;
             obj.transform.rotation = des.SceneItems[i].quat;
             obj.transform.SetParent(transform);

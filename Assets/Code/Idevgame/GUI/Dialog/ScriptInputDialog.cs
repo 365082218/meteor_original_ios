@@ -35,7 +35,7 @@ public class ScriptInputDialog:Dialog
         Close.onClick.AddListener(() => { OnPreviousPress(); });
         DoScript.onClick.AddListener(() =>
         {
-            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 result.text = "联机禁用此功能";
                 return;
@@ -49,7 +49,7 @@ public class ScriptInputDialog:Dialog
                 }
 
                 if (!UseCheatCode(scriptInput.text))
-                    Main.Instance.ScriptMng.CallString(scriptInput.text);
+                    Main.Ins.ScriptMng.CallString(scriptInput.text);
                 result.text = "秘籍成功执行";
             }
             catch (Exception exp)

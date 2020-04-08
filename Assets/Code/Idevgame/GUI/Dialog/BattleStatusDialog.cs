@@ -30,15 +30,15 @@ public class BattleStatusDialog : Dialog
     {
         //拷贝一份对战数据
         battleResult.Clear();
-        foreach (var each in Main.Instance.GameBattleEx.BattleResult)
+        foreach (var each in Main.Ins.GameBattleEx.BattleResult)
         {
             battleResult.Add(each.Key, each.Value);
         }
         MeteorResult = Control("MeteorResult").transform;
         ButterflyResult = Control("ButterflyResult").transform;
         BattleResult = NodeHelper.Find("AllResult", WndObject);
-        bool active1 = Main.Instance.CombatData.GGameMode != GameMode.MENGZHU;
-        bool active2 = Main.Instance.CombatData.GGameMode == GameMode.MENGZHU;
+        bool active1 = Main.Ins.CombatData.GGameMode != GameMode.MENGZHU;
+        bool active2 = Main.Ins.CombatData.GGameMode == GameMode.MENGZHU;
         Control("CampImage", WndObject).SetActive(active1);
         Control("Title", WndObject).SetActive(active1);
         Control("Result", WndObject).SetActive(active1);
@@ -49,15 +49,15 @@ public class BattleStatusDialog : Dialog
         Control("TitleAll", WndObject).SetActive(active2);
         Control("ResultAll", WndObject).SetActive(active2);
         //BattleTitle = Global.ldaControlX("BattleTitle", WndObject);
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            if (battleResult.ContainsKey(Main.Instance.MeteorManager.UnitInfos[i].InstanceId))
+            if (battleResult.ContainsKey(Main.Ins.MeteorManager.UnitInfos[i].InstanceId))
             {
-                InsertPlayerResult(Main.Instance.MeteorManager.UnitInfos[i].InstanceId, battleResult[Main.Instance.MeteorManager.UnitInfos[i].InstanceId]);
-                battleResult.Remove(Main.Instance.MeteorManager.UnitInfos[i].InstanceId);
+                InsertPlayerResult(Main.Ins.MeteorManager.UnitInfos[i].InstanceId, battleResult[Main.Ins.MeteorManager.UnitInfos[i].InstanceId]);
+                battleResult.Remove(Main.Ins.MeteorManager.UnitInfos[i].InstanceId);
             }
             else
-                InsertPlayerResult(Main.Instance.MeteorManager.UnitInfos[i].InstanceId, Main.Instance.MeteorManager.UnitInfos[i].InstanceId, 0, 0, Main.Instance.MeteorManager.UnitInfos[i].Camp);
+                InsertPlayerResult(Main.Ins.MeteorManager.UnitInfos[i].InstanceId, Main.Ins.MeteorManager.UnitInfos[i].InstanceId, 0, 0, Main.Ins.MeteorManager.UnitInfos[i].Camp);
         }
 
         foreach (var each in battleResult)
@@ -67,7 +67,7 @@ public class BattleStatusDialog : Dialog
     void InsertPlayerResult(int instance, int id, int killed, int dead, EUnitCamp camp)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
-        if (Main.Instance.CombatData.GGameMode == GameMode.MENGZHU)
+        if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
         {
             obj.transform.SetParent(BattleResult.transform);
         }
@@ -80,7 +80,7 @@ public class BattleStatusDialog : Dialog
 
         Text Idx = Control("Idx", obj).GetComponent<Text>();
         Text Name = Control("Name", obj).GetComponent<Text>();
-        if (Main.Instance.CombatData.GGameMode == GameMode.MENGZHU)
+        if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
         {
 
         }
@@ -121,7 +121,7 @@ public class BattleStatusDialog : Dialog
     void InsertPlayerResult(int instanceId, BattleResultItem result)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
-        if (Main.Instance.CombatData.GGameMode == GameMode.MENGZHU)
+        if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
         {
             obj.transform.SetParent(BattleResult.transform);
         }
@@ -134,7 +134,7 @@ public class BattleStatusDialog : Dialog
 
         Text Idx = Control("Idx", obj).GetComponent<Text>();
         Text Name = Control("Name", obj).GetComponent<Text>();
-        if (Main.Instance.CombatData.GGameMode == GameMode.MENGZHU)
+        if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
         {
 
         }

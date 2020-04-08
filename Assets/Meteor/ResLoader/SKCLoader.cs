@@ -36,11 +36,11 @@ public class SkcLoader
     public SkcFile Load(int characterIdx)
     {
         string BoneCnt = "";
-        if (Main.Instance.GameStateMgr != null)
+        if (Main.Ins.GameStateMgr != null)
         {
-            if (Main.Instance.GameStateMgr.gameStatus != null)
+            if (Main.Ins.GameStateMgr.gameStatus != null)
             {
-                switch (Main.Instance.GameStateMgr.gameStatus.Quality)
+                switch (Main.Ins.GameStateMgr.gameStatus.Quality)
                 {
                     case 0:
                         BoneCnt = ""; break;
@@ -51,12 +51,12 @@ public class SkcLoader
                 }
 
                 //如果选择 范旋-他300面的模型 骨骼权重最大是5，不好手动调整,用800面的代替
-                if (characterIdx == 16 && Main.Instance.GameStateMgr.gameStatus.Quality == 2)
+                if (characterIdx == 16 && Main.Ins.GameStateMgr.gameStatus.Quality == 2)
                     BoneCnt = "_800";
             }
         }
 
-        if (characterIdx >= Main.Instance.CombatData.MaxModel)
+        if (characterIdx >= Main.Ins.CombatData.MaxModel)
             return LoadPluginModel(characterIdx);
 
         return Load(string.Format("p{0}{1}.skc", characterIdx, BoneCnt));
@@ -410,7 +410,7 @@ public class SkcFile
     //0-19内的材质是3个，20-27的是单个
     public Material[] Material(int roleIdx, EUnitCamp camp)
     {
-        if (roleIdx >= Main.Instance.CombatData.MaxModel)
+        if (roleIdx >= Main.Ins.CombatData.MaxModel)
         {
             Material[] ret = new Material[materials.Length];
             for (int i = 0; i < materials.Length; i++)

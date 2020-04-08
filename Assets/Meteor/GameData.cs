@@ -77,7 +77,7 @@ public class RoomSetting
         Life = 200;
         Mode = (int)GameMode.MENGZHU;
         DisallowSpecialWeapon = true;
-        Version = Main.Instance.AppInfo.MeteorVersion.Equals("9.07") ? (int)protocol.RoomInfo.MeteorVersion.V907 : (int)protocol.RoomInfo.MeteorVersion.V107;
+        Version = Main.Ins.AppInfo.MeteorVersion.Equals("9.07") ? (int)protocol.RoomInfo.MeteorVersion.V907 : (int)protocol.RoomInfo.MeteorVersion.V107;
         Pattern = 1;
     }
 }
@@ -132,7 +132,7 @@ public class GameState
         if (pluginChapter == null)
             pluginChapter = new List<Chapter>();
         pluginChapter.Add(dlc);
-        Main.Instance.CombatData.ClearLevel();//需要刷新
+        Main.Ins.CombatData.ClearLevel();//需要刷新
     }
 
     public void UnRegisterDlc(Chapter dlc)
@@ -140,7 +140,7 @@ public class GameState
         if (pluginChapter == null)
             return;
         pluginChapter.Remove(dlc);
-        Main.Instance.CombatData.ClearLevel();
+        Main.Ins.CombatData.ClearLevel();
     }
 
     public bool IsModelInstalled(ModelItem item)
@@ -179,13 +179,13 @@ public class GameState
     {
         get
         {
-            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
                 return false;
             return _EnableInfiniteAngry;
         }
         set
         {
-            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 return;
             }
@@ -200,13 +200,13 @@ public class GameState
     {
         get
         {
-            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
                 return false;
             return _EnableGodMode;
         }
         set
         {
-            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 return;
             }
@@ -219,13 +219,13 @@ public class GameState
     {
         get
         {
-            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
                 return false;
             return _Undead;
         }
         set
         {
-            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 return;
             }
@@ -238,13 +238,13 @@ public class GameState
     {
         get
         {
-            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
                 return false;
             return _GodLike;
         }
         set
         {
-            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 return;
             }
@@ -267,13 +267,13 @@ public class GameState
     {
         get
         {
-            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
                 return false;
             return _LevelDebug;
         }
         set
         {
-            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 return;
             }
@@ -318,7 +318,7 @@ public class GameStateMgr
 
     public ItemDatas.ItemDatas FindItemByIdx(int itemid)
     {
-        ItemDatas.ItemDatas ItemProperty = Main.Instance.DataMgr.GetData<ItemDatas.ItemDatas>(itemid);
+        ItemDatas.ItemDatas ItemProperty = Main.Ins.DataMgr.GetData<ItemDatas.ItemDatas>(itemid);
         //缺失读取外部加载的部分
         //if (ItemProperty == null)
         //    ItemProperty = Main.Instance..GetItem(itemid);
@@ -405,7 +405,7 @@ public class GameStateMgr
             gameStatus.FixServerList();
         }
         
-        Main.Instance.AppInfo.MeteorVersion = gameStatus.MeteorVersion;
+        Main.Ins.AppInfo.MeteorVersion = gameStatus.MeteorVersion;
     }
 
     public void SaveState()
@@ -436,7 +436,7 @@ public class GameStateMgr
     public int GetWeaponCode(string model)
     {
         int unitId = -1;
-        List<WeaponDatas.WeaponDatas> wItems = Main.Instance.DataMgr.GetDatasArray<WeaponDatas.WeaponDatas>();
+        List<WeaponDatas.WeaponDatas> wItems = Main.Ins.DataMgr.GetDatasArray<WeaponDatas.WeaponDatas>();
         for (int i = 0; i < wItems.Count; i++)
         {
             if (wItems[i].WeaponR == model)
@@ -459,7 +459,7 @@ public class GameStateMgr
         //    }
         //}
 
-        List<ItemDatas.ItemDatas> items = Main.Instance.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
+        List<ItemDatas.ItemDatas> items = Main.Ins.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
         for (int i = 0; i < items.Count; i++)
         {
             if (items[i].UnitId == unitId && items[i].MainType == 1)
@@ -518,7 +518,7 @@ public class UpdateHelper
     //应用一个版本
     public void ApplyVersion(VersionItem ver, Main loader)
     {
-        Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.UpdateDialogState);
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.UpdateDialogState);
         UpdateDialogState.Instance.SetNotice(ver.strVersionMax,
             () =>
             {
@@ -555,7 +555,7 @@ public class UpdateHelper
         () =>
         {
             //直接进入游戏
-            Main.Instance.GameStart();
+            Main.Ins.GameStart();
         });
     }
 
@@ -593,7 +593,7 @@ public class CombatData
     public ServerInfo Server;//当前选择的服务器.
     public List<ServerInfo> Servers = new List<ServerInfo>();
     public float FPS = 1.0f / 30.0f;//动画设计帧率
-    public float gGravity = 980;
+    public float gGravity = 1000;
     public const float angularVelocity = 540.0f;
     public const float RebornDelay = 15.0f;//复活队友的CD间隔
     public const float RebornRange = 125.0f;//复活队友的距离最大限制
@@ -681,15 +681,15 @@ public class CombatData
             return AllLevel.ToArray();
         if (AllLevel == null)
             AllLevel = new List<LevelDatas.LevelDatas>();
-        List<LevelDatas.LevelDatas> baseLevel = Main.Instance.DataMgr.GetDatasArray<LevelDatas.LevelDatas>();
+        List<LevelDatas.LevelDatas> baseLevel = Main.Ins.DataMgr.GetDatasArray<LevelDatas.LevelDatas>();
         for (int i = 0; i < baseLevel.Count; i++)
         {
             AllLevel.Add(baseLevel[i]);
         }
 
-        for (int i = 0; i < Main.Instance.GameStateMgr.gameStatus.pluginChapter.Count; i++)
+        for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginChapter.Count; i++)
         {
-            baseLevel = Main.Instance.DlcMng.GetDlcLevel(Main.Instance.GameStateMgr.gameStatus.pluginChapter[i].ChapterId);
+            baseLevel = Main.Ins.DlcMng.GetDlcLevel(Main.Ins.GameStateMgr.gameStatus.pluginChapter[i].ChapterId);
             for (int j = 0; j < baseLevel.Count; j++)
             {
                 AllLevel.Add(baseLevel[j]);
@@ -709,12 +709,12 @@ public class CombatData
     {
         if (chapterId == 0)
         {
-            LevelDatas.LevelDatas lev = Main.Instance.DataMgr.GetData<LevelDatas.LevelDatas>(id);
+            LevelDatas.LevelDatas lev = Main.Ins.DataMgr.GetData<LevelDatas.LevelDatas>(id);
             if (lev != null)
                 return lev;
         }
 
-        List<LevelDatas.LevelDatas> l = Main.Instance.DlcMng.GetDlcLevel(chapterId);
+        List<LevelDatas.LevelDatas> l = Main.Ins.DlcMng.GetDlcLevel(chapterId);
         for (int i = 0; i < l.Count; i++)
         {
             if (l[i].ID == id)
@@ -726,11 +726,11 @@ public class CombatData
 
     public string GetCharacterName(int id)
     {
-        if (id >= Main.Instance.CombatData.MaxModel)
+        if (id >= Main.Ins.CombatData.MaxModel)
         {
             return DlcMng.GetPluginModel(id).Name;
         }
-        return Main.Instance.DataMgr.GetData<ModelDatas.ModelDatas>(id).Name;
+        return Main.Ins.DataMgr.GetData<ModelDatas.ModelDatas>(id).Name;
     }
 
     public static List<WayPoint> GetWayPoint(LevelDatas.LevelDatas level)
@@ -740,7 +740,7 @@ public class CombatData
         if (WayMng.Instance != null)
             wayPoint = WayMng.Instance.wayPoints;
         else if ((wayPoint == null || wayPoint.Count == 0) && !string.IsNullOrEmpty(items))
-            wayPoint = Main.Instance.WayLoader.ReLoad(items);
+            wayPoint = Main.Ins.WayLoader.ReLoad(items);
         return wayPoint;
     }
 }

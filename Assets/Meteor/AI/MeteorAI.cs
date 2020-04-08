@@ -161,7 +161,7 @@ public class MeteorAI {
         //AI强制行为(攻击指定位置，Kill追杀（不论视野）攻击 ) > 战斗 > 跟随 > 巡逻 > 
         
         //找到身旁是否有死亡队友，
-        if (Main.Instance.CombatData.GGameMode == GameMode.ANSHA && owner.IsLeader && RebornTick <= 0)
+        if (Main.Ins.CombatData.GGameMode == GameMode.ANSHA && owner.IsLeader && RebornTick <= 0)
         {
             //如果50码以内有死亡队友.且当前在前进/待机/预备动作
             if (CanChangeToRebornStatus())
@@ -318,7 +318,7 @@ public class MeteorAI {
                         switch (SubStatusOnComplete)
                         {
                             case EAISubStatus.Patrol:
-                                RefreshPathCoroutine = Main.Instance.StartCoroutine(RefreshPatrolPath());
+                                RefreshPathCoroutine = Main.Ins.StartCoroutine(RefreshPatrolPath());
                                 SubStatus = EAISubStatus.FindWaitPatrol;
                                 break;
                             case EAISubStatus.PatrolGotoFirstPoint:
@@ -414,7 +414,7 @@ public class MeteorAI {
 
         if (RefreshPathCoroutine != null)
         {
-            Main.Instance.StopCoroutine(RefreshPathCoroutine);
+            Main.Ins.StopCoroutine(RefreshPathCoroutine);
             RefreshPathCoroutine = null;
         }
         ChangeState(StatusOnComplete);
@@ -426,8 +426,8 @@ public class MeteorAI {
         PatrolTemp.Clear();
         for (int i = 0; i < patrolData.Count; i++)
         {
-            if (patrolData[i] < Main.Instance.CombatData.wayPoints.Count)
-                PatrolTemp.Add(Main.Instance.CombatData.wayPoints[patrolData[i]]);
+            if (patrolData[i] < Main.Ins.CombatData.wayPoints.Count)
+                PatrolTemp.Add(Main.Ins.CombatData.wayPoints[patrolData[i]]);
         }
 
         //计算从第一个点到最后一个点的完整路径，放到完整巡逻点钟
@@ -441,7 +441,7 @@ public class MeteorAI {
             for (int i = 0; i < PatrolTemp.Count - 1; i++)
             {
                 PatrolTemp2.Clear();
-                yield return Main.Instance.PathMng.FindPath(owner, PatrolTemp[i].index, PatrolTemp[i + 1].index, PatrolTemp2);
+                yield return Main.Ins.PathMng.FindPath(owner, PatrolTemp[i].index, PatrolTemp[i + 1].index, PatrolTemp2);
                 if (PatrolTemp2.Count != 0)
                 {
                     if (idx.Count == 0)
@@ -452,7 +452,7 @@ public class MeteorAI {
             }
         }
         for (int i = 0; i < idx.Count; i++)
-            PatrolPath.Add(Main.Instance.CombatData.wayPoints[idx[i]]);
+            PatrolPath.Add(Main.Ins.CombatData.wayPoints[idx[i]]);
         FindPatrolFinished = true;
     }
 
@@ -482,7 +482,7 @@ public class MeteorAI {
                 }
                 owner.StopCoroutine(struggleCoroutine);
                 struggleCoroutine = null;
-                waitStruggleDone = 2 * Main.Instance.AppInfo.GetWaitForNextInput();
+                waitStruggleDone = 2 * Main.Ins.AppInfo.LinkDelay();
             }
             return true;
         }
@@ -565,7 +565,7 @@ public class MeteorAI {
                     //模拟跳跃键，移动到下一个位置.还得按住上
                     if (curIndex != -1)
                     {
-                        if (Main.Instance.PathMng.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround())
+                        if (Main.Ins.PathMng.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump && owner.IsOnGround())
                         {
                             owner.controller.Input.AIMove(0, 0);
                             AIJump(Path[targetIndex].pos);
@@ -776,13 +776,13 @@ public class MeteorAI {
         {
             //已经在[攻击招式/预备姿势]中.后接招式挑选，类似140-148，蹲下是可以接所有招式的.所以火枪不仅仅走上面.
             //把可以使用的招式放到集合里，A类放普攻，B类放搓招， C类放绝招
-            ActionNode act = Main.Instance.ActionInterrupt.GetActions(owner.posMng.mActiveAction.Idx);
+            ActionNode act = Main.Ins.ActionInterrupt.GetActions(owner.posMng.mActiveAction.Idx);
             if (act != null)
             {
                 if (attack < owner.Attr.Attack1)
                 {
                     //普通攻击
-                    ActionNode attack1 = Main.Instance.ActionInterrupt.GetNormalNode(owner, act);
+                    ActionNode attack1 = Main.Ins.ActionInterrupt.GetNormalNode(owner, act);
                     if (attack1 != null)
                     {
                         TryPlayWeaponPose(attack1.KeyMap);
@@ -793,7 +793,7 @@ public class MeteorAI {
                 else if (attack < (owner.Attr.Attack1 + owner.Attr.Attack2))
                 {
                     //连招-有可能也是小绝招.如果怒气不足可能无法释放小绝.
-                    List<ActionNode> attack2 = Main.Instance.ActionInterrupt.GetSlashNode(owner, act);
+                    List<ActionNode> attack2 = Main.Ins.ActionInterrupt.GetSlashNode(owner, act);
                     if (attack2.Count != 0)
                     {
                         TryPlayWeaponPose(attack2[Random.Range(0, attack2.Count)].KeyMap);
@@ -807,7 +807,7 @@ public class MeteorAI {
                     //怒气不足时，可能无法释放出
                     if (owner.AngryValue == CombatData.ANGRYMAX)
                     {
-                        ActionNode attack3 = Main.Instance.ActionInterrupt.GetSkillNode(owner, act);
+                        ActionNode attack3 = Main.Ins.ActionInterrupt.GetSkillNode(owner, act);
                         if (attack3 != null)
                         {
                             TryPlayWeaponPose(attack3.KeyMap);
@@ -820,7 +820,7 @@ public class MeteorAI {
                     else
                     {
                         //无法释放大绝招，那么尝试释放连招或小绝招.
-                        List<ActionNode> attack2 = Main.Instance.ActionInterrupt.GetSlashNode(owner, act);
+                        List<ActionNode> attack2 = Main.Ins.ActionInterrupt.GetSlashNode(owner, act);
                         if (attack2.Count != 0)
                         {
                             TryPlayWeaponPose(attack2[Random.Range(0, attack2.Count)].KeyMap);
@@ -898,7 +898,7 @@ public class MeteorAI {
                     //模拟跳跃键，移动到下一个位置.还得按住上
                     if (curIndex != -1)
                     {
-                        if (Main.Instance.PathMng.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump)
+                        if (Main.Ins.PathMng.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump)
                         {
                             if (owner.IsOnGround())
                             {
@@ -1045,7 +1045,7 @@ public class MeteorAI {
 
     void OnFightGotoPosition()
     {
-        if (Main.Instance.CombatData.GScript.DisableFindWay())
+        if (Main.Ins.CombatData.GScript.DisableFindWay())
         {
             //无路点
             //距离足够近
@@ -1112,7 +1112,7 @@ public class MeteorAI {
             //模拟跳跃键，移动到下一个位置.还得按住上
             if (curIndex != -1)
             {
-                if (Main.Instance.PathMng.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump)
+                if (Main.Ins.PathMng.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump)
                 {
                     if (owner.IsOnGround())
                     {
@@ -1139,7 +1139,7 @@ public class MeteorAI {
 
     void OnFightGotoTarget()
     {
-        if (Main.Instance.CombatData.GScript.DisableFindWay())
+        if (Main.Ins.CombatData.GScript.DisableFindWay())
         {
             //无路点
             //距离足够近
@@ -1224,7 +1224,7 @@ public class MeteorAI {
             //模拟跳跃键，移动到下一个位置.还得按住上
             if (curIndex != -1 && curIndex < Path.Count && targetIndex < Path.Count)
             {
-                if (Main.Instance.PathMng.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump)
+                if (Main.Ins.PathMng.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump)
                 {
                     if (owner.IsOnGround())
                     {
@@ -1307,7 +1307,7 @@ public class MeteorAI {
                     //如果是远程武器，先检查角度是否相差过大.过大先调整角度
                     if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
                     {
-                        if (GetAngleBetween(fightTarget.transform.position) >= Main.Instance.CombatData.AimDegree)
+                        if (GetAngleBetween(fightTarget.transform.position) >= Main.Ins.CombatData.AimDegree)
                         {
                             //停止连击，方向需要调整
                             return;
@@ -1316,7 +1316,7 @@ public class MeteorAI {
                     }
                     //近战武器，在可输入帧，每一帧30几率接前一招出招，如果这个输入帧大于50帧，基本就可以连上去
                     int chance = Random.Range(0, 100);
-                    if (chance < Main.Instance.CombatData.ComboProbability)
+                    if (chance < Main.Ins.CombatData.ComboProbability)
                     {
                         //UnityEngine.Debug.LogError(string.Format("{0}:chance attack", chance));
                         TryAttack();
@@ -1385,7 +1385,7 @@ public class MeteorAI {
                     {
                         //主手是远程武器-.直接攻击,不处理，后续会处理到底是打还是啥.
                         //站撸
-                        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Main.Instance.CombatData.AimDegree)
+                        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Main.Ins.CombatData.AimDegree)
                         {
                             SubStatus = EAISubStatus.FightAim;
                             return;
@@ -1395,7 +1395,7 @@ public class MeteorAI {
                     {
                         //副手是远程武器-.一定几率切换武器，再攻击.90几率切换到远程武器
                         int random = Random.Range(0, 100);
-                        if (random > Main.Instance.CombatData.SpecialWeaponProbability)
+                        if (random > Main.Ins.CombatData.SpecialWeaponProbability)
                         {
                             //切换武器，开打(不跑过去),换到武器2
                             //SubStatus = EAISubStatus.FightChangeWeapon;
@@ -1428,7 +1428,7 @@ public class MeteorAI {
                     {
                         //主手近战武器，副手远程武器
                         //无需处理，使用近战武器攻击就好。
-                        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Main.Instance.CombatData.AimDegree)
+                        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Main.Ins.CombatData.AimDegree)
                         {
                             SubStatus = EAISubStatus.FightAim;
                             return;
@@ -1463,7 +1463,7 @@ public class MeteorAI {
                         }
 
                         //角度相差太大，重新瞄准
-                        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Main.Instance.CombatData.AimDegree)
+                        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Main.Ins.CombatData.AimDegree)
                         {
                             SubStatus = EAISubStatus.FightAim;
                             return;
@@ -1570,7 +1570,7 @@ public class MeteorAI {
             return;
         }
 
-        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Main.Instance.CombatData.AimDegree)
+        if (GetAngleBetween(fightTarget.mSkeletonPivot) > Main.Ins.CombatData.AimDegree)
         {
             if (AttackRotateToTargetCoroutine == null)
             {
@@ -1659,7 +1659,7 @@ public class MeteorAI {
         {
             //Debug.LogError("fight leave");
             StopMove();
-            TargetPos = Main.Instance.PathMng.GetNearestWayPoint(fightTarget.mSkeletonPivot, fightTarget);
+            TargetPos = Main.Ins.PathMng.GetNearestWayPoint(fightTarget.mSkeletonPivot, fightTarget);
             if (TargetPos == Vector3.zero)
             {
                 ChangeState(EAIStatus.Fight);
@@ -1680,7 +1680,7 @@ public class MeteorAI {
         {
             if (RefreshPathCoroutine == null)
             {
-                RefreshPathCoroutine = Main.Instance.StartCoroutine(Main.Instance.PathMng.FindPath(owner, now, target, Path));
+                RefreshPathCoroutine = Main.Ins.StartCoroutine(Main.Ins.PathMng.FindPath(owner, now, target, Path));
                 curIndex = -1;
                 targetIndex = -1;
             }
@@ -1701,7 +1701,7 @@ public class MeteorAI {
         {
             if (RefreshPathCoroutine == null)
             {
-                RefreshPathCoroutine = Main.Instance.StartCoroutine(Main.Instance.PathMng.FindPathEx(owner, target, Path));
+                RefreshPathCoroutine = Main.Ins.StartCoroutine(Main.Ins.PathMng.FindPathEx(owner, target, Path));
                 curIndex = -1;
                 targetIndex = -1;
             }
@@ -1830,7 +1830,7 @@ public class MeteorAI {
                     //模拟跳跃键，移动到下一个位置.还得按住上
                     if (curIndex != -1)
                     {
-                        if (Main.Instance.PathMng.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump)
+                        if (Main.Ins.PathMng.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump)
                         {
                             if (owner.IsOnGround())
                             {
@@ -1935,7 +1935,7 @@ public class MeteorAI {
                         //模拟跳跃键，移动到下一个位置.还得按住上
                         if (curIndex != -1)
                         {
-                            if (Main.Instance.PathMng.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump)
+                            if (Main.Ins.PathMng.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump)
                             {
                                 if (owner.IsOnGround())
                                 {
@@ -1999,7 +1999,7 @@ public class MeteorAI {
     public void FollowTarget(int target)
     {
         MeteorUnit want = U3D.GetUnit(target);
-        if (Main.Instance.MeteorManager.LeavedUnits.ContainsKey(target))
+        if (Main.Ins.MeteorManager.LeavedUnits.ContainsKey(target))
             return;
         followTarget = want;
         ChangeState(EAIStatus.Follow);
@@ -2242,7 +2242,7 @@ public class MeteorAI {
 
         if (RefreshPathCoroutine != null)
         {
-            Main.Instance.StopCoroutine(RefreshPathCoroutine);
+            Main.Ins.StopCoroutine(RefreshPathCoroutine);
             RefreshPathCoroutine = null;
         }
     }
@@ -2807,7 +2807,7 @@ public class MeteorAI {
     float AIJumpDelay = 0.0f;
     int GetPatrolIndex()
     {
-        int k = Main.Instance.PathMng.GetWayIndex(owner.mSkeletonPivot, owner);
+        int k = Main.Ins.PathMng.GetWayIndex(owner.mSkeletonPivot, owner);
         if (k == -1)
             return -1;
         for (int i = 0; i < PatrolPath.Count; i++)
@@ -2960,7 +2960,7 @@ public class MeteorAI {
                 //模拟跳跃键，移动到下一个位置.还得按住上
                 if (curPatrolIndex != -1)
                 {
-                    if (Main.Instance.PathMng.GetWalkMethod(PatrolPath[curPatrolIndex].index, PatrolPath[targetPatrolIndex].index) == WalkType.Jump)
+                    if (Main.Ins.PathMng.GetWalkMethod(PatrolPath[curPatrolIndex].index, PatrolPath[targetPatrolIndex].index) == WalkType.Jump)
                     {
                         if (owner.IsOnGround())
                         {
@@ -3032,7 +3032,7 @@ public class MeteorAI {
                     //模拟跳跃键，移动到下一个位置.还得按住上
                     if (curIndex != -1)
                     {
-                        if (Main.Instance.PathMng.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump)
+                        if (Main.Ins.PathMng.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump)
                         {
                             if (owner.IsOnGround())
                             {
@@ -3079,7 +3079,7 @@ public class MeteorAI {
         vec2.y = 0;
         float sz = Vector3.Distance(vec, vec2);
         owner.Jump2(Mathf.Abs(height));
-        owner.SetVelocity(sz / (2 * owner.ImpluseVec.y / Main.Instance.CombatData.gGravity), 0);
+        owner.SetVelocity(sz / (2 * owner.ImpluseVec.y / Main.Ins.CombatData.gGravity), 0);
     }
 
     public void OnGotoWayPoint(int wayIndex)

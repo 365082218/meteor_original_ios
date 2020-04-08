@@ -33,9 +33,9 @@ public class FightUiConroller : Dialog
     void OnPlayerInfo()
     {
         if (PlayerDialogState.Exist())
-            Main.Instance.ExitState(Main.Instance.PlayerDialogState);
+            Main.Ins.ExitState(Main.Ins.PlayerDialogState);
         else
-            Main.Instance.EnterState(Main.Instance.PlayerDialogState);
+            Main.Ins.EnterState(Main.Ins.PlayerDialogState);
     }
 
     public void HideCameraBtn()
@@ -77,13 +77,13 @@ public class FightUiConroller : Dialog
         ctrl = LevelTalkRoot.GetComponent<AutoMsgCtrl>();
         ctrl.SetConfig(2.0f, 1.5f);
         //联机不需要剧情对白面板，而使用房间聊天面板单独代替.
-        if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
         {
             GameObject.Destroy(Control("BattleInfo").gameObject);
         }
         else
         {
-            Control("BattleInfo").GetComponent<RectTransform>().anchoredPosition = new Vector2(Main.Instance.GameStateMgr.gameStatus.ShowSysMenu2 ? 145 : -20, -175);
+            Control("BattleInfo").GetComponent<RectTransform>().anchoredPosition = new Vector2(Main.Ins.GameStateMgr.gameStatus.ShowSysMenu2 ? 145 : -20, -175);
         }
         NodeHelper.Find("Attack", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnAttackPress);
         NodeHelper.Find("Attack", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnAttackRelease);
@@ -96,7 +96,7 @@ public class FightUiConroller : Dialog
         NodeHelper.Find("BreakOut", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnBreakOut);
         NodeHelper.Find("WeaponSelect", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenWeaponWnd(); });
         NodeHelper.Find("SceneName", WndObject).GetComponent<Button>().onClick.AddListener(() => { OpenMiniMap(); });
-        NodeHelper.Find("SceneName", WndObject).GetComponentInChildren<Text>().text = Main.Instance.CombatData.GLevelItem.Name;
+        NodeHelper.Find("SceneName", WndObject).GetComponentInChildren<Text>().text = Main.Ins.CombatData.GLevelItem.Name;
         NodeHelper.Find("System", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSystemWnd(); });
         NodeHelper.Find("Crouch", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnCrouchPress);
         NodeHelper.Find("Crouch", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnCrouchRelease);
@@ -114,23 +114,23 @@ public class FightUiConroller : Dialog
         NodeHelper.Find("Status", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnStatusRelease);
         NodeHelper.Find("Chat", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnChatClick);
         NodeHelper.Find("SysMenu2", WndObject).SetActive(
-            (Main.Instance.CombatData.GLevelMode == LevelMode.CreateWorld && Main.Instance.GameStateMgr.gameStatus.ShowSysMenu2) ||
-            (Main.Instance.CombatData.GLevelMode == LevelMode.SinglePlayerTask && Main.Instance.GameStateMgr.gameStatus.ShowSysMenu2) ||
-            (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer));
+            (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld && Main.Ins.GameStateMgr.gameStatus.ShowSysMenu2) ||
+            (Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask && Main.Ins.GameStateMgr.gameStatus.ShowSysMenu2) ||
+            (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer));
         NodeHelper.Find("Reborn", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnRebornClick);
 
         //单机
-        if (Main.Instance.CombatData.GLevelMode == LevelMode.SinglePlayerTask && Main.Instance.CombatData.GLevelItem.ID == 4)
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask && Main.Ins.CombatData.GLevelItem.ID == 4)
             NodeHelper.Find("Reborn", WndObject).SetActive(true);
         else
         {
             //创建关卡，非暗杀，都不允许复活
-            if (Main.Instance.CombatData.GGameMode != GameMode.ANSHA)
+            if (Main.Ins.CombatData.GGameMode != GameMode.ANSHA)
                 NodeHelper.Find("Reborn", WndObject).SetActive(false);
         }
 
         //联机屏蔽按键-多人游戏
-        if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
         {
             //联机还无法复活队友.
             NodeHelper.Find("Reborn", WndObject).SetActive(false);
@@ -145,7 +145,7 @@ public class FightUiConroller : Dialog
 #else
         NodeHelper.Find("DBG", WndObject).SetActive(false);
 #endif
-        if (Main.Instance.MeteorManager.LocalPlayer != null)
+        if (Main.Ins.LocalPlayer != null)
         {
             angryBar.fillAmount = 0.0f;
             UpdatePlayerInfo();
@@ -158,7 +158,7 @@ public class FightUiConroller : Dialog
         UpdateUIButton();
         CanvasGroup[] c = WndObject.GetComponentsInChildren<CanvasGroup>();
         for (int i = 0; i < c.Length; i++)
-            c[i].alpha = Main.Instance.GameStateMgr.gameStatus.UIAlpha;
+            c[i].alpha = Main.Ins.GameStateMgr.gameStatus.UIAlpha;
 #if (UNITY_EDITOR || UNITY_STANDALONE_WIN) && !STRIP_KEYBOARD
         Control("ClickPanel").SetActive(false);
         Control("JoyArrow").SetActive(false);
@@ -174,9 +174,9 @@ public class FightUiConroller : Dialog
     void OnChatClick()
     {
         if (!ChatDialogState.Exist())
-            Main.Instance.EnterState(Main.Instance.ChatDialogState);
+            Main.Ins.EnterState(Main.Ins.ChatDialogState);
         else
-            Main.Instance.ExitState(Main.Instance.ChatDialogState);
+            Main.Ins.ExitState(Main.Ins.ChatDialogState);
     }
 
 #if !STRIP_DBG_SETTING
@@ -189,34 +189,34 @@ public class FightUiConroller : Dialog
     void OnStatusPress()
     {
         if (!BattleStatusDialogState.Exist())
-            Main.Instance.EnterState(Main.Instance.BattleStatusDialogState);
+            Main.Ins.EnterState(Main.Ins.BattleStatusDialogState);
     }
 
     void OnStatusRelease()
     {
         if (BattleStatusDialogState.Exist())
         {
-            Main.Instance.ExitState(Main.Instance.BattleStatusDialogState);
+            Main.Ins.ExitState(Main.Ins.BattleStatusDialogState);
         }
     }
 
     void OnRebornClick()
     {
-        if (Main.Instance.CombatData.GLevelMode == LevelMode.SinglePlayerTask)
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask)
         {
-            if (Main.Instance.MeteorManager.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle ||
-                Main.Instance.MeteorManager.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Run ||
-                Main.Instance.MeteorManager.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
-                Main.Instance.MeteorManager.LocalPlayer.posMng.ChangeAction(CommonAction.Reborn);
+            if (Main.Ins.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle ||
+                Main.Ins.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Run ||
+                Main.Ins.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
+                Main.Ins.LocalPlayer.posMng.ChangeAction(CommonAction.Reborn);
         }
-        else if (Main.Instance.CombatData.GLevelMode == LevelMode.CreateWorld)
+        else if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld)
         {
-            if (Main.Instance.CombatData.GGameMode == GameMode.ANSHA)
+            if (Main.Ins.CombatData.GGameMode == GameMode.ANSHA)
             {
-                if (Main.Instance.MeteorManager.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle ||
-                    Main.Instance.MeteorManager.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Run ||
-                    Main.Instance.MeteorManager.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
-                    Main.Instance.MeteorManager.LocalPlayer.posMng.ChangeAction(CommonAction.Reborn);
+                if (Main.Ins.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle ||
+                    Main.Ins.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Run ||
+                    Main.Ins.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
+                    Main.Ins.LocalPlayer.posMng.ChangeAction(CommonAction.Reborn);
             }
         }
     }
@@ -268,29 +268,29 @@ public class FightUiConroller : Dialog
     public GameObject clickPanel;
     public void UpdateUIButton()
     {
-        NodeHelper.Find("WeaponSelect", gameObject).SetActive(Main.Instance.GameStateMgr.gameStatus.EnableWeaponChoose);
-        NodeHelper.Find("SfxMenu", gameObject).SetActive(Main.Instance.GameStateMgr.gameStatus.EnableDebugSFX);
-        NodeHelper.Find("Robot", gameObject).SetActive(Main.Instance.GameStateMgr.gameStatus.EnableDebugRobot);
+        NodeHelper.Find("WeaponSelect", gameObject).SetActive(Main.Ins.GameStateMgr.gameStatus.EnableWeaponChoose);
+        NodeHelper.Find("SfxMenu", gameObject).SetActive(Main.Ins.GameStateMgr.gameStatus.EnableDebugSFX);
+        NodeHelper.Find("Robot", gameObject).SetActive(Main.Ins.GameStateMgr.gameStatus.EnableDebugRobot);
 #if !STRIP_DBG_SETTING
-        NodeHelper.Find("DBG", gameObject).SetActive(Main.Instance.GameStateMgr.gameStatus.LevelDebug);
+        NodeHelper.Find("DBG", gameObject).SetActive(Main.Ins.GameStateMgr.gameStatus.LevelDebug);
 #endif
         NodeHelper.Find("MiniMap", gameObject).SetActive(true);
 
         if (NGUIJoystick.instance != null)
         {
-            if (Main.Instance.GameStateMgr.gameStatus.DisableJoystick)
+            if (Main.Ins.GameStateMgr.gameStatus.DisableJoystick)
                 NGUIJoystick.instance.OnDisabled();
             else
                 NGUIJoystick.instance.OnEnabled();
         }
 #if !STRIP_DBG_SETTING
-        if (Main.Instance.GameStateMgr.gameStatus.EnableLog)
+        if (Main.Ins.GameStateMgr.gameStatus.EnableLog)
             WSDebug.Ins.OpenLogView();
         else
             WSDebug.Ins.CloseLogView();
 #endif
         if (NGUIJoystick.instance != null)
-            NGUIJoystick.instance.SetAnchor(Main.Instance.GameStateMgr.gameStatus.JoyAnchor);
+            NGUIJoystick.instance.SetAnchor(Main.Ins.GameStateMgr.gameStatus.JoyAnchor);
         int j = 0;
         for (int i = 0; i < clickPanel.transform.childCount; i++)
         {
@@ -298,16 +298,16 @@ public class FightUiConroller : Dialog
             if (tri.name == "Direction")
                 continue;
             RectTransform r = tri.GetComponent<RectTransform>();
-            if (Main.Instance.GameStateMgr.gameStatus.HasUIAnchor[j])
-                r.anchoredPosition = Main.Instance.GameStateMgr.gameStatus.UIAnchor[j];
+            if (Main.Ins.GameStateMgr.gameStatus.HasUIAnchor[j])
+                r.anchoredPosition = Main.Ins.GameStateMgr.gameStatus.UIAnchor[j];
             j++;
         }
     }
 
     void OnAttackPress()
     {
-        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
-        Main.Instance.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Attack, false);//也可看作普攻
+        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
+        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Attack, false);//也可看作普攻
     }
 
     public void OnChangeLock(bool locked)
@@ -317,77 +317,77 @@ public class FightUiConroller : Dialog
 
     void OnClickChangeLock()
     {
-        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
+        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
         //远程武器禁止切换锁定状态
-        int weaponEquiped = Main.Instance.MeteorManager.LocalPlayer.GetWeaponType();
+        int weaponEquiped = Main.Ins.LocalPlayer.GetWeaponType();
         if (weaponEquiped == (int)EquipWeaponType.Gun || weaponEquiped == (int)EquipWeaponType.Dart || weaponEquiped == (int)EquipWeaponType.Guillotines)
             return;
 
-        if (Main.Instance.GameBattleEx.bLocked)
-            Main.Instance.GameBattleEx.Unlock();
+        if (Main.Ins.GameBattleEx.bLocked)
+            Main.Ins.GameBattleEx.Unlock();
         else
-            Main.Instance.GameBattleEx.Lock();
+            Main.Ins.GameBattleEx.Lock();
     }
 
     void OnClickDrop()
     {
-        Main.Instance.MeteorManager.LocalPlayer.DropWeapon();
+        Main.Ins.LocalPlayer.DropWeapon();
     }
 
     void OnCrouchPress()
     {
-        if (Main.Instance.MeteorManager.LocalPlayer.Dead)
+        if (Main.Ins.LocalPlayer.Dead)
             return;
 
-        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
-        Main.Instance.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Crouch, false);
+        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
+        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Crouch, false);
     }
 
     void OnCrouchRelease()
     {
-        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
-        Main.Instance.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Crouch);
+        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
+        Main.Ins.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Crouch);
     }
 
     void OnChangeWeaponPress()
     {
-        if (Main.Instance.MeteorManager.LocalPlayer.Dead)
+        if (Main.Ins.LocalPlayer.Dead)
             return;
 
-        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
-        Main.Instance.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_ChangeWeapon, false);
+        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
+        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_ChangeWeapon, false);
     }
 
     void OnChangeWeaponRelease()
     {
-        if (Main.Instance.MeteorManager.LocalPlayer.Dead)
+        if (Main.Ins.LocalPlayer.Dead)
             return;
 
-        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
-        Main.Instance.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_ChangeWeapon);
+        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
+        Main.Ins.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_ChangeWeapon);
     }
 
     void OnAttackRelease()
     {
-        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
-        Main.Instance.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Attack);
+        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
+        Main.Ins.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Attack);
     }
 
     void OnDefencePress()
     {
-        if (Main.Instance.MeteorManager.LocalPlayer.Dead)
+        if (Main.Ins.LocalPlayer.Dead)
             return;
-        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
-        Main.Instance.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Defence, true);//不要被键盘状态同步，否则按下马上就抬起，那么防御姿势就消失了
+        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
+        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Defence, true);//不要被键盘状态同步，否则按下马上就抬起，那么防御姿势就消失了
 
     }
 
     void OnDefenceRelease()
     {
-        if (Main.Instance.MeteorManager.LocalPlayer.Dead)
+        if (Main.Ins.LocalPlayer.Dead)
             return;
-        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
-        Main.Instance.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Defence);
+        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
+        Main.Ins.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Defence);
     }
 
     void OnJumpPress()
@@ -395,25 +395,25 @@ public class FightUiConroller : Dialog
         //if (!MeteorManager.Instance.LocalPlayer.posMng.CanJump)
         //    return;
 
-        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
-        Main.Instance.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Jump, false);//
+        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
+        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Jump, false);//
     }
 
     void OnJumpRelease()
     {
-        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll) return;
-        Main.Instance.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Jump);
+        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
+        Main.Ins.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Jump);
     }
 
     //按爆气.
     public void OnBreakOut()
     {
         //Debug.Log("OnBreakOut");
-        if (Main.Instance.CombatData.GMeteorInput == null || Main.Instance.CombatData.PauseAll)
+        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll)
             return;
-        if (Main.Instance.MeteorManager.LocalPlayer.AngryValue >= 60 || Main.Instance.GameStateMgr.gameStatus.EnableInfiniteAngry)
+        if (Main.Ins.LocalPlayer.AngryValue >= 60 || Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
         {
-            Main.Instance.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_BreakOut, false);
+            Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_BreakOut, false);
             //Debug.Log("OnKeyDown");
         }
     }
@@ -421,9 +421,9 @@ public class FightUiConroller : Dialog
     //int lastAngry = 0;
     public void UpdateAngryBar()
     {
-        if (Main.Instance.MeteorManager.LocalPlayer != null && !Main.Instance.MeteorManager.LocalPlayer.Dead)
+        if (Main.Ins.LocalPlayer != null && !Main.Ins.LocalPlayer.Dead)
         {
-            angryBar.fillAmount = (float)Main.Instance.MeteorManager.LocalPlayer.AngryValue / (float)CombatData.ANGRYMAX;
+            angryBar.fillAmount = (float)Main.Ins.LocalPlayer.AngryValue / (float)CombatData.ANGRYMAX;
         }
     }
 
@@ -441,8 +441,8 @@ public class FightUiConroller : Dialog
 
     public void OnBattleStart()
     {
-        currentHP = nextHp = Main.Instance.MeteorManager.LocalPlayer.Attr.hpCur;
-        hpBar.fillAmount = currentHP / (float)Main.Instance.MeteorManager.LocalPlayer.Attr.HpMax;
+        currentHP = nextHp = Main.Ins.LocalPlayer.Attr.hpCur;
+        hpBar.fillAmount = currentHP / (float)Main.Ins.LocalPlayer.Attr.HpMax;
     }
 
     public void OnBattleEnd()
@@ -456,7 +456,7 @@ public class FightUiConroller : Dialog
     MeteorUnit CurrentMonster;
     public void UpdateMonsterInfo(MeteorUnit mon)
     {
-        if (!Main.Instance.GameStateMgr.gameStatus.ShowBlood)
+        if (!Main.Ins.GameStateMgr.gameStatus.ShowBlood)
             return;
 
         if (!TargetBlood.activeInHierarchy)
@@ -552,7 +552,7 @@ public class FightUiConroller : Dialog
         if (currentHP != nextHp)
         {
             currentHP = Mathf.MoveTowards(currentHP, nextHp, 1000f * Time.deltaTime);
-            hpBar.fillAmount = currentHP / (float)Main.Instance.MeteorManager.LocalPlayer.Attr.TotalHp;
+            hpBar.fillAmount = currentHP / (float)Main.Ins.LocalPlayer.Attr.TotalHp;
         }
 
         if (currentTargetHp != nextTargetHp)
@@ -585,10 +585,10 @@ public class FightUiConroller : Dialog
     float currentHP = 0;
     public void UpdatePlayerInfo()
     {
-        if (Main.Instance.MeteorManager.LocalPlayer != null && Main.Instance.MeteorManager.LocalPlayer.Attr.hpCur >= 0)
+        if (Main.Ins.LocalPlayer != null && Main.Ins.LocalPlayer.Attr.hpCur >= 0)
         {
-            hpLabel.text = ((int)(Main.Instance.MeteorManager.LocalPlayer.Attr.hpCur / 10.0f)).ToString() + "/" + ((int)(Main.Instance.MeteorManager.LocalPlayer.Attr.HpMax / 10.0f)).ToString();
-            nextHp = Main.Instance.MeteorManager.LocalPlayer.Attr.hpCur;
+            hpLabel.text = ((int)(Main.Ins.LocalPlayer.Attr.hpCur / 10.0f)).ToString() + "/" + ((int)(Main.Ins.LocalPlayer.Attr.HpMax / 10.0f)).ToString();
+            nextHp = Main.Ins.LocalPlayer.Attr.hpCur;
             UpdateAngryBar();
         }
     }

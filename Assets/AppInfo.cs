@@ -73,8 +73,8 @@ public class AppInfo
     {
         return MeteorVersion.Equals("9.07") ? protocol.RoomInfo.MeteorVersion.V907 : protocol.RoomInfo.MeteorVersion.V107;
     }
-    public int GetWaitForNextInput()
+    public int LinkDelay()
     {
-        return Application.targetFrameRate * 12 / 30;
+        return Application.targetFrameRate * 10 / 30;
     }
 }

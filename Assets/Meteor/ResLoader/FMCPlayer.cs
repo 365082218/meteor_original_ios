@@ -163,16 +163,16 @@ public class FMCPlayer :NetBehaviour {
     {
         int i = asset.name.IndexOf('.');
         fmcFile = asset.name.Substring(0, i);
-        frames = Main.Instance.FMCLoader.Load(asset);
-        pose = Main.Instance.FMCPoseLoader.LoadPose(fmcFile);
+        frames = Main.Ins.FMCLoader.Load(asset);
+        pose = Main.Ins.FMCPoseLoader.LoadPose(fmcFile);
         state = 1;
     }
 
     public void Init(string file, FMCFile f = null)
     {
         fmcFile = file;
-        frames = f != null ? f : Main.Instance.FMCLoader.Load(fmcFile);
-        pose = Main.Instance.FMCPoseLoader.LoadPose(fmcFile);
+        frames = f != null ? f : Main.Ins.FMCLoader.Load(fmcFile);
+        pose = Main.Ins.FMCPoseLoader.LoadPose(fmcFile);
         state = 1;
         //ChangePose(0, 0);
     }

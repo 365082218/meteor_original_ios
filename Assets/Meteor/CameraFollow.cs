@@ -97,8 +97,7 @@ public class CameraFollow : NetBehaviour {
 
     public void Init()
     {
-        GetComponent<Camera>().enabled = false;
-        DisableLockTarget = !Main.Instance.GameStateMgr.gameStatus.AutoLock;
+        DisableLockTarget = !Main.Ins.GameStateMgr.gameStatus.AutoLock;
         animationPlay = false;
         animationTick = 0.0f;
         followHeight = 6;
@@ -108,6 +107,7 @@ public class CameraFollow : NetBehaviour {
         LookAtAngle = 10.0f;
         m_Camera = GetComponent<Camera>();
         m_Camera.fieldOfView = m_MinSize;
+        m_Camera.enabled = false;
         fRadis = Mathf.Sqrt(followDistance * followDistance + followHeight * followHeight);
         lastAngle = Mathf.Atan2(followHeight, followDistance) * Mathf.Rad2Deg;
         //m_Targets = new Transform[3];
@@ -119,18 +119,18 @@ public class CameraFollow : NetBehaviour {
         //    m_Targets[i].gameObject.layer = LayerMask.NameToLayer("Debug");
         //    m_Targets[i].localScale = 10 * Vector3.one;
         //}
-        Main.Instance.EventBus.Register(EventId.OpenCamera, OpenCamera);
+        Main.Ins.EventBus.Register(EventId.OpenCamera, OpenCamera);
     }
 
-    public void OpenCamera()
+    public void OpenCamera(object sender = null, TEventArgs args = null)
     {
-        GetComponent<Camera>().enabled = true;
-        Main.Instance.EventBus.UnRegister(EventId.OpenCamera, OpenCamera);
+        m_Camera.enabled = true;
+        Main.Ins.EventBus.UnRegister(EventId.OpenCamera, OpenCamera);
     }
 
     public void ForceUpdate()
     {
-        if (Target != null && !Main.Instance.CombatData.PauseAll)
+        if (Target != null && !Main.Ins.CombatData.PauseAll)
             CameraSmoothFollow();
         else
         {
@@ -160,7 +160,7 @@ public class CameraFollow : NetBehaviour {
     public override void NetUpdate()
     {
         //Debug.LogError("lockupdate:" + Time.frameCount);
-        if (Main.Instance.MeteorManager.LocalPlayer != null && !Main.Instance.CombatData.PauseAll)
+        if (Main.Ins.LocalPlayer != null && !Main.Ins.CombatData.PauseAll)
         {
             CameraSmoothFollow();
         }
@@ -250,17 +250,17 @@ public class CameraFollow : NetBehaviour {
     void ChangeAutoTarget()
     {
         OnLockTarget();
-        if (Main.Instance.MeteorManager.UnitInfos.Count == 0)
+        if (Main.Ins.MeteorManager.UnitInfos.Count == 0)
             return;
         int j = -1;
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            if (!Main.Instance.MeteorManager.UnitInfos[i].Dead)
+            if (!Main.Ins.MeteorManager.UnitInfos[i].Dead)
                 break;
             j = i;
         }
-        if (j >= 0 && j < Main.Instance.MeteorManager.UnitInfos.Count)
-            AutoTarget = Main.Instance.MeteorManager.UnitInfos[j];
+        if (j >= 0 && j < Main.Ins.MeteorManager.UnitInfos.Count)
+            AutoTarget = Main.Ins.MeteorManager.UnitInfos[j];
     }
 
     //为真则下一帧摄像机要切换视角模式.
@@ -416,7 +416,7 @@ public class CameraFollow : NetBehaviour {
             newPos.x = Target.transform.position.x;
             newPos.y = Target.position.y + BodyHeight + followHeight;
             newPos.z = Target.transform.position.z;
-            newPos += Main.Instance.MeteorManager.LocalPlayer.transform.forward * followDistance;
+            newPos += Main.Ins.LocalPlayer.transform.forward * followDistance;
 
             vecTarget.x = Target.position.x;
             vecTarget.y = Target.position.y + BodyHeight;
@@ -449,7 +449,7 @@ public class CameraFollow : NetBehaviour {
                 newPos.z = Target.transform.position.z;
                 float y = Mathf.SmoothDamp(CameraPosition.position.y, Target.position.y + BodyHeight + followHeight, ref currentVelocityY, f_DampTime);
                 newPos.y = y;
-                newPos += Main.Instance.MeteorManager.LocalPlayer.transform.forward * followDistance;
+                newPos += Main.Ins.LocalPlayer.transform.forward * followDistance;
             }
             else
             {
@@ -495,7 +495,7 @@ public class CameraFollow : NetBehaviour {
     bool CameraCanLookTarget(Vector3 pos, out Vector3 hit)
     {
         RaycastHit wallHit;
-        Vector3 targetPos = Main.Instance.MeteorManager.LocalPlayer.transform.position + new Vector3(0, 25, 0);
+        Vector3 targetPos = Main.Ins.LocalPlayer.transform.position + new Vector3(0, 25, 0);
         if (Physics.Linecast(targetPos, pos, out wallHit,
             1 << LayerMask.NameToLayer("Scene") |
             (1 << LayerMask.NameToLayer("Default")) |

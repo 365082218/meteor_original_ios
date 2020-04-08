@@ -25,7 +25,7 @@ public class DebugScene0 : MonoBehaviour {
         if (au == null || au.Length == 0)
             gameObject.AddComponent<AudioListener>();
         InfiniteScrollRect rect = ScrollView.GetScrollRect();
-        Main.Instance.SoundManager.SetSoundVolume(100);
+        Main.Ins.SoundManager.SetSoundVolume(100);
         rect.SetFullScrollView(false);
         rect.SetModifiedScale(true);
         for (int i = 0; i <= 600 ; i++)
@@ -98,21 +98,21 @@ public class DebugScene0 : MonoBehaviour {
     {
         if (cameraPosition.Length > i && i >= 0)
         {
-            Main.Instance.MainCamera.transform.position = cameraPosition[i].position;
-            Main.Instance.MainCamera.transform.rotation = cameraPosition[i].rotation;
+            Camera.main.transform.position = cameraPosition[i].position;
+            Camera.main.transform.rotation = cameraPosition[i].rotation;
         }
     }
 
     public void Far()
     {
-        Tweener t = Main.Instance.MainCamera.transform.DOMove(Main.Instance.MainCamera.transform.position + Main.Instance.MainCamera.transform.forward * -20, 0.5f);
-        t.OnComplete(() => { Main.Instance.MainCamera.transform.DOLookAt(Vector3.zero + new Vector3(0, 30, 0), 0.5f); });
+        Tweener t = Camera.main.transform.DOMove(Camera.main.transform.position + Camera.main.transform.forward * -20, 0.5f);
+        t.OnComplete(() => { Camera.main.transform.DOLookAt(Vector3.zero + new Vector3(0, 30, 0), 0.5f); });
     }
 
     public void Near()
     {
-       Tweener t = Main.Instance.MainCamera.transform.DOMove(Main.Instance.MainCamera.transform.position + Main.Instance.MainCamera.transform.forward * +20, 0.5f);
-       t.OnComplete(() => { Main.Instance.MainCamera.transform.DOLookAt(Vector3.zero + new Vector3(0, 30, 0), 0.5f); });
+       Tweener t = Camera.main.transform.DOMove(Camera.main.transform.position + Camera.main.transform.forward * +20, 0.5f);
+       t.OnComplete(() => { Camera.main.transform.DOLookAt(Vector3.zero + new Vector3(0, 30, 0), 0.5f); });
     }
 
     public void NextCharacter()

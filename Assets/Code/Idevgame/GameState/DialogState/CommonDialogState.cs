@@ -76,6 +76,8 @@ namespace Idevgame.GameState.DialogState {
         }
         public override void OnStateExit()
         {
+            if (DialogController != null)
+                DialogController.OnDialogStateExit();
             DialogController = null;
             if (UnloadGuiOnExit)
             {
@@ -171,7 +173,7 @@ namespace Idevgame.GameState.DialogState {
 
         protected virtual bool ForceUnloadGuiOnExit { get { return false; } }
 
-        public CommonDialogState(MainDialogStateManager stateManager) : base(stateManager) {
+        public CommonDialogState(BaseDialogStateManager stateManager) : base(stateManager) {
 
         }
 
@@ -184,15 +186,15 @@ namespace Idevgame.GameState.DialogState {
             }
         }
 
-        public override void OnPreExit(BaseDialogState nextState, object data) {
+        public override void OnPreExit(BaseDialogState nextState = null, object data = null) {
             base.OnPreExit(nextState, data);
             //MainUI.Instance.NguiCollider.enabled = false;
             //MainSceneGuiController.Instance.OnDialogExit();
         }
 
-        public override void OnExit(BaseDialogState nextState, object data) {
+        public override void OnExit(BaseDialogState nextState = null, object data = null) {
             if (DialogController != null)
-                DialogController.OnClose();
+                DialogController.OnDialogStateExit();
             DialogController = null;
             if (UnloadGuiOnExit) {
                 UnloadGuiOnExit = false;

@@ -11,13 +11,13 @@ public partial class MeteorUnit: DebugInstance
     [DebugMethod("面向下一个目标")]
     public void FacetoNextTarget()
     {
-        i %= Main.Instance.MeteorManager.UnitInfos.Count;
-        if (Main.Instance.MeteorManager.UnitInfos[i] == this)
+        i %= Main.Ins.MeteorManager.UnitInfos.Count;
+        if (Main.Ins.MeteorManager.UnitInfos[i] == this)
         {
             i++;
-            i %= Main.Instance.MeteorManager.UnitInfos.Count;
+            i %= Main.Ins.MeteorManager.UnitInfos.Count;
         }
-        FaceToTarget(Main.Instance.MeteorManager.UnitInfos[i]);
+        FaceToTarget(Main.Ins.MeteorManager.UnitInfos[i]);
         //WSLog.Print(string.Format("朝向:{0}", MeteorManager.Instance.UnitInfos[i].name));
         i++;
     }
@@ -25,8 +25,8 @@ public partial class MeteorUnit: DebugInstance
     [DebugMethod("待机")]
     public void StopPerform()
     {
-        if (Main.Instance.GameBattleEx != null)
-            Main.Instance.GameBattleEx.StopAction(InstanceId);
+        if (Main.Ins.GameBattleEx != null)
+            Main.Ins.GameBattleEx.StopAction(InstanceId);
         if (StateMachine != null)
         {
             StateMachine.Stop();
@@ -38,8 +38,8 @@ public partial class MeteorUnit: DebugInstance
     [DebugMethod("关闭/打开AI")]
     public void AIEnable()
     {
-        if (Main.Instance.GameBattleEx != null)
-            Main.Instance.GameBattleEx.StopAction(InstanceId);
+        if (Main.Ins.GameBattleEx != null)
+            Main.Ins.GameBattleEx.StopAction(InstanceId);
         if (StateMachine != null)
         {
             StateMachine.Stop();

@@ -72,16 +72,16 @@ public class PluginCtrl : MonoBehaviour {
             {
                 //已安装-卸载
                 Target.CleanRes();
-                Main.Instance.GameStateMgr.gameStatus.UnRegisterModel(Target);
+                Main.Ins.GameStateMgr.gameStatus.UnRegisterModel(Target);
                 Install.GetComponentInChildren<Text>().text = StringUtils.Install;
                 loading = false;
-                Main.Instance.GameStateMgr.SaveState();
+                Main.Ins.GameStateMgr.SaveState();
                 return;
             }
             if (!loading)
             {
                 //未安装-开始下载
-                Main.Instance.DlcMng.AddDownloadTask(this);
+                Main.Ins.DlcMng.AddDownloadTask(this);
                 Install.GetComponentInChildren<Text>().text = StringUtils.Cancel;
                 loading = true;
                 retryNum = 0;
@@ -89,7 +89,7 @@ public class PluginCtrl : MonoBehaviour {
             else
             {
                 //安装中-取消下载
-                Main.Instance.DlcMng.RemoveDownloadTask(this);
+                Main.Ins.DlcMng.RemoveDownloadTask(this);
                 loading = false;
                 Install.GetComponentInChildren<Text>().text = StringUtils.Install;
             }
@@ -100,22 +100,22 @@ public class PluginCtrl : MonoBehaviour {
             if (Chapter.Installed)
             {
                 Chapter.CleanRes();
-                Main.Instance.GameStateMgr.gameStatus.UnRegisterDlc(Chapter);
+                Main.Ins.GameStateMgr.gameStatus.UnRegisterDlc(Chapter);
                 Install.GetComponentInChildren<Text>().text = StringUtils.Install;
                 loading = false;
-                Main.Instance.GameStateMgr.SaveState();
+                Main.Ins.GameStateMgr.SaveState();
                 return;
             }
             if (!loading)
             {
-                Main.Instance.DlcMng.AddDownloadTask(this);
+                Main.Ins.DlcMng.AddDownloadTask(this);
                 Install.GetComponentInChildren<Text>().text = StringUtils.Cancel;
                 loading = true;
                 retryNum = 0;
             }
             else
             {
-                Main.Instance.DlcMng.RemoveDownloadTask(this);
+                Main.Ins.DlcMng.RemoveDownloadTask(this);
                 loading = false;
                 Install.GetComponentInChildren<Text>().text = StringUtils.Install;
             }
@@ -171,7 +171,7 @@ public class PluginCtrl : MonoBehaviour {
                 Target.resPath[i] = files[i].Replace("\\", "/");
             }
             Target.Installed = true;
-            Main.Instance.GameStateMgr.gameStatus.RegisterModel(Target);
+            Main.Ins.GameStateMgr.gameStatus.RegisterModel(Target);
         }
         
         if (Chapter != null)
@@ -191,9 +191,9 @@ public class PluginCtrl : MonoBehaviour {
                         template.filePath = files[i].Replace("\\", "/");
                         //如果该文件的父目录是npc,且
                         bool find = false;
-                        for (int j = 0; j < Main.Instance.GameStateMgr.gameStatus.pluginNpc.Count; j++)
+                        for (int j = 0; j < Main.Ins.GameStateMgr.gameStatus.pluginNpc.Count; j++)
                         {
-                            if (Main.Instance.GameStateMgr.gameStatus.pluginNpc[j].npcTemplate == template.npcTemplate)
+                            if (Main.Ins.GameStateMgr.gameStatus.pluginNpc[j].npcTemplate == template.npcTemplate)
                             {
                                 find = true;
                                 break;
@@ -201,16 +201,16 @@ public class PluginCtrl : MonoBehaviour {
                         }
                         if (!find)
                         {
-                            Main.Instance.GameStateMgr.gameStatus.pluginNpc.Add(template);
+                            Main.Ins.GameStateMgr.gameStatus.pluginNpc.Add(template);
                         }
                     }
                 }
                 Chapter.resPath[i] = files[i].Replace("\\", "/");
             }
             Chapter.Installed = true;
-            Main.Instance.GameStateMgr.gameStatus.RegisterDlc(Chapter);
+            Main.Ins.GameStateMgr.gameStatus.RegisterDlc(Chapter);
         }
-        Main.Instance.GameStateMgr.SaveState();
+        Main.Ins.GameStateMgr.SaveState();
         instanllComplete = true;
     }
 
@@ -227,8 +227,8 @@ public class PluginCtrl : MonoBehaviour {
 
     private void OnDestroy()
     {
-        Main.Instance.DlcMng.RemovePreviewTask(this);
-        Main.Instance.DlcMng.RemoveDownloadTask(this);
+        Main.Ins.DlcMng.RemovePreviewTask(this);
+        Main.Ins.DlcMng.RemoveDownloadTask(this);
     }
 
     WebClient download;
@@ -241,7 +241,7 @@ public class PluginCtrl : MonoBehaviour {
         Function.gameObject.SetActive(false);
         Install.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
         //已经安装
-        if (Main.Instance.GameStateMgr.gameStatus.IsModelInstalled(Target))
+        if (Main.Ins.GameStateMgr.gameStatus.IsModelInstalled(Target))
         {
             Target.Installed = true;
             Install.GetComponentInChildren<Text>().text = StringUtils.Uninstall;
@@ -271,11 +271,11 @@ public class PluginCtrl : MonoBehaviour {
         Function.onClick.AddListener(()=> {
             if (Chapter.Installed)
             {
-                Main.Instance.CombatData.Chapter = Chapter;
+                Main.Ins.CombatData.Chapter = Chapter;
                 string tip = "";
-                if (!Main.Instance.DlcMng.CheckDependence(Main.Instance.CombatData.Chapter, out tip))
+                if (!Main.Ins.DlcMng.CheckDependence(Main.Ins.CombatData.Chapter, out tip))
                 {
-                    Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.LevelDialogState, false);
+                    Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LevelDialogState, false);
                 }
                 else
                 {
@@ -288,7 +288,7 @@ public class PluginCtrl : MonoBehaviour {
             }
         });
         //已经安装
-        if (Main.Instance.GameStateMgr.gameStatus.IsDlcInstalled(Chapter))
+        if (Main.Ins.GameStateMgr.gameStatus.IsDlcInstalled(Chapter))
         {
             Chapter.Installed = true;
             Install.GetComponentInChildren<Text>().text = StringUtils.Uninstall;

@@ -79,15 +79,15 @@ public class NGUIJoystick : MonoBehaviour
         if (target == null)
             target = transform;
         reactiveRange = 145.0f;
-        wKey.OnPress.AddListener(() => { Main.Instance.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyW); JoyCollider.enabled = false; });
-        sKey.OnPress.AddListener(() => { Main.Instance.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyS); JoyCollider.enabled = false; });
-        aKey.OnPress.AddListener(() => { Main.Instance.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyA); JoyCollider.enabled = false; });
-        dKey.OnPress.AddListener(() => { Main.Instance.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyD); JoyCollider.enabled = false; });
+        wKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyW); JoyCollider.enabled = false; });
+        sKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyS); JoyCollider.enabled = false; });
+        aKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyA); JoyCollider.enabled = false; });
+        dKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyD); JoyCollider.enabled = false; });
 
-        wKey.OnRelease.AddListener(() => { Main.Instance.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW); if (!Main.Instance.GameStateMgr.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
-        sKey.OnRelease.AddListener(() => { Main.Instance.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS); if (!Main.Instance.GameStateMgr.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
-        aKey.OnRelease.AddListener(() => { Main.Instance.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA); if (!Main.Instance.GameStateMgr.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
-        dKey.OnRelease.AddListener(() => { Main.Instance.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD); if (!Main.Instance.GameStateMgr.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
+        wKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW); if (!Main.Ins.GameStateMgr.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
+        sKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS); if (!Main.Ins.GameStateMgr.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
+        aKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA); if (!Main.Ins.GameStateMgr.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
+        dKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD); if (!Main.Ins.GameStateMgr.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
 
         //if (wKey != null)
         //    wKey.SetKeyActive(false);
@@ -210,12 +210,12 @@ public class NGUIJoystick : MonoBehaviour
         //sKey.SetKeyActive(false);
         //aKey.SetKeyActive(false);
         //dKey.SetKeyActive(false);
-        if (Main.Instance.CombatData.GMeteorInput != null)
+        if (Main.Ins.CombatData.GMeteorInput != null)
         {
-            Main.Instance.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW);
-            Main.Instance.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS);
-            Main.Instance.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA);
-            Main.Instance.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD);
+            Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW);
+            Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS);
+            Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA);
+            Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD);
         }
     }
 
@@ -432,7 +432,7 @@ public class NGUIJoystick : MonoBehaviour
         sKey.enabled = !state;
         aKey.enabled = !state;
         dKey.enabled = !state;
-        if (!Main.Instance.GameStateMgr.gameStatus.DisableJoystick)
+        if (!Main.Ins.GameStateMgr.gameStatus.DisableJoystick)
             JoyCollider.enabled = !state;
         //background.gameObject.SetActive(!state);
     }

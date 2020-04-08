@@ -89,14 +89,14 @@ public class MapArea : MonoBehaviour {
             case MapAreaType.FlagBox:
                 //进入安全盒，如果身上带有信物，则过关.
                 unit = other.gameObject.transform.root.GetComponent<MeteorUnit>();
-                if (unit.Attr.IsPlayer && unit.GetFlag && Main.Instance.CombatData.GLevelMode == LevelMode.SinglePlayerTask)
-                    Main.Instance.GameBattleEx.GameOver(1);
+                if (unit.Attr.IsPlayer && unit.GetFlag && Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask)
+                    Main.Ins.GameBattleEx.GameOver(1);
                 break;
             case MapAreaType.SafeBox:
                 //进入通关区域，过关.
                 unit = other.gameObject.transform.root.GetComponent<MeteorUnit>();
-                if (unit.Attr.IsPlayer && Main.Instance.CombatData.GLevelMode == LevelMode.SinglePlayerTask)
-                    Main.Instance.GameBattleEx.GameOver(1);
+                if (unit.Attr.IsPlayer && Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask)
+                    Main.Ins.GameBattleEx.GameOver(1);
                 break;
         }
     }

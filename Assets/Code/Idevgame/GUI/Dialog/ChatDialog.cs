@@ -37,7 +37,7 @@ public class ChatDialog : Dialog
         inputChat = Control("ChatText", WndObject).GetComponent<InputField>();
         Control("SendShortMsg", WndObject).GetComponent<Button>().onClick.AddListener(() =>
         {
-            if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             {
                 string chatMessage = inputChat.text;
                 if (string.IsNullOrEmpty(inputChat.text))
@@ -110,7 +110,7 @@ public class ChatDialog : Dialog
     {
         if (recording)
         {
-            Main.Instance.SoundManager.Mute(false);
+            Main.Ins.SoundManager.Mute(false);
             int length = 0;
             clip = null;
             MicChat.EndRecording(out length, out clip);
@@ -125,7 +125,7 @@ public class ChatDialog : Dialog
         else
         {
             //把音效和音乐全部静止
-            Main.Instance.SoundManager.Mute(true);
+            Main.Ins.SoundManager.Mute(true);
             recording = MicChat.TryStartRecording();
             if (recording)
             {

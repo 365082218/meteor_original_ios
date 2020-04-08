@@ -19,7 +19,7 @@ public class SfxCellController : AbstractCellController
         int sfx = ((SfxCellData)data).Sfx;
 
 
-        SfxText.text = Main.Instance.SFXLoader.Eff[sfx];
+        SfxText.text = Main.Ins.SFXLoader.Eff[sfx];
 
 
         Transform distanceResizerParent = transform.parent.parent.parent;

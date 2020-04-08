@@ -28,20 +28,20 @@ public class LoadingUiController : Dialog
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
         Material loadingTexture = null;
-        if (Main.Instance.CombatData.Chapter == null)
+        if (Main.Ins.CombatData.Chapter == null)
         {
-            if (Main.Instance.CombatData.GLevelItem != null && !string.IsNullOrEmpty(Main.Instance.CombatData.GLevelItem.BgTexture))
-                loadingTexture = GameObject.Instantiate(Resources.Load<Material>(Main.Instance.CombatData.GLevelItem.BgTexture)) as Material;
+            if (Main.Ins.CombatData.GLevelItem != null && !string.IsNullOrEmpty(Main.Ins.CombatData.GLevelItem.BgTexture))
+                loadingTexture = GameObject.Instantiate(Resources.Load<Material>(Main.Ins.CombatData.GLevelItem.BgTexture)) as Material;
             else
                 loadingTexture = GameObject.Instantiate(Resources.Load<Material>("Scene10")) as Material;
         }
         else
         {
-            for (int i = 0; i < Main.Instance.CombatData.Chapter.resPath.Length; i++)
+            for (int i = 0; i < Main.Ins.CombatData.Chapter.resPath.Length; i++)
             {
-                if (Main.Instance.CombatData.Chapter.resPath[i].EndsWith(Main.Instance.CombatData.GLevelItem.BgTexture + ".jpg"))
+                if (Main.Ins.CombatData.Chapter.resPath[i].EndsWith(Main.Ins.CombatData.GLevelItem.BgTexture + ".jpg"))
                 {
-                    byte[] array = System.IO.File.ReadAllBytes(Main.Instance.CombatData.Chapter.resPath[i]);
+                    byte[] array = System.IO.File.ReadAllBytes(Main.Ins.CombatData.Chapter.resPath[i]);
                     Texture2D tex = new Texture2D(0, 0);
                     tex.LoadImage(array);
                     loadingTexture = GameObject.Instantiate(Resources.Load<Material>("Scene10")) as Material;

@@ -162,14 +162,14 @@ public class WeaponLoader : MonoBehaviour {
         InventoryItem i = ui ? weaponModel : Weapon;
         if (i == null)
         {
-            i = ui ? weaponModel = Main.Instance.GameStateMgr.MakeEquip(unitid):Main.Instance.GameStateMgr.MakeEquip(unitid);
+            i = ui ? weaponModel = Main.Ins.GameStateMgr.MakeEquip(unitid):Main.Ins.GameStateMgr.MakeEquip(unitid);
             //WeaponBase weaponProperty = U3D.GetWeaponProperty(i.Info().UnitId);
             EquipWeapon(i, true);
         }
         else
         {
             UnEquipWeapon();
-            i = ui ? weaponModel = Main.Instance.GameStateMgr.MakeEquip(unitid):Main.Instance.GameStateMgr.MakeEquip(unitid);
+            i = ui ? weaponModel = Main.Ins.GameStateMgr.MakeEquip(unitid):Main.Ins.GameStateMgr.MakeEquip(unitid);
             //WeaponBase weaponProperty = U3D.GetWeaponProperty(i.Info().UnitId);
             EquipWeapon(i, true);
         }
@@ -227,14 +227,14 @@ public class WeaponLoader : MonoBehaviour {
                     GameObject weaponPrefab = Resources.Load<GameObject>(weaponL);
                     if (weaponPrefab == null)
                     {
-                        GMCFile fGmcL = Main.Instance.GMCLoader.Load(weaponL);
-                        DesFile fDesL = Main.Instance.DesLoader.Load(weaponL);
+                        GMCFile fGmcL = Main.Ins.GMCLoader.Load(weaponL);
+                        DesFile fDesL = Main.Ins.DesLoader.Load(weaponL);
 
                         if (fGmcL != null && fDesL != null)
                             GenerateWeaponModel(weaponL, fGmcL, fDesL, false, scale, weaponProperty.TextureL, ModelLayer);
                         else if (fGmcL == null && fDesL != null)
                         {
-                            GMBFile fGmbL = Main.Instance.GMBLoader.Load(weaponL);
+                            GMBFile fGmbL = Main.Ins.GMBLoader.Load(weaponL);
                             GenerateWeaponModel(weaponL, fGmbL, fDesL, false, scale, weaponProperty.TextureL, ModelLayer);
                         }
                     }
@@ -299,13 +299,13 @@ public class WeaponLoader : MonoBehaviour {
                     GameObject weaponPrefab = Resources.Load<GameObject>(weaponR);
                     if (weaponPrefab == null)
                     {
-                        GMCFile fGmcR = Main.Instance.GMCLoader.Load(weaponR);
-                        DesFile fDesR = Main.Instance.DesLoader.Load(weaponR);
+                        GMCFile fGmcR = Main.Ins.GMCLoader.Load(weaponR);
+                        DesFile fDesR = Main.Ins.DesLoader.Load(weaponR);
                         if (fGmcR != null && fDesR != null)
                             GenerateWeaponModel(weaponR, fGmcR, fDesR, true, scale, weaponProperty.TextureR, ModelLayer);
                         else if (fGmcR == null && fDesR != null)
                         {
-                            GMBFile fGmbR = Main.Instance.GMBLoader.Load(weaponProperty.WeaponR);
+                            GMBFile fGmbR = Main.Ins.GMBLoader.Load(weaponProperty.WeaponR);
                             GenerateWeaponModel(weaponR, fGmbR, fDesR, true, scale, weaponProperty.TextureR, ModelLayer);
                         }
                     }

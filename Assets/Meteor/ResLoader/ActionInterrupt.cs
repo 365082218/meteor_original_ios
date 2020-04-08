@@ -674,7 +674,7 @@ public class ActionInterrupt
         if (Root != null)
             return;
 
-        TextAsset act = Resources.Load<TextAsset>(string.Format("{0}/characteract", Main.Instance.AppInfo.MeteorVersion));
+        TextAsset act = Resources.Load<TextAsset>(string.Format("{0}/characteract", Main.Ins.AppInfo.MeteorVersion));
         MemoryStream ms = new MemoryStream(act.bytes);
         StreamReader text = new StreamReader(ms);
 

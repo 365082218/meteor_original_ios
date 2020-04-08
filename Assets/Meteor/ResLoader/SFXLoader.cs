@@ -126,7 +126,7 @@ public class SfxFile
         TextAsset asset = Resources.Load<TextAsset>(string.Format("{0}", file));
         if (asset == null)
         {
-            Main.Instance.SFXLoader.Miss++;
+            Main.Ins.SFXLoader.Miss++;
             //Debug.LogError(string.Format("sfx:{0} missed", file));
             error = true;
             return false;

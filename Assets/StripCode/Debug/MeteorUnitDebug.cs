@@ -52,8 +52,8 @@ public class MeteorUnitDebug : MeteorUnit
             }
         }
 
-        if (Attr == null && Main.Instance.MeteorManager != null && Main.Instance.MeteorManager.LocalPlayer != null)
-            Attr = Main.Instance.MeteorManager.LocalPlayer.Attr;
+        if (Attr == null && Main.Ins.MeteorManager != null && Main.Ins.LocalPlayer != null)
+            Attr = Main.Ins.LocalPlayer.Attr;
         if (charLoader == null)
             charLoader = new CharacterLoader();
         if (posMng == null)
@@ -88,9 +88,9 @@ public class MeteorUnitDebug : MeteorUnit
         charController.stepOffset = 7.6f;
         posMng.ChangeAction();
         WsGlobal.SetObjectLayer(gameObject, layer);
-        InventoryItem itWeapon = Main.Instance.GameStateMgr.MakeEquip(1);
+        InventoryItem itWeapon = Main.Ins.GameStateMgr.MakeEquip(1);
         weaponLoader.EquipWeapon(itWeapon);
-        this.name = Main.Instance.CombatData.GetCharacterName(UnitId);
+        this.name = Main.Ins.CombatData.GetCharacterName(UnitId);
     }
 
     public void Jump()

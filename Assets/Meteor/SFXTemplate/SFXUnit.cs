@@ -200,11 +200,11 @@ DRAG*/
         if (meshIndex != -1 && meshIndex < GamePool.Instance.MeshMng.Meshes.Length)
         {
             if (meshIndex == 4)
-                mFilter.mesh = Main.Instance.SfxMeshGenerator.CreateCylinder(source.origAtt.y, source.origAtt.x, source.origScale.x);
+                mFilter.mesh = Main.Ins.SfxMeshGenerator.CreateCylinder(source.origAtt.y, source.origAtt.x, source.origScale.x);
             else if (meshIndex == 3)
-                mFilter.mesh = Main.Instance.SfxMeshGenerator.CreateSphere(source.SphereRadius);
+                mFilter.mesh = Main.Ins.SfxMeshGenerator.CreateSphere(source.SphereRadius);
             else if (meshIndex == 0)
-                mFilter.mesh = Main.Instance.SfxMeshGenerator.CreatePlane(source.origScale.x, source.origScale.y);
+                mFilter.mesh = Main.Ins.SfxMeshGenerator.CreatePlane(source.origScale.x, source.origScale.y);
             else
                 mFilter.mesh = GamePool.Instance.MeshMng.Meshes[meshIndex];
         }
@@ -257,7 +257,7 @@ DRAG*/
                 render.material.SetColor("_Color", effect.frames[0].colorRGB);
                 render.material.SetColor("_TintColor", effect.frames[0].colorRGB);
                 render.material.SetFloat("_Intensity", effect.frames[0].TailFlags[9]);
-                if (Main.Instance.GameStateMgr.gameStatus != null && !Main.Instance.GameStateMgr.gameStatus.DisableParticle)
+                if (Main.Ins.GameStateMgr.gameStatus != null && !Main.Ins.GameStateMgr.gameStatus.DisableParticle)
                     particle.Play();
             }
             else

@@ -23,7 +23,7 @@ public class ModelSelectDialog: Dialog
         base.OnDialogStateEnter(ownerState, previousDialog, data);
         Init();
         Close.onClick.AddListener(() => { OnBackPress(); });
-        loadModel = Main.Instance.StartCoroutine(LoadModels());
+        loadModel = Main.Ins.StartCoroutine(LoadModels());
     }
 
     void Init()
@@ -40,13 +40,13 @@ public class ModelSelectDialog: Dialog
             allModel.Add(i);
         }
 
-        if (Main.Instance.GameStateMgr.gameStatus.pluginModel != null)
+        if (Main.Ins.GameStateMgr.gameStatus.pluginModel != null)
         {
-            for (int i = 0; i < Main.Instance.GameStateMgr.gameStatus.pluginModel.Count; i++)
+            for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginModel.Count; i++)
             {
-                Main.Instance.GameStateMgr.gameStatus.pluginModel[i].Check();
-                if (Main.Instance.GameStateMgr.gameStatus.pluginModel[i].Installed)
-                    allModel.Add(Main.Instance.GameStateMgr.gameStatus.pluginModel[i].ModelId);
+                Main.Ins.GameStateMgr.gameStatus.pluginModel[i].Check();
+                if (Main.Ins.GameStateMgr.gameStatus.pluginModel[i].Installed)
+                    allModel.Add(Main.Ins.GameStateMgr.gameStatus.pluginModel[i].ModelId);
             }
         }
 
@@ -61,7 +61,7 @@ public class ModelSelectDialog: Dialog
     {
         UIFunCtrl obj = (GameObject.Instantiate(Resources.Load("GridItemBtn")) as GameObject).AddComponent<UIFunCtrl>();
         obj.SetEvent(ChangeModel, Idx);
-        obj.SetText(Main.Instance.CombatData.GetCharacterName(Idx));
+        obj.SetText(Main.Ins.CombatData.GetCharacterName(Idx));
         obj.transform.SetParent(GridViewRoot.transform);
         obj.gameObject.layer = GridViewRoot.layer;
         obj.transform.localScale = Vector3.one;
@@ -79,7 +79,7 @@ public class ModelSelectDialog: Dialog
     {
         if (loadModel != null)
         {
-            Main.Instance.StopCoroutine(loadModel);
+            Main.Ins.StopCoroutine(loadModel);
             loadModel = null;
         }
         base.OnBackPress();

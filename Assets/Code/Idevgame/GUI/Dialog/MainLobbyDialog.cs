@@ -31,7 +31,7 @@ public class MainLobbyDialog : Dialog
     {
         if (Update != null)
         {
-            Main.Instance.StopCoroutine(Update);
+            Main.Ins.StopCoroutine(Update);
             Update = null;
         }
     }
@@ -68,8 +68,8 @@ public class MainLobbyDialog : Dialog
         Control("Pattern", roomObj).GetComponent<Text>().text = "";
         Control("Password", roomObj).GetComponent<Text>().text = "无";
         Control("Rule", roomObj).GetComponent<Text>().text = ruleS[(int)room.rule - 1];//盟主，死斗，暗杀
-        Control("LevelName", roomObj).GetComponent<Text>().text = Main.Instance.DataMgr.GetData<LevelDatas.LevelDatas>((int)room.levelIdx).Name;
-        Control("Version", roomObj).GetComponent<Text>().text = Main.Instance.AppInfo.MeteorVersion;
+        Control("LevelName", roomObj).GetComponent<Text>().text = Main.Ins.DataMgr.GetData<LevelDatas.LevelDatas>((int)room.levelIdx).Name;
+        Control("Version", roomObj).GetComponent<Text>().text = Main.Ins.AppInfo.MeteorVersion;
         Control("Ping", roomObj).GetComponent<Text>().text = "???";
         Control("Group1", roomObj).GetComponent<Text>().text = room.Group1.ToString();
         Control("Group2", roomObj).GetComponent<Text>().text = room.Group2.ToString();
@@ -93,7 +93,7 @@ public class MainLobbyDialog : Dialog
 
     public void OnSelectService()
     {
-        Control("Server").GetComponent<Text>().text = string.Format("服务器:{0}        IP:{1}        端口:{2}", Main.Instance.CombatData.Server.ServerName,
+        Control("Server").GetComponent<Text>().text = string.Format("服务器:{0}        IP:{1}        端口:{2}", Main.Ins.CombatData.Server.ServerName,
             TcpClientProxy.server == null ? "还未取得" : TcpClientProxy.server.Address.ToString(), TcpClientProxy.server == null ? "还未取得" : TcpClientProxy.server.Port.ToString());
     }
 
@@ -122,9 +122,9 @@ public class MainLobbyDialog : Dialog
         });
 
         RoomRoot = Control("RoomRoot");
-        Control("Version").GetComponent<Text>().text = Main.Instance.GameStateMgr.gameStatus.MeteorVersion;
-        if (Main.Instance.CombatData.Servers.Count == 0)
-            Update = Main.Instance.StartCoroutine(UpdateServiceList());
+        Control("Version").GetComponent<Text>().text = Main.Ins.GameStateMgr.gameStatus.MeteorVersion;
+        if (Main.Ins.CombatData.Servers.Count == 0)
+            Update = Main.Ins.StartCoroutine(UpdateServiceList());
         else
             OnGetServerListDone();
     }
@@ -151,7 +151,7 @@ public class MainLobbyDialog : Dialog
             yield break;
         }
 
-        Main.Instance.CombatData.Servers.Clear();
+        Main.Ins.CombatData.Servers.Clear();
         LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
         for (int i = 0; i < js["services"].Count; i++)
         {
@@ -165,13 +165,13 @@ public class MainLobbyDialog : Dialog
             else
                 s.ServerIP = js["services"][i]["addr"].ToString();
             s.ServerName = js["services"][i]["name"].ToString();
-            Main.Instance.CombatData.Servers.Add(s);
+            Main.Ins.CombatData.Servers.Add(s);
         }
         Update = null;
 
         //合并所有服务器到全局变量里
-        for (int i = 0; i < Main.Instance.GameStateMgr.gameStatus.ServerList.Count; i++)
-            Main.Instance.CombatData.Servers.Add(Main.Instance.GameStateMgr.gameStatus.ServerList[i]);
+        for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.ServerList.Count; i++)
+            Main.Ins.CombatData.Servers.Add(Main.Ins.GameStateMgr.gameStatus.ServerList[i]);
 
         OnGetServerListDone();
     }
@@ -182,10 +182,10 @@ public class MainLobbyDialog : Dialog
         Control("Servercfg").GetComponent<Button>().onClick.RemoveAllListeners();
         Control("Servercfg").GetComponent<Button>().onClick.AddListener(() =>
         {
-            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.ServerListDialogState);
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.ServerListDialogState);
         });
 
-        Main.Instance.CombatData.Server = Main.Instance.CombatData.Servers[0];
+        Main.Ins.CombatData.Server = Main.Ins.CombatData.Servers[0];
         GameObject Services = Control("Services", WndObject);
         serverRoot = Control("Content", Services);
         int childNum = serverRoot.transform.childCount;
@@ -193,9 +193,9 @@ public class MainLobbyDialog : Dialog
         {
             GameObject.Destroy(serverRoot.transform.GetChild(i).gameObject);
         }
-        for (int i = 0; i < Main.Instance.CombatData.Servers.Count; i++)
+        for (int i = 0; i < Main.Ins.CombatData.Servers.Count; i++)
         {
-            InsertServerItem(Main.Instance.CombatData.Servers[i], i);
+            InsertServerItem(Main.Ins.CombatData.Servers[i], i);
         }
         TcpClientProxy.ReStart();
     }
@@ -209,14 +209,14 @@ public class MainLobbyDialog : Dialog
         btn.transform.localRotation = Quaternion.identity;
         btn.GetComponent<Button>().onClick.AddListener(() =>
         {
-            if (Main.Instance.CombatData.Server == Main.Instance.CombatData.Servers[i])
+            if (Main.Ins.CombatData.Server == Main.Ins.CombatData.Servers[i])
             {
                 TcpClientProxy.CheckNeedReConnect();
                 return;
             }
             TcpClientProxy.Exit();
             ClearRooms();
-            Main.Instance.CombatData.Server = svr;
+            Main.Ins.CombatData.Server = svr;
             TcpClientProxy.ReStart();
         });
         btn.GetComponentInChildren<Text>().text = svr.ServerName;
@@ -229,7 +229,7 @@ public class MainLobbyDialog : Dialog
 
     void OnCreateRoom()
     {
-        Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.RoomOptionDialogState);
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.RoomOptionDialogState);
     }
 
     void OnJoinRoom()

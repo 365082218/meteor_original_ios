@@ -16,7 +16,7 @@ public class FSC
 
     public GameFrames NextFrame(int logicTurn)
     {
-        if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
         {
             if (frames.Count > logicTurn && logicTurn >= 0)
             {
@@ -80,7 +80,7 @@ public class FSS
     
     public void SyncTurn()
     {
-        if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
         {
             //联机时客户端并没有操作,可以不向服务器发送之间的帧指令。但是服务器会生成默认的空操作
             if (FrameReplay.Instance.LogicTurnIndex >= frames.Count)
@@ -98,7 +98,7 @@ public class FSS
                 frames.Add(frame);
             }
             GameFrames f = frames[FrameReplay.Instance.LogicTurnIndex];
-            Main.Instance.FSC.OnReceiveCommand(f);
+            Main.Ins.FSC.OnReceiveCommand(f);
         }
     }
 
@@ -300,15 +300,15 @@ public class FrameReplay : MonoBehaviour {
         AccumilatedTime = 0;
         LogicFrameIndex = 0;
         LogicTurnIndex = 0;
-        Main.Instance.FSS.Reset();
-        Main.Instance.FSC.Reset();
+        Main.Ins.FSS.Reset();
+        Main.Ins.FSC.Reset();
         NetObjects.Clear();
     }
 
     public void OnDisconnected()
     {
-        Main.Instance.FSC.OnDisconnected();
-        Main.Instance.FSS.OnDisconnected();
+        Main.Ins.FSC.OnDisconnected();
+        Main.Ins.FSS.OnDisconnected();
         //如果重新开始,那么所有指令需要全部清除
         Started = false;
         LogicFrameIndex = 0;
@@ -328,7 +328,7 @@ public class FrameReplay : MonoBehaviour {
             //    OnUpdates();
             return;
         }
-        if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
         {
             //Basically same logic as FixedUpdate, but we can scale it by adjusting FrameLength
             AccumilatedTime = AccumilatedTime + Convert.ToInt32((Time.deltaTime * 1000)); //convert sec to milliseconds
@@ -356,7 +356,7 @@ public class FrameReplay : MonoBehaviour {
             time += FrameReplay.deltaTime;
             if (firstFrame)
             {
-                Main.Instance.EventBus.Fire(EventId.OpenCamera);
+                Main.Ins.EventBus.Fire(EventId.OpenCamera);
                 firstFrame = false;
             }
         }
@@ -403,7 +403,7 @@ public class FrameReplay : MonoBehaviour {
         if (currentFrame == null)
         {
             //等待从服务器收到接下来一帧的信息.
-            currentFrame = Main.Instance.FSC.NextFrame(LogicTurnIndex);
+            currentFrame = Main.Ins.FSC.NextFrame(LogicTurnIndex);
             if (currentFrame == null)
                 return;
         }
@@ -430,7 +430,7 @@ public class FrameReplay : MonoBehaviour {
                 case MeteorMsg.Command.SpawnPlayer:
                     System.IO.MemoryStream ms = new System.IO.MemoryStream(actions[i].data);
                     PlayerEventData evt = ProtoBuf.Serializer.Deserialize<PlayerEventData>(ms);
-                    Main.Instance.GameBattleEx.OnCreateNetPlayer(evt);
+                    Main.Ins.GameBattleEx.OnCreateNetPlayer(evt);
                     break;
             }
         }
@@ -440,7 +440,7 @@ public class FrameReplay : MonoBehaviour {
         LogicFrameIndex++;
         if (LogicFrameIndex % TurnFrameMax == 0)
         {
-            Main.Instance.FSS.SyncTurn();
+            Main.Ins.FSS.SyncTurn();
             LogicTurnIndex++;
             currentFrame = null;
             LogicFrameIndex = 0;

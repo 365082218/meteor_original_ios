@@ -316,14 +316,14 @@ public class FlyWheel :NetBehaviour {
                 GameObject weaponPrefab = Resources.Load<GameObject>(weaponR);
                 if (weaponPrefab == null)
                 {
-                    GMCFile fGmcL = Main.Instance.GMCLoader.Load(weaponR);
-                    DesFile fDesL = Main.Instance.DesLoader.Load(weaponR);
+                    GMCFile fGmcL = Main.Ins.GMCLoader.Load(weaponR);
+                    DesFile fDesL = Main.Ins.DesLoader.Load(weaponR);
 
                     if (fGmcL != null && fDesL != null)
                         GenerateWeaponModel(weaponR, fGmcL, fDesL, scale, weaponProperty.TextureL);
                     else if (fGmcL == null && fDesL != null)
                     {
-                        GMBFile fGmbL = Main.Instance.GMBLoader.Load(weaponR);
+                        GMBFile fGmbL = Main.Ins.GMBLoader.Load(weaponR);
                         GenerateWeaponModel(weaponR, fGmbL, fDesL, scale, weaponProperty.TextureL);
                     }
                 }

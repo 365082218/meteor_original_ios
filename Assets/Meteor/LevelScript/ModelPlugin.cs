@@ -129,7 +129,7 @@ public class Chapter
     //加载资料片内得关卡关卡.
     public void LoadLevel(int levelIdx)
     {
-        Main.Instance.DlcMng.PlayDlc(this, levelIdx);
+        Main.Ins.DlcMng.PlayDlc(this, levelIdx);
     }
 }
 

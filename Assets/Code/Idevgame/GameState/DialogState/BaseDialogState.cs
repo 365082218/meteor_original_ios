@@ -4,7 +4,7 @@ using Idevgame.StateManagement;
 namespace Idevgame.GameState.DialogState {
     public abstract class BaseDialogState : StateManager<BaseDialogState,DialogAction>.State {
 
-        public MainDialogStateManager DialogStateManager { get; private set; }
+        public BaseDialogStateManager DialogStateManager { get; private set; }
 
         public virtual string Tag { get { return this.GetType().Name; } }
 
@@ -18,7 +18,7 @@ namespace Idevgame.GameState.DialogState {
             return false;
         }
 
-        public BaseDialogState(MainDialogStateManager stateManager) : base(stateManager) {
+        public BaseDialogState(BaseDialogStateManager stateManager) : base(stateManager) {
             DialogStateManager = stateManager;
         }
     }

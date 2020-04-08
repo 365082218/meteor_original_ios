@@ -4243,6 +4243,7 @@ MonoBehaviour:
   CameraFollow: {fileID: 0}
   CameraFree: {fileID: 0}
   GameBattleEx: {fileID: 0}
+  LocalPlayer: {fileID: 0}
   SplashScreenHidden: 0
 --- !u!81 &2044160635
 AudioListener:

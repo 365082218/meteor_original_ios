@@ -40,7 +40,7 @@ public class SoundManager
         get
         {
             if (mAudioMusic == null)
-                mAudioMusic = Main.Instance != null ? Main.Instance.Music : null;
+                mAudioMusic = Main.Ins != null ? Main.Ins.Music : null;
             return mAudioMusic;
         }
         set { mAudioMusic = value; }
@@ -52,7 +52,7 @@ public class SoundManager
         get
         {
             if (mAudioSource == null)
-                mAudioSource = Main.Instance.Sound;
+                mAudioSource = Main.Ins.Sound;
             return mAudioSource;
         }
         set { mAudioSource = value; }
@@ -117,10 +117,10 @@ public class SoundManager
 
     public void Init()
     {
-        if (Main.Instance != null)
+        if (Main.Ins != null)
         {
-            SetMusicVolume(Main.Instance.GameStateMgr.gameStatus.MusicVolume);
-            SetSoundVolume(Main.Instance.GameStateMgr.gameStatus.SoundVolume);
+            SetMusicVolume(Main.Ins.GameStateMgr.gameStatus.MusicVolume);
+            SetSoundVolume(Main.Ins.GameStateMgr.gameStatus.SoundVolume);
         }
     }
 
@@ -197,11 +197,11 @@ public class SoundManager
         if (!enable)
             return -2;
         Vector3 listenerPos = position;
-        MeteorUnit localPlayer = Main.Instance.MeteorManager.LocalPlayer;
+        MeteorUnit localPlayer = Main.Ins.LocalPlayer;
         if (localPlayer != null)
         {
-            if (Main.Instance.CameraFree != null)
-                listenerPos = Main.Instance.CameraFree.transform.position;
+            if (Main.Ins.CameraFree != null)
+                listenerPos = Main.Ins.CameraFree.transform.position;
             else
                 listenerPos = localPlayer.transform.position;
         }
@@ -358,8 +358,8 @@ public class SoundManager
         }
         else
         {
-            SetMusicVolume(Main.Instance.GameStateMgr.gameStatus.MusicVolume);
-            SetSoundVolume(Main.Instance.GameStateMgr.gameStatus.SoundVolume);
+            SetMusicVolume(Main.Ins.GameStateMgr.gameStatus.MusicVolume);
+            SetSoundVolume(Main.Ins.GameStateMgr.gameStatus.SoundVolume);
         }
     }
 }

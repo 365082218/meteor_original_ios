@@ -42,28 +42,28 @@ public class SettingDialog : Dialog {
     {
         Control("Return").GetComponent<Button>().onClick.AddListener(() =>
         {
-            Main.Instance.GameStateMgr.SaveState();
-            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.MainMenuState);
+            Main.Ins.GameStateMgr.SaveState();
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainMenuState);
         });
 
         Control("DeleteState").GetComponent<Button>().onClick.AddListener(() =>
         {
-            Main.Instance.GameStateMgr.ResetState();
+            Main.Ins.GameStateMgr.ResetState();
             Init();
         });
 
         Control("ChangeLog").GetComponent<Text>().text = ResMng.LoadTextAsset("ChangeLog").text;
-        Control("AppVerText").GetComponent<Text>().text = Main.Instance.AppInfo.AppVersion();
-        Control("MeteorVerText").GetComponent<Text>().text = Main.Instance.AppInfo.MeteorVersion;
+        Control("AppVerText").GetComponent<Text>().text = Main.Ins.AppInfo.AppVersion();
+        Control("MeteorVerText").GetComponent<Text>().text = Main.Ins.AppInfo.MeteorVersion;
 
         
-        Control("Nick").GetComponentInChildren<Text>().text = Main.Instance.CombatData.Logined ?  Main.Instance.GameStateMgr.gameStatus.NickName:"未登录";
+        Control("Nick").GetComponentInChildren<Text>().text = Main.Ins.CombatData.Logined ?  Main.Ins.GameStateMgr.gameStatus.NickName:"未登录";
         Control("Nick").GetComponent<Button>().onClick.AddListener(
             () =>
             {
-                if (Main.Instance.CombatData.Logined)
+                if (Main.Ins.CombatData.Logined)
                 {
-                    Main.Instance.EnterState(Main.Instance.NickNameDialogState);
+                    Main.Ins.EnterState(Main.Ins.NickNameDialogState);
                 }
                 else
                 {
@@ -72,34 +72,34 @@ public class SettingDialog : Dialog {
             }
         );
         Toggle highPerfor = Control("HighPerformance").GetComponent<Toggle>();
-        highPerfor.isOn = Main.Instance.GameStateMgr.gameStatus.TargetFrame == 60;
+        highPerfor.isOn = Main.Ins.GameStateMgr.gameStatus.TargetFrame == 60;
         highPerfor.onValueChanged.AddListener(OnChangePerformance);
         Toggle High = Control("High").GetComponent<Toggle>();
         Toggle Medium = Control("Medium").GetComponent<Toggle>();
         Toggle Low = Control("Low").GetComponent<Toggle>();
-        High.isOn = Main.Instance.GameStateMgr.gameStatus.Quality == 0;
-        Medium.isOn = Main.Instance.GameStateMgr.gameStatus.Quality == 1;
-        Low.isOn = Main.Instance.GameStateMgr.gameStatus.Quality == 2;
-        High.onValueChanged.AddListener((bool selected) => { if (selected) Main.Instance.GameStateMgr.gameStatus.Quality = 0; });
-        Medium.onValueChanged.AddListener((bool selected) => { if (selected) Main.Instance.GameStateMgr.gameStatus.Quality = 1; });
-        Low.onValueChanged.AddListener((bool selected) => { if (selected) Main.Instance.GameStateMgr.gameStatus.Quality = 2; });
+        High.isOn = Main.Ins.GameStateMgr.gameStatus.Quality == 0;
+        Medium.isOn = Main.Ins.GameStateMgr.gameStatus.Quality == 1;
+        Low.isOn = Main.Ins.GameStateMgr.gameStatus.Quality == 2;
+        High.onValueChanged.AddListener((bool selected) => { if (selected) Main.Ins.GameStateMgr.gameStatus.Quality = 0; });
+        Medium.onValueChanged.AddListener((bool selected) => { if (selected) Main.Ins.GameStateMgr.gameStatus.Quality = 1; });
+        Low.onValueChanged.AddListener((bool selected) => { if (selected) Main.Ins.GameStateMgr.gameStatus.Quality = 2; });
         Toggle ShowTargetBlood = Control("ShowTargetBlood").GetComponent<Toggle>();
-        ShowTargetBlood.isOn = Main.Instance.GameStateMgr.gameStatus.ShowBlood;
-        ShowTargetBlood.onValueChanged.AddListener((bool selected) => { Main.Instance.GameStateMgr.gameStatus.ShowBlood = selected; });
+        ShowTargetBlood.isOn = Main.Ins.GameStateMgr.gameStatus.ShowBlood;
+        ShowTargetBlood.onValueChanged.AddListener((bool selected) => { Main.Ins.GameStateMgr.gameStatus.ShowBlood = selected; });
         Toggle ShowFPS = Control("ShowFPS").GetComponent<Toggle>();
-        ShowFPS.isOn = Main.Instance.GameStateMgr.gameStatus.ShowFPS;
-        ShowFPS.onValueChanged.AddListener((bool selected) => { Main.Instance.GameStateMgr.gameStatus.ShowFPS = selected; Main.Instance.ShowFps(selected); });
+        ShowFPS.isOn = Main.Ins.GameStateMgr.gameStatus.ShowFPS;
+        ShowFPS.onValueChanged.AddListener((bool selected) => { Main.Ins.GameStateMgr.gameStatus.ShowFPS = selected; Main.Ins.ShowFps(selected); });
 
         Toggle ShowSysMenu2 = Control("ShowSysMenu2").GetComponent<Toggle>();
-        ShowSysMenu2.isOn = Main.Instance.GameStateMgr.gameStatus.ShowSysMenu2;
-        ShowSysMenu2.onValueChanged.AddListener((bool selected) => { Main.Instance.GameStateMgr.gameStatus.ShowSysMenu2 = selected; });
+        ShowSysMenu2.isOn = Main.Ins.GameStateMgr.gameStatus.ShowSysMenu2;
+        ShowSysMenu2.onValueChanged.AddListener((bool selected) => { Main.Ins.GameStateMgr.gameStatus.ShowSysMenu2 = selected; });
 
-        if (Main.Instance != null)
+        if (Main.Ins != null)
         {
-            Control("BGMSlider").GetComponent<Slider>().value = Main.Instance.GameStateMgr.gameStatus.MusicVolume;
-            Control("EffectSlider").GetComponent<Slider>().value = Main.Instance.GameStateMgr.gameStatus.SoundVolume;
-            Control("HSliderBar").GetComponent<Slider>().value = Main.Instance.GameStateMgr.gameStatus.AxisSensitivity.x;
-            Control("VSliderBar").GetComponent<Slider>().value = Main.Instance.GameStateMgr.gameStatus.AxisSensitivity.y;
+            Control("BGMSlider").GetComponent<Slider>().value = Main.Ins.GameStateMgr.gameStatus.MusicVolume;
+            Control("EffectSlider").GetComponent<Slider>().value = Main.Ins.GameStateMgr.gameStatus.SoundVolume;
+            Control("HSliderBar").GetComponent<Slider>().value = Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.x;
+            Control("VSliderBar").GetComponent<Slider>().value = Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.y;
         }
         Control("BGMSlider").GetComponent<Slider>().onValueChanged.AddListener(OnMusicVolumeChange);
         Control("EffectSlider").GetComponent<Slider>().onValueChanged.AddListener(OnEffectVolumeChange);
@@ -109,40 +109,40 @@ public class SettingDialog : Dialog {
 
         //显示战斗界面的调试按钮
         Toggle toggleDebug = Control("EnableSFX").GetComponent<Toggle>();
-        toggleDebug.isOn = Main.Instance.GameStateMgr.gameStatus.EnableDebugSFX;
+        toggleDebug.isOn = Main.Ins.GameStateMgr.gameStatus.EnableDebugSFX;
         toggleDebug.onValueChanged.AddListener(OnEnableDebugSFX);
         //显示战斗界面的调试按钮
         Toggle toggleRobot = Control("EnableRobot").GetComponent<Toggle>();
-        toggleRobot.isOn = Main.Instance.GameStateMgr.gameStatus.EnableDebugRobot;
+        toggleRobot.isOn = Main.Ins.GameStateMgr.gameStatus.EnableDebugRobot;
         toggleRobot.onValueChanged.AddListener(OnEnableDebugRobot);
 
         //显示武器挑选按钮
         Toggle toggleEnableFunc = Control("EnableWeaponChoose").GetComponent<Toggle>();
-        toggleEnableFunc.isOn = Main.Instance.GameStateMgr.gameStatus.EnableWeaponChoose;
+        toggleEnableFunc.isOn = Main.Ins.GameStateMgr.gameStatus.EnableWeaponChoose;
         toggleEnableFunc.onValueChanged.AddListener(OnEnableWeaponChoose);
         //无限气
         Toggle toggleEnableInfiniteAngry = Control("EnableInfiniteAngry").GetComponent<Toggle>();
-        toggleEnableInfiniteAngry.isOn = Main.Instance.GameStateMgr.gameStatus.EnableInfiniteAngry;
+        toggleEnableInfiniteAngry.isOn = Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry;
         toggleEnableInfiniteAngry.onValueChanged.AddListener(OnEnableInfiniteAngry);
 
         //无锁定
         Toggle toggleDisableLock = Control("CameraLock").GetComponent<Toggle>();
-        toggleDisableLock.isOn = Main.Instance.GameStateMgr.gameStatus.AutoLock;
+        toggleDisableLock.isOn = Main.Ins.GameStateMgr.gameStatus.AutoLock;
         toggleDisableLock.onValueChanged.AddListener(OnDisableLock);
 
         Toggle toggleEnableGodMode = Control("EnableGodMode").GetComponent<Toggle>();
-        toggleEnableGodMode.isOn = Main.Instance.GameStateMgr.gameStatus.EnableGodMode;
+        toggleEnableGodMode.isOn = Main.Ins.GameStateMgr.gameStatus.EnableGodMode;
         toggleEnableGodMode.onValueChanged.AddListener(OnEnableGodMode);
 
         Toggle toggleEnableUndead = Control("EnableUnDead").GetComponent<Toggle>();
-        toggleEnableUndead.isOn = Main.Instance.GameStateMgr.gameStatus.Undead;
+        toggleEnableUndead.isOn = Main.Ins.GameStateMgr.gameStatus.Undead;
         toggleEnableUndead.onValueChanged.AddListener(OnEnableUndead);
 
         Toggle toggleShowWayPoint = Control("ShowWayPoint").GetComponent<Toggle>();
-        toggleShowWayPoint.isOn = Main.Instance.GameStateMgr.gameStatus.ShowWayPoint;
+        toggleShowWayPoint.isOn = Main.Ins.GameStateMgr.gameStatus.ShowWayPoint;
 #if !STRIP_DBG_SETTING
         toggleShowWayPoint.onValueChanged.AddListener(OnShowWayPoint);
-        if (Main.Instance.GameStateMgr.gameStatus.ShowWayPoint)
+        if (Main.Ins.GameStateMgr.gameStatus.ShowWayPoint)
             OnShowWayPoint(true);
 #else
         Destroy(toggleShowWayPoint.gameObject);
@@ -153,22 +153,22 @@ public class SettingDialog : Dialog {
 
         //粒子特效
         Toggle toggleDisableParticle = Control("Particle").GetComponent<Toggle>();
-        toggleDisableParticle.isOn = Main.Instance.GameStateMgr.gameStatus.DisableParticle;
+        toggleDisableParticle.isOn = Main.Ins.GameStateMgr.gameStatus.DisableParticle;
         toggleDisableParticle.onValueChanged.AddListener(OnDisableParticle);
         OnDisableParticle(toggleDisableParticle.isOn);
 
         //关闭摇杆
         Toggle toggleDisableJoyStick = Control("Joystick").GetComponent<Toggle>();
-        toggleDisableJoyStick.isOn = Main.Instance.GameStateMgr.gameStatus.DisableJoystick;
+        toggleDisableJoyStick.isOn = Main.Ins.GameStateMgr.gameStatus.DisableJoystick;
         toggleDisableJoyStick.onValueChanged.AddListener(OnDisableJoyStick);
         OnDisableJoyStick(toggleDisableJoyStick.isOn);
 
         Toggle toggleSkipVideo = Control("SkipVideo").GetComponent<Toggle>();
-        toggleSkipVideo.isOn = Main.Instance.GameStateMgr.gameStatus.SkipVideo;
+        toggleSkipVideo.isOn = Main.Ins.GameStateMgr.gameStatus.SkipVideo;
         toggleSkipVideo.onValueChanged.AddListener(OnSkipVideo);
 
         Toggle toggleOnlyWifi = Control("OnlyWifi").GetComponent<Toggle>();
-        toggleOnlyWifi.isOn = Main.Instance.GameStateMgr.gameStatus.OnlyWifi;
+        toggleOnlyWifi.isOn = Main.Ins.GameStateMgr.gameStatus.OnlyWifi;
         toggleOnlyWifi.onValueChanged.AddListener(OnOnlyWifi);
 
         GameObject pluginTab = Control("PluginTab", WndObject);
@@ -183,21 +183,21 @@ public class SettingDialog : Dialog {
         //模组分页内的功能设定
         Control("DeletePlugin").GetComponent<Button>().onClick.AddListener(() => { U3D.DeletePlugins(); SettingDialogState.Instance.ShowTab(4);});
         Toggle togShowInstallPlugin = Control("ShowInstallToggle").GetComponent<Toggle>();
-        togShowInstallPlugin.onValueChanged.AddListener((bool value) => { this.showInstallPlugin = value; Main.Instance.DlcMng.CollectAll(this.showInstallPlugin); this.PluginPageRefreshEx(); });
+        togShowInstallPlugin.onValueChanged.AddListener((bool value) => { this.showInstallPlugin = value; Main.Ins.DlcMng.CollectAll(this.showInstallPlugin); this.PluginPageRefreshEx(); });
         togShowInstallPlugin.isOn = true;
 
         //透明度设定
-        Control("AlphaSliderBar").GetComponent<Slider>().value = Main.Instance.GameStateMgr.gameStatus.UIAlpha;
+        Control("AlphaSliderBar").GetComponent<Slider>().value = Main.Ins.GameStateMgr.gameStatus.UIAlpha;
         Control("AlphaSliderBar").GetComponent<Slider>().onValueChanged.AddListener(OnUIAlphaChange);
         Control("InstallAll").GetComponent<Button>().onClick.AddListener(OnInstallAll);
 
-        if (Main.Instance.AppInfo.AppVersionIsSmallThan(Main.Instance.GameNotice.newVersion))
+        if (Main.Ins.AppInfo.AppVersionIsSmallThan(Main.Ins.GameNotice.newVersion))
         {
             //需要更新，设置好服务器版本号，设置好下载链接
             Control("NewVersionSep", WndObject).SetActive(true);
-            Control("NewVersion", WndObject).GetComponent<Text>().text = string.Format("最新版本号:{0}", Main.Instance.GameNotice.newVersion);
+            Control("NewVersion", WndObject).GetComponent<Text>().text = string.Format("最新版本号:{0}", Main.Ins.GameNotice.newVersion);
             Control("NewVersion", WndObject).SetActive(true);
-            Control("GetNewVersion", WndObject).GetComponent<LinkLabel>().URL = Main.Instance.GameNotice.apkUrl;
+            Control("GetNewVersion", WndObject).GetComponent<LinkLabel>().URL = Main.Ins.GameNotice.apkUrl;
             Control("GetNewVersion", WndObject).SetActive(true);
             Control("Flag", WndObject).SetActive(true);
         }
@@ -214,13 +214,13 @@ public class SettingDialog : Dialog {
     {
         for (int i = 0; i < pluginList.Count; i++)
         {
-            Main.Instance.DlcMng.AddDownloadTask(pluginList[i]);
+            Main.Ins.DlcMng.AddDownloadTask(pluginList[i]);
         }
     }
 
     public void OnUIAlphaChange(float v)
     {
-        Main.Instance.GameStateMgr.gameStatus.UIAlpha = v;
+        Main.Ins.GameStateMgr.gameStatus.UIAlpha = v;
     }
 
     public void ShowTab(int tab)
@@ -236,25 +236,25 @@ public class SettingDialog : Dialog {
 
     void OnSetUIPosition()
     {
-        Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.UIAdjustDialogState);
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.UIAdjustDialogState);
     }
 
     void OnOnlyWifi(bool only)
     {
-        Main.Instance.GameStateMgr.gameStatus.OnlyWifi = only;
+        Main.Ins.GameStateMgr.gameStatus.OnlyWifi = only;
     }
 
     void OnSkipVideo(bool skip)
     {
-        Main.Instance.GameStateMgr.gameStatus.SkipVideo = skip;
+        Main.Ins.GameStateMgr.gameStatus.SkipVideo = skip;
     }
 
     void OnDisableJoyStick(bool disable)
     {
-        Main.Instance.GameStateMgr.gameStatus.DisableJoystick = disable;
+        Main.Ins.GameStateMgr.gameStatus.DisableJoystick = disable;
         if (NGUIJoystick.instance != null)
         {
-            if (Main.Instance.GameStateMgr.gameStatus.DisableJoystick)
+            if (Main.Ins.GameStateMgr.gameStatus.DisableJoystick)
                 NGUIJoystick.instance.OnDisabled();
             else
                 NGUIJoystick.instance.OnEnabled();
@@ -263,12 +263,12 @@ public class SettingDialog : Dialog {
 
     void OnDisableParticle(bool disable)
     {
-        Main.Instance.GameStateMgr.gameStatus.DisableParticle = disable;
+        Main.Ins.GameStateMgr.gameStatus.DisableParticle = disable;
         if (disable)
         {
-            if (Main.Instance.CombatData.GScript != null)
+            if (Main.Ins.CombatData.GScript != null)
             {
-                Main.Instance.CombatData.GScript.CleanSceneParticle();
+                Main.Ins.CombatData.GScript.CleanSceneParticle();
             }
 
         }
@@ -276,14 +276,14 @@ public class SettingDialog : Dialog {
 
     void OnChangeVer(string ver)
     {
-        if (Main.Instance.AppInfo.MeteorVersion == ver)
+        if (Main.Ins.AppInfo.MeteorVersion == ver)
         {
             U3D.PopupTip(string.Format("当前流星版本已为{0}", ver));
             return;
         }
-        Main.Instance.AppInfo.MeteorVersion = ver;
-        Main.Instance.GameStateMgr.gameStatus.MeteorVersion = Main.Instance.AppInfo.MeteorVersion;
-        Main.Instance.GameStateMgr.SaveState();
+        Main.Ins.AppInfo.MeteorVersion = ver;
+        Main.Ins.GameStateMgr.gameStatus.MeteorVersion = Main.Ins.AppInfo.MeteorVersion;
+        Main.Ins.GameStateMgr.SaveState();
         if (GameOverlayDialogState.Exist())
             GameOverlayDialogState.Instance.ClearSystemMsg();
         OnBackPress();
@@ -293,30 +293,30 @@ public class SettingDialog : Dialog {
     //允许在战斗UI选择武器.
     void OnEnableWeaponChoose(bool on)
     {
-        Main.Instance.GameStateMgr.gameStatus.EnableWeaponChoose = on;
+        Main.Ins.GameStateMgr.gameStatus.EnableWeaponChoose = on;
     }
 
     void OnDisableLock(bool on)
     {
-        Main.Instance.GameStateMgr.gameStatus.AutoLock = on;
-        if (Main.Instance.CameraFollow != null)
+        Main.Ins.GameStateMgr.gameStatus.AutoLock = on;
+        if (Main.Ins.CameraFollow != null)
         {
             if (on)
-                Main.Instance.CameraFollow.EnableLock();
+                Main.Ins.CameraFollow.EnableLock();
             else
-                Main.Instance.CameraFollow.DisableLock();
+                Main.Ins.CameraFollow.DisableLock();
         }
 
-        if (Main.Instance.GameBattleEx != null)
+        if (Main.Ins.GameBattleEx != null)
         {
             if (on)
             {
-                Main.Instance.GameBattleEx.EnableLock();
+                Main.Ins.GameBattleEx.EnableLock();
             }
             else
             {
-                Main.Instance.GameBattleEx.Unlock();
-                Main.Instance.GameBattleEx.DisableLock();
+                Main.Ins.GameBattleEx.Unlock();
+                Main.Ins.GameBattleEx.DisableLock();
             }
         }
 
@@ -334,33 +334,33 @@ public class SettingDialog : Dialog {
 
     void OnEnableUndead(bool on)
     {
-        Main.Instance.GameStateMgr.gameStatus.Undead = on;
+        Main.Ins.GameStateMgr.gameStatus.Undead = on;
     }
 
     void OnEnableGodMode(bool on)
     {
-        Main.Instance.GameStateMgr.gameStatus.EnableGodMode = on;
+        Main.Ins.GameStateMgr.gameStatus.EnableGodMode = on;
     }
 
     void OnEnableInfiniteAngry(bool on)
     {
-        Main.Instance.GameStateMgr.gameStatus.EnableInfiniteAngry = on;
+        Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry = on;
     }
 
     void OnEnableDebugRobot(bool on)
     {
-        Main.Instance.GameStateMgr.gameStatus.EnableDebugRobot = on;
+        Main.Ins.GameStateMgr.gameStatus.EnableDebugRobot = on;
     }
 
     void OnEnableDebugSFX(bool on)
     {
-        Main.Instance.GameStateMgr.gameStatus.EnableDebugSFX = on;
+        Main.Ins.GameStateMgr.gameStatus.EnableDebugSFX = on;
     }
 
     void OnChangePerformance(bool on)
     {
-        Main.Instance.GameStateMgr.gameStatus.TargetFrame = on ? 60 : 30;
-        Application.targetFrameRate = Main.Instance.GameStateMgr.gameStatus.TargetFrame;
+        Main.Ins.GameStateMgr.gameStatus.TargetFrame = on ? 60 : 30;
+        Application.targetFrameRate = Main.Ins.GameStateMgr.gameStatus.TargetFrame;
 #if UNITY_EDITOR
         Application.targetFrameRate = 120;
 #endif
@@ -369,45 +369,45 @@ public class SettingDialog : Dialog {
 #if !STRIP_DBG_SETTING
     void OnShowWayPoint(bool on)
     {
-        if (Main.Instance.GameBattleEx != null)
-            Main.Instance.GameBattleEx.ShowWayPoint(on);
+        if (Main.Ins.GameBattleEx != null)
+            Main.Ins.GameBattleEx.ShowWayPoint(on);
     }
 #endif
 
     void OnMusicVolumeChange(float vo)
     {
-        Main.Instance.SoundManager.SetMusicVolume(vo);
-        if (Main.Instance != null)
-            Main.Instance.GameStateMgr.gameStatus.MusicVolume = vo;
+        Main.Ins.SoundManager.SetMusicVolume(vo);
+        if (Main.Ins != null)
+            Main.Ins.GameStateMgr.gameStatus.MusicVolume = vo;
     }
 
     void OnXSensitivityChange(float v)
     {
-        Main.Instance.GameStateMgr.gameStatus.AxisSensitivity.x = v;
+        Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.x = v;
     }
 
     void OnYSensitivityChange(float v)
     {
-        Main.Instance.GameStateMgr.gameStatus.AxisSensitivity.y = v;
+        Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.y = v;
     }
 
     void OnEffectVolumeChange(float vo)
     {
-        Main.Instance.SoundManager.SetSoundVolume(vo);
-        Main.Instance.GameStateMgr.gameStatus.SoundVolume = vo;
+        Main.Ins.SoundManager.SetSoundVolume(vo);
+        Main.Ins.GameStateMgr.gameStatus.SoundVolume = vo;
     }
 
     void OnTabShow(bool show)
     {
         if (Control("PluginTab", WndObject).activeInHierarchy && show)
         {
-            PluginUpdate = Main.Instance.StartCoroutine(UpdatePluginInfo());//下载插件信息，显示插件
+            PluginUpdate = Main.Ins.StartCoroutine(UpdatePluginInfo());//下载插件信息，显示插件
         }
     }
 
     IEnumerator UpdatePluginInfo()
     {
-        if (!Main.Instance.CombatData.PluginUpdated)
+        if (!Main.Ins.CombatData.PluginUpdated)
         {
             UnityWebRequest vFile = new UnityWebRequest();
             vFile.url = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, Main.strPlugins);
@@ -423,31 +423,31 @@ public class SettingDialog : Dialog {
                 Update = null;
                 pluginCount = 0;
                 //显示出存档中保存得DLC信息
-                Main.Instance.DlcMng.ClearModel();
-                for (int i = 0; i < Main.Instance.GameStateMgr.gameStatus.pluginModel.Count; i++)
+                Main.Ins.DlcMng.ClearModel();
+                for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginModel.Count; i++)
                 {
-                    Main.Instance.DlcMng.Models.Add(Main.Instance.GameStateMgr.gameStatus.pluginModel[i]);
+                    Main.Ins.DlcMng.Models.Add(Main.Ins.GameStateMgr.gameStatus.pluginModel[i]);
                 }
                 //for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
                 //{
                 //InsertModel(DlcMng.Instance.Models[i]);
                 //}
-                pluginCount = Main.Instance.DlcMng.Models.Count;
-                Main.Instance.DlcMng.ClearDlc();
-                for (int i = 0; i < Main.Instance.GameStateMgr.gameStatus.pluginChapter.Count; i++)
+                pluginCount = Main.Ins.DlcMng.Models.Count;
+                Main.Ins.DlcMng.ClearDlc();
+                for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginChapter.Count; i++)
                 {
-                    Main.Instance.DlcMng.Dlcs.Add(Main.Instance.GameStateMgr.gameStatus.pluginChapter[i]);
+                    Main.Ins.DlcMng.Dlcs.Add(Main.Ins.GameStateMgr.gameStatus.pluginChapter[i]);
                 }
-                pluginCount += Main.Instance.DlcMng.Dlcs.Count;
+                pluginCount += Main.Ins.DlcMng.Dlcs.Count;
                 //for (int i = 0; i < DlcMng.Instance.Dlcs.Count; i++)
                 //{
                 //    InsertDlc(DlcMng.Instance.Dlcs[i]);
                 //}
                 pluginPage = 0;
                 pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
-                Main.Instance.DlcMng.CollectAll(this.showInstallPlugin);
+                Main.Ins.DlcMng.CollectAll(this.showInstallPlugin);
                 Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
-                PluginPageUpdate = Main.Instance.StartCoroutine(PluginPageRefresh());
+                PluginPageUpdate = Main.Ins.StartCoroutine(PluginPageRefresh());
                 yield break;
             }
 
@@ -485,7 +485,7 @@ public class SettingDialog : Dialog {
                 //Global.Instance.Servers.Add(s);
             }
 
-            Main.Instance.DlcMng.ClearModel();
+            Main.Ins.DlcMng.ClearModel();
             for (int i = 0; i < js["Model"].Count; i++)
             {
                 int modelIndex = int.Parse(js["Model"][i]["Idx"].ToString());
@@ -497,15 +497,15 @@ public class SettingDialog : Dialog {
                 if (js["Model"][i]["desc"] != null)
                     Info.Desc = js["Model"][i]["desc"].ToString();
                 Info.useFemalePos = js["Model"][i]["gender"] != null;
-                Main.Instance.DlcMng.AddModel(Info);
+                Main.Ins.DlcMng.AddModel(Info);
             }
 
-            pluginCount += Main.Instance.DlcMng.Models.Count;
+            pluginCount += Main.Ins.DlcMng.Models.Count;
             //for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
             //{
             //    InsertModel(DlcMng.Instance.Models[i]);
             //}
-            Main.Instance.DlcMng.ClearDlc();
+            Main.Ins.DlcMng.ClearDlc();
             for (int i = 0; i < js["Dlc"].Count; i++)
             {
                 Chapter c = new Chapter();
@@ -548,29 +548,29 @@ public class SettingDialog : Dialog {
                     }
                     c.Res = dep;
                 }
-                Main.Instance.DlcMng.AddDlc(c);
+                Main.Ins.DlcMng.AddDlc(c);
             }
 
-            pluginCount += Main.Instance.DlcMng.Dlcs.Count;
+            pluginCount += Main.Ins.DlcMng.Dlcs.Count;
             //for (int i = 0; i < DlcMng.Instance.Dlcs.Count; i++)
             //{
             //    InsertDlc(DlcMng.Instance.Dlcs[i]);
             //}
             pluginPage = 0;
             pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
-            Main.Instance.DlcMng.CollectAll(this.showInstallPlugin);
-            PluginPageUpdate = Main.Instance.StartCoroutine(PluginPageRefresh());
-            Main.Instance.CombatData.PluginUpdated = true;
+            Main.Ins.DlcMng.CollectAll(this.showInstallPlugin);
+            PluginPageUpdate = Main.Ins.StartCoroutine(PluginPageRefresh());
+            Main.Ins.CombatData.PluginUpdated = true;
             PluginUpdate = null;
         }
         else
         {
             if (PluginPageUpdate != null)
                 yield break;
-            pluginCount = Main.Instance.DlcMng.Models.Count + Main.Instance.DlcMng.Dlcs.Count;
+            pluginCount = Main.Ins.DlcMng.Models.Count + Main.Ins.DlcMng.Dlcs.Count;
             pluginPage = 0;
             pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
-            PluginPageUpdate = Main.Instance.StartCoroutine(PluginPageRefresh());
+            PluginPageUpdate = Main.Ins.StartCoroutine(PluginPageRefresh());
         }
         Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
     }
@@ -597,8 +597,8 @@ public class SettingDialog : Dialog {
     {
         Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
         if (PluginPageUpdate != null)
-            Main.Instance.StopCoroutine(PluginPageUpdate);
-        PluginPageUpdate = Main.Instance.StartCoroutine(PluginPageRefresh());
+            Main.Ins.StopCoroutine(PluginPageUpdate);
+        PluginPageUpdate = Main.Ins.StartCoroutine(PluginPageRefresh());
     }
 
     IEnumerator PluginPageRefresh()
@@ -608,12 +608,12 @@ public class SettingDialog : Dialog {
             GameObject.Destroy(pluginList[i].gameObject);
         }
         pluginList.Clear();
-        for (int i = pluginPage * pluginPerPage; i < Mathf.Min((pluginPage + 1) * pluginPerPage, Main.Instance.DlcMng.allItem.Count); i++)
+        for (int i = pluginPage * pluginPerPage; i < Mathf.Min((pluginPage + 1) * pluginPerPage, Main.Ins.DlcMng.allItem.Count); i++)
         {
-            if (Main.Instance.DlcMng.allItem[i] is ModelItem)
-                InsertModel(Main.Instance.DlcMng.allItem[i] as ModelItem);
+            if (Main.Ins.DlcMng.allItem[i] is ModelItem)
+                InsertModel(Main.Ins.DlcMng.allItem[i] as ModelItem);
             else
-                InsertDlc(Main.Instance.DlcMng.allItem[i] as Chapter);
+                InsertDlc(Main.Ins.DlcMng.allItem[i] as Chapter);
             yield return 0;
         }
         PluginPageUpdate = null;
@@ -623,7 +623,7 @@ public class SettingDialog : Dialog {
     {
         if (message == 0)
         {
-            Control("Nick").GetComponentInChildren<Text>().text = Main.Instance.GameStateMgr.gameStatus.NickName;
+            Control("Nick").GetComponentInChildren<Text>().text = Main.Ins.GameStateMgr.gameStatus.NickName;
         }
     }
 
@@ -631,24 +631,24 @@ public class SettingDialog : Dialog {
     {
         if (Update != null)
         {
-            Main.Instance.StopCoroutine(Update);
+            Main.Ins.StopCoroutine(Update);
             Update = null;
         }
         if (PluginUpdate != null)
         {
-            Main.Instance.StopCoroutine(PluginUpdate);
+            Main.Ins.StopCoroutine(PluginUpdate);
             PluginUpdate = null;
         }
 
         if (PluginPageUpdate != null)
         {
-            Main.Instance.StopCoroutine(PluginPageUpdate);
+            Main.Ins.StopCoroutine(PluginPageUpdate);
             PluginPageUpdate = null;
         }
 
         if (GamePageUpdate != null)
         {
-            Main.Instance.StopCoroutine(GamePageUpdate);
+            Main.Ins.StopCoroutine(GamePageUpdate);
             GamePageUpdate = null;
         }
 
@@ -686,8 +686,8 @@ public class SettingDialog : Dialog {
         if (ctrl != null)
         {
             ctrl.AttachModel(item);
-            if (!Main.Instance.GameStateMgr.gameStatus.IsModelInstalled(item))
-                Main.Instance.DlcMng.AddPreviewTask(ctrl);
+            if (!Main.Ins.GameStateMgr.gameStatus.IsModelInstalled(item))
+                Main.Ins.DlcMng.AddPreviewTask(ctrl);
         }
         pluginList.Add(ctrl);
     }
@@ -705,8 +705,8 @@ public class SettingDialog : Dialog {
         if (ctrl != null)
         {
             ctrl.AttachDlc(item);
-            if (!Main.Instance.GameStateMgr.gameStatus.IsDlcInstalled(item))
-                Main.Instance.DlcMng.AddPreviewTask(ctrl);
+            if (!Main.Ins.GameStateMgr.gameStatus.IsDlcInstalled(item))
+                Main.Ins.DlcMng.AddPreviewTask(ctrl);
         }
         pluginList.Add(ctrl);
     }

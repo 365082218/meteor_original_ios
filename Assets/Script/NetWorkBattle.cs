@@ -30,20 +30,20 @@ public class NetWorkBattle
 
     public MeteorUnit GetNetPlayer(int id)
     {
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            if (Main.Instance.MeteorManager.UnitInfos[i].InstanceId == id)
-                return Main.Instance.MeteorManager.UnitInfos[i];
+            if (Main.Ins.MeteorManager.UnitInfos[i].InstanceId == id)
+                return Main.Ins.MeteorManager.UnitInfos[i];
         }
         return null;
     }
 
     public string GetNetPlayerName(int id)
     {
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            if (Main.Instance.MeteorManager.UnitInfos[i].InstanceId == id)
-                return Main.Instance.MeteorManager.UnitInfos[i].name;
+            if (Main.Ins.MeteorManager.UnitInfos[i].InstanceId == id)
+                return Main.Ins.MeteorManager.UnitInfos[i].name;
         }
         return "不明身份者";
     }
@@ -136,10 +136,10 @@ public class NetWorkBattle
         {
             UdpClientProxy.Disconnect();
             //在联机战斗场景中.
-            Main.Instance.GameBattleEx.Pause();
-            Main.Instance.SoundManager.StopAll();
-            Main.Instance.BuffMng.Clear();
-            Main.Instance.MeteorManager.Clear();
+            Main.Ins.GameBattleEx.Pause();
+            Main.Ins.SoundManager.StopAll();
+            Main.Ins.BuffMng.Clear();
+            Main.Ins.MeteorManager.Clear();
             //if (FightWnd.Exist)
             //    FightWnd.Instance.Close();
             RoomId = -1;
@@ -174,13 +174,13 @@ public class NetWorkBattle
 
     public void Load()
     {
-        LevelDatas.LevelDatas lev = Main.Instance.CombatData.GetGlobalLevel(LevelId);
-        Main.Instance.CombatData.Chapter = Main.Instance.DlcMng.FindChapter((LevelId / 1000) * 1000);
-        Main.Instance.CombatData.GLevelItem = lev;
-        Main.Instance.CombatData.GLevelMode = LevelMode.MultiplyPlayer;
-        RoomInfo r = Main.Instance.RoomMng.GetRoom((int)RoomId);
-        Main.Instance.CombatData.GGameMode = (GameMode)r.rule;
-        Main.Instance.CombatData.wayPoints = null;
+        LevelDatas.LevelDatas lev = Main.Ins.CombatData.GetGlobalLevel(LevelId);
+        Main.Ins.CombatData.Chapter = Main.Ins.DlcMng.FindChapter((LevelId / 1000) * 1000);
+        Main.Ins.CombatData.GLevelItem = lev;
+        Main.Ins.CombatData.GLevelMode = LevelMode.MultiplyPlayer;
+        RoomInfo r = Main.Ins.RoomMng.GetRoom((int)RoomId);
+        Main.Ins.CombatData.GGameMode = (GameMode)r.rule;
+        Main.Ins.CombatData.wayPoints = null;
         //LoadingWnd.Instance.Open();
         U3D.LoadLevelEx();
     }

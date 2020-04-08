@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 public class MeteorManager {
     public MeteorManager(){}
-    public MeteorUnit LocalPlayer;//当前操纵着主英雄.
     //public PetController Pet;
     public List<MeteorUnit> UnitInfos = new List<MeteorUnit>();
     public List<MeteorUnit> DeadUnits = new List<MeteorUnit>();
@@ -40,7 +39,7 @@ public class MeteorManager {
         ////让角色间无法穿透，待某个角色使出特殊技能时，关掉碰撞。
         //for (int i = 0; i < UnitInfos.Count; i++)
         //    UnitInfos[i].PhysicalIgnore(unit, false);
-        if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             unit.InstanceId = playerId;
         else
         {
@@ -94,7 +93,7 @@ public class MeteorManager {
     //某个角色从场景删除
     public void OnRemoveUnit(MeteorUnit unit)
     {
-        Main.Instance.MeteorManager.PhysicalIgnore(unit, true);
+        Main.Ins.MeteorManager.PhysicalIgnore(unit, true);
         for (int i = 0; i < UnitInfos.Count; i++)
             UnitInfos[i].OnUnitDead(unit);
 
@@ -103,13 +102,13 @@ public class MeteorManager {
         if (DeadUnits.Contains(unit))
             DeadUnits.Remove(unit);
         LeavedUnits.Add(unit.InstanceId, unit.name);
-        Main.Instance.BuffMng.RemoveUnit(unit);
+        Main.Ins.BuffMng.RemoveUnit(unit);
         GameObject.Destroy(unit.gameObject);
     }
 
     public void OnUnitDead(MeteorUnit unit)
     {
-        Main.Instance.MeteorManager.PhysicalIgnore(unit, true);
+        Main.Ins.MeteorManager.PhysicalIgnore(unit, true);
         unit.OnUnitDead(null);
         UnitInfos.Remove(unit);
         DeadUnits.Add(unit);
@@ -140,7 +139,7 @@ public class MeteorManager {
         DeadUnits.Clear();
         LeavedUnits.Clear();
         SceneItems.Clear();
-        LocalPlayer = null;
+        Main.Ins.LocalPlayer = null;
         UnitInstanceIdx = 0;
         SceneItemInstanceIdx = 0;
     }

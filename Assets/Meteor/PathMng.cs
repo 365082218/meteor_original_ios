@@ -8,7 +8,7 @@ public class PathHelper
     PathNode[] nodeContainer;//路點.
     PathHelper()
     {
-        int count = Main.Instance.CombatData.wayPoints.Count;
+        int count = Main.Ins.CombatData.wayPoints.Count;
         nodeContainer = new PathNode[count];
         for (int i = 0; i < count; i++)
             nodeContainer[i] = new PathNode();
@@ -68,11 +68,11 @@ public class PathMng
 
     public WalkType GetWalkMethod(int start, int end)
     {
-        if (Main.Instance.CombatData.wayPoints.Count > start && Main.Instance.CombatData.wayPoints.Count > end)
+        if (Main.Ins.CombatData.wayPoints.Count > start && Main.Ins.CombatData.wayPoints.Count > end)
         {
-            if (Main.Instance.CombatData.wayPoints[start].link.ContainsKey(end))
+            if (Main.Ins.CombatData.wayPoints[start].link.ContainsKey(end))
             {
-                return (WalkType)Main.Instance.CombatData.wayPoints[start].link[end].mode;
+                return (WalkType)Main.Ins.CombatData.wayPoints[start].link[end].mode;
             }
         }
         return WalkType.Normal;
@@ -106,7 +106,7 @@ public class PathMng
             yield break;
         }
 
-        if (Main.Instance.CombatData.GScript.DisableFindWay())
+        if (Main.Ins.CombatData.GScript.DisableFindWay())
         {
             //List<WayPoint> direct = new List<WayPoint>();
             //wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
@@ -116,7 +116,7 @@ public class PathMng
         }
 
         //从开始点，跑到最终点，最短线路？
-        if (Main.Instance.CombatData.wayPoints[start].link.ContainsKey(end))
+        if (Main.Ins.CombatData.wayPoints[start].link.ContainsKey(end))
         {
             //wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
             //wp.Add(Global.Instance.GLevelItem.wayPoint[end]);
@@ -228,7 +228,7 @@ public class PathMng
     //收集从起点到终点经过的所有层级路点,一旦遇见最近层级的终点就结束，用于计算最短路径.
     void CollectPathLayer(MeteorUnit user, int start, int end, int layer = 1)
     {
-        Dictionary<int, WayLength> ways = Main.Instance.CombatData.wayPoints[start].link;
+        Dictionary<int, WayLength> ways = Main.Ins.CombatData.wayPoints[start].link;
         //foreach (var each in ways)
         //{
         //    if (!PathLayerExist(user, each.Key))
@@ -249,14 +249,14 @@ public class PathMng
     public Vector3 GetNearestWayPoint(Vector3 vec, MeteorUnit target)
     {
         int start = GetWayIndex(vec, target);
-        if (Main.Instance.CombatData.wayPoints.Count > start && start >= 0)
+        if (Main.Ins.CombatData.wayPoints.Count > start && start >= 0)
         {
-            if (Main.Instance.CombatData.wayPoints[start].link != null)
+            if (Main.Ins.CombatData.wayPoints[start].link != null)
             {
-                List<int> ret = Main.Instance.CombatData.wayPoints[start].link.Keys.ToList();
+                List<int> ret = Main.Ins.CombatData.wayPoints[start].link.Keys.ToList();
                 int k = Random.Range(0, ret.Count);
                 if (ret.Count != 0)
-                    return Main.Instance.CombatData.wayPoints[ret[k]].pos;
+                    return Main.Ins.CombatData.wayPoints[ret[k]].pos;
             }
         }
         return Vector3.zero;
@@ -276,7 +276,7 @@ public class PathMng
         {
             WayPointTrigger wayPointTrigger = other[i].gameObject.GetComponent<WayPointTrigger>();
             wayPointTrigger.OverlapSphereIndex = i;
-            WayPoint way = Main.Instance.CombatData.wayPoints[wayPointTrigger.WayIndex];
+            WayPoint way = Main.Ins.CombatData.wayPoints[wayPointTrigger.WayIndex];
             Vector3 vecTarget = way.pos;
             Vector3 diff = vecTarget - now;
             float dis = Vector3.SqrMagnitude(diff);

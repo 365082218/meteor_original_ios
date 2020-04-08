@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class NoticeDialogState : CommonDialogState<NoticeDialog>
 {
     public override string DialogName { get { return "NoticeDialog"; } }
-    public NoticeDialogState(MainDialogStateManager stateMgr) : base(stateMgr)
+    public NoticeDialogState(BaseDialogStateManager stateMgr) : base(stateMgr)
     {
 
     }
@@ -19,7 +19,7 @@ public class NoticeDialogState : CommonDialogState<NoticeDialog>
     {
         if (read)
             return false;
-        if (Main.Instance.GameNotice.HaveNotice())
+        if (Main.Ins.GameNotice.HaveNotice())
             return true;
         return false;
     }
@@ -39,7 +39,7 @@ public class NoticeDialog : Dialog
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
-        Notice.text = Main.Instance.GameNotice.notice;
+        Notice.text = Main.Ins.GameNotice.notice;
         Close.onClick.AddListener(() => { OnBackPress(); });
     }
 }

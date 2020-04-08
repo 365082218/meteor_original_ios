@@ -277,8 +277,8 @@ shader 1
 
     public void LoadDesMap(string despath)
     {
-        DesFile des = Main.Instance.DesLoader.Load(despath);
-        GMBFile gmb = Main.Instance.GMBLoader.Load(despath);
+        DesFile des = Main.Ins.DesLoader.Load(despath);
+        GMBFile gmb = Main.Ins.GMBLoader.Load(despath);
         if (des == null || gmb == null)
             return;
         bool generateFile = true;
@@ -485,9 +485,9 @@ shader 1
 
     public void LoadMap(int level)
     {
-        LevelDatas.LevelDatas lev = Main.Instance.DataMgr.GetData<LevelDatas.LevelDatas>(level);
-        DesFile des = Main.Instance.DesLoader.Load(lev.sceneItems);
-        GMBFile gmb = Main.Instance.GMBLoader.Load(lev.sceneItems);
+        LevelDatas.LevelDatas lev = Main.Ins.DataMgr.GetData<LevelDatas.LevelDatas>(level);
+        DesFile des = Main.Ins.DesLoader.Load(lev.sceneItems);
+        GMBFile gmb = Main.Ins.GMBLoader.Load(lev.sceneItems);
         if (lev == null || des == null || gmb == null)
         {
             Debug.LogError("can not find");

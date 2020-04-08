@@ -38,8 +38,8 @@ public class PlayerDialog : Dialog
         objPlayer.transform.rotation = Quaternion.identity;
         objPlayer.transform.localScale = Vector3.one;
         d.gameObject.layer = obj.gameObject.layer;
-        d.Init(Main.Instance.MeteorManager.LocalPlayer.UnitId, LayerMask.NameToLayer("3DUIPlayer"));
-        WeaponDatas.WeaponDatas weaponProperty = U3D.GetWeaponProperty(Main.Instance.MeteorManager.LocalPlayer.weaponLoader.GetCurrentWeapon().Info().UnitId);
+        d.Init(Main.Ins.LocalPlayer.UnitId, LayerMask.NameToLayer("3DUIPlayer"));
+        WeaponDatas.WeaponDatas weaponProperty = U3D.GetWeaponProperty(Main.Ins.LocalPlayer.weaponLoader.GetCurrentWeapon().Info().UnitId);
         d.weaponLoader.StrWeaponR = weaponProperty.WeaponR;
         d.weaponLoader.StrWeaponL = weaponProperty.WeaponL;
         //d.weaponLoader.EquipWeapon();
@@ -49,12 +49,12 @@ public class PlayerDialog : Dialog
         d.transform.localRotation = Quaternion.identity;
         NodeHelper.Find("Close Button", WndObject).GetComponent<Button>().onClick.AddListener(OnBackPress);
 
-        SetStat("Stat Label 1", Main.Instance.MeteorManager.LocalPlayer.Attr.hpCur + "/" + Main.Instance.MeteorManager.LocalPlayer.Attr.HpMax);
-        SetStat("Stat Label 2", Main.Instance.MeteorManager.LocalPlayer.AngryValue.ToString());
-        SetStat("Stat Label 3", Main.Instance.MeteorManager.LocalPlayer.CalcDamage().ToString());
-        SetStat("Stat Label 4", Main.Instance.MeteorManager.LocalPlayer.CalcDef().ToString());
-        SetStat("Stat Label 5", Main.Instance.MeteorManager.LocalPlayer.MoveSpeed.ToString());
-        SetStat("Stat Label 6", string.Format("{0:f2}", Main.Instance.MeteorManager.LocalPlayer.MoveSpeed / 1000.0f));
+        SetStat("Stat Label 1", Main.Ins.LocalPlayer.Attr.hpCur + "/" + Main.Ins.LocalPlayer.Attr.HpMax);
+        SetStat("Stat Label 2", Main.Ins.LocalPlayer.AngryValue.ToString());
+        SetStat("Stat Label 3", Main.Ins.LocalPlayer.CalcDamage().ToString());
+        SetStat("Stat Label 4", Main.Ins.LocalPlayer.CalcDef().ToString());
+        SetStat("Stat Label 5", Main.Ins.LocalPlayer.MoveSpeed.ToString());
+        SetStat("Stat Label 6", string.Format("{0:f2}", Main.Ins.LocalPlayer.MoveSpeed / 1000.0f));
 
         //处理背包的点击
         UIItemSlot[] slots = NodeHelper.Find("Slots Grid", WndObject).GetComponentsInChildren<UIItemSlot>();
@@ -64,8 +64,8 @@ public class PlayerDialog : Dialog
 
     void OnClickItem(UIItemSlot slot)
     {
-        Main.Instance.ExitState(Main.Instance.ItemInfoDialogState);
-        Main.Instance.EnterState(Main.Instance.ItemInfoDialogState);
+        Main.Ins.ExitState(Main.Ins.ItemInfoDialogState);
+        Main.Ins.EnterState(Main.Ins.ItemInfoDialogState);
         ItemInfoDialogState.Instance.AssignItem(slot.GetItemInfo());
     }
 

@@ -46,15 +46,15 @@ public class DlcWnd : Dialog {
 
         Cancel.onClick.AddListener(() =>
         {
-            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.MainMenuState);
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainMenuState);
         });
 
-        if (Main.Instance.GameStateMgr.gameStatus.pluginChapter != null)
+        if (Main.Ins.GameStateMgr.gameStatus.pluginChapter != null)
         {
             int insertCount = 0;
-            for (int i = 0; i < Main.Instance.GameStateMgr.gameStatus.pluginChapter.Count; i++)
+            for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginChapter.Count; i++)
             {
-                Chapter lev = Main.Instance.GameStateMgr.gameStatus.pluginChapter[i];
+                Chapter lev = Main.Ins.GameStateMgr.gameStatus.pluginChapter[i];
                 if (lev == null)
                     continue;
                 lev.Check();
@@ -106,11 +106,11 @@ public class DlcWnd : Dialog {
         if (select != null)
         {
             //普通关卡对待.
-            Main.Instance.CombatData.Chapter = select;
+            Main.Ins.CombatData.Chapter = select;
             string tip = "";
-            if (!Main.Instance.DlcMng.CheckDependence(Main.Instance.CombatData.Chapter, out tip))
+            if (!Main.Ins.DlcMng.CheckDependence(Main.Ins.CombatData.Chapter, out tip))
             {
-                Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.LevelDialogState, false);
+                Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LevelDialogState, false);
             }
             else
             {

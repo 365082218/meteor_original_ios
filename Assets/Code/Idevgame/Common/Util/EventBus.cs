@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,31 +8,33 @@ public enum EventId
     OpenCamera = 0,
 }
 
+public class TEventArgs : EventArgs
+{
+
+}
 
 public class EventBus
 {
-    Dictionary<int, List<System.Action>> events = new Dictionary<int, List<System.Action>>();
-    public void Register(EventId evt, System.Action fun)
+    Dictionary<int, EventHandler<TEventArgs>> _events = new Dictionary<int, EventHandler<TEventArgs>>();
+    public void Register(EventId evt, EventHandler<TEventArgs> function)
     {
-        if (!events.ContainsKey((int)evt))
-            events[(int)evt] = new List<System.Action>();
-        events[(int)evt].Add(fun);
+        if (!_events.ContainsKey((int)evt))
+            _events[(int)evt] = function;
+        else
+            _events[(int)evt] += function;
     }
 
-    public void UnRegister(EventId evt, System.Action fun)
+    public void UnRegister(EventId evt, EventHandler<TEventArgs> function)
     {
-        if (events.ContainsKey((int)evt))
-            events[(int)evt].Remove(fun);
+        if (_events.ContainsKey((int)evt))
+            _events[(int)evt] -= function;
     }
 
-    public void Fire(EventId evt)
+    public void Fire(EventId evt, object sender = null, TEventArgs args = null)
     {
-        if (events.ContainsKey((int)evt))
+        if (_events.ContainsKey((int)evt))
         {
-            for (int i = 0; i < events[(int)evt].Count; i++)
-            {
-                events[(int)evt][i].Invoke();
-            }
+            _events[(int)evt].Invoke(sender, args);
         }
     }
 }

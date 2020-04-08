@@ -66,7 +66,7 @@ public class CameraFree : NetBehaviour {
     public bool Smooth = true;
     public void ForceUpdate()
     {
-        if (Target != null && !Main.Instance.CombatData.PauseAll)
+        if (Target != null && !Main.Ins.CombatData.PauseAll)
             CameraSmoothFollow(Smooth);
     }
 
@@ -79,7 +79,7 @@ public class CameraFree : NetBehaviour {
                 RefreshTarget();
             }
         }
-        if (UnitTarget != null && !Main.Instance.CombatData.PauseAll)
+        if (UnitTarget != null && !Main.Ins.CombatData.PauseAll)
         {
             CameraSmoothFollow(Smooth);
         }
@@ -88,15 +88,15 @@ public class CameraFree : NetBehaviour {
     public void RefreshTarget()
     {
         MeteorUnit watchTarget = null;
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            if (Main.Instance.MeteorManager.UnitInfos[i].Dead)
+            if (Main.Ins.MeteorManager.UnitInfos[i].Dead)
                 continue;
             if (watchTarget == null)
-                watchTarget = Main.Instance.MeteorManager.UnitInfos[i];
-            if (Main.Instance.MeteorManager.UnitInfos[i].LockTarget != null)
+                watchTarget = Main.Ins.MeteorManager.UnitInfos[i];
+            if (Main.Ins.MeteorManager.UnitInfos[i].LockTarget != null)
             {
-                watchTarget = Main.Instance.MeteorManager.UnitInfos[i];
+                watchTarget = Main.Ins.MeteorManager.UnitInfos[i];
                 break;
             }
         }
@@ -243,7 +243,7 @@ public class CameraFree : NetBehaviour {
             newPos.x = Target.transform.position.x;
             newPos.y = Target.position.y + BodyHeight + followHeight;
             newPos.z = Target.transform.position.z;
-            newPos += Main.Instance.MeteorManager.LocalPlayer.transform.forward * followDistance;
+            newPos += Main.Ins.LocalPlayer.transform.forward * followDistance;
 
             vecTarget.x = Target.position.x;
             vecTarget.y = Target.position.y + BodyHeight;
@@ -276,7 +276,7 @@ public class CameraFree : NetBehaviour {
                 newPos.z = Target.transform.position.z;
                 float y = Mathf.SmoothDamp(CameraPosition.position.y, Target.position.y + BodyHeight + followHeight, ref currentVelocityY, f_DampTime);
                 newPos.y = y;
-                newPos += Main.Instance.MeteorManager.LocalPlayer.transform.forward * followDistance;
+                newPos += Main.Ins.LocalPlayer.transform.forward * followDistance;
             }
             else
             {

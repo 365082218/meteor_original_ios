@@ -57,20 +57,20 @@ public class SceneItemAgent :NetBehaviour {
         {
             MethodOnAttack = script.GetType().GetMethod(gameObject.name + "_OnAttack");
             MethodOnIdle = script.GetType().GetMethod(gameObject.name + "_OnIdle");
-            OnTouch = Main.Instance.CombatData.GScriptType.GetMethod(name + "_OnTouch", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            OnTouch = Main.Ins.CombatData.GScriptType.GetMethod(name + "_OnTouch", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             if (OnTouch == null)
             {
-                System.Type typeParent = Main.Instance.CombatData.GScriptType.BaseType;
+                System.Type typeParent = Main.Ins.CombatData.GScriptType.BaseType;
                 while (typeParent != null && OnTouch == null)
                 {
                     OnTouch = typeParent.GetMethod(name + "_OnTouch", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     typeParent = typeParent.BaseType;
                 }
             }
-            OnPickUp = Main.Instance.CombatData.GScriptType.GetMethod(name + "_OnPickUp", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            OnPickUp = Main.Ins.CombatData.GScriptType.GetMethod(name + "_OnPickUp", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             if (OnPickUp == null)
             {
-                System.Type typeParent = Main.Instance.CombatData.GScriptType.BaseType;
+                System.Type typeParent = Main.Ins.CombatData.GScriptType.BaseType;
                 while (typeParent != null && OnPickUp == null)
                 {
                     OnPickUp = typeParent.GetMethod(name + "_OnPickUp", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -111,7 +111,7 @@ public class SceneItemAgent :NetBehaviour {
     public override void NetUpdate()
     {
         if (MethodOnIdle != null)
-            MethodOnIdle.Invoke(Main.Instance.CombatData.GScript, new object[] { InstanceId });
+            MethodOnIdle.Invoke(Main.Ins.CombatData.GScript, new object[] { InstanceId });
         else if (OnIdle != null)
             OnIdle.Invoke(InstanceId, Index);
 
@@ -140,30 +140,30 @@ public class SceneItemAgent :NetBehaviour {
                 if (unit.Attr.Weapon != 0 && unit.Attr.Weapon2 != 0)
                     return;
                 //相同武器，不能捡
-                ItemDatas.ItemDatas ib0 = Main.Instance.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
+                ItemDatas.ItemDatas ib0 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
                 WeaponDatas.WeaponDatas wb0 = U3D.GetWeaponProperty(ib0.UnitId);
                 if (wb0 != null && wb0.WeaponR == ItemInfo.model)
                     return;
 
                 if (unit.Attr.Weapon2 != 0)
                 {
-                    ItemDatas.ItemDatas ib1 = Main.Instance.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
+                    ItemDatas.ItemDatas ib1 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
                     WeaponDatas.WeaponDatas wb1 = U3D.GetWeaponProperty(ib1.UnitId);
                     if (wb1 != null && wb1.WeaponR == ItemInfo.model)
                         return;
                 }
 
                 //同类武器不能捡
-                int weaponPickup = Main.Instance.GameStateMgr.GetWeaponCode(ItemInfo.model);
-                ItemDatas.ItemDatas wb = Main.Instance.GameStateMgr.FindItemByIdx(weaponPickup);
+                int weaponPickup = Main.Ins.GameStateMgr.GetWeaponCode(ItemInfo.model);
+                ItemDatas.ItemDatas wb = Main.Ins.GameStateMgr.FindItemByIdx(weaponPickup);
                 if (wb == null)
                     return;
 
-                ItemDatas.ItemDatas wbl = Main.Instance.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
+                ItemDatas.ItemDatas wbl = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
                 if (wbl == null)
                     return;
 
-                ItemDatas.ItemDatas wbr = Main.Instance.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
+                ItemDatas.ItemDatas wbr = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
                 if (wb.SubType == wbl.SubType)
                     return;
 
@@ -171,7 +171,7 @@ public class SceneItemAgent :NetBehaviour {
                     return;
                 //可以捡取
                 unit.Attr.Weapon2 = weaponPickup;
-                Main.Instance.SFXLoader.PlayEffect(672, unit.gameObject, true);
+                Main.Ins.SFXLoader.PlayEffect(672, unit.gameObject, true);
                 refresh_tick = ItemInfo.first[1].flag[1];
                 if (asDrop)
                     GameObject.Destroy(gameObject);
@@ -198,13 +198,13 @@ public class SceneItemAgent :NetBehaviour {
                 GameObject.Destroy(root.gameObject);
                 root = null;
                 if (ItemInfo.first[1].flag[1] != 0)
-                    Main.Instance.SFXLoader.PlayEffect(ItemInfo.first[1].flag[1], unit.gameObject, true);
+                    Main.Ins.SFXLoader.PlayEffect(ItemInfo.first[1].flag[1], unit.gameObject, true);
                 U3D.InsertSystemMsg(unit.name + " 夺得镖物");
                 unit.SetFlag(ItemInfo, ItemInfo.first[2].flag[1]);
             }
 
             if (OnPickUp != null)
-                OnPickUp.Invoke(Main.Instance.CombatData.GScript, null);
+                OnPickUp.Invoke(Main.Ins.CombatData.GScript, null);
         }
         else if (ItemInfoEx != null)
         {
@@ -218,30 +218,30 @@ public class SceneItemAgent :NetBehaviour {
                 if (unit.Attr.Weapon != 0 && unit.Attr.Weapon2 != 0)
                     return;
                 //相同武器，不能捡
-                ItemDatas.ItemDatas ib0 = Main.Instance.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
+                ItemDatas.ItemDatas ib0 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
                 WeaponDatas.WeaponDatas wb0 = U3D.GetWeaponProperty(ib0.UnitId);
                 if (wb0 != null && wb0.WeaponR == weaponModel)
                     return;
 
                 if (unit.Attr.Weapon2 != 0)
                 {
-                    ItemDatas.ItemDatas ib1 = Main.Instance.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
+                    ItemDatas.ItemDatas ib1 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
                     WeaponDatas.WeaponDatas wb1 = U3D.GetWeaponProperty(ib1.UnitId);
                     if (wb1 != null && wb1.WeaponR == weaponModel)
                         return;
                 }
 
                 //同类武器不能捡
-                int weaponPickup = Main.Instance.GameStateMgr.GetWeaponCode(weaponModel);
-                ItemDatas.ItemDatas wb = Main.Instance.GameStateMgr.FindItemByIdx(weaponPickup);
+                int weaponPickup = Main.Ins.GameStateMgr.GetWeaponCode(weaponModel);
+                ItemDatas.ItemDatas wb = Main.Ins.GameStateMgr.FindItemByIdx(weaponPickup);
                 if (wb == null)
                     return;
 
-                ItemDatas.ItemDatas wbl = Main.Instance.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
+                ItemDatas.ItemDatas wbl = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
                 if (wbl == null)
                     return;
 
-                ItemDatas.ItemDatas wbr = Main.Instance.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
+                ItemDatas.ItemDatas wbr = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
                 if (wb.SubType == wbl.SubType)
                     return;
 
@@ -249,7 +249,7 @@ public class SceneItemAgent :NetBehaviour {
                     return;
                 //可以捡取
                 unit.Attr.Weapon2 = weaponPickup;
-                Main.Instance.SFXLoader.PlayEffect(672, unit.gameObject, true);
+                Main.Ins.SFXLoader.PlayEffect(672, unit.gameObject, true);
                 
                 if (asDrop)
                     GameObject.Destroy(gameObject);
@@ -258,9 +258,9 @@ public class SceneItemAgent :NetBehaviour {
         else
         {
             if (OnTouch != null)
-                OnTouch.Invoke(Main.Instance.CombatData.GScript, new object[] { 0, unit.InstanceId });
+                OnTouch.Invoke(Main.Ins.CombatData.GScript, new object[] { 0, unit.InstanceId });
             else if (OnPickUp != null)
-                OnPickUp.Invoke(Main.Instance.CombatData.GScript, null);
+                OnPickUp.Invoke(Main.Ins.CombatData.GScript, null);
         }
     }
 
@@ -349,26 +349,26 @@ public class SceneItemAgent :NetBehaviour {
             //查看此物体属于什么，A：武器 B：道具 C：镖物
             if (ItemInfo == null)
             {
-                for (int i = 0; i < Main.Instance.MenuResLoader.Info.Count; i++)
+                for (int i = 0; i < Main.Ins.MenuResLoader.Info.Count; i++)
                 {
-                    if (Main.Instance.MenuResLoader.Info[i].model != "0" && 0 == string.Compare(Main.Instance.MenuResLoader.Info[i].model, s, true))
+                    if (Main.Ins.MenuResLoader.Info[i].model != "0" && 0 == string.Compare(Main.Ins.MenuResLoader.Info[i].model, s, true))
                     {
-                        ApplyPrev(Main.Instance.MenuResLoader.Info[i]);
+                        ApplyPrev(Main.Ins.MenuResLoader.Info[i]);
                         break;
                     }
                     string rh = s.ToUpper();
-                    string rh2 = Main.Instance.MenuResLoader.Info[i].model.ToUpper();
+                    string rh2 = Main.Ins.MenuResLoader.Info[i].model.ToUpper();
                     if (rh2.StartsWith(rh))
                     {
-                        s = Main.Instance.MenuResLoader.Info[i].model;
-                        ApplyPrev(Main.Instance.MenuResLoader.Info[i]);
+                        s = Main.Ins.MenuResLoader.Info[i].model;
+                        ApplyPrev(Main.Ins.MenuResLoader.Info[i]);
                         break;
                     }
                 }
                 //不是一个Meteor.res里的物件
                 if (ItemInfo == null)
                 {
-                    List<ItemDatas.ItemDatas> its = Main.Instance.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
+                    List<ItemDatas.ItemDatas> its = Main.Ins.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
                     for (int i = 0; i < its.Count; i++)
                     {
                         if (its[i].MainType == 1)
@@ -389,13 +389,13 @@ public class SceneItemAgent :NetBehaviour {
             root.gameObject.layer = gameObject.layer;
             //箱子椅子桌子酒坛都不允许为场景物品.
             WsGlobal.ShowMeteorObject(s, root);
-            DesFile fIns = Main.Instance.DesLoader.Load(s);
+            DesFile fIns = Main.Ins.DesLoader.Load(s);
             //把子物件的属性刷到一起.
             for (int i = 0; i < fIns.SceneItems.Count; i++)
                 LoadCustom(fIns.SceneItems[i].name, fIns.SceneItems[i].custom);
 
             //雪人不能合并材质，不然没法动画
-            if (Main.Instance.CombatData.GLevelItem.Scene != "Meteor_21")
+            if (Main.Ins.CombatData.GLevelItem.Scene != "Meteor_21")
             {
                 if (name.StartsWith("D_Item") || name.StartsWith("D_RJug") || name.StartsWith("D_itRJug") || name.StartsWith("D_BBox") ||
                     name.StartsWith("D_BBBox") || name.StartsWith("D_Box"))
@@ -413,7 +413,7 @@ public class SceneItemAgent :NetBehaviour {
                 }
             }
 
-            FMCFile f = Main.Instance.FMCLoader.Load(s);
+            FMCFile f = Main.Ins.FMCLoader.Load(s);
             if (f != null)
             {
                 player = GetComponent<FMCPlayer>();
@@ -621,15 +621,15 @@ public class SceneItemAgent :NetBehaviour {
                     root.gameObject.SetActive(value != 0);
                 //删除受击框
                 if (value == 0)
-                    Main.Instance.GameBattleEx.RemoveCollision(this);
+                    Main.Ins.GameBattleEx.RemoveCollision(this);
                 if (OnIdle != null && value == 0)
                 {
-                    Main.Instance.MeteorManager.OnDestroySceneItem(this);
+                    Main.Ins.MeteorManager.OnDestroySceneItem(this);
                     GameObject.Destroy(gameObject);
                 }
                 else if (MethodOnIdle != null && value == 0)
                 {
-                    Main.Instance.MeteorManager.OnDestroySceneItem(this);
+                    Main.Ins.MeteorManager.OnDestroySceneItem(this);
                     GameObject.Destroy(gameObject);
                 }
 
@@ -647,13 +647,13 @@ public class SceneItemAgent :NetBehaviour {
                 if (MethodOnAttack != null || OnAttackCallBack != null)
                 {
                     if (value == 0)
-                        Main.Instance.GameBattleEx.RemoveCollision(this);
+                        Main.Ins.GameBattleEx.RemoveCollision(this);
                     else if (value == 1)
                     {
                         //刷新受击框.
-                        Main.Instance.GameBattleEx.RemoveCollision(this);
+                        Main.Ins.GameBattleEx.RemoveCollision(this);
                         RefreshCollision();
-                        Main.Instance.GameBattleEx.RegisterCollision(this);
+                        Main.Ins.GameBattleEx.RegisterCollision(this);
                     }
                 }
             }
@@ -730,14 +730,14 @@ public class SceneItemAgent :NetBehaviour {
         //(((武器攻击力 + buff攻击力) x 招式攻击力） / 100) - （敌方武器防御力 + 敌方buff防御力） / 10
         //你的攻击力，和我的防御力之间的计算
         //attacker.damage.PoseIdx;
-        if (Main.Instance.GameStateMgr.gameStatus.EnableGodMode)
+        if (Main.Ins.GameStateMgr.gameStatus.EnableGodMode)
             return 100000;
         int DefTmp = 0;
         AttackDes atk = attacker.CurrentDamage;
         if (atk == null)
             atk = attack;
         int WeaponDamage = attacker.CalcDamage();
-        int PoseDamage = Main.Instance.MenuResLoader.FindOpt(atk.PoseIdx, 3).second[0].flag[6];
+        int PoseDamage = Main.Ins.MenuResLoader.FindOpt(atk.PoseIdx, 3).second[0].flag[6];
         int BuffDamage = attacker.Attr.CalcBuffDamage();
         int realDamage = Mathf.FloorToInt((((WeaponDamage + BuffDamage) * PoseDamage) / 100.0f - (DefTmp)));
         return realDamage;
@@ -748,7 +748,7 @@ public class SceneItemAgent :NetBehaviour {
         int realDamage = CalcDamage(attacker, attck);
         //非铁箱子， 木箱子，酒坛， 桌子 椅子的受击处理
         if (MethodOnAttack != null)
-            MethodOnAttack.Invoke(Main.Instance.CombatData.GScript, new object[] { InstanceId, attacker.InstanceId, realDamage });
+            MethodOnAttack.Invoke(Main.Ins.CombatData.GScript, new object[] { InstanceId, attacker.InstanceId, realDamage });
         else if (OnAttackCallBack != null)
         {
             OnAttackCallBack.Invoke(InstanceId, Index, realDamage);
@@ -838,18 +838,18 @@ public class SceneItemAgent :NetBehaviour {
         //如果某人拾取了flag，不要再刷新镖物
         if (!U3D.GetFlag())
         {
-            for (int i = 0; i < Main.Instance.MeteorManager.SceneItems.Count; i++)
+            for (int i = 0; i < Main.Ins.MeteorManager.SceneItems.Count; i++)
             {
-                if (Main.Instance.MeteorManager.SceneItems[i] != this
-                    && Main.Instance.MeteorManager.SceneItems[i].ItemInfo != null
-                    && Main.Instance.MeteorManager.SceneItems[i].ItemInfo.IsFlag())
+                if (Main.Ins.MeteorManager.SceneItems[i] != this
+                    && Main.Ins.MeteorManager.SceneItems[i].ItemInfo != null
+                    && Main.Ins.MeteorManager.SceneItems[i].ItemInfo.IsFlag())
                 {
-                    Main.Instance.MeteorManager.SceneItems[i].OnRefresh();
+                    Main.Ins.MeteorManager.SceneItems[i].OnRefresh();
                     break;
                 }
             }
         }
-        Main.Instance.MeteorManager.OnDestroySceneItem(this);
+        Main.Ins.MeteorManager.OnDestroySceneItem(this);
         GameObject.Destroy(gameObject);
     }
 
@@ -858,9 +858,9 @@ public class SceneItemAgent :NetBehaviour {
     {
         OnAttackCallBack = act;
         OnIdle = idle;
-        Main.Instance.GameBattleEx.RemoveCollision(this);
+        Main.Ins.GameBattleEx.RemoveCollision(this);
         RefreshCollision();
-        Main.Instance.GameBattleEx.RegisterCollision(this);
+        Main.Ins.GameBattleEx.RegisterCollision(this);
         Index = int.Parse(name.Substring(name.Length - 2));
         WsGlobal.SetObjectLayer(gameObject, LayerMask.NameToLayer("Trigger"));
     }

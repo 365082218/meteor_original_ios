@@ -31,18 +31,18 @@ public class UnitTopUI : Dialog {
 	
 	// Update is called once per frame
 	void LateUpdate () {
-        if (Main.Instance.CombatData.PauseAll)
+        if (Main.Ins.CombatData.PauseAll)
             return;
         if (owner == null)
             return;
-        if (owner == Main.Instance.MeteorManager.LocalPlayer)
+        if (owner == Main.Ins.LocalPlayer)
             return;
-        if (Main.Instance.MeteorManager.LocalPlayer == null)
+        if (Main.Ins.LocalPlayer == null)
             return;
-        bool faceto = Main.Instance.MeteorManager.LocalPlayer.IsFacetoTarget(owner);
+        bool faceto = Main.Ins.LocalPlayer.IsFacetoTarget(owner);
         if (faceto)
         {
-            float unitDis = Vector3.Distance(owner.transform.position, Main.Instance.MeteorManager.LocalPlayer.transform.position);
+            float unitDis = Vector3.Distance(owner.transform.position, Main.Ins.LocalPlayer.transform.position);
             //UnityEngine.Debug.LogError(string.Format("主角面向{0}", owner.name));
             if ((unitDis <= ViewLimit) && !MonsterName.gameObject.activeSelf)
                 MonsterName.gameObject.SetActive(true);
@@ -66,10 +66,10 @@ public class UnitTopUI : Dialog {
         {
             Vector3 top = owner.D_top.transform.position;
             top.y += 10;
-            Vector3 vec = Main.Instance.MainCamera.WorldToScreenPoint(top);
+            Vector3 vec = Main.Ins.MainCamera.WorldToScreenPoint(top);
             vec = UIHelper.ScreenPointToCanvasPoint(vec);
             rect.anchoredPosition3D = new Vector3(vec.x, vec.y, 1);
-            if (Main.Instance.GameStateMgr.gameStatus.EnableDebugStatus)
+            if (Main.Ins.GameStateMgr.gameStatus.EnableDebugStatus)
             {
                 if (!Info.gameObject.activeInHierarchy)
                     Info.gameObject.SetActive(true);
@@ -102,7 +102,7 @@ public class UnitTopUI : Dialog {
         else if (camp == EUnitCamp.EUC_NONE)
             MonsterName.color = Color.white;
         target = attach;
-        if (owner == Main.Instance.MeteorManager.LocalPlayer)
+        if (owner == Main.Ins.LocalPlayer)
             MonsterName.gameObject.SetActive(false);
      }
 }

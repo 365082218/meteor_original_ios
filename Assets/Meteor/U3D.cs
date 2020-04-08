@@ -92,19 +92,19 @@ public class U3D : MonoBehaviour {
     public static List<int> GetUnitList()
     {
         List<int> all = new List<int>();
-        for (int i = 0; i < Main.Instance.CombatData.MaxModel; i++)
+        for (int i = 0; i < Main.Ins.CombatData.MaxModel; i++)
         {
             all.Add(i);
         }
 
-        if (Main.Instance.GameStateMgr.gameStatus != null)
+        if (Main.Ins.GameStateMgr.gameStatus != null)
         {
-            for (int i = 0; i < Main.Instance.GameStateMgr.gameStatus.pluginModel.Count; i++)
+            for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginModel.Count; i++)
             {
-                Main.Instance.GameStateMgr.gameStatus.pluginModel[i].Check();
-                if (!Main.Instance.GameStateMgr.gameStatus.pluginModel[i].Installed)
+                Main.Ins.GameStateMgr.gameStatus.pluginModel[i].Check();
+                if (!Main.Ins.GameStateMgr.gameStatus.pluginModel[i].Installed)
                     continue;
-                all.Add(Main.Instance.GameStateMgr.gameStatus.pluginModel[i].ModelId);
+                all.Add(Main.Ins.GameStateMgr.gameStatus.pluginModel[i].ModelId);
             }
         }
         return all;
@@ -137,7 +137,7 @@ public class U3D : MonoBehaviour {
     //sort -x->+x标识当前武器得前/后多少个武器
     public static int GetWeaponBySort(int weapon, int sort)
     {
-        List<ItemDatas.ItemDatas> we = Main.Instance.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
+        List<ItemDatas.ItemDatas> we = Main.Ins.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
         for (int i = 0; i < we.Count; i++)
         {
             if (we[i].MainType == 1)
@@ -170,7 +170,7 @@ public class U3D : MonoBehaviour {
             weaponList = new List<int>();
         if (weaponList.Count == 0)
         {
-            List<ItemDatas.ItemDatas> we = Main.Instance.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
+            List<ItemDatas.ItemDatas> we = Main.Ins.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
             for (int i = 0; i < we.Count; i++)
             {
                 if (we[i].MainType == 1)
@@ -194,7 +194,7 @@ public class U3D : MonoBehaviour {
     static Dictionary<int, List<int>> weaponDict = new Dictionary<int, List<int>>();
     public static void SpawnRobot(int idx, EUnitCamp camp, int weaponIndex = 0, int hpMax = 1000)
     {
-        if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
         {
             U3D.PopupTip("联机无法添加机器人");
             return;
@@ -207,7 +207,7 @@ public class U3D : MonoBehaviour {
             weaponList = new List<int>();
         if (weaponList.Count == 0)
         {
-            List<ItemDatas.ItemDatas> we = Main.Instance.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
+            List<ItemDatas.ItemDatas> we = Main.Ins.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
             for (int i = 0; i < we.Count; i++)
             {
                 if (we[i].MainType == 1)
@@ -234,27 +234,27 @@ public class U3D : MonoBehaviour {
         MeteorUnit unit = ins.GetComponent<MeteorUnit>();
         unit.Camp = camp;
         unit.Init(idx, mon);
-        Main.Instance.MeteorManager.OnGenerateUnit(unit);
+        Main.Ins.MeteorManager.OnGenerateUnit(unit);
         unit.SetGround(false);
 
         if (camp == EUnitCamp.EUC_FRIEND)
         {
-            unit.transform.position = Main.Instance.CombatData.GCampASpawn[Main.Instance.CombatData.CampASpawnIndex];
-            Main.Instance.CombatData.CampASpawnIndex++;
-            Main.Instance.CombatData.CampASpawnIndex %= 8;
+            unit.transform.position = Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampASpawnIndex];
+            Main.Ins.CombatData.CampASpawnIndex++;
+            Main.Ins.CombatData.CampASpawnIndex %= 8;
         }
         else if (camp == EUnitCamp.EUC_ENEMY)
         {
-            unit.transform.position = Main.Instance.CombatData.GCampBSpawn[Main.Instance.CombatData.CampBSpawnIndex];
-            Main.Instance.CombatData.CampBSpawnIndex++;
-            Main.Instance.CombatData.CampBSpawnIndex %= 8;
+            unit.transform.position = Main.Ins.CombatData.GCampBSpawn[Main.Ins.CombatData.CampBSpawnIndex];
+            Main.Ins.CombatData.CampBSpawnIndex++;
+            Main.Ins.CombatData.CampBSpawnIndex %= 8;
         }
         else
         {
             //16个点
-            unit.transform.position = Main.Instance.CombatData.GLevelSpawn[Main.Instance.CombatData.SpawnIndex];
-            Main.Instance.CombatData.SpawnIndex++;
-            Main.Instance.CombatData.SpawnIndex %= 16;
+            unit.transform.position = Main.Ins.CombatData.GLevelSpawn[Main.Ins.CombatData.SpawnIndex];
+            Main.Ins.CombatData.SpawnIndex++;
+            Main.Ins.CombatData.SpawnIndex %= 16;
         }
         
         InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
@@ -263,18 +263,18 @@ public class U3D : MonoBehaviour {
 
         unit.Attr.GetItem = 0;
         unit.Attr.View = 5000;//视野给大一点
-        if (Main.Instance.CombatData.GGameMode == GameMode.MENGZHU)
+        if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
         {
             
         }
-        else if (Main.Instance.CombatData.GGameMode == GameMode.ANSHA)
+        else if (Main.Ins.CombatData.GGameMode == GameMode.ANSHA)
         {
             if (unit.IsLeader)
                 U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "enemyvip" });
             else
                 U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "vip" });
         }
-        else if (Main.Instance.CombatData.GGameMode == GameMode.SIDOU)
+        else if (Main.Ins.CombatData.GGameMode == GameMode.SIDOU)
         {
             if (unit.IsLeader)
                 U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "enemyvip" });
@@ -286,49 +286,49 @@ public class U3D : MonoBehaviour {
 
     public static void ChangePlayerModel(int model)
     {
-        Main.Instance.CombatData.PauseAll = true;
-        Main.Instance.MeteorManager.LocalPlayer.controller.InputLocked = true;
-        Main.Instance.MeteorManager.LocalPlayer.Init(model, Main.Instance.MeteorManager.LocalPlayer.Attr, true);
-        Main.Instance.CombatData.PauseAll = false;
-        Main.Instance.MeteorManager.LocalPlayer.controller.InputLocked = false;
+        Main.Ins.CombatData.PauseAll = true;
+        Main.Ins.LocalPlayer.controller.InputLocked = true;
+        Main.Ins.LocalPlayer.Init(model, Main.Ins.LocalPlayer.Attr, true);
+        Main.Ins.CombatData.PauseAll = false;
+        Main.Ins.LocalPlayer.controller.InputLocked = false;
     }
 
     public static MeteorUnit InitNetPlayer(PlayerEventData player)
     {
-        MonsterEx mon = Main.Instance.SceneMng.InitNetPlayer(player);
+        MonsterEx mon = Main.Ins.SceneMng.InitNetPlayer(player);
         GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
         
         GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
         MeteorUnit unit = ins.GetComponent<MeteorUnit>();
         if (mon.IsPlayer)
-            Main.Instance.MeteorManager.LocalPlayer = unit;
+            Main.Ins.LocalPlayer = unit;
         unit.Camp = (EUnitCamp)player.camp; 
         unit.Init(mon.Model, mon);
-        Main.Instance.MeteorManager.OnGenerateUnit(unit, (int)player.playerId);
+        Main.Ins.MeteorManager.OnGenerateUnit(unit, (int)player.playerId);
         unit.SetGround(false);
-        if (Main.Instance.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
         {
-            if (Main.Instance.CombatData.GGameMode == GameMode.Normal)
+            if (Main.Ins.CombatData.GGameMode == GameMode.Normal)
             {
-                unit.transform.position = Main.Instance.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Instance.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Instance.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                unit.transform.position = Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
                 unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
             }
-            else if (Main.Instance.CombatData.GGameMode == GameMode.MENGZHU)
+            else if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
             {
                 //16个点
-                unit.transform.position = Main.Instance.CombatData.GLevelSpawn[mon.SpawnPoint];
+                unit.transform.position = Main.Ins.CombatData.GLevelSpawn[mon.SpawnPoint];
                 unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
             }
-            else if (Main.Instance.CombatData.GGameMode == GameMode.ANSHA || Main.Instance.CombatData.GGameMode == GameMode.SIDOU)
+            else if (Main.Ins.CombatData.GGameMode == GameMode.ANSHA || Main.Ins.CombatData.GGameMode == GameMode.SIDOU)
             {
                 //2个队伍8个点.必须带阵营.
                 if (unit.Camp == EUnitCamp.EUC_FRIEND)
                 {
-                    unit.transform.position = Main.Instance.CombatData.GCampASpawn[mon.SpawnPoint];
+                    unit.transform.position = Main.Ins.CombatData.GCampASpawn[mon.SpawnPoint];
                 }
                 else if (unit.Camp == EUnitCamp.EUC_ENEMY)
                 {
-                    unit.transform.position = Main.Instance.CombatData.GCampASpawn[mon.SpawnPoint];
+                    unit.transform.position = Main.Ins.CombatData.GCampASpawn[mon.SpawnPoint];
                 }
             }
         }
@@ -344,18 +344,18 @@ public class U3D : MonoBehaviour {
 
     public static MeteorUnit InitPlayer(LevelScriptBase script)
     {
-        MonsterEx mon = Main.Instance.SceneMng.InitPlayer(script);
+        MonsterEx mon = Main.Ins.SceneMng.InitPlayer(script);
         GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
         GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
         MeteorUnit unit = ins.GetComponent<MeteorUnit>();
-        Main.Instance.MeteorManager.LocalPlayer = unit;
+        Main.Ins.LocalPlayer = unit;
         unit.Camp = EUnitCamp.EUC_FRIEND;//流星阵营
         unit.Init(mon.Model, mon);
-        Main.Instance.MeteorManager.OnGenerateUnit(unit);
+        Main.Ins.MeteorManager.OnGenerateUnit(unit);
         unit.SetGround(false);
-        if (Main.Instance.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
         {
-            if (Main.Instance.CombatData.GScript.DisableFindWay())
+            if (Main.Ins.CombatData.GScript.DisableFindWay())
             {
                 //不许寻路，无寻路点的关卡，使用
                 bool setPosition = false;
@@ -363,55 +363,55 @@ public class U3D : MonoBehaviour {
                     setPosition = script.OnPlayerSpawn(unit);
                 if (!setPosition)
                 {
-                    unit.transform.position = Main.Instance.CombatData.GLevelSpawn[mon.SpawnPoint >= Main.Instance.CombatData.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
+                    unit.transform.position = Main.Ins.CombatData.GLevelSpawn[mon.SpawnPoint >= Main.Ins.CombatData.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
                 }
             }
             else
             {
-                if (Main.Instance.CombatData.wayPoints.Count == 0)
+                if (Main.Ins.CombatData.wayPoints.Count == 0)
                 {
-                    unit.transform.position = Main.Instance.CombatData.GLevelSpawn[mon.SpawnPoint];
+                    unit.transform.position = Main.Ins.CombatData.GLevelSpawn[mon.SpawnPoint];
                 }
                 else
-                    unit.transform.position = Main.Instance.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Instance.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Instance.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                    unit.transform.position = Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
             }
         }
-        else if (Main.Instance.CombatData.GLevelMode > LevelMode.SinglePlayerTask && Main.Instance.CombatData.GLevelMode <= LevelMode.MultiplyPlayer)
+        else if (Main.Ins.CombatData.GLevelMode > LevelMode.SinglePlayerTask && Main.Ins.CombatData.GLevelMode <= LevelMode.MultiplyPlayer)
         {
-            if (Main.Instance.CombatData.GGameMode == GameMode.Normal)
+            if (Main.Ins.CombatData.GGameMode == GameMode.Normal)
             {
-                if (Main.Instance.CombatData.GScript.DisableFindWay())
+                if (Main.Ins.CombatData.GScript.DisableFindWay())
                 {
                     //不许寻路，无寻路点的关卡，使用
-                    unit.transform.position = Main.Instance.CombatData.GLevelSpawn[mon.SpawnPoint >= Main.Instance.CombatData.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
+                    unit.transform.position = Main.Ins.CombatData.GLevelSpawn[mon.SpawnPoint >= Main.Ins.CombatData.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
                 }
                 else
                 {
-                    unit.transform.position = Main.Instance.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Instance.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Instance.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                    unit.transform.position = Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
                 }
             }
-            else if (Main.Instance.CombatData.GGameMode == GameMode.MENGZHU)
+            else if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
             {
                 //16个点
-                unit.transform.position = Main.Instance.CombatData.GLevelSpawn[Main.Instance.CombatData.SpawnIndex];
-                Main.Instance.CombatData.SpawnIndex++;
-                Main.Instance.CombatData.SpawnIndex %= 16;
+                unit.transform.position = Main.Ins.CombatData.GLevelSpawn[Main.Ins.CombatData.SpawnIndex];
+                Main.Ins.CombatData.SpawnIndex++;
+                Main.Ins.CombatData.SpawnIndex %= 16;
                 unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
             }
-            else if (Main.Instance.CombatData.GGameMode == GameMode.ANSHA || Main.Instance.CombatData.GGameMode == GameMode.SIDOU)
+            else if (Main.Ins.CombatData.GGameMode == GameMode.ANSHA || Main.Ins.CombatData.GGameMode == GameMode.SIDOU)
             {
                 //2个队伍8个点.
                 if (unit.Camp == EUnitCamp.EUC_FRIEND)
                 {
-                    unit.transform.position = Main.Instance.CombatData.GCampASpawn[Main.Instance.CombatData.CampASpawnIndex];
-                    Main.Instance.CombatData.CampASpawnIndex++;
-                    Main.Instance.CombatData.CampASpawnIndex %= 8;
+                    unit.transform.position = Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampASpawnIndex];
+                    Main.Ins.CombatData.CampASpawnIndex++;
+                    Main.Ins.CombatData.CampASpawnIndex %= 8;
                 }
                 else if (unit.Camp == EUnitCamp.EUC_ENEMY)
                 {
-                    unit.transform.position = Main.Instance.CombatData.GCampASpawn[Main.Instance.CombatData.CampBSpawnIndex];
-                    Main.Instance.CombatData.CampBSpawnIndex++;
-                    Main.Instance.CombatData.CampBSpawnIndex %= 8;
+                    unit.transform.position = Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampBSpawnIndex];
+                    Main.Ins.CombatData.CampBSpawnIndex++;
+                    Main.Ins.CombatData.CampBSpawnIndex %= 8;
                 }
             }
         }
@@ -448,7 +448,7 @@ public class U3D : MonoBehaviour {
 
     public static int AddNPC(string script)
     {
-        MeteorUnit target = Main.Instance.SceneMng.Spawn(script);
+        MeteorUnit target = Main.Ins.SceneMng.Spawn(script);
         return target.InstanceId;
     }
 
@@ -479,8 +479,8 @@ public class U3D : MonoBehaviour {
     //弹出一个简单提示
     public static void PopupTip(string str)
     {
-        PopupTipState Tips = new PopupTipState(Main.Instance.PopupStateManager);
-        Main.Instance.PopupStateManager.AutoPopup(Tips, str);
+        PopupTipState Tips = new PopupTipState(Main.Ins.PopupStateManager);
+        Main.Ins.PopupStateManager.AutoPopup(Tips, str);
     }
 
     static UnityEngine.AsyncOperation backOp;
@@ -490,16 +490,16 @@ public class U3D : MonoBehaviour {
     public static void GoToLevelMenu()
     {
         U3D.LoadScene("Startup", () => {
-            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.LevelDialogState, Main.Instance.CombatData.Chapter == null);
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LevelDialogState, Main.Ins.CombatData.Chapter == null);
         });
     }
     //返回到主目录
     public static void GoBack()
     {
-        Main.Instance.CombatData.GLevelItem = null;
-        Main.Instance.CombatData.wayPoints = null;
+        Main.Ins.CombatData.GLevelItem = null;
+        Main.Ins.CombatData.wayPoints = null;
         U3D.LoadScene("Startup", () => {
-            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.MainMenuState);
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainMenuState);
         });
     }
 
@@ -507,17 +507,17 @@ public class U3D : MonoBehaviour {
     public static void ReStart()
     {
         FrameReplay.Instance.OnDisconnected();
-        Main.Instance.CombatData.GLevelItem = null;
-        Main.Instance.CombatData.wayPoints = null;
+        Main.Ins.CombatData.GLevelItem = null;
+        Main.Ins.CombatData.wayPoints = null;
         U3D.LoadScene("Startup", () => {
-            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.StartupDialogState);
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.StartupDialogState);
         });
     }
 
     void OnLoadMainFinished(Action t)
     {
         //MainWnd.Instance.Open();
-        Main.Instance.GameStateMgr.SaveState();
+        Main.Ins.GameStateMgr.SaveState();
         if (t != null)
             t.Invoke();
     }
@@ -535,7 +535,7 @@ public class U3D : MonoBehaviour {
     {
         if (save == null)
         {
-            string path = string.Format("{0}/{1}", Application.persistentDataPath, Main.Instance.GameStateMgr.gameStatus.saveSlot);
+            string path = string.Format("{0}/{1}", Application.persistentDataPath, Main.Ins.GameStateMgr.gameStatus.saveSlot);
             string script_path = string.Format("{0}/script_status.txt", path);
             if (!Directory.Exists(path))
                 Directory.CreateDirectory(path);
@@ -567,7 +567,7 @@ public class U3D : MonoBehaviour {
         if (RobotDialogState.Exist)
             RobotDialogState.Instance.OnBackPress();
         else
-            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.RobotDialogState);
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.RobotDialogState);
     }
 
     public static void OpenSfxWnd()
@@ -575,7 +575,7 @@ public class U3D : MonoBehaviour {
         if (SfxDialogState.Exist)
             SfxDialogState.Instance.OnBackPress();
         else
-            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.SfxDialogState);
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.SfxDialogState);
     }
 
     //打开武器界面，主角色调试切换主手武器.
@@ -584,7 +584,7 @@ public class U3D : MonoBehaviour {
         if (WeaponDialogState.Exist)
             WeaponDialogState.Instance.OnBackPress();
         else
-            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.WeaponDialogState);
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.WeaponDialogState);
     }
 
 #if !STRIP_DBG_SETTING
@@ -613,9 +613,9 @@ public class U3D : MonoBehaviour {
 
     public static void OpenSystemWnd()
     {
-        if (Main.Instance.CombatData.GLevelItem != null)
+        if (Main.Ins.CombatData.GLevelItem != null)
         {
-            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.EscDialogState);
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.EscDialogState);
             if (NGUIJoystick.instance != null)
                 NGUIJoystick.instance.Lock(true);
             return;
@@ -624,13 +624,13 @@ public class U3D : MonoBehaviour {
 
     public static void PlayBtnAudio(string audio = "btn")
     {
-        if (Main.Instance.SoundManager != null)
-            Main.Instance.SoundManager.PlaySound(audio);
+        if (Main.Ins.SoundManager != null)
+            Main.Ins.SoundManager.PlaySound(audio);
     }
 
     public static void LoadNetLevel()
     {
-        Main.Instance.NetWorkBattle.Load();
+        Main.Ins.NetWorkBattle.Load();
     }
 
     public static void LoadScene(string scene, Action OnFinished)
@@ -642,10 +642,10 @@ public class U3D : MonoBehaviour {
     //加载当前设置的关卡.在打开模组剧本时/联机时
     public static void LoadLevelEx()
     {
-        Main.Instance.SoundManager.StopAll();
-        Main.Instance.SoundManager.Enable(false);
+        Main.Ins.SoundManager.StopAll();
+        Main.Ins.SoundManager.Enable(false);
         ClearLevelData();
-        Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.LoadingDialogState);
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LoadingDialogState);
         //LoadingWnd.Instance.Open();
         Resources.UnloadUnusedAssets();
         GC.Collect();
@@ -657,19 +657,19 @@ public class U3D : MonoBehaviour {
     //走参数指定关卡.
     public static void LoadLevel(LevelDatas.LevelDatas lev, LevelMode levelmode, GameMode gamemode)
     {
-        Main.Instance.CombatData.Chapter = null;
-        Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.LoadingDialogState);
+        Main.Ins.CombatData.Chapter = null;
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LoadingDialogState);
         //暂时不允许使用声音管理器，在切换场景时不允许播放
-        Main.Instance.SoundManager.StopAll();
-        Main.Instance.SoundManager.Enable(false);
+        Main.Ins.SoundManager.StopAll();
+        Main.Ins.SoundManager.Enable(false);
         ClearLevelData();
-        Main.Instance.CombatData.GLevelItem = lev;
-        Main.Instance.CombatData.GLevelMode = levelmode;
-        Main.Instance.CombatData.GGameMode = gamemode;
-        Main.Instance.CombatData.wayPoints = CombatData.GetWayPoint(lev);
+        Main.Ins.CombatData.GLevelItem = lev;
+        Main.Ins.CombatData.GLevelMode = levelmode;
+        Main.Ins.CombatData.GGameMode = gamemode;
+        Main.Ins.CombatData.wayPoints = CombatData.GetWayPoint(lev);
         Resources.UnloadUnusedAssets();
         GC.Collect();
-        if (!string.IsNullOrEmpty(lev.sceneItems) && !Main.Instance.GameStateMgr.gameStatus.SkipVideo && levelmode == LevelMode.SinglePlayerTask && Main.Instance.CombatData.Chapter == null)
+        if (!string.IsNullOrEmpty(lev.sceneItems) && !Main.Ins.GameStateMgr.gameStatus.SkipVideo && levelmode == LevelMode.SinglePlayerTask && Main.Ins.CombatData.Chapter == null)
         {
             string num = lev.sceneItems.Substring(2);
             int number = 0;
@@ -688,18 +688,18 @@ public class U3D : MonoBehaviour {
 
     public static void ClearLevelData()
     {
-        Main.Instance.SFXLoader.Effect.Clear();
-        Main.Instance.DesLoader.Refresh();
-        Main.Instance.GMCLoader.Refresh();
-        Main.Instance.GMBLoader.Refresh();
-        Main.Instance.FMCLoader.Refresh();
+        Main.Ins.SFXLoader.Effect.Clear();
+        Main.Ins.DesLoader.Refresh();
+        Main.Ins.GMCLoader.Refresh();
+        Main.Ins.GMBLoader.Refresh();
+        Main.Ins.FMCLoader.Refresh();
         //先清理BUF
-        Main.Instance.BuffMng.Clear();
-        Main.Instance.MeteorManager.Clear();
+        Main.Ins.BuffMng.Clear();
+        Main.Ins.MeteorManager.Clear();
         LevelScriptBase.Clear();
-        Main.Instance.CombatData.CampASpawnIndex = 0;
-        Main.Instance.CombatData.CampBSpawnIndex = 0;
-        Main.Instance.CombatData.SpawnIndex = 0;
+        Main.Ins.CombatData.CampASpawnIndex = 0;
+        Main.Ins.CombatData.CampBSpawnIndex = 0;
+        Main.Ins.CombatData.SpawnIndex = 0;
 #if !STRIP_DBG_SETTING
         U3D.Instance.CloseDbg();
 #endif
@@ -828,49 +828,49 @@ public class U3D : MonoBehaviour {
 
     public static SceneItemAgent GetSceneItem(string name)
     {
-        for (int i = 0; i < Main.Instance.MeteorManager.SceneItems.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.SceneItems.Count; i++)
         {
-            if (Main.Instance.MeteorManager.SceneItems[i].name == name)
-                return Main.Instance.MeteorManager.SceneItems[i];
+            if (Main.Ins.MeteorManager.SceneItems[i].name == name)
+                return Main.Ins.MeteorManager.SceneItems[i];
         }
         return null;
     }
 
     public static int GetSceneItem(string name, string feature)
     {
-        for (int i = 0; i < Main.Instance.MeteorManager.SceneItems.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.SceneItems.Count; i++)
         {
-            if (Main.Instance.MeteorManager.SceneItems[i].name == name)
-                return Main.Instance.MeteorManager.SceneItems[i].GetSceneItem(feature);
+            if (Main.Ins.MeteorManager.SceneItems[i].name == name)
+                return Main.Ins.MeteorManager.SceneItems[i].GetSceneItem(feature);
         }
         return -1;
     }
 
     public static SceneItemAgent GetSceneItem(int id)
     {
-        for (int i = 0; i < Main.Instance.MeteorManager.SceneItems.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.SceneItems.Count; i++)
         {
-            if (Main.Instance.MeteorManager.SceneItems[i].InstanceId == id)
-                return Main.Instance.MeteorManager.SceneItems[i];
+            if (Main.Ins.MeteorManager.SceneItems[i].InstanceId == id)
+                return Main.Ins.MeteorManager.SceneItems[i];
         }
         return null;
     }
     public static int GetSceneItem(int id, string feature)
     {
-        for (int i = 0; i < Main.Instance.MeteorManager.SceneItems.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.SceneItems.Count; i++)
         {
-            if (Main.Instance.MeteorManager.SceneItems[i].InstanceId == id)
-                return Main.Instance.MeteorManager.SceneItems[i].GetSceneItem(feature);
+            if (Main.Ins.MeteorManager.SceneItems[i].InstanceId == id)
+                return Main.Ins.MeteorManager.SceneItems[i].GetSceneItem(feature);
         }
         return -1;
     }
 
     public static int GetTeam(int characterId)
     {
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            if (Main.Instance.MeteorManager.UnitInfos[i].InstanceId == characterId)
-                return (int)Main.Instance.MeteorManager.UnitInfos[i].Camp;
+            if (Main.Ins.MeteorManager.UnitInfos[i].InstanceId == characterId)
+                return (int)Main.Ins.MeteorManager.UnitInfos[i].Camp;
         }
         return -1;
     }
@@ -887,8 +887,8 @@ public class U3D : MonoBehaviour {
                 break;
             }
         }
-        if (Main.Instance.SFXLoader != null && objEffect != null)
-            Main.Instance.SFXLoader.PlayEffect(effect, objEffect, !loop);
+        if (Main.Ins.SFXLoader != null && objEffect != null)
+            Main.Ins.SFXLoader.PlayEffect(effect, objEffect, !loop);
     }
 
     public static void CreateEffect(int id, string effect, bool loop = false)
@@ -903,18 +903,18 @@ public class U3D : MonoBehaviour {
                 break;
             }
         }
-        if (Main.Instance.SFXLoader != null && objEffect != null)
-            Main.Instance.SFXLoader.PlayEffect(effect, objEffect.gameObject, !loop);
+        if (Main.Ins.SFXLoader != null && objEffect != null)
+            Main.Ins.SFXLoader.PlayEffect(effect, objEffect.gameObject, !loop);
     }
 
     public static MeteorUnit GetTeamLeader(EUnitCamp camp)
     {
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            if (Main.Instance.MeteorManager.UnitInfos[i].Camp == camp)
+            if (Main.Ins.MeteorManager.UnitInfos[i].Camp == camp)
             {
-                if (Main.Instance.MeteorManager.UnitInfos[i].IsLeader)
-                    return Main.Instance.MeteorManager.UnitInfos[i];
+                if (Main.Ins.MeteorManager.UnitInfos[i].IsLeader)
+                    return Main.Ins.MeteorManager.UnitInfos[i];
             }
         }
         return null;
@@ -938,14 +938,14 @@ public class U3D : MonoBehaviour {
             string act = value[0] as string;
             if (act == "wait")
             {
-                Main.Instance.GameBattleEx.PushActionWait(id);
+                Main.Ins.GameBattleEx.PushActionWait(id);
             }
             else if (act == "follow")
             {
                 //object target = null;
                 if (value[1].GetType() == typeof(int))
                 {
-                    Main.Instance.GameBattleEx.PushActionFollow(id, (int)value[1]);
+                    Main.Ins.GameBattleEx.PushActionFollow(id, (int)value[1]);
                 }
                 else
                 {
@@ -958,7 +958,7 @@ public class U3D : MonoBehaviour {
                         {
                             MeteorUnit t = GetTeamLeader(u.Camp);
                             if (t != null)
-                                Main.Instance.GameBattleEx.PushActionFollow(id, t.InstanceId);
+                                Main.Ins.GameBattleEx.PushActionFollow(id, t.InstanceId);
                         }
                     }
                     else if (value[1] as string == "enemyvip")
@@ -969,19 +969,19 @@ public class U3D : MonoBehaviour {
                         {
                             MeteorUnit t = GetEnemyTeamLeader(u.Camp);
                             if (t != null)
-                                Main.Instance.GameBattleEx.PushActionFollow(id, t.InstanceId);
+                                Main.Ins.GameBattleEx.PushActionFollow(id, t.InstanceId);
                         }
                     }
                     else if (value[1] as string == "player")
                     {
-                        Main.Instance.GameBattleEx.PushActionFollow(id, Main.Instance.MeteorManager.LocalPlayer.InstanceId);
+                        Main.Ins.GameBattleEx.PushActionFollow(id, Main.Ins.LocalPlayer.InstanceId);
                     }
                     else
                     {
                         int flag = U3D.GetChar("flag");//跟随镖物跑，A，镖物被人取得，B，镖物在地图某处.
                         if (flag >= 0)
                         {
-                            Main.Instance.GameBattleEx.PushActionFollow(id, flag);
+                            Main.Ins.GameBattleEx.PushActionFollow(id, flag);
                         }
                         else
                         {
@@ -1002,16 +1002,16 @@ public class U3D : MonoBehaviour {
                     else if (value[i].GetType() == typeof(int))
                         Path.Add((int)value[i]);
                 }
-                Main.Instance.GameBattleEx.PushActionPatrol(id, Path);
+                Main.Ins.GameBattleEx.PushActionPatrol(id, Path);
             }
             else if (act == "faceto")
             {
-                Main.Instance.GameBattleEx.PushActionFaceTo(id, (int)value[1]);
+                Main.Ins.GameBattleEx.PushActionFaceTo(id, (int)value[1]);
             }
             else if (act == "kill")
             {
                 //Debug.LogError("gamebattleex kill");
-                Main.Instance.GameBattleEx.PushActionKill(id, (int)value[1]);
+                Main.Ins.GameBattleEx.PushActionKill(id, (int)value[1]);
             }
             else if (act == "idle")
             {
@@ -1022,12 +1022,12 @@ public class U3D : MonoBehaviour {
                 if (value.Length == 2)
                 {
                     //UnityEngine.Debug.LogError(string.Format("attacktarget:{0}", (int)value[1]));
-                    Main.Instance.GameBattleEx.PushActionAttackTarget(id, (int)value[1]);
+                    Main.Ins.GameBattleEx.PushActionAttackTarget(id, (int)value[1]);
                 }
                 else if (value.Length == 3)
                 {
                     //UnityEngine.Debug.LogError(string.Format("attacktarget:{0}, {1}", (int)value[1], (int)value[2]));
-                    Main.Instance.GameBattleEx.PushActionAttackTarget(id, (int)value[1], (int)value[2]);
+                    Main.Ins.GameBattleEx.PushActionAttackTarget(id, (int)value[1], (int)value[2]);
                 }
             }
             else if (act == "run")
@@ -1056,10 +1056,10 @@ public class U3D : MonoBehaviour {
 
     public static MeteorUnit GetFlag()
     {
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            if (Main.Instance.MeteorManager.UnitInfos[i].GetFlag)
-                return Main.Instance.MeteorManager.UnitInfos[i];
+            if (Main.Ins.MeteorManager.UnitInfos[i].GetFlag)
+                return Main.Ins.MeteorManager.UnitInfos[i];
         }
         return null;
     }
@@ -1067,30 +1067,30 @@ public class U3D : MonoBehaviour {
     public static int GetChar(string player)
     {
         if (player == "player")
-            return Main.Instance.MeteorManager.LocalPlayer.InstanceId;
+            return Main.Ins.LocalPlayer.InstanceId;
         //取得谁获得了任务物品
         if (player == "flag")
         {
-            for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+            for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
             {
-                if (Main.Instance.MeteorManager.UnitInfos[i].GetFlag)
-                    return Main.Instance.MeteorManager.UnitInfos[i].InstanceId;
+                if (Main.Ins.MeteorManager.UnitInfos[i].GetFlag)
+                    return Main.Ins.MeteorManager.UnitInfos[i].InstanceId;
             }
             return -1;
         }
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            if (Main.Instance.MeteorManager.UnitInfos[i].name == player)
-                return Main.Instance.MeteorManager.UnitInfos[i].InstanceId;
+            if (Main.Ins.MeteorManager.UnitInfos[i].name == player)
+                return Main.Ins.MeteorManager.UnitInfos[i].InstanceId;
         }
 
-        for (int i = 0; i < Main.Instance.MeteorManager.DeadUnits.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.DeadUnits.Count; i++)
         {
-            if (Main.Instance.MeteorManager.DeadUnits[i].name == player)
-                return Main.Instance.MeteorManager.DeadUnits[i].InstanceId;
+            if (Main.Ins.MeteorManager.DeadUnits[i].name == player)
+                return Main.Ins.MeteorManager.DeadUnits[i].InstanceId;
         }
 
-        foreach (var each in Main.Instance.MeteorManager.LeavedUnits)
+        foreach (var each in Main.Ins.MeteorManager.LeavedUnits)
         {
             if (each.Value == player)
                 return each.Key;
@@ -1103,15 +1103,15 @@ public class U3D : MonoBehaviour {
     {
         if (name == "player")
             return 0;
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            if (Main.Instance.MeteorManager.UnitInfos[i].name == name)
-                return Main.Instance.MeteorManager.UnitInfos[i].InstanceId;
+            if (Main.Ins.MeteorManager.UnitInfos[i].name == name)
+                return Main.Ins.MeteorManager.UnitInfos[i].InstanceId;
         }
-        for (int i = 0; i < Main.Instance.MeteorManager.DeadUnits.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.DeadUnits.Count; i++)
         {
-            if (Main.Instance.MeteorManager.DeadUnits[i].name == name)
-                return Main.Instance.MeteorManager.DeadUnits[i].InstanceId;
+            if (Main.Ins.MeteorManager.DeadUnits[i].name == name)
+                return Main.Ins.MeteorManager.DeadUnits[i].InstanceId;
         }
         return -1;
     }
@@ -1126,29 +1126,29 @@ public class U3D : MonoBehaviour {
 
     public static int GetHP(int id)
     {
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            if (Main.Instance.MeteorManager.UnitInfos[i].InstanceId == id)
-                return Main.Instance.MeteorManager.UnitInfos[i].Attr.hpCur;
+            if (Main.Ins.MeteorManager.UnitInfos[i].InstanceId == id)
+                return Main.Ins.MeteorManager.UnitInfos[i].Attr.hpCur;
         }
-        for (int i = 0; i < Main.Instance.MeteorManager.DeadUnits.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.DeadUnits.Count; i++)
         {
-            if (Main.Instance.MeteorManager.DeadUnits[i].InstanceId == id)
-                return Main.Instance.MeteorManager.DeadUnits[i].Attr.hpCur;
+            if (Main.Ins.MeteorManager.DeadUnits[i].InstanceId == id)
+                return Main.Ins.MeteorManager.DeadUnits[i].Attr.hpCur;
         }
         return 0;
     }
     public static int GetMaxHP(int id)
     {
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            if (Main.Instance.MeteorManager.UnitInfos[i].InstanceId == id)
-                return Main.Instance.MeteorManager.UnitInfos[i].Attr.HpMax;
+            if (Main.Ins.MeteorManager.UnitInfos[i].InstanceId == id)
+                return Main.Ins.MeteorManager.UnitInfos[i].Attr.HpMax;
         }
-        for (int i = 0; i < Main.Instance.MeteorManager.DeadUnits.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.DeadUnits.Count; i++)
         {
-            if (Main.Instance.MeteorManager.DeadUnits[i].InstanceId == id)
-                return Main.Instance.MeteorManager.DeadUnits[i].Attr.HpMax;
+            if (Main.Ins.MeteorManager.DeadUnits[i].InstanceId == id)
+                return Main.Ins.MeteorManager.DeadUnits[i].Attr.HpMax;
         }
         return 0;
     }
@@ -1187,7 +1187,7 @@ public class U3D : MonoBehaviour {
         {
             if (pose == "pause" && fun != null && fun.Length == 1)
             {
-                Main.Instance.GameBattleEx.PushActionPause(id, fun[0]);
+                Main.Ins.GameBattleEx.PushActionPause(id, fun[0]);
             }
             //unit.PauseAI(fun[0]);
             else if (pose == "faceto" && fun != null && fun.Length == 1)
@@ -1197,9 +1197,9 @@ public class U3D : MonoBehaviour {
                     unit.FaceToTarget(target);
             }
             else if (pose == "guard" && fun != null && fun.Length == 1)
-                Main.Instance.GameBattleEx.PushActionGuard(id, fun[0]);
+                Main.Ins.GameBattleEx.PushActionGuard(id, fun[0]);
             else if (pose == "aggress")
-                Main.Instance.GameBattleEx.PushActionAggress(id);
+                Main.Ins.GameBattleEx.PushActionAggress(id);
             else if (pose == "attack")
             {
                 //攻击。？？
@@ -1210,12 +1210,12 @@ public class U3D : MonoBehaviour {
             }
             else if (pose == "skill")
             {
-                Main.Instance.GameBattleEx.PushActionSkill(id); //unit.PlaySkill();
+                Main.Ins.GameBattleEx.PushActionSkill(id); //unit.PlaySkill();
             }
             else if (pose == "crouch")
-                Main.Instance.GameBattleEx.PushActionCrouch(id, fun[0]);//1是指令状态，1代表应用状态， 0代表取消状态
+                Main.Ins.GameBattleEx.PushActionCrouch(id, fun[0]);//1是指令状态，1代表应用状态， 0代表取消状态
             else if (pose == "block")
-                Main.Instance.GameBattleEx.PushActionBlock(id, fun[0]);//阻止输入/取消阻止输入.与硬直应该差不多.
+                Main.Ins.GameBattleEx.PushActionBlock(id, fun[0]);//阻止输入/取消阻止输入.与硬直应该差不多.
         }
         return 0;
     }
@@ -1230,22 +1230,22 @@ public class U3D : MonoBehaviour {
     public static int PlayerPerform(string act, int param)
     {
         if (act == "pause")
-            Main.Instance.GameBattleEx.PushActionPause(0, param);//0代表主角色.
+            Main.Ins.GameBattleEx.PushActionPause(0, param);//0代表主角色.
         else if (act == "use")
         {
-            Main.Instance.GameBattleEx.PushActionUse(0, param);
+            Main.Ins.GameBattleEx.PushActionUse(0, param);
         }
         else if (act == "crouch")
-            Main.Instance.GameBattleEx.PushActionCrouch(0, param);//1是指令状态，1代表应用状态， 0代表取消状态
+            Main.Ins.GameBattleEx.PushActionCrouch(0, param);//1是指令状态，1代表应用状态， 0代表取消状态
         else if (act == "block")
-            Main.Instance.GameBattleEx.PushActionBlock(0, param);//阻止输入/取消阻止输入.与硬直应该差不多.
+            Main.Ins.GameBattleEx.PushActionBlock(0, param);//阻止输入/取消阻止输入.与硬直应该差不多.
         else if (act == "guard")
-            Main.Instance.GameBattleEx.PushActionGuard(0, param);
+            Main.Ins.GameBattleEx.PushActionGuard(0, param);
         else if (act == "faceto")
         {
             MeteorUnit target = GetUnit(param);
             if (target != null)
-                Main.Instance.MeteorManager.LocalPlayer.FaceToTarget(target);
+                Main.Ins.LocalPlayer.FaceToTarget(target);
         }
         //Debug.Log("PlayerPerform(string act, int param):" + "act:" + act + " param:" + param);
         return 0;
@@ -1267,7 +1267,7 @@ public class U3D : MonoBehaviour {
         if (u != null)
         {
             //先清除该角色的聊天动作，其他动画动作不处理。
-            Main.Instance.GameBattleEx.StopAction(id);
+            Main.Ins.GameBattleEx.StopAction(id);
         }
         return 0;
     }
@@ -1276,7 +1276,7 @@ public class U3D : MonoBehaviour {
     //获得2个角色的距离.
     public static float Distance(int idx1, int idx2)
     {
-        if (Main.Instance.CombatData.GLevelItem != null && Main.Instance.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Main.Ins.CombatData.GLevelItem != null && Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             MeteorUnit a = GetUnit(idx1);
             MeteorUnit b = GetUnit(idx2);
@@ -1295,7 +1295,7 @@ public class U3D : MonoBehaviour {
     //单机下
     public static void RotatePlayer(string name, float yRotate)
     {
-        if (Main.Instance.CombatData.GLevelItem != null && Main.Instance.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Main.Ins.CombatData.GLevelItem != null && Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             int id = GetChar(name);
             if (id != -1)
@@ -1309,7 +1309,7 @@ public class U3D : MonoBehaviour {
 
     public static void MovePlayer(string name, Vector3 position)
     {
-        if (Main.Instance.CombatData.GLevelItem != null && Main.Instance.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Main.Ins.CombatData.GLevelItem != null && Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             int id = GetChar(name);
             if (id != -1)
@@ -1323,7 +1323,7 @@ public class U3D : MonoBehaviour {
 
     public static void MoveNpc(string name, int spawnPoint)
     {
-        if (Main.Instance.CombatData.GLevelItem != null && Main.Instance.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Main.Ins.CombatData.GLevelItem != null && Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             int id = GetChar(name);
             if (id != -1)
@@ -1340,7 +1340,7 @@ public class U3D : MonoBehaviour {
         MeteorUnit unit = GetUnit(id);
         bool dead = unit.Dead;
         string message = unit.name + " 离开战场";
-        Main.Instance.MeteorManager.OnRemoveUnit(unit);
+        Main.Ins.MeteorManager.OnRemoveUnit(unit);
         if (!dead)
             InsertSystemMsg(message);
     }
@@ -1353,31 +1353,31 @@ public class U3D : MonoBehaviour {
 
     public static MeteorUnit GetUnit(int id)
     {
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            if (Main.Instance.MeteorManager.UnitInfos[i].InstanceId == id)
-                return Main.Instance.MeteorManager.UnitInfos[i];
+            if (Main.Ins.MeteorManager.UnitInfos[i].InstanceId == id)
+                return Main.Ins.MeteorManager.UnitInfos[i];
         }
 
-        for (int i = 0; i < Main.Instance.MeteorManager.DeadUnits.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.DeadUnits.Count; i++)
         {
-            if (Main.Instance.MeteorManager.DeadUnits[i].InstanceId == id)
-                return Main.Instance.MeteorManager.DeadUnits[i];
+            if (Main.Ins.MeteorManager.DeadUnits[i].InstanceId == id)
+                return Main.Ins.MeteorManager.DeadUnits[i];
         }
         return null;
     }
 
     public static void Say(int id, string param)
     {
-        if (Main.Instance.GameBattleEx != null)
-            Main.Instance.GameBattleEx.PushActionSay(id, param);//1=say 2=pause
+        if (Main.Ins.GameBattleEx != null)
+            Main.Ins.GameBattleEx.PushActionSay(id, param);//1=say 2=pause
     }
 
     static WebClient downloadMovie;
     public static List<string> WaitDownload = new List<string>();
     public static void PlayMovie(string movie)
     {
-        if (Main.Instance.GameStateMgr.gameStatus.LocalMovie.ContainsKey(movie))
+        if (Main.Ins.GameStateMgr.gameStatus.LocalMovie.ContainsKey(movie))
         {
             Debug.Log("PlayMovie:" + movie);
             if (downloadMovie == null)
@@ -1394,7 +1394,7 @@ public class U3D : MonoBehaviour {
                     downloadMovie.DownloadFileCompleted += (object sender, AsyncCompletedEventArgs e) => {
                         if (e.Error != null)
                         {
-                            Main.Instance.GameStateMgr.gameStatus.LocalMovie.Add(download, local);
+                            Main.Ins.GameStateMgr.gameStatus.LocalMovie.Add(download, local);
                             WaitDownload.Remove(download);
                         }
                         downloadMovie.CancelAsync();
@@ -1405,11 +1405,11 @@ public class U3D : MonoBehaviour {
                     Debug.Log("downloadMovieQueue:" + download + " to" + local);
                 }
             }
-            Handheld.PlayFullScreenMovie(Main.Instance.GameStateMgr.gameStatus.LocalMovie[movie], Color.black, FullScreenMovieControlMode.CancelOnInput, FullScreenMovieScalingMode.AspectFit);
+            Handheld.PlayFullScreenMovie(Main.Ins.GameStateMgr.gameStatus.LocalMovie[movie], Color.black, FullScreenMovieControlMode.CancelOnInput, FullScreenMovieScalingMode.AspectFit);
         }
         else
         {
-            if (Main.Instance.GameStateMgr.gameStatus.SkipVideo)
+            if (Main.Ins.GameStateMgr.gameStatus.SkipVideo)
                 return;
             if (!Directory.Exists(Application.persistentDataPath + "/mmv"))
                 Directory.CreateDirectory(Application.persistentDataPath + "/mmv");
@@ -1430,8 +1430,8 @@ public class U3D : MonoBehaviour {
                 if (e.Error == null)
                 {
                     Debug.Log("download completed");
-                    Main.Instance.GameStateMgr.gameStatus.LocalMovie.Add(movie, local);
-                    Main.Instance.GameStateMgr.SaveState();
+                    Main.Ins.GameStateMgr.gameStatus.LocalMovie.Add(movie, local);
+                    Main.Ins.GameStateMgr.SaveState();
                 }
                 downloadMovie.CancelAsync();
                 downloadMovie.Dispose();
@@ -1445,9 +1445,9 @@ public class U3D : MonoBehaviour {
     public static int GetEnemyCount()
     {
         int total = 0;
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            if (Main.Instance.MeteorManager.UnitInfos[i].Camp != EUnitCamp.EUC_Meteor)
+            if (Main.Ins.MeteorManager.UnitInfos[i].Camp != EUnitCamp.EUC_Meteor)
                 total++;
         }
         return total;
@@ -1483,9 +1483,9 @@ public class U3D : MonoBehaviour {
     //仍物品到前方地面上
     public static void MakeItem(int itemIdx)
     {
-        ItemDatas.ItemDatas it = Main.Instance.GameStateMgr.FindItemByIdx(itemIdx);
+        ItemDatas.ItemDatas it = Main.Ins.GameStateMgr.FindItemByIdx(itemIdx);
         if (it.MainType == 1)//武器
-            Main.Instance.DropMng.DropWeapon2(it.UnitId);
+            Main.Ins.DropMng.DropWeapon2(it.UnitId);
         else if (it.MainType == 2)//
         {
             //其他物品，暂时没有其他道具系统.
@@ -1505,7 +1505,7 @@ public class U3D : MonoBehaviour {
 
     public static bool IsSpecialWeapon(int itemIdx)
     {
-        ItemDatas.ItemDatas it0 = Main.Instance.GameStateMgr.FindItemByIdx(itemIdx);
+        ItemDatas.ItemDatas it0 = Main.Ins.GameStateMgr.FindItemByIdx(itemIdx);
         if (it0 == null)
             return false;
         if (it0.SubType == (int)EquipWeaponType.Gun || 
@@ -1520,7 +1520,7 @@ public class U3D : MonoBehaviour {
     public static int GetMaxLevel()
     {
         //内置关卡的最后一个关卡.
-        List< LevelDatas.LevelDatas> level = Main.Instance.DataMgr.GetDatasArray<LevelDatas.LevelDatas>();
+        List< LevelDatas.LevelDatas> level = Main.Ins.DataMgr.GetDatasArray<LevelDatas.LevelDatas>();
         if (level == null)
             return 0;
         int max = 0;
@@ -1534,7 +1534,7 @@ public class U3D : MonoBehaviour {
 
     public static void UnlockLevel()
     {
-        Main.Instance.GameStateMgr.gameStatus.Level = Main.Instance.CombatData.LEVELMAX;
+        Main.Ins.GameStateMgr.gameStatus.Level = Main.Ins.CombatData.LEVELMAX;
     }
 
     public static bool IsUnitDead(int instanceid)
@@ -1548,11 +1548,11 @@ public class U3D : MonoBehaviour {
     public static bool AllFriendDead()
     {
         bool alldead = true;
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            if (Main.Instance.MeteorManager.UnitInfos[i].SameCamp(Main.Instance.MeteorManager.LocalPlayer))
+            if (Main.Ins.MeteorManager.UnitInfos[i].SameCamp(Main.Ins.LocalPlayer))
             {
-                if (!Main.Instance.MeteorManager.UnitInfos[i].Dead)
+                if (!Main.Ins.MeteorManager.UnitInfos[i].Dead)
                 {
                     alldead = false;
                     break;
@@ -1565,11 +1565,11 @@ public class U3D : MonoBehaviour {
     public static bool AllEnemyDead()
     {
         bool alldead = true;
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            if (!Main.Instance.MeteorManager.UnitInfos[i].SameCamp(Main.Instance.MeteorManager.LocalPlayer))
+            if (!Main.Ins.MeteorManager.UnitInfos[i].SameCamp(Main.Ins.LocalPlayer))
             {
-                if (!Main.Instance.MeteorManager.UnitInfos[i].Dead)
+                if (!Main.Ins.MeteorManager.UnitInfos[i].Dead)
                 {
                     alldead = false;
                     break;
@@ -1581,25 +1581,25 @@ public class U3D : MonoBehaviour {
 
     public static void OnPauseAI()
     {
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            Main.Instance.MeteorManager.UnitInfos[i].EnableAI(false);
+            Main.Ins.MeteorManager.UnitInfos[i].EnableAI(false);
         }
     }
 
     public static void OnResumeAI()
     {
-        for (int i = 0; i < Main.Instance.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            Main.Instance.MeteorManager.UnitInfos[i].EnableAI(true);
+            Main.Ins.MeteorManager.UnitInfos[i].EnableAI(true);
         }
     }
 
     //以下为脚本系统执行面板里能响应的操作
     public static void GodLike()
     {
-        Main.Instance.GameStateMgr.gameStatus.GodLike = !Main.Instance.GameStateMgr.gameStatus.GodLike;
-        U3D.InsertSystemMsg(Main.Instance.GameStateMgr.gameStatus.GodLike ? "作弊[开]" : "作弊[关]");
+        Main.Ins.GameStateMgr.gameStatus.GodLike = !Main.Ins.GameStateMgr.gameStatus.GodLike;
+        U3D.InsertSystemMsg(Main.Ins.GameStateMgr.gameStatus.GodLike ? "作弊[开]" : "作弊[关]");
         //if (EscWnd.Exist)
         //    EscWnd.Instance.Close();
         //EscWnd.Instance.Open();
@@ -1607,7 +1607,7 @@ public class U3D : MonoBehaviour {
 
     public static WeaponDatas.WeaponDatas GetWeaponProperty(int weaponIdx)
     {
-        WeaponDatas.WeaponDatas w = Main.Instance.DataMgr.GetData<WeaponDatas.WeaponDatas>(weaponIdx);
+        WeaponDatas.WeaponDatas w = Main.Ins.DataMgr.GetData<WeaponDatas.WeaponDatas>(weaponIdx);
         //if (w == null)
         //    w = PluginWeaponMng.Instance.GetItem(weaponIdx);
         if (w == null)
@@ -1617,11 +1617,11 @@ public class U3D : MonoBehaviour {
 
     public static void DeletePlugins()
     {
-        Main.Instance.GameStateMgr.gameStatus.pluginChapter.Clear();
-        Main.Instance.GameStateMgr.gameStatus.pluginModel.Clear();
-        Main.Instance.GameStateMgr.gameStatus.pluginNpc.Clear();
-        Main.Instance.CombatData.PluginUpdated = false;
-        Main.Instance.GameStateMgr.SaveState();
+        Main.Ins.GameStateMgr.gameStatus.pluginChapter.Clear();
+        Main.Ins.GameStateMgr.gameStatus.pluginModel.Clear();
+        Main.Ins.GameStateMgr.gameStatus.pluginNpc.Clear();
+        Main.Ins.CombatData.PluginUpdated = false;
+        Main.Ins.GameStateMgr.SaveState();
     }
 
     /// <summary>
@@ -1636,8 +1636,8 @@ public class U3D : MonoBehaviour {
     {
         MeteorUnit uEnemy = U3D.GetTeamLeader(EUnitCamp.EUC_ENEMY);
         MeteorUnit uPlayer = U3D.GetUnit(0);
-        Main.Instance.SFXLoader.PlayEffect("vipblue.ef", uPlayer.gameObject, false);
+        Main.Ins.SFXLoader.PlayEffect("vipblue.ef", uPlayer.gameObject, false);
         if (uEnemy != null)
-            Main.Instance.SFXLoader.PlayEffect("vipred.ef", uEnemy.gameObject, false);
+            Main.Ins.SFXLoader.PlayEffect("vipred.ef", uEnemy.gameObject, false);
     }
 }

@@ -92,7 +92,7 @@ public class SFXEffectPlay :NetBehaviour
         if (audioUpdate)
             audioUpdate = false;
         foreach (var each in EffectIns)
-            Main.Instance.SoundManager.StopEffect(each.Value);
+            Main.Ins.SoundManager.StopEffect(each.Value);
         EffectIns.Clear();
         Destroy(this);
     }
@@ -357,12 +357,12 @@ public class SFXEffectPlay :NetBehaviour
                 //有个问题是绑定到对象上一起运动还是只是在那里初始化不跟随移动.
                 bool use3DAudio = loop;
                 //use3DAudio = true;
-                int idx = Main.Instance.SoundManager.Play3DSound(each.Tails[0], transform.position, each.audioLoop != 0, use3DAudio);
+                int idx = Main.Ins.SoundManager.Play3DSound(each.Tails[0], transform.position, each.audioLoop != 0, use3DAudio);
                 EffectIns[i] = idx;
             }
             else if (each.frames[1].startTime < playedTime)
             {
-                Main.Instance.SoundManager.StopEffect(EffectIns[i]);
+                Main.Ins.SoundManager.StopEffect(EffectIns[i]);
                 EffectIns[i] = -3;
             }
 

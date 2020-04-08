@@ -50,8 +50,8 @@ public class MapObjectExporter : MonoBehaviour {
         string fullSavePath = ItemSavePath + despath + "/";
         if (!System.IO.Directory.Exists(fullSavePath))
             System.IO.Directory.CreateDirectory(fullSavePath);
-        DesFile des = Main.Instance.DesLoader.Load(despath);
-        GMBFile gmb = Main.Instance.GMBLoader.Load(despath);
+        DesFile des = Main.Ins.DesLoader.Load(despath);
+        GMBFile gmb = Main.Ins.GMBLoader.Load(despath);
         if (des == null || gmb == null)
             return;
         string shaders = "Custom/MeteorVertexL";
@@ -225,8 +225,8 @@ public class MapObjectExporter : MonoBehaviour {
         string fullSavePath = SavePath + despath + "/";
         if (!string.IsNullOrEmpty(overwritesavepath))
             fullSavePath = overwritesavepath + despath;
-        DesFile des = Main.Instance.DesLoader.Load(despath);
-        GMBFile gmb = Main.Instance.GMBLoader.Load(despath);
+        DesFile des = Main.Ins.DesLoader.Load(despath);
+        GMBFile gmb = Main.Ins.GMBLoader.Load(despath);
         if (des == null || gmb == null)
             return;
 

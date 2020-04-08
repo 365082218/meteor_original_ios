@@ -13,7 +13,7 @@ using Idevgame.StateManagement;
 
 
 public class Main : MonoBehaviour {
-	public static Main Instance = null;
+	public static Main Ins = null;
 #if LOCALHOST
     public static string strHost = "127.0.0.1";
     public static int port = 80;
@@ -97,7 +97,7 @@ public class Main : MonoBehaviour {
     public GMCLoader GMCLoader;
     public DesLoader DesLoader;
     public SceneMng SceneMng;
-
+    public MeteorUnit LocalPlayer;
     //帧同步相关
     public FSS FSS;
     public FSC FSC;
@@ -162,7 +162,7 @@ public class Main : MonoBehaviour {
 
     private void Awake()
     {
-        Instance = this;
+        Ins = this;
         Log = new Log();
         ActiveState = new List<PersistState>();
         GameOverlay = new GameOverlayDialogState();
@@ -177,7 +177,8 @@ public class Main : MonoBehaviour {
         ItemInfoDialogState = new ItemInfoDialogState();
         GunShootDialogStatus = new GunShootDialogStatus();
         //面板管理器.
-        DialogStateManager = new MainDialogStateManager(true);
+        DialogStateManager = new MainDialogStateManager();
+        //顺序排队弹出框.
         PopupStateManager = new MainPopupStateManager();
         //各类游戏数据.
         GameStateMgr = new GameStateMgr();
@@ -217,7 +218,7 @@ public class Main : MonoBehaviour {
 
         DontDestroyOnLoad(gameObject);
         UIHelper.InitCanvas(GameObject.Find("Canvas").GetComponent<Canvas>());
-        Log.WriteError(string.Format("GameStart AppVersion:{0}", Main.Instance.AppInfo.AppVersion()));
+        Log.WriteError(string.Format("GameStart AppVersion:{0}", Main.Ins.AppInfo.AppVersion()));
     }
 
     public void ShowFps(bool active)
@@ -235,6 +236,7 @@ public class Main : MonoBehaviour {
         SoundManager.Init();
         DialogStateManager.Init();
         PopupStateManager.Init();
+        DialogUtils.Ins.Init();
         UnityEngine.Random.InitState((int)System.DateTime.UtcNow.Ticks);
         DialogStateManager.ChangeState(DialogStateManager.ConnectDialogState);
         if (checkUpdate == null)

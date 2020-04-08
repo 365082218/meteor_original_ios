@@ -26,7 +26,7 @@ public class RecordSelectDialog : Dialog
     {
         if (refreshRec != null)
         {
-            Main.Instance.StopCoroutine(refreshRec);
+            Main.Ins.StopCoroutine(refreshRec);
             refreshRec = null;
         }
     }
@@ -101,7 +101,7 @@ public class RecordSelectDialog : Dialog
         Prefab = Resources.Load("ButtonNormal") as GameObject;
         if (recList.Count != 0)
         {
-            refreshRec = Main.Instance.StartCoroutine(Refresh());
+            refreshRec = Main.Ins.StartCoroutine(Refresh());
         }
     }
 
@@ -109,11 +109,11 @@ public class RecordSelectDialog : Dialog
     {
         if (refreshRec != null)
         {
-            Main.Instance.StopCoroutine(refreshRec);
+            Main.Ins.StopCoroutine(refreshRec);
             refreshRec = null;
         }
 
-        refreshRec = Main.Instance.StartCoroutine(Refresh());
+        refreshRec = Main.Ins.StartCoroutine(Refresh());
     }
 
     IEnumerator Refresh()

@@ -29,17 +29,17 @@ public class NickName : Dialog
             OnBackPress();
         });
         Nick = Control("Nick").GetComponent<InputField>();
-        if (string.IsNullOrEmpty(Main.Instance.GameStateMgr.gameStatus.NickName))
+        if (string.IsNullOrEmpty(Main.Ins.GameStateMgr.gameStatus.NickName))
             Nick.text = "昱泉杀手";
         else
-            Nick.text = Main.Instance.GameStateMgr.gameStatus.NickName;
+            Nick.text = Main.Ins.GameStateMgr.gameStatus.NickName;
     }
 
     void OnApply()
     {
         if (!string.IsNullOrEmpty(Nick.text))
         {
-            Main.Instance.GameStateMgr.gameStatus.NickName = Nick.text;
+            Main.Ins.GameStateMgr.gameStatus.NickName = Nick.text;
             if (SettingDialogState.Exist)
                 SettingDialogState.Instance.OnRefresh(0, null);
             OnBackPress();

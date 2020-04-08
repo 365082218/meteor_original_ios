@@ -6,7 +6,7 @@ using Idevgame.GameState.DialogState;
 public class PopupTipState:CommonDialogState<PopupTip>
 {
     public override string DialogName { get { return "PopupTip"; } }
-    public PopupTipState(MainDialogStateManager stateMgr):base(stateMgr)
+    public PopupTipState(BaseDialogStateManager stateMgr):base(stateMgr)
     {
 
     }

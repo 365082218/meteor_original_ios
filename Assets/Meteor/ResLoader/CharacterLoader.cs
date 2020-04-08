@@ -21,7 +21,7 @@ public enum PoseEvt
 //负责处理动画帧的播放
 public class CharacterLoader
 {
-    SkinnedMeshRenderer rend;//绘制顶点UV,贴图，骨骼权重
+    SkinnedMeshRenderer render;//绘制顶点UV,贴图，骨骼权重
     //Material[] mat;
     public List<Transform> bo;
     List<Transform> dummy;
@@ -41,14 +41,14 @@ public class CharacterLoader
         Skin.transform.localRotation = Quaternion.identity;
         Skin.transform.localScale = Vector3.one;
         Skin.transform.localPosition = Vector3.zero;
-        SkcFile skc = Main.Instance.SkcLoader.Load(id);
-        BncFile bnc = Main.Instance.BncLoader.Load(id);
+        SkcFile skc = Main.Ins.SkcLoader.Load(id);
+        BncFile bnc = Main.Ins.BncLoader.Load(id);
         Skin.name = skc.Skin;
-        rend = Skin.AddComponent<SkinnedMeshRenderer>();
-        rend.localBounds = skc.mesh.bounds;
-        rend.materials = skc.Material(id, owner.Camp);
-        rend.sharedMesh = skc.mesh;
-        rend.sharedMesh.RecalculateBounds();
+        render = Skin.AddComponent<SkinnedMeshRenderer>();
+        render.localBounds = skc.mesh.bounds;
+        render.materials = skc.Material(id, owner.Camp);
+        render.sharedMesh = skc.mesh;
+        render.sharedMesh.RecalculateBounds();
         bo = new List<Transform>();
         dummy = new List<Transform>();
         List<Matrix4x4> bindPos = new List<Matrix4x4>();
@@ -60,9 +60,9 @@ public class CharacterLoader
 
         bnc.GenerateBone(Target, ref bo, ref dummy, ref bindPos, ref rootBone);
         WsGlobal.SetObjectLayer(Target.gameObject, Skin.layer);
-        rend.bones = bo.ToArray();
-        rend.sharedMesh.bindposes = bindPos.ToArray();
-        rend.rootBone = rootBone;
+        render.bones = bo.ToArray();
+        render.sharedMesh.bindposes = bindPos.ToArray();
+        render.rootBone = rootBone;
         RootPos = rootBone.localPosition;
         RootQuat = rootBone.localRotation;
         AmbLoader.Ins.LoadCharacterAmb(id);
@@ -474,7 +474,7 @@ public class CharacterLoader
             try
             {
                 //在其他调试场景里屏蔽掉特效
-                if (Main.Instance.GameBattleEx != null)
+                if (Main.Ins.GameBattleEx != null)
                     PlayEffect();
             }
             catch (System.Exception exp)
@@ -683,13 +683,13 @@ public class CharacterLoader
                     PoseStraight -= FrameReplay.deltaTime;
                 lastFramePlayedTimes += FrameReplay.deltaTime;
                 float speedScale = owner.ActionSpeed * GetSpeedScale();
-                float fps = Main.Instance.CombatData.FPS / speedScale;
+                float fps = Main.Ins.CombatData.FPS / speedScale;
                 while (lastFramePlayedTimes >= fps)
                 {
                     PlayNextKeyFrame();
                     lastFramePlayedTimes -= fps;
                     speedScale = GetSpeedScale();
-                    fps = Main.Instance.CombatData.FPS / speedScale;
+                    fps = Main.Ins.CombatData.FPS / speedScale;
                 }
 
                 if (lastFramePlayedTimes < fps && lastFramePlayedTimes > 0)
@@ -738,68 +738,44 @@ public class CharacterLoader
     //循环动作锁定，（一直在2个帧段之间播放，待特定条件打成就退出该帧段）
     void PlayPosEvent()
     {
-        if (po.Idx == CommonAction.Run && Main.Instance.GameBattleEx.BattleFinished())
+        //有硬直时间存在，但是还没开始消耗硬直时间时，先消耗硬直时间
+        if (IsInStraight())
         {
-            owner.posMng.ChangeAction(CommonAction.Idle);
-        }
-        else if (po.Idx == CommonAction.ChangeWeapon)
-        {
-            owner.ChangeNextWeapon();
-            loop = false;
-        }
-        else if (po.Idx == CommonAction.AirChangeWeapon)
-        {
-            owner.ChangeNextWeapon();
-            loop = false;
-        }
-        else if (po.Idx == CommonAction.JumpFallOnGround)
-        {
-            if (mOwner.IsOnGround())
-                loop = false;
-        }
-        else if (po.Idx == CommonAction.KnifeA2Fall)//匕首空中A2落地
-        {
-            if (mOwner.IsOnGround()) loop = false;
-        }
-        else if (po.Idx == CommonAction.HammerMaxFall)
-        {
-            if (mOwner.IsOnGround()) loop = false;
-        }
-        else if (po.Idx == CommonAction.Fall)
-        {
-            if (mOwner.IsOnGround()) loop = false;
-        }
-        else if (po.Idx == CommonAction.Struggle || po.Idx == CommonAction.Struggle0 || po.Idx == 109 || po.Idx == 110 || po.Idx == 111 || po.Idx == 114 || po.Idx == 115)
-        {
-            //不在硬直中
-            if (!IsInStraight())
-            {
-                loop = false;
+            //能否开始计算硬直?如果角色在空中播放循环落地动作,这个硬直是无法开始计算的，只有落地后，才能开始计算硬直
+            if (!mOwner.IsOnGround())
                 return;
-            }
-
-            //在硬直中锁
+            //已经开始计算硬直时间的流逝
             if (LockCurrentFrame)
                 return;
 
-            LockCurrentFrame = true;//开始锁定帧，一直到硬直结束.
-        }
-        else if ((po.Idx >= CommonAction.Idle && po.Idx <= 21) || (po.Idx >= CommonAction.WalkForward && po.Idx <= CommonAction.RunOnDrug))
-        {
-            //这些动作是不具有硬直的循环动作.
-            if (Main.Instance.GameBattleEx.BattleFinished())
-            {
-                owner.posMng.ChangeAction(CommonAction.Idle);
-            }
-        }
-        else if (po.Idx == 219 || po.Idx == 221 || po.Idx == 223)//飞轮出击后等待接回飞轮
-        {
-            //等着收回武器
+            LockCurrentFrame = true;//开始计算硬直流逝，一直到硬直时间结束.
         }
         else
         {
-            if (mOwner.IsOnGround()) loop = false;
-            //Debug.Log("PlayPosEvent:" + po.Idx);
+            if (po.Idx == CommonAction.ChangeWeapon)
+            {
+                owner.ChangeNextWeapon();
+                loop = false;
+            }
+            else if (po.Idx == CommonAction.AirChangeWeapon)
+            {
+                owner.ChangeNextWeapon();
+                loop = false;
+            }
+            else if ((po.Idx >= CommonAction.Idle && po.Idx <= 21) || (po.Idx >= CommonAction.WalkForward && po.Idx <= CommonAction.RunOnDrug))
+            {
+                if (owner.GameFinished)
+                    loop = false;
+            }
+            else if (po.Idx == 219 || po.Idx == 221 || po.Idx == 223)//飞轮出击后等待接回飞轮
+            {
+                //等着收回武器
+            }
+            else
+            {
+                if (mOwner.IsOnGround()) loop = false;
+                //Debug.Log("PlayPosEvent:" + po.Idx);
+            }
         }
     }
 
@@ -817,7 +793,7 @@ public class CharacterLoader
                     break;
                 }
             }
-            frameCost += Main.Instance.CombatData.FPS / speedScale ;
+            frameCost += Main.Ins.CombatData.FPS / speedScale ;
         }
         return frameCost;
     }
@@ -833,7 +809,7 @@ public class CharacterLoader
         timePlayed = GetTimePlayed(curIndex);
         if (!string.IsNullOrEmpty(po.EffectID) && !string.Equals(po.EffectID, "0"))
         {
-            sfxEffect = Main.Instance.SFXLoader.PlayEffect(string.Format("{0}.ef", po.EffectID), this, timePlayed);
+            sfxEffect = Main.Ins.SFXLoader.PlayEffect(string.Format("{0}.ef", po.EffectID), this, timePlayed);
 
             //表明特效是由动作触发的,不在该动作中关闭特效的攻击盒时,特效攻击盒仍存在
             //这种一般是特效出来后，在角色受到攻击前打开了特效的攻击盒，但角色受到攻击打断了动作，会立刻关闭攻击特效的攻击属性，这种应该是不对的.
@@ -972,24 +948,12 @@ public class CharacterLoader
 
         if (lastPosIdx != 0)
         {
-            Option poseInfo = Main.Instance.MenuResLoader.GetPoseInfo(lastPosIdx);
+            Option poseInfo = Main.Ins.MenuResLoader.GetPoseInfo(lastPosIdx);
             if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 18 && lastPosIdx != 468)//18为，使用招式后获取物品ID 468-469都会调用微尘，hack掉468pose的
                 owner.GetItem(poseInfo.first[0].flag[1]);//忍刀小绝，同归于尽，会获得微尘物品，会即刻死亡
         }
 
         curPos = pos.Idx;
-
-        //当从100切换到118时，要把Y的速度重置为0，否则下落很快，导致连招接不上
-        if (curPos == CommonAction.Fall && lastPosIdx == CommonAction.BeHurted100)
-        {
-            mOwner.SetVelocityY(0);
-        }
-        else if (curPos == CommonAction.Struggle || curPos == CommonAction.Struggle0)
-        {
-            //如果是倒地动作，僵直最少为0.5
-            if (PoseStraight < 0.5f)
-                LockTime(0.5f);
-        }
     }
 
     public void GetCurrentSnapShot()

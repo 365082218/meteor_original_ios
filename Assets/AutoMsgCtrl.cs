@@ -53,7 +53,7 @@ public class AutoMsgCtrl : MonoBehaviour {
             Text txt = obj.AddComponent<Text>();
             txt.text = msg[0];
             //00AAFFFF
-            txt.font = Main.Instance.TextFont;
+            txt.font = Main.Ins.TextFont;
             txt.fontSize = 32;
             txt.alignment = TextAnchor.MiddleLeft;
             txt.raycastTarget = false;
@@ -84,7 +84,7 @@ public class AutoMsgCtrl : MonoBehaviour {
             obj.name = (transform.childCount + 1).ToString();
             Text txt = obj.AddComponent<Text>();
             txt.text = text;
-            txt.font = Main.Instance.TextFont;
+            txt.font = Main.Ins.TextFont;
             txt.fontSize = 32;
             txt.alignment = TextAnchor.MiddleLeft;
             txt.raycastTarget = false;

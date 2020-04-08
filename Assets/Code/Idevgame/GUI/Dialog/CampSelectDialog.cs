@@ -23,7 +23,7 @@ public class CampSelectDialog : Dialog
 
     void Init()
     {
-        Control("Meteor").GetComponent<Button>().onClick.AddListener(() => { Main.Instance.NetWorkBattle.camp = (int)EUnitCamp.EUC_Meteor; Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.RoleSelectDialogState); });
-        Control("Butterfly").GetComponent<Button>().onClick.AddListener(() => { Main.Instance.NetWorkBattle.camp = (int)EUnitCamp.EUC_Butterfly; Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.RoleSelectDialogState); });
+        Control("Meteor").GetComponent<Button>().onClick.AddListener(() => { Main.Ins.NetWorkBattle.camp = (int)EUnitCamp.EUC_Meteor; Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.RoleSelectDialogState); });
+        Control("Butterfly").GetComponent<Button>().onClick.AddListener(() => { Main.Ins.NetWorkBattle.camp = (int)EUnitCamp.EUC_Butterfly; Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.RoleSelectDialogState); });
     }
 }

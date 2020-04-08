@@ -11,15 +11,15 @@ public class SkcMatMng : MonoBehaviour {
     public Material[] GetPlayerMat(int id, EUnitCamp camp)
     {
         SkcMatItem[] TargetGroup = null;
-        if (Main.Instance.GameStateMgr.gameStatus.Quality == 0)
+        if (Main.Ins.GameStateMgr.gameStatus.Quality == 0)
             TargetGroup = Player;
-        else if (Main.Instance.GameStateMgr.gameStatus.Quality == 1)
+        else if (Main.Ins.GameStateMgr.gameStatus.Quality == 1)
             TargetGroup = Player800;
-        else if (Main.Instance.GameStateMgr.gameStatus.Quality == 2)
+        else if (Main.Ins.GameStateMgr.gameStatus.Quality == 2)
             TargetGroup = Player300;
 
         //普通关卡和盟主模式,只有1个阵营的皮肤
-        if (Main.Instance.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             if (camp == EUnitCamp.EUC_NONE || camp == EUnitCamp.EUC_KILLALL)
             {
@@ -43,9 +43,9 @@ public class SkcMatMng : MonoBehaviour {
                 return mat;
             }
         }
-        else if (Main.Instance.CombatData.GLevelMode > LevelMode.SinglePlayerTask && Main.Instance.CombatData.GLevelMode <= LevelMode.MultiplyPlayer)
+        else if (Main.Ins.CombatData.GLevelMode > LevelMode.SinglePlayerTask && Main.Ins.CombatData.GLevelMode <= LevelMode.MultiplyPlayer)
         {
-            if (Main.Instance.CombatData.GGameMode == GameMode.Normal || Main.Instance.CombatData.GGameMode == GameMode.MENGZHU)
+            if (Main.Ins.CombatData.GGameMode == GameMode.Normal || Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
             {
                 if (camp == EUnitCamp.EUC_NONE || camp == EUnitCamp.EUC_KILLALL)
                 {
@@ -69,7 +69,7 @@ public class SkcMatMng : MonoBehaviour {
                     return mat;
                 }
             }
-            else if (Main.Instance.CombatData.GGameMode == GameMode.ANSHA || Main.Instance.CombatData.GGameMode == GameMode.SIDOU)
+            else if (Main.Ins.CombatData.GGameMode == GameMode.ANSHA || Main.Ins.CombatData.GGameMode == GameMode.SIDOU)
             {
                 if (camp == EUnitCamp.EUC_NONE || camp == EUnitCamp.EUC_KILLALL)
                 {

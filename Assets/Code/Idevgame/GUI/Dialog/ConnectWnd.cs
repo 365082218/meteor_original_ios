@@ -16,7 +16,6 @@ public class ConnectWnd:Dialog
     //希望有一个入场动画，缩放0-1
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
     {
-        this.effectIn = FadeInEffect.Scale;
         base.OnDialogStateEnter(ownerState, previousDialog, data);
     }
 }

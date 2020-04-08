@@ -62,8 +62,8 @@ public class WeaponSelectDialog : Dialog
 
     void OnSelectWeapon()
     {
-        Main.Instance.NetWorkBattle.weaponIdx = U3D.GetWeaponByCode(weaponIdx);
-        Main.Instance.NetWorkBattle.EnterLevel();
+        Main.Ins.NetWorkBattle.weaponIdx = U3D.GetWeaponByCode(weaponIdx);
+        Main.Ins.NetWorkBattle.EnterLevel();
         OnBackPress();
     }
 }
