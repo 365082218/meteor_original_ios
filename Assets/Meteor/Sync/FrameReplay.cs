@@ -6,7 +6,7 @@ using UnityEngine;
 //帧指令接收器，用于存储从服务器/单机 时发送来的帧指令.FSC=FRAMESYNCCLIENT
 public class FSC
 {
-    List<GameFrames> frames = new List<GameFrames>();//指令序列.没一个下标都是一帧的.
+    public List<GameFrames> frames = new List<GameFrames>();//指令序列.没一个下标都是一帧的.
     public void OnReceiveCommand(GameFrames turn)
     {
         frames.Add(turn);

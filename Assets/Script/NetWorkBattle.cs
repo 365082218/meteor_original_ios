@@ -179,6 +179,7 @@ public class NetWorkBattle
         Main.Ins.CombatData.GLevelItem = lev;
         Main.Ins.CombatData.GLevelMode = LevelMode.MultiplyPlayer;
         RoomInfo r = Main.Ins.RoomMng.GetRoom((int)RoomId);
+        Main.Ins.RoomMng.Current = r;
         Main.Ins.CombatData.GGameMode = (GameMode)r.rule;
         Main.Ins.CombatData.wayPoints = null;
         //LoadingWnd.Instance.Open();

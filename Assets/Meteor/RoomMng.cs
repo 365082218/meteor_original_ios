@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class RoomMng
 {
+    public RoomInfo Current;
     public List<RoomInfo> rooms = new List<RoomInfo>();
     public void Register(int id, bool create)
     {

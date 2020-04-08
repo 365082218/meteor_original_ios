@@ -622,7 +622,7 @@ public class CombatData
     public int SpawnIndex;
     public LevelScriptBase GScript;
     public Type GScriptType;
-    public System.Random Rand = new System.Random((int)DateTime.Now.ToFileTime());
+    public long RandSeed = DateTime.Now.ToFileTime();
     bool mPauseAll;
     public Vector3 BodyHeight = new Vector3(0, 28, 0);
     public Chapter Chapter;
