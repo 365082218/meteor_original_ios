@@ -407,8 +407,8 @@ public partial class MeteorUnit : NetBehaviour
         set
         {
             Attr.AngryValue = Mathf.Clamp(value, 0, 100);
-            if (Attr.IsPlayer && FightDialogState.Exist())
-                FightDialogState.Instance.UpdateAngryBar();
+            if (Attr.IsPlayer && FightState.Exist())
+                FightState.Instance.UpdateAngryBar();
         }
     }
     //当前武器
@@ -2015,8 +2015,8 @@ public partial class MeteorUnit : NetBehaviour
         IgnoreGravity = false;
         SetWorldVelocity(new Vector3(0, -100, 0));
         if (Attr.IsPlayer)
-            if (FightDialogState.Exist())
-                FightDialogState.Instance.UpdatePlayerInfo();
+            if (FightState.Exist())
+                FightState.Instance.UpdatePlayerInfo();
     }
 
     //盟主模式下的自动复活.
@@ -2727,13 +2727,13 @@ public partial class MeteorUnit : NetBehaviour
             }
         }
 
-        if (FightDialogState.Exist())
+        if (FightState.Exist())
         {
             //先飘血。
             if (Attr.IsPlayer)
-                FightDialogState.Instance.UpdatePlayerInfo();
+                FightState.Instance.UpdatePlayerInfo();
             else if (Main.Ins.GameStateMgr.gameStatus.ShowBlood && !SameCamp(Main.Ins.LocalPlayer))
-                FightDialogState.Instance.UpdateMonsterInfo(this);
+                FightState.Instance.UpdateMonsterInfo(this);
         }
     }
 
@@ -2885,13 +2885,13 @@ public partial class MeteorUnit : NetBehaviour
                 }
             }
         }
-        if (FightDialogState.Exist())
+        if (FightState.Exist())
         {
             //先飘血。
             if (Attr.IsPlayer)
-                FightDialogState.Instance.UpdatePlayerInfo();
+                FightState.Instance.UpdatePlayerInfo();
             else if (Main.Ins.GameStateMgr.gameStatus.ShowBlood && !SameCamp(Main.Ins.LocalPlayer))
-                FightDialogState.Instance.UpdateMonsterInfo(this);
+                FightState.Instance.UpdateMonsterInfo(this);
         }
     }
 

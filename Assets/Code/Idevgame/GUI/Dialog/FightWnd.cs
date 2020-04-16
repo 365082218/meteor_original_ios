@@ -6,10 +6,10 @@ using UnityEngine.UI;
 using Idevgame.GameState;
 using Idevgame.GameState.DialogState;
 
-public class FightDialogState : PersistDialog<FightUiConroller>
+public class FightState : PersistDialog<FightUiConroller>
 {
     public override string DialogName { get { return "FightWnd"; } }
-    public FightDialogState() : base()
+    public FightState() : base()
     {
 
     }
@@ -449,7 +449,6 @@ public class FightUiConroller : Dialog
     {
         NodeHelper.Find("Status", WndObject).SetActive(false);
         NodeHelper.Find("Chat", WndObject).SetActive(false);
-        //hpBar.fillAmount = (float)MeteorManager.Instance.LocalPlayer.Attr.hpCur / (float)MeteorManager.Instance.LocalPlayer.Attr.HpMax;
     }
 
     Dictionary<Buff, GameObject> enemyBuffList = new Dictionary<Buff, GameObject>();

@@ -32,7 +32,7 @@ namespace Idevgame.Meteor.AI
         public KillState KillState;//强制追杀 无视视野.
         public PatrolState PatrolState;//巡逻.
         public FollowState FollowState;
-        public FightState FightState;
+        public FightAIState FightAIState;
 
         public float BaseTime;//角色当前动作的归一化时间 大于0部分是循环次数，小于0部分是单次播放百分比.
         public int AnimationIndex;//角色当前动画编号
@@ -49,7 +49,7 @@ namespace Idevgame.Meteor.AI
             PatrolState = new PatrolState(this);
             ReviveState = new ReviveState(this);
             FollowState = new FollowState(this);
-            FightState = new FightState(this);
+            FightAIState = new FightAIState(this);
             LookState = new LookState(this);
             DangerState = new DangerState(this);
             int dis = Player.Attr.View;
@@ -87,7 +87,7 @@ namespace Idevgame.Meteor.AI
         {
             if (CurrentState != null)
             {
-                FightState fs = CurrentState as FightState;
+                FightAIState fs = CurrentState as FightAIState;
                 return fs != null;
             }
             return false;

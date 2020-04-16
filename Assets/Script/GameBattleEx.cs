@@ -158,8 +158,8 @@ public partial class GameBattleEx : NetBehaviour {
     //多久触发一次.
     void UpdateTime()
     {
-        if (FightDialogState.Exist())
-            FightDialogState.Instance.UpdateTime(GetTimeClock());
+        if (FightState.Exist())
+            FightState.Instance.UpdateTime(GetTimeClock());
     }
 
     GameObject SelectTarget;
@@ -563,8 +563,8 @@ public partial class GameBattleEx : NetBehaviour {
         }
 
         U3D.InsertSystemMsg("新回合开始计时");
-        if (FightDialogState.Exist())
-            FightDialogState.Instance.OnBattleStart();
+        if (FightState.Exist())
+            FightState.Instance.OnBattleStart();
     }
 
     //场景物件的受击框
@@ -1684,9 +1684,11 @@ public class ActionConfig
             }
             else if (action[action.Count - 1].type == StackAction.SAY)
             {
-                MeteorUnit unit = U3D.GetUnit(id);//, action[action.Count - 1])
-                if (FightDialogState.Exist() && unit != null)
-                    FightDialogState.Instance.InsertFightMessage(unit.name + " : " + action[action.Count - 1].text);
+                MeteorUnit unit = U3D.GetUnit(id);
+                if (FightState.Exist() && unit != null)
+                    FightState.Instance.InsertFightMessage(unit.name + " : " + action[action.Count - 1].text);
+                if (ReplayState.Exist() && unit != null)
+                    ReplayState.Instance.InsertFightMessage(unit.name + " : " + action[action.Count - 1].text);
                 action.RemoveAt(action.Count - 1);
             }
             else if (action[action.Count - 1].type == StackAction.SKILL)
@@ -1803,11 +1805,11 @@ public class ActionConfig
                 if (unit != null && unit.StateMachine != null && !unit.Dead)
                 {
                     if (!unit.StateMachine.IsFighting())
-                        unit.StateMachine.ChangeState(unit.StateMachine.FightState);
+                        unit.StateMachine.ChangeState(unit.StateMachine.FightAIState);
                     //部分情况下，子状态不正确会导致很多奇怪的情况
                     //if (unit.StateMachine.SubStatus != EAISubStatus.AttackGotoTarget && unit.StateMachine.SubStatus != EAISubStatus.AttackTarget && unit.StateMachine.SubStatus != EAISubStatus.AttackTargetSubRotateToTarget)
                     //    unit.StateMachine.SubStatus = EAISubStatus.AttackGotoTarget;
-                    FightState fs = unit.StateMachine.CurrentState as FightState;
+                    Idevgame.Meteor.AI.FightAIState fs = unit.StateMachine.CurrentState as Idevgame.Meteor.AI.FightAIState;
                     fs.AttackCount = action[action.Count - 1].param;
                     fs.AttackTarget = action[action.Count - 1].target;
                     if (fs.AttackTargetComplete())

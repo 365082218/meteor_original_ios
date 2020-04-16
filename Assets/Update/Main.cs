@@ -52,7 +52,8 @@ public class Main : MonoBehaviour {
 
     //常驻状态管理
     public GameOverlayDialogState GameOverlay;//进入主界面叠加
-    public FightDialogState FightDialogState;//战斗界面叠加
+    public FightState FightState;//战斗界面叠加
+    public ReplayState ReplayState;//回放控制界面叠加.
     public HostEditDialogState HostEditDialogState;//服务器主机编辑界面.
     public NickNameDialogState NickNameDialogState;//昵称界面.
     public BattleStatusDialogState BattleStatusDialogState;//当局战斗信息界面
@@ -166,7 +167,8 @@ public class Main : MonoBehaviour {
         Log = new Log();
         ActiveState = new List<PersistState>();
         GameOverlay = new GameOverlayDialogState();
-        FightDialogState = new FightDialogState();
+        FightState = new FightState();
+        ReplayState = new ReplayState();
         NickNameDialogState = new NickNameDialogState();
         BattleStatusDialogState = new BattleStatusDialogState();
         PlayerDialogState = new PlayerDialogState();

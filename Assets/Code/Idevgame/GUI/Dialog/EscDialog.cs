@@ -314,7 +314,7 @@ public class EscDialog : Dialog
         Main.Ins.SoundManager.StopAll();
         Main.Ins.BuffMng.Clear();
         Main.Ins.MeteorManager.Clear();
-        Main.Ins.ExitState(Main.Ins.FightDialogState);
+        Main.Ins.ExitState(Main.Ins.FightState);
         Main.Ins.DialogStateManager.CheckAndCloseCurrentDialogIfPresent(Main.Ins.DialogStateManager.EscDialogState);
 
         if (GameOverlayDialogState.Exist())
@@ -326,8 +326,8 @@ public class EscDialog : Dialog
     void OnEnableWeaponChoose(bool on)
     {
         Main.Ins.GameStateMgr.gameStatus.EnableWeaponChoose = on;
-        if (FightDialogState.Exist())
-            FightDialogState.Instance.UpdateUIButton();
+        if (FightState.Exist())
+            FightState.Instance.UpdateUIButton();
     }
 
     //禁止UI上的相机切换按钮
@@ -357,13 +357,13 @@ public class EscDialog : Dialog
 
         if (on)
         {
-            if (FightDialogState.Exist())
-                FightDialogState.Instance.HideCameraBtn();
+            if (FightState.Exist())
+                FightState.Instance.HideCameraBtn();
         }
         else
         {
-            if (FightDialogState.Exist())
-                FightDialogState.Instance.ShowCameraBtn();
+            if (FightState.Exist())
+                FightState.Instance.ShowCameraBtn();
         }
     }
 
@@ -393,15 +393,15 @@ public class EscDialog : Dialog
     void OnEnableDebugRobot(bool on)
     {
         Main.Ins.GameStateMgr.gameStatus.EnableDebugRobot = on;
-        if (FightDialogState.Exist())
-            FightDialogState.Instance.UpdateUIButton();
+        if (FightState.Exist())
+            FightState.Instance.UpdateUIButton();
     }
 
     void OnEnableDebugSFX(bool on)
     {
         Main.Ins.GameStateMgr.gameStatus.EnableDebugSFX = on;
-        if (FightDialogState.Exist())
-            FightDialogState.Instance.UpdateUIButton();
+        if (FightState.Exist())
+            FightState.Instance.UpdateUIButton();
     }
 
     void OnChangePerformance(bool on)

@@ -322,13 +322,13 @@ public class SettingDialog : Dialog {
 
         if (on)
         {
-            if (FightDialogState.Exist())
-                FightDialogState.Instance.ShowCameraBtn();
+            if (FightState.Exist())
+                FightState.Instance.ShowCameraBtn();
         }
         else
         {
-            if (FightDialogState.Exist())
-                FightDialogState.Instance.HideCameraBtn();
+            if (FightState.Exist())
+                FightState.Instance.HideCameraBtn();
         }
     }
 

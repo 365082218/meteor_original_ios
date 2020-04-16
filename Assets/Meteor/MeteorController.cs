@@ -1849,7 +1849,6 @@ public class MeteorInput
     Dictionary<EKeyList, int> genFreq = new Dictionary<EKeyList, int>();
     public void OnKeyPressing(KeyState keyStatus)
     {
-        lastKeyHandler = FrameReplay.Instance.time;
         if (genFreq.ContainsKey(keyStatus.Key))
         {
             genFreq[keyStatus.Key]--;
@@ -1900,7 +1899,6 @@ public class MeteorInput
 
     public void OnKeyUp(KeyState keyStatus)
     {
-        lastKeyHandler = FrameReplay.Instance.time;
         keyStatus.Pressed = 0;
         keyStatus.ReleasedTime = 0.0f;
         keyStatus.IsAI = false;
@@ -1908,7 +1906,6 @@ public class MeteorInput
 
     public void OnKeyUpProxy(KeyState keyStatus)
     {
-        lastKeyHandler = FrameReplay.Instance.time;
         keyStatus.Pressed = 0;
         keyStatus.ReleasedTime = 0.0f;
         keyStatus.IsAI = false;
@@ -1922,7 +1919,6 @@ public class MeteorInput
     {
         if (mOwner.controller.InputLocked && !isAI)
             return;
-        lastKeyHandler = FrameReplay.Instance.time;
         //任意的按下一个按键，
         EKeyList[] keys = genFreq.Keys.ToArray();
         for (int i = 0; i < keys.Length; i++)
@@ -2039,13 +2035,6 @@ public class MeteorInput
     public bool HasInput(int key, int tp)
     {
         return checkInputType((EKeyList)key, (EInputType)tp);
-    }
-
-    //按键有超过1S时间未被触发,无论是抬起还是按下.
-    float lastKeyHandler = 0.0f;
-    public bool IsKeyQuiet()
-    {
-        return (FrameReplay.Instance.time - lastKeyHandler >= 1.0f);
     }
 }
 

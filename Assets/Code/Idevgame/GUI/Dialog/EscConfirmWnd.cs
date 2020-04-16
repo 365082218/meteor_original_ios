@@ -56,7 +56,7 @@ public class EscConfirmWnd : Dialog
         Main.Ins.BuffMng.Clear();
         Main.Ins.MeteorManager.Clear();
         OnBackPress();
-        Main.Ins.ExitState(Main.Ins.FightDialogState);
+        Main.Ins.ExitState(Main.Ins.FightState);
         if (GameOverlayDialogState.Exist())
             GameOverlayDialogState.Instance.ClearSystemMsg();
         //离开副本

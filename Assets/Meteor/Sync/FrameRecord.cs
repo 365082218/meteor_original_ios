@@ -55,6 +55,7 @@ public class FrameRecord : Singleton<FrameRecord> {
             resultFailed.message = exp.Message;
             resultFailed.Result = 0;
             ProtoHandler.PostMessage(resultFailed);
+            WriteThread = null;
             return;
         }
         //do sth
@@ -62,6 +63,7 @@ public class FrameRecord : Singleton<FrameRecord> {
         result.Message = (int)LocalMsgType.SaveRecord;
         result.Result = 1;
         ProtoHandler.PostMessage(result);
+        WriteThread = null;
     }
 
     string GenerateRecordName(LevelDatas.LevelDatas data, LevelMode lm, GameMode gm)

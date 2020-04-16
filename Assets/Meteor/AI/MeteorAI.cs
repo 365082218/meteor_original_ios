@@ -1352,11 +1352,6 @@ public class MeteorAI {
             else
             {
                 //如果是远程武器，且距离上次攻击间隔不足一秒,返回等待下次
-                if (U3D.IsSpecialWeapon(owner.Attr.Weapon))
-                {
-                    if (!owner.controller.Input.IsKeyQuiet())
-                        return;
-                }
                 //打印当前动作是啥，在多少帧-帧之间，是否能正常过渡到攻击动作.
                 //Debug.LogError(string.Format("pos:{0} frame:{1}", owner.posMng.mActiveAction.Idx, owner.charLoader.GetCurrentFrameIndex()));
 

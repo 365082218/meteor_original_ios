@@ -130,6 +130,10 @@ public class LevelHelper : MonoBehaviour
         //等脚本设置好物件的状态后，根据状态决定是否生成受击盒，攻击盒等.
         Main.Ins.GameBattleEx.Init(script);
         FrameReplay.Instance.OnBattleStart();
-        Main.Ins.EnterState(Main.Ins.FightDialogState);
+        //如果是录制模式-完毕后不要打开战斗UI
+        if (Main.Ins.CombatData.Replay)
+            Main.Ins.EnterState(Main.Ins.ReplayState);
+        else
+            Main.Ins.EnterState(Main.Ins.FightState);
     }
 }

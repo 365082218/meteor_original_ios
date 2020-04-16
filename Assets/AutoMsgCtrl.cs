@@ -25,6 +25,8 @@ public class AutoMsgCtrl : MonoBehaviour {
 
     // Update is called once per frame
     protected void Update() {
+        if (FrameReplay.Instance == null)
+            return;
         if (transform.childCount != 0)
         {
             tick -= FrameReplay.deltaTime;

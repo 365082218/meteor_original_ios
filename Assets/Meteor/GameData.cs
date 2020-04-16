@@ -621,6 +621,8 @@ public class CombatData
     public int CampBSpawnIndex;
     public int SpawnIndex;
     public LevelScriptBase GScript;
+    public GameRecord GRecord;
+    public bool Replay { get { return GRecord != null; } }
     public Type GScriptType;
     public long RandSeed = DateTime.Now.ToFileTime();
     bool mPauseAll;

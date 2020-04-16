@@ -235,11 +235,11 @@ namespace Idevgame.Meteor.AI
 
     //战斗基类
     //需要处理倒地起身状态.
-    public class FightState:State
+    public class FightAIState:State
     {
         public int AttackCount;//攻击次数.
         public Vector3 AttackTarget;//攻击目标-指定位置.
-        public FightState(StateMachine mathine) : base(mathine)
+        public FightAIState(StateMachine mathine) : base(mathine)
         {
 
         }

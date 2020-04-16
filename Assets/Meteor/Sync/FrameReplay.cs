@@ -284,6 +284,8 @@ public class FrameReplay : MonoBehaviour {
         LogicFrameIndex = 0;
         playRecord = false;
         firstFrame = true;
+        Main.Ins.FSS.Reset();
+        Main.Ins.FSC.Reset();
     }
 
     private void Awake()
