@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class MatchDialogState : CommonDialogState<MatchDialog>
 {
-    public override string DialogName { get { return "MatchDialog"; } }
+    public override string DialogName { get { return "MatchWnd"; } }
     public MatchDialogState(MainDialogStateManager stateMgr) : base(stateMgr)
     {
 
@@ -42,7 +42,7 @@ public class MatchDialog : Dialog
         btnLeave = Control("Leave");
         btnLeave.GetComponent<Button>().onClick.AddListener(() =>
         {
-            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainLobbyDialogState);
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainMenuState);
         });
 
         Control("Enter").GetComponent<Button>().onClick.AddListener(() =>

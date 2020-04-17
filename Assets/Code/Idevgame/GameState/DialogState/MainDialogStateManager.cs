@@ -132,7 +132,7 @@ namespace Idevgame.GameState.DialogState {
         public UpdateDialogState UpdateDialogState;
         public RoomOptionDialogState RoomOptionDialogState;
         public ServerListDialogState ServerListDialogState;
-        public RecordSelectDialogState RecordSelectDialogState;
+        public RecordDialogState RecordDialogState;
         public HostEditDialogState HostEditDialogState;
         public LoginDialogState LoginDialogState;
         public WeaponDialogState WeaponDialogState;
@@ -159,7 +159,7 @@ namespace Idevgame.GameState.DialogState {
             MainLobbyDialogState = new MainLobbyDialogState(this);
             RoomOptionDialogState = new RoomOptionDialogState(this);
             ServerListDialogState = new ServerListDialogState(this);
-            RecordSelectDialogState = new RecordSelectDialogState(this);
+            RecordDialogState = new RecordDialogState(this);
             HostEditDialogState = new HostEditDialogState(this);
             SettingDialogState = new SettingDialogState(this);
             LoginDialogState = new LoginDialogState(this);
@@ -171,14 +171,14 @@ namespace Idevgame.GameState.DialogState {
             WeaponDialogState = new WeaponDialogState(this);
         }
 
-        public void Init()
+        public virtual void Init()
         {
 
         }
     }
 
     /// <summary>
-    /// 自动弹出框PopUp样式
+    /// 自动弹出框PopUp样式，指代需要一定处理时间的弹出式面板
     /// </summary>
     public class MainPopupStateManager : BaseDialogStateManager
     {
@@ -188,7 +188,7 @@ namespace Idevgame.GameState.DialogState {
             NoticeDialogState = new NoticeDialogState(this);
         }
 
-        public new void Init()
+        public void Init()
         {
             AutoPopup(NoticeDialogState);
         }

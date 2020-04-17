@@ -99,9 +99,6 @@ SubShader {
 				//fragColor.rgb += col.rgb * diffuse;//8
 				fragColor.rgb = col.rgb;
 				fragColor.a = _Alpha;
-				//武器贴图的红色通道如果是0，就透明，很多没有透明贴图
-				if (col.r <= 0.0)
-					fragColor.a = 0;
 				return fragColor * _TintColor;
 				//col.a = _Alpha;
 				//return col;

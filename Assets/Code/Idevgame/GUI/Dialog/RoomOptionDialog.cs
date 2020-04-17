@@ -103,29 +103,6 @@ public class RoomOptionDialog : Dialog
                     Main.Ins.GameStateMgr.gameStatus.NetWork.MaxPlayer = ConstPlayer[k];
             });
         }
-        GameObject GameRecord = Control("GameRecord", WndObject);
-        GameRecord.SetActive(Main.Ins.GameStateMgr.gameStatus.NetWork.Pattern != (int)protocol.RoomInfo.RoomPattern._Normal);
-        GameObject UIFuncItem = Control("UIFuncItem", GameRecord);
-        GameObject filePath = Control("FilePath", GameRecord);
-        filePath.GetComponent<Text>().text = "";
-        UIFuncItem.GetComponent<Button>().onClick.AddListener(() =>
-        {
-            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.RecordSelectDialogState);
-        });
-        GameObject PatternGroup = Control("PatternGroup", WndObject);
-        for (int i = 0; i < 3; i++)
-        {
-            Toggle PatternToggle = Control(string.Format("{0}", i), PatternGroup).GetComponent<Toggle>();
-            var k = i;
-            PatternToggle.isOn = Main.Ins.GameStateMgr.gameStatus.NetWork.Pattern == (int)ConstPattern[k];
-            PatternToggle.onValueChanged.AddListener((bool selected) =>
-            {
-                if (selected)
-                    Main.Ins.GameStateMgr.gameStatus.NetWork.Pattern = (int)ConstPattern[k];
-                //隐藏/打开选择录像文件路径面板.
-                GameRecord.SetActive(Main.Ins.GameStateMgr.gameStatus.NetWork.Pattern != (int)protocol.RoomInfo.RoomPattern._Normal);
-            });
-        }
     }
 
     LevelDatas.LevelDatas select;

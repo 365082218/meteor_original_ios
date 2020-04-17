@@ -53,8 +53,8 @@ namespace Idevgame.Meteor.AI
             LookState = new LookState(this);
             DangerState = new DangerState(this);
             int dis = Player.Attr.View;
-            AttackRangeMin = dis * dis;
-            AttackRangeMax = (dis + dis / 2) * (dis + dis / 2);
+            DistanceFindUnit = dis * dis;
+            DistanceMissUnit = (dis + dis / 2) * (dis + dis / 2);
             this.EnterDefaultState();
             stoped = true;
         }
@@ -266,11 +266,10 @@ namespace Idevgame.Meteor.AI
             }
         }
 
-        float AttackRangeMin;//视野范围最小值的平方-近战武器，在此范围内可发现 View的一半的平方  View为400时，此值为200^2
-        float AttackRangeMax;//视野范围最大值的平方-近战武器，超过此范围可丢失 View的一半的平方+一半 View为400时，此值为300^2
-        void RefreshTarget()
+        float DistanceFindUnit;//进入视野范围可观察到
+        float DistanceMissUnit;//离开视野范围后丢失
+        public void RefreshTarget()
         {
-            //MeteorUnit temp = lockTarget;
             if (Player.LockTarget == null || Player.LockTarget.Dead)
                 SelectEnemy();
             else
@@ -293,7 +292,7 @@ namespace Idevgame.Meteor.AI
                     }
                     else
                     {
-                        if (d >= AttackRangeMax)//超过距离以免不停的切换目标
+                        if (d >= DistanceMissUnit)//超过距离以免不停的切换目标
                             Player.LockTarget = null;
                     }
                 }
@@ -310,7 +309,7 @@ namespace Idevgame.Meteor.AI
                 else
                 {
                     float d = Vector3.SqrMagnitude(Player.TargetItem.transform.position - Player.transform.position);
-                    if (d > AttackRangeMax)
+                    if (d > DistanceMissUnit)
                         Player.TargetItem = null;
                 }
             }
@@ -320,7 +319,7 @@ namespace Idevgame.Meteor.AI
         public void SelectEnemy()
         {
             Player.LockTarget = null;
-            float dis = AttackRangeMin;//视野，可能指的是直径，这里变为半径,平方比开方快.
+            float dis = DistanceFindUnit;//视野，可能指的是直径，这里变为半径,平方比开方快.
             int index = -1;
             MeteorUnit tar = null;
             Collider[] other = Physics.OverlapSphere(Player.transform.position, Player.Attr.View, 1 << LayerMask.NameToLayer("Monster") | 1 << LayerMask.NameToLayer("LocalPlayer"));
@@ -359,7 +358,7 @@ namespace Idevgame.Meteor.AI
 
         void SelectSceneItem()
         {
-            float dis = AttackRangeMin;
+            float dis = DistanceFindUnit;
             int index = -1;
             SceneItemAgent tar = null;
             //直接遍历算了
@@ -392,6 +391,14 @@ namespace Idevgame.Meteor.AI
 
         }
 
+        //自动状态切换
+        public void AutoChangeState()
+        {
+            if (Player.LockTarget != null && !Player.LockTarget.Dead)
+            {
+                ChangeState(FightAIState);
+            }
+        }
         //可能是被卡住.
         float touchLast = 0.0f;
         const float touchWallLimit = 1.0f;
@@ -453,6 +460,8 @@ namespace Idevgame.Meteor.AI
     public abstract class State
     {
         public StateMachine Machine;
+        public MeteorUnit Player { get { return Machine.Player; } }
+        public MeteorUnit LockTarget { get { return Machine.Player.LockTarget; } }
         public State(StateMachine machine)
         {
             Machine = machine;
@@ -465,7 +474,8 @@ namespace Idevgame.Meteor.AI
         //动作结束后
         public virtual void Update()
         {
-
+            Machine.RefreshTarget();
+            Machine.AutoChangeState();
         }
 
 

@@ -112,10 +112,6 @@ public class MainLobbyDialog : Dialog
         {
             OnRefresh();
         });
-        Control("EnterQueue").GetComponent<Button>().onClick.AddListener(() =>
-        {
-            OnEnterQueue();
-        });
         Control("Close").GetComponent<Button>().onClick.AddListener(() =>
         {
             OnPreviousPress();
@@ -127,11 +123,6 @@ public class MainLobbyDialog : Dialog
             Update = Main.Ins.StartCoroutine(UpdateServiceList());
         else
             OnGetServerListDone();
-    }
-
-    void OnEnterQueue()
-    {
-        U3D.PopupTip("功能在设计中，暂时无效");
     }
 
     GameObject serverRoot;

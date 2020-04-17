@@ -640,7 +640,7 @@ public class CombatData
     public int LEVELMAX = 29;//最大关卡29
     public const int ANGRYMAX = 100;
     public const int ANGRYBURST = 60;
-    public const float AttackRangeMinD = 1225;//最小约35码
+    public const float StopDistance = 1225;//最小约35码
     public const float AttackRange = 8100.0f;//90 * 90换近战武器
     public const float FollowDistanceEnd = 3600.0f;//结束跟随60
     public const float FollowDistanceStart = 6400.0f;//开始跟随80

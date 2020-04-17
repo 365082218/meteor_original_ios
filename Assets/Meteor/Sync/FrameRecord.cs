@@ -18,7 +18,7 @@ public class GameRecord
     public List<GameFrames> frames;//操作帧.
 }
 
-public class FrameRecord : Singleton<FrameRecord> {
+public class RecordMgr : Singleton<RecordMgr> {
 
     System.Threading.Thread WriteThread;
     string recordPath;
@@ -34,6 +34,7 @@ public class FrameRecord : Singleton<FrameRecord> {
     void WriteFileCore()
     {
         GameRecord record = new GameRecord();
+        record.RecordVersion = Main.Ins.AppInfo.AppVersion();
         record.guid = Guid.NewGuid();
         record.Name = GenerateRecordName(Main.Ins.CombatData.GLevelItem, Main.Ins.CombatData.GLevelMode, Main.Ins.CombatData.GGameMode);
         record.Mode = (int)Main.Ins.CombatData.GLevelMode;
@@ -44,7 +45,7 @@ public class FrameRecord : Singleton<FrameRecord> {
 
         try
         {
-            System.IO.FileStream fs = System.IO.File.Create(recordPath + record.Name);
+            System.IO.FileStream fs = System.IO.File.Create(recordPath + record.Name + ".mrc");
             ProtoBuf.Serializer.Serialize(fs, record);
             fs.Close();
         }
@@ -73,7 +74,7 @@ public class FrameRecord : Singleton<FrameRecord> {
         string [] gms = new string[] { "盟主","劫镖","护城", "暗杀", "死斗", "普通" };
         if (lm == LevelMode.MultiplyPlayer)
         {
-            return string.Format("{0}_{1}_{2}_{3}_联机", gms[(int)gm -1], data.Scene, Main.Ins.GameStateMgr.gameStatus.NickName, Main.Ins.RoomMng.Current.maxPlayer);
+            return string.Format("{0}_{1}_{2}_{3}人_联机", gms[(int)gm -1], data.Scene, Main.Ins.GameStateMgr.gameStatus.NickName, Main.Ins.RoomMng.Current.maxPlayer);
         }
         return string.Format("{0}-{1}-{2}_剧情", gms[(int)gm - 1], data.Scene, Main.Ins.GameStateMgr.gameStatus.NickName);
     }

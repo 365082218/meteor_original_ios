@@ -246,13 +246,14 @@ namespace Idevgame.Meteor.AI
 
         public override void OnEnter(Object data)
         {
-
+            UnityEngine.Debug.Log("enter fight ai");
         }
 
         public override void OnExit()
         {
 
         }
+
 
         //行为优先级 
         //AI强制行为(攻击指定位置，Kill追杀（不论视野）攻击 ) > 战斗(中随机拾取道具-若道具可拾取) > 跟随 > 巡逻 > 
@@ -261,8 +262,16 @@ namespace Idevgame.Meteor.AI
         //没有巡逻设定.原地待机，等待敌人经过.
         public override void Update()
         {
-            //看权重执行对应的事情.
-            //若丢失目标，切换到待机
+            if (LockTarget.Dead)
+            {
+                ChangeState(Machine.IdleState);
+            }
+            else
+            {
+                //距离太远
+                float d = Util.MathUtility.DistanceSqr(Player.mSkeletonPivot, LockTarget.mSkeletonPivot);
+                //取得攻击距离
+            }
         }
 
         //完成攻击指定目标行为.

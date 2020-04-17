@@ -154,6 +154,120 @@ namespace Idevgame.GameState.DialogState {
         }
     }
 
+    //随时可以创建打开的面板
+    public abstract class SimpleDialogController<T> where T:SimpleDialog
+    {
+        public abstract string DialogName { get; }
+        protected GameObject Dialog;
+        protected GameObject mRootUI;
+        protected string DialogResorucePath
+        {
+            get
+            {
+                return "UI/Dialogs/" + DialogName;
+            }
+        }
+        public static bool Exist { get { return Controller != null; } }
+        public static T Instance { get { return Controller; } }
+        protected static T Controller;
+        public void Show()
+        {
+            LoadGui();
+        }
+
+        public void Close()
+        {
+            if (Dialog != null)
+                Dialog.SetActive(false);
+        }
+
+        public void Destroy()
+        {
+            UnloadGui();
+        }
+
+        protected void UnloadGui()
+        {
+            UnityEngine.Object.Destroy(Dialog);
+            Dialog = null;
+        }
+
+        protected void LoadGui()
+        {
+            if (Dialog != null)
+            {
+                return;
+            }
+
+#if UNITY_2017 || UNITY_5_5
+            if (Use3DCanvas())
+            {
+                if (mRootUI == null)
+                    mRootUI = GameObject.Find("3dCanvas");
+                if (mRootUI == null)
+                {
+                    mRootUI = GameObject.Instantiate(Resources.Load<GameObject>("3dCanvas"), Vector3.zero, Quaternion.identity);
+                    mRootUI.name = "3dCanvas";
+                }
+            }
+            if (mRootUI == null)
+                mRootUI = GameObject.Find("Canvas");
+            if (mRootUI != null)
+            {
+                if (!CanvasMode())
+                    Dialog = GameObject.Instantiate(Resources.Load<GameObject>(DialogResorucePath), Vector3.zero, Quaternion.identity, mRootUI.transform) as GameObject;
+                else
+                    Dialog = GameObject.Instantiate(Resources.Load<GameObject>(DialogResorucePath));
+            }
+            else
+                Dialog = GameObject.Instantiate(Resources.Load<GameObject>(DialogResorucePath));
+            if (mRootUI != null)
+            {
+                if (!CanvasMode())
+                {
+                    Dialog.transform.SetParent(mRootUI.transform);
+                    Dialog.transform.localScale = Vector3.one;
+                    Dialog.transform.localRotation = Quaternion.identity;
+                    Dialog.layer = mRootUI.transform.gameObject.layer;
+                }
+                RectTransform rectTran = Dialog.GetComponent<RectTransform>();
+                if (rectTran != null && rectTran.anchorMin == Vector2.zero && rectTran.anchorMax == Vector2.one)
+                {
+                    if (rectTran.rect.width == 0 && rectTran.rect.height == 0)
+                        rectTran.sizeDelta = new Vector2(0, 0);
+
+                }
+                if (rectTran != null)
+                    rectTran.anchoredPosition3D = new Vector3(0, 0, GetZ());
+            }
+#else
+        mRootUI = GameObject.Find("Anchor");
+        WndObject.transform.parent = mRootUI.transform;
+#endif
+            Dialog.transform.localScale = Vector3.one;
+            Dialog.name = DialogName;
+            Controller = Dialog.GetComponent<T>();
+            //若没找到该组件，那么添加一个，在状态进入中，设置所有成员变量与控件的关系.
+            if (Controller == null)
+                Controller = Dialog.AddComponent<T>();
+        }
+
+        protected virtual bool Use3DCanvas()
+        {
+            return false;
+        }
+
+        protected virtual bool CanvasMode()
+        {
+            return false;
+        }
+
+        protected virtual float GetZ()
+        {
+            return 0;
+        }
+    }
+
     public abstract class CommonDialogState<T> : BaseDialogState where T : Dialog {
 
         protected GameObject Dialog;

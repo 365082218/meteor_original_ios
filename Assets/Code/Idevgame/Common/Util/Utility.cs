@@ -19,6 +19,13 @@ public class Utility
         }
         return ZlibStream.CompressBuffer(data);
     }
+
+    public static void Zero(GameObject target)
+    {
+        target.transform.localPosition = Vector3.zero;
+        target.transform.localRotation = Quaternion.identity;
+        target.transform.localScale = Vector3.one;
+    }
 }
 
 public class StringUtils

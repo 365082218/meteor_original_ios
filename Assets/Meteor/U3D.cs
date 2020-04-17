@@ -479,8 +479,8 @@ public class U3D : MonoBehaviour {
     //弹出一个简单提示
     public static void PopupTip(string str)
     {
-        PopupTipState Tips = new PopupTipState(Main.Ins.PopupStateManager);
-        Main.Ins.PopupStateManager.AutoPopup(Tips, str);
+        PopupTipController Tips = new PopupTipController();
+        Tips.Popup(str);
     }
 
     static UnityEngine.AsyncOperation backOp;

@@ -99,7 +99,7 @@ public class BattleResultDialog : Dialog
         Control("SaveRecord").GetComponent<Button>().onClick.AddListener(() => {
             DialogUtils.Ins.OpenWait("正在保存录像，请稍后");
             //单独开一个线程去保存录像信息.
-            FrameRecord.Ins.WriteFile();
+            RecordMgr.Ins.WriteFile();
         });
     }
 

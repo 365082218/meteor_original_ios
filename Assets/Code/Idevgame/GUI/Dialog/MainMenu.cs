@@ -33,7 +33,9 @@ public class MainMenu : Dialog
     [SerializeField]
     Button PlayerSetting;
     [SerializeField]
-    Button Quit;
+    Button Replay;
+    [SerializeField]
+    Button EnterQueue;
     [SerializeField]
     Button UploadLog;
     [SerializeField]
@@ -88,13 +90,13 @@ public class MainMenu : Dialog
         {
             OnSetting();
         });
-        Quit.onClick.AddListener(() =>
+        Replay.onClick.AddListener(() =>
         {
-            Main.Ins.GameStateMgr.SaveState();
-            Application.Quit();
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-#endif
+            OnReplay();
+        });
+        EnterQueue.onClick.AddListener(() =>
+        {
+            OnEnterQueue();
         });
         if (Main.Ins.GameStateMgr.gameStatus.GodLike)
         {
@@ -135,5 +137,15 @@ public class MainMenu : Dialog
     void OnSetting()
     {
         Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.SettingDialogState);
+    }
+
+    void OnReplay()
+    {
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.RecordDialogState);
+    }
+
+    void OnEnterQueue()
+    {
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MatchDialogState);
     }
 }
