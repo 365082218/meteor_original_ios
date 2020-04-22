@@ -100,6 +100,7 @@ public class BattleResultDialog : Dialog
             DialogUtils.Ins.OpenWait("正在保存录像，请稍后");
             //单独开一个线程去保存录像信息.
             RecordMgr.Ins.WriteFile();
+            Control("SaveRecord").SetActive(false);//隐藏掉该按钮
         });
     }
 

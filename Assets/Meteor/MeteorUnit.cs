@@ -304,7 +304,6 @@ public partial class MeteorUnit : NetBehaviour
     public float RebornTick = 0;//复活需要在死亡后多久间隔
     public bool WaitReborn = false;//盟主模式-等待系统复活
     public StateMachine StateMachine;//状态机
-    public PathHelper PathHelper;//寻路组件
     //按照角色的坐标围成一圈，每个30度 12个空位，距离50，其实应该按
     //指定的对象是否在自己视野内
     public bool Find(MeteorUnit unit)
@@ -373,7 +372,7 @@ public partial class MeteorUnit : NetBehaviour
     //public bool IsShow = true;
     float MoveSpeedScale = 1.0f;
     float ActionSpeedScale = 1.0f;
-
+    
     public void SpeedFast()
     {
         MoveSpeedScale = Mathf.MoveTowards(MoveSpeedScale, SpeedMax, 0.1f);
@@ -389,7 +388,6 @@ public partial class MeteorUnit : NetBehaviour
     public static float SpeedMax = 16.0f;
     public static float SpeedMin = 0.01f;
 
-
     public float ActionSpeed { get { return ActionSpeedScale; } }
     //MoveSpeed
     public float GetMoveSpeedScale()
@@ -398,6 +396,26 @@ public partial class MeteorUnit : NetBehaviour
     }
 
     public int MoveSpeed { get { return (int)(Attr.Speed * GetMoveSpeedScale()); } }
+
+    //远程近战武器，攻击距离
+    public float AttackRange
+    {
+        get
+        {
+            if (U3D.IsSpecialWeapon(Attr.Weapon))
+                return float.MaxValue;
+            return CombatData.AttackRange;
+        }
+    }
+
+    public bool WillDead
+    {
+        get
+        {
+            return Attr.hpCur <= (0.25f * Attr.HpMax);
+        }
+    }
+
     public int AngryValue
     {
         get
@@ -411,6 +429,7 @@ public partial class MeteorUnit : NetBehaviour
                 FightState.Instance.UpdateAngryBar();
         }
     }
+
     //当前武器
     public int GetWeaponSubType() { return weaponLoader == null ? 0 : weaponLoader.WeaponSubType(); }
     public int GetWeaponType() { return weaponLoader == null ? -1 : weaponLoader.WeaponType(); }
@@ -3048,47 +3067,15 @@ public partial class MeteorUnit : NetBehaviour
     }
 
     //当视角开始准备拉动前,
-    bool restoreIdle;
-    Coroutine CheckRotate;
     public void OnCameraRotateStart()
     {
         posMng.Rotateing = true;
-        checkRotateTick = 0.3f;
-        if (CheckRotate == null)
-            CheckRotate = StartCoroutine("CheckRotateEnd");
-    }
-
-    float checkRotateTick = 0.3f;
-    IEnumerator CheckRotateEnd()
-    {
-        while (true)
-        {
-            checkRotateTick -= FrameReplay.deltaTime;
-            if (checkRotateTick < 0.0f)
-            {
-                posMng.Rotateing = false;
-                CheckRotate = null;
-                yield break;
-            }
-            yield return 0;
-        }
     }
 
     public void OnGameResult(int result)
     {
-        if (CheckRotate != null)
-        {
-            StopCoroutine(CheckRotate);
-            CheckRotate = null;
-            posMng.Rotateing = false;
-        }
-
-        //controller.Input.ResetInput();
-        //controller.Input.ResetJoy();
-
         if (posMng.mActiveAction.Idx < CommonAction.Crouch || posMng.mActiveAction.Idx == CommonAction.GunIdle)
         {
-            //posMng.ChangeAction(CommonAction.Idle);
             posMng.ChangeAction(CommonAction.Taunt, 0.1f);
             posMng.playResultAction = true;
         }

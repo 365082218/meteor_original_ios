@@ -594,7 +594,7 @@ public class CombatData
     public List<ServerInfo> Servers = new List<ServerInfo>();
     public float FPS = 1.0f / 30.0f;//动画设计帧率
     public float gGravity = 1000;
-    public const float angularVelocity = 540.0f;
+    public const float AngularVelocity = 360.0f;
     public const float RebornDelay = 15.0f;//复活队友的CD间隔
     public const float RebornRange = 125.0f;//复活队友的距离最大限制
     public const float RefreshFollowPathDelay = 5.0f;//如果跟随一个动态的目标，那么每5秒刷新一次位置

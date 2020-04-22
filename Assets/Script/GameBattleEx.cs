@@ -1805,11 +1805,11 @@ public class ActionConfig
                 if (unit != null && unit.StateMachine != null && !unit.Dead)
                 {
                     if (!unit.StateMachine.IsFighting())
-                        unit.StateMachine.ChangeState(unit.StateMachine.FightAIState);
+                        unit.StateMachine.ChangeState(unit.StateMachine.FightOnGroundState);
                     //部分情况下，子状态不正确会导致很多奇怪的情况
                     //if (unit.StateMachine.SubStatus != EAISubStatus.AttackGotoTarget && unit.StateMachine.SubStatus != EAISubStatus.AttackTarget && unit.StateMachine.SubStatus != EAISubStatus.AttackTargetSubRotateToTarget)
                     //    unit.StateMachine.SubStatus = EAISubStatus.AttackGotoTarget;
-                    Idevgame.Meteor.AI.FightAIState fs = unit.StateMachine.CurrentState as Idevgame.Meteor.AI.FightAIState;
+                    Idevgame.Meteor.AI.FightOnGroundState fs = unit.StateMachine.CurrentState as Idevgame.Meteor.AI.FightOnGroundState;
                     fs.AttackCount = action[action.Count - 1].param;
                     fs.AttackTarget = action[action.Count - 1].target;
                     if (fs.AttackTargetComplete())

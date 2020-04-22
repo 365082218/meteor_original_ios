@@ -318,7 +318,7 @@ public class MeteorAI {
                         switch (SubStatusOnComplete)
                         {
                             case EAISubStatus.Patrol:
-                                RefreshPathCoroutine = Main.Ins.StartCoroutine(RefreshPatrolPath());
+                                //RefreshPathCoroutine = Main.Ins.StartCoroutine(RefreshPatrolPath());
                                 SubStatus = EAISubStatus.FindWaitPatrol;
                                 break;
                             case EAISubStatus.PatrolGotoFirstPoint:
@@ -421,7 +421,7 @@ public class MeteorAI {
         SubStatus = SubStatusOnComplete;
     }
 
-    IEnumerator RefreshPatrolPath()
+    void RefreshPatrolPath()
     {
         PatrolTemp.Clear();
         for (int i = 0; i < patrolData.Count; i++)
@@ -441,7 +441,7 @@ public class MeteorAI {
             for (int i = 0; i < PatrolTemp.Count - 1; i++)
             {
                 PatrolTemp2.Clear();
-                yield return Main.Ins.PathMng.FindPath(owner, PatrolTemp[i].index, PatrolTemp[i + 1].index, PatrolTemp2);
+                //yield return Main.Ins.PathMng.FindPath(owner, PatrolTemp[i].index, PatrolTemp[i + 1].index, PatrolTemp2);
                 if (PatrolTemp2.Count != 0)
                 {
                     if (idx.Count == 0)
@@ -646,7 +646,7 @@ public class MeteorAI {
         }
     }
 
-    IEnumerator LookRotateToTarget(float leaveAngle, float angularspeed = CombatData.angularVelocity)
+    IEnumerator LookRotateToTarget(float leaveAngle, float angularspeed = CombatData.AngularVelocity)
     {
         bool rightRotate = Random.Range(-1, 2) >= 0;
         float offset = 0.0f;
@@ -692,7 +692,7 @@ public class MeteorAI {
         StopMove();
     }
 
-    IEnumerator LeaveRotateAngle(float leaveAngle, float angularspeed = CombatData.angularVelocity)
+    IEnumerator LeaveRotateAngle(float leaveAngle, float angularspeed = CombatData.AngularVelocity)
     {
         bool rightRotate = Random.Range(-1, 2) >= 0;
         float offset = 0.0f;
@@ -1654,7 +1654,7 @@ public class MeteorAI {
         {
             //Debug.LogError("fight leave");
             StopMove();
-            TargetPos = Main.Ins.PathMng.GetNearestWayPoint(fightTarget.mSkeletonPivot, fightTarget);
+            TargetPos = Main.Ins.PathMng.GetNearestWayPoint(fightTarget.mSkeletonPivot);
             if (TargetPos == Vector3.zero)
             {
                 ChangeState(EAIStatus.Fight);
@@ -1675,7 +1675,7 @@ public class MeteorAI {
         {
             if (RefreshPathCoroutine == null)
             {
-                RefreshPathCoroutine = Main.Ins.StartCoroutine(Main.Ins.PathMng.FindPath(owner, now, target, Path));
+                //RefreshPathCoroutine = Main.Ins.StartCoroutine(Main.Ins.PathMng.FindPath(owner, now, target, Path));
                 curIndex = -1;
                 targetIndex = -1;
             }
@@ -1696,7 +1696,7 @@ public class MeteorAI {
         {
             if (RefreshPathCoroutine == null)
             {
-                RefreshPathCoroutine = Main.Ins.StartCoroutine(Main.Ins.PathMng.FindPathEx(owner, target, Path));
+                //RefreshPathCoroutine = Main.Ins.StartCoroutine(Main.Ins.PathMng.FindPathEx(owner, target, Path));
                 curIndex = -1;
                 targetIndex = -1;
             }
@@ -2390,7 +2390,7 @@ public class MeteorAI {
 
     //绕原地
     Coroutine PatrolRotateCoroutine;//巡逻到达某个目的点后，会随机旋转1-5次，每次都会停留不固定的时间
-    IEnumerator PatrolRotate(float angleSpeed = (CombatData.angularVelocity / 2))
+    IEnumerator PatrolRotate(float angleSpeed = (CombatData.AngularVelocity / 2))
     {
         float rotateAngle1 = Random.Range(-90, -45);
         float rotateAngle2 = Random.Range(45, 90);
@@ -2478,7 +2478,7 @@ public class MeteorAI {
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
-        float timeTotal = offsetmax / (CombatData.angularVelocity / 2);
+        float timeTotal = offsetmax / (CombatData.AngularVelocity / 2);
         float timeTick = 0.0f;
         
         while (true)
@@ -2520,7 +2520,7 @@ public class MeteorAI {
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
-        float timeTotal = offsetmax / CombatData.angularVelocity;
+        float timeTotal = offsetmax / CombatData.AngularVelocity;
         float timeTick = 0.0f;
         while (true)
         {
@@ -2563,7 +2563,7 @@ public class MeteorAI {
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
-        float timeTotal = offsetmax / CombatData.angularVelocity;
+        float timeTotal = offsetmax / CombatData.AngularVelocity;
         float timeTick = 0.0f;
         while (true)
         {
@@ -2604,7 +2604,7 @@ public class MeteorAI {
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
-        float timeTotal = offsetmax / CombatData.angularVelocity;//转速快一点，否则感觉AI很弱智
+        float timeTotal = offsetmax / CombatData.AngularVelocity;//转速快一点，否则感觉AI很弱智
         float timeTick = 0.0f;
         while (true)
         {
@@ -2646,7 +2646,7 @@ public class MeteorAI {
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
-        float timeTotal = offsetmax / (CombatData.angularVelocity / 2);
+        float timeTotal = offsetmax / (CombatData.AngularVelocity / 2);
         float timeTick = 0.0f;
         while (true)
         {
@@ -2687,7 +2687,7 @@ public class MeteorAI {
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
-        float timeTotal = offsetmax / (CombatData.angularVelocity / 2);
+        float timeTotal = offsetmax / (CombatData.AngularVelocity / 2);
         float timeTick = 0.0f;
         while (true)
         {
@@ -2730,7 +2730,7 @@ public class MeteorAI {
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
-        float timeTotal = offsetmax / (CombatData.angularVelocity / 2);
+        float timeTotal = offsetmax / (CombatData.AngularVelocity / 2);
         float timeTick = 0.0f;
         while (true)
         {
@@ -2773,7 +2773,7 @@ public class MeteorAI {
         bool rightRotate = dot2 > 0;
         float offset = 0.0f;
         float offsetmax = GetAngleBetween(vec);
-        float timeTotal = offsetmax / (CombatData.angularVelocity / 2);
+        float timeTotal = offsetmax / (CombatData.AngularVelocity / 2);
         float timeTick = 0.0f;
         while (true)
         {
@@ -2802,7 +2802,7 @@ public class MeteorAI {
     float AIJumpDelay = 0.0f;
     int GetPatrolIndex()
     {
-        int k = Main.Ins.PathMng.GetWayIndex(owner.mSkeletonPivot, owner);
+        int k = Main.Ins.PathMng.GetWayIndex(owner.mSkeletonPivot);
         if (k == -1)
             return -1;
         for (int i = 0; i < PatrolPath.Count; i++)
@@ -3115,6 +3115,18 @@ public class MeteorAI {
                 break;
         }
     }
+}
+
+//AI的输入队列，放到StateMachine中，所有状态公用
+public class AIVirtualInput
+{
+    public AIVirtualInput(EKeyList k)
+    {
+        key = k;
+        state = 0;
+    }
+    public EKeyList key;
+    public byte state;//0无状态 1按下 2抬起-完成
 }
 
 public class VirtualInput

@@ -243,6 +243,7 @@ public class MeteorUnitInspector : Editor
 {
     public int wayIndex = -1;
     public string way = "";
+    public GameObject vecTarget;
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
@@ -250,14 +251,23 @@ public class MeteorUnitInspector : Editor
         way = GUILayout.TextField(way);
         if (GUILayout.Button("GetWayIndex"))
         {
-            wayIndex = Main.Ins.PathMng.GetWayIndex(myTarget.transform.position, myTarget);
+            wayIndex = Main.Ins.PathMng.GetWayIndex(myTarget.transform.position);
             way = wayIndex.ToString();
         }
 
         if (GUILayout.Button("GetWayIndex2"))
         {
-            wayIndex = Main.Ins.PathMng.GetWayIndex(myTarget.transform.position, null);
+            wayIndex = Main.Ins.PathMng.GetWayIndex(myTarget.transform.position);
             way = wayIndex.ToString();
+        }
+
+        if (GUILayout.Button("FaceToTarget"))
+        {
+            if (vecTarget == null)
+                vecTarget = GameObject.Find("facetotarget");
+            if (vecTarget == null)
+                return;
+            myTarget.StateMachine.ChangeState(myTarget.StateMachine.FaceToState, vecTarget.transform.position);
         }
     }
 }

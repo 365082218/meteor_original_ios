@@ -1,17 +1,110 @@
-﻿using System.Collections;
+﻿using Idevgame.Meteor.AI;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using UnityEngine;
 
-public class PathHelper
+public class PathContext
+{
+    public PathContext()
+    {
+    }
+
+    //存储单次寻路的上下文
+    public List<int> looked = new List<int>();//已经查看过的路线
+}
+
+public class PathPameter
+{
+    public StateMachine stateMachine;//使用者 AI/系统
+    public Vector3 start;//寻路起始点
+    public Vector3 end;//结束点
+    public List<WayPoint> ways = new List<WayPoint>();//寻路结果路径
+    public PathContext context = new PathContext();//寻路上下文.如果多线程，就需要，单线程结构不好.
+}
+
+public class PathHelper:Singleton<PathHelper>
 {
     PathNode[] nodeContainer;//路點.
     PathHelper()
     {
-        int count = Main.Ins.CombatData.wayPoints.Count;
-        nodeContainer = new PathNode[count];
-        for (int i = 0; i < count; i++)
-            nodeContainer[i] = new PathNode();
+        
+    }
+    bool quit = false;
+    AutoResetEvent waitEvent = new AutoResetEvent(false);
+    List<PathPameter> pathQueue = new List<PathPameter>();
+    public void CalcPath(StateMachine machine, Vector3 start, Vector3 end)
+    {
+        PathPameter pameter = new PathPameter();
+        pameter.stateMachine = machine;
+        pameter.start = start;
+        pameter.end = end;
+        lock (pathQueue)
+        {
+            pathQueue.Add(pameter);
+            waitEvent.Set();
+        }
+    }
+
+    //取消某个请求
+    public void CancelCalc(StateMachine machine)
+    {
+
+    }
+
+    //只有在开启寻路的场景，即有寻路点的，才创建这些.
+    public void OnBattleStart()
+    {
+        //int count = Main.Ins.CombatData.wayPoints.Count;
+        //nodeContainer = new PathNode[count];
+        //for (int i = 0; i < count; i++)
+        //    nodeContainer[i] = new PathNode();
+        this.quit = false;
+        this.StartCalc();
+    }
+
+    System.Threading.Thread CalcThread;
+    public void StartCalc()
+    {
+        if (CalcThread != null)
+        {
+            UnityEngine.Debug.Log("计算线程还未停止");
+            return;
+        }
+        CalcThread = new System.Threading.Thread(new System.Threading.ThreadStart(this.CalcCore));
+        CalcThread.Start();
+        UnityEngine.Debug.Log("创建寻路线程");
+    }
+
+    public void StopCalc()
+    {
+        this.quit = true;
+        if (CalcThread != null)
+        {
+            waitEvent.Set();
+        }
+    }
+
+    void CalcCore()
+    {
+        while (true)
+        {
+            waitEvent.WaitOne();
+            lock (pathQueue)
+            {
+                while (pathQueue.Count != 0)
+                {
+                    PathPameter pameter = pathQueue[0];
+                    pathQueue.RemoveAt(0);
+                    PathMng.Ins.FindPath(pameter.context, pameter.start, pameter.end, pameter.ways);
+                    LocalMsg msg = new LocalMsg();
+                    msg.Message = (int)LocalMsgType.PathCalcFinished;
+                    msg.context = pameter;
+                    ProtoHandler.PostMessage(msg);
+                }
+            }
+        }
     }
 
 }
@@ -28,42 +121,22 @@ public enum WalkType
     Jump = 1,
 }
 
-public class PathMng
+public class PathMng:Singleton<PathMng>
 {
-
-    #region 寻路缓存
-    List<int> looked = new List<int>();
-
-    public IEnumerator FindPath(MeteorUnit user, Vector3 source, Vector3 target, List<WayPoint> wp)
+    public void FindPath(PathContext context, Vector3 source, Vector3 target, List<WayPoint> wp)
     {
-        int startPathIndex = GetWayIndex(source, user);
+        int startPathIndex = GetWayIndex(source);
         //Debug.LogError("起始点:" + startPathIndex);
-        int endPathIndex = GetWayIndex(target, null);
+        int endPathIndex = GetWayIndex(target);
         //Debug.LogError("终点:" + endPathIndex);
         if (startPathIndex == -1 || endPathIndex == -1)
         {
             Debug.LogError("无法得到该位置所属路点");
-            yield break;
+            return;
         }
-        looked.Clear();
+        context.looked.Clear();
         wp.Clear();
-        yield return FindPathCore(user, startPathIndex, endPathIndex, wp);
-    }
-
-    public IEnumerator FindPathEx(MeteorUnit user, MeteorUnit target, List<WayPoint> wp)
-    {
-        int startPathIndex = GetWayIndex(user.transform.position, user);
-        //Debug.LogError("起始点:" + startPathIndex);
-        int endPathIndex = GetWayIndex(target.transform.position, target);
-        //Debug.LogError("终点:" + endPathIndex);
-        if (startPathIndex == -1 || endPathIndex == -1)
-        {
-            //Debug.LogError("无法得到该位置所属路点");
-            yield break;
-        }
-        looked.Clear();
-        wp.Clear();
-        yield return FindPathCore(user, startPathIndex, endPathIndex, wp);
+        FindPathCore(context, startPathIndex, endPathIndex, wp);
     }
 
     public WalkType GetWalkMethod(int start, int end)
@@ -78,32 +151,32 @@ public class PathMng
         return WalkType.Normal;
     }
 
-    public IEnumerator FindPath(MeteorUnit user, int start, int end, List<WayPoint> wp)
+    public void FindPath(PathContext context, int start, int end, List<WayPoint> wp)
     {
-        looked.Clear();
+        context.looked.Clear();
         wp.Clear();
-        yield return FindPathCore(user, start, end, wp);
+        FindPathCore(context, start, end, wp);
     }
 
-    IEnumerator FindPathCore(MeteorUnit user, int start, int end, List<WayPoint> wp)
+    public void FindPathCore(PathContext context, int start, int end, List<WayPoint> wp)
     {
-        if (looked.Contains(start))
+        if (context.looked.Contains(start))
         {
             //user.Robot.FindWayFinished = true;
-            yield break;
+            return;
         }
         //Debug.Log(string.Format("start:{0}:end:{1}", start, end));
-        looked.Add(start);
+        context.looked.Add(start);
         if (start == -1 || end == -1)
         {
             //user.Robot.FindWayFinished = true;
-            yield break;
+            return;
         }
         if (start == end)
         {
             //wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
             //user.Robot.FindWayFinished = true;
-            yield break;
+            return;
         }
 
         if (Main.Ins.CombatData.GScript.DisableFindWay())
@@ -112,7 +185,7 @@ public class PathMng
             //wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
             //wp.Add(Global.Instance.GLevelItem.wayPoint[end]);
             //user.Robot.FindWayFinished = true;
-            yield break;
+            return;
         }
 
         //从开始点，跑到最终点，最短线路？
@@ -121,7 +194,7 @@ public class PathMng
             //wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
             //wp.Add(Global.Instance.GLevelItem.wayPoint[end]);
             //user.Robot.FindWayFinished = true;
-            yield break;
+            return;
         }
         else
         {
@@ -246,9 +319,9 @@ public class PathMng
     }
 
     //得到当前位置所处路点临近的路点其中之一
-    public Vector3 GetNearestWayPoint(Vector3 vec, MeteorUnit target)
+    public Vector3 GetNearestWayPoint(Vector3 vec)
     {
-        int start = GetWayIndex(vec, target);
+        int start = GetWayIndex(vec);
         if (Main.Ins.CombatData.wayPoints.Count > start && start >= 0)
         {
             if (Main.Ins.CombatData.wayPoints[start].link != null)
@@ -265,7 +338,7 @@ public class PathMng
     //这个不能仅判断距离，还要判断射线是否撞到墙壁.
     List<WayPoint> CandidateList = new List<WayPoint>();
     List<float> CandiateDistance = new List<float>();//距离排序
-    public int GetWayIndex(Vector3 now, MeteorUnit user)
+    public int GetWayIndex(Vector3 now)
     {
         CandidateList.Clear();
         CandiateDistance.Clear();
@@ -293,27 +366,15 @@ public class PathMng
             CandidateList.Insert(k, way);
         }
 
-        //找到最近的一个未被场景遮挡的.
-        if (user != null)
+        if (CandidateList.Count != 0)
         {
-            //玩家的所处于的位置.要看这个玩家和该路点间有无阻碍，有则不是符合的路点.
-            for (int i = 0; i < CandidateList.Count; i++)
-            {
-                if (user.PassThrough(CandidateList[i].pos))
-                {
-                    ret = CandidateList[i].index;
-                    break;
-                }
-            }
+            ret = CandidateList[0].index;
             return ret;
         }
         else
         {
-            if (CandidateList.Count > 0)
-                return CandidateList[0].index;
-            Debug.LogError("无法找到指定位置所处的路点???");
+            UnityEngine.Debug.LogError("找不到对应的路点");
             return -1;
         }
     }
-    #endregion
 }

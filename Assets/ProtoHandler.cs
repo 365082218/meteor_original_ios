@@ -14,14 +14,17 @@ public enum LocalMsgType
     SendFTPLogComplete,//全部日志发送完成
     GameStart,//下载中断，进入Startup场景
     SaveRecord,//保存录像结束.
+    PathCalcFinished,//路径计算完成
 }
 
+//这里都是联机模块线程的信息，类似网络断开之类的
 public class LocalMsg
 {
     public int Message;
     public int Result;
     public int Param;
     public string message;
+    public object context;
 }
 
 class ProtoHandler
@@ -155,6 +158,7 @@ class ProtoHandler
                     case (short)LocalMsgType.SendFTPLogComplete: OnSendComplete(messageQueue[i].Result, messageQueue[i].Param);break;
                     case (short)LocalMsgType.GameStart:OnGameStart();break;
                     case (short)LocalMsgType.SaveRecord:OnSaveRecord(messageQueue[i]);break;
+                    case (short)LocalMsgType.PathCalcFinished:OnPathCalcFinished(messageQueue[i]);break;
                 }
             }
             messageQueue.Clear();
@@ -480,8 +484,18 @@ class ProtoHandler
         Main.Ins.GameStart();
     }
 
+    //保存录像结束，把对应的Pending框关闭
     static void OnSaveRecord(LocalMsg msg)
     {
+        DialogUtils.Ins.CloseWait();//关闭Pending框.
+    }
 
+    static void OnPathCalcFinished(LocalMsg msg)
+    {
+        if (msg.context is PathPameter)
+        {
+            PathPameter pameter = msg.context as PathPameter;
+            pameter.stateMachine.OnPathCalcFinished(pameter);
+        }
     }
 }

@@ -11,7 +11,7 @@ namespace Idevgame.Meteor.AI
             
         }
 
-        public override void OnEnter(Object data)
+        public override void OnEnter(object data)
         {
 
         }
@@ -30,7 +30,7 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void OnEnter(Object data)
+        public override void OnEnter(object data)
         {
 
         }
@@ -48,7 +48,7 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void OnEnter(Object data)
+        public override void OnEnter(object data)
         {
 
         }
@@ -59,14 +59,14 @@ namespace Idevgame.Meteor.AI
         }
     }
 
-    public class DangerState:State
+    public class DodgeState:State
     {
-        public DangerState(StateMachine mathine) : base(mathine)
+        public DodgeState(StateMachine mathine) : base(mathine)
         {
 
         }
 
-        public override void OnEnter(Object data)
+        public override void OnEnter(object data)
         {
 
         }
@@ -85,7 +85,7 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void OnEnter(Object data)
+        public override void OnEnter(object data)
         {
 
         }
@@ -103,7 +103,7 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void OnEnter(Object data)
+        public override void OnEnter(object data)
         {
             UnityEngine.Debug.Log("enter patrol path");
         }
@@ -135,7 +135,7 @@ namespace Idevgame.Meteor.AI
         }
 
 
-        public override void OnEnter(Object data)
+        public override void OnEnter(object data)
         {
             UnityEngine.Debug.Log("enter patrol path");
         }
@@ -145,7 +145,7 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void Update()
+        public override void Think()
         {
             //主要负责巡逻事务
         }
@@ -164,6 +164,165 @@ namespace Idevgame.Meteor.AI
         }
     }
 
+    public class LeaveState:State
+    {
+        public LeaveState(StateMachine machine) : base(machine)
+        {
+
+        }
+
+        public override void OnEnter(object data)
+        {
+
+        }
+
+        public override void OnExit()
+        {
+
+        }
+    }
+
+    //拾取道具状态.
+    public class PickUpState:State
+    {
+        public PickUpState(StateMachine machine) : base(machine)
+        {
+
+        }
+
+        public override void OnEnter(object data)
+        {
+
+        }
+
+        public override void OnExit()
+        {
+
+        }
+    }
+
+    //朝向目标状态.
+    public class FaceToState:State
+    {
+        public FaceToState(StateMachine machine):base(machine)
+        {
+
+        }
+
+        Vector3 faceto;
+        float duration;
+        float time;
+        float offset0;
+        float offset1;
+        float angle;
+        bool rightRotate;
+        public override void OnEnter(object data)
+        {
+            if (data is Vector3)
+            {
+                faceto = (Vector3)data;
+            }
+            else
+                faceto = LockTarget.mSkeletonPivot;
+            angle = GetAngleBetween(faceto);
+            duration = angle / CombatData.AngularVelocity;
+            time = 0;
+            offset0 = 0;
+            offset1 = 0;
+            Vector3 diff = (faceto - Player.transform.position);
+            diff.y = 0;
+            float dot2 = Vector3.Dot(new Vector3(-Player.transform.right.x, 0, -Player.transform.right.z).normalized, diff.normalized);
+            rightRotate = dot2 > 0;
+        }
+
+        public override void OnExit()
+        {
+            Player.posMng.Rotateing = false;
+            if (Player.posMng.mActiveAction.Idx == CommonAction.WalkRight || Player.posMng.mActiveAction.Idx == CommonAction.WalkLeft)
+                Player.posMng.ChangeAction(0, 0.1f);
+        }
+
+        public override void Update()
+        {
+            time += FrameReplay.deltaTime;
+            if (time < duration)
+            {
+                RotateToTarget(faceto, time, duration, angle, ref offset0, ref offset1, rightRotate);
+            }
+            else
+            {
+                ChangeState(Machine.PreviousState);
+                return;
+            }
+        }
+    }
+
+    //寻找目标,与目标位置的寻路过程，无论这个位置是否发生变化.
+    public class FindState:State
+    {
+        public FindState(StateMachine mathine) : base(mathine)
+        {
+
+        }
+
+        //进入时缓存下角色当前的位置，以后每个Think更新一次位置，未更新则用上次缓存的位置，一直到离角色很近为止.
+        Vector3 positionStart;
+        Vector3 positionEnd;
+        byte state;//0还未开始寻找，1向寻路模块提交了请求，2得到寻路模块的回答，3处理寻路结果过程，4废弃之前寻路数据，重新寻路，刷新路径
+        public override void OnEnter(object data)
+        {
+            if (data is Vector3)
+            {
+                positionEnd = (Vector3)data;//向目的点寻路
+            }
+            else
+            {
+                if (LockTarget == null)
+                    UnityEngine.Debug.LogError("还未确定目标");
+                positionEnd = LockTarget.transform.position;//向锁定目标寻路
+            }
+            positionStart = Player.transform.position;
+            state = 0;
+        }
+
+        public override void OnExit()
+        {
+
+        }
+
+        //计算出路径-分帧处理/或者放到寻路线程.计算出的结果，拿到
+        public override void Think()
+        {
+            switch (navPathStatus)
+            {
+                case NavPathStatus.NavPathNone:
+                    navPathStatus = NavPathStatus.NavPathCalc;
+                    PathHelper.Ins.CalcPath(Machine, positionStart, positionEnd);
+                    break;
+                case NavPathStatus.NavPathCalc:
+                    //等待寻路线程的处理.
+                    if (Machine.Path != null)
+                    {
+                        navPathStatus = NavPathStatus.NavPathComplete;
+                    }
+                    break;
+                case NavPathStatus.NavPathComplete:
+                    navPathStatus = NavPathStatus.NavPathIterator;
+                    break;
+                case NavPathStatus.NavPathInvalid:
+                    navPathStatus = NavPathStatus.NavPathIterator;
+                    break;
+                case NavPathStatus.NavPathIterator:
+                    break;
+            }
+        }
+
+        public override void Update()
+        {
+            
+        }
+    }
+
     public class FollowState:State
     {
         public FollowState(StateMachine mathine) : base(mathine)
@@ -171,7 +330,7 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void OnEnter(Object data)
+        public override void OnEnter(object data)
         {
 
         }
@@ -188,11 +347,10 @@ namespace Idevgame.Meteor.AI
         Attack2,//连招接+1
         Attack3,//连招接+2
         Guard,//防守
-        Dodge,//闪避
+        Dodge,//逃跑-切换状态
         Jump,//跳跃
         Look,//观察四周
-        Burst,//爆发
-        Aim,//瞄准
+        Burst,//速冲
         GetItem,//拾取
     }
 
@@ -217,7 +375,7 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void OnEnter(Object data)
+        public override void OnEnter(object data)
         {
 
         }
@@ -227,26 +385,51 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void Update()
+        public override void Think()
         {
 
         }
     }
 
-    //战斗基类
-    //需要处理倒地起身状态.
-    public class FightAIState:State
+    public class FightOnAirState:State
     {
-        public int AttackCount;//攻击次数.
         public Vector3 AttackTarget;//攻击目标-指定位置.
-        public FightAIState(StateMachine mathine) : base(mathine)
+        public FightOnAirState(StateMachine mathine) : base(mathine)
         {
 
         }
 
-        public override void OnEnter(Object data)
+        public override void OnEnter(object data)
         {
             UnityEngine.Debug.Log("enter fight ai");
+        }
+
+        public override void OnExit()
+        {
+
+        }
+
+        public override void Think()
+        {
+
+        }
+    }
+    //战斗基类
+    //需要处理倒地起身状态.
+    public class FightOnGroundState:State
+    {
+        public int AttackCount;//攻击次数.
+        public Vector3 AttackTarget;//攻击目标-指定位置.
+        public FightOnGroundState(StateMachine mathine) : base(mathine)
+        {
+
+        }
+
+        public override void OnEnter(object data)
+        {
+            //战斗中，基本不会四周看
+            Machine.ResetAction();
+            Machine.SetActionTriggered(ActionType.Look, false);
         }
 
         public override void OnExit()
@@ -260,8 +443,9 @@ namespace Idevgame.Meteor.AI
         //丢失目标时，判断是否有跟随目标，有切换到跟随状态
         //没有跟随目标，判断是否有巡逻设定，有切换到巡逻
         //没有巡逻设定.原地待机，等待敌人经过.
-        public override void Update()
+        public override void Think()
         {
+            Machine.SetActionTriggered(ActionType.Dodge, Player.WillDead);//能否随机到逃跑，以当前状态是否濒危决定.
             if (LockTarget.Dead)
             {
                 ChangeState(Machine.IdleState);
@@ -271,6 +455,94 @@ namespace Idevgame.Meteor.AI
                 //距离太远
                 float d = Util.MathUtility.DistanceSqr(Player.mSkeletonPivot, LockTarget.mSkeletonPivot);
                 //取得攻击距离
+                if (d > Player.AttackRange)
+                {
+                    //距离较远，需要靠近.
+                    if (U3D.IsSpecialWeapon(Player.Attr.Weapon2))
+                    {
+                        //如果拥有远程武器，切换武器 ???这样会导致敌方很多角色都使用远程武器，不好的体验.
+                        int r = Random.Range(1, 100);
+                        if (r > Main.Ins.CombatData.SpecialWeaponProbability)
+                            Player.ChangeWeapon();
+                        else
+                            ChangeState(Machine.FindState);
+                    }
+                    else
+                        ChangeState(Machine.FindState);
+                }
+                else
+                {
+                    //如果拿着远程武器，距离却太近，需要远离目标或者切换武器
+                    if (U3D.IsSpecialWeapon(Player.Attr.Weapon))
+                    {
+                        if (d <= CombatData.AttackRange)
+                        {
+                            if (!U3D.IsSpecialWeapon(Player.Attr.Weapon2))
+                            {
+                                Player.ChangeWeapon();
+                                return;
+                            }
+                            else
+                            {
+                                ChangeState(Machine.LeaveState);
+                                return;
+                            }
+                        }
+                    }
+
+                    //如果拿着远程武器，与目标角度相差过大，需要先面对目标.
+                    if (U3D.IsSpecialWeapon(Player.Attr.Weapon) && GetAngleBetween(LockTarget.mSkeletonPivot) > Main.Ins.CombatData.AimDegree)
+                    {
+                        ChangeState(Machine.FaceToState);
+                    }
+                    else
+                    {
+                        //已经面对着目标了,如果接收输入
+                        if (Player.controller.Input.AcceptInput())
+                        {
+                            if (Player.posMng.IsAttackPose())
+                            {
+                                //处于攻击动作中.连招几率
+                                int chance = Random.Range(0, 100);
+                                if (chance < Main.Ins.CombatData.ComboProbability)
+                                {
+                                    //禁止部分行为
+                                    Machine.SetActionTriggered(ActionType.Burst, false);
+                                    Machine.SetActionTriggered(ActionType.Dodge, false);
+                                    Machine.SetActionTriggered(ActionType.GetItem, false);
+                                    Machine.SetActionTriggered(ActionType.Guard, false);
+                                    Machine.SetActionTriggered(ActionType.Jump, false);
+                                    Machine.SetActionTriggered(ActionType.Look, false);
+                                    Machine.SetActionTriggered(ActionType.Attack3, Player.AngryValue >= 100);
+                                    Machine.UpdateActionIndex();
+                                    Machine.DoAction();
+                                }
+                            }
+                            else if (Player.posMng.IsHurtPose())
+                            {
+                                //处于受击动作中,暴气几率.
+                                //爆气几率.
+                                if (InputQueue.Count == 0)
+                                {
+                                    if (Player.CanBurst())
+                                    {
+                                        int breakOut = Random.Range(0, 100);
+                                        //20时，就为20几率，0-19 共20
+                                        if (breakOut < CombatData.BreakChange)
+                                            Machine.ReceiveInput(EKeyList.KL_BreakOut);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                //距离在范围内.攻击行为的挑选,可选择的行为较多
+                                Machine.UpdateEnviroument();
+                                Machine.UpdateActionIndex();
+                                Machine.DoAction();
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -279,5 +551,7 @@ namespace Idevgame.Meteor.AI
         {
             return false;
         }
+
+
     }
 }

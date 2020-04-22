@@ -19,8 +19,9 @@ namespace Idevgame.Util
 
         public static float DistanceSqr(Vector3 p0, Vector3 p1)
         {
-            float x = p0.x - p1.x, z = p0.z - p1.z;
-            return x * x + z * z;
+            return Vector3.SqrMagnitude(p0 - p1);
+            //float x = p0.x - p1.x, z = p0.z - p1.z;
+            //return x * x + z * z;
         }
 
         public static float DistanceMax(float x1, float y1, float x2, float y2)
