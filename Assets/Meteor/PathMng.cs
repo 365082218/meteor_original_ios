@@ -123,7 +123,7 @@ public enum WalkType
 
 public class PathMng:Singleton<PathMng>
 {
-    public void FindPath(PathContext context, Vector3 source, Vector3 target, List<WayPoint> wp)
+    public void FindPath(PathContext context, Vector3 source, Vector3 target, List<WayPoint> waypoint)
     {
         int startPathIndex = GetWayIndex(source);
         //Debug.LogError("起始点:" + startPathIndex);
@@ -135,8 +135,8 @@ public class PathMng:Singleton<PathMng>
             return;
         }
         context.looked.Clear();
-        wp.Clear();
-        FindPathCore(context, startPathIndex, endPathIndex, wp);
+        waypoint.Clear();
+        FindPathCore(context, startPathIndex, endPathIndex, waypoint);
     }
 
     public WalkType GetWalkMethod(int start, int end)

@@ -1,8 +1,13 @@
 ﻿using protocol;
 using System;
 using System.Collections.Generic;
-//using System.Diagnostics;
 using UnityEngine;
+
+public class PlayerState
+{
+    public int x;
+    public int y;
+}
 //帧指令接收器，用于存储从服务器/单机 时发送来的帧指令.FSC=FRAMESYNCCLIENT
 public class FSC
 {
@@ -67,6 +72,9 @@ public class FSC
 public class FSS
 {
     List<GameFrames> frames = new List<GameFrames>();
+    //玩家要同步的状态，只有发生改变时，才提交对应事件
+    Dictionary<int, PlayerState> player = new Dictionary<int, PlayerState>();
+
     public void OnDisconnected()
     {
         Reset();
@@ -137,7 +145,8 @@ public class FSS
         t.commands.Add(cmd);
     }
 
-    public void PushJoyDelta(int playerId, float x, float y)
+    //角色的移动，当状态发生改变时，修改
+    public void PushJoyDelta(int playerId, int x, int y)
     {
         GameFrames t = GetFrame(FrameReplay.Instance.NextTurn);
         FrameCommand cmd = new FrameCommand();
@@ -146,15 +155,15 @@ public class FSS
         cmd.playerId = (uint)playerId;
         System.IO.MemoryStream ms = new System.IO.MemoryStream();
         Vector2_ vec = new Vector2_();
-        vec.x = (int)(x * 1000);
-        vec.y = (int)(y * 1000);
+        vec.x = x;
+        vec.y = y;
         ProtoBuf.Serializer.Serialize<Vector2_>(ms, vec);
         cmd.data = ms.ToArray();
         t.commands.Add(cmd);
     }
 
     //在当前帧推入指令-鼠标相对上次的偏移，会导致角色绕Y轴旋转
-    public void PushMouseDelta(int playerId, float x, float y)
+    public void PushMouseDelta(int playerId, int x, int y)
     {
         GameFrames t = GetFrame(FrameReplay.Instance.NextTurn);
         FrameCommand cmd = new FrameCommand();
@@ -163,8 +172,8 @@ public class FSS
         cmd.playerId = (uint)playerId;
         System.IO.MemoryStream ms = new System.IO.MemoryStream();
         Vector2_ vec = new Vector2_();
-        vec.x = (int)(x * 1000);
-        vec.y = (int)(y * 1000);
+        vec.x = x;
+        vec.y = y;
         ProtoBuf.Serializer.Serialize<Vector2_>(ms, vec);
         cmd.data = ms.ToArray();
         t.commands.Add(cmd);

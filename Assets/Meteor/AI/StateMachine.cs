@@ -47,18 +47,20 @@ namespace Idevgame.Meteor.AI
         NavPathInvalid,//路径不存在
         NavPathComplete,//成功找到路径
         NavPathIterator,//遍历路点过程中
+        NavPathFinished,//寻路过程完整结束
     }
 
     public class StateMachine
     {
         //当Think为100时,0.1S一个行为检测,行为频率慢,则连招可能连不起来.行为频率快, 则每个招式在可切换招式的时机, 进行连招的几率越大.
+        public EventBus EventBus;
         static readonly float ThinkRound = 1000;
         float ThickTick = 0.0f;
         List<AIVirtualInput> InputKeys = new List<AIVirtualInput>();
         public MeteorUnit Player;
-        public State PreviousState;
+        private State PreviousState;
+        private State NextState;
         public State CurrentState;
-        public State NextState;
         public State IdleState;
         public State ReviveState;//队长复活队友
         public GuardState GuardState;
@@ -70,7 +72,7 @@ namespace Idevgame.Meteor.AI
         public FightOnGroundState FightOnGroundState;//在地面攻击状态-主要状态
         public FightOnAirState FightOnAirState;//在空中-次要
         public FindState FindState;//寻找目标，并寻路到附近
-        public FaceToState FaceToState;//面向目标过程,可能是路点，可能是目标角色.
+        public FaceToState FaceToState;//面向目标过程,可能是路点，可能是目标角色.被其他状态使用的
         public PickUpState PickUpState;//拾取道具
         public LeaveState LeaveState;//离开目标-使用远程武器，且无法切换到近战武器时.
         public ActionType ActionIndex;//角色当前的行为编号-轻招式 重招式 绝招
@@ -83,6 +85,7 @@ namespace Idevgame.Meteor.AI
         //目标置入初始状态.
         public void Init(MeteorUnit Unit)
         {
+            EventBus = new EventBus();
             Player = Unit;
             IdleState = new IdleState(this);
             GuardState = new GuardState(this);
@@ -129,7 +132,7 @@ namespace Idevgame.Meteor.AI
         void EnterDefaultState()
         {
             CurrentState = IdleState;
-            CurrentState.OnEnter();
+            CurrentState.OnEnter(null);
         }
 
         public bool IsFighting()
@@ -341,15 +344,28 @@ namespace Idevgame.Meteor.AI
             }
         }
 
-        //硬切
+        //软切-状态自上次状态继续运行.
+        public void ResumeState(State Target, object data = null)
+        {
+            if (CurrentState != Target)
+            {
+                NextState = Target;
+                CurrentState.OnPause(NextState);
+                PreviousState = CurrentState;
+                Target.OnResume(PreviousState, data);
+                CurrentState = Target;
+            }
+        }
+
+        //硬切-强制重置状态.
         public void ChangeState(State Target, object data = null)
         {
             if (CurrentState != Target)
             {
                 NextState = Target;
-                CurrentState.OnExit();
+                CurrentState.OnExit(NextState);
                 PreviousState = CurrentState;
-                Target.OnEnter(data);
+                Target.OnEnter(PreviousState, data);
                 CurrentState = Target;
             }
         }
@@ -585,18 +601,42 @@ namespace Idevgame.Meteor.AI
     public abstract class State
     {
         public StateMachine Machine;
+        protected State Previous;
+        protected State Next;
         public MeteorUnit Player { get { return Machine.Player; } }
         public MeteorUnit LockTarget { get { return Machine.Player.LockTarget; } }
+        public MeteorUnit FollowTarget { get { return Machine.Player.FollowTarget; } }
         protected List<AIVirtualInput> InputQueue = new List<AIVirtualInput>();
         protected NavPathStatus navPathStatus;
         protected int wayIndex;//当前遍历到的路点
+        //进入时缓存下角色当前的位置，以后每个Think更新一次位置，未更新则用上次缓存的位置，一直到离角色很近为止.
+        protected Vector3 positionStart;
+        protected Vector3 positionEnd;
+        protected Vector3 TargetPos;
         public State(StateMachine machine)
         {
             Machine = machine;
         }
 
-        public abstract void OnEnter(object data = null);
-        public abstract void OnExit();
+        public virtual void OnEnter(State pevious, object data = null)
+        {
+            Previous = pevious;
+        }
+
+        public virtual void OnPause(State next, object data = null)
+        {
+            
+        }
+
+        public virtual void OnResume(State previous, object data = null)
+        {
+
+        }
+
+        public virtual void OnExit(State next)
+        {
+            Next = next;
+        }
 
         //每一帧执行一次
         public virtual void Update()
@@ -616,9 +656,9 @@ namespace Idevgame.Meteor.AI
             //武器发生变化,
         }
 
-        public void ChangeState(State target)
+        public void ChangeState(State target, object data = null)
         {
-            Machine.ChangeState(target);
+            Machine.ChangeState(target, data);
         }
 
         public MeteorUnit GetKillTarget()
@@ -660,6 +700,86 @@ namespace Idevgame.Meteor.AI
                 offset1 = -Mathf.Lerp(0, offsetmax, timeTick / timeTotal);
             Player.SetOrientation(offset1 - offset0);
             offset0 = offset1;
+        }
+
+        protected void NavThink()
+        {
+            switch (navPathStatus)
+            {
+                case NavPathStatus.NavPathNone:
+                    navPathStatus = NavPathStatus.NavPathCalc;
+                    PathHelper.Ins.CalcPath(Machine, positionStart, positionEnd);
+                    break;
+                case NavPathStatus.NavPathCalc:
+                    //等待寻路线程的处理.
+                    if (Machine.Path != null)
+                        navPathStatus = NavPathStatus.NavPathComplete;
+                    break;
+                case NavPathStatus.NavPathComplete:
+                    navPathStatus = NavPathStatus.NavPathIterator;
+                    wayIndex = 0;
+                    TargetPos = Machine.Path.ways[wayIndex].pos;
+                    break;
+                case NavPathStatus.NavPathInvalid:
+                    navPathStatus = NavPathStatus.NavPathIterator;
+                    ChangeState(Previous);
+                    break;
+                case NavPathStatus.NavPathIterator:
+                    //调度过程-从当前位置，到目标位置的寻路过程.
+                    break;
+            }
+        }
+
+        protected void NavUpdate()
+        {
+            if (navPathStatus == NavPathStatus.NavPathIterator)
+            {
+                //如果方向不对，先切换到转向状态
+                if (GetAngleBetween(TargetPos) >= Main.Ins.CombatData.AimDegree)
+                {
+                    Machine.ChangeState(Machine.FaceToState, TargetPos);
+                    return;
+                }
+
+                if (Main.Ins.CombatData.GScript.DisableFindWay())
+                {
+                    //无路点
+                    //距离足够近，结束寻路过程
+                    if (Vector3.SqrMagnitude(TargetPos - Player.transform.position) <= CombatData.StopDistance)
+                    {
+                        Machine.EventBus.Fire(EventId.NavFinished);
+                        return;
+                    }
+
+                    Player.FaceToTarget(TargetPos);
+                    Player.controller.Input.AIMove(0, 1);
+                    return;
+                }
+                else
+                {
+                    //有路点，足够近，
+                    if (Vector3.SqrMagnitude(TargetPos - Player.transform.position) <= CombatData.StopDistance)
+                    {
+                        //还不是最后一个路点.
+                        if (wayIndex < Machine.Path.ways.Count)
+                        {
+                            wayIndex += 1;
+                            TargetPos = Machine.Path.ways[wayIndex].pos;
+                        }
+                        else
+                        {
+                            //最后一个路点结束后.
+                            navPathStatus = NavPathStatus.NavPathFinished;
+                            Machine.EventBus.Fire(EventId.NavFinished);
+                        }
+                        return;
+                    }
+
+                    Player.FaceToTarget(TargetPos);
+                    Player.controller.Input.AIMove(0, 1);
+                    return;
+                }
+            }
         }
     }
 }

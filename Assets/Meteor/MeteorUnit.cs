@@ -798,7 +798,7 @@ public partial class MeteorUnit : NetBehaviour
                 {
                     //Debug.LogError("push mouse move");
                     if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
-                        Main.Ins.FSS.PushMouseDelta(InstanceId, xRotate, yRotate);
+                        Main.Ins.FSS.PushMouseDelta(InstanceId, (int)(1000 * xRotate), (int)(1000 * yRotate));
                     else
                         OnPlayerMouseDelta(xRotate, yRotate);
                 }

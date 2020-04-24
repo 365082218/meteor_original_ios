@@ -11,14 +11,14 @@ namespace Idevgame.Meteor.AI
             
         }
 
-        public override void OnEnter(object data)
+        public override void OnEnter(State previous, object data)
         {
-
+            base.OnEnter(previous, data);
         }
 
-        public override void OnExit()
+        public override void OnExit(State next)
         {
-
+            base.OnExit(next);
         }
     }
 
@@ -30,14 +30,14 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void OnEnter(object data)
+        public override void OnEnter(State previous, object data)
         {
-
+            base.OnEnter(previous, data);
         }
 
-        public override void OnExit()
+        public override void OnExit(State next)
         {
-
+            base.OnExit(next);
         }
     }
 
@@ -48,14 +48,14 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void OnEnter(object data)
+        public override void OnEnter(State previous, object data)
         {
-
+            base.OnEnter(previous, data);
         }
 
-        public override void OnExit()
+        public override void OnExit(State next)
         {
-
+            base.OnExit(next);
         }
     }
 
@@ -66,14 +66,14 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void OnEnter(object data)
+        public override void OnEnter(State previous, object data)
         {
-
+            base.OnEnter(previous, data);
         }
 
-        public override void OnExit()
+        public override void OnExit(State next)
         {
-
+            base.OnExit(next);
         }
     }
 
@@ -85,14 +85,14 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void OnEnter(object data)
+        public override void OnEnter(State previous, object data)
         {
-
+            base.OnEnter(previous, data);
         }
 
-        public override void OnExit()
+        public override void OnExit(State next)
         {
-
+            base.OnExit(next);
         }
     }
 
@@ -103,14 +103,14 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void OnEnter(object data)
+        public override void OnEnter(State previous, object data)
         {
-            UnityEngine.Debug.Log("enter patrol path");
+            base.OnEnter(previous, data);
         }
 
-        public override void OnExit()
+        public override void OnExit(State next)
         {
-
+            base.OnExit(next);
         }
     }
 
@@ -135,14 +135,14 @@ namespace Idevgame.Meteor.AI
         }
 
 
-        public override void OnEnter(object data)
+        public override void OnEnter(State previous, object data)
         {
-            UnityEngine.Debug.Log("enter patrol path");
+            base.OnEnter(previous, data);
         }
 
-        public override void OnExit()
+        public override void OnExit(State next)
         {
-
+            base.OnExit(next);
         }
 
         public override void Think()
@@ -171,14 +171,14 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void OnEnter(object data)
+        public override void OnEnter(State previous, object data)
         {
-
+            base.OnEnter(previous, data);
         }
 
-        public override void OnExit()
+        public override void OnExit(State next)
         {
-
+            base.OnExit(next);
         }
     }
 
@@ -190,14 +190,14 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void OnEnter(object data)
+        public override void OnEnter(State previous, object data)
         {
-
+            base.OnEnter(previous, data);
         }
 
-        public override void OnExit()
+        public override void OnExit(State next)
         {
-
+            base.OnExit(next);
         }
     }
 
@@ -216,8 +216,9 @@ namespace Idevgame.Meteor.AI
         float offset1;
         float angle;
         bool rightRotate;
-        public override void OnEnter(object data)
+        public override void OnEnter(State previous, object data)
         {
+            base.OnEnter(previous, data);
             if (data is Vector3)
             {
                 faceto = (Vector3)data;
@@ -235,8 +236,9 @@ namespace Idevgame.Meteor.AI
             rightRotate = dot2 > 0;
         }
 
-        public override void OnExit()
+        public override void OnExit(State next)
         {
+            base.OnExit(next);
             Player.posMng.Rotateing = false;
             if (Player.posMng.mActiveAction.Idx == CommonAction.WalkRight || Player.posMng.mActiveAction.Idx == CommonAction.WalkLeft)
                 Player.posMng.ChangeAction(0, 0.1f);
@@ -251,7 +253,7 @@ namespace Idevgame.Meteor.AI
             }
             else
             {
-                ChangeState(Machine.PreviousState);
+                Machine.ResumeState(Previous);
                 return;
             }
         }
@@ -265,12 +267,21 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        //进入时缓存下角色当前的位置，以后每个Think更新一次位置，未更新则用上次缓存的位置，一直到离角色很近为止.
-        Vector3 positionStart;
-        Vector3 positionEnd;
-        byte state;//0还未开始寻找，1向寻路模块提交了请求，2得到寻路模块的回答，3处理寻路结果过程，4废弃之前寻路数据，重新寻路，刷新路径
-        public override void OnEnter(object data)
+        //状态被恢复.
+        public override void OnResume(State prev, object data)
         {
+            base.OnResume(prev, data);
+        }
+
+        //状态被暂停-切换到其他状态
+        public override void OnPause(State next, object data)
+        {
+            base.OnPause(next, data);
+        }
+
+        public override void OnEnter(State prev,object data)
+        {
+            base.OnEnter(prev, data);
             if (data is Vector3)
             {
                 positionEnd = (Vector3)data;//向目的点寻路
@@ -282,44 +293,24 @@ namespace Idevgame.Meteor.AI
                 positionEnd = LockTarget.transform.position;//向锁定目标寻路
             }
             positionStart = Player.transform.position;
-            state = 0;
+            navPathStatus = NavPathStatus.NavPathNone;
         }
 
-        public override void OnExit()
+        public override void OnExit(State next)
         {
-
+            base.OnExit(next);
         }
 
         //计算出路径-分帧处理/或者放到寻路线程.计算出的结果，拿到
         public override void Think()
         {
-            switch (navPathStatus)
-            {
-                case NavPathStatus.NavPathNone:
-                    navPathStatus = NavPathStatus.NavPathCalc;
-                    PathHelper.Ins.CalcPath(Machine, positionStart, positionEnd);
-                    break;
-                case NavPathStatus.NavPathCalc:
-                    //等待寻路线程的处理.
-                    if (Machine.Path != null)
-                    {
-                        navPathStatus = NavPathStatus.NavPathComplete;
-                    }
-                    break;
-                case NavPathStatus.NavPathComplete:
-                    navPathStatus = NavPathStatus.NavPathIterator;
-                    break;
-                case NavPathStatus.NavPathInvalid:
-                    navPathStatus = NavPathStatus.NavPathIterator;
-                    break;
-                case NavPathStatus.NavPathIterator:
-                    break;
-            }
+            NavThink();
         }
 
+        
         public override void Update()
         {
-            
+            NavUpdate();
         }
     }
 
@@ -330,14 +321,37 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void OnEnter(object data)
-        {
 
+        public override void OnEnter(State previous, object data)
+        {
+            base.OnEnter(previous, data);
+            if (data is Vector3)
+            {
+                positionEnd = (Vector3)data;//向目的点寻路
+            }
+            else
+            {
+                if (FollowTarget == null)
+                    UnityEngine.Debug.LogError("还未确定目标");
+                positionEnd = FollowTarget.transform.position;
+            }
+            positionStart = Player.transform.position;
+            navPathStatus = NavPathStatus.NavPathNone;
         }
 
-        public override void OnExit()
+        public override void OnExit(State next)
         {
+            base.OnExit(next);
+        }
 
+        public override void Think()
+        {
+            NavThink();
+        }
+
+        public override void Update()
+        {
+            NavUpdate();
         }
     }
 
@@ -375,14 +389,14 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void OnEnter(object data)
+        public override void OnEnter(State previous, object data)
         {
-
+            base.OnEnter(previous, data);
         }
 
-        public override void OnExit()
+        public override void OnExit(State next)
         {
-
+            base.OnExit(next);
         }
 
         public override void Think()
@@ -399,14 +413,14 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void OnEnter(object data)
+        public override void OnEnter(State previous, object data)
         {
-            UnityEngine.Debug.Log("enter fight ai");
+            base.OnEnter(previous, data);
         }
 
-        public override void OnExit()
+        public override void OnExit(State next)
         {
-
+            base.OnExit(next);
         }
 
         public override void Think()
@@ -425,16 +439,17 @@ namespace Idevgame.Meteor.AI
 
         }
 
-        public override void OnEnter(object data)
+        public override void OnEnter(State prev, object data)
         {
+            base.OnEnter(prev, data);
             //战斗中，基本不会四周看
             Machine.ResetAction();
             Machine.SetActionTriggered(ActionType.Look, false);
         }
 
-        public override void OnExit()
+        public override void OnExit(State next)
         {
-
+            base.OnExit(next);
         }
 
 

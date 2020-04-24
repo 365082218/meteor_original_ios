@@ -26,8 +26,6 @@ public class MeteorInput
     InputModule InputCore;
     MeteorController mController = null;
     public Vector2 mInputVector = Vector2.zero;
-    public Vector2 mInputCache = Vector2.zero;//采集输入后发送给服务器
-    //Vector2 mLastInputVector = Vector2.one;
     public float OffX;
     public float OffZ;
     public void AIMove(float x, float z)
@@ -137,22 +135,20 @@ public class MeteorInput
                     else if (NGUIJoystick.instance.ArrowPressed)
                         vec = new Vector2(NGUIJoystick.instance.Delta.x, NGUIJoystick.instance.Delta.y);
                     else
-                    {
                         vec = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-                    }
                 }
                 else
                     vec = new Vector2(OffX, OffZ);//AIMove 自动战斗输入
             }
             else
                 vec = Vector2.zero;
-            if (Mathf.Abs(vec.x - mInputCache.x) > 0.1f || Mathf.Abs(vec.y - mInputCache.y) > 0.1f)
+
+            mInputVector = vec;
+            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+                Main.Ins.FSS.PushJoyDelta(mOwner.InstanceId, (int)(1000 * mInputVector.x), (int)(1000 * mInputVector.y));
+            else
             {
-                mInputCache = vec;
-                if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
-                    Main.Ins.FSS.PushJoyDelta(mOwner.InstanceId, mInputCache.x, mInputCache.y);
-                else
-                    mInputVector = mInputCache;
+                //mInputVector;
             }
         }
 
