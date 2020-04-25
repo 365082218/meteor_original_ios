@@ -107,7 +107,6 @@ public class CameraFollow : NetBehaviour {
         LookAtAngle = 10.0f;
         m_Camera = GetComponent<Camera>();
         m_Camera.fieldOfView = m_MinSize;
-        m_Camera.enabled = false;
         fRadis = Mathf.Sqrt(followDistance * followDistance + followHeight * followHeight);
         lastAngle = Mathf.Atan2(followHeight, followDistance) * Mathf.Rad2Deg;
         //m_Targets = new Transform[3];
@@ -119,13 +118,6 @@ public class CameraFollow : NetBehaviour {
         //    m_Targets[i].gameObject.layer = LayerMask.NameToLayer("Debug");
         //    m_Targets[i].localScale = 10 * Vector3.one;
         //}
-        Main.Ins.EventBus.Register(EventId.OpenCamera, OpenCamera);
-    }
-
-    public void OpenCamera(object sender = null, TEventArgs args = null)
-    {
-        m_Camera.enabled = true;
-        Main.Ins.EventBus.UnRegister(EventId.OpenCamera, OpenCamera);
     }
 
     public void ForceUpdate()

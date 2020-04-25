@@ -27,7 +27,7 @@ public class PathPameter
 public class PathHelper:Singleton<PathHelper>
 {
     PathNode[] nodeContainer;//路點.
-    PathHelper()
+    public PathHelper()
     {
         
     }
@@ -126,9 +126,7 @@ public class PathMng:Singleton<PathMng>
     public void FindPath(PathContext context, Vector3 source, Vector3 target, List<WayPoint> waypoint)
     {
         int startPathIndex = GetWayIndex(source);
-        //Debug.LogError("起始点:" + startPathIndex);
         int endPathIndex = GetWayIndex(target);
-        //Debug.LogError("终点:" + endPathIndex);
         if (startPathIndex == -1 || endPathIndex == -1)
         {
             Debug.LogError("无法得到该位置所属路点");
@@ -335,46 +333,22 @@ public class PathMng:Singleton<PathMng>
         return Vector3.zero;
     }
 
-    //这个不能仅判断距离，还要判断射线是否撞到墙壁.
-    List<WayPoint> CandidateList = new List<WayPoint>();
-    List<float> CandiateDistance = new List<float>();//距离排序
     public int GetWayIndex(Vector3 now)
     {
-        CandidateList.Clear();
-        CandiateDistance.Clear();
         int ret = -1;
-
-        Collider[] other = Physics.OverlapSphere(now, 500, 1 << LayerMask.NameToLayer("WayPoint"));
-        for (int i = 0; i < other.Length; i++)
+        float min = float.MaxValue;
+        for (int i = 0; i < Main.Ins.CombatData.wayPoints.Count; i++)
         {
-            WayPointTrigger wayPointTrigger = other[i].gameObject.GetComponent<WayPointTrigger>();
-            wayPointTrigger.OverlapSphereIndex = i;
-            WayPoint way = Main.Ins.CombatData.wayPoints[wayPointTrigger.WayIndex];
+            WayPoint way = Main.Ins.CombatData.wayPoints[i];
             Vector3 vecTarget = way.pos;
-            Vector3 diff = vecTarget - now;
-            float dis = Vector3.SqrMagnitude(diff);
-            ret = wayPointTrigger.WayIndex;
-            int k = 0;
-            for (int j = 0; j < CandiateDistance.Count; j++)
+            Vector3 vecSource = now;
+            float dis = Vector3.SqrMagnitude(vecTarget - vecSource);
+            if (dis < min)
             {
-                k = j;
-                if (CandiateDistance[j] < dis)
-                    continue;   
-                break;
+                min = dis;
+                ret = i;
             }
-            CandiateDistance.Insert(k, dis);
-            CandidateList.Insert(k, way);
         }
-
-        if (CandidateList.Count != 0)
-        {
-            ret = CandidateList[0].index;
-            return ret;
-        }
-        else
-        {
-            UnityEngine.Debug.LogError("找不到对应的路点");
-            return -1;
-        }
+        return ret;
     }
 }

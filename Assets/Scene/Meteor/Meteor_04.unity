@@ -800,7 +800,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 019da50111802324ab59b8fffc9f7966, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!1 &85361073
 GameObject:
@@ -1445,7 +1448,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: ce97b6f97ba150a48a281d1ed4c72b4c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!1 &152124326
 GameObject:
@@ -3052,7 +3058,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 93089b909f4167443ae019171da63971, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!43 &241854319
 Mesh:
@@ -4347,7 +4356,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 01a118e419ddff947b421b44de2c513d, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!1 &337298417
 GameObject:
@@ -4541,7 +4553,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: bb42e17e9bb25274f8f87f3a9e285490, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!1 &352781880
 GameObject:
@@ -5942,7 +5957,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 3fd8cc034b955824eb8c39cea245ed55, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!21 &428565156
 Material:
@@ -5971,7 +5989,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 1975b42900a3b7844ac951c5c8d2e029, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!1 &457481860
 GameObject:
@@ -6250,7 +6271,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: c7e275052a234154db55c744ebeea78b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!1 &471012533
 GameObject:
@@ -7564,7 +7588,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 1cbca06dcc6ad204aa9577fc95ba86f0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!1 &583861035
 GameObject:
@@ -8500,7 +8527,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: a4f40604c31a1da448bf836b6ac184a8, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!43 &639979828
 Mesh:
@@ -8657,7 +8687,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 781c069aac4955e49aa51c3b4943da49, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!1 &646294986
 GameObject:
@@ -8896,7 +8929,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 0af4998d1780b1646af6cfbdb4841da3, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!43 &656941986
 Mesh:
@@ -9172,7 +9208,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 160df3be68dc1b041b67ba4cb5ec9d21, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!21 &690606999
 Material:
@@ -9201,7 +9240,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 547cc4acc9d6c6f439d8abc70552427e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!43 &690819129
 Mesh:
@@ -10195,7 +10237,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 0b413d84946700f448fde1767dd27dfd, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!1 &774159600
 GameObject:
@@ -10917,7 +10962,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: ce3c314ac52ecc74d9724f80f06d40b7, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!43 &854919452
 Mesh:
@@ -12233,7 +12281,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 67cf03154382cc440a99bb25676c0764, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!43 &957887893
 Mesh:
@@ -13248,7 +13299,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: bd51a46f6b11dcd479cdb3ee201ecf44, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!43 &1027443745
 Mesh:
@@ -14041,7 +14095,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 7a3d5f614941ad547bad90a5d4090b3d, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!43 &1096465971
 Mesh:
@@ -15140,114 +15197,6 @@ Mesh:
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   m_MeshOptimized: 0
---- !u!1 &1150925055
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 1150925060}
-  - component: {fileID: 1150925056}
-  - component: {fileID: 1150925059}
-  - component: {fileID: 1150925061}
-  m_Layer: 0
-  m_Name: Camera
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!20 &1150925056
-Camera:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1150925055}
-  m_Enabled: 1
-  serializedVersion: 2
-  m_ClearFlags: 3
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
-  m_NormalizedViewPortRect:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
-  near clip plane: 0.3
-  far clip plane: 1000
-  field of view: 60
-  orthographic: 1
-  orthographic size: 5
-  m_Depth: 1
-  m_CullingMask:
-    serializedVersion: 2
-    m_Bits: 288
-  m_RenderingPath: 1
-  m_TargetTexture: {fileID: 0}
-  m_TargetDisplay: 0
-  m_TargetEye: 3
-  m_HDR: 0
-  m_OcclusionCulling: 1
-  m_StereoConvergence: 10
-  m_StereoSeparation: 0.022
-  m_StereoMirrorMode: 0
---- !u!124 &1150925059
-Behaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1150925055}
-  m_Enabled: 1
---- !u!4 &1150925060
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1150925055}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 659.3071, y: 23.080002, z: 143.44022}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1150925061
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1150925055}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2a92b5d748695fd44aac9feef17ba415, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  debug: 0
-  useMouse: 1
-  useTouch: 1
-  allowMultiTouch: 1
-  useKeyboard: 1
-  useController: 1
-  stickyPress: 1
-  eventReceiverMask:
-    serializedVersion: 2
-    m_Bits: 288
-  clipRaycasts: 1
-  tooltipDelay: 1
-  stickyTooltip: 1
-  mouseDragThreshold: 4
-  mouseClickThreshold: 10
-  touchDragThreshold: 40
-  touchClickThreshold: 40
-  rangeDistance: -1
-  scrollAxisName: Mouse ScrollWheel
-  verticalAxisName: Vertical
-  horizontalAxisName: Horizontal
-  submitKey0: 13
-  submitKey1: 330
-  cancelKey0: 27
-  cancelKey1: 331
 --- !u!43 &1153791609
 Mesh:
   m_ObjectHideFlags: 0
@@ -19018,7 +18967,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 8930bb11cd14f634e9d29a475815096e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!43 &1440365829
 Mesh:
@@ -19175,7 +19127,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 2378741dc1c94e14d9b4529c9aa3208e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!1 &1529460722
 GameObject:
@@ -19826,7 +19781,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 0e5a76105e1be774d97dc4ae8a031aad, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!1 &1575258992
 GameObject:
@@ -20316,7 +20274,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: b46ca69933cf2ea4db2dcab73e954a4e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!21 &1638826173
 Material:
@@ -20345,7 +20306,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 163e00610395ec54c8b3f351c28cab4b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!43 &1641503135
 Mesh:
@@ -20822,68 +20786,6 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingOrder: 0
---- !u!1 &1665671113
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 1665671116}
-  - component: {fileID: 1665671115}
-  - component: {fileID: 1665671114}
-  m_Layer: 0
-  m_Name: EventSystem
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1665671114
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1665671113}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1077351063, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_HorizontalAxis: Horizontal
-  m_VerticalAxis: Vertical
-  m_SubmitButton: Submit
-  m_CancelButton: Cancel
-  m_InputActionsPerSecond: 10
-  m_RepeatDelay: 0.5
-  m_ForceModuleActive: 0
---- !u!114 &1665671115
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1665671113}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -619905303, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_FirstSelected: {fileID: 0}
-  m_sendNavigationEvents: 1
-  m_DragThreshold: 5
---- !u!4 &1665671116
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1665671113}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &1684505634
 Mesh:
   m_ObjectHideFlags: 0
@@ -21039,7 +20941,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 3caca4da3dc8550489fdf89ee2ac13ed, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!43 &1694948976
 Mesh:
@@ -21355,7 +21260,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 6bd7f5e997bf0ef478691e9025d70997, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!43 &1734410408
 Mesh:
@@ -22114,7 +22022,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: f9d2e6c47c5e5bc4ab2d5be179fb7093, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!1 &1787945981
 GameObject:
@@ -22595,7 +22506,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: da7aee05744eff94bad48eae075545a0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!21 &1814794352
 Material:
@@ -22934,7 +22848,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4879608780945620, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
       propertyPath: m_RootOrder
-      value: 4
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: e8dd107ed6f0f1f42ac6d10c9d397b11, type: 2}
@@ -23290,7 +23204,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 3490b10f406a14e419a7619668f62383, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!43 &1882531075
 Mesh:
@@ -24154,7 +24071,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 9ca7379d77d26d446bce66e048a2ac8b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!43 &1930831157
 Mesh:
@@ -24845,7 +24765,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 5112202dec6fabb40a2a151f78bbd5e3, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!1 &1968976155
 GameObject:
@@ -25180,98 +25103,6 @@ Mesh:
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
   m_MeshOptimized: 0
---- !u!1 &1981591512
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 1981591517}
-  - component: {fileID: 1981591516}
-  - component: {fileID: 1981591515}
-  - component: {fileID: 1981591514}
-  m_Layer: 5
-  m_Name: Canvas
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1981591514
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1981591512}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1301386320, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
---- !u!114 &1981591515
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1981591512}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1980459831, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_UiScaleMode: 1
-  m_ReferencePixelsPerUnit: 100
-  m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 2160, y: 1080}
-  m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
-  m_PhysicalUnit: 3
-  m_FallbackScreenDPI: 96
-  m_DefaultSpriteDPI: 96
-  m_DynamicPixelsPerUnit: 1
---- !u!223 &1981591516
-Canvas:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1981591512}
-  m_Enabled: 1
-  serializedVersion: 2
-  m_RenderMode: 1
-  m_Camera: {fileID: 1150925056}
-  m_PlaneDistance: 100
-  m_PixelPerfect: 0
-  m_ReceivesEvents: 1
-  m_OverrideSorting: 0
-  m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
-  m_SortingLayerID: 0
-  m_SortingOrder: 1
-  m_TargetDisplay: 0
---- !u!224 &1981591517
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1981591512}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0, y: 0}
 --- !u!1 &1982872784
 GameObject:
   m_ObjectHideFlags: 0
@@ -26248,7 +26079,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 510a02454a7c4da44a86527ac3f43b67, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!1 &2086014161
 GameObject:
@@ -26809,7 +26643,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: b1d2503c408cb9249abf730e673dcd2f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Floats: []
+    m_Floats:
+    - first:
+        name: _Alpha
+      second: 1
     m_Colors: []
 --- !u!43 &2110192683
 Mesh:

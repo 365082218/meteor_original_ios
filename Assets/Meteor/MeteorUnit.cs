@@ -746,7 +746,6 @@ public partial class MeteorUnit : NetBehaviour
             if (StateMachine != null && gameObject.activeInHierarchy)
                 StateMachine.Update();
         }
-        Physics.queriesHitBackfaces = true;
         ProcessGravity();
 
         //除了受击，防御，其他动作在有锁定目标下，都要转向锁定目标.
@@ -1514,7 +1513,7 @@ public partial class MeteorUnit : NetBehaviour
         //恰好碰撞点，就是自己所处的坐标,把角色向前推一定距离.
         if (vec == Vector3.zero)
             vec = -transform.forward;
-        SetWorldVelocity(Vector3.Normalize(vec) * 30 * scale);
+        AddWorldVelocity(Vector3.Normalize(vec) * 30 * scale);
         //如果在墙壁处被推开
         //if (robot != null)
         //    robot.ChangeState(EAIStatus.PushByWall);
@@ -1816,6 +1815,13 @@ public partial class MeteorUnit : NetBehaviour
         ImpluseVec.x = vec.x;
         ImpluseVec.y = vec.y;
         ImpluseVec.z = vec.z;
+    }
+
+    public void AddWorldVelocity(Vector3 vec)
+    {
+        ImpluseVec.x += vec.x;
+        ImpluseVec.y += vec.y;
+        ImpluseVec.z += vec.z;
     }
 
     //设置世界坐标系的速度,z向人物面前，x向人物右侧
@@ -2152,7 +2158,8 @@ public partial class MeteorUnit : NetBehaviour
             //在防御中.不受推挤.
             if (hitUnit.posMng != null && hitUnit.posMng.onDefence)
                 return;
-            hitUnit.SetWorldVelocity(Vector3.Normalize(vec) * 20);
+            //推挤只是一个力，不直接改变当前速度
+            hitUnit.AddWorldVelocity(Vector3.Normalize(vec) * 20);
         }
         else if (hit.gameObject.transform.root.tag.Equals("SceneItemAgent"))
         {

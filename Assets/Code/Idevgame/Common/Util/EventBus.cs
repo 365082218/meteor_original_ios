@@ -5,7 +5,6 @@ using UnityEngine;
 
 public enum EventId
 {
-    OpenCamera = 0,
     NavFinished,//寻路导航结束.
 }
 

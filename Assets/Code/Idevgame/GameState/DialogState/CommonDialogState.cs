@@ -271,7 +271,7 @@ namespace Idevgame.GameState.DialogState {
     public abstract class CommonDialogState<T> : BaseDialogState where T : Dialog {
 
         protected GameObject Dialog;
-        protected GameObject mRootUI;
+        
         public static bool Exist { get { return DialogController != null; } }
         public static T Instance { get { return DialogController; } }
         protected static T DialogController;
@@ -327,15 +327,20 @@ namespace Idevgame.GameState.DialogState {
             if (Use3DCanvas())
             {
                 if (mRootUI == null)
-                    mRootUI = GameObject.Find("3dCanvas");
-                if (mRootUI == null)
                 {
                     mRootUI = GameObject.Instantiate(Resources.Load<GameObject>("3dCanvas"), Vector3.zero, Quaternion.identity);
                     mRootUI.name = "3dCanvas";
+                    mCanvasRoot = mRootUI;
+                    GameObject.DontDestroyOnLoad(mRootUI);
                 }
             }
             if (mRootUI == null)
-                mRootUI = GameObject.Find("Canvas");
+            {
+                mRootUI = GameObject.Instantiate(Resources.Load<GameObject>("CanvasRoot"), Vector3.zero, Quaternion.identity);
+                GameObject.DontDestroyOnLoad(mRootUI);
+                mCanvasRoot = mRootUI.transform.Find("Canvas").gameObject;
+                UIHelper.InitCanvas(mCanvasRoot.GetComponent<Canvas>());
+            }
             if (mRootUI != null)
             {
                 if (!CanvasMode())
@@ -349,7 +354,7 @@ namespace Idevgame.GameState.DialogState {
             {
                 if (!CanvasMode())
                 {
-                    Dialog.transform.SetParent(mRootUI.transform);
+                    Dialog.transform.SetParent(mCanvasRoot.transform);
                     Dialog.transform.localScale = Vector3.one;
                     Dialog.transform.localRotation = Quaternion.identity;
                     Dialog.layer = mRootUI.transform.gameObject.layer;
@@ -359,7 +364,6 @@ namespace Idevgame.GameState.DialogState {
                 {
                     if (rectTran.rect.width == 0 && rectTran.rect.height == 0)
                         rectTran.sizeDelta = new Vector2(0, 0);
-
                 }
                 if (rectTran != null)
                     rectTran.anchoredPosition3D = new Vector3(0, 0, GetZ());

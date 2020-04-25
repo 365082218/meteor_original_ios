@@ -367,7 +367,7 @@ public class FrameReplay : MonoBehaviour {
             time += FrameReplay.deltaTime;
             if (firstFrame)
             {
-                Main.Ins.EventBus.Fire(EventId.OpenCamera);
+                Main.Ins.DialogStateManager.ChangeState(null);//关闭loading条
                 firstFrame = false;
             }
         }

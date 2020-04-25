@@ -219,7 +219,6 @@ public class Main : MonoBehaviour {
         DlcMng = new DlcMng();
 
         DontDestroyOnLoad(gameObject);
-        UIHelper.InitCanvas(GameObject.Find("Canvas").GetComponent<Canvas>());
         Log.WriteError(string.Format("GameStart AppVersion:{0}", Main.Ins.AppInfo.AppVersion()));
     }
 

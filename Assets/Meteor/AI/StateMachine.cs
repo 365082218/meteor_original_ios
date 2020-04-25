@@ -498,9 +498,17 @@ namespace Idevgame.Meteor.AI
         //自动状态切换
         public void AutoChangeState()
         {
-            if (Player.LockTarget != null && !Player.LockTarget.Dead)
+            if (Player.KillTarget != null && !Player.KillTarget.Dead)
+            {
+                ChangeState(KillState);
+            }
+            else if (Player.LockTarget != null && !Player.LockTarget.Dead)
             {
                 ChangeState(FightOnGroundState);
+            }
+            else if (Player.FollowTarget != null && !Player.FollowTarget.Dead)
+            {
+                ChangeState(FollowState);
             }
         }
         //可能是被卡住.
