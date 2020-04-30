@@ -9,10 +9,30 @@ public class PathContext
 {
     public PathContext()
     {
+        int count = Main.Ins.CombatData.wayPoints.Count;
+        Container = new PathNode[count];
+        for (int i = 0; i < count; i++)
+            Container[i] = new PathNode();
     }
 
     //存储单次寻路的上下文
     public List<int> looked = new List<int>();//已经查看过的路线
+    public SortedDictionary<int, List<PathNode>> PathInfo = new SortedDictionary<int, List<PathNode>>();//每一层的路点，一直到终点那一层
+    public PathNode[] Container;
+    public void ResetPath()
+    {
+        foreach (var each in PathInfo)
+        {
+            each.Value.Clear();
+        }
+        PathInfo.Clear();
+        PathInfo.Add(0, new List<PathNode>());
+        for (int i = 0; i < Container.Length; i++)
+        {
+            Container[i].wayPointIdx = 0;
+            Container[i].parent = 0;
+        }
+    }
 }
 
 public class PathPameter
@@ -160,160 +180,129 @@ public class PathMng:Singleton<PathMng>
     {
         if (context.looked.Contains(start))
         {
-            //user.Robot.FindWayFinished = true;
             return;
         }
-        //Debug.Log(string.Format("start:{0}:end:{1}", start, end));
+
         context.looked.Add(start);
         if (start == -1 || end == -1)
-        {
-            //user.Robot.FindWayFinished = true;
             return;
-        }
+
+        //路点相同,可直接走向终点
         if (start == end)
-        {
-            //wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
-            //user.Robot.FindWayFinished = true;
             return;
+
+        //收集路径信息 层次
+        context.ResetPath();
+        PathNode no = context.Container[start];
+        no.wayPointIdx = start;
+        no.parent = -1;
+        context.PathInfo[0].Add(no);
+        CollectPathInfo(context, start, end);
+        int scan = 0;
+        foreach (var each in context.PathInfo)
+        {
+            scan += each.Value.Count;
+        }
+        Debug.LogError("层信息:" + context.PathInfo.Count + " 总结点:" + scan);
+        //计算最短路径.
+        int target = end;
+        bool find = false;
+        foreach (var each in context.PathInfo)
+        {
+            for (int i = 0; i < each.Value.Count; i++)
+            {
+                if (each.Value[i].wayPointIdx == end)
+                {
+                    find = true;
+                    //Debug.LogError("找到目标点:" + end);
+                    if (wp.Count == 0)
+                        wp.Add(Main.Ins.CombatData.wayPoints[target]);
+                    else
+                        wp.Insert(0, Main.Ins.CombatData.wayPoints[target]);
+                    PathNode p = each.Value[i];
+                    while (p.parent != start)
+                    {
+                        target = p.parent;
+                        p = context.Container[target];
+                        if (wp.Count == 0)
+                            wp.Add(Main.Ins.CombatData.wayPoints[target]);
+                        else
+                            wp.Insert(0, Main.Ins.CombatData.wayPoints[target]);
+                        if (wp.Count >= 100)
+                        {
+                            Debug.LogError("寻路链路超过100！！！");
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+            if (find)
+                break;
         }
 
-        if (Main.Ins.CombatData.GScript.DisableFindWay())
+        if (!find)
         {
-            //List<WayPoint> direct = new List<WayPoint>();
-            //wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
-            //wp.Add(Global.Instance.GLevelItem.wayPoint[end]);
-            //user.Robot.FindWayFinished = true;
-            return;
+            Debug.LogError(string.Format("孤立的寻路点:{0},没有点可以走向目标", target));
+            if (wp.Count == 0)
+                wp.Add(Main.Ins.CombatData.wayPoints[target]);
+            else
+                wp.Insert(0, Main.Ins.CombatData.wayPoints[target]);
         }
-
-        //从开始点，跑到最终点，最短线路？
-        if (Main.Ins.CombatData.wayPoints[start].link.ContainsKey(end))
-        {
-            //wp.Add(Global.Instance.GLevelItem.wayPoint[start]);
-            //wp.Add(Global.Instance.GLevelItem.wayPoint[end]);
-            //user.Robot.FindWayFinished = true;
-            return;
-        }
-        else
-        {
-            //收集路径信息 层次
-            //user.Robot.PathReset();
-            //PathNode no = user.Robot.nodeContainer[start];
-            //no.wayPointIdx = start;
-            //no.parent = -1;
-            //user.Robot.PathInfo[0].Add(no);
-            //CollectPathInfo(user, start, end);
-            //int scan = 0;
-            //foreach (var each in user.Robot.PathInfo)
-            //{
-            //    scan += each.Value.Count;
-            //}
-            //Debug.LogError("层信息:" + user.Robot.PathInfo.Count + " 总结点:" + scan);
-            //计算最短路径.
-            //int target = end;
-            //bool find = false;
-            //foreach (var each in user.Robot.PathInfo)
-            //{
-            //    for (int i = 0; i < each.Value.Count; i++)
-            //    {
-            //        if (each.Value[i].wayPointIdx == end)
-            //        {
-            //            find = true;
-            //            //Debug.LogError("找到目标点:" + end);
-            //            if (wp.Count == 0)
-            //                wp.Add(Global.Instance.GLevelItem.wayPoint[target]);
-            //            else
-            //                wp.Insert(0, Global.Instance.GLevelItem.wayPoint[target]);
-            //            PathNode p = each.Value[i];
-            //            while (p.parent != start)
-            //            {
-            //                target = p.parent;
-            //                p = user.Robot.nodeContainer[target];
-            //                if (wp.Count == 0)
-            //                    wp.Add(Global.Instance.GLevelItem.wayPoint[target]);
-            //                else
-            //                    wp.Insert(0, Global.Instance.GLevelItem.wayPoint[target]);
-            //                //Debug.LogError("找到父节点:" +  target);
-            //                if (wp.Count >= 100)
-            //                {
-            //                    Debug.LogError("寻路链路超过100！！！");
-            //                    break;
-            //                }
-            //                //if (p.parent == start)
-            //                //    Debug.LogError("找到起点:" + start);
-            //            }
-            //            break;
-            //        }                       
-            //    }
-            //    //yield return 0;
-            //    if (find)
-            //        break;
-            //}
-
-            //if (!find)
-            //{
-            //    Debug.LogError(string.Format("孤立的寻路点:{0},没有点可以走向目标", target));
-            //    if (wp.Count == 0)
-            //        wp.Add(Global.Instance.GLevelItem.wayPoint[target]);
-            //    else
-            //        wp.Insert(0, Global.Instance.GLevelItem.wayPoint[target]);
-            //}
-            //wp.Insert(0, Global.Instance.GLevelItem.wayPoint[start]);
-        }
-        //user.Robot.FindWayFinished = true;
+        wp.Insert(0, Main.Ins.CombatData.wayPoints[start]);
     }
 
     //查看之前层级是否已统计过该节点信息
-    bool PathLayerExist(MeteorUnit user, int wayPoint)
+    bool PathLayerExist(PathContext context, int wayPoint)
     {
-        //foreach (var each in user.Robot.PathInfo)
-        //{
-        //    for (int i = 0; i < each.Value.Count; i++)
-        //    {
-        //        if (each.Value[i].wayPointIdx == wayPoint)
-        //            return true;
-        //    }
-        //}
+        foreach (var each in context.PathInfo)
+        {
+            for (int i = 0; i < each.Value.Count; i++)
+            {
+                if (each.Value[i].wayPointIdx == wayPoint)
+                    return true;
+            }
+        }
         return false;
     }
 
     //从起点开始 构造寻路树.
-    void CollectPathInfo(MeteorUnit user, int start, int end, int layer = 1)
+    void CollectPathInfo(PathContext context, int start, int end, int layer = 1)
     {
-        CollectPathLayer(user, start, end, layer);
-        if (PathLayerExist(user, end))
+        CollectPathLayer(context, start, end, layer);
+        if (PathLayerExist(context, end))
             return;
-        //while (user.Robot.PathInfo.ContainsKey(layer))
-        //{
-        //    int nextLayer = layer + 1;
-        //    for (int i = 0; i < user.Robot.PathInfo[layer].Count; i++)
-        //    {
-        //        CollectPathLayer(user, user.Robot.PathInfo[layer][i].wayPointIdx, end, nextLayer);
-        //        if (PathLayerExist(user, end))
-        //            return;
-        //    }
-        //    layer = nextLayer;
-        //}
+        while (context.PathInfo.ContainsKey(layer))
+        {
+            int nextLayer = layer + 1;
+            for (int i = 0; i < context.PathInfo[layer].Count; i++)
+            {
+                CollectPathLayer(context, context.PathInfo[layer][i].wayPointIdx, end, nextLayer);
+                if (PathLayerExist(context, end))
+                    return;
+            }
+            layer = nextLayer;
+        }
     }
 
     //收集从起点到终点经过的所有层级路点,一旦遇见最近层级的终点就结束，用于计算最短路径.
-    void CollectPathLayer(MeteorUnit user, int start, int end, int layer = 1)
+    void CollectPathLayer(PathContext context, int start, int end, int layer = 1)
     {
         Dictionary<int, WayLength> ways = Main.Ins.CombatData.wayPoints[start].link;
-        //foreach (var each in ways)
-        //{
-        //    if (!PathLayerExist(user, each.Key))
-        //    {
-        //        //之前的所有层次中并不包含此节点.
-        //        PathNode no = user.Robot.nodeContainer[each.Key];
-        //        no.wayPointIdx = each.Key;
-        //        no.parent = start;
-        //        if (user.Robot.PathInfo.ContainsKey(layer))
-        //            user.Robot.PathInfo[layer].Add(no);
-        //        else
-        //            user.Robot.PathInfo.Add(layer, new List<PathNode> { no });
-        //    }
-        //}
+        foreach (var each in ways)
+        {
+            if (!PathLayerExist(context, each.Key))
+            {
+                //之前的所有层次中并不包含此节点.
+                PathNode no = context.Container[each.Key];
+                no.wayPointIdx = each.Key;
+                no.parent = start;
+                if (context.PathInfo.ContainsKey(layer))
+                    context.PathInfo[layer].Add(no);
+                else
+                    context.PathInfo.Add(layer, new List<PathNode> { no });
+            }
+        }
     }
 
     //得到当前位置所处路点临近的路点其中之一

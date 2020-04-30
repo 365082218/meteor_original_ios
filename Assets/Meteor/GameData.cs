@@ -739,10 +739,9 @@ public class CombatData
     {
         List<WayPoint> wayPoint = new List<WayPoint>();
         string items = level.sceneItems;
-        if (WayMng.Instance != null)
-            wayPoint = WayMng.Instance.wayPoints;
-        else if ((wayPoint == null || wayPoint.Count == 0) && !string.IsNullOrEmpty(items))
-            wayPoint = Main.Ins.WayLoader.ReLoad(items);
+        if ((wayPoint == null || wayPoint.Count == 0) && !string.IsNullOrEmpty(items)){
+            wayPoint = WayLoader.ReLoad(items);
+        }
         return wayPoint;
     }
 }

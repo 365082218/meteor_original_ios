@@ -476,7 +476,7 @@ PlayerSettings:
   scriptingDefineSymbols:
     1: BUILD_PC;RAVEN_COMPILED
     4: 
-    7: STRIP_DBG_SETTING
+    7: 
     13: RAVEN_COMPILED
     14: RAVEN_COMPILED
     17: RAVEN_COMPILED

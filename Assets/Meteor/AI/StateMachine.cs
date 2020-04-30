@@ -50,6 +50,12 @@ namespace Idevgame.Meteor.AI
         NavPathFinished,//寻路过程完整结束
     }
 
+    public enum NavType
+    {
+        NavFindUnit,//寻找角色-靠近到攻击范围内时停止寻路
+        NavFindPosition,//寻找位置-靠近到非常近时停止寻路
+    }
+
     public class StateMachine
     {
         //当Think为100时,0.1S一个行为检测,行为频率慢,则连招可能连不起来.行为频率快, 则每个招式在可切换招式的时机, 进行连招的几率越大.
@@ -61,9 +67,11 @@ namespace Idevgame.Meteor.AI
         private State PreviousState;
         private State NextState;
         public State CurrentState;
-        public State IdleState;
+
         public State ReviveState;//队长复活队友
-        public GuardState GuardState;
+        public WaitState WaitState;//等待状态-原地发呆
+        public IdleState IdleState;//在原地等待目标进入视野
+        public GuardState GuardState;//原地防御
         public LookState LookState;//四周观察-未发现敌人时.
         public DodgeState DodgeState;//处于危险中，逃跑.如果仍被敌人追上，有可能触发决斗-如果脱离了战斗视野，可能继续逃跑
         public KillState KillState;//强制追杀 无视视野.
@@ -87,6 +95,7 @@ namespace Idevgame.Meteor.AI
         {
             EventBus = new EventBus();
             Player = Unit;
+            WaitState = new WaitState(this);
             IdleState = new IdleState(this);
             GuardState = new GuardState(this);
             KillState = new KillState(this);
@@ -621,6 +630,7 @@ namespace Idevgame.Meteor.AI
         protected Vector3 positionStart;
         protected Vector3 positionEnd;
         protected Vector3 TargetPos;
+        protected NavType NavType;
         public State(StateMachine machine)
         {
             Machine = machine;
@@ -725,8 +735,24 @@ namespace Idevgame.Meteor.AI
                     break;
                 case NavPathStatus.NavPathComplete:
                     navPathStatus = NavPathStatus.NavPathIterator;
-                    wayIndex = 0;
-                    TargetPos = Machine.Path.ways[wayIndex].pos;
+                    if (Machine.Path.ways.Count == 0)
+                    {
+                        //寻路可直达，
+                        wayIndex = 0;
+                        TargetPos = positionEnd;
+                    }
+                    else
+                    {
+                        wayIndex = 0;
+                        TargetPos = Machine.Path.ways[wayIndex].pos;
+                    }
+                    Machine.ChangeState(Machine.WaitState);
+                    for (int i = 0; i < Machine.Path.ways.Count; i++)
+                    {
+                        GameObject obj = new GameObject(string.Format("{0}", i));
+                        Idevgame.Util.ObjectUtils.Identity(obj);
+                        obj.transform.position = Machine.Path.ways[i].pos;
+                    }
                     break;
                 case NavPathStatus.NavPathInvalid:
                     navPathStatus = NavPathStatus.NavPathIterator;
@@ -746,47 +772,28 @@ namespace Idevgame.Meteor.AI
                 if (GetAngleBetween(TargetPos) >= Main.Ins.CombatData.AimDegree)
                 {
                     Machine.ChangeState(Machine.FaceToState, TargetPos);
+                    UnityEngine.Debug.Log("进入转向状态");
                     return;
                 }
 
-                if (Main.Ins.CombatData.GScript.DisableFindWay())
-                {
-                    //无路点
-                    //距离足够近，结束寻路过程
-                    if (Vector3.SqrMagnitude(TargetPos - Player.transform.position) <= CombatData.StopDistance)
-                    {
+                if (wayIndex == Machine.Path.ways.Count - 1){
+                    //最后一个路点
+                    float distance = NavType == NavType.NavFindUnit ? CombatData.AttackRange : CombatData.StopDistance;
+                    if (Vector3.SqrMagnitude(TargetPos - Player.transform.position) <= distance){
+                        navPathStatus = NavPathStatus.NavPathFinished;
                         Machine.EventBus.Fire(EventId.NavFinished);
                         return;
                     }
-
-                    Player.FaceToTarget(TargetPos);
-                    Player.controller.Input.AIMove(0, 1);
-                    return;
-                }
-                else
-                {
-                    //有路点，足够近，
-                    if (Vector3.SqrMagnitude(TargetPos - Player.transform.position) <= CombatData.StopDistance)
-                    {
-                        //还不是最后一个路点.
-                        if (wayIndex < Machine.Path.ways.Count)
-                        {
-                            wayIndex += 1;
-                            TargetPos = Machine.Path.ways[wayIndex].pos;
-                        }
-                        else
-                        {
-                            //最后一个路点结束后.
-                            navPathStatus = NavPathStatus.NavPathFinished;
-                            Machine.EventBus.Fire(EventId.NavFinished);
-                        }
+                }else{
+                    //不是最后一个路点
+                    if (Vector3.SqrMagnitude(TargetPos - Player.transform.position) <= CombatData.StopDistance){
+                        wayIndex += 1;
+                        TargetPos = Machine.Path.ways[wayIndex].pos;
                         return;
                     }
-
-                    Player.FaceToTarget(TargetPos);
-                    Player.controller.Input.AIMove(0, 1);
-                    return;
                 }
+                Player.FaceToTarget(TargetPos);
+                Player.controller.Input.AIMove(0, 1);
             }
         }
     }

@@ -355,40 +355,18 @@ public class U3D : MonoBehaviour {
         unit.SetGround(false);
         if (Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
         {
-            if (Main.Ins.CombatData.GScript.DisableFindWay())
+            if (Main.Ins.CombatData.wayPoints.Count == 0)
             {
-                //不许寻路，无寻路点的关卡，使用
-                bool setPosition = false;
-                if (script != null)
-                    setPosition = script.OnPlayerSpawn(unit);
-                if (!setPosition)
-                {
-                    unit.transform.position = Main.Ins.CombatData.GLevelSpawn[mon.SpawnPoint >= Main.Ins.CombatData.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
-                }
+                unit.transform.position = Main.Ins.CombatData.GLevelSpawn[mon.SpawnPoint];
             }
             else
-            {
-                if (Main.Ins.CombatData.wayPoints.Count == 0)
-                {
-                    unit.transform.position = Main.Ins.CombatData.GLevelSpawn[mon.SpawnPoint];
-                }
-                else
-                    unit.transform.position = Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
-            }
+                unit.transform.position = Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
         }
         else if (Main.Ins.CombatData.GLevelMode > LevelMode.SinglePlayerTask && Main.Ins.CombatData.GLevelMode <= LevelMode.MultiplyPlayer)
         {
             if (Main.Ins.CombatData.GGameMode == GameMode.Normal)
             {
-                if (Main.Ins.CombatData.GScript.DisableFindWay())
-                {
-                    //不许寻路，无寻路点的关卡，使用
-                    unit.transform.position = Main.Ins.CombatData.GLevelSpawn[mon.SpawnPoint >= Main.Ins.CombatData.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
-                }
-                else
-                {
-                    unit.transform.position = Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
-                }
+                unit.transform.position = Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
             }
             else if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
             {

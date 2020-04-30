@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Idevgame.Util;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 //using UnityEditor;
 //using UnityEditor;
 
@@ -689,4 +693,116 @@ shader 1
             //yield break;
         }
     }
+#if UNITY_EDITOR
+    void LoadMeshObject(MeshFilter filter)
+    {
+        string assetPath = string.Format("Assets/Models/MapObject/Meteor_{0}/{1}.asset", this.levelId, filter.gameObject.name);
+        filter.sharedMesh = UnityEditor.AssetDatabase.LoadAssetAtPath<Mesh>(assetPath);
+        //filter.mesh = UnityEditor.AssetDatabase.LoadAssetAtPath<Mesh>(assetPath);
+        MeshCollider [] colliders = filter.gameObject.GetComponents<MeshCollider>();
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            colliders[i].sharedMesh = filter.sharedMesh;
+        }
+    }
+    //从另外一个场景保存的网格路径获取，然后导出预设
+    public void LoadMeshFromPath()
+    {
+        MeshFilter[] mapObjects = gameObject.GetComponentsInChildren<MeshFilter>();
+        for (int i = 0; i < mapObjects.Length; i++){
+            LoadMeshObject(mapObjects[i]);
+        }
+        UnityEditor.AssetDatabase.Refresh();
+        UnityEditor.AssetDatabase.SaveAssets();
+        PrefabUtility.CreatePrefab(string.Format("Assets/Scene/{0}.prefab", gameObject.scene.name), gameObject);
+    }
+    //保存材质-部分材质在场景文件的内存里，实际是不好的.
+    int materialIndex = 0;
+    public void SaveMaterial()
+    {
+        string dir = string.Format("Assets/Materials/{0}/", gameObject.scene.name);
+        if (!System.IO.Directory.Exists(dir))
+        {
+            System.IO.Directory.CreateDirectory(dir);
+        }
+        materialIndex = 0;
+        MeshRenderer[] renderers = gameObject.GetComponentsInChildren<MeshRenderer>();
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            SaveMaterialItem(renderers[i]);
+        }
+        UnityEditor.AssetDatabase.Refresh();
+        UnityEditor.AssetDatabase.SaveAssets();
+    }
+
+    public void SaveMaterialItem(MeshRenderer r)
+    {
+        if (r.enabled)
+        {
+            for (int i = 0; i < r.sharedMaterials.Length; i++)
+            {
+                if (UnityEditor.AssetDatabase.GetAssetPath(r.sharedMaterials[i]) == "")
+                {
+                    string materialPath = string.Format("Assets/Materials/{0}/{1}.mat", gameObject.scene.name, materialIndex++);
+                    UnityEditor.AssetDatabase.Refresh();
+                    UnityEditor.AssetDatabase.CreateAsset(r.sharedMaterials[i], materialPath);
+                    UnityEditor.AssetDatabase.Refresh();
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < r.sharedMaterials.Length; i++)
+                r.sharedMaterials[i] = null;
+        }
+    }
+    //把场景使用到的mesh存储到统一路径下.避免场景文件过大
+    public void SaveMesh()
+    {
+        string dir = string.Format("Assets/Models/MapObject/{0}/", gameObject.scene.name);
+        if (!System.IO.Directory.Exists(dir))
+        {
+            System.IO.Directory.CreateDirectory(dir);
+        }
+
+        MeshFilter[] mapObjects = gameObject.GetComponentsInChildren<MeshFilter>();
+        for (int i = 0; i < mapObjects.Length; i++)
+        {
+            SaveMeshObject(mapObjects[i]);
+        }
+        UnityEditor.AssetDatabase.Refresh();
+        UnityEditor.AssetDatabase.SaveAssets();
+        PrefabUtility.CreatePrefab(string.Format("Assets/Scene/{0}.prefab", gameObject.scene.name), gameObject);
+    }
+
+    public void SaveMeshObject(MeshFilter filter)
+    {
+        if (UnityEditor.AssetDatabase.GetAssetPath(filter.sharedMesh) == "")
+        {
+            string meshPath = string.Format("Assets/Models/MapObject/{0}/{1}.asset", filter.gameObject.scene.name, filter.name);
+            UnityEditor.AssetDatabase.CreateAsset(filter.sharedMesh, meshPath);
+            UnityEditor.AssetDatabase.Refresh();
+            EditorUtility.SetDirty(filter.sharedMesh);
+        }
+    }
+
+    GameObject wayPointRoot;
+    public void LoadWayPoint()
+    {
+        wayPointRoot = GameObject.Find("WayPointRoot");
+        if (wayPointRoot == null){
+            wayPointRoot = new GameObject("WayPointRoot");
+            ObjectUtils.Identity(wayPointRoot);
+        }
+        string assetPath = string.Format("sn{0}", this.levelId);
+        List<WayPoint> wayPoints = WayLoader.ReLoad(assetPath);
+        for (int i = 0; i < wayPoints.Count; i++)
+        {
+            GameObject obj = new GameObject(string.Format("wayPoint{0}", i));
+            ObjectUtils.Identity(obj, wayPointRoot.transform);
+            obj.transform.position = wayPoints[i].pos;
+            obj.AddComponent<BoxCollider>().size = new Vector3(wayPoints[i].size, wayPoints[i].size, wayPoints[i].size);
+        }
+    }
+#endif
 }

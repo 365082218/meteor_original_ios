@@ -332,14 +332,6 @@ public partial class MeteorUnit : NetBehaviour
 
     public void SetPosition(int spawnPoint)
     {
-        //禁止寻路，代表场景无路点.只能用来联机.
-        if (Main.Ins.CombatData.GScript.DisableFindWay())
-        {
-            //不许寻路，无寻路点的关卡，使用
-            if (Main.Ins.CombatData.GLevelSpawn != null && Main.Ins.CombatData.GLevelSpawn.Length != 0)
-                transform.position = Main.Ins.CombatData.GLevelSpawn[spawnPoint >= Main.Ins.CombatData.GLevelSpawn.Length ? 0 : spawnPoint];
-            return;
-        }
         if (spawnPoint >= Main.Ins.CombatData.wayPoints.Count)
             return;
         transform.position = Main.Ins.CombatData.wayPoints[spawnPoint].pos;
@@ -2001,29 +1993,10 @@ public partial class MeteorUnit : NetBehaviour
         }
         else if (Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask)
         {
-            //闪现到出生点
-            if (!Main.Ins.CombatData.GScript.DisableFindWay())
-            {
-                if (Attr.SpawnPoint < Main.Ins.CombatData.wayPoints.Count)
-                    transform.position = Main.Ins.CombatData.wayPoints[Attr.SpawnPoint].pos;
-                else
-                    transform.position = Main.Ins.CombatData.wayPoints[0].pos;
-            }
+            if (Attr.SpawnPoint < Main.Ins.CombatData.wayPoints.Count)
+                transform.position = Main.Ins.CombatData.wayPoints[Attr.SpawnPoint].pos;
             else
-            {
-                if (Camp == EUnitCamp.EUC_FRIEND)
-                {
-                    transform.position = Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampASpawnIndex];
-                    Main.Ins.CombatData.CampASpawnIndex++;
-                    Main.Ins.CombatData.CampASpawnIndex %= 8;
-                }
-                else if (Camp == EUnitCamp.EUC_ENEMY)
-                {
-                    transform.position = Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampBSpawnIndex];
-                    Main.Ins.CombatData.CampBSpawnIndex++;
-                    Main.Ins.CombatData.CampBSpawnIndex %= 8;
-                }
-            }
+                transform.position = Main.Ins.CombatData.wayPoints[0].pos;
         }
         Dead = false;
         posMng.WaitPause(false);

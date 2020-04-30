@@ -221,6 +221,22 @@ public class MapLoaderInspector : Editor
         {
             myTarget.LoadDesMap(myTarget.desFile);
         }
+        if (GUILayout.Button("SaveMaterial"))
+        {
+            myTarget.SaveMaterial();
+        }
+        if (GUILayout.Button("SaveMesh"))
+        {
+            myTarget.SaveMesh();
+        }
+        if (GUILayout.Button("LoadMesh"))
+        {
+            myTarget.LoadMeshFromPath();
+        }
+        if (GUILayout.Button("LoadWayPoint"))
+        {
+            myTarget.LoadWayPoint();
+        }
     }
 }
 

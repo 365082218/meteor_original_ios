@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using System.Diagnostics;
 //管理角色的动画帧，用自己的方式实现动画
 [Serializable]
 public class PoseStatus
@@ -592,6 +593,11 @@ public class PoseStatus
 
     public void ChangeAction(int idx = CommonAction.Idle, float time = 0.01f)
     {
+        //if (idx == 151 || idx == 152)
+        //{
+        //    string stackInfo = new StackTrace().ToString();
+        //    UnityEngine.Debug.Log(stackInfo);
+        //}
         CanAdjust = false;
         if (_Self.GameFinished && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle))
         {
@@ -725,7 +731,7 @@ public class PoseStatus
     {
         if (ActionList.ContainsKey(id) && ActionList[id].Count != 0)
         {
-            Debug.LogError("重复解析某个角色的动画配置文件");
+            UnityEngine.Debug.LogError("重复解析某个角色的动画配置文件");
             return;
         }
         Pose current = null;
@@ -1005,7 +1011,7 @@ public class PoseStatus
             }
             else
             {
-                Debug.Log("line :" + i + " can t understand：" + pos[i]);
+                UnityEngine.Debug.Log("line :" + i + " can t understand：" + pos[i]);
                 break;
             }
         }

@@ -3,7 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace Idevgame.Meteor.AI
 {
-    //待机状态.
+    public class WaitState :State
+    {
+        public WaitState(StateMachine mathine) : base(mathine)
+        {
+
+        }
+
+        public override void OnEnter(State previous, object data)
+        {
+            base.OnEnter(previous, data);
+        }
+
+        public override void OnExit(State next)
+        {
+            base.OnExit(next);
+        }
+
+        public override void Think()
+        {
+        }
+    }
+    //待机状态.可识别目标
     public class IdleState : State
     {
         public IdleState(StateMachine mathine) : base(mathine)
@@ -285,12 +306,14 @@ namespace Idevgame.Meteor.AI
             if (data is Vector3)
             {
                 positionEnd = (Vector3)data;//向目的点寻路
+                NavType = NavType.NavFindPosition;
             }
             else
             {
                 if (LockTarget == null)
                     UnityEngine.Debug.LogError("还未确定目标");
                 positionEnd = LockTarget.transform.position;//向锁定目标寻路
+                NavType = NavType.NavFindUnit;
             }
             positionStart = Player.transform.position;
             navPathStatus = NavPathStatus.NavPathNone;
@@ -328,12 +351,14 @@ namespace Idevgame.Meteor.AI
             if (data is Vector3)
             {
                 positionEnd = (Vector3)data;//向目的点寻路
+                NavType = NavType.NavFindPosition;
             }
             else
             {
                 if (FollowTarget == null)
                     UnityEngine.Debug.LogError("还未确定目标");
                 positionEnd = FollowTarget.transform.position;
+                NavType = NavType.NavFindUnit;
             }
             positionStart = Player.transform.position;
             navPathStatus = NavPathStatus.NavPathNone;
@@ -442,6 +467,7 @@ namespace Idevgame.Meteor.AI
         public override void OnEnter(State prev, object data)
         {
             base.OnEnter(prev, data);
+            Machine.EventBus.Register(EventId.NavFinished, this.OnNavFinished);
             //战斗中，基本不会四周看
             Machine.ResetAction();
             Machine.SetActionTriggered(ActionType.Look, false);
@@ -450,8 +476,13 @@ namespace Idevgame.Meteor.AI
         public override void OnExit(State next)
         {
             base.OnExit(next);
+            Machine.EventBus.UnRegister(EventId.NavFinished, this.OnNavFinished);
         }
 
+        public void OnNavFinished(object sender, TEventArgs args)
+        {
+            Machine.ChangeState(this);
+        }
 
         //行为优先级 
         //AI强制行为(攻击指定位置，Kill追杀（不论视野）攻击 ) > 战斗(中随机拾取道具-若道具可拾取) > 跟随 > 巡逻 > 

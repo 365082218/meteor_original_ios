@@ -54,12 +54,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scene/Meteor/Meteor_22.unity
   - enabled: 1
-    path: Assets/Scene/NewMeteor/Meteor_23.unity
-  - enabled: 1
-    path: Assets/Scene/NewMeteor/Meteor_25.unity
+    path: Assets/Scene/NewMeteor/Meteor_24.unity
   - enabled: 1
     path: Assets/Scene/NewMeteor/Meteor_27.unity
-  - enabled: 1
-    path: Assets/Scene/Meteor/DebugScene0.unity
-  - enabled: 1
-    path: Assets/Scene/Meteor/DebugScene1.unity

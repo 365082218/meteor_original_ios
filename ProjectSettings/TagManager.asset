@@ -41,7 +41,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - ObstacleAI
   - RenderModel
   - WayPoint
   - DebugCanvas

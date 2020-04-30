@@ -81,7 +81,6 @@ public class Main : MonoBehaviour {
     public CombatData CombatData;
     public DlcMng DlcMng;
     public GameNotice GameNotice;
-    public WayLoader WayLoader;
     public GMBLoader GMBLoader;
     public Log Log;
     public SoundManager SoundManager;
@@ -188,7 +187,6 @@ public class Main : MonoBehaviour {
         AppInfo = new AppInfo();
         CombatData = new CombatData();
         GameNotice = new GameNotice();
-        WayLoader = new WayLoader();
         MeteorManager = new MeteorManager();
         ScriptMng = new ScriptMng();
         SFXLoader = new SFXLoader();

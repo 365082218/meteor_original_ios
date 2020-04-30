@@ -80,17 +80,7 @@ public class MeteorAI {
 
     public void PathReset()
     {
-        foreach (var each in PathInfo)
-        {
-            each.Value.Clear();
-        }
-        PathInfo.Clear();
-        PathInfo.Add(0, new List<PathNode>());
-        for (int i = 0; i < nodeContainer.Length; i++)
-        {
-            nodeContainer[i].wayPointIdx = 0;
-            nodeContainer[i].parent = 0;
-        }
+        
     }
 
     //寻路相关数据
@@ -1045,21 +1035,6 @@ public class MeteorAI {
 
     void OnFightGotoPosition()
     {
-        if (Main.Ins.CombatData.GScript.DisableFindWay())
-        {
-            //无路点
-            //距离足够近
-            if (Vector3.SqrMagnitude(TargetPos - owner.transform.position) <= CombatData.AttackRange)
-            {
-                ChangeState(EAIStatus.Fight);
-                return;
-            }
-
-            owner.FaceToTarget(TargetPos);
-            owner.controller.Input.AIMove(0, 1);
-            return;
-        }
-
         if (Path.Count == 0)
         {
             //Debug.LogError("战斗走向指定位置，路径为空进入寻路");
@@ -1139,21 +1114,6 @@ public class MeteorAI {
 
     void OnFightGotoTarget()
     {
-        if (Main.Ins.CombatData.GScript.DisableFindWay())
-        {
-            //无路点
-            //距离足够近
-            if (Vector3.SqrMagnitude(fightTarget.transform.position - owner.transform.position) <= CombatData.AttackRange)
-            {
-                ChangeState(EAIStatus.Fight);
-                return;
-            }
-
-            owner.FaceToTarget(fightTarget.mSkeletonPivot);
-            owner.controller.Input.AIMove(0, 1);
-            return;
-        }
-
         if (Path.Count == 0)
         {
             //Debug.LogError("战斗走向目标，路径为空进入寻路");

@@ -55,7 +55,10 @@ public class MeteorBehaviour
             else
             {
                 if (moveVec.y > 0 && Owner.posMng.mActiveAction.Idx != CommonAction.Run)
+                {
+                    //UnityEngine.Debug.Log("Owner.posMng.mActiveAction.Idx:" + Owner.posMng.mActiveAction.Idx);
                     Owner.posMng.ChangeAction(CommonAction.Run, 0.1f);
+                }
                 else if (moveVec.y < 0 && Owner.posMng.mActiveAction.Idx != CommonAction.WalkBackward)
                     Owner.posMng.ChangeAction(CommonAction.WalkBackward, 0.1f);
             }

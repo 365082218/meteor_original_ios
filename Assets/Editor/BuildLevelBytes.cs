@@ -5,6 +5,7 @@ using ProtoBuf;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
+using Idevgame.Util;
 
 public class BuildLevelBytes
 {
@@ -92,66 +93,69 @@ public class BuildLevelBytes
     }
 
     //加载原流星场景物件des文件
-    [MenuItem("Meteor/SceneMgr/LoadSceneDes")]
-    public static void LoadDesFile()
-    {
-        string strFile = EditorUtility.OpenFilePanel("选择流星关卡描述文件", "D:/Meteor/", "des");
-        FileInfo fi = new FileInfo(strFile);
-        GameObject root = GameObject.Find("SceneObjs");
-        if (root == null)
-            root = new GameObject("SceneObjs");
-        List<SceneObjAttr> objs = new List<SceneObjAttr>();
-        int objCount = 0;
-        int DummyCount = 0;
-        if (!string.IsNullOrEmpty(strFile))
-        {
-            StreamReader asset = File.OpenText(strFile);
-            while (!asset.EndOfStream)
-            {
-                string obj = asset.ReadLine();
-                string[] keyValue = obj.Split(new char[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
-                if (keyValue[0] == "#")
-                    continue;
-                if (keyValue[0] == "SceneObjects" && keyValue[2] == "DummeyObjects")
-                {
-                    objCount = int.Parse(keyValue[1]);
-                    DummyCount = int.Parse(keyValue[3]);
-                    continue;
-                }
+    //[MenuItem("Meteor/SceneMgr/LoadSceneDes")]
+    //public static void LoadDesFile()
+    //{
+    //    string strFile = EditorUtility.OpenFilePanel("选择流星关卡描述文件(*.des.bytes)", "D:/Meteor/", "bytes");
+    //    if (string.IsNullOrEmpty(strFile))
+    //        return;
 
-                if (keyValue[0] == "Object")
-                {
-                    SceneObjAttr attr = new SceneObjAttr();
-                    attr.name = keyValue[1];
-                    attr.ReadObjAttr(asset);
-                    objs.Add(attr);
-                }
-            }
-            Debug.LogFormat("共有{0}个对象{1}个虚拟物", objCount, DummyCount);
-            if (objs.Count != objCount + DummyCount)
-            {
-                Debug.Log("物品数量不对");
-                return;
-            }
-            for (int i = 0; i < objs.Count; i++)
-            {
-                GameObject obj = new GameObject(objs[i].name);
-                obj.transform.parent = root.transform;
-                obj.transform.rotation = objs[i].quat;
-                obj.transform.position = objs[i].pos;
-            }
-            string file = "Assets/Resources/" + fi.Name.Substring(0, fi.Name.Length - 4) + ".bytes";
-            if (File.Exists(file))
-            {
-                if (!EditorUtility.DisplayDialog("提示", "要覆盖:\n" + file + "吗", "是", "否"))
-                    return;
-            }
-            File.Delete(file);
-            FileStream fs = File.Open(file, FileMode.CreateNew, FileAccess.ReadWrite);
-            Serializer.Serialize<List<SceneObjAttr>>(fs, objs);
-            fs.Close();
-        }
-    }
+    //    FileInfo fi = new FileInfo(strFile);
+    //    GameObject root = GameObject.Find("SceneObjs");
+    //    if (root == null)
+    //        root = new GameObject("SceneObjs");
+    //    List<SceneObjAttr> objs = new List<SceneObjAttr>();
+    //    int objCount = 0;
+    //    int DummyCount = 0;
+    //    if (!string.IsNullOrEmpty(strFile))
+    //    {
+    //        StreamReader asset = File.OpenText(strFile);
+    //        while (!asset.EndOfStream)
+    //        {
+    //            string obj = asset.ReadLine();
+    //            string[] keyValue = obj.Split(new char[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
+    //            if (keyValue[0] == "#")
+    //                continue;
+    //            if (keyValue[0] == "SceneObjects" && keyValue[2] == "DummeyObjects")
+    //            {
+    //                objCount = int.Parse(keyValue[1]);
+    //                DummyCount = int.Parse(keyValue[3]);
+    //                continue;
+    //            }
+
+    //            if (keyValue[0] == "Object")
+    //            {
+    //                SceneObjAttr attr = new SceneObjAttr();
+    //                attr.name = keyValue[1];
+    //                attr.ReadObjAttr(asset);
+    //                objs.Add(attr);
+    //            }
+    //        }
+    //        Debug.LogFormat("共有{0}个对象{1}个虚拟物", objCount, DummyCount);
+    //        if (objs.Count != objCount + DummyCount)
+    //        {
+    //            Debug.Log("物品数量不对");
+    //            return;
+    //        }
+    //        for (int i = 0; i < objs.Count; i++)
+    //        {
+    //            GameObject obj = new GameObject(objs[i].name);
+    //            obj.transform.parent = root.transform;
+    //            obj.transform.rotation = objs[i].quat;
+    //            obj.transform.position = objs[i].pos;
+    //        }
+    //        string file = "Assets/Resources/" + fi.Name.Substring(0, fi.Name.Length - 4) + ".bytes";
+    //        if (File.Exists(file))
+    //        {
+    //            if (!EditorUtility.DisplayDialog("提示", "要覆盖:\n" + file + "吗", "是", "否"))
+    //                return;
+    //        }
+    //        File.Delete(file);
+    //        FileStream fs = File.Open(file, FileMode.CreateNew, FileAccess.ReadWrite);
+    //        Serializer.Serialize<List<SceneObjAttr>>(fs, objs);
+    //        fs.Close();
+    //    }
+    //}
 
 
     [MenuItem("Meteor/SceneMgr/SaveColliderFile")]

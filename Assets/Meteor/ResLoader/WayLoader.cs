@@ -6,8 +6,7 @@ using System.IO;
 public class WayLoader
 {
     //每进入一关加载唯一的一次.
-    List<WayPoint> data = new List<WayPoint>();
-    public List<WayPoint> ReLoad(string file)
+    public static List<WayPoint> ReLoad(string file)
     {
         string key = file + ".wp";
         List<WayPoint> wp = new List<WayPoint>();
@@ -54,6 +53,10 @@ public class WayLoader
             }
             if (!wp.Contains(wpeach) && wayCount != 0)
                 wp.Add(wpeach);
+        }
+        else
+        {
+            UnityEngine.Debug.LogError("can not load " + key);
         }
         return wp;
     }

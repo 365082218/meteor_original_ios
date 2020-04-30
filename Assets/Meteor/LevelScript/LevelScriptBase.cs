@@ -1146,7 +1146,6 @@ public class LevelScriptBase:ScriptBase {
     public virtual string GetDesName() { return ""; }
     public virtual bool OnPlayerSpawn(MeteorUnit unit) { return false; }//角色生成后调整
     public virtual void Scene_OnCharacterEvent(int id, int evt) { }
-    public virtual bool DisableFindWay() { return false; }//是否不允许寻路, false，表示允许寻路，true，表示不允许寻路
     public virtual void OnLoad(){}//当关卡被加载最初时，可在此修改游戏类型，让一些与关卡类型相关的地图元素显示出来， ticket=xx
     public virtual GameResult OnUnitDead(MeteorUnit deadUnit)
     {
@@ -7481,10 +7480,6 @@ public class LevelScript_sn22 : LevelScriptBase
     {
         Main.Ins.CombatData.GGameMode = GameMode.SIDOU;
     }
-    public override bool DisableFindWay()
-    {
-        return true;
-    }
     int DeathMatch = 1;
     int TeamDeathMatch = 5;
     int GameMod;
@@ -8381,10 +8376,6 @@ public class LevelScript_sn25 : LevelScriptBase
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
-    public override bool DisableFindWay()
-    {
-        return true;
-    }
     int RoundTime = 20;
     int PlayerSpawn = 0;
     int PlayerSpawnDir = 200;
@@ -8613,10 +8604,6 @@ public class LevelScript_sn31 : LevelScript_sn22
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
-    public override bool DisableFindWay()
-    {
-        return true;
-    }
     public override bool OnPlayerSpawn(MeteorUnit unit)
     {
         Vector3 vec = Main.Ins.CombatData.GLevelSpawn[14];
@@ -8802,6 +8789,7 @@ public class LevelScript_sn02_1:LevelScript_sn02
     }
 }
 
+//
 public class LevelScript_sn24 : LevelScriptBase
 {
     int Rule = 5;
@@ -8815,10 +8803,6 @@ public class LevelScript_sn24 : LevelScriptBase
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
-    public override bool DisableFindWay()
-    {
-        return true;
-    }
 
     public override void OnLoad()
     {

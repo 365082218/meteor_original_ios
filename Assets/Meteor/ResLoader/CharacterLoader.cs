@@ -773,8 +773,11 @@ public class CharacterLoader
             }
             else
             {
-                if (mOwner.IsOnGround()) loop = false;
-                //Debug.Log("PlayPosEvent:" + po.Idx);
+                if (mOwner.IsOnGround())
+                {
+                    loop = false;
+                    //Debug.Log("PlayPosEvent:" + po.Idx);
+                }
             }
         }
     }
