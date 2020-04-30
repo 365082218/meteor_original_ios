@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: 25
+  m_Shader: {fileID: 4800000, guid: a0a5cb9d8925b7a4ca83c7a9fa9a5b85, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 5
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  m_SavedProperties:
+    serializedVersion: 2
+    m_TexEnvs:
+    - first:
+        name: <noninit>
+      second:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - first:
+        name: _MainTex
+      second:
+        m_Texture: {fileID: 2800000, guid: ff7ac6b94059c4c4c9f1fb4f5f6b6d2d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - first:
+        name: <noninit>
+      second: 0
+    - first:
+        name: _Tweak
+      second: 0.65
+    - first:
+        name: _Width
+      second: 8.71
+    m_Colors:
+    - first:
+        name: <noninit>
+      second: {r: 0, g: 2.4600852e-32, b: 0, a: 2.4600758e-32}
+    - first:
+        name: _Color
+      second: {r: 1, g: 1, b: 1, a: 1}
