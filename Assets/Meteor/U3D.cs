@@ -632,9 +632,22 @@ public class U3D : MonoBehaviour {
         Log.Write("helper.load end");
     }
 
-    //走参数指定关卡.
+    //播放路线
+    public static void PlayRecord(GameRecord rec)
+    {
+        Main.Ins.CombatData.GRecord = rec;
+        Main.Ins.CombatData.GLevelItem = Main.Ins.CombatData.GetLevel(rec.Chapter, rec.Id);
+        Main.Ins.CombatData.Chapter = DlcMng.GetPluginChapter(rec.Chapter);
+        Main.Ins.CombatData.GLevelMode = LevelMode.SinglePlayerTask;
+        Main.Ins.CombatData.GGameMode = GameMode.Normal;
+        Main.Ins.CombatData.wayPoints = CombatData.GetWayPoint(Main.Ins.CombatData.GLevelItem);
+        LoadLevelEx();
+    }
+
+    //走参数指定关卡.非剧本&非回放
     public static void LoadLevel(LevelDatas.LevelDatas lev, LevelMode levelmode, GameMode gamemode)
     {
+        Main.Ins.CombatData.GRecord = null;
         Main.Ins.CombatData.Chapter = null;
         Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LoadingDialogState);
         //暂时不允许使用声音管理器，在切换场景时不允许播放

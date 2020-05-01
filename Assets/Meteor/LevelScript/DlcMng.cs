@@ -76,6 +76,7 @@ public class DlcMng
         Main.Ins.GameStateMgr.SaveState();
         LevelDatas.LevelDatas lev = chapter.GetItem(levelIdx);
         Main.Ins.CombatData.GLevelItem = lev;
+        Main.Ins.CombatData.GRecord = null;
         Main.Ins.CombatData.GLevelMode = LevelMode.SinglePlayerTask;
         Main.Ins.CombatData.GGameMode = GameMode.Normal;
         Main.Ins.CombatData.wayPoints = CombatData.GetWayPoint(lev);

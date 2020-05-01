@@ -125,12 +125,6 @@ public class Chapter
             System.IO.File.Delete(LocalPath);
         Installed = false;
     }
-    
-    //加载资料片内得关卡关卡.
-    public void LoadLevel(int levelIdx)
-    {
-        Main.Ins.DlcMng.PlayDlc(this, levelIdx);
-    }
 }
 
 //外接得模型

@@ -13,20 +13,20 @@ public class MapLoader : MonoBehaviour {
     public int levelId;
     public string desFile;
 	// Use this for initialization
-	void Start () {
-        MeshCollider[] objs = GetComponentsInChildren<MeshCollider>();
-        for (int i = 0; i < objs.Length; i++)
-        {
-            if (objs[i].enabled)
-            {
-                objs[i].sharedMesh.RecalculateNormals();
-                objs[i].sharedMesh.RecalculateBounds();
-#if UNITY_2017
-                objs[i].sharedMesh.RecalculateTangents();
-#endif
-            }
-        }
-	}
+//	void Start () {
+//        MeshCollider[] objs = GetComponentsInChildren<MeshCollider>();
+//        for (int i = 0; i < objs.Length; i++)
+//        {
+//            if (objs[i].enabled)
+//            {
+//                objs[i].sharedMesh.RecalculateNormals();
+//                objs[i].sharedMesh.RecalculateBounds();
+//#if UNITY_2017
+//                objs[i].sharedMesh.RecalculateTangents();
+//#endif
+//            }
+//        }
+//	}
 	
 	// Update is called once per frame
 	void Update () {

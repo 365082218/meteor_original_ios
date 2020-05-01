@@ -413,6 +413,10 @@ public class Common
         //Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ProtocolVeritify);
     }
 
+    public static void SendRecord(GameRecord record) {
+        //Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType., record);
+    }
+
     public static void SendUpdateGameServer()
     {
         Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.GetRoomReq);

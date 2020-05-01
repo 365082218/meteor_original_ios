@@ -145,7 +145,7 @@ public class MeteorInput
 
             mInputVector = vec;
             if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
-                Main.Ins.FSS.PushJoyDelta(mOwner.InstanceId, (int)(1000 * mInputVector.x), (int)(1000 * mInputVector.y));
+                Main.Ins.FrameSync.PushJoyDelta(mOwner.InstanceId, (int)(1000 * mInputVector.x), (int)(1000 * mInputVector.y));
             else
             {
                 //mInputVector;
@@ -1839,7 +1839,13 @@ public class MeteorInput
 
     public void OnKeyPressing(EKeyList key)
     {
-        OnKeyPressing(KeyStates[(int)key]);
+        if (Main.Ins.CombatData.Replay) {
+            OnKeyPressing(KeyStates[(int)key]);
+        } else {
+            Main.Ins.FrameSync.PushKeyUp(mOwner.InstanceId, KeyStates[(int)key].Key);
+            if (Main.Ins.CombatData.GLevelMode != LevelMode.MultiplyPlayer)
+                OnKeyPressing(KeyStates[(int)key]);
+        }
     }
 
     Dictionary<EKeyList, int> genFreq = new Dictionary<EKeyList, int>();
@@ -1858,6 +1864,7 @@ public class MeteorInput
             genFreq.Add(keyStatus.Key, Main.Ins.AppInfo.LinkDelay() + 1);
     }
 
+#if (UNITY_EDITOR || UNITY_STANDALONE_WIN) && !STRIP_KEYBOARD
     public void OnKeyPressingProxy(EKeyList key)
     {
         if (mOwner.controller.InputLocked)
@@ -1865,13 +1872,15 @@ public class MeteorInput
         OnKeyPressingProxy(KeyStates[(int)key]);
     }
 
+
     public void OnKeyPressingProxy(KeyState keyStatus)
     {
         if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
-            Main.Ins.FSS.PushKeyEvent(protocol.MeteorMsg.Command.KeyLast, mOwner.InstanceId, keyStatus.Key);
+            Main.Ins.FrameSync.PushKeyEvent(protocol.MeteorMsg.Command.KeyLast, mOwner.InstanceId, keyStatus.Key);
         else
             OnKeyPressing(keyStatus.Key);
     }
+#endif
 
     public void OnKeyUpProxy(EKeyList key)
     {
@@ -1905,10 +1914,13 @@ public class MeteorInput
         keyStatus.Pressed = 0;
         keyStatus.ReleasedTime = 0.0f;
         keyStatus.IsAI = false;
-        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
-            Main.Ins.FSS.PushKeyUp(mOwner.InstanceId, keyStatus.Key);
-        else
+        if (Main.Ins.CombatData.Replay) {
             OnKeyUp(keyStatus.Key);
+        } else {
+            Main.Ins.FrameSync.PushKeyUp(mOwner.InstanceId, keyStatus.Key);
+            if (Main.Ins.CombatData.GLevelMode != LevelMode.MultiplyPlayer)
+                OnKeyUp(keyStatus.Key);
+        }
     }
 
     public void OnKeyDownProxy(KeyState keyStatus, bool isAI)
@@ -1923,10 +1935,15 @@ public class MeteorInput
         keyStatus.PressedTime = 0.0f;
         keyStatus.IsAI = isAI;
 
-        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
-            Main.Ins.FSS.PushKeyDown(mOwner.InstanceId, keyStatus.Key);
-        else
+        //是否记录按键
+        //录像模式下不记录按键
+        if (Main.Ins.CombatData.Replay) {
             OnKeyDown(keyStatus.Key, isAI);
+        } else {
+            Main.Ins.FrameSync.PushKeyDown(mOwner.InstanceId, keyStatus.Key);
+            if (Main.Ins.CombatData.GLevelMode != LevelMode.MultiplyPlayer)
+                OnKeyDown(keyStatus.Key, isAI);
+        }
     }
 
     void UpdateMoveInput()
@@ -2095,7 +2112,7 @@ public class MeteorController {
         //硬直中不允许其他姿势的控制.
         if (Owner.charLoader.IsInStraight())
             return;
-        //行为树处理.
+        //在一定动作时才可响应的动作.
         if (Main.Ins.GameBattleEx != null && !Main.Ins.GameBattleEx.BattleFinished() && !Main.Ins.CombatData.PauseAll)
             Main.Ins.MeteorBehaviour.ProcessBehaviour(Owner);
         else

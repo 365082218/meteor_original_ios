@@ -134,7 +134,7 @@ public class LevelDialog : Dialog {
             }
             else
             {
-                Main.Ins.CombatData.Chapter.LoadLevel(select.ID);
+                Main.Ins.DlcMng.PlayDlc(Main.Ins.CombatData.Chapter, select.ID);
             }
             if (background.material == null)
                 OnBackPress();

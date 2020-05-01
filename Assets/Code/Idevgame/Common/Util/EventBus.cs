@@ -5,7 +5,6 @@ using UnityEngine;
 
 public enum EventId
 {
-    NavFinished,//寻路导航结束.
 }
 
 public class TEventArgs : EventArgs

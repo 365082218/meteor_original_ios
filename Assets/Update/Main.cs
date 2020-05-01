@@ -99,8 +99,7 @@ public class Main : MonoBehaviour {
     public SceneMng SceneMng;
     public MeteorUnit LocalPlayer;
     //帧同步相关
-    public FSS FSS;
-    public FSC FSC;
+    public FrameSync FrameSync;
 
     public MeteorBehaviour MeteorBehaviour;
     public MenuResLoader MenuResLoader;
@@ -196,8 +195,7 @@ public class Main : MonoBehaviour {
         EventBus = new EventBus();
         NetWorkBattle = new NetWorkBattle();
         SceneMng = new SceneMng();
-        FSS = new FSS();
-        FSC = new FSC();
+        FrameSync = new FrameSync();
         MeteorBehaviour = new MeteorBehaviour();
         DropMng = new DropMng();
         //原版相关资源的加载器.

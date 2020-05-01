@@ -770,7 +770,7 @@ public partial class MeteorUnit : NetBehaviour
                 {
 #if STRIP_KEYBOARD
                     //Debug.LogError(string.Format("deltaLast.x:{0}", NGUICameraJoystick.instance.deltaLast.x));
-                    yRotate = NGUICameraJoystick.instance.deltaLast.x * Main.Instance.GameStateMgr.gameStatus.AxisSensitivity.x;
+                    yRotate = NGUICameraJoystick.instance.deltaLast.x * Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.x;
 #else
                 yRotate = Input.GetAxis("Mouse X") * 5;
 #endif
@@ -780,7 +780,7 @@ public partial class MeteorUnit : NetBehaviour
 
                 float xRotate = 0;
 #if STRIP_KEYBOARD
-                xRotate = NGUICameraJoystick.instance.deltaLast.y * Main.Instance.GameStateMgr.gameStatus.AxisSensitivity.y;
+                xRotate = NGUICameraJoystick.instance.deltaLast.y * Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.y;
 #else
                 xRotate = Input.GetAxis("Mouse Y") * 2;
 #endif
@@ -789,7 +789,7 @@ public partial class MeteorUnit : NetBehaviour
                 {
                     //Debug.LogError("push mouse move");
                     if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
-                        Main.Ins.FSS.PushMouseDelta(InstanceId, (int)(1000 * xRotate), (int)(1000 * yRotate));
+                        Main.Ins.FrameSync.PushMouseDelta(InstanceId, (int)(1000 * xRotate), (int)(1000 * yRotate));
                     else
                         OnPlayerMouseDelta(xRotate, yRotate);
                 }

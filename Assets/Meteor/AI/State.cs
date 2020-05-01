@@ -467,7 +467,6 @@ namespace Idevgame.Meteor.AI
         public override void OnEnter(State prev, object data)
         {
             base.OnEnter(prev, data);
-            Machine.EventBus.Register(EventId.NavFinished, this.OnNavFinished);
             //战斗中，基本不会四周看
             Machine.ResetAction();
             Machine.SetActionTriggered(ActionType.Look, false);
@@ -476,12 +475,6 @@ namespace Idevgame.Meteor.AI
         public override void OnExit(State next)
         {
             base.OnExit(next);
-            Machine.EventBus.UnRegister(EventId.NavFinished, this.OnNavFinished);
-        }
-
-        public void OnNavFinished(object sender, TEventArgs args)
-        {
-            Machine.ChangeState(this);
         }
 
         //行为优先级 

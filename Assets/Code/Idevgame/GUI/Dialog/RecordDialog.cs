@@ -33,7 +33,7 @@ public class RecordDialog : Dialog
 
     static int recCurrent;
     List<string> recList = new List<string>();//文件列表
-    List<GameRecord> recData = new List<GameRecord>();//路线列表
+    List<GameRecord> recData = new List<GameRecord>();//录像列表
     List<GameObject> recItems = new List<GameObject>();//UI路线控件列表
     GameObject root;
     Coroutine refreshRec;
@@ -42,7 +42,7 @@ public class RecordDialog : Dialog
     void Init()
     {
         recDir = string.Format("{0}/record/", Application.persistentDataPath);
-        Prefab = Resources.Load("RecordItem") as GameObject;
+        Prefab = Resources.Load("UI/Dialogs/RecordItem") as GameObject;
         if (System.IO.Directory.Exists(recDir))
             RefreshAuto();
         else
@@ -65,18 +65,30 @@ public class RecordDialog : Dialog
                 string file = recList[recCurrent];
                 if (System.IO.File.Exists(file))
                     System.IO.File.Delete(file);
+                GameObject removed = recItems[recCurrent];
                 recList.RemoveAt(recCurrent);
                 recItems.RemoveAt(recCurrent);
+                GameObject.Destroy(removed);
                 recCurrent -= 1;
             }
         });
 
         Control("Play").GetComponent<Button>().onClick.AddListener(() =>
         {
-            if (recCurrent != -1)
+            if (recCurrent > -1 && recData.Count > recCurrent)
             {
                 //播放一个路线，弹出2级菜单.
-                U3D.PopupTip("播放录像");
+                GameRecord rec = recData[recCurrent];
+                U3D.PlayRecord(rec);
+            }
+        });
+
+        Control("Upload").GetComponent<Button>().onClick.AddListener(() => {
+            if (recCurrent > -1 && recData.Count > recCurrent) {
+                U3D.PopupTip("上传录像");
+                //播放一个路线，弹出2级菜单.
+                GameRecord rec = recData[recCurrent];
+                TcpClientProxy.UploadRecord(rec);
             }
         });
     }
@@ -105,6 +117,7 @@ public class RecordDialog : Dialog
                 GameRecord rec = ProtoBuf.Serializer.Deserialize<GameRecord>(fs);
                 recData.Add(rec);
                 recList.Add(file);
+                fs.Close();
             }
             catch
             {
@@ -129,18 +142,20 @@ public class RecordDialog : Dialog
         GameObject recordItem = GameObject.Instantiate(Prefab);
         recordItem.transform.SetParent(root.transform);
         Utility.Zero(recordItem);
-        NodeHelper.Find("RecordName", recordItem).GetComponent<Text>().text = rec.Name;
+        recItems.Add(recordItem);
+        GameObject recordButton = NodeHelper.Find("RecordName", recordItem);
+        recordButton.GetComponent<Text>().text = rec.Name;
         //NodeHelper.Find("CaptureScreen", recordItem).GetComponent<Image>().sprite = rec.Screen;
-        recordItem.GetComponent<Button>().onClick.AddListener(() =>
+        recordButton.GetComponent<Button>().onClick.AddListener(() =>
         {
             recCurrent = recData.IndexOf(rec);
-            NodeHelper.Find("RecordName", recordItem).GetComponent<Text>().color = Color.blue;
-            recordItem.GetComponent<Image>().color = new Color(1, 1, 1, 26.0f / 255.0f);
+            recordButton.GetComponent<Text>().color = Color.blue;
+            //recordButton.GetComponent<Image>().color = new Color(1, 1, 1, 26.0f / 255.0f);
             for (int i = 0; i < recData.Count; i++)
             {
                 if (recData[i] == rec)
                     continue;
-                recItems[i].GetComponent<Image>().color = new Color(1, 1, 1, 0);
+                //recItems[i].GetComponent<Image>().color = new Color(1, 1, 1, 0);
                 NodeHelper.Find("RecordName", recItems[i]).GetComponent<Text>().color = Color.blue;
             }
         });

@@ -46,6 +46,7 @@ namespace Idevgame.Meteor.AI
         NavPathCalc,//进行查询中
         NavPathInvalid,//路径不存在
         NavPathComplete,//成功找到路径
+        NavPathOrient,//朝向检查过程
         NavPathIterator,//遍历路点过程中
         NavPathFinished,//寻路过程完整结束
     }
@@ -734,7 +735,7 @@ namespace Idevgame.Meteor.AI
                         navPathStatus = NavPathStatus.NavPathComplete;
                     break;
                 case NavPathStatus.NavPathComplete:
-                    navPathStatus = NavPathStatus.NavPathIterator;
+                    navPathStatus = NavPathStatus.NavPathOrient;
                     if (Machine.Path.ways.Count == 0)
                     {
                         //寻路可直达，
@@ -746,13 +747,13 @@ namespace Idevgame.Meteor.AI
                         wayIndex = 0;
                         TargetPos = Machine.Path.ways[wayIndex].pos;
                     }
-                    Machine.ChangeState(Machine.WaitState);
-                    for (int i = 0; i < Machine.Path.ways.Count; i++)
-                    {
-                        GameObject obj = new GameObject(string.Format("{0}", i));
-                        Idevgame.Util.ObjectUtils.Identity(obj);
-                        obj.transform.position = Machine.Path.ways[i].pos;
-                    }
+                    //Machine.ChangeState(Machine.WaitState);
+                    //for (int i = 0; i < Machine.Path.ways.Count; i++)
+                    //{
+                    //    GameObject obj = new GameObject(string.Format("{0}", i));
+                    //    Idevgame.Util.ObjectUtils.Identity(obj);
+                    //    obj.transform.position = Machine.Path.ways[i].pos;
+                    //}
                     break;
                 case NavPathStatus.NavPathInvalid:
                     navPathStatus = NavPathStatus.NavPathIterator;
@@ -766,27 +767,37 @@ namespace Idevgame.Meteor.AI
 
         protected void NavUpdate()
         {
-            if (navPathStatus == NavPathStatus.NavPathIterator)
-            {
+            if (navPathStatus == NavPathStatus.NavPathOrient){
                 //如果方向不对，先切换到转向状态
                 if (GetAngleBetween(TargetPos) >= Main.Ins.CombatData.AimDegree)
                 {
+                    navPathStatus = NavPathStatus.NavPathIterator;
                     Machine.ChangeState(Machine.FaceToState, TargetPos);
                     UnityEngine.Debug.Log("进入转向状态");
                     return;
                 }
-
+                else{
+                    navPathStatus = NavPathStatus.NavPathIterator;
+                }
+            }
+            else if (navPathStatus == NavPathStatus.NavPathIterator)
+            {
                 if (wayIndex == Machine.Path.ways.Count - 1){
                     //最后一个路点
                     float distance = NavType == NavType.NavFindUnit ? CombatData.AttackRange : CombatData.StopDistance;
-                    if (Vector3.SqrMagnitude(TargetPos - Player.transform.position) <= distance){
+                    Vector3 vector = TargetPos;
+                    vector.y = 0;
+                    if (Vector3.SqrMagnitude(vector - Player.mPos2d) <= distance){
                         navPathStatus = NavPathStatus.NavPathFinished;
-                        Machine.EventBus.Fire(EventId.NavFinished);
+                        UnityEngine.Debug.Log("寻路完毕，进入战斗状态");
+                        Player.controller.Input.AIMove(0, 0);
                         return;
                     }
                 }else{
+                    Vector3 vector = TargetPos;
+                    vector.y = 0;
                     //不是最后一个路点
-                    if (Vector3.SqrMagnitude(TargetPos - Player.transform.position) <= CombatData.StopDistance){
+                    if (Vector3.SqrMagnitude(vector - Player.mPos2d) <= CombatData.StopDistance){
                         wayIndex += 1;
                         TargetPos = Machine.Path.ways[wayIndex].pos;
                         return;

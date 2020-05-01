@@ -413,6 +413,10 @@ class TcpClientProxy
         server = null;
     }
 
+    public static void UploadRecord(GameRecord record) {
+        Common.SendRecord(record);
+    }
+
     //发出的.
     //网关服务器从中心服务器取得游戏服务器列表.
     public static void UpdateGameServer()

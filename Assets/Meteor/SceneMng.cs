@@ -103,7 +103,8 @@ public class SceneMng
         unit.SetGround(false);
         if (Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
         {
-            unit.transform.position = Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+            if (Main.Ins.CombatData.wayPoints.Count != 0)
+                unit.transform.position = Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
         }
         else if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld)
         {

@@ -119,7 +119,7 @@ public class FightUiConroller : Dialog
             (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer));
         NodeHelper.Find("Reborn", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnRebornClick);
 
-        //单机
+        //单机-金华城
         if (Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask && Main.Ins.CombatData.GLevelItem.ID == 4)
             NodeHelper.Find("Reborn", WndObject).SetActive(true);
         else
@@ -204,19 +204,18 @@ public class FightUiConroller : Dialog
     {
         if (Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask)
         {
-            if (Main.Ins.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle ||
-                Main.Ins.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Run ||
-                Main.Ins.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
-                Main.Ins.LocalPlayer.posMng.ChangeAction(CommonAction.Reborn);
+            if (Main.Ins.LocalPlayer.Dead)
+                return;
+
+            if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
+                Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Help, false);
         }
         else if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld)
         {
             if (Main.Ins.CombatData.GGameMode == GameMode.ANSHA)
             {
-                if (Main.Ins.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Idle ||
-                    Main.Ins.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.Run ||
-                    Main.Ins.LocalPlayer.posMng.mActiveAction.Idx == CommonAction.RunOnDrug)
-                    Main.Ins.LocalPlayer.posMng.ChangeAction(CommonAction.Reborn);
+                if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
+                    Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Help, false);
             }
         }
     }
@@ -331,7 +330,11 @@ public class FightUiConroller : Dialog
 
     void OnClickDrop()
     {
-        Main.Ins.LocalPlayer.DropWeapon();
+        if (Main.Ins.LocalPlayer.Dead)
+            return;
+
+        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
+        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_DropWeapon, false);
     }
 
     void OnCrouchPress()
@@ -474,77 +477,11 @@ public class FightUiConroller : Dialog
         TargetInfoLast = 5.0f;
         TargetHp.fillAmount = (float)mon.Attr.hpCur / (float)mon.Attr.TotalHp;
         TargetHPLabel.text = ((int)(mon.Attr.hpCur / 10.0f)).ToString() + "/" + ((int)(mon.Attr.TotalHp / 10.0f)).ToString();
-        //targetTitleInfo.text = mon.name;
         currentTargetHp = mon.Attr.hpCur;
         nextTargetHp = mon.Attr.hpCur;
         TargetName.text = mon.name;
-        //if (updateEnemyBuff != null)
-        //{
-        //    GameBattleEx.Instance.StopCoroutine(updateEnemyBuff);
-        //    updateEnemyBuff = null;
-        //}
-        //foreach (var each in enemyBuffList)
-        //    GameObject.Destroy(each.Value);
-        //enemyBuffList.Clear();
-
-        //if (!mon.Dead)
-        //{
-        //    foreach (var each in BuffMng.Instance.BufDict)
-        //    {
-        //        if (!enemyBuffList.ContainsKey(each.Value) && each.Value.Units.ContainsKey(mon))
-        //        {
-        //            GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("BuffItem"));// new GameObject(buf.Iden);
-        //            obj.name = each.Value.Iden;
-        //            obj.transform.SetParent(TargetBuffPanel.transform);
-        //            obj.transform.localScale = Vector3.one;
-        //            obj.transform.localPosition = Vector3.zero;
-        //            obj.transform.localRotation = Quaternion.identity;
-        //            obj.layer = TargetBuffPanel.layer;
-        //            enemyBuffList.Add(each.Value, obj);
-
-        //            GameObject BuffImg = Control("BuffImg", enemyBuffList[each.Value]);
-        //            BuffImg.GetComponent<Image>().fillAmount = each.Value.Units[mon].refresh_tick / (each.Value.last_time / 10);
-        //            GameObject BuffLength = Control("BuffLength", enemyBuffList[each.Value]);
-        //            BuffLength.GetComponent<Text>().text = string.Format("{0:F1}", each.Value.Units[mon].refresh_tick);
-
-        //            GameObject BuffName = Control("BuffName", enemyBuffList[each.Value]);
-        //            BuffName.GetComponent<Text>().text = each.Value.Iden;
-        //        }
-        //    }
-        //    if (updateEnemyBuff == null)
-        //        updateEnemyBuff = GameBattleEx.Instance.StartCoroutine(UpdateEnemyBuff());
-        //}
         CurrentMonster = mon;
-        //if (hideTargetInfo != null)
-        //    GameBattleEx.Instance.StopCoroutine(hideTargetInfo);
-        //hideTargetInfo = GameBattleEx.Instance.StartCoroutine(HideTargetInfo());
     }
-
-    //Coroutine updateEnemyBuff;
-    //IEnumerator UpdateEnemyBuff()
-    //{
-    //    while (true)
-    //    {
-    //        try
-    //        {
-    //            foreach (var each in enemyBuffList)
-    //            {
-    //                if (currentMonster != null && each.Key.Units.ContainsKey(currentMonster))
-    //                {
-    //                    GameObject BuffImg = Control("BuffImg", each.Value);
-    //                    BuffImg.GetComponent<Image>().fillAmount = each.Key.Units[currentMonster].refresh_tick / (each.Key.last_time / 10);
-    //                    GameObject BuffLength = Control("BuffLength", each.Value);
-    //                    BuffLength.GetComponent<Text>().text = string.Format("{0:F1}", each.Key.Units[currentMonster].refresh_tick);
-    //                }
-    //            }
-    //        }
-    //        catch (Exception exp)
-    //        {
-    //            Debug.LogError(exp.Message + exp.StackTrace);
-    //        }
-    //        yield return 0;
-    //    }
-    //}
 
     public void Update()
     {
@@ -591,83 +528,4 @@ public class FightUiConroller : Dialog
             UpdateAngryBar();
         }
     }
-
-    //Dictionary<Buff, GameObject> buffList = new Dictionary<Buff, GameObject>();
-    //Coroutine updateBuff;
-    //public void AddBuff(Buff buf)
-    //{
-    //    if (updateBuff == null)
-    //        updateBuff = GameBattleEx.Instance.StartCoroutine(UpdateBuff());
-    //    if (buffList.ContainsKey(buf))
-    //    {
-    //        GameObject BuffName = Control("BuffName", buffList[buf]);
-    //        BuffName.GetComponent<Text>().text = buf.Iden;
-    //        GameObject BuffImg = Control("BuffImg", buffList[buf]);
-    //        BuffImg.GetComponent<Image>().fillAmount = 1;
-    //        GameObject BuffLength = Control("BuffLength", buffList[buf]);
-    //        BuffLength.GetComponent<Text>().text = string.Format("{0:F2}", buf.last_time / 10);
-    //    }
-    //    else
-    //    {
-    //        GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("BuffItem"));// new GameObject(buf.Iden);
-    //        obj.name = buf.Iden;
-    //        obj.transform.SetParent(BuffRoot.transform);
-    //        obj.transform.localScale = Vector3.one;
-    //        obj.transform.localPosition = Vector3.zero;
-    //        obj.transform.localRotation = Quaternion.identity;
-    //        obj.layer = BuffRoot.layer;
-    //        buffList.Add(buf, obj);
-    //        GameObject BuffName = Control("BuffName", buffList[buf]);
-    //        BuffName.GetComponent<Text>().text = buf.Iden;
-    //        GameObject BuffImg = Control("BuffImg", buffList[buf]);
-    //        BuffImg.GetComponent<Image>().fillAmount = 1;
-    //        GameObject BuffLength = Control("BuffLength", buffList[buf]);
-    //        BuffLength.GetComponent<Text>().text = string.Format("{0:F1}", buf.last_time / 10);
-    //    }
-    //}
-
-    //public IEnumerator UpdateBuff()
-    //{
-    //    while (true)
-    //    {
-    //        try
-    //        {
-    //            foreach (var each in buffList)
-    //            {
-    //                if (each.Key.Units.ContainsKey(MeteorManager.Instance.LocalPlayer))
-    //                {
-    //                    GameObject BuffImg = Control("BuffImg", each.Value);
-    //                    BuffImg.GetComponent<Image>().fillAmount = each.Key.Units[MeteorManager.Instance.LocalPlayer].refresh_tick / (each.Key.last_time / 10);
-    //                    GameObject BuffLength = Control("BuffLength", each.Value);
-    //                    BuffLength.GetComponent<Text>().text = string.Format("{0:F1}", each.Key.Units[MeteorManager.Instance.LocalPlayer].refresh_tick);
-    //                }
-    //            }
-    //        }
-    //        catch (Exception exp)
-    //        {
-    //            Debug.LogError(exp.Message + exp.StackTrace);
-    //        }
-    //        yield return 0;
-    //    }
-    //}
-
-    //public void RemoveBuff(Buff buf, MeteorUnit unit = null)
-    //{
-    //    if (unit == null)
-    //    {
-    //        if (buffList.ContainsKey(buf))
-    //        {
-    //            GameObject.Destroy(buffList[buf]);
-    //            buffList.Remove(buf);
-    //        }
-    //    }
-    //    else
-    //    {
-    //        if (enemyBuffList.ContainsKey(buf))
-    //        {
-    //            GameObject.Destroy(enemyBuffList[buf]);
-    //            enemyBuffList.Remove(buf);
-    //        }
-    //    }
-    //}
 }

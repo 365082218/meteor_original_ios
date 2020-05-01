@@ -21,9 +21,11 @@ public class GameRecord
 public class RecordMgr : Singleton<RecordMgr> {
 
     System.Threading.Thread WriteThread;
+    string version;
     string recordPath;
     public void WriteFile()
     {
+        version = Main.Ins.AppInfo.AppVersion();
         if (WriteThread != null)
             return;
         recordPath = string.Format("{0}/record/", Application.persistentDataPath);
@@ -34,14 +36,14 @@ public class RecordMgr : Singleton<RecordMgr> {
     void WriteFileCore()
     {
         GameRecord record = new GameRecord();
-        record.RecordVersion = Main.Ins.AppInfo.AppVersion();
+        record.RecordVersion = version;
         record.guid = Guid.NewGuid();
         record.Name = GenerateRecordName(Main.Ins.CombatData.GLevelItem, Main.Ins.CombatData.GLevelMode, Main.Ins.CombatData.GGameMode);
         record.Mode = (int)Main.Ins.CombatData.GLevelMode;
         record.Chapter = (int)(Main.Ins.CombatData.Chapter == null ? 0 : Main.Ins.CombatData.Chapter.ChapterId);
         record.Id = (int)(Main.Ins.CombatData.GLevelItem.ID);
         record.RandomSeed = Main.Ins.CombatData.RandSeed;
-        record.frames = Main.Ins.FSC.frames;
+        record.frames = Main.Ins.FrameSync.Frames;
 
         try
         {
@@ -74,8 +76,8 @@ public class RecordMgr : Singleton<RecordMgr> {
         string [] gms = new string[] { "盟主","劫镖","护城", "暗杀", "死斗", "普通" };
         if (lm == LevelMode.MultiplyPlayer)
         {
-            return string.Format("{0}_{1}_{2}_{3}人_联机", gms[(int)gm -1], data.Scene, Main.Ins.GameStateMgr.gameStatus.NickName, Main.Ins.RoomMng.Current.maxPlayer);
+            return string.Format("{0}_{1}_{2}_{3}人_联机", gms[(int)gm -1], data.Name, Main.Ins.GameStateMgr.gameStatus.NickName, Main.Ins.RoomMng.Current.maxPlayer);
         }
-        return string.Format("{0}-{1}-{2}_剧情", gms[(int)gm - 1], data.Scene, Main.Ins.GameStateMgr.gameStatus.NickName);
+        return string.Format("{0}-{1}-{2}_剧情", gms[(int)gm - 1], data.Name, Main.Ins.GameStateMgr.gameStatus.NickName);
     }
 }

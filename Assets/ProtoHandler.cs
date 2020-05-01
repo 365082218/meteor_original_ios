@@ -130,7 +130,7 @@ class ProtoHandler
                             case (int)MeteorMsg.MsgType.SyncCommand:
                                 ms = new MemoryStream(each.Value);
                                 GameFrames t = ProtoBuf.Serializer.Deserialize<GameFrames>(ms);
-                                Main.Ins.FSC.OnReceiveCommand(t);
+                                Main.Ins.FrameSync.OnReceiveCommand(t);
                                 break;
                         }
                     }
