@@ -6,6 +6,8 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+//控制了点Unity播放按钮时的事件，当激活场景在Build列表里时被勾选，那么从游戏的入口场景开始
+//否则单独以此场景为入口打开
 [InitializeOnLoad]
 public class EditorInitializer
 {
@@ -41,7 +43,7 @@ public class EditorInitializer
 
             for (int i = 0; i < scenes.Length; i++)
             {
-                if (scenes[i].path == path)
+                if (scenes[i].path == path && scenes[i].enabled)
                 {
                     runStartUpScene = true;
                     break;

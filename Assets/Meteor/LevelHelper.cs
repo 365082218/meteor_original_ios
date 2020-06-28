@@ -15,12 +15,6 @@ public interface LoadingUI
 public class LevelHelper : MonoBehaviour
 {
     AsyncOperation mAsync;
-    public struct LevelParam
-    {
-        public int id;
-        public int gate;
-    }
-
     public void LoadScene(string scene, Action OnFinished)
     {
         StartCoroutine(LoadSceneAsync(scene, OnFinished));
@@ -133,6 +127,57 @@ public class LevelHelper : MonoBehaviour
 
         FrameReplay.Instance.OnBattleStart();
 
-        Main.Instance.EnterState(Main.Instance.FightDialogState);
+        Utility.EnterState(Main.Instance.FightDialogState);
+    }
+
+    public static void OnLoadFinishedSingle(int level) {
+        GameData.Instance.LoadState();
+        GameData.Instance.InitTable();
+
+        SFXLoader.Instance.InitSync();
+        //在读取character.act后再初始化输入模块。
+        ActionInterrupt.Instance.Lines.Clear();
+        ActionInterrupt.Instance.Whole.Clear();
+        ActionInterrupt.Instance.Root = null;
+        ActionInterrupt.Instance.Init();
+        MenuResLoader.Instance.Init();
+
+        for (int i = 0; i < 20; i++) {
+            AmbLoader.Ins.LoadCharacterAmb(i);
+        }
+
+        AmbLoader.Ins.LoadCharacterAmb();
+        AmbLoader.Ins.LoadCharacterAmbEx();
+
+        PoseStatus.Clear();
+        Application.targetFrameRate = GameData.Instance.gameStatus.TargetFrame;
+
+        DlcMng.Instance.Init();
+
+        Level lev = LevelMng.Instance.GetItem(level);
+        LevelScriptBase script = GetLevelScript(lev.LevelScript);
+        if (script == null) {
+            UnityEngine.Debug.LogError(string.Format("level script is null levId:{0}, levScript:{1}", lev.ID, lev.LevelScript));
+            return;
+        }
+
+        Global.Instance.GLevelItem = lev;
+        Global.Instance.GLevelMode = LevelMode.SinglePlayerTask;
+        Global.Instance.GGameMode = GameMode.Normal;
+        Global.Instance.GScript = script;
+        script.OnLoad();
+        //加载场景配置数据
+        SceneMng.Instance.OnEnterLevel();
+
+        GameObject battleRoot = new GameObject("GameBattle");
+        battleRoot.AddComponent<GameBattleEx>();
+        //等脚本设置好物件的状态后，根据状态决定是否生成受击盒，攻击盒等.
+        GameBattleEx.Instance.Init(script);
+
+        FrameReplay.Instance.OnBattleStart();
+
+        if (Main.Instance != null) {
+            Utility.EnterState(Main.Instance.FightDialogState);
+        }
     }
 }

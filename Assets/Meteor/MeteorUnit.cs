@@ -674,8 +674,9 @@ public partial class MeteorUnit : NetBehaviour
         base.Awake();
         //单场景启动.
 #if !STRIP_DBG_SETTING
-        if (!IsDebugUnit())
+        if (!IsDebugUnit() && WSDebug.Ins) {
             WSDebug.Ins.AddDebuggableObject(this);
+        }
 #endif
     }
 

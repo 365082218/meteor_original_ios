@@ -270,8 +270,10 @@ public class SoundManager : Singleton<SoundManager>
         if (!enable)
             return;
         AudioClip clip = GetAudioClip(GetSoundIndex(clipname));
-        CurrentAudioSource.volume = AduioVolume;
-        CurrentAudioSource.PlayOneShot(clip);
+        if (clip != null && CurrentAudioSource != null) {
+            CurrentAudioSource.volume = AduioVolume;
+            CurrentAudioSource.PlayOneShot(clip);
+        }
     }
 	
     public void PlayMusic(string clipname)
@@ -279,9 +281,11 @@ public class SoundManager : Singleton<SoundManager>
         if (!enable)
             return;
         AudioClip clip = GetAudioClip(GetSoundIndex(clipname));
-        CurrentMusicSource.loop = true;
-        CurrentMusicSource.clip = clip;
-        CurrentMusicSource.Play();
+        if (clip != null && CurrentMusicSource != null) {
+            CurrentMusicSource.loop = true;
+            CurrentMusicSource.clip = clip;
+            CurrentMusicSource.Play();
+        }
     }
 
     //…Ë÷√±≥æ∞“Ù¿÷“Ù¡ø

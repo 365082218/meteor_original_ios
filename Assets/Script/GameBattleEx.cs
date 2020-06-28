@@ -32,15 +32,18 @@ public partial class GameBattleEx : NetBehaviour {
         base.Awake();
         Instance = this;
 #if !STRIP_DBG_SETTING
-        WSDebug.Ins.AddDebuggableObject(this);
+        if (WSDebug.Ins != null) {
+            WSDebug.Ins.AddDebuggableObject(this);
+        }
 #endif
     }
 
     public new void OnDestroy()
     {
 #if !STRIP_DBG_SETTING
-        if (WSDebug.Ins != null)
+        if (WSDebug.Ins != null) {
             WSDebug.Ins.RemoveDebuggableObject(this);
+        }
 #endif
         Instance = null;
         base.OnDestroy();

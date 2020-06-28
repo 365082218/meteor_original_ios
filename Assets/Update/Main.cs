@@ -147,7 +147,12 @@ public class Main : MonoBehaviour {
     {
         fpsCanvas.SetActive(active);
     }
-
+    [SerializeField]
+    [Header("是否直接启动指定关卡")]
+    bool launchSingle = false;
+    [SerializeField]
+    [Header("当从单个关卡启动时直接打开指定关卡")]
+    int level = 1;
     Coroutine checkUpdate;
     void Start()
     {
@@ -156,9 +161,22 @@ public class Main : MonoBehaviour {
         PopupStateManager.Init();
         Init();
         UnityEngine.Random.InitState((int)System.DateTime.UtcNow.Ticks);
-        DialogStateManager.ChangeState(DialogStateManager.ConnectDialogState);
-        if (checkUpdate == null)
-            checkUpdate = StartCoroutine(CheckNeedUpdate());
+        if (!launchSingle) {
+            //检查更新，进入主界面
+            DialogStateManager.ChangeState(DialogStateManager.ConnectDialogState);
+            if (checkUpdate == null)
+                checkUpdate = StartCoroutine(CheckNeedUpdate());
+        } else {
+            //如果当前场景就是关卡场景，那么直接调用，否则需要先加载对应的关卡场景
+            if (Loader.Instance == null) {
+                Level lev = LevelMng.Instance.GetItem(level);
+                U3D.LoadScene(lev.Scene, () => {
+                    LevelHelper.OnLoadFinishedSingle(level);
+                });
+            } else {
+                LevelHelper.OnLoadFinishedSingle(level);
+            }
+        }
     }
 
     public void PlayEndMovie(bool play)
