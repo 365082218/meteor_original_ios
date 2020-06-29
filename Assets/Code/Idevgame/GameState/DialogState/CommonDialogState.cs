@@ -67,9 +67,9 @@ namespace Idevgame.GameState.DialogState {
         }
         public override void OnStateEnter()
         {
+            BaseDialogState.InitRoot();
             LoadGui();
-            if (DialogController != null)
-            {
+            if (DialogController != null) {
                 DialogController.OnDialogStateEnter(this, null, null);
             }
 
@@ -94,8 +94,7 @@ namespace Idevgame.GameState.DialogState {
 
         public virtual void LoadGui()
         {
-            if (Dialog != null)
-            {
+            if (Dialog != null) {
                 return;
             }
 
@@ -316,6 +315,8 @@ namespace Idevgame.GameState.DialogState {
             }
         }
 
+
+
         protected void LoadGui() {
             if (Dialog != null) {
                 return;
@@ -334,13 +335,7 @@ namespace Idevgame.GameState.DialogState {
                     GameObject.DontDestroyOnLoad(mRootUI);
                 }
             }
-            if (mRootUI == null)
-            {
-                mRootUI = GameObject.Instantiate(Resources.Load<GameObject>("CanvasRoot"), Vector3.zero, Quaternion.identity);
-                GameObject.DontDestroyOnLoad(mRootUI);
-                mCanvasRoot = mRootUI.transform.Find("Canvas").gameObject;
-                UIHelper.InitCanvas(mCanvasRoot.GetComponent<Canvas>());
-            }
+            InitRoot();
             if (mRootUI != null)
             {
                 if (!CanvasMode())

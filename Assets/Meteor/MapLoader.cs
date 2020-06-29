@@ -714,7 +714,7 @@ shader 1
         }
         UnityEditor.AssetDatabase.Refresh();
         UnityEditor.AssetDatabase.SaveAssets();
-        PrefabUtility.CreatePrefab(string.Format("Assets/Scene/{0}.prefab", gameObject.scene.name), gameObject);
+        //PrefabUtility.CreatePrefab(string.Format("Assets/Scene/{0}.prefab", gameObject.scene.name), gameObject);
     }
     //保存材质-部分材质在场景文件的内存里，实际是不好的.
     int materialIndex = 0;
@@ -757,9 +757,15 @@ shader 1
         }
     }
     //把场景使用到的mesh存储到统一路径下.避免场景文件过大
+    List<string> meshName = new List<string>();
     public void SaveMesh()
     {
         string dir = string.Format("Assets/Models/MapObject/{0}/", gameObject.scene.name);
+        string [] file = System.IO.Directory.GetFiles(dir, "*.*");
+        for (int i = 0; i < file.Length; i++) {
+            System.IO.File.Delete(file[i]);
+        }
+        meshName.Clear();
         if (!System.IO.Directory.Exists(dir))
         {
             System.IO.Directory.CreateDirectory(dir);
@@ -772,20 +778,52 @@ shader 1
         }
         UnityEditor.AssetDatabase.Refresh();
         UnityEditor.AssetDatabase.SaveAssets();
-        PrefabUtility.CreatePrefab(string.Format("Assets/Scene/{0}.prefab", gameObject.scene.name), gameObject);
+        //PrefabUtility.CreatePrefab(string.Format("Assets/Scene/{0}.prefab", gameObject.scene.name), gameObject);
     }
 
+    //同名字对象存在网格不一样的问题，导致后者被盖掉
     public void SaveMeshObject(MeshFilter filter)
     {
         if (UnityEditor.AssetDatabase.GetAssetPath(filter.sharedMesh) == "")
         {
-            string meshPath = string.Format("Assets/Models/MapObject/{0}/{1}.asset", filter.gameObject.scene.name, filter.name);
+            string unique = filter.name;
+            string meshPath = "";
+            int i = 0;
+            while (true) {
+                meshPath = string.Format("Assets/Models/MapObject/{0}/{1}.asset", filter.gameObject.scene.name, unique);
+                if (System.IO.File.Exists(meshPath)) {
+                    i++;
+                    unique = filter.name + i;
+                } else {
+                    break;
+                }
+            }
+            
             UnityEditor.AssetDatabase.CreateAsset(filter.sharedMesh, meshPath);
             UnityEditor.AssetDatabase.Refresh();
             EditorUtility.SetDirty(filter.sharedMesh);
         }
     }
 
+    List<string> names = new List<string>();
+    public void CheckName() {
+        //检查这课树是否存在重名
+        names.Clear();
+        names.Add(name);
+        for (int i = 0; i < transform.childCount; i++) {
+            StepTransformName(transform.GetChild(i));
+        }
+    }
+
+    public void StepTransformName(Transform son) {
+        if (names.Contains(son.name)) {
+            Debug.Log("same name:" + son.name);
+        }
+        names.Add(son.name);
+        for (int i = 0; i < son.transform.childCount; i++) {
+            StepTransformName(son.transform.GetChild(i));
+        }
+    }
     GameObject wayPointRoot;
     public void LoadWayPoint()
     {

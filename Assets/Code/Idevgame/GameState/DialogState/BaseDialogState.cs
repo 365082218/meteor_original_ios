@@ -25,5 +25,14 @@ namespace Idevgame.GameState.DialogState {
         public BaseDialogState(BaseDialogStateManager stateManager) : base(stateManager) {
             DialogStateManager = stateManager;
         }
+
+        public static void InitRoot() {
+            if (mRootUI == null) {
+                mRootUI = GameObject.Instantiate(Resources.Load<GameObject>("CanvasRoot"), Vector3.zero, Quaternion.identity);
+                GameObject.DontDestroyOnLoad(mRootUI);
+                mCanvasRoot = mRootUI.transform.Find("Canvas").gameObject;
+                UIHelper.InitCanvas(mCanvasRoot.GetComponent<Canvas>());
+            }
+        }
     }
 }

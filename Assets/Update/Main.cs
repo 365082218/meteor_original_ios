@@ -248,7 +248,7 @@ public class Main : MonoBehaviour {
         } else {
             //如果当前场景就是关卡场景，那么直接调用，否则需要先加载对应的关卡场景
             if (Loader.Instance == null) {
-                Level lev = LevelMng.Instance.GetItem(level);
+                LevelDatas.LevelDatas lev = Ins.DataMgr.GetData<LevelDatas.LevelDatas>(level);
                 U3D.LoadScene(lev.Scene, () => {
                     LevelHelper.OnLoadFinishedSingle(level);
                 });

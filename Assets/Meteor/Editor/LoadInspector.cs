@@ -237,6 +237,9 @@ public class MapLoaderInspector : Editor
         {
             myTarget.LoadWayPoint();
         }
+        if (GUILayout.Button("CheckName")) {
+            myTarget.CheckName();
+        }
     }
 }
 

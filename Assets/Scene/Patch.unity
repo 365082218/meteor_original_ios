@@ -4020,6 +4020,8 @@ MonoBehaviour:
   GameBattleEx: {fileID: 0}
   LocalPlayer: {fileID: 0}
   SplashScreenHidden: 0
+  launchSingle: 0
+  level: 2
 --- !u!81 &2044160635
 AudioListener:
   m_ObjectHideFlags: 0
