@@ -2,8 +2,6 @@
 using System.Collections;
 //自由相机，当主角挂掉以后，在场景内随机找1个目标，优先找正在打斗的其中一个.
 public class CameraFree : NetBehaviour {
-    public static CameraFree Ins { get { return Instance; } }
-    static CameraFree Instance;
     [HideInInspector]
     //public Transform[] m_Targets;//摄像机的各个视角的调试对象.
     public Transform CameraLookAt;//摄像机注视的目标
@@ -27,13 +25,11 @@ public class CameraFree : NetBehaviour {
         base.Awake();
         CameraPosition = new GameObject("CameraPosition").transform;
         CameraLookAt = new GameObject("CameraLookAt").transform;
-        Instance = this;
     }
 
     private new void OnDestroy()
     {
         base.OnDestroy();
-        Instance = null;
     }
 
     MeteorUnit UnitTarget;
@@ -70,7 +66,7 @@ public class CameraFree : NetBehaviour {
     public bool Smooth = true;
     public void ForceUpdate()
     {
-        if (Target != null && !Global.Instance.PauseAll)
+        if (Target != null && !Main.Ins.CombatData.PauseAll)
             CameraSmoothFollow(Smooth);
     }
 
@@ -83,7 +79,7 @@ public class CameraFree : NetBehaviour {
                 RefreshTarget();
             }
         }
-        if (UnitTarget != null && !Global.Instance.PauseAll)
+        if (UnitTarget != null && !Main.Ins.CombatData.PauseAll)
         {
             CameraSmoothFollow(Smooth);
         }
@@ -92,15 +88,15 @@ public class CameraFree : NetBehaviour {
     public void RefreshTarget()
     {
         MeteorUnit watchTarget = null;
-        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
-            if (MeteorManager.Instance.UnitInfos[i].Dead)
+            if (Main.Ins.MeteorManager.UnitInfos[i].Dead)
                 continue;
             if (watchTarget == null)
-                watchTarget = MeteorManager.Instance.UnitInfos[i];
-            if (MeteorManager.Instance.UnitInfos[i].GetLockedTarget() != null)
+                watchTarget = Main.Ins.MeteorManager.UnitInfos[i];
+            if (Main.Ins.MeteorManager.UnitInfos[i].LockTarget != null)
             {
-                watchTarget = MeteorManager.Instance.UnitInfos[i];
+                watchTarget = Main.Ins.MeteorManager.UnitInfos[i];
                 break;
             }
         }
@@ -173,9 +169,9 @@ public class CameraFree : NetBehaviour {
         //过程2: 由电影视角，切换到固定视角
 
         //不是AI观察相机时
-        if (UnitTarget.GetLockedTarget() != null && this.CameraType != 1)
+        if (UnitTarget.LockTarget != null && this.CameraType != 1)
         {
-            LockTarget = UnitTarget.GetLockedTarget().transform;
+            LockTarget = UnitTarget.LockTarget.transform;
             //有锁定目标
             //开启摄像机锁定系统
             CameraLookAt.position = (Target.position + LockTarget.position) / 2 + new Vector3(0, 25, 0);
@@ -247,7 +243,7 @@ public class CameraFree : NetBehaviour {
             newPos.x = Target.transform.position.x;
             newPos.y = Target.position.y + BodyHeight + followHeight;
             newPos.z = Target.transform.position.z;
-            newPos += MeteorManager.Instance.LocalPlayer.transform.forward * followDistance;
+            newPos += Main.Ins.LocalPlayer.transform.forward * followDistance;
 
             vecTarget.x = Target.position.x;
             vecTarget.y = Target.position.y + BodyHeight;
@@ -280,7 +276,7 @@ public class CameraFree : NetBehaviour {
                 newPos.z = Target.transform.position.z;
                 float y = Mathf.SmoothDamp(CameraPosition.position.y, Target.position.y + BodyHeight + followHeight, ref currentVelocityY, f_DampTime);
                 newPos.y = y;
-                newPos += MeteorManager.Instance.LocalPlayer.transform.forward * followDistance;
+                newPos += Main.Ins.LocalPlayer.transform.forward * followDistance;
             }
             else
             {

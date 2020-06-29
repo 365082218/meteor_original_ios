@@ -1,0 +1,22 @@
+message LevelDatastable
+{
+	optional string tname = 1;
+	repeated LevelDatas tlist = 2;
+}
+
+message LevelDatas
+{
+	required int32 ID = 1;
+	required string Scene = 2;
+	optional bool Template = 3;
+	optional bool DisableFindWay = 4;
+	required string Name = 5;
+	optional int32 LevelType = 6;
+	optional string LevelScript = 7;
+	optional string BgmName = 8;
+	optional string StartScript = 9;
+	optional string sceneItems = 10;
+	optional string BgTexture = 11;
+	optional int32 Pass = 12;
+	optional string Param = 13;
+}

@@ -1,72 +1,22 @@
 ﻿using protocol;
 using System;
 using System.Collections.Generic;
-//using System.Diagnostics;
 using UnityEngine;
-//帧指令接收器，用于存储从服务器/单机 时发送来的帧指令.FSC=FRAMESYNCCLIENT
-public class FSC:Singleton<FSC>
+
+public class PlayerState
 {
-    List<GameFrames> frames = new List<GameFrames>();//指令序列.没一个下标都是一帧的.
-    public void OnReceiveCommand(GameFrames turn)
-    {
-        frames.Add(turn);
-        //收到服务端的帧同步的回应.
-        //UdpClientProxy.Exec<int>((int)MeteorMsg.MsgType.SyncCommand, FrameReplay.Instance.LogicFrameIndex);
-    }
-
-    public GameFrames NextFrame(int logicTurn)
-    {
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
-        {
-            if (frames.Count > logicTurn && logicTurn >= 0)
-            {
-                return frames[logicTurn];
-            }
-            return null;
-        }
-        else
-        {
-            int i = frames.Count;
-            for (;i <= logicTurn; i++)
-            {
-                GameFrames f = new GameFrames();
-                frames.Add(f);
-            }
-            return frames[logicTurn];
-        }
-    }
-
-    public void Reset()
-    {
-        frames.Clear();
-    }
-
-    public void OnDisconnected()
-    {
-        Reset();
-    }
-
-    public List<FrameCommand> GetCommand(int frame)
-    {
-        cmdCache.Clear();
-        if (frames.Count > frame)
-        {
-            for (int i = 0; i < frames[frame].commands.Count; i++)
-            {
-                cmdCache.Add(frames[frame].commands[i]);
-            }
-        }
-        return cmdCache;
-    }
-
-    List<FrameCommand> cmdCache = new List<FrameCommand>();
+    public int x;
+    public int y;
 }
 
-//帧指令发送器，用于把客户端的操作发送到服务器/或FrameClient FSS=FRAMESYNCSERVER
 //存储客户端操作序列.
-public class FSS:Singleton<FSS>
+public class FrameSync
 {
+    public List<GameFrames> Frames { get { return frames; } }
     List<GameFrames> frames = new List<GameFrames>();
+    //玩家要同步的状态，只有发生改变时，才提交对应事件
+    Dictionary<int, PlayerState> player = new Dictionary<int, PlayerState>();
+
     public void OnDisconnected()
     {
         Reset();
@@ -77,28 +27,36 @@ public class FSS:Singleton<FSS>
         frames.Clear();
     }
 
-    
+    //播放录像时.指令就是路线里存储的.
+    public void OnReceiveCommands(List<GameFrames> frame_from_record) {
+        frames = frame_from_record;
+    }
+
+    //从服务器收到一个
+    public void OnReceiveCommand(GameFrames frame) {
+        frames.Add(frame);
+    }
+
     public void SyncTurn()
     {
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
         {
-            //联机时客户端并没有操作,可以不向服务器发送之间的帧指令。但是服务器会生成默认的空操作
-            if (FrameReplay.Instance.LogicTurnIndex >= frames.Count)
-                return;
-            GameFrames t = frames[FrameReplay.Instance.LogicTurnIndex];
-            //同步一个关键帧（一段渲染帧的指令到服务器）
-            UdpClientProxy.Exec((int)MeteorMsg.MsgType.SyncCommand, t);
+            ////联机时客户端并没有操作,可以不向服务器发送之间的帧指令。但是服务器会生成默认的空操作
+            //if (FrameReplay.Instance.LogicTurnIndex >= frames.Count)
+            //    return;
+            //GameFrames t = frames[FrameReplay.Instance.LogicTurnIndex];
+            ////同步一个关键帧（一段渲染帧的指令到服务器）
+            //UdpClientProxy.Exec((int)MeteorMsg.MsgType.SyncCommand, t);
         }
         else
         {
             //如果是单机下，所有更新者都没有操作.生成默认的空操作，填充进来
-            if (FrameReplay.Instance.LogicTurnIndex >= frames.Count)
-            {
-                GameFrames frame = new GameFrames();
-                frames.Add(frame);
-            }
-            GameFrames f = frames[FrameReplay.Instance.LogicTurnIndex];
-            FSC.Instance.OnReceiveCommand(f);
+            //if (FrameReplay.Instance.LogicTurnIndex >= frames.Count)
+            //{
+            //    GameFrames frame = new GameFrames();
+            //    frames.Add(frame);
+            //}
+            //GameFrames f = frames[FrameReplay.Instance.LogicTurnIndex];
         }
     }
 
@@ -114,75 +72,61 @@ public class FSS:Singleton<FSS>
 
     public void PushKeyEvent(MeteorMsg.Command command, int playerId, EKeyList key)
     {
-        GameFrames t = GetFrame(FrameReplay.Instance.NextTurn);
-        for (int i = 0; i < t.commands.Count; i++)
-        {
-            if ((t.commands[i].command == MeteorMsg.Command.KeyDown ||
-                t.commands[i].command == MeteorMsg.Command.KeyUp ||
-                t.commands[i].command == MeteorMsg.Command.KeyLast) && 
-                playerId == t.commands[i].playerId &&
-                t.commands[i].LogicFrame == (uint)FrameReplay.Instance.LogicFrameIndex &&
-                (uint)key == (uint)t.commands[i].data[0])
-            {
-                //Debug.LogError("同一帧同一个按键无法响应2次???");
-                return;
-            }
-        }
-        FrameCommand cmd = new FrameCommand();
-        cmd.command = command;
-        cmd.LogicFrame = (uint)FrameReplay.Instance.LogicFrameIndex;
-        cmd.playerId = (uint)playerId;
-        cmd.data = new byte[1];
-        cmd.data[0] = (byte)key;
-        t.commands.Add(cmd);
+        //GameFrames t = GetFrame(FrameReplay.Instance.NextTurn);
+        //for (int i = 0; i < t.commands.Count; i++)
+        //{
+        //    if ((t.commands[i].command == MeteorMsg.Command.KeyDown ||
+        //        t.commands[i].command == MeteorMsg.Command.KeyUp ||
+        //        t.commands[i].command == MeteorMsg.Command.KeyLast) && 
+        //        playerId == t.commands[i].playerId &&
+        //        t.commands[i].LogicFrame == (uint)FrameReplay.Instance.LogicFrameIndex &&
+        //        (uint)key == (uint)t.commands[i].data[0])
+        //    {
+        //        //Debug.LogError("同一帧同一个按键无法响应2次???");
+        //        return;
+        //    }
+        //}
+        //FrameCommand cmd = new FrameCommand();
+        //cmd.command = command;
+        //cmd.LogicFrame = (uint)FrameReplay.Instance.LogicFrameIndex;
+        //cmd.playerId = (uint)playerId;
+        //cmd.data = new byte[1];
+        //cmd.data[0] = (byte)key;
+        //t.commands.Add(cmd);
     }
 
-    public void PushJoyDelta(int playerId, float x, float y)
+    //角色的移动，当状态发生改变时，修改
+    public void PushJoyDelta(int playerId, int x, int y)
     {
-        GameFrames t = GetFrame(FrameReplay.Instance.NextTurn);
-        FrameCommand cmd = new FrameCommand();
-        cmd.command = MeteorMsg.Command.JoyStickMove;
-        cmd.LogicFrame = (uint)FrameReplay.Instance.LogicFrameIndex;
-        cmd.playerId = (uint)playerId;
-        System.IO.MemoryStream ms = new System.IO.MemoryStream();
-        Vector2_ vec = new Vector2_();
-        vec.x = (int)(x * 1000);
-        vec.y = (int)(y * 1000);
-        ProtoBuf.Serializer.Serialize<Vector2_>(ms, vec);
-        cmd.data = ms.ToArray();
-        t.commands.Add(cmd);
+        //GameFrames t = GetFrame(FrameReplay.Instance.NextTurn);
+        //FrameCommand cmd = new FrameCommand();
+        //cmd.command = MeteorMsg.Command.JoyStickMove;
+        //cmd.LogicFrame = (uint)FrameReplay.Instance.LogicFrameIndex;
+        //cmd.playerId = (uint)playerId;
+        //System.IO.MemoryStream ms = new System.IO.MemoryStream();
+        //Vector2_ vec = new Vector2_();
+        //vec.x = x;
+        //vec.y = y;
+        //ProtoBuf.Serializer.Serialize<Vector2_>(ms, vec);
+        //cmd.data = ms.ToArray();
+        //t.commands.Add(cmd);
     }
 
     //在当前帧推入指令-鼠标相对上次的偏移，会导致角色绕Y轴旋转
-    public void PushMouseDelta(int playerId, float x, float y)
+    public void PushMouseDelta(int playerId, int x, int y)
     {
-        GameFrames t = GetFrame(FrameReplay.Instance.NextTurn);
-        FrameCommand cmd = new FrameCommand();
-        cmd.command = MeteorMsg.Command.MouseMove;
-        cmd.LogicFrame = (uint)FrameReplay.Instance.LogicFrameIndex;
-        cmd.playerId = (uint)playerId;
-        System.IO.MemoryStream ms = new System.IO.MemoryStream();
-        Vector2_ vec = new Vector2_();
-        vec.x = (int)(x * 1000);
-        vec.y = (int)(y * 1000);
-        ProtoBuf.Serializer.Serialize<Vector2_>(ms, vec);
-        cmd.data = ms.ToArray();
-        t.commands.Add(cmd);
-    }
-
-    //补齐从过去到未来的帧号中间的帧
-    public GameFrames GetFrame(int frame)
-    {
-        if (frames.Count <= frame)
-        {
-            int min = frames.Count;
-            for (int i = min; i < frame + 1; i++)
-            {
-                GameFrames t = new GameFrames();
-                frames.Add(t);
-            }
-        }
-        return frames[frame];
+        //GameFrames t = GetFrame(FrameReplay.Instance.NextTurn);
+        //FrameCommand cmd = new FrameCommand();
+        //cmd.command = MeteorMsg.Command.MouseMove;
+        //cmd.LogicFrame = (uint)FrameReplay.Instance.LogicFrameIndex;
+        //cmd.playerId = (uint)playerId;
+        //System.IO.MemoryStream ms = new System.IO.MemoryStream();
+        //Vector2_ vec = new Vector2_();
+        //vec.x = x;
+        //vec.y = y;
+        //ProtoBuf.Serializer.Serialize<Vector2_>(ms, vec);
+        //cmd.data = ms.ToArray();
+        //t.commands.Add(cmd);
     }
 }
 
@@ -204,7 +148,7 @@ public class FrameReplay : MonoBehaviour {
     }
     public int LogicFrameIndex = 0;
     public int LogicTurnIndex = 0;
-    const int TurnFrameMax = 4;
+    const int TurnFrameMax = 8;
     private int AccumilatedTime = 0;
     public float time;
     public static float deltaTime = FrameReplay.delta;
@@ -240,6 +184,10 @@ public class FrameReplay : MonoBehaviour {
         LogicFrameIndex = 0;
         playRecord = false;
         firstFrame = true;
+        actions.Clear();
+        Main.Ins.FrameSync.Reset();
+        if (Main.Ins.CombatData.GRecord != null)
+            Main.Ins.FrameSync.OnReceiveCommands(Main.Ins.CombatData.GRecord.frames);
     }
 
     private void Awake()
@@ -247,6 +195,7 @@ public class FrameReplay : MonoBehaviour {
         Instance = this;
         TcpClientProxy.Init();
         UdpClientProxy.Init();
+        actions = new List<FrameCommand>();
     }
 
     public void OnBattleFinished()
@@ -255,15 +204,13 @@ public class FrameReplay : MonoBehaviour {
         AccumilatedTime = 0;
         LogicFrameIndex = 0;
         LogicTurnIndex = 0;
-        FSS.Instance.Reset();
-        FSC.Instance.Reset();
+        Main.Ins.FrameSync.Reset();
         NetObjects.Clear();
     }
 
     public void OnDisconnected()
     {
-        FSC.Instance.OnDisconnected();
-        FSS.Instance.OnDisconnected();
+        Main.Ins.FrameSync.OnDisconnected();
         //如果重新开始,那么所有指令需要全部清除
         Started = false;
         LogicFrameIndex = 0;
@@ -283,35 +230,20 @@ public class FrameReplay : MonoBehaviour {
             //    OnUpdates();
             return;
         }
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
-        {
-            //Basically same logic as FixedUpdate, but we can scale it by adjusting FrameLength
-            AccumilatedTime = AccumilatedTime + Convert.ToInt32((Time.deltaTime * 1000)); //convert sec to milliseconds
-            while (AccumilatedTime > LogicFrameLength)
-            {
-                FrameReplay.deltaTime = delta;
-                UdpClientProxy.Update();
-                LogicFrame();
-                AccumilatedTime = AccumilatedTime - LogicFrameLength;
-                time += (LogicFrameLength / 1000.0f);
-            }
+
+        AccumilatedTime = AccumilatedTime + Convert.ToInt32((Time.deltaTime * 1000));
+        while (AccumilatedTime > LogicFrameLength) {
+            FrameReplay.deltaTime = delta;
+            UdpClientProxy.Update();
+            LogicFrame();
+            AccumilatedTime = AccumilatedTime - LogicFrameLength;
+            time += (LogicFrameLength / 1000.0f);
         }
-        else
-        {
-            FrameReplay.deltaTime = Time.deltaTime;
-            NetUpdate();
-            NetLateUpdate();
-            LogicFrameIndex++;
-            if (LogicFrameIndex % TurnFrameMax == 0)
-            {
-                LogicTurnIndex++;
-                LogicFrameIndex = 0;
-            }
-            time += Time.deltaTime;
-            if (firstFrame)
-            {
-                EventBus.Instance.Fire(CommonEvent.OpenCamera);
-                firstFrame = false;
+
+        if (Main.Ins.CombatData.Replay) {
+            if (LogicTurnIndex == Main.Ins.CombatData.GRecord.frames.Count) {
+                OnBattleFinished();
+                U3D.PopupTip("回放结束");
             }
         }
     }
@@ -357,35 +289,36 @@ public class FrameReplay : MonoBehaviour {
         if (currentFrame == null)
         {
             //等待从服务器收到接下来一帧的信息.
-            currentFrame = FSC.Instance.NextFrame(LogicTurnIndex);
-            if (currentFrame == null)
-                return;
+            currentFrame = GetNextTurn(LogicTurnIndex);
+            if (currentFrame == null) {
+                //如果没有取得下一个回合的指令.能否继续
+                //如果是联机或者回放-那么拿不到后面的操作指令是无法继续播放的
+                if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer || Main.Ins.CombatData.Replay)
+                    return;
+            } 
         }
         else
         {
 
         }
 
-        actions = GetAction(currentFrame.commands, LogicFrameIndex);
-        //gameTurnSW.Start();
-
-        //update game
+        //update game-物理引擎更新.
         //SceneManager.Manager.TwoDPhysics.Update(GameFramesPerSecond);
-
-        //Log.WriteError(string.Format("Turn:{0}, LogicFrame:{1}", nowTurn.turnIndex, LogicFrameIndex));//从这里开始，播放逻辑帧，在取得自己进入场景消息帧时，初始化主角
-        for (int i = 0; i < actions.Count; i++)
-        {
-            switch (actions[i].command)
-            {
-                case MeteorMsg.Command.SyncRandomSeed:
-                    SyncInitData seed = ProtoBuf.Serializer.Deserialize<SyncInitData>(new System.IO.MemoryStream(actions[i].data));
-                    UnityEngine.Random.InitState((int)seed.randomSeed);
-                    break;
-                case MeteorMsg.Command.SpawnPlayer:
-                    System.IO.MemoryStream ms = new System.IO.MemoryStream(actions[i].data);
-                    PlayerEventData evt = ProtoBuf.Serializer.Deserialize<PlayerEventData>(ms);
-                    GameBattleEx.Instance.OnCreateNetPlayer(evt);
-                    break;
+        actions.Clear();
+        if (currentFrame != null) {
+            actions = GetAction(currentFrame.commands, LogicFrameIndex);
+            for (int i = 0; i < actions.Count; i++) {
+                switch (actions[i].command) {
+                    case MeteorMsg.Command.SyncRandomSeed:
+                        SyncInitData seed = ProtoBuf.Serializer.Deserialize<SyncInitData>(new System.IO.MemoryStream(actions[i].data));
+                        UnityEngine.Random.InitState((int)seed.randomSeed);
+                        break;
+                    case MeteorMsg.Command.SpawnPlayer:
+                        System.IO.MemoryStream ms = new System.IO.MemoryStream(actions[i].data);
+                        PlayerEventData evt = ProtoBuf.Serializer.Deserialize<PlayerEventData>(ms);
+                        Main.Ins.GameBattleEx.OnCreateNetPlayer(evt);
+                        break;
+                }
             }
         }
 
@@ -394,10 +327,21 @@ public class FrameReplay : MonoBehaviour {
         LogicFrameIndex++;
         if (LogicFrameIndex % TurnFrameMax == 0)
         {
-            FSS.Instance.SyncTurn();
+            Main.Ins.FrameSync.SyncTurn();
             LogicTurnIndex++;
             currentFrame = null;
             LogicFrameIndex = 0;
         }
+        if (firstFrame) {
+            Main.Ins.DialogStateManager.ChangeState(null);//关闭loading条
+            firstFrame = false;
+        }
+    }
+
+    //取得当前播放轮次的下一个轮次的帧信息
+    GameFrames GetNextTurn(int index) {
+        if (Main.Ins.FrameSync.Frames.Count > index)
+            return Main.Ins.FrameSync.Frames[index];
+        return null;
     }
 }

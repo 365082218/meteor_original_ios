@@ -29,7 +29,7 @@ public class WeaponDialog : Dialog
     {
         if (load != null)
         {
-            Main.Instance.StopCoroutine(load);
+            Main.Ins.StopCoroutine(load);
             load = null;
         }
         if (CameraForWeapon != null)
@@ -60,12 +60,12 @@ public class WeaponDialog : Dialog
             Control(control).GetComponent<UITab>().onValueChanged.AddListener(ChangeWeaponType);
         }
         if (load == null)
-            load = Main.Instance.StartCoroutine(AddWeapon());
+            load = Main.Ins.StartCoroutine(AddWeapon());
     }
 
     IEnumerator AddWeapon()
     {
-        List<ItemBase> we = GameData.Instance.itemMng.GetFullRow();
+        List<ItemDatas.ItemDatas> we = Main.Ins.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
         int offset = 0;
         for (int i = 0; i < we.Count; i++)
         {
@@ -82,20 +82,20 @@ public class WeaponDialog : Dialog
     }
 
     List<GameObject> GridWeapon = new List<GameObject>();
-    void AddWeaponItem(ItemBase it, int idx)
+    void AddWeaponItem(ItemDatas.ItemDatas it, int idx)
     {
         if (GridWeapon.Count > idx)
         {
             GridWeapon[idx].SetActive(true);
             UIFunCtrl ctrl = GridWeapon[idx].GetComponent<UIFunCtrl>();
-            ctrl.SetEvent(ShowWeapon, it.Idx);
+            ctrl.SetEvent(ShowWeapon, it.ID);
             ctrl.SetText(it.Name);
         }
         else
         {
             GameObject weapon = GameObject.Instantiate(Resources.Load("GridItemBtn")) as GameObject;
             UIFunCtrl obj = weapon.AddComponent<UIFunCtrl>();
-            obj.SetEvent(ShowWeapon, it.Idx);
+            obj.SetEvent(ShowWeapon, it.ID);
             obj.SetText(it.Name);
             obj.transform.SetParent(WeaponRoot.transform);
             obj.gameObject.layer = WeaponRoot.layer;
@@ -108,14 +108,14 @@ public class WeaponDialog : Dialog
 
     void ShowWeapon()
     {
-        List<ItemBase> we = GameData.Instance.itemMng.GetFullRow();
+        List<ItemDatas.ItemDatas> we = Main.Ins.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
         for (int i = 0; i < we.Count; i++)
         {
             if (we[i].MainType == 1)
             {
                 if (we[i].SubType == (int)weaponSubType)
                 {
-                    selectWeapon = we[i].Idx;
+                    selectWeapon = we[i].ID;
                     break;
                 }
             }
@@ -131,7 +131,7 @@ public class WeaponDialog : Dialog
 
     void ChangeWeaponCode()
     {
-        MeteorManager.Instance.LocalPlayer.ChangeWeaponCode(selectWeapon);
+        Main.Ins.LocalPlayer.ChangeWeaponCode(selectWeapon);
     }
 
     void ChangeWeaponType(bool change)
@@ -156,7 +156,7 @@ public class WeaponDialog : Dialog
         for (int i = 0; i < GridWeapon.Count; i++)
             GridWeapon[i].SetActive(false);
         if (load != null)
-            Main.Instance.StopCoroutine(load);
-        load = Main.Instance.StartCoroutine(AddWeapon());
+            Main.Ins.StopCoroutine(load);
+        load = Main.Ins.StartCoroutine(AddWeapon());
     }
 }

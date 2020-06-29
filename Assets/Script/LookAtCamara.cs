@@ -15,10 +15,10 @@ public class LookAtCamara: NetBehaviour
 
     public override void NetLateUpdate()
     {
-        if (CameraFollow.Ins != null)
+        if (Main.Ins.CameraFollow != null)
         {
             
-            transform.LookAt(CameraFollow.Ins.transform);
+            transform.LookAt(Main.Ins.CameraFollow.transform);
             transform.Rotate(new Vector3(-90, 0, 0));
         }
     }

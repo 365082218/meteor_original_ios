@@ -33,7 +33,9 @@ public class MainMenu : Dialog
     [SerializeField]
     Button PlayerSetting;
     [SerializeField]
-    Button Quit;
+    Button Replay;
+    [SerializeField]
+    Button EnterQueue;
     [SerializeField]
     Button UploadLog;
     [SerializeField]
@@ -41,19 +43,19 @@ public class MainMenu : Dialog
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
-        Global.Instance.Chapter = null;
+        Main.Ins.CombatData.Chapter = null;
         //进入主界面，创建全局
-        Main.Instance.EnterState(Main.Instance.GameOverlay);
+        Main.Ins.EnterState(Main.Ins.GameOverlay);
         Init();
-        Main.Instance.listener.enabled = true;
-        menu.volume = GameData.Instance.gameStatus.MusicVolume;
+        Main.Ins.listener.enabled = true;
+        menu.volume = Main.Ins.GameStateMgr.gameStatus.MusicVolume;
         //每次进入主界面，触发一次更新APP信息的操作，如果
-        Main.Instance.UpdateAppInfo();
+        Main.Ins.UpdateAppInfo();
     }
 
     void Init()
     {
-        Version.text = AppInfo.Instance.MeteorVersion;
+        Version.text = Main.Ins.AppInfo.MeteorVersion;
         SinglePlayerMode.onClick.AddListener(() =>
         {
             subMenuOpen = !subMenuOpen;
@@ -88,15 +90,15 @@ public class MainMenu : Dialog
         {
             OnSetting();
         });
-        Quit.onClick.AddListener(() =>
+        Replay.onClick.AddListener(() =>
         {
-            GameData.Instance.SaveState();
-            Application.Quit();
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-#endif
+            OnReplay();
         });
-        if (GameData.Instance.gameStatus.GodLike)
+        EnterQueue.onClick.AddListener(() =>
+        {
+            OnEnterQueue();
+        });
+        if (Main.Ins.GameStateMgr.gameStatus.GodLike)
         {
             UploadLog.gameObject.SetActive(true);
         }
@@ -107,33 +109,43 @@ public class MainMenu : Dialog
     void OnSinglePlayer()
     {
         //打开单机关卡面板
-        Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.LevelDialogState, true);
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LevelDialogState, true);
     }
 
     void OnDlcWnd()
     {
-        Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.DlcDialogState);
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.DlcDialogState);
     }
 
     //教学关卡.
     void OnTeachingLevel()
     {
-        U3D.LoadLevel(LevelMng.Instance.GetAllItem()[30], LevelMode.Teach, GameMode.SIDOU);
+        U3D.LoadLevel(Main.Ins.DataMgr.GetDatasArray<LevelDatas.LevelDatas>()[30], LevelMode.Teach, GameMode.SIDOU);
     }
 
     void OnCreateRoom()
     {
-        Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.WorldTemplateDialogState);
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.WorldTemplateDialogState);
     }
 
     void OnlineGame()
     {
-        Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.MainLobbyDialogState);
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainLobbyDialogState);
     }
 
     //关卡外的设置面板和关卡内的设置面板并非同一个页面.
     void OnSetting()
     {
-        Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.SettingDialogState);
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.SettingDialogState);
+    }
+
+    void OnReplay()
+    {
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.RecordDialogState);
+    }
+
+    void OnEnterQueue()
+    {
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MatchDialogState);
     }
 }

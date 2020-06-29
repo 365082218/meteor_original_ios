@@ -41,7 +41,7 @@ public class LevelHelper : MonoBehaviour
         int displayProgress = 0;
         int toProgress = 0;
         yield return 0;
-        Level lev = Global.Instance.GLevelItem;
+        LevelDatas.LevelDatas lev = Main.Ins.CombatData.GLevelItem;
         ResMng.LoadScene(lev.Scene);
         mAsync = SceneManager.LoadSceneAsync(lev.Scene);
         mAsync.allowSceneActivation = false;
@@ -79,9 +79,9 @@ public class LevelHelper : MonoBehaviour
         if (type == null)
         {
             //尝试在chapter的dll里加载
-            if (Global.Instance.Chapter != null && System.IO.File.Exists(Global.Instance.Chapter.Dll))
+            if (Main.Ins.CombatData.Chapter != null && System.IO.File.Exists(Main.Ins.CombatData.Chapter.Dll))
             {
-                Assembly ass = Assembly.Load(System.IO.File.ReadAllBytes(Global.Instance.Chapter.Dll));           
+                Assembly ass = Assembly.Load(System.IO.File.ReadAllBytes(Main.Ins.CombatData.Chapter.Dll));           
                 Type[] t = ass.GetTypes();
                 for (int i = 0; i < t.Length; i++)
                 {
@@ -95,19 +95,19 @@ public class LevelHelper : MonoBehaviour
             }
             if (type == null)
             {
-                Log.WriteError(string.Format("Load sn failed {0}, Meteor Version:{1}", sn, AppInfo.Instance.AppVersion()));
+                Log.WriteError(string.Format("Load sn failed {0}, Meteor Version:{1}", sn, Main.Ins.AppInfo.AppVersion()));
                 return null;
             }
         }
-        Global.Instance.GScriptType = type;
+        Main.Ins.CombatData.GScriptType = type;
         return System.Activator.CreateInstance(type) as LevelScriptBase;
     }
 
     //只加载地图/地图物件.要令所有客户端初始化完毕后状态一致，然后用指令播放器，播放帧指令.
     //如果是单机，就使用帧播放
-    void OnLoadFinishedEx(Level lev)
+    void OnLoadFinishedEx(LevelDatas.LevelDatas lev)
     {
-        SoundManager.Instance.Enable(true);
+        Main.Ins.SoundManager.Enable(true);
         LevelScriptBase script = GetLevelScript(lev.LevelScript);
         if (script == null)
         {
@@ -115,32 +115,33 @@ public class LevelHelper : MonoBehaviour
             return;
         }
 
-        Global.Instance.GScript = script;
+        Main.Ins.CombatData.GScript = script;
         script.OnLoad();
         //加载场景配置数据
-        SceneMng.Instance.OnEnterLevel();
-
+        Main.Ins.SceneMng.OnEnterLevel();
         GameObject battleRoot = new GameObject("GameBattle");
-        battleRoot.AddComponent<GameBattleEx>();
+        Main.Ins.GameBattleEx = battleRoot.AddComponent<GameBattleEx>();
         //等脚本设置好物件的状态后，根据状态决定是否生成受击盒，攻击盒等.
-        GameBattleEx.Instance.Init(script);
-
+        Main.Ins.GameBattleEx.Init(script);
         FrameReplay.Instance.OnBattleStart();
-
-        Utility.EnterState(Main.Instance.FightDialogState);
+        //寻路
+        PathHelper.Ins.StartCalc();
+        //如果是录制模式-完毕后不要打开战斗UI
+        if (Main.Ins.CombatData.Replay)
+            Main.Ins.EnterState(Main.Ins.ReplayState);
+        else
+            Main.Ins.EnterState(Main.Ins.FightState);
     }
 
     public static void OnLoadFinishedSingle(int level) {
-        GameData.Instance.LoadState();
-        GameData.Instance.InitTable();
+        Main.Ins.GameStateMgr.LoadState();
+        Main.Ins.DataMgr.LoadAllData();
 
-        SFXLoader.Instance.InitSync();
+        Main.Ins.SFXLoader.InitSync();
         //在读取character.act后再初始化输入模块。
-        ActionInterrupt.Instance.Lines.Clear();
-        ActionInterrupt.Instance.Whole.Clear();
-        ActionInterrupt.Instance.Root = null;
-        ActionInterrupt.Instance.Init();
-        MenuResLoader.Instance.Init();
+        Main.Ins.ActionInterrupt = new ActionInterrupt();
+        Main.Ins.ActionInterrupt.Init();
+        Main.Ins.MenuResLoader.Init();
 
         for (int i = 0; i < 20; i++) {
             AmbLoader.Ins.LoadCharacterAmb(i);
@@ -150,34 +151,32 @@ public class LevelHelper : MonoBehaviour
         AmbLoader.Ins.LoadCharacterAmbEx();
 
         PoseStatus.Clear();
-        Application.targetFrameRate = GameData.Instance.gameStatus.TargetFrame;
+        Application.targetFrameRate = Main.Ins.GameStateMgr.gameStatus.TargetFrame;
 
-        DlcMng.Instance.Init();
+        Main.Ins.DlcMng.Init();
 
-        Level lev = LevelMng.Instance.GetItem(level);
+        LevelDatas.LevelDatas lev = Main.Ins.DataMgr.GetData<LevelDatas.LevelDatas>(level);
         LevelScriptBase script = GetLevelScript(lev.LevelScript);
         if (script == null) {
             UnityEngine.Debug.LogError(string.Format("level script is null levId:{0}, levScript:{1}", lev.ID, lev.LevelScript));
             return;
         }
 
-        Global.Instance.GLevelItem = lev;
-        Global.Instance.GLevelMode = LevelMode.SinglePlayerTask;
-        Global.Instance.GGameMode = GameMode.Normal;
-        Global.Instance.GScript = script;
+        Main.Ins.CombatData.GLevelItem = lev;
+        Main.Ins.CombatData.GLevelMode = LevelMode.SinglePlayerTask;
+        Main.Ins.CombatData.GGameMode = GameMode.Normal;
+        Main.Ins.CombatData.GScript = script;
+        Main.Ins.CombatData.wayPoints = CombatData.GetWayPoint(Main.Ins.CombatData.GLevelItem);
         script.OnLoad();
         //加载场景配置数据
-        SceneMng.Instance.OnEnterLevel();
+        Main.Ins.SceneMng.OnEnterLevel();
 
         GameObject battleRoot = new GameObject("GameBattle");
-        battleRoot.AddComponent<GameBattleEx>();
+        Main.Ins.GameBattleEx = battleRoot.AddComponent<GameBattleEx>();
         //等脚本设置好物件的状态后，根据状态决定是否生成受击盒，攻击盒等.
-        GameBattleEx.Instance.Init(script);
-
+        Main.Ins.GameBattleEx.Init(script);
         FrameReplay.Instance.OnBattleStart();
-
-        if (Main.Instance != null) {
-            Utility.EnterState(Main.Instance.FightDialogState);
-        }
+        PathHelper.Ins.StartCalc();
+        Main.Ins.EnterState(Main.Ins.FightState);
     }
 }

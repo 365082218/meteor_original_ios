@@ -11,7 +11,7 @@ public class AudioButton : Button
     public override void OnPointerClick(PointerEventData eventData)
     {
         if (audioS != null)
-            SoundManager.Instance.PlaySound(audioS.name);
+            Main.Ins.SoundManager.PlaySound(audioS.name);
         base.OnPointerClick(eventData);
     }
 }

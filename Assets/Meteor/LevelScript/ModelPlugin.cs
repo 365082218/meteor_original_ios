@@ -77,20 +77,20 @@ public class Chapter
     }
 
     //是否已安装(dll能否正常加载,并产出具体得LevelScriptBase)
-    public Level[] LoadAll()
+    public List<LevelDatas.LevelDatas> LoadAll()
     {
         //level.txt
         if (mLevel == null)
             mLevel = new DlcLevelMng(U3D.GetDefaultFile(Path, 2, true, true));
-        return mLevel.GetAllItem();
+        return mLevel.GetAllLevel();
     }
 
     DlcLevelMng mLevel;
-    public Level GetItem(int id)
+    public LevelDatas.LevelDatas GetItem(int id)
     {
         if (mLevel == null)
             mLevel = new DlcLevelMng(U3D.GetDefaultFile(Path, 2, true, true));
-        return mLevel.GetItem(id);
+        return mLevel.GetLevel(id);
     }
 
     [ProtoMember(9)]
@@ -125,12 +125,6 @@ public class Chapter
             System.IO.File.Delete(LocalPath);
         Installed = false;
     }
-    
-    //加载资料片内得关卡关卡.
-    public void LoadLevel(int levelIdx)
-    {
-        DlcMng.Instance.PlayDlc(this, levelIdx);
-    }
 }
 
 //外接得模型
@@ -147,6 +141,8 @@ public class ModelItem
     //zip路径
     [ProtoMember(4)]
     public string localPath;
+    [ProtoMember(5)]
+    public string localDir;
     public string LocalPath
     {
         get
@@ -154,6 +150,7 @@ public class ModelItem
             if (!string.IsNullOrEmpty(localPath))
                 return localPath;
             localPath = Application.persistentDataPath + "/Plugins/" + Path;
+            localDir = localPath.Substring(0, localPath.Length - ".zip".Length);
             return localPath; 
         }
     }//本地存储路径，由
@@ -196,15 +193,20 @@ public class ModelItem
 
     public void CleanRes()
     {
-        for (int j = 0; j < resPath.Length; j++)
+        if (resPath != null)
         {
-            if (System.IO.File.Exists(resPath[j]))
+            for (int j = 0; j < resPath.Length; j++)
             {
-                System.IO.File.Delete(resPath[j]);
+                if (System.IO.File.Exists(resPath[j]))
+                {
+                    System.IO.File.Delete(resPath[j]);
+                }
             }
         }
         if (System.IO.File.Exists(LocalPath))
             System.IO.File.Delete(LocalPath);
+        if (System.IO.Directory.Exists(localDir))
+            System.IO.Directory.Delete(localDir);
         Installed = false;
     }
 }

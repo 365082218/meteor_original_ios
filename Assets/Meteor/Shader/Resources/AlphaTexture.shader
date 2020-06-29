@@ -91,7 +91,7 @@ SubShader {
 
 			fixed4 frag(v2f i) : COLOR
 			{
-				fixed4 col = tex2D(_MainTex, i.texcoord) * _TintColor;
+				fixed4 col = tex2D(_MainTex, i.texcoord);
 				//UNITY_APPLY_FOG(i.fogCoord, col);
 				fixed4 fragColor;//LightingFragLambert(col, i.lightDir, LIGHT_ATTENUATION(i), i.worldNormal);//6  
 				//取消灯光，烘培不用实时光
@@ -99,7 +99,7 @@ SubShader {
 				//fragColor.rgb += col.rgb * diffuse;//8
 				fragColor.rgb = col.rgb;
 				fragColor.a = _Alpha;
-				return fragColor;
+				return fragColor * _TintColor;
 				//col.a = _Alpha;
 				//return col;
 			}

@@ -52,8 +52,8 @@ public class MeteorUnitDebug : MeteorUnit
             }
         }
 
-        if (Attr == null && MeteorManager.Instance != null && MeteorManager.Instance.LocalPlayer != null)
-            Attr = MeteorManager.Instance.LocalPlayer.Attr;
+        if (Attr == null && Main.Ins.MeteorManager != null && Main.Ins.LocalPlayer != null)
+            Attr = Main.Ins.LocalPlayer.Attr;
         if (charLoader == null)
             charLoader = new CharacterLoader();
         if (posMng == null)
@@ -65,9 +65,9 @@ public class MeteorUnitDebug : MeteorUnit
         }
         charLoader.LoadCharactor(UnitId, transform);
         posMng.Init(this);
-        WeaponR = Global.ldaControlX("d_wpnR", charLoader.rootBone.gameObject).transform;
-        WeaponL = Global.ldaControlX("d_wpnL", charLoader.rootBone.gameObject).transform;
-        ROOTNull = Global.ldaControlX("b", gameObject).transform;
+        WeaponR = NodeHelper.Find("d_wpnR", charLoader.rootBone.gameObject).transform;
+        WeaponL = NodeHelper.Find("d_wpnL", charLoader.rootBone.gameObject).transform;
+        ROOTNull = NodeHelper.Find("b", gameObject).transform;
         RootdBase = charLoader.rootBone;
         CameraTarget = RootdBase;
         weaponLoader = gameObject.GetComponent<WeaponLoader>();
@@ -88,9 +88,9 @@ public class MeteorUnitDebug : MeteorUnit
         charController.stepOffset = 7.6f;
         posMng.ChangeAction();
         WsGlobal.SetObjectLayer(gameObject, layer);
-        InventoryItem itWeapon = GameData.Instance.MakeEquip(1);
+        InventoryItem itWeapon = Main.Ins.GameStateMgr.MakeEquip(1);
         weaponLoader.EquipWeapon(itWeapon);
-        this.name = Global.Instance.GetCharacterName(UnitId);
+        this.name = Main.Ins.CombatData.GetCharacterName(UnitId);
     }
 
     public void Jump()

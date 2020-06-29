@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class MatchDialogState : CommonDialogState<MatchDialog>
 {
-    public override string DialogName { get { return "MatchDialog"; } }
+    public override string DialogName { get { return "MatchWnd"; } }
     public MatchDialogState(MainDialogStateManager stateMgr) : base(stateMgr)
     {
 
@@ -42,12 +42,12 @@ public class MatchDialog : Dialog
         btnLeave = Control("Leave");
         btnLeave.GetComponent<Button>().onClick.AddListener(() =>
         {
-            Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.MainLobbyDialogState);
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainMenuState);
         });
 
         Control("Enter").GetComponent<Button>().onClick.AddListener(() =>
         {
-            Main.Instance.EnterState(Main.Instance.LoadingEx);
+            Main.Ins.EnterState(Main.Ins.LoadingEx);
             Common.EnterQueue();
             EnterQueueTimeOut.Start();
         });
@@ -56,7 +56,7 @@ public class MatchDialog : Dialog
             quit = true;
             TimesUsed.text = "00:00";
             tick = 0;
-            Main.Instance.EnterState(Main.Instance.LoadingEx);
+            Main.Ins.EnterState(Main.Ins.LoadingEx);
             LeaveQueueTimeOut.Start();
             Common.LeaveQueue();
         });
@@ -64,26 +64,26 @@ public class MatchDialog : Dialog
 
     public void OnLeaveTimeOut(object sender, System.Timers.ElapsedEventArgs e)
     {
-        Main.Instance.ExitState(Main.Instance.LoadingEx);
+        Main.Ins.ExitState(Main.Ins.LoadingEx);
         LeaveQueueTimeOut.Stop();
     }
 
     public void OnEnterTimeOut(object sender, System.Timers.ElapsedEventArgs e)
     {
-        Main.Instance.ExitState(Main.Instance.LoadingEx);
+        Main.Ins.ExitState(Main.Ins.LoadingEx);
         EnterQueueTimeOut.Stop();
     }
 
     public void OnEnterQueue()
     {
-        Main.Instance.ExitState(Main.Instance.LoadingEx);
+        Main.Ins.ExitState(Main.Ins.LoadingEx);
         EnterQueueTimeOut.Stop();
         btnLeave.SetActive(false);
     }
 
     public void OnLeaveQueue()
     {
-        Main.Instance.ExitState(Main.Instance.LoadingEx);
+        Main.Ins.ExitState(Main.Ins.LoadingEx);
         EnterQueueTimeOut.Stop();
         btnLeave.SetActive(true);
     }

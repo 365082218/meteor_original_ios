@@ -35,32 +35,32 @@ public class WorldTemplateDialog : Dialog
         Toggle rule0 = Control("0", RuleGroup).GetComponent<Toggle>();
         Toggle rule1 = Control("1", RuleGroup).GetComponent<Toggle>();
         Toggle rule2 = Control("2", RuleGroup).GetComponent<Toggle>();
-        rule0.isOn = GameData.Instance.gameStatus.Single.Mode == (int)GameMode.MENGZHU;
-        rule1.isOn = GameData.Instance.gameStatus.Single.Mode == (int)GameMode.ANSHA;
-        rule2.isOn = GameData.Instance.gameStatus.Single.Mode == (int)GameMode.SIDOU;
+        rule0.isOn = Main.Ins.GameStateMgr.gameStatus.Single.Mode == (int)GameMode.MENGZHU;
+        rule1.isOn = Main.Ins.GameStateMgr.gameStatus.Single.Mode == (int)GameMode.ANSHA;
+        rule2.isOn = Main.Ins.GameStateMgr.gameStatus.Single.Mode == (int)GameMode.SIDOU;
 
-        rule0.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Single.Mode = (int)GameMode.MENGZHU; });
-        rule1.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Single.Mode = (int)GameMode.ANSHA; });
-        rule2.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Single.Mode = (int)GameMode.SIDOU; });
+        rule0.onValueChanged.AddListener((bool select) => { if (select) Main.Ins.GameStateMgr.gameStatus.Single.Mode = (int)GameMode.MENGZHU; });
+        rule1.onValueChanged.AddListener((bool select) => { if (select) Main.Ins.GameStateMgr.gameStatus.Single.Mode = (int)GameMode.ANSHA; });
+        rule2.onValueChanged.AddListener((bool select) => { if (select) Main.Ins.GameStateMgr.gameStatus.Single.Mode = (int)GameMode.SIDOU; });
 
         GameObject LifeGroup = Control("LifeGroup", WndObject);
         Toggle Life0 = Control("0", LifeGroup).GetComponent<Toggle>();
         Toggle Life1 = Control("1", LifeGroup).GetComponent<Toggle>();
         Toggle Life2 = Control("2", LifeGroup).GetComponent<Toggle>();
 
-        Life0.isOn = GameData.Instance.gameStatus.Single.Life == 500;
-        Life1.isOn = GameData.Instance.gameStatus.Single.Life == 200;
-        Life2.isOn = GameData.Instance.gameStatus.Single.Life == 100;
-        Life0.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Single.Life = 500; });
-        Life1.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Single.Life = 200; });
-        Life2.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Single.Life = 100; });
+        Life0.isOn = Main.Ins.GameStateMgr.gameStatus.Single.Life == 500;
+        Life1.isOn = Main.Ins.GameStateMgr.gameStatus.Single.Life == 200;
+        Life2.isOn = Main.Ins.GameStateMgr.gameStatus.Single.Life == 100;
+        Life0.onValueChanged.AddListener((bool select) => { if (select) Main.Ins.GameStateMgr.gameStatus.Single.Life = 500; });
+        Life1.onValueChanged.AddListener((bool select) => { if (select) Main.Ins.GameStateMgr.gameStatus.Single.Life = 200; });
+        Life2.onValueChanged.AddListener((bool select) => { if (select) Main.Ins.GameStateMgr.gameStatus.Single.Life = 100; });
 
         GameObject MainWeaponGroup = Control("FirstWeapon", WndObject);
         GameObject WeaponGroup = Control("WeaponGroup", MainWeaponGroup);
         for (int i = 0; i <= 11; i++)
         {
             Toggle MainWeapon = Control(string.Format("{0}", i), WeaponGroup).GetComponent<Toggle>();
-            MainWeapon.isOn = GameData.Instance.gameStatus.Single.Weapon0 == i;
+            MainWeapon.isOn = Main.Ins.GameStateMgr.gameStatus.Single.Weapon0 == i;
             MainWeapon.onValueChanged.AddListener(OnMainWeaponSelected);
         }
 
@@ -69,27 +69,27 @@ public class WorldTemplateDialog : Dialog
         for (int i = 0; i <= 11; i++)
         {
             Toggle subWeapon = Control(string.Format("{0}", i), WeaponGroup).GetComponent<Toggle>();
-            subWeapon.isOn = GameData.Instance.gameStatus.Single.Weapon1 == i;
+            subWeapon.isOn = Main.Ins.GameStateMgr.gameStatus.Single.Weapon1 == i;
             subWeapon.onValueChanged.AddListener(OnSubWeaponSelected);
         }
 
         Control("Return").GetComponent<Button>().onClick.AddListener(() =>
         {
-            GameData.Instance.SaveState();
+            Main.Ins.GameStateMgr.SaveState();
             OnPreviousPress();
         });
 
         //地图模板，应该从所有地图表里获取，包括外部载入的地图.
         TemplateRoot = Control("WorldRoot", WndObject);
-        Level[] allLevel = Global.Instance.GetAllLevel();
+        LevelDatas.LevelDatas[] allLevel = Main.Ins.CombatData.GetAllLevel();
         for (int i = 0; i < allLevel.Length; i++)
         {
-            Level lev = allLevel[i];
+            LevelDatas.LevelDatas lev = allLevel[i];
             if (lev == null)
                 continue;
             Idevgame.Util.LevelUtils.AddGridItem(lev, TemplateRoot.transform, OnSelectLevel);
         }
-        select = Global.Instance.GetLevel(GameData.Instance.gameStatus.ChapterTemplate, GameData.Instance.gameStatus.Single.LevelTemplate);
+        select = Main.Ins.CombatData.GetLevel(Main.Ins.GameStateMgr.gameStatus.ChapterTemplate, Main.Ins.GameStateMgr.gameStatus.Single.LevelTemplate);
         OnSelectLevel(select);
 
         GameObject ModelGroup = Control("ModelGroup");
@@ -97,10 +97,10 @@ public class WorldTemplateDialog : Dialog
         {
             Toggle modelTog = Control(string.Format("{0}", i), ModelGroup).GetComponent<Toggle>();
             Text t = modelTog.GetComponentInChildren<Text>();
-            t.text = ModelMng.Instance.GetAllItem()[i].Name;
+            t.text = Main.Ins.DataMgr.GetDatasArray<ModelDatas.ModelDatas>()[i].Name;
             var k = i;
-            modelTog.isOn = GameData.Instance.gameStatus.Single.Model == i;
-            modelTog.onValueChanged.AddListener((bool select) => { if (select) GameData.Instance.gameStatus.Single.Model = k; });
+            modelTog.isOn = Main.Ins.GameStateMgr.gameStatus.Single.Model == i;
+            modelTog.onValueChanged.AddListener((bool select) => { if (select) Main.Ins.GameStateMgr.gameStatus.Single.Model = k; });
         }
 
         GameObject TimeGroup = Control("GameTime", WndObject);
@@ -108,8 +108,8 @@ public class WorldTemplateDialog : Dialog
         {
             Toggle TimeToggle = Control(string.Format("{0}", i), TimeGroup).GetComponent<Toggle>();
             var k = i;
-            TimeToggle.isOn = GameData.Instance.gameStatus.Single.RoundTime == ConstRoundTime[k];
-            TimeToggle.onValueChanged.AddListener((bool selected) => { if (selected) GameData.Instance.gameStatus.Single.RoundTime = ConstRoundTime[k]; });
+            TimeToggle.isOn = Main.Ins.GameStateMgr.gameStatus.Single.RoundTime == ConstRoundTime[k];
+            TimeToggle.onValueChanged.AddListener((bool selected) => { if (selected) Main.Ins.GameStateMgr.gameStatus.Single.RoundTime = ConstRoundTime[k]; });
         }
 
         GameObject PlayerGroup = Control("PlayerGroup", WndObject);
@@ -117,18 +117,18 @@ public class WorldTemplateDialog : Dialog
         {
             Toggle PlayerToggle = Control(string.Format("{0}", i), PlayerGroup).GetComponent<Toggle>();
             var k = i;
-            PlayerToggle.isOn = GameData.Instance.gameStatus.Single.MaxPlayer == ConstPlayer[k];
+            PlayerToggle.isOn = Main.Ins.GameStateMgr.gameStatus.Single.MaxPlayer == ConstPlayer[k];
             PlayerToggle.onValueChanged.AddListener((bool selected) =>
             {
                 if (selected)
-                    GameData.Instance.gameStatus.Single.MaxPlayer = ConstPlayer[k];
+                    Main.Ins.GameStateMgr.gameStatus.Single.MaxPlayer = ConstPlayer[k];
             });
         }
 
         GameObject DisallowGroup = Control("DisallowGroup", WndObject);
         Toggle DisallowToggle = Control("0", DisallowGroup).GetComponent<Toggle>();
-        DisallowToggle.isOn = GameData.Instance.gameStatus.Single.DisallowSpecialWeapon;
-        DisallowToggle.onValueChanged.AddListener((bool selected) => { GameData.Instance.gameStatus.Single.DisallowSpecialWeapon = selected; });
+        DisallowToggle.isOn = Main.Ins.GameStateMgr.gameStatus.Single.DisallowSpecialWeapon;
+        DisallowToggle.onValueChanged.AddListener((bool selected) => { Main.Ins.GameStateMgr.gameStatus.Single.DisallowSpecialWeapon = selected; });
     }
 
     void OnMainWeaponSelected(bool select)
@@ -142,7 +142,7 @@ public class WorldTemplateDialog : Dialog
                 Toggle MainWeapon = Control(string.Format("{0}", i), WeaponGroup).GetComponent<Toggle>();
                 if (MainWeapon.isOn)
                 {
-                    GameData.Instance.gameStatus.Single.Weapon0 = i;
+                    Main.Ins.GameStateMgr.gameStatus.Single.Weapon0 = i;
                     break;
                 }
 
@@ -161,18 +161,18 @@ public class WorldTemplateDialog : Dialog
                 Toggle subWeapon = Control(string.Format("{0}", i), WeaponGroup).GetComponent<Toggle>();
                 if (subWeapon.isOn)
                 {
-                    GameData.Instance.gameStatus.Single.Weapon1 = i;
+                    Main.Ins.GameStateMgr.gameStatus.Single.Weapon1 = i;
                     break;
                 }
             }
         }
     }
 
-    Level select;
-    void OnSelectLevel(Level lev)
+    LevelDatas.LevelDatas select;
+    void OnSelectLevel(LevelDatas.LevelDatas lev)
     {
         select = lev;
-        GameData.Instance.gameStatus.Single.LevelTemplate = lev.ID;
+        Main.Ins.GameStateMgr.gameStatus.Single.LevelTemplate = lev.ID;
         Control("Task").GetComponent<Text>().text = select.Name;
     }
 
@@ -180,15 +180,15 @@ public class WorldTemplateDialog : Dialog
     {
         if (select != null)
         {
-            Global.Instance.MainWeapon = GameData.Instance.gameStatus.Single.Weapon0;
-            Global.Instance.SubWeapon = GameData.Instance.gameStatus.Single.Weapon1;
-            Global.Instance.PlayerLife = GameData.Instance.gameStatus.Single.Life;
-            Global.Instance.PlayerModel = GameData.Instance.gameStatus.Single.Model;
-            Global.Instance.RoundTime = GameData.Instance.gameStatus.Single.RoundTime;
-            Global.Instance.MaxPlayer = GameData.Instance.gameStatus.Single.MaxPlayer;
+            Main.Ins.CombatData.MainWeapon = Main.Ins.GameStateMgr.gameStatus.Single.Weapon0;
+            Main.Ins.CombatData.SubWeapon = Main.Ins.GameStateMgr.gameStatus.Single.Weapon1;
+            Main.Ins.CombatData.PlayerLife = Main.Ins.GameStateMgr.gameStatus.Single.Life;
+            Main.Ins.CombatData.PlayerModel = Main.Ins.GameStateMgr.gameStatus.Single.Model;
+            Main.Ins.CombatData.RoundTime = Main.Ins.GameStateMgr.gameStatus.Single.RoundTime;
+            Main.Ins.CombatData.MaxPlayer = Main.Ins.GameStateMgr.gameStatus.Single.MaxPlayer;
             bool isPluginLevel = true;
-            Level[] all = LevelMng.Instance.GetAllItem();
-            for (var i = 0; i < all.Length; i++)
+            List<LevelDatas.LevelDatas> all = Main.Ins.DataMgr.GetDatasArray<LevelDatas.LevelDatas>();
+            for (var i = 0; i < all.Count; i++)
             {
                 if (all[i] == select)
                 {
@@ -198,23 +198,23 @@ public class WorldTemplateDialog : Dialog
             }
             if (isPluginLevel)
             {
-                Global.Instance.Chapter = DlcMng.Instance.FindChapterByLevel(select);
-                GameData.Instance.gameStatus.ChapterTemplate = Global.Instance.Chapter.ChapterId;
-                GameData.Instance.gameStatus.Single.LevelTemplate = select.ID;
+                Main.Ins.CombatData.Chapter = Main.Ins.DlcMng.FindChapterByLevel(select);
+                Main.Ins.GameStateMgr.gameStatus.ChapterTemplate = Main.Ins.CombatData.Chapter.ChapterId;
+                Main.Ins.GameStateMgr.gameStatus.Single.LevelTemplate = select.ID;
             }
             else
             {
-                GameData.Instance.gameStatus.ChapterTemplate = 0;
-                GameData.Instance.gameStatus.Single.LevelTemplate = select.ID;
-                Global.Instance.Chapter = null;
+                Main.Ins.GameStateMgr.gameStatus.ChapterTemplate = 0;
+                Main.Ins.GameStateMgr.gameStatus.Single.LevelTemplate = select.ID;
+                Main.Ins.CombatData.Chapter = null;
             }
             LevelScriptBase script = LevelHelper.GetLevelScript(select.LevelScript);
             if (script == null)
             {
-                U3D.PopupTip(LanguagesMgr.GetText("LoadLevelFailed", select.ID, select.LevelScript));
+                U3D.PopupTip(string.Format("关卡脚本为空 关卡ID:{0}, 关卡脚本:{1}", select.ID, select.LevelScript));
                 return;
             }
-            U3D.LoadLevel(select, LevelMode.CreateWorld, (GameMode)GameData.Instance.gameStatus.Single.Mode);
+            U3D.LoadLevel(select, LevelMode.CreateWorld, (GameMode)Main.Ins.GameStateMgr.gameStatus.Single.Mode);
         }
     }
 }

@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-public class FMCLoader : Singleton<FMCLoader> {
+public class FMCLoader
+{
     Dictionary<string, FMCFile> FmcFile = new Dictionary<string, FMCFile>();
     public FMCFile Load(string file)
     {

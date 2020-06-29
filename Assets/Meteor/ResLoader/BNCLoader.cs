@@ -2,7 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class BncLoader : Singleton<BncLoader> {
+public class BncLoader
+{
     Dictionary<string, BncFile> BncFile = new Dictionary<string, BncFile>();
     Dictionary<int, BncFile> PluginBncFile = new Dictionary<int, BncFile>();
     BncFile Load(string file)

@@ -221,6 +221,22 @@ public class MapLoaderInspector : Editor
         {
             myTarget.LoadDesMap(myTarget.desFile);
         }
+        if (GUILayout.Button("SaveMaterial"))
+        {
+            myTarget.SaveMaterial();
+        }
+        if (GUILayout.Button("SaveMesh"))
+        {
+            myTarget.SaveMesh();
+        }
+        if (GUILayout.Button("LoadMesh"))
+        {
+            myTarget.LoadMeshFromPath();
+        }
+        if (GUILayout.Button("LoadWayPoint"))
+        {
+            myTarget.LoadWayPoint();
+        }
     }
 }
 
@@ -243,6 +259,7 @@ public class MeteorUnitInspector : Editor
 {
     public int wayIndex = -1;
     public string way = "";
+    public GameObject vecTarget;
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
@@ -250,14 +267,23 @@ public class MeteorUnitInspector : Editor
         way = GUILayout.TextField(way);
         if (GUILayout.Button("GetWayIndex"))
         {
-            wayIndex = PathMng.Instance.GetWayIndex(myTarget.transform.position, myTarget);
+            wayIndex = Main.Ins.PathMng.GetWayIndex(myTarget.transform.position);
             way = wayIndex.ToString();
         }
 
         if (GUILayout.Button("GetWayIndex2"))
         {
-            wayIndex = PathMng.Instance.GetWayIndex(myTarget.transform.position, null);
+            wayIndex = Main.Ins.PathMng.GetWayIndex(myTarget.transform.position);
             way = wayIndex.ToString();
+        }
+
+        if (GUILayout.Button("FaceToTarget"))
+        {
+            if (vecTarget == null)
+                vecTarget = GameObject.Find("facetotarget");
+            if (vecTarget == null)
+                return;
+            myTarget.StateMachine.ChangeState(myTarget.StateMachine.FaceToState, vecTarget.transform.position);
         }
     }
 }

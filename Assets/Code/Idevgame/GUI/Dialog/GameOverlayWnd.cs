@@ -38,7 +38,7 @@ public class GameOverlayWnd : Dialog  {
             Text txt = obj.AddComponent<Text>();
             txt.text = msg;
             //00AAFFFF
-            txt.font = Main.Instance.TextFont;
+            txt.font = Main.Ins.TextFont;
             txt.fontSize = 32;
             txt.alignment = TextAnchor.MiddleLeft;
             txt.raycastTarget = false;

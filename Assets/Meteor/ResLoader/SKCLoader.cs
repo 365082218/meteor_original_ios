@@ -5,7 +5,8 @@ using System;
 using System.IO;
 using UnityEngine.UI;
 
-public class SkcLoader : Singleton<SkcLoader> {
+public class SkcLoader
+{
     static Dictionary<string, SkcFile> SkcFile = new Dictionary<string, global::SkcFile>();
     static Dictionary<int, SkcFile> PluginSkcFile = new Dictionary<int, global::SkcFile>();
     public SkcFile Load(string file)
@@ -35,11 +36,11 @@ public class SkcLoader : Singleton<SkcLoader> {
     public SkcFile Load(int characterIdx)
     {
         string BoneCnt = "";
-        if (GameData.Instance != null)
+        if (Main.Ins.GameStateMgr != null)
         {
-            if (GameData.Instance.gameStatus != null)
+            if (Main.Ins.GameStateMgr.gameStatus != null)
             {
-                switch (GameData.Instance.gameStatus.Quality)
+                switch (Main.Ins.GameStateMgr.gameStatus.Quality)
                 {
                     case 0:
                         BoneCnt = ""; break;
@@ -50,12 +51,12 @@ public class SkcLoader : Singleton<SkcLoader> {
                 }
 
                 //如果选择 范旋-他300面的模型 骨骼权重最大是5，不好手动调整,用800面的代替
-                if (characterIdx == 16 && GameData.Instance.gameStatus.Quality == 2)
+                if (characterIdx == 16 && Main.Ins.GameStateMgr.gameStatus.Quality == 2)
                     BoneCnt = "_800";
             }
         }
 
-        if (characterIdx >= Global.MaxModel)
+        if (characterIdx >= Main.Ins.CombatData.MaxModel)
             return LoadPluginModel(characterIdx);
 
         return Load(string.Format("p{0}{1}.skc", characterIdx, BoneCnt));
@@ -287,14 +288,18 @@ public class SkcFile
                             e.Weight = w;
                             boneW.Add(e);
                         }
+                        //重新按权重设置各自的比例
+                        float weightTotal = 0.0f;
+                        for (int k = 0; k < boneW.Count; k++)
+                            weightTotal += boneW[k].Weight;
                         weight.boneIndex0 = boneW.Count >= 1 ? boneW[0].BoneIndex : 0;
-                        weight.weight0 = boneW.Count >= 1 ? boneW[0].Weight : 0;
+                        weight.weight0 = boneW.Count >= 1 ? boneW[0].Weight / weightTotal : 0;
                         weight.boneIndex1 = boneW.Count >= 2 ? boneW[1].BoneIndex : 0;
-                        weight.weight1 = boneW.Count >= 2 ? boneW[1].Weight : 0;
+                        weight.weight1 = boneW.Count >= 2 ? boneW[1].Weight / weightTotal : 0;
                         weight.boneIndex2 = boneW.Count >= 3 ? boneW[2].BoneIndex : 0;
-                        weight.weight2 = boneW.Count >= 3 ? boneW[2].Weight : 0;
+                        weight.weight2 = boneW.Count >= 3 ? boneW[2].Weight / weightTotal : 0;
                         weight.boneIndex3 = boneW.Count >= 4 ? boneW[3].BoneIndex : 0;
-                        weight.weight3 = boneW.Count >= 4 ? boneW[3].Weight : 0;
+                        weight.weight3 = boneW.Count >= 4 ? boneW[3].Weight / weightTotal : 0;
                         boneWeight.Add(weight);
                         vec.Add(v);
                         uv.Add(uvv);
@@ -405,7 +410,7 @@ public class SkcFile
     //0-19内的材质是3个，20-27的是单个
     public Material[] Material(int roleIdx, EUnitCamp camp)
     {
-        if (roleIdx >= Global.MaxModel)
+        if (roleIdx >= Main.Ins.CombatData.MaxModel)
         {
             Material[] ret = new Material[materials.Length];
             for (int i = 0; i < materials.Length; i++)

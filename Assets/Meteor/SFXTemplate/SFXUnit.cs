@@ -200,11 +200,11 @@ DRAG*/
         if (meshIndex != -1 && meshIndex < GamePool.Instance.MeshMng.Meshes.Length)
         {
             if (meshIndex == 4)
-                mFilter.mesh = SfxMeshGenerator.Instance.CreateCylinder(source.origAtt.y, source.origAtt.x, source.origScale.x);
+                mFilter.mesh = Main.Ins.SfxMeshGenerator.CreateCylinder(source.origAtt.y, source.origAtt.x, source.origScale.x);
             else if (meshIndex == 3)
-                mFilter.mesh = SfxMeshGenerator.Instance.CreateSphere(source.SphereRadius);
+                mFilter.mesh = Main.Ins.SfxMeshGenerator.CreateSphere(source.SphereRadius);
             else if (meshIndex == 0)
-                mFilter.mesh = SfxMeshGenerator.Instance.CreatePlane(source.origScale.x, source.origScale.y);
+                mFilter.mesh = Main.Ins.SfxMeshGenerator.CreatePlane(source.origScale.x, source.origScale.y);
             else
                 mFilter.mesh = GamePool.Instance.MeshMng.Meshes[meshIndex];
         }
@@ -257,7 +257,7 @@ DRAG*/
                 render.material.SetColor("_Color", effect.frames[0].colorRGB);
                 render.material.SetColor("_TintColor", effect.frames[0].colorRGB);
                 render.material.SetFloat("_Intensity", effect.frames[0].TailFlags[9]);
-                if (GameData.Instance.gameStatus != null && !GameData.Instance.gameStatus.DisableParticle)
+                if (Main.Ins.GameStateMgr.gameStatus != null && !Main.Ins.GameStateMgr.gameStatus.DisableParticle)
                     particle.Play();
             }
             else
@@ -347,7 +347,7 @@ DRAG*/
 
     public Transform FindFollowed(string bone)
     {
-        GameObject bindBone = Global.ldaControlX(bone, parentSfx.gameObject);
+        GameObject bindBone = NodeHelper.Find(bone, parentSfx.gameObject);
         if (bindBone != null)
             return bindBone.transform;
         //不能跨特效搜索，只能在本特效中

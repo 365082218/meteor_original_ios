@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Idevgame.Util;
-public class SoundManager : Singleton<SoundManager>
+public class SoundManager
 {
     bool enable = true;
     class AudioClipInfo
@@ -40,7 +40,7 @@ public class SoundManager : Singleton<SoundManager>
         get
         {
             if (mAudioMusic == null)
-                mAudioMusic = Main.Instance != null ? Main.Instance.Music : null;
+                mAudioMusic = Main.Ins != null ? Main.Ins.Music : null;
             return mAudioMusic;
         }
         set { mAudioMusic = value; }
@@ -52,7 +52,7 @@ public class SoundManager : Singleton<SoundManager>
         get
         {
             if (mAudioSource == null)
-                mAudioSource = Main.Instance.Sound;
+                mAudioSource = Main.Ins.Sound;
             return mAudioSource;
         }
         set { mAudioSource = value; }
@@ -112,10 +112,15 @@ public class SoundManager : Singleton<SoundManager>
     // Use this for initialization
     public SoundManager()
     {
-        if (Main.Instance != null)
+        
+    }
+
+    public void Init()
+    {
+        if (Main.Ins != null)
         {
-            SetMusicVolume(GameData.Instance.gameStatus.MusicVolume);
-            SetSoundVolume(GameData.Instance.gameStatus.SoundVolume);
+            SetMusicVolume(Main.Ins.GameStateMgr.gameStatus.MusicVolume);
+            SetSoundVolume(Main.Ins.GameStateMgr.gameStatus.SoundVolume);
         }
     }
 
@@ -192,11 +197,11 @@ public class SoundManager : Singleton<SoundManager>
         if (!enable)
             return -2;
         Vector3 listenerPos = position;
-        MeteorUnit localPlayer = MeteorManager.Instance.LocalPlayer;
+        MeteorUnit localPlayer = Main.Ins.LocalPlayer;
         if (localPlayer != null)
         {
-            if (CameraFree.Ins != null)
-                listenerPos = CameraFree.Ins.transform.position;
+            if (Main.Ins.CameraFree != null)
+                listenerPos = Main.Ins.CameraFree.transform.position;
             else
                 listenerPos = localPlayer.transform.position;
         }
@@ -357,8 +362,8 @@ public class SoundManager : Singleton<SoundManager>
         }
         else
         {
-            SetMusicVolume(GameData.Instance.gameStatus.MusicVolume);
-            SetSoundVolume(GameData.Instance.gameStatus.SoundVolume);
+            SetMusicVolume(Main.Ins.GameStateMgr.gameStatus.MusicVolume);
+            SetSoundVolume(Main.Ins.GameStateMgr.gameStatus.SoundVolume);
         }
     }
 }

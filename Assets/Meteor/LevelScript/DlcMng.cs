@@ -6,26 +6,65 @@ using System.Net;
 using System.Reflection;
 using UnityEngine;
 
-public class DlcLevelMng:TableManagerEx<Level, DlcLevelMng>
+public class DlcLevelMng:TableManager<Level>
 {
     string levText;
-    public DlcLevelMng()
-    {
-
-    }
-
     public DlcLevelMng(string lev)
     {
         levText = lev;
-        ReLoad();
+        ReLoad(lev, true);
     }
-    public override string TableName() { return levText; }
+
+    List<LevelDatas.LevelDatas> _data = new List<LevelDatas.LevelDatas>();
+    public List<LevelDatas.LevelDatas> GetAllLevel()
+    {
+        if (_data.Count != 0)
+            return _data;
+        //加载外部的proto.bytes,获取里面的数据
+        Level [] data = GetAllItem();
+        for (int i = 0; i < data.Length; i++)
+        {
+            LevelDatas.LevelDatas d = new LevelDatas.LevelDatas();
+            d.BgmName = data[i].BgmName;
+            d.BgTexture = data[i].BgTexture;
+            d.DisableFindWay = false;//已取消该配置，由剧本对应的脚本重写该数据位决定.
+            d.ID = data[i].ID;
+            d.LevelScript = data[i].LevelScript;
+            d.LevelType = data[i].LevelType;
+            d.Name = data[i].Name;
+            //pass param均由关卡剧本脚本来处理-硬编码在代码内
+            d.Scene = data[i].Scene;
+            d.sceneItems = data[i].sceneItems;
+            d.StartScript = data[i].StartScript;
+            _data.Add(d);
+        }
+        return _data;
+    }
+
+    public LevelDatas.LevelDatas GetLevel(int level)
+    {
+        Level l = this.GetItem(level);
+        LevelDatas.LevelDatas d = new LevelDatas.LevelDatas();
+        d.BgmName = l.BgmName;
+        d.BgTexture = l.BgTexture;
+        d.DisableFindWay = false;//已取消该配置，由剧本对应的脚本重写该数据位决定.
+        d.ID = l.ID;
+        d.LevelScript = l.LevelScript;
+        d.LevelType = l.LevelType;
+        d.Name = l.Name;
+        //pass param均由关卡剧本脚本来处理-硬编码在代码内
+        d.Scene = l.Scene;
+        d.sceneItems = l.sceneItems;
+        d.StartScript = l.StartScript;
+        return d;
+    }
 }
 
 //资料片管理器
-public class DlcMng:Singleton<DlcMng> {
+public class DlcMng
+{
     //取得资料片内所有关卡资料.
-    public Level[] GetDlcLevel(int idx)
+    public List<LevelDatas.LevelDatas> GetDlcLevel(int idx)
     {
         Chapter cha = GetPluginChapter(idx);
         return cha.LoadAll();
@@ -34,11 +73,13 @@ public class DlcMng:Singleton<DlcMng> {
     //打开资料片中指定关卡
     public void PlayDlc(Chapter chapter, int levelIdx)
     {
-        GameData.Instance.SaveState();
-        Level lev = chapter.GetItem(levelIdx);
-        Global.Instance.GLevelItem = lev;
-        Global.Instance.GLevelMode = LevelMode.SinglePlayerTask;
-        Global.Instance.GGameMode = GameMode.Normal;
+        Main.Ins.GameStateMgr.SaveState();
+        LevelDatas.LevelDatas lev = chapter.GetItem(levelIdx);
+        Main.Ins.CombatData.GLevelItem = lev;
+        Main.Ins.CombatData.GRecord = null;
+        Main.Ins.CombatData.GLevelMode = LevelMode.SinglePlayerTask;
+        Main.Ins.CombatData.GGameMode = GameMode.Normal;
+        Main.Ins.CombatData.wayPoints = CombatData.GetWayPoint(lev);
         U3D.LoadLevelEx();
     }
 
@@ -135,11 +176,11 @@ public class DlcMng:Singleton<DlcMng> {
     public static Chapter GetPluginChapter(int dlc)
     {
         Chapter Target = null;
-        for (int i = 0; i < GameData.Instance.gameStatus.pluginChapter.Count; i++)
+        for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginChapter.Count; i++)
         {
-            if (GameData.Instance.gameStatus.pluginChapter[i].ChapterId == dlc)
+            if (Main.Ins.GameStateMgr.gameStatus.pluginChapter[i].ChapterId == dlc)
             {
-                Target = GameData.Instance.gameStatus.pluginChapter[i];
+                Target = Main.Ins.GameStateMgr.gameStatus.pluginChapter[i];
                 break;
             }
         }
@@ -149,32 +190,32 @@ public class DlcMng:Singleton<DlcMng> {
     public static ModelItem GetPluginModel(int model)
     {
         ModelItem Target = null;
-        for (int i = 0; i < GameData.Instance.gameStatus.pluginModel.Count; i++)
+        for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginModel.Count; i++)
         {
-            if (GameData.Instance.gameStatus.pluginModel[i].ModelId == model)
+            if (Main.Ins.GameStateMgr.gameStatus.pluginModel[i].ModelId == model)
             {
-                Target = GameData.Instance.gameStatus.pluginModel[i];
+                Target = Main.Ins.GameStateMgr.gameStatus.pluginModel[i];
                 break;
             }
         }
         return Target;
     }
 
-    public Chapter FindChapterByLevel(Level lev)
+    public Chapter FindChapterByLevel(LevelDatas.LevelDatas lev)
     {
-        if (Dlcs.Count == 0 && GameData.Instance.gameStatus.pluginChapter != null)
+        if (Dlcs.Count == 0 && Main.Ins.GameStateMgr.gameStatus.pluginChapter != null)
         {
-            for (int i = 0; i < GameData.Instance.gameStatus.pluginChapter.Count; i++)
+            for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginChapter.Count; i++)
             {
-                if (GameData.Instance.gameStatus.pluginChapter[i].Installed)
-                    Dlcs.Add(GameData.Instance.gameStatus.pluginChapter[i]);
+                if (Main.Ins.GameStateMgr.gameStatus.pluginChapter[i].Installed)
+                    Dlcs.Add(Main.Ins.GameStateMgr.gameStatus.pluginChapter[i]);
             }
         }
 
         for (int i = 0; i < Dlcs.Count; i++)
         {
-            Level[] all = Dlcs[i].LoadAll();
-            for (int j = 0; j < all.Length; j++)
+            List<LevelDatas.LevelDatas> all = Dlcs[i].LoadAll();
+            for (int j = 0; j < all.Count; j++)
             {
                 if (all[j] == lev)
                     return Dlcs[i];

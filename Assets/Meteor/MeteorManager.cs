@@ -3,13 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class MeteorManager {
-    private MeteorManager(){}
-    public static MeteorManager Instance
-    {
-        get { if (_Ins == null) _Ins = new MeteorManager();return _Ins; }
-    }
-    static MeteorManager _Ins;
-    public MeteorUnit LocalPlayer;//当前操纵着主英雄.
+    public MeteorManager(){}
     //public PetController Pet;
     public List<MeteorUnit> UnitInfos = new List<MeteorUnit>();
     public List<MeteorUnit> DeadUnits = new List<MeteorUnit>();
@@ -45,7 +39,7 @@ public class MeteorManager {
         ////让角色间无法穿透，待某个角色使出特殊技能时，关掉碰撞。
         //for (int i = 0; i < UnitInfos.Count; i++)
         //    UnitInfos[i].PhysicalIgnore(unit, false);
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             unit.InstanceId = playerId;
         else
         {
@@ -99,8 +93,7 @@ public class MeteorManager {
     //某个角色从场景删除
     public void OnRemoveUnit(MeteorUnit unit)
     {
-        MeteorManager.Instance.PhysicalIgnore(unit, true);
-
+        Main.Ins.MeteorManager.PhysicalIgnore(unit, true);
         for (int i = 0; i < UnitInfos.Count; i++)
             UnitInfos[i].OnUnitDead(unit);
 
@@ -109,13 +102,13 @@ public class MeteorManager {
         if (DeadUnits.Contains(unit))
             DeadUnits.Remove(unit);
         LeavedUnits.Add(unit.InstanceId, unit.name);
-        BuffMng.Instance.RemoveUnit(unit);
+        Main.Ins.BuffMng.RemoveUnit(unit);
         GameObject.Destroy(unit.gameObject);
     }
 
     public void OnUnitDead(MeteorUnit unit)
     {
-        MeteorManager.Instance.PhysicalIgnore(unit, true);
+        Main.Ins.MeteorManager.PhysicalIgnore(unit, true);
         unit.OnUnitDead(null);
         UnitInfos.Remove(unit);
         DeadUnits.Add(unit);
@@ -146,7 +139,7 @@ public class MeteorManager {
         DeadUnits.Clear();
         LeavedUnits.Clear();
         SceneItems.Clear();
-        LocalPlayer = null;
+        Main.Ins.LocalPlayer = null;
         UnitInstanceIdx = 0;
         SceneItemInstanceIdx = 0;
     }

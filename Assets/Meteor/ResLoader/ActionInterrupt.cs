@@ -154,7 +154,8 @@ public class CommonAction
     public const int Fall = 118;
 }
 
-public class ActionInterrupt: Singleton<ActionInterrupt> {
+public class ActionInterrupt
+{
     public ActionNode Root;
     public Dictionary<int, ActionNode> Whole = new Dictionary<int, ActionNode>();
     public Dictionary<int, List<int>> Lines = new Dictionary<int, List<int>>();//存储行 与 Pose的关系
@@ -673,7 +674,7 @@ public class ActionInterrupt: Singleton<ActionInterrupt> {
         if (Root != null)
             return;
 
-        TextAsset act = Resources.Load<TextAsset>(string.Format("{0}/characteract", AppInfo.Instance.MeteorVersion));
+        TextAsset act = Resources.Load<TextAsset>(string.Format("{0}/characteract", Main.Ins.AppInfo.MeteorVersion));
         MemoryStream ms = new MemoryStream(act.bytes);
         StreamReader text = new StreamReader(ms);
 

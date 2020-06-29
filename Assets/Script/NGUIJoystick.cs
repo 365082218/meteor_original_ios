@@ -27,8 +27,13 @@ public class NGUIJoystick : MonoBehaviour
                 else if (mInstance.dKey.PointDown)
                     mDelta = Vector2.right;
             }
-            return (Time.timeScale != 0) ? mDelta.normalized : Vector2.zero;
+            return Time.timeScale * mDelta.normalized;
         }
+    }
+
+    public void OnMouseDown()
+    {
+        Debug.Log("mouseDown");
     }
 
     public void OnEnabled()
@@ -53,7 +58,7 @@ public class NGUIJoystick : MonoBehaviour
 
     //public Transform background;
     public Transform target;
-    public float direction = 100f;//限定轴最远可以离中心多少
+    public float direction = 180f;//限定轴最远可以离中心多少
     public float reactiveRange = 60f;//激活范围在60-100内，当轴处于这个范围，就会激活相应的连招键。
     //每个轴拥有一个堆栈，激活后，要再激活，必须先清空堆栈，清空堆栈的前提是，轴离开按键处于的那块范围。或任意激活一个键，其他的键都会被清空
     public GameButton wKey;
@@ -78,18 +83,19 @@ public class NGUIJoystick : MonoBehaviour
     {
         if (target == null)
             target = transform;
-        direction = 140.0f / UIHelper.WorldToScreenModify;
-        reactiveRange = direction * 0.8f;
-        wKey.OnPress.AddListener(() => { Global.Instance.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyW); JoyCollider.enabled = false; });
-        sKey.OnPress.AddListener(() => { Global.Instance.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyS); JoyCollider.enabled = false; });
-        aKey.OnPress.AddListener(() => { Global.Instance.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyA); JoyCollider.enabled = false; });
-        dKey.OnPress.AddListener(() => { Global.Instance.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyD); JoyCollider.enabled = false; });
+        reactiveRange = 145.0f;
+        if (Main.Ins != null)
+        {
+            wKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyW); JoyCollider.enabled = false; });
+            sKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyS); JoyCollider.enabled = false; });
+            aKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyA); JoyCollider.enabled = false; });
+            dKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyD); JoyCollider.enabled = false; });
 
-        wKey.OnRelease.AddListener(() => { Global.Instance.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW); if (!GameData.Instance.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
-        sKey.OnRelease.AddListener(() => { Global.Instance.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS); if (!GameData.Instance.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
-        aKey.OnRelease.AddListener(() => { Global.Instance.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA); if (!GameData.Instance.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
-        dKey.OnRelease.AddListener(() => { Global.Instance.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD); if (!GameData.Instance.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
-
+            wKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW); if (!Main.Ins.GameStateMgr.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
+            sKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS); if (!Main.Ins.GameStateMgr.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
+            aKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA); if (!Main.Ins.GameStateMgr.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
+            dKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD); if (!Main.Ins.GameStateMgr.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
+        }
         //if (wKey != null)
         //    wKey.SetKeyActive(false);
         //if (sKey != null)
@@ -140,14 +146,14 @@ public class NGUIJoystick : MonoBehaviour
 	Vector2 leftUp = UIHelper.ScreenPointToUIPoint(new Vector2(0, Screen.height));
     void EnableArrowButton(bool enable)
     {
-        wKey.gameObject.SetActive(enable);
-        sKey.gameObject.SetActive(enable);
-        aKey.gameObject.SetActive(enable);
-        dKey.gameObject.SetActive(enable);
-        wKey.Reset();
-        sKey.Reset();
-        aKey.Reset();
-        dKey.Reset();
+        //wKey.gameObject.SetActive(enable);
+        //sKey.gameObject.SetActive(enable);
+        //aKey.gameObject.SetActive(enable);
+        //dKey.gameObject.SetActive(enable);
+        //wKey.Reset();
+        //sKey.Reset();
+        //aKey.Reset();
+        //dKey.Reset();
     }
 
     void OnPress(bool pressed)
@@ -211,12 +217,12 @@ public class NGUIJoystick : MonoBehaviour
         //sKey.SetKeyActive(false);
         //aKey.SetKeyActive(false);
         //dKey.SetKeyActive(false);
-        if (Global.Instance.GMeteorInput != null)
+        if (Main.Ins != null && Main.Ins.CombatData.GMeteorInput != null)
         {
-            Global.Instance.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW);
-            Global.Instance.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS);
-            Global.Instance.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA);
-            Global.Instance.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD);
+            Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW);
+            Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS);
+            Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA);
+            Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD);
         }
     }
 
@@ -406,9 +412,9 @@ public class NGUIJoystick : MonoBehaviour
 
                 float deltax = touchPos.x / (direction / 2);
                 float deltay = touchPos.y / (direction / 2);
-                mDelta = new Vector2(deltax, deltay) * UIHelper.UIModify;
+                mDelta = new Vector2(deltax, deltay) * UIHelper.Aspect;
 
-                target.localPosition = new Vector3(touchPos.x, touchPos.y, target.localPosition.z) * UIHelper.WorldToScreenModify;
+                target.localPosition = new Vector3(touchPos.x, touchPos.y, target.localPosition.z) * UIHelper.Aspect;
             }
             if (mClickPos.x >= 0)
                 mDelta = Vector2.zero;
@@ -433,28 +439,8 @@ public class NGUIJoystick : MonoBehaviour
         sKey.enabled = !state;
         aKey.enabled = !state;
         dKey.enabled = !state;
-        if (!GameData.Instance.gameStatus.DisableJoystick)
+        if (!Main.Ins.GameStateMgr.gameStatus.DisableJoystick)
             JoyCollider.enabled = !state;
         //background.gameObject.SetActive(!state);
-    }
-
-    public void SetVectorZ(float z)
-    {
-        mDelta.y = z * direction;
-        target.localPosition = new Vector3(mDelta.x, mDelta.y, target.localPosition.z) * UIHelper.WorldToScreenModify;
-        if (mDelta == Vector2.zero)
-            target.parent.gameObject.SetActive(false);
-        else
-            target.parent.gameObject.SetActive(true);
-    }
-
-    public void SetVectorX(float x)
-    {
-        mDelta.x = x * direction;
-        target.localPosition = new Vector3(mDelta.x, mDelta.y, target.localPosition.z) * UIHelper.WorldToScreenModify;
-        if (mDelta == Vector2.zero)
-            target.parent.gameObject.SetActive(false);
-        else
-            target.parent.gameObject.SetActive(true);
     }
 }

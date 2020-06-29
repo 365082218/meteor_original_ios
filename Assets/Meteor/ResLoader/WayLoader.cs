@@ -3,13 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-public class WayLoader:Singleton<WayLoader> {
-    Dictionary<string, List<WayPoint>> data = new Dictionary<string, List<WayPoint>>();
-    public List<WayPoint> Load(string file)
+public class WayLoader
+{
+    //每进入一关加载唯一的一次.
+    public static List<WayPoint> ReLoad(string file)
     {
         string key = file + ".wp";
-        if (data.ContainsKey(key))
-            return data[key];
         List<WayPoint> wp = new List<WayPoint>();
         TextAsset asset = Resources.Load<TextAsset>(key);
         if (asset != null)
@@ -55,8 +54,10 @@ public class WayLoader:Singleton<WayLoader> {
             if (!wp.Contains(wpeach) && wayCount != 0)
                 wp.Add(wpeach);
         }
-        if (wp.Count != 0)
-            data.Add(key, wp);
+        else
+        {
+            UnityEngine.Debug.LogError("can not load " + key);
+        }
         return wp;
     }
 }

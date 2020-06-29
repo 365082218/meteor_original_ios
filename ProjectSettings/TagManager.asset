@@ -31,8 +31,8 @@ TagManager:
   - Bone
   - 3DUIPlayer
   - Flight
-  - Pet
   - 
+  - Checker
   - Wall
   - Trigger
   - 
@@ -41,7 +41,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - ObstacleAI
   - RenderModel
   - WayPoint
   - DebugCanvas

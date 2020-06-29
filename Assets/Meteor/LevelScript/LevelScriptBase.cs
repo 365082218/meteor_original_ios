@@ -43,12 +43,12 @@ public class ScriptBase
 
     public static void InitPlayerVariable()
     {
-        ScriptMng.Instance.CallScript("localPlayer");
-        Model = (int)(double)ScriptMng.Instance.GetVariable("Model");
-        _PlayerName = (string)ScriptMng.Instance.GetVariable("Name");
-        Weapon0 = (int)(double)ScriptMng.Instance.GetVariable("Weapon");
-        Weapon1 = (int)(double)ScriptMng.Instance.GetVariable("Weapon2");
-        MaxHP = (int)(double)ScriptMng.Instance.GetVariable("HP");
+        Main.Ins.ScriptMng.CallScript("localPlayer");
+        Model = (int)(double)Main.Ins.ScriptMng.GetVariable("Model");
+        _PlayerName = (string)Main.Ins.ScriptMng.GetVariable("Name");
+        Weapon0 = (int)(double)Main.Ins.ScriptMng.GetVariable("Weapon");
+        Weapon1 = (int)(double)Main.Ins.ScriptMng.GetVariable("Weapon2");
+        MaxHP = (int)(double)Main.Ins.ScriptMng.GetVariable("HP");
     }
 
     public static int _GetPlayerWeapon() { InitPlayerVariable(); return Weapon0; }
@@ -60,7 +60,7 @@ public class ScriptBase
     public static int GameCallBack(string key, int Value)
     {
         if (key == "mod")
-            return (int)Global.Instance.GGameMode;
+            return (int)Main.Ins.CombatData.GGameMode;
         if (key == "end")
             GameOver(Value);
         return Value;
@@ -126,7 +126,7 @@ public class ScriptBase
 
     public void SetScene(string fun, int a, int b, int c)
     {
-        if (GameData.Instance.gameStatus.DisableParticle)
+        if (Main.Ins.GameStateMgr.gameStatus.DisableParticle)
             return;
         //SetScene("winddir", 50, 0, 0);
         if (fun == "winddir")
@@ -145,7 +145,7 @@ public class ScriptBase
 
     public void SetScene(string fun, int a, int b)
     {
-        if (GameData.Instance.gameStatus.DisableParticle)
+        if (Main.Ins.GameStateMgr.gameStatus.DisableParticle)
             return;
         //SetScene("snowspeed", 20, 100);
         //SetScene("snowsize", 5, 5);
@@ -170,8 +170,8 @@ public class ScriptBase
     //返回角色是否存在执行动作序列
     public bool IsPerforming(int player)
     {
-        if (GameBattleEx.Instance != null)
-            return GameBattleEx.Instance.IsPerforming(player);
+        if (Main.Ins.GameBattleEx != null)
+            return Main.Ins.GameBattleEx.IsPerforming(player);
         return false;
     }
 
@@ -187,12 +187,12 @@ public class ScriptBase
 
     public static void GameOver(int nCode)
     {
-        GameBattleEx.Instance.GameOver(nCode);
+        Main.Ins.GameBattleEx.GameOver(nCode);
     }
 
     public static int GetGameTime()
     {
-        return GameBattleEx.Instance.GetGameTime();
+        return Main.Ins.GameBattleEx.GetGameTime();
     }
 
     public static bool CanUseSkill(int c)
@@ -240,17 +240,18 @@ public class ScriptBase
     public static void SetTarget(int idx, string style, int param)
     {
         Vector3 vec = Vector3.zero;
+        List<WayPoint> wayPoint = Main.Ins.CombatData.wayPoints;
         if (style == "waypoint")
         {
-            if (Global.Instance.GLevelItem != null && Global.Instance.GLevelItem.wayPoint.Count > param)
-                vec = Global.Instance.GLevelItem.wayPoint[param].pos;
+            if (Main.Ins.CombatData.GLevelItem != null && wayPoint.Count > param)
+                vec = wayPoint[param].pos;
         }
         else if (style == "char")
         {
-            for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
-                if (MeteorManager.Instance.UnitInfos[i].InstanceId == param)
+            for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+                if (Main.Ins.MeteorManager.UnitInfos[i].InstanceId == param)
                 {
-                    vec = MeteorManager.Instance.UnitInfos[i].transform.position;
+                    vec = Main.Ins.MeteorManager.UnitInfos[i].transform.position;
                     break;
                 }
         }
@@ -289,7 +290,7 @@ public class ScriptBase
         {
             //把某人传送到某位置去
             MeteorUnit unit = U3D.GetUnit(id);
-            GameObject TargetGo = Global.ldaControlX(v, Loader.Instance.gameObject);
+            GameObject TargetGo = NodeHelper.Find(v, Loader.Instance.gameObject);
             if (TargetGo != null)
                 unit.transform.position = TargetGo.transform.position;
             else
@@ -300,7 +301,7 @@ public class ScriptBase
     public int Misc(string fun, int serices_index = 0, int start = 0, int end = 0)
     {
         if (fun == "gettime")
-            return GameBattleEx.Instance.GetMiscGameTime();
+            return Main.Ins.GameBattleEx.GetMiscGameTime();
         else if (fun == "randomseries")
         {
             randomSeries[serices_index] = generateRandSeries(start, end);
@@ -354,7 +355,7 @@ public class ScriptBase
     }
     public static void CreateEffect(int target, string effect)
     {
-        Debug.Log("create effect:" + effect);
+        //Debug.Log("create effect:" + effect);
         U3D.CreateEffect(target, string.Format("{0}.ef", effect), false);
     }
     public static void CreateEffect(string target, string effect, bool loop)
@@ -1145,7 +1146,6 @@ public class LevelScriptBase:ScriptBase {
     public virtual string GetDesName() { return ""; }
     public virtual bool OnPlayerSpawn(MeteorUnit unit) { return false; }//角色生成后调整
     public virtual void Scene_OnCharacterEvent(int id, int evt) { }
-    public virtual bool DisableFindWay() { return false; }//是否不允许寻路, false，表示允许寻路，true，表示不允许寻路
     public virtual void OnLoad(){}//当关卡被加载最初时，可在此修改游戏类型，让一些与关卡类型相关的地图元素显示出来， ticket=xx
     public virtual GameResult OnUnitDead(MeteorUnit deadUnit)
     {
@@ -1157,10 +1157,10 @@ public class LevelScriptBase:ScriptBase {
     //额外呼叫怪物脚本
     public virtual void OnStart()
     {
-        if (Global.Instance.GLevelItem != null && (!string.IsNullOrEmpty(Global.Instance.GLevelItem.StartScript)))
+        if (Main.Ins.CombatData.GLevelItem != null && (!string.IsNullOrEmpty(Main.Ins.CombatData.GLevelItem.StartScript)))
         {
-            if (ScriptMng.Instance != null)
-                ScriptMng.Instance.CallFunc(Global.Instance.GLevelItem.StartScript);
+            if (Main.Ins.ScriptMng != null)
+                Main.Ins.ScriptMng.CallFunc(Main.Ins.CombatData.GLevelItem.StartScript);
         }
     }
 
@@ -7478,11 +7478,7 @@ public class LevelScript_sn22 : LevelScriptBase
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override void OnLoad()
     {
-        Global.Instance.GGameMode = GameMode.SIDOU;
-    }
-    public override bool DisableFindWay()
-    {
-        return true;
+        Main.Ins.CombatData.GGameMode = GameMode.SIDOU;
     }
     int DeathMatch = 1;
     int TeamDeathMatch = 5;
@@ -7624,7 +7620,7 @@ public class LevelScript_sn22 : LevelScriptBase
             g_CharacterArena[characterid] = arena;
             MakeString(ref arenaname, "D_tpAD", arena + 1);
             Misc("transfer", characterid, arenaname);
-            if (Global.Instance.GLevelMode == LevelMode.Teach)
+            if (Main.Ins.CombatData.GLevelMode == LevelMode.Teach)
                 U3D.OnResumeAI();
             Output("transfer", characterid, "to", arena);
         }
@@ -7641,7 +7637,7 @@ public class LevelScript_sn22 : LevelScriptBase
             g_CharacterArena[characterid] = -1;
             MakeString(ref arenaname, "D_tpAD", arena + 9);
             Misc("transfer", characterid, arenaname);
-            if (Global.Instance.GLevelMode == LevelMode.Teach)
+            if (Main.Ins.CombatData.GLevelMode == LevelMode.Teach)
                 U3D.OnPauseAI();
             Output("transfer", characterid, "from", arena);
         }
@@ -8380,10 +8376,6 @@ public class LevelScript_sn25 : LevelScriptBase
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
-    public override bool DisableFindWay()
-    {
-        return true;
-    }
     int RoundTime = 20;
     int PlayerSpawn = 0;
     int PlayerSpawnDir = 200;
@@ -8491,7 +8483,7 @@ public class LevelScript_sn26 : LevelScriptBase
 
     public override void OnStart()
     {
-        ScriptMng.Instance.CallFunc("LevelScript_sn26");
+        Main.Ins.ScriptMng.CallFunc("LevelScript_sn26");
         base.OnStart();
     }
 
@@ -8612,13 +8604,9 @@ public class LevelScript_sn31 : LevelScript_sn22
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
-    public override bool DisableFindWay()
-    {
-        return true;
-    }
     public override bool OnPlayerSpawn(MeteorUnit unit)
     {
-        Vector3 vec = Global.Instance.GLevelSpawn[14];
+        Vector3 vec = Main.Ins.CombatData.GLevelSpawn[14];
         vec.x += 350;
         vec.x += 65;
         vec.y = unit.transform.position.y;
@@ -8646,7 +8634,7 @@ public class LevelScript_sn31 : LevelScript_sn22
             AddNPC(s);
         }
         AddNPC("npc31_13");
-        Vector3 vec = Global.Instance.GLevelSpawn[14];
+        Vector3 vec = Main.Ins.CombatData.GLevelSpawn[14];
         vec.x += 375;
         U3D.MovePlayer("高寄萍", vec);
         U3D.RotatePlayer("高寄萍", -90);
@@ -8801,6 +8789,7 @@ public class LevelScript_sn02_1:LevelScript_sn02
     }
 }
 
+//
 public class LevelScript_sn24 : LevelScriptBase
 {
     int Rule = 5;
@@ -8814,10 +8803,6 @@ public class LevelScript_sn24 : LevelScriptBase
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
-    public override bool DisableFindWay()
-    {
-        return true;
-    }
 
     public override void OnLoad()
     {

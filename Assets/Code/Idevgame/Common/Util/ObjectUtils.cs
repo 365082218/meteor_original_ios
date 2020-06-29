@@ -8,7 +8,7 @@ namespace Idevgame.Util
     //关卡
     public static class LevelUtils
     {
-        public static void AddGridItem(Level lev, Transform parent, System.Action<Level> OnSelect)
+        public static void AddGridItem(LevelDatas.LevelDatas lev, Transform parent, System.Action<LevelDatas.LevelDatas> OnSelect)
         {
             GameObject objPrefab = Resources.Load("LevelSelectItem", typeof(GameObject)) as GameObject;
             GameObject obj = GameObject.Instantiate(objPrefab) as GameObject;
@@ -23,11 +23,11 @@ namespace Idevgame.Util
 
     public static class ObjectUtils 
     {
-        public static GameObject Identity(this GameObject obj, Transform parent)
+        public static GameObject Identity(this GameObject obj, Transform parent = null)
         {
             obj.transform.SetParent(parent);
-            obj.transform.position = Vector3.zero;
-            obj.transform.rotation = Quaternion.identity;
+            obj.transform.localPosition = Vector3.zero;
+            obj.transform.localRotation = Quaternion.identity;
             obj.transform.localScale = Vector3.one;
             return obj;
         }

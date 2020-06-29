@@ -1,10 +1,14 @@
 
 using Idevgame.GameState.DialogState;
 using Idevgame.StateManagement;
+using UnityEngine;
+
 namespace Idevgame.GameState.DialogState {
     public abstract class BaseDialogState : StateManager<BaseDialogState,DialogAction>.State {
 
-        public MainDialogStateManager DialogStateManager { get; private set; }
+        public BaseDialogStateManager DialogStateManager { get; private set; }
+        protected static GameObject mRootUI;
+        protected static GameObject mCanvasRoot;
 
         public virtual string Tag { get { return this.GetType().Name; } }
 
@@ -18,7 +22,7 @@ namespace Idevgame.GameState.DialogState {
             return false;
         }
 
-        public BaseDialogState(MainDialogStateManager stateManager) : base(stateManager) {
+        public BaseDialogState(BaseDialogStateManager stateManager) : base(stateManager) {
             DialogStateManager = stateManager;
         }
     }

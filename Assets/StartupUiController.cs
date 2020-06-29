@@ -20,15 +20,11 @@ public class StartupUiController : Dialog {
 #elif UNITY_IOS
         //IosWrapper.Init();
 #endif
-        GameData.Instance.LoadState();
-        GameData.Instance.InitTable();
-        Main.Instance.ShowFps(GameData.Instance.gameStatus.ShowFPS);
-        //清理数据
-        ResMng.Reload();
+        Main.Ins.ShowFps(Main.Ins.GameStateMgr.gameStatus.ShowFPS);
         StartCoroutine(LoadData());
-        Global.Instance.Init();//加载全局表.
-        SoundManager.Instance.SetMusicVolume(GameData.Instance.gameStatus.MusicVolume);
-        SoundManager.Instance.SetSoundVolume(GameData.Instance.gameStatus.SoundVolume);
+        Main.Ins.CombatData.Init();//加载全局表.
+        Main.Ins.SoundManager.SetMusicVolume(Main.Ins.GameStateMgr.gameStatus.MusicVolume);
+        Main.Ins.SoundManager.SetSoundVolume(Main.Ins.GameStateMgr.gameStatus.SoundVolume);
     }
 	
 	void Update () {
@@ -40,13 +36,13 @@ public class StartupUiController : Dialog {
         InfoPanel.gameObject.SetActive(true);
         int toProgress = 0;
         int displayProgress = 0;
-        yield return SFXLoader.Instance.Init();
+        yield return Main.Ins.SFXLoader.Init();
         //在读取character.act后再初始化输入模块。
-        ActionInterrupt.Instance.Lines.Clear();
-        ActionInterrupt.Instance.Whole.Clear();
-        ActionInterrupt.Instance.Root = null;
-        ActionInterrupt.Instance.Init();
-        MenuResLoader.Instance.Init();
+        Main.Ins.ActionInterrupt.Lines.Clear();
+        Main.Ins.ActionInterrupt.Whole.Clear();
+        Main.Ins.ActionInterrupt.Root = null;
+        Main.Ins.ActionInterrupt.Init();
+        Main.Ins.MenuResLoader.Init();
 
         //加载默认角色，这个角色有用的
         //AmbLoader.Ins.LoadCharacterAmb(0);
@@ -55,7 +51,7 @@ public class StartupUiController : Dialog {
         {
             AmbLoader.Ins.LoadCharacterAmb(i);
             displayProgress++;
-            percent.text = LanguagesMgr.GetText("Startup.Start", displayProgress);
+            percent.text = string.Format(StringUtils.Startup, displayProgress);
             LoadingBar.SetProgress((float)displayProgress / 100.0f);
             yield return 0;
         }
@@ -67,23 +63,23 @@ public class StartupUiController : Dialog {
         while (displayProgress < toProgress)
         {
             displayProgress += 1;
-            percent.text = LanguagesMgr.GetText("Startup.Start", displayProgress);
+            percent.text = string.Format(StringUtils.Startup, displayProgress);
             LoadingBar.SetProgress((float)displayProgress / 100.0f);
             yield return 0;
         }
         PoseStatus.Clear();
-        Application.targetFrameRate = GameData.Instance.gameStatus.TargetFrame;
+        Application.targetFrameRate = Main.Ins.GameStateMgr.gameStatus.TargetFrame;
 #if UNITY_EDITOR
         Application.targetFrameRate = 120;
 #endif
         Log.Write(string.Format("fps:{0}", Application.targetFrameRate));
-        if (!GameData.Instance.gameStatus.SkipVideo)
+        if (!Main.Ins.GameStateMgr.gameStatus.SkipVideo)
         {
-            string movie = string.Format(Main.strSFile, Main.strHost, Main.port, Main.strProjectUrl, "mmv/start.mv");
+            string movie = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, "mmv/start.mv");
             U3D.PlayMovie(movie);
         }
-        DlcMng.Instance.Init();
-        Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.MainMenuState);
-        Main.Instance.SplashScreenHidden = true;
+        Main.Ins.DlcMng.Init();
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainMenuState);
+        Main.Ins.SplashScreenHidden = true;
     }
 }

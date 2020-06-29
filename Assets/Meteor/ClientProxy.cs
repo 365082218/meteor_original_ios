@@ -177,19 +177,19 @@ class UdpClientProxy
         req.camp = (uint)camp;//暂时全部为盟主模式
         req.model = (uint)model;
         req.weapon = (uint)weapon;
-        req.playerId = (uint)NetWorkBattle.Instance.PlayerId;
+        req.playerId = (uint)Main.Ins.NetWorkBattle.PlayerId;
         Exec((int)MeteorMsg.Command.SpawnPlayer, req);
     }
 
     public static void LeaveLevel()
     {
         PlayerEventData req = new PlayerEventData();
-        req.camp = (uint)NetWorkBattle.Instance.camp;//暂时全部为盟主模式
-        req.model = (uint)NetWorkBattle.Instance.heroIdx;
-        req.weapon = (uint)NetWorkBattle.Instance.weaponIdx;
-        req.playerId = (uint)NetWorkBattle.Instance.PlayerId;
+        req.camp = (uint)Main.Ins.NetWorkBattle.camp;//暂时全部为盟主模式
+        req.model = (uint)Main.Ins.NetWorkBattle.heroIdx;
+        req.weapon = (uint)Main.Ins.NetWorkBattle.weaponIdx;
+        req.playerId = (uint)Main.Ins.NetWorkBattle.PlayerId;
         Exec((int)MeteorMsg.Command.DestroyPlayer, req);
-        NetWorkBattle.Instance.OnDisconnect();
+        Main.Ins.NetWorkBattle.OnDisconnect();
     }
 }
 
@@ -350,15 +350,15 @@ class TcpClientProxy
             try
             {
                 int port = 0;
-                port = Global.Instance.Server.ServerPort;
-                if (Global.Instance.Server.type == 1)
+                port = Main.Ins.CombatData.Server.ServerPort;
+                if (Main.Ins.CombatData.Server.type == 1)
                 {
-                    IPAddress address = IPAddress.Parse(Global.Instance.Server.ServerIP);
+                    IPAddress address = IPAddress.Parse(Main.Ins.CombatData.Server.ServerIP);
                     server = new IPEndPoint(address, port);
                 }
                 else
                 {
-                    IPAddress[] addr = Dns.GetHostAddresses(Global.Instance.Server.ServerHost);
+                    IPAddress[] addr = Dns.GetHostAddresses(Main.Ins.CombatData.Server.ServerHost);
                     if (addr.Length != 0)
                         server = new IPEndPoint(addr[0], port);
                 }
@@ -411,6 +411,10 @@ class TcpClientProxy
         }
 
         server = null;
+    }
+
+    public static void UploadRecord(GameRecord record) {
+        Common.SendRecord(record);
     }
 
     //发出的.

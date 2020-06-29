@@ -42,21 +42,21 @@ public class PluginCtrl : MonoBehaviour {
 
         if (downLoadComplete && !instanllComplete)
         {
-            InstallProgress.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("InstallIng", currentPercent);
+            InstallProgress.GetComponentInChildren<Text>().text = string.Format("安装中{0}%", currentPercent);
         }
         else if (downLoadComplete && instanllComplete && !showTips)
         {
             //InstallProgress.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("UnInstall");//安装完成后，该按钮变为卸载按钮.
             if (Target != null)
-                U3D.PopupTip(LanguagesMgr.GetText("Install.Model.Complete", Target.Name));
+                U3D.PopupTip(string.Format("安装成功,角色面板新增角色:{0}", Target.Name));
             if (Chapter != null)
-                U3D.PopupTip(LanguagesMgr.GetText("Install.Dlc.Complete", Chapter.Name));
+                U3D.PopupTip(string.Format("安装成功,新增资料片:{0}", Chapter.Name));
             showTips = true;
             loading = false;
         }
         else if (downLoadError)
         {
-            InstallProgress.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Install.Failed");
+            InstallProgress.GetComponentInChildren<Text>().text = StringUtils.InstallFailed;
             downLoadError = false;
         }
     }
@@ -72,26 +72,26 @@ public class PluginCtrl : MonoBehaviour {
             {
                 //已安装-卸载
                 Target.CleanRes();
-                GameData.Instance.gameStatus.UnRegisterModel(Target);
-                Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Install");
+                Main.Ins.GameStateMgr.gameStatus.UnRegisterModel(Target);
+                Install.GetComponentInChildren<Text>().text = StringUtils.Install;
                 loading = false;
-                GameData.Instance.SaveState();
+                Main.Ins.GameStateMgr.SaveState();
                 return;
             }
             if (!loading)
             {
                 //未安装-开始下载
-                DlcMng.Instance.AddDownloadTask(this);
-                Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Cancel");
+                Main.Ins.DlcMng.AddDownloadTask(this);
+                Install.GetComponentInChildren<Text>().text = StringUtils.Cancel;
                 loading = true;
                 retryNum = 0;
             }
             else
             {
                 //安装中-取消下载
-                DlcMng.Instance.RemoveDownloadTask(this);
+                Main.Ins.DlcMng.RemoveDownloadTask(this);
                 loading = false;
-                Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Install");
+                Install.GetComponentInChildren<Text>().text = StringUtils.Install;
             }
         }
 
@@ -100,24 +100,24 @@ public class PluginCtrl : MonoBehaviour {
             if (Chapter.Installed)
             {
                 Chapter.CleanRes();
-                GameData.Instance.gameStatus.UnRegisterDlc(Chapter);
-                Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Install");
+                Main.Ins.GameStateMgr.gameStatus.UnRegisterDlc(Chapter);
+                Install.GetComponentInChildren<Text>().text = StringUtils.Install;
                 loading = false;
-                GameData.Instance.SaveState();
+                Main.Ins.GameStateMgr.SaveState();
                 return;
             }
             if (!loading)
             {
-                DlcMng.Instance.AddDownloadTask(this);
-                Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Cancel");
+                Main.Ins.DlcMng.AddDownloadTask(this);
+                Install.GetComponentInChildren<Text>().text = StringUtils.Cancel;
                 loading = true;
                 retryNum = 0;
             }
             else
             {
-                DlcMng.Instance.RemoveDownloadTask(this);
+                Main.Ins.DlcMng.RemoveDownloadTask(this);
                 loading = false;
-                Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("Install");
+                Install.GetComponentInChildren<Text>().text = StringUtils.Install;
             }
         }
     }
@@ -171,7 +171,7 @@ public class PluginCtrl : MonoBehaviour {
                 Target.resPath[i] = files[i].Replace("\\", "/");
             }
             Target.Installed = true;
-            GameData.Instance.gameStatus.RegisterModel(Target);
+            Main.Ins.GameStateMgr.gameStatus.RegisterModel(Target);
         }
         
         if (Chapter != null)
@@ -191,9 +191,9 @@ public class PluginCtrl : MonoBehaviour {
                         template.filePath = files[i].Replace("\\", "/");
                         //如果该文件的父目录是npc,且
                         bool find = false;
-                        for (int j = 0; j < GameData.Instance.gameStatus.pluginNpc.Count; j++)
+                        for (int j = 0; j < Main.Ins.GameStateMgr.gameStatus.pluginNpc.Count; j++)
                         {
-                            if (GameData.Instance.gameStatus.pluginNpc[j].npcTemplate == template.npcTemplate)
+                            if (Main.Ins.GameStateMgr.gameStatus.pluginNpc[j].npcTemplate == template.npcTemplate)
                             {
                                 find = true;
                                 break;
@@ -201,22 +201,22 @@ public class PluginCtrl : MonoBehaviour {
                         }
                         if (!find)
                         {
-                            GameData.Instance.gameStatus.pluginNpc.Add(template);
+                            Main.Ins.GameStateMgr.gameStatus.pluginNpc.Add(template);
                         }
                     }
                 }
                 Chapter.resPath[i] = files[i].Replace("\\", "/");
             }
             Chapter.Installed = true;
-            GameData.Instance.gameStatus.RegisterDlc(Chapter);
+            Main.Ins.GameStateMgr.gameStatus.RegisterDlc(Chapter);
         }
-        GameData.Instance.SaveState();
+        Main.Ins.GameStateMgr.SaveState();
         instanllComplete = true;
     }
 
     public void OnFailed()
     {
-        U3D.PopupTip("安装失败");
+        U3D.PopupTip(StringUtils.InstallFailed);
         downLoadError = true;
     }
 
@@ -227,8 +227,8 @@ public class PluginCtrl : MonoBehaviour {
 
     private void OnDestroy()
     {
-        DlcMng.Instance.RemovePreviewTask(this);
-        DlcMng.Instance.RemoveDownloadTask(this);
+        Main.Ins.DlcMng.RemovePreviewTask(this);
+        Main.Ins.DlcMng.RemoveDownloadTask(this);
     }
 
     WebClient download;
@@ -241,10 +241,10 @@ public class PluginCtrl : MonoBehaviour {
         Function.gameObject.SetActive(false);
         Install.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
         //已经安装
-        if (GameData.Instance.gameStatus.IsModelInstalled(Target))
+        if (Main.Ins.GameStateMgr.gameStatus.IsModelInstalled(Target))
         {
             Target.Installed = true;
-            Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("UnInstall");
+            Install.GetComponentInChildren<Text>().text = StringUtils.Uninstall;
             wantPercent = 100;
             //从本地读取一张图片，作为预览图
             if (System.IO.File.Exists(it.Preview))
@@ -259,7 +259,7 @@ public class PluginCtrl : MonoBehaviour {
         {
             
         }
-        Title.text = LanguagesMgr.GetText("Dlc.Model", it.Name);
+        Title.text = string.Format(StringUtils.ModelName, it.Name);
         Desc.text = it.Desc ?? "";
         Progress.fillAmount = 0;
     }
@@ -271,11 +271,11 @@ public class PluginCtrl : MonoBehaviour {
         Function.onClick.AddListener(()=> {
             if (Chapter.Installed)
             {
-                Global.Instance.Chapter = Chapter;
+                Main.Ins.CombatData.Chapter = Chapter;
                 string tip = "";
-                if (!DlcMng.Instance.CheckDependence(Global.Instance.Chapter, out tip))
+                if (!Main.Ins.DlcMng.CheckDependence(Main.Ins.CombatData.Chapter, out tip))
                 {
-                    Main.Instance.DialogStateManager.ChangeState(Main.Instance.DialogStateManager.LevelDialogState, false);
+                    Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LevelDialogState, false);
                 }
                 else
                 {
@@ -288,10 +288,10 @@ public class PluginCtrl : MonoBehaviour {
             }
         });
         //已经安装
-        if (GameData.Instance.gameStatus.IsDlcInstalled(Chapter))
+        if (Main.Ins.GameStateMgr.gameStatus.IsDlcInstalled(Chapter))
         {
             Chapter.Installed = true;
-            Install.GetComponentInChildren<Text>().text = LanguagesMgr.GetText("UnInstall");
+            Install.GetComponentInChildren<Text>().text = StringUtils.Uninstall;
             wantPercent = 100;
             //从本地读取一张图片，作为预览图
             if (System.IO.File.Exists(Chapter.Preview))
@@ -306,7 +306,7 @@ public class PluginCtrl : MonoBehaviour {
         {
             
         }
-        Title.text = LanguagesMgr.GetText("Dlc.Level", Chapter.Name);
+        Title.text = string.Format(StringUtils.DlcName, Chapter.Name);
         Desc.text = Chapter.Desc ?? "";
         Progress.fillAmount = 0;
     }

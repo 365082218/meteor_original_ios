@@ -49,18 +49,18 @@ public class EscConfirmWnd : Dialog
 
     void OnLeave()
     {
-        GameData.Instance.SaveState();
-        GameBattleEx.Instance.Pause();
-        Main.Instance.StopAllCoroutines();
-        SoundManager.Instance.StopAll();
-        BuffMng.Instance.Clear();
-        MeteorManager.Instance.Clear();
+        Main.Ins.GameStateMgr.SaveState();
+        Main.Ins.GameBattleEx.Pause();
+        Main.Ins.StopAllCoroutines();
+        Main.Ins.SoundManager.StopAll();
+        Main.Ins.BuffMng.Clear();
+        Main.Ins.MeteorManager.Clear();
         OnBackPress();
-        Main.Instance.ExitState(Main.Instance.FightDialogState);
+        Main.Ins.ExitState(Main.Ins.FightState);
         if (GameOverlayDialogState.Exist())
             GameOverlayDialogState.Instance.ClearSystemMsg();
         //离开副本
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             UdpClientProxy.LeaveLevel();
         else
         {

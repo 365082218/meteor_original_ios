@@ -37,17 +37,17 @@ public class PickupItemAgent : NetBehaviour {
     public void SetPickupItem(string des)
     {
         model = des;
-        List<WeaponBase> allWeapons = new List<WeaponBase>();
-        WeaponBase[] weapons = WeaponMng.Instance.GetAllItem();
-        WeaponBase[] weapons2 = PluginWeaponMng.Instance.GetAllItem();
-        for (int i = 0; i < weapons.Length; i++)
+        List<WeaponDatas.WeaponDatas> allWeapons = new List<WeaponDatas.WeaponDatas>();
+        List<WeaponDatas.WeaponDatas> weapons = Main.Ins.DataMgr.GetDatasArray<WeaponDatas.WeaponDatas>();
+        //WeaponDatas.WeaponDatas[] weapons2 = PluginWeaponMng.Instance.GetAllItem();
+        for (int i = 0; i < weapons.Count; i++)
         {
             allWeapons.Add(weapons[i]);
         }
-        for (int i = 0; i < weapons2.Length; i++)
-        {
-            allWeapons.Add(weapons2[i]);
-        }
+        //for (int i = 0; i < weapons2.Length; i++)
+        //{
+        //    allWeapons.Add(weapons2[i]);
+        //}
         for (int i = 0; i < allWeapons.Count; i++)
         {
             if (allWeapons[i].WeaponL == model || allWeapons[i].WeaponR == model)
@@ -123,30 +123,30 @@ public class PickupItemAgent : NetBehaviour {
             if (unit.Attr.Weapon != 0 && unit.Attr.Weapon2 != 0)
                 return;
             //相同武器，不能捡
-            ItemBase ib0 = GameData.Instance.FindItemByIdx(unit.Attr.Weapon);
-            WeaponBase wb0 = U3D.GetWeaponProperty(ib0.UnitId);
+            ItemDatas.ItemDatas ib0 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
+            WeaponDatas.WeaponDatas wb0 = U3D.GetWeaponProperty(ib0.UnitId);
             if (wb0 != null && wb0.WeaponR == model)
                 return;
 
             if (unit.Attr.Weapon2 != 0)
             {
-                ItemBase ib1 = GameData.Instance.FindItemByIdx(unit.Attr.Weapon2);
-                WeaponBase wb1 = U3D.GetWeaponProperty(ib1.UnitId);
+                ItemDatas.ItemDatas ib1 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
+                WeaponDatas.WeaponDatas wb1 = U3D.GetWeaponProperty(ib1.UnitId);
                 if (wb1 != null && wb1.WeaponR == model)
                     return;
             }
 
             //同类武器不能捡
-            int weaponPickup = GameData.Instance.GetWeaponCode(model);
-            ItemBase wb = GameData.Instance.FindItemByIdx(weaponPickup);
+            int weaponPickup = Main.Ins.GameStateMgr.GetWeaponCode(model);
+            ItemDatas.ItemDatas wb = Main.Ins.GameStateMgr.FindItemByIdx(weaponPickup);
             if (wb == null)
                 return;
 
-            ItemBase wbl = GameData.Instance.FindItemByIdx(unit.Attr.Weapon);
+            ItemDatas.ItemDatas wbl = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
             if (wbl == null)
                 return;
 
-            ItemBase wbr = GameData.Instance.FindItemByIdx(unit.Attr.Weapon2);
+            ItemDatas.ItemDatas wbr = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
             if (wb.SubType == wbl.SubType)
                 return;
 
@@ -154,7 +154,7 @@ public class PickupItemAgent : NetBehaviour {
                 return;
             //可以捡取
             unit.Attr.Weapon2 = weaponPickup;
-            SFXLoader.Instance.PlayEffect(672, unit.gameObject, true);
+            Main.Ins.SFXLoader.PlayEffect(672, unit.gameObject, true);
             Destroy(gameObject);
         }
     }

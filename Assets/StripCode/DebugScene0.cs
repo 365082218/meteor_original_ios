@@ -25,7 +25,7 @@ public class DebugScene0 : MonoBehaviour {
         if (au == null || au.Length == 0)
             gameObject.AddComponent<AudioListener>();
         InfiniteScrollRect rect = ScrollView.GetScrollRect();
-        SoundManager.Instance.SetSoundVolume(100);
+        Main.Ins.SoundManager.SetSoundVolume(100);
         rect.SetFullScrollView(false);
         rect.SetModifiedScale(true);
         for (int i = 0; i <= 600 ; i++)

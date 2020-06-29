@@ -1,14 +1,20 @@
 ﻿Shader "Custom/MeteorVertexL"
 {
+	//卡通渲染进阶 = toonlighting + outline + rimlighting + hair specular
+	//卡通光影+描边+边缘光晕+头发高光.
+	//Rim Lighting 和 描边 需要学习
 	Properties
 	{
 		_MainTex ("Texture", 2D) = "white" {}
+		_Alpha("Alpha", float) = 1.0
 	}
 	SubShader
 	{
-		Tags { "RenderType"="Opaque" }
+		Tags { "RenderType"="Opaque" "RenderQueue" = "Transparent" }
 		LOD 100
 		Cull off Lighting Off
+		ZWrite on
+		Blend SrcAlpha OneMinusSrcAlpha
 		Pass
 		{
 			CGPROGRAM
@@ -36,7 +42,7 @@
 
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
-			
+			float _Alpha;
 			v2f vert (appdata v)
 			{
 				v2f o;
@@ -60,6 +66,7 @@
 				fixed4 col = tex2D(_MainTex, i.uv) * i.color;
 				// apply fog
 				//UNITY_APPLY_FOG(i.fogCoord, col);
+				col.a = _Alpha;
 				return col;
 			}
 			ENDCG

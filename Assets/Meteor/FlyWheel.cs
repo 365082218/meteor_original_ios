@@ -97,8 +97,8 @@ public class FlyWheel :NetBehaviour {
         //Debug.LogError("tTotal Init:" + tTotal + " length:" + spline.GetLength() + " speed:" + speed);
         LoadWeapon();
         //增加拖尾
-        GameObject trailS = Global.ldaControlX("d_wpnRS", this.gameObject);
-        GameObject trailE = Global.ldaControlX("d_wpnRE", this.gameObject);
+        GameObject trailS = NodeHelper.Find("d_wpnRS", this.gameObject);
+        GameObject trailE = NodeHelper.Find("d_wpnRE", this.gameObject);
         Trail = gameObject.AddComponent<WeaponTrail>();
         if (trailS != null)
             Trail.AddTransform(trailS.transform);
@@ -307,7 +307,7 @@ public class FlyWheel :NetBehaviour {
         if (item.Info().MainType == (int)EquipType.Weapon)
         {
             float scale = 1.0f;
-            WeaponBase weaponProperty = U3D.GetWeaponProperty(item.Info().UnitId);
+            WeaponDatas.WeaponDatas weaponProperty = U3D.GetWeaponProperty(item.Info().UnitId);
             string weaponR = "";
             weaponR = weaponProperty.WeaponR;
 
@@ -316,14 +316,14 @@ public class FlyWheel :NetBehaviour {
                 GameObject weaponPrefab = Resources.Load<GameObject>(weaponR);
                 if (weaponPrefab == null)
                 {
-                    GMCFile fGmcL = GMCLoader.Instance.Load(weaponR);
-                    DesFile fDesL = DesLoader.Instance.Load(weaponR);
+                    GMCFile fGmcL = Main.Ins.GMCLoader.Load(weaponR);
+                    DesFile fDesL = Main.Ins.DesLoader.Load(weaponR);
 
                     if (fGmcL != null && fDesL != null)
                         GenerateWeaponModel(weaponR, fGmcL, fDesL, scale, weaponProperty.TextureL);
                     else if (fGmcL == null && fDesL != null)
                     {
-                        GMBFile fGmbL = GMBLoader.Instance.Load(weaponR);
+                        GMBFile fGmbL = Main.Ins.GMBLoader.Load(weaponR);
                         GenerateWeaponModel(weaponR, fGmbL, fDesL, scale, weaponProperty.TextureL);
                     }
                 }

@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-public class DesLoader:Singleton<DesLoader>{
-
+public class DesLoader
+{
     Dictionary<string, DesFile> DesFile = new Dictionary<string, global::DesFile>();
     public DesFile Load(string file)
     {

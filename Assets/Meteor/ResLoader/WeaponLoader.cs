@@ -20,10 +20,10 @@ public class WeaponLoader : MonoBehaviour {
     {
         if (d_wpnRS != null)
             return d_wpnRS;
-        d_wpnRS = Global.ldaControlX("d_wpnRS", R.gameObject);
+        d_wpnRS = NodeHelper.Find("d_wpnRS", R.gameObject);
         if (d_wpnRS != null)
             return d_wpnRS;
-        d_wpnRS = Global.ldaControlX("D_wpnRS", R.gameObject);
+        d_wpnRS = NodeHelper.Find("D_wpnRS", R.gameObject);
         return d_wpnRS;
     }
 
@@ -162,14 +162,14 @@ public class WeaponLoader : MonoBehaviour {
         InventoryItem i = ui ? weaponModel : Weapon;
         if (i == null)
         {
-            i = ui ? weaponModel = GameData.Instance.MakeEquip(unitid):GameData.Instance.MakeEquip(unitid);
+            i = ui ? weaponModel = Main.Ins.GameStateMgr.MakeEquip(unitid):Main.Ins.GameStateMgr.MakeEquip(unitid);
             //WeaponBase weaponProperty = U3D.GetWeaponProperty(i.Info().UnitId);
             EquipWeapon(i, true);
         }
         else
         {
             UnEquipWeapon();
-            i = ui ? weaponModel = GameData.Instance.MakeEquip(unitid):GameData.Instance.MakeEquip(unitid);
+            i = ui ? weaponModel = Main.Ins.GameStateMgr.MakeEquip(unitid):Main.Ins.GameStateMgr.MakeEquip(unitid);
             //WeaponBase weaponProperty = U3D.GetWeaponProperty(i.Info().UnitId);
             EquipWeapon(i, true);
         }
@@ -199,7 +199,7 @@ public class WeaponLoader : MonoBehaviour {
                     scale = (item.extra == null ? item.Info().Size : item.Info().Size * (1 + item.extra.SizePercent / 100.0f));
                 else
                     scale = (item.extra == null ? 1 : (1 + item.extra.SizePercent / 100.0f));
-                WeaponBase weaponProperty = U3D.GetWeaponProperty(item.Info().UnitId);
+                WeaponDatas.WeaponDatas weaponProperty = U3D.GetWeaponProperty(item.Info().UnitId);
                 
 
                 string weaponL = "";
@@ -227,14 +227,14 @@ public class WeaponLoader : MonoBehaviour {
                     GameObject weaponPrefab = Resources.Load<GameObject>(weaponL);
                     if (weaponPrefab == null)
                     {
-                        GMCFile fGmcL = GMCLoader.Instance.Load(weaponL);
-                        DesFile fDesL = DesLoader.Instance.Load(weaponL);
+                        GMCFile fGmcL = Main.Ins.GMCLoader.Load(weaponL);
+                        DesFile fDesL = Main.Ins.DesLoader.Load(weaponL);
 
                         if (fGmcL != null && fDesL != null)
                             GenerateWeaponModel(weaponL, fGmcL, fDesL, false, scale, weaponProperty.TextureL, ModelLayer);
                         else if (fGmcL == null && fDesL != null)
                         {
-                            GMBFile fGmbL = GMBLoader.Instance.Load(weaponL);
+                            GMBFile fGmbL = Main.Ins.GMBLoader.Load(weaponL);
                             GenerateWeaponModel(weaponL, fGmbL, fDesL, false, scale, weaponProperty.TextureL, ModelLayer);
                         }
                     }
@@ -263,10 +263,10 @@ public class WeaponLoader : MonoBehaviour {
                         //if (ctrlRe != null)
                         //    wt.AddTransform(ctrlRe.transform);
                         //左手
-                        GameObject ctrlLs = Global.ldaControlX("d_wpnLS", L.gameObject);
+                        GameObject ctrlLs = NodeHelper.Find("d_wpnLS", L.gameObject);
                         if (ctrlLs != null)
                             wt.AddTransform(ctrlLs.transform);
-                        GameObject ctrlLe = Global.ldaControlX("d_wpnLE", L.gameObject);
+                        GameObject ctrlLe = NodeHelper.Find("d_wpnLE", L.gameObject);
                         if (ctrlLe != null)
                             wt.AddTransform(ctrlLe.transform);
 
@@ -299,13 +299,13 @@ public class WeaponLoader : MonoBehaviour {
                     GameObject weaponPrefab = Resources.Load<GameObject>(weaponR);
                     if (weaponPrefab == null)
                     {
-                        GMCFile fGmcR = GMCLoader.Instance.Load(weaponR);
-                        DesFile fDesR = DesLoader.Instance.Load(weaponR);
+                        GMCFile fGmcR = Main.Ins.GMCLoader.Load(weaponR);
+                        DesFile fDesR = Main.Ins.DesLoader.Load(weaponR);
                         if (fGmcR != null && fDesR != null)
                             GenerateWeaponModel(weaponR, fGmcR, fDesR, true, scale, weaponProperty.TextureR, ModelLayer);
                         else if (fGmcR == null && fDesR != null)
                         {
-                            GMBFile fGmbR = GMBLoader.Instance.Load(weaponProperty.WeaponR);
+                            GMBFile fGmbR = Main.Ins.GMBLoader.Load(weaponProperty.WeaponR);
                             GenerateWeaponModel(weaponR, fGmbR, fDesR, true, scale, weaponProperty.TextureR, ModelLayer);
                         }
                     }
@@ -326,10 +326,10 @@ public class WeaponLoader : MonoBehaviour {
                         //武器挂点必须在缩放正确后才能到指定的位置
                         WeaponTrail wt = R.gameObject.AddComponent<WeaponTrail>();
                         //右手
-                        GameObject ctrlRs = Global.ldaControlX("d_wpnRS", R.gameObject);
+                        GameObject ctrlRs = NodeHelper.Find("d_wpnRS", R.gameObject);
                         if (ctrlRs != null)
                             wt.AddTransform(ctrlRs.transform);
-                        GameObject ctrlRe = Global.ldaControlX("d_wpnRE", R.gameObject);
+                        GameObject ctrlRe = NodeHelper.Find("d_wpnRE", R.gameObject);
                         if (ctrlRe != null)
                             wt.AddTransform(ctrlRe.transform);
                         BoxCollider box = R.GetComponentInChildren<BoxCollider>();
@@ -614,20 +614,20 @@ public class WeaponLoader : MonoBehaviour {
         //右手
         if (rightHand)
         {
-            GameObject ctrlRs = Global.ldaControlX("d_wpnRS", WR.gameObject);
+            GameObject ctrlRs = NodeHelper.Find("d_wpnRS", WR.gameObject);
             if (ctrlRs != null)
                 wt.AddTransform(ctrlRs.transform);
-            GameObject ctrlRe = Global.ldaControlX("d_wpnRE", WR.gameObject);
+            GameObject ctrlRe = NodeHelper.Find("d_wpnRE", WR.gameObject);
             if (ctrlRe != null)
                 wt.AddTransform(ctrlRe.transform);
         }
         else
         {
             //左手
-            GameObject ctrlLs = Global.ldaControlX("d_wpnLS", WR.gameObject);
+            GameObject ctrlLs = NodeHelper.Find("d_wpnLS", WR.gameObject);
             if (ctrlLs != null)
                 wt.AddTransform(ctrlLs.transform);
-            GameObject ctrlLe = Global.ldaControlX("d_wpnLE", WR.gameObject);
+            GameObject ctrlLe = NodeHelper.Find("d_wpnLE", WR.gameObject);
             if (ctrlLe != null)
                 wt.AddTransform(ctrlLe.transform);
         }
@@ -866,20 +866,20 @@ public class WeaponLoader : MonoBehaviour {
         if (rightHand)
         {
             //右手
-            GameObject ctrlRs = Global.ldaControlX("d_wpnRS", WR.gameObject);
+            GameObject ctrlRs = NodeHelper.Find("d_wpnRS", WR.gameObject);
             if (ctrlRs != null)
                 wt.AddTransform(ctrlRs.transform);
-            GameObject ctrlRe = Global.ldaControlX("d_wpnRE", WR.gameObject);
+            GameObject ctrlRe = NodeHelper.Find("d_wpnRE", WR.gameObject);
             if (ctrlRe != null)
                 wt.AddTransform(ctrlRe.transform);
         }
         else
         {
             //左手
-            GameObject ctrlLs = Global.ldaControlX("d_wpnLS", WR.gameObject);
+            GameObject ctrlLs = NodeHelper.Find("d_wpnLS", WR.gameObject);
             if (ctrlLs != null)
                 wt.AddTransform(ctrlLs.transform);
-            GameObject ctrlLe = Global.ldaControlX("d_wpnLE", WR.gameObject);
+            GameObject ctrlLe = NodeHelper.Find("d_wpnLE", WR.gameObject);
             if (ctrlLe != null)
                 wt.AddTransform(ctrlLe.transform);
         }

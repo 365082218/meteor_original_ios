@@ -3,7 +3,7 @@ using UnityEngine;
 using protocol;
 using Idevgame.GameState;
 
-class SceneMng:Singleton<SceneMng>
+public class SceneMng
 {
     public void OnEnterLevel(LevelScriptBase levelScript, string sceneItems)
     {
@@ -18,76 +18,58 @@ class SceneMng:Singleton<SceneMng>
         {
             Debug.LogError("Loader not exist");
         }
+        //Main.Instance.CombatData.wayPoints = 
+        Main.Ins.CombatData.GLevelSpawn = new Vector3[16];
+        Main.Ins.CombatData.GCampASpawn = new Vector3[8];
+        Main.Ins.CombatData.GCampBSpawn = new Vector3[8];
 
-        Global.Instance.GLevelSpawn = new Vector3[16];
-        Global.Instance.GCampASpawn = new Vector3[8];
-        Global.Instance.GCampBSpawn = new Vector3[8];
-
-        if (WayMng.Instance == null)
+        for (int i = 0; i < 16; i++)
         {
-            for (int i = 0; i < 16; i++)
-            {
-                GameObject obj = Global.ldaControlX(string.Format("D_user{0:d2}", i + 1), Loader.Instance.gameObject);
-                Global.Instance.GLevelSpawn[i] = obj == null ? Vector3.zero : obj.transform.position;
-            }
-
-            for (int i = 0; i < 8; i++)
-            {
-                GameObject objA = Global.ldaControlX(string.Format("D_teamA{0:d2}", i + 1), Loader.Instance.gameObject);
-                Global.Instance.GCampASpawn[i] = objA == null ? Vector3.zero :objA.transform.position;
-                GameObject objB = Global.ldaControlX(string.Format("D_teamB{0:d2}", i + 1), Loader.Instance.gameObject);
-                Global.Instance.GCampBSpawn[i] = objB == null ? Vector3.zero : objB.transform.position;
-            }
-        }
-        else
-        {
-            for (int i = 0; i < 16; i++)
-            {
-                Global.Instance.GLevelSpawn[i] = WayMng.Instance.wayPoints[i >= WayMng.Instance.wayPoints.Count ? 0 : i].pos;
-            }
-
-            for (int i = 0; i < 8; i++)
-            {
-                Global.Instance.GCampASpawn[i] = WayMng.Instance.wayPoints[i >= WayMng.Instance.wayPoints.Count ? 0 : i].pos;
-                Global.Instance.GCampBSpawn[i] = WayMng.Instance.wayPoints[i >= WayMng.Instance.wayPoints.Count ? 0 : i].pos;
-            }
+            GameObject obj = NodeHelper.Find(string.Format("D_user{0:d2}", i + 1), Loader.Instance.gameObject);
+            Main.Ins.CombatData.GLevelSpawn[i] = obj == null ? Vector3.zero : obj.transform.position;
         }
 
-        if (Global.Instance.GLevelMode == LevelMode.MultiplyPlayer)
+        for (int i = 0; i < 8; i++)
+        {
+            GameObject objA = NodeHelper.Find(string.Format("D_teamA{0:d2}", i + 1), Loader.Instance.gameObject);
+            Main.Ins.CombatData.GCampASpawn[i] = objA == null ? Vector3.zero :objA.transform.position;
+            GameObject objB = NodeHelper.Find(string.Format("D_teamB{0:d2}", i + 1), Loader.Instance.gameObject);
+            Main.Ins.CombatData.GCampBSpawn[i] = objB == null ? Vector3.zero : objB.transform.position;
+        }
+
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             return;
 
-        GameObject objWayPoint = new GameObject("wayPoint");
-        objWayPoint.transform.position = Vector3.zero;
-        objWayPoint.transform.rotation = Quaternion.identity;
-        objWayPoint.transform.localScale = Vector3.one;
-        objWayPoint.layer = LayerMask.NameToLayer("WayPoint");
-        for (int i = 0; i < Global.Instance.GLevelItem.wayPoint.Count; i++)
-        {
-            GameObject wayPoint = new GameObject(string.Format("WayPoint{0}", i));
-            wayPoint.tag = "WayPoint";
-            wayPoint.transform.SetParent(objWayPoint.transform);
-            wayPoint.transform.position = Global.Instance.GLevelItem.wayPoint[i].pos;
-            wayPoint.layer = objWayPoint.layer;
-            wayPoint.transform.rotation = Quaternion.identity;
-            wayPoint.transform.localScale = Vector3.one;
-            BoxCollider box = wayPoint.AddComponent<BoxCollider>();
-            box.isTrigger = true;
-            box.size = Vector3.one * (Global.Instance.GLevelItem.wayPoint[i].size);
-            box.center = Vector3.zero;
-            WayPointTrigger trigger = wayPoint.AddComponent<WayPointTrigger>();
-            trigger.WayIndex = i;
-        }
+        //GameObject objWayPoint = new GameObject("wayPoint");
+        //objWayPoint.transform.position = Vector3.zero;
+        //objWayPoint.transform.rotation = Quaternion.identity;
+        //objWayPoint.transform.localScale = Vector3.one;
+        //objWayPoint.layer = LayerMask.NameToLayer("WayPoint");
+        //for (int i = 0; i < Main.Ins.CombatData.wayPoints.Count; i++)
+        //{
+        //    GameObject wayPoint = new GameObject(string.Format("WayPoint{0}", i));
+        //    wayPoint.tag = "WayPoint";
+        //    wayPoint.transform.SetParent(objWayPoint.transform);
+        //    wayPoint.transform.position = Main.Ins.CombatData.wayPoints[i].pos;
+        //    wayPoint.layer = objWayPoint.layer;
+        //    wayPoint.transform.rotation = Quaternion.identity;
+        //    wayPoint.transform.localScale = Vector3.one;
+        //    BoxCollider box = wayPoint.AddComponent<BoxCollider>();
+        //    box.isTrigger = true;
+        //    box.size = Vector3.one * (Main.Ins.CombatData.wayPoints[i].size);
+        //    box.center = Vector3.zero;
+        //}
     }
 
     //指明进入一张地图,地图上所有的道具，建筑，陷阱，传送门，Npc,怪物,障碍物都需要保存下来，以便下次进入场景恢复
     public void OnEnterLevel()
     {
-        string sceneItems = Global.Instance.GLevelItem.sceneItems;
-        string items = Global.Instance.GScript.GetDesName();
+        string sceneItems = Main.Ins.CombatData.GLevelItem.sceneItems;
+        string items = Main.Ins.CombatData.GScript.GetDesName();
         if (!string.IsNullOrEmpty(items))
             sceneItems = items;
 
-        OnEnterLevel(Global.Instance.GScript, sceneItems);
+        OnEnterLevel(Main.Ins.CombatData.GScript, sceneItems);
     }
 
     //生成指定怪物,这个是从脚本入口来的，是正式关卡中生成NPC的
@@ -114,64 +96,48 @@ class SceneMng:Singleton<SceneMng>
         }
         unit.Init(mon.Model, mon);
         UnitTopState unitTopState = new UnitTopState(unit);
-        Main.Instance.EnterState(unitTopState);
-        MeteorManager.Instance.OnGenerateUnit(unit);
+        Main.Ins.EnterState(unitTopState);
+        Main.Ins.MeteorManager.OnGenerateUnit(unit);
         LuaFunction onInit = mon.sState["OnInit"] as LuaFunction;
         onInit.call(mon.sState, unit.InstanceId);
         unit.SetGround(false);
-        if (Global.Instance.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
         {
-            if (Global.Instance.GScript.DisableFindWay())
-            {
-                //不许寻路，无寻路点的关卡，使用
-                unit.transform.position = Global.Instance.GLevelSpawn[mon.SpawnPoint >= Global.Instance.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
-            }
-            else
-            {
-                unit.transform.position = Global.Instance.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.Instance.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.Instance.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
-            }
+            if (Main.Ins.CombatData.wayPoints.Count != 0)
+                unit.transform.position = Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
         }
-        else if (Global.Instance.GLevelMode == LevelMode.CreateWorld)
+        else if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld)
         {
-            if (Global.Instance.GGameMode == GameMode.Normal)
+            if (Main.Ins.CombatData.GGameMode == GameMode.Normal)
             {
-                if (Global.Instance.GScript.DisableFindWay())
-                {
-                    //不许寻路，无寻路点的关卡，使用
-                    unit.transform.position = Global.Instance.GLevelSpawn[mon.SpawnPoint >= Global.Instance.GLevelSpawn.Length ? 0 : mon.SpawnPoint];
-                }
-                else
-                {
-                    unit.transform.position = Global.Instance.GLevelItem.wayPoint.Count > mon.SpawnPoint ? Global.Instance.GLevelItem.wayPoint[mon.SpawnPoint].pos : Global.Instance.GLevelItem.wayPoint[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
-                }
+                unit.transform.position = Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
             }
-            else if (Global.Instance.GGameMode == GameMode.MENGZHU)
+            else if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
             {
                 //16个点
-                unit.transform.position = Global.Instance.GLevelSpawn[Global.Instance.SpawnIndex];
-                Global.Instance.SpawnIndex++;
-                Global.Instance.SpawnIndex %= 16;
+                unit.transform.position = Main.Ins.CombatData.GLevelSpawn[Main.Ins.CombatData.SpawnIndex];
+                Main.Ins.CombatData.SpawnIndex++;
+                Main.Ins.CombatData.SpawnIndex %= 16;
             }
-            else if (Global.Instance.GGameMode == GameMode.ANSHA || Global.Instance.GGameMode == GameMode.SIDOU)
+            else if (Main.Ins.CombatData.GGameMode == GameMode.ANSHA || Main.Ins.CombatData.GGameMode == GameMode.SIDOU)
             {
                 //2个队伍8个点.
                 if (unit.Camp == EUnitCamp.EUC_FRIEND)
                 {
-                    unit.transform.position = Global.Instance.GCampASpawn[Global.Instance.CampASpawnIndex];
-                    Global.Instance.CampASpawnIndex++;
-                    Global.Instance.CampASpawnIndex %= 8;
+                    unit.transform.position = Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampASpawnIndex];
+                    Main.Ins.CombatData.CampASpawnIndex++;
+                    Main.Ins.CombatData.CampASpawnIndex %= 8;
                 }
                 else if (unit.Camp == EUnitCamp.EUC_ENEMY)
                 {
-                    unit.transform.position = Global.Instance.GCampASpawn[Global.Instance.CampBSpawnIndex];
-                    Global.Instance.CampBSpawnIndex++;
-                    Global.Instance.CampBSpawnIndex %= 8;
+                    unit.transform.position = Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampBSpawnIndex];
+                    Main.Ins.CombatData.CampBSpawnIndex++;
+                    Main.Ins.CombatData.CampBSpawnIndex %= 8;
                 }
             }
         }
         
         unit.transform.rotation = new Quaternion(0, 0, 0, 1);
-        //OnStart.call();
         U3D.InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
         mon.OnStart();
         return unit;
@@ -188,7 +154,7 @@ class SceneMng:Singleton<SceneMng>
     public MonsterEx InitNetPlayer(PlayerEventData player)
     {
         MonsterEx ret = new MonsterEx();
-        ret.HpMax = (int)RoomMng.Instance.GetRoom(NetWorkBattle.Instance.RoomId).hpMax;
+        ret.HpMax = (int)Main.Ins.RoomMng.GetRoom(Main.Ins.NetWorkBattle.RoomId).hpMax;
         ret.hpCur = ret.HpMax;
         ret.AngryValue = 0;
         ret.Model = (int)player.model;
@@ -198,7 +164,7 @@ class SceneMng:Singleton<SceneMng>
 
         ret.SpawnPoint = U3D.Rand(16);
         ret.Speed = 1000;
-        ret.IsPlayer = player.playerId == NetWorkBattle.Instance.PlayerId;
+        ret.IsPlayer = player.playerId == Main.Ins.NetWorkBattle.PlayerId;
         return ret;
     }
 
