@@ -13,27 +13,10 @@ public class ItemData:ITableItem{
 	public string Name;
 	public int MainType;
 	public int SubType;
-	public int EquipIdx;
 	public int UnitId;
-	public int Icon;
-	public string Desc;
-	public int Quality;
-	public int HP;
-	public int MP;
 	public int Damage;
 	public int Def;
 	public int Speed;
-	public int CritDamage;
-	public int Crit;
-	public int Coin;
-	public int Stack;
-	public string CNY;
-	public int ArmyHP;
-	public int ArmyDamage;
-	public int ArmyDef;
-	public string Script;
-	public int Skill;
-	public int LevReq;
 
 }
 public partial class ItemDataMgr {

@@ -175,24 +175,9 @@ public class MonsterEx
 
         if (unit != null)
         {
-            HpMax += unit.HP;
-            MpMax += unit.MP;
-            hpCur += unit.HP;
-            mpCur += unit.MP;
             Speed += unit.Speed;
             if (Speed > 2500)
                 Speed = 2500;
-            Crit += unit.Crit;
-            if (item != null && item.extra != null && unit.Quality != 0)
-            {
-                //减去额外属性.
-                HpMax += item.extra.Hp;
-                hpCur += item.extra.Hp;
-                MpMax += item.extra.Mp;
-                mpCur += item.extra.Mp;
-                Speed += item.extra.Speed;
-                Crit += item.extra.Crit;
-            }
         }
 
         return itemUnEquip;

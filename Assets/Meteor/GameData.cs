@@ -160,8 +160,9 @@ public class GameState
         return false;
     }
 
-    public bool IsDlcInstalled(Chapter dlc)
+    public bool IsDlcInstalled(Chapter dlc, out Chapter exist)
     {
+        exist = null;
         if (pluginChapter == null)
             return false;
         for (int i = 0; i < pluginChapter.Count; i++)
@@ -170,6 +171,7 @@ public class GameState
             {
                 //找到了指定的模型插件，判定模型的资源是否存在
                 pluginChapter[i].Check();
+                exist = pluginChapter[i];
                 return pluginChapter[i].Installed;
             }
         }
@@ -344,23 +346,21 @@ public class GameStateMgr
         FileStream save = null;
         try
         {
-            save = File.Open(state_path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            save = File.Open(state_path, FileMode.Open, FileAccess.Read);
         }
-        catch
+        catch (System.Exception exp)
         {
-
+            Debug.Log(exp.Message + "|" + exp.StackTrace);
         }
-        if (save != null && save.Length != 0)
+        if (save != null)
         {
-            try
-            {
-                gameStatus = Serializer.Deserialize<GameState>(save);
+            if (save.Length != 0) {
+                try {
+                    gameStatus = Serializer.Deserialize<GameState>(save);
+                } catch {
+                    gameStatus = null;
+                }
             }
-            catch
-            {
-                gameStatus = null;
-            }
-
             if (gameStatus != null && gameStatus.MeteorVersion == null)
                 gameStatus = null;
             save.Close();
@@ -413,15 +413,19 @@ public class GameStateMgr
     {
         try
         {
-            FileStream save = File.Open(state_path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
+            FileStream save = File.Open(state_path, FileMode.OpenOrCreate, FileAccess.Write);
             save.SetLength(0);
             Serializer.Serialize(save, gameStatus);
+            save.Flush();
             save.Close();
+            save.Dispose();
+            Debug.Log("save success");
+
             save = null;
         }
         catch (System.Exception exp)
         {
-            Log.WriteError(exp.Message);
+            Debug.Log("save failed:" + exp.Message + "|" + exp.StackTrace);
         }
     }
 

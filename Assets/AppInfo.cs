@@ -7,7 +7,7 @@ using UnityEngine;
 public class AppInfo
 {
     public const string versionKey = "APPVERSION";
-    public string localVer = "0.3.0.0";
+    public string localVer = "0.3.0";
     //返回本地版本号是否大于指定版本号，本地版本号即localVer;
     public bool VersionIsEqual(string s)
     {

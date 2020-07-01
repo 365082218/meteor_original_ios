@@ -489,7 +489,7 @@ public class SettingDialog : Dialog {
             for (int i = 0; i < js["Model"].Count; i++)
             {
                 int modelIndex = int.Parse(js["Model"][i]["Idx"].ToString());
-                Debug.LogError(modelIndex + js["Model"][i]["name"].ToString());
+                //Debug.LogError(modelIndex + js["Model"][i]["name"].ToString());
                 ModelItem Info = new ModelItem();
                 Info.ModelId = modelIndex;
                 Info.Name = js["Model"][i]["name"].ToString();
@@ -513,6 +513,8 @@ public class SettingDialog : Dialog {
                 c.ChapterId = int.Parse(js["Dlc"][i]["Idx"].ToString());
                 c.Name = js["Dlc"][i]["name"].ToString();
                 c.Path = js["Dlc"][i]["zip"].ToString();
+                if (js["Dlc"][i]["version"] != null)
+                    c.version = js["Dlc"][i]["version"].ToString();
                 if (js["Dlc"][i]["desc"] != null)
                     c.Desc = js["Dlc"][i]["desc"].ToString();
                 if (js["Dlc"][i]["reference"] != null)
@@ -705,7 +707,8 @@ public class SettingDialog : Dialog {
         if (ctrl != null)
         {
             ctrl.AttachDlc(item);
-            if (!Main.Ins.GameStateMgr.gameStatus.IsDlcInstalled(item))
+            Chapter c;
+            if (!Main.Ins.GameStateMgr.gameStatus.IsDlcInstalled(item, out c))
                 Main.Ins.DlcMng.AddPreviewTask(ctrl);
         }
         pluginList.Add(ctrl);

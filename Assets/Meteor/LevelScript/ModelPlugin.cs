@@ -23,6 +23,13 @@ public class NpcTemplate
     public string filePath;
 }
 
+public enum FileExt {
+    Jpeg = 0,
+    Dll = 1,
+    Txt = 2,
+    Json = 3,
+}
+
 //外接DLC剧本，对应plugins.json里的dlc其中的一个dll，一个dll又包含数10个关卡.
 [ProtoContract]
 public class Chapter
@@ -58,14 +65,14 @@ public class Chapter
     {
         get
         {
-            return U3D.GetDefaultFile(Path, 1, true, true);
+            return U3D.GetDefaultFile(Path, FileExt.Dll, true, true);
         }
     }
     public string webPreview
     {
         get
         {
-            return U3D.GetDefaultFile(Path, 0, false, false);
+            return U3D.GetDefaultFile(Path, FileExt.Jpeg, false, false);
         }
     }
 
@@ -73,16 +80,16 @@ public class Chapter
     {
         get
         {
-            return U3D.GetDefaultFile(Path, 0, true, false);
+            return U3D.GetDefaultFile(Path, FileExt.Jpeg, true, false);
         }
     }
 
     //是否已安装(dll能否正常加载,并产出具体得LevelScriptBase)
     public List<LevelData> LoadAll()
     {
-        //level.txt
+        //level.json
         if (mLevel == null)
-            mLevel = new DlcLevelMng(U3D.GetDefaultFile(Path, 2, true, true));
+            mLevel = new DlcLevelMng(U3D.GetDefaultFile(Path, FileExt.Json, true, true));
         return mLevel.GetAllLevel();
     }
 
@@ -90,13 +97,14 @@ public class Chapter
     public LevelData GetItem(int id)
     {
         if (mLevel == null)
-            mLevel = new DlcLevelMng(U3D.GetDefaultFile(Path, 2, true, true));
+            mLevel = new DlcLevelMng(U3D.GetDefaultFile(Path, FileExt.Json, true, true));
         return mLevel.GetLevel(id);
     }
 
     [ProtoMember(9)]
     public bool Installed;//是否已安装,解压了zip包.
-
+    [ProtoMember(10)]
+    public string version;//版本号，为第一次开发此插件时，客户端解析该格式对应的客户端版本
     public void Check()
     {
         for (int j = 0; j < resPath.Length; j++)

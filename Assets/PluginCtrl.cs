@@ -97,6 +97,11 @@ public class PluginCtrl : MonoBehaviour {
 
         if (Chapter != null)
         {
+            if (!Main.Ins.DlcMng.CompatibleChapter(Chapter)) {
+                //弹出一个提示界面，指向最新客户端版本.
+                U3D.PopupTip(string.Format("插件需要更新新客户端"));
+                return;
+            }
             if (Chapter.Installed)
             {
                 Chapter.CleanRes();
@@ -288,9 +293,10 @@ public class PluginCtrl : MonoBehaviour {
             }
         });
         //已经安装
-        if (Main.Ins.GameStateMgr.gameStatus.IsDlcInstalled(Chapter))
+        Chapter exist;
+        if (Main.Ins.GameStateMgr.gameStatus.IsDlcInstalled(Chapter, out exist))
         {
-            Chapter.Installed = true;
+            Chapter = exist;
             Install.GetComponentInChildren<Text>().text = StringUtils.Uninstall;
             wantPercent = 100;
             //从本地读取一张图片，作为预览图

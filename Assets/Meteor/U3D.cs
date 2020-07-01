@@ -399,19 +399,22 @@ public class U3D : MonoBehaviour {
         return unit;
     }
 
-    public static string GetDefaultFile(string Path, int type, bool local, bool inzipPath)
+    public static string GetDefaultFile(string Path, FileExt type, bool local, bool inzipPath)
     {
         string suffix = "";
         switch (type)
         {
-            case 0:
+            case FileExt.Jpeg:
                 suffix = ".jpg";
                 break;
-            case 1:
+            case FileExt.Dll:
                 suffix = ".dll";
                 break;
-            case 2:
+            case FileExt.Txt:
                 suffix = ".txt";
+                break;
+            case FileExt.Json:
+                suffix = ".json";
                 break;
         }
 

@@ -68,7 +68,8 @@ namespace Excel2Json {
             System.Reflection.FieldInfo[] fields = target.GetType().GetFields();
             for (int i = 0; i < fields.Length; i++) {
                 try {
-                    fields[i].SetValue(target, source[fields[i].Name]);
+                    if (source.ContainsKey(fields[i].Name))
+                        fields[i].SetValue(target, source[fields[i].Name]);
                 } catch (System.Exception exp) {
                     Debug.LogError("exist error:" + fields[i].Name);
                 }

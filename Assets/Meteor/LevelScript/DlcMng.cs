@@ -43,7 +43,6 @@ public class DlcMng
     //打开资料片中指定关卡
     public void PlayDlc(Chapter chapter, int levelIdx)
     {
-        Main.Ins.GameStateMgr.SaveState();
         LevelData lev = chapter.GetItem(levelIdx);
         Main.Ins.CombatData.GLevelItem = lev;
         Main.Ins.CombatData.GRecord = null;
@@ -79,7 +78,7 @@ public class DlcMng
     //加入从json里获取到得一项资源
     public void AddModel(ModelItem Info)
     {
-        Debug.Log("增加外部角色:" + Info.Name);
+        //Debug.Log("增加外部角色:" + Info.Name);
         Models.Add(Info);
     }
 
@@ -92,7 +91,21 @@ public class DlcMng
 
     public void AddDlc(Chapter cha)
     {
-        Dlcs.Add(cha);
+        //插件版本缺失，不再显示在面板里.
+        if (!string.IsNullOrEmpty(cha.version)) {
+            Dlcs.Add(cha);
+        }
+    }
+
+    //判断插件版本和客户端版本的兼容性
+    public bool CompatibleChapter(Chapter chapter) {
+        //3.0后不支持旧版本的表了
+        if (string.IsNullOrEmpty(chapter.version)) //新版本不支持旧版本格式
+            return false;
+        //如果客户端版本，比插件版本小，说明插件格式有更改，应该使用新的客户端读取.
+        if (Main.Ins.AppInfo.AppVersionIsSmallThan(chapter.version))
+            return false;
+        return true;
     }
 
     public bool CheckDependence(Chapter chapter, out string tip)
