@@ -9,8 +9,7 @@ using UnityEngine.Networking;
 using Idevgame.GameState;
 using Idevgame.GameState.DialogState;
 using Idevgame.StateManagement;
-
-
+using Excel2Json;
 
 public class Main : MonoBehaviour {
 	public static Main Ins = null;
@@ -248,7 +247,7 @@ public class Main : MonoBehaviour {
         } else {
             //如果当前场景就是关卡场景，那么直接调用，否则需要先加载对应的关卡场景
             if (Loader.Instance == null) {
-                LevelDatas.LevelDatas lev = Ins.DataMgr.GetData<LevelDatas.LevelDatas>(level);
+                LevelData lev = Ins.DataMgr.GetLevelData(level);
                 U3D.LoadScene(lev.Scene, () => {
                     LevelHelper.OnLoadFinishedSingle(level);
                 });
@@ -266,7 +265,7 @@ public class Main : MonoBehaviour {
             int number = 0;
             if (int.TryParse(num, out number))
             {
-                if (CombatData.GLevelItem.ID >= 0 && CombatData.GLevelItem.ID <= 9)
+                if (CombatData.GLevelItem.Id >= 0 && CombatData.GLevelItem.Id <= 9)
                 {
                     string movie = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, "mmv/" + "v" + number + ".mv");
                     U3D.PlayMovie(movie);

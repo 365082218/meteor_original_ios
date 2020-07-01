@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Idevgame.Util;
+using Excel2Json;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -489,7 +490,7 @@ shader 1
 
     public void LoadMap(int level)
     {
-        LevelDatas.LevelDatas lev = Main.Ins.DataMgr.GetData<LevelDatas.LevelDatas>(level);
+        LevelData lev = Main.Ins.DataMgr.GetLevelData(level);
         DesFile des = Main.Ins.DesLoader.Load(lev.sceneItems);
         GMBFile gmb = Main.Ins.GMBLoader.Load(lev.sceneItems);
         if (lev == null || des == null || gmb == null)

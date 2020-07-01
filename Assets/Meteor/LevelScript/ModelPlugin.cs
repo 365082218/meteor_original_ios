@@ -3,6 +3,7 @@ using ProtoBuf;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Excel2Json;
 
 [ProtoContract]
 public class Dependence
@@ -77,7 +78,7 @@ public class Chapter
     }
 
     //是否已安装(dll能否正常加载,并产出具体得LevelScriptBase)
-    public List<LevelDatas.LevelDatas> LoadAll()
+    public List<LevelData> LoadAll()
     {
         //level.txt
         if (mLevel == null)
@@ -86,7 +87,7 @@ public class Chapter
     }
 
     DlcLevelMng mLevel;
-    public LevelDatas.LevelDatas GetItem(int id)
+    public LevelData GetItem(int id)
     {
         if (mLevel == null)
             mLevel = new DlcLevelMng(U3D.GetDefaultFile(Path, 2, true, true));

@@ -1,4 +1,5 @@
-﻿using Idevgame.GameState.DialogState;
+﻿using Excel2Json;
+using Idevgame.GameState.DialogState;
 using Idevgame.Util;
 using System.Collections;
 using System.Collections.Generic;
@@ -65,7 +66,7 @@ public class WeaponDialog : Dialog
 
     IEnumerator AddWeapon()
     {
-        List<ItemDatas.ItemDatas> we = Main.Ins.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
+        List<ItemData> we = Main.Ins.DataMgr.GetItemDatas();
         int offset = 0;
         for (int i = 0; i < we.Count; i++)
         {
@@ -82,20 +83,20 @@ public class WeaponDialog : Dialog
     }
 
     List<GameObject> GridWeapon = new List<GameObject>();
-    void AddWeaponItem(ItemDatas.ItemDatas it, int idx)
+    void AddWeaponItem(ItemData it, int idx)
     {
         if (GridWeapon.Count > idx)
         {
             GridWeapon[idx].SetActive(true);
             UIFunCtrl ctrl = GridWeapon[idx].GetComponent<UIFunCtrl>();
-            ctrl.SetEvent(ShowWeapon, it.ID);
+            ctrl.SetEvent(ShowWeapon, it.Key);
             ctrl.SetText(it.Name);
         }
         else
         {
             GameObject weapon = GameObject.Instantiate(Resources.Load("GridItemBtn")) as GameObject;
             UIFunCtrl obj = weapon.AddComponent<UIFunCtrl>();
-            obj.SetEvent(ShowWeapon, it.ID);
+            obj.SetEvent(ShowWeapon, it.Key);
             obj.SetText(it.Name);
             obj.transform.SetParent(WeaponRoot.transform);
             obj.gameObject.layer = WeaponRoot.layer;
@@ -108,14 +109,14 @@ public class WeaponDialog : Dialog
 
     void ShowWeapon()
     {
-        List<ItemDatas.ItemDatas> we = Main.Ins.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
+        List<ItemData> we = Main.Ins.DataMgr.GetItemDatas();
         for (int i = 0; i < we.Count; i++)
         {
             if (we[i].MainType == 1)
             {
                 if (we[i].SubType == (int)weaponSubType)
                 {
-                    selectWeapon = we[i].ID;
+                    selectWeapon = we[i].Key;
                     break;
                 }
             }

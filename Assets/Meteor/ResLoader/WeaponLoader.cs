@@ -3,6 +3,7 @@ using System.Collections;
 
 using System.Linq;
 using System.Collections.Generic;
+using Excel2Json;
 //using UnityEditor;
 //武器单双手-各自内部还有子骨骼，要把左右手东西都加载对就OK
 public class WeaponLoader : MonoBehaviour {
@@ -195,11 +196,7 @@ public class WeaponLoader : MonoBehaviour {
             if (item.Info().MainType == (int)EquipType.Weapon)
             {
                 float scale = 1.0f;
-                if (item.Info().Size != 0)//size为0的时候
-                    scale = (item.extra == null ? item.Info().Size : item.Info().Size * (1 + item.extra.SizePercent / 100.0f));
-                else
-                    scale = (item.extra == null ? 1 : (1 + item.extra.SizePercent / 100.0f));
-                WeaponDatas.WeaponDatas weaponProperty = U3D.GetWeaponProperty(item.Info().UnitId);
+                WeaponData weaponProperty = U3D.GetWeaponProperty(item.Info().UnitId);
                 
 
                 string weaponL = "";

@@ -5,6 +5,7 @@ using System.Collections;
 using System;
 using protocol;
 using Idevgame.Meteor.AI;
+using Excel2Json;
 
 public enum SceneEvent
 {
@@ -121,7 +122,7 @@ public partial class GameBattleEx : NetBehaviour {
         {
             if (Main.Ins.CombatData.Chapter == null)
             {
-                if (Main.Ins.CombatData.GLevelItem.ID == Main.Ins.GameStateMgr.gameStatus.Level)
+                if (Main.Ins.CombatData.GLevelItem.Id == Main.Ins.GameStateMgr.gameStatus.Level)
                     Main.Ins.GameStateMgr.gameStatus.Level++;
                 if (Main.Ins.GameStateMgr.gameStatus.Level >= Main.Ins.CombatData.LEVELMAX)
                     Main.Ins.GameStateMgr.gameStatus.Level = Main.Ins.CombatData.LEVELMAX;
@@ -130,18 +131,18 @@ public partial class GameBattleEx : NetBehaviour {
             else
             {
                 int nextLevel = 0;
-                List<LevelDatas.LevelDatas> all = Main.Ins.CombatData.Chapter.LoadAll();
+                List<LevelData> all = Main.Ins.CombatData.Chapter.LoadAll();
                 for (int i = 0; i < all.Count; i++)
                 {
-                    if (Main.Ins.CombatData.GLevelItem.ID == all[i].ID)
+                    if (Main.Ins.CombatData.GLevelItem.Id == all[i].Id)
                     {
                         nextLevel = i + 1;
                         break;
                     }
                 }
 
-                if (nextLevel < all.Count && Main.Ins.CombatData.Chapter.level < all[nextLevel].ID)
-                    Main.Ins.CombatData.Chapter.level = all[nextLevel].ID;
+                if (nextLevel < all.Count && Main.Ins.CombatData.Chapter.level < all[nextLevel].Id)
+                    Main.Ins.CombatData.Chapter.level = all[nextLevel].Id;
 
                 Main.Ins.GameStateMgr.SaveState();
             }

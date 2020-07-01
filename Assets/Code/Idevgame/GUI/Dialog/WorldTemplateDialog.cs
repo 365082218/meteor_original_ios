@@ -1,4 +1,5 @@
-﻿using Idevgame.GameState.DialogState;
+﻿using Excel2Json;
+using Idevgame.GameState.DialogState;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -81,10 +82,10 @@ public class WorldTemplateDialog : Dialog
 
         //地图模板，应该从所有地图表里获取，包括外部载入的地图.
         TemplateRoot = Control("WorldRoot", WndObject);
-        LevelDatas.LevelDatas[] allLevel = Main.Ins.CombatData.GetAllLevel();
+        LevelData[] allLevel = Main.Ins.CombatData.GetAllLevel();
         for (int i = 0; i < allLevel.Length; i++)
         {
-            LevelDatas.LevelDatas lev = allLevel[i];
+            LevelData lev = allLevel[i];
             if (lev == null)
                 continue;
             Idevgame.Util.LevelUtils.AddGridItem(lev, TemplateRoot.transform, OnSelectLevel);
@@ -97,7 +98,7 @@ public class WorldTemplateDialog : Dialog
         {
             Toggle modelTog = Control(string.Format("{0}", i), ModelGroup).GetComponent<Toggle>();
             Text t = modelTog.GetComponentInChildren<Text>();
-            t.text = Main.Ins.DataMgr.GetDatasArray<ModelDatas.ModelDatas>()[i].Name;
+            t.text = Main.Ins.DataMgr.GetModelDatas()[i].Name;
             var k = i;
             modelTog.isOn = Main.Ins.GameStateMgr.gameStatus.Single.Model == i;
             modelTog.onValueChanged.AddListener((bool select) => { if (select) Main.Ins.GameStateMgr.gameStatus.Single.Model = k; });
@@ -168,11 +169,11 @@ public class WorldTemplateDialog : Dialog
         }
     }
 
-    LevelDatas.LevelDatas select;
-    void OnSelectLevel(LevelDatas.LevelDatas lev)
+    LevelData select;
+    void OnSelectLevel(LevelData lev)
     {
         select = lev;
-        Main.Ins.GameStateMgr.gameStatus.Single.LevelTemplate = lev.ID;
+        Main.Ins.GameStateMgr.gameStatus.Single.LevelTemplate = lev.Id;
         Control("Task").GetComponent<Text>().text = select.Name;
     }
 
@@ -187,7 +188,7 @@ public class WorldTemplateDialog : Dialog
             Main.Ins.CombatData.RoundTime = Main.Ins.GameStateMgr.gameStatus.Single.RoundTime;
             Main.Ins.CombatData.MaxPlayer = Main.Ins.GameStateMgr.gameStatus.Single.MaxPlayer;
             bool isPluginLevel = true;
-            List<LevelDatas.LevelDatas> all = Main.Ins.DataMgr.GetDatasArray<LevelDatas.LevelDatas>();
+            List<LevelData> all = Main.Ins.DataMgr.GetLevelDatas();
             for (var i = 0; i < all.Count; i++)
             {
                 if (all[i] == select)
@@ -200,18 +201,18 @@ public class WorldTemplateDialog : Dialog
             {
                 Main.Ins.CombatData.Chapter = Main.Ins.DlcMng.FindChapterByLevel(select);
                 Main.Ins.GameStateMgr.gameStatus.ChapterTemplate = Main.Ins.CombatData.Chapter.ChapterId;
-                Main.Ins.GameStateMgr.gameStatus.Single.LevelTemplate = select.ID;
+                Main.Ins.GameStateMgr.gameStatus.Single.LevelTemplate = select.Id;
             }
             else
             {
                 Main.Ins.GameStateMgr.gameStatus.ChapterTemplate = 0;
-                Main.Ins.GameStateMgr.gameStatus.Single.LevelTemplate = select.ID;
+                Main.Ins.GameStateMgr.gameStatus.Single.LevelTemplate = select.Id;
                 Main.Ins.CombatData.Chapter = null;
             }
             LevelScriptBase script = LevelHelper.GetLevelScript(select.LevelScript);
             if (script == null)
             {
-                U3D.PopupTip(string.Format("关卡脚本为空 关卡ID:{0}, 关卡脚本:{1}", select.ID, select.LevelScript));
+                U3D.PopupTip(string.Format("关卡脚本为空 关卡ID:{0}, 关卡脚本:{1}", select.Id, select.LevelScript));
                 return;
             }
             U3D.LoadLevel(select, LevelMode.CreateWorld, (GameMode)Main.Ins.GameStateMgr.gameStatus.Single.Mode);

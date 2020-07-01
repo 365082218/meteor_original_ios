@@ -5,58 +5,28 @@ using System.ComponentModel;
 using System.Net;
 using System.Reflection;
 using UnityEngine;
+using Excel2Json;
+using System.Linq;
 
-public class DlcLevelMng:TableManager<Level>
+public class DlcLevelMng
 {
-    string levText;
+    LevelDataMgr data;
     public DlcLevelMng(string lev)
     {
-        levText = lev;
-        ReLoad(lev, true);
+        data = new LevelDataMgr();
+        Main.Ins.DataMgr.loadJson<LevelDataMgr>(data, lev);
     }
 
-    List<LevelDatas.LevelDatas> _data = new List<LevelDatas.LevelDatas>();
-    public List<LevelDatas.LevelDatas> GetAllLevel()
+    public List<LevelData> GetAllLevel()
     {
-        if (_data.Count != 0)
-            return _data;
-        //加载外部的proto.bytes,获取里面的数据
-        Level [] data = GetAllItem();
-        for (int i = 0; i < data.Length; i++)
-        {
-            LevelDatas.LevelDatas d = new LevelDatas.LevelDatas();
-            d.BgmName = data[i].BgmName;
-            d.BgTexture = data[i].BgTexture;
-            d.DisableFindWay = false;//已取消该配置，由剧本对应的脚本重写该数据位决定.
-            d.ID = data[i].ID;
-            d.LevelScript = data[i].LevelScript;
-            d.LevelType = data[i].LevelType;
-            d.Name = data[i].Name;
-            //pass param均由关卡剧本脚本来处理-硬编码在代码内
-            d.Scene = data[i].Scene;
-            d.sceneItems = data[i].sceneItems;
-            d.StartScript = data[i].StartScript;
-            _data.Add(d);
-        }
-        return _data;
+        return data.LevelDatas.Values.ToList();
     }
 
-    public LevelDatas.LevelDatas GetLevel(int level)
+    public LevelData GetLevel(int level)
     {
-        Level l = this.GetItem(level);
-        LevelDatas.LevelDatas d = new LevelDatas.LevelDatas();
-        d.BgmName = l.BgmName;
-        d.BgTexture = l.BgTexture;
-        d.DisableFindWay = false;//已取消该配置，由剧本对应的脚本重写该数据位决定.
-        d.ID = l.ID;
-        d.LevelScript = l.LevelScript;
-        d.LevelType = l.LevelType;
-        d.Name = l.Name;
-        //pass param均由关卡剧本脚本来处理-硬编码在代码内
-        d.Scene = l.Scene;
-        d.sceneItems = l.sceneItems;
-        d.StartScript = l.StartScript;
-        return d;
+        if (data.LevelDatas.ContainsKey(level))
+            return data.LevelDatas[level];
+        return null;
     }
 }
 
@@ -64,7 +34,7 @@ public class DlcLevelMng:TableManager<Level>
 public class DlcMng
 {
     //取得资料片内所有关卡资料.
-    public List<LevelDatas.LevelDatas> GetDlcLevel(int idx)
+    public List<LevelData> GetDlcLevel(int idx)
     {
         Chapter cha = GetPluginChapter(idx);
         return cha.LoadAll();
@@ -74,7 +44,7 @@ public class DlcMng
     public void PlayDlc(Chapter chapter, int levelIdx)
     {
         Main.Ins.GameStateMgr.SaveState();
-        LevelDatas.LevelDatas lev = chapter.GetItem(levelIdx);
+        LevelData lev = chapter.GetItem(levelIdx);
         Main.Ins.CombatData.GLevelItem = lev;
         Main.Ins.CombatData.GRecord = null;
         Main.Ins.CombatData.GLevelMode = LevelMode.SinglePlayerTask;
@@ -201,7 +171,7 @@ public class DlcMng
         return Target;
     }
 
-    public Chapter FindChapterByLevel(LevelDatas.LevelDatas lev)
+    public Chapter FindChapterByLevel(LevelData lev)
     {
         if (Dlcs.Count == 0 && Main.Ins.GameStateMgr.gameStatus.pluginChapter != null)
         {
@@ -214,7 +184,7 @@ public class DlcMng
 
         for (int i = 0; i < Dlcs.Count; i++)
         {
-            List<LevelDatas.LevelDatas> all = Dlcs[i].LoadAll();
+            List<LevelData> all = Dlcs[i].LoadAll();
             for (int j = 0; j < all.Count; j++)
             {
                 if (all[j] == lev)

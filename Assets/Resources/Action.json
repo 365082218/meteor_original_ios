@@ -1,0 +1,1420 @@
+{
+  "ActionData": {
+    "100": {
+      "Idx": 100,
+      "Name": "受击弹起地面",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "118": {
+      "Idx": 118,
+      "Name": "受击落地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "151": {
+      "Idx": 151,
+      "Name": "跳跃起身",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "152": {
+      "Idx": 152,
+      "Name": "跳跃到顶",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "153": {
+      "Idx": 153,
+      "Name": "右跳",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "154": {
+      "Idx": 154,
+      "Name": "右跳到顶",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "155": {
+      "Idx": 155,
+      "Name": "左跳",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "156": {
+      "Idx": 156,
+      "Name": "左跳到顶",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "157": {
+      "Idx": 157,
+      "Name": "后跳",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "158": {
+      "Idx": 158,
+      "Name": "后跳到顶",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "159": {
+      "Idx": 159,
+      "Name": "右蹬墙",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "160": {
+      "Idx": 160,
+      "Name": "左蹬腿",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "161": {
+      "Idx": 161,
+      "Name": "前爬墙",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "162": {
+      "Idx": 162,
+      "Name": "右爬墙",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "163": {
+      "Idx": 163,
+      "Name": "左爬墙",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "164": {
+      "Idx": 164,
+      "Name": "前闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "165": {
+      "Idx": 165,
+      "Name": "剑前闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "166": {
+      "Idx": 166,
+      "Name": "匕首前闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "167": {
+      "Idx": 167,
+      "Name": "锤子右闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "168": {
+      "Idx": 168,
+      "Name": "剑右闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "169": {
+      "Idx": 169,
+      "Name": "枪右闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "170": {
+      "Idx": 170,
+      "Name": "锤子左闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "171": {
+      "Idx": 171,
+      "Name": "剑左闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "172": {
+      "Idx": 172,
+      "Name": "枪左闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "173": {
+      "Idx": 173,
+      "Name": "锤后闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "174": {
+      "Idx": 174,
+      "Name": "剑后闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "175": {
+      "Idx": 175,
+      "Name": "枪后闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "176": {
+      "Idx": 176,
+      "Name": "前滚",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "177": {
+      "Idx": 177,
+      "Name": "右滚",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "178": {
+      "Idx": 178,
+      "Name": "左滚",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "179": {
+      "Idx": 179,
+      "Name": "后滚",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "180": {
+      "Idx": 180,
+      "Name": "跳跃脚点地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "181": {
+      "Idx": 181,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "182": {
+      "Idx": 182,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "183": {
+      "Idx": 183,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "184": {
+      "Idx": 184,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "185": {
+      "Idx": 185,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "186": {
+      "Idx": 186,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "187": {
+      "Idx": 187,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "188": {
+      "Idx": 188,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "189": {
+      "Idx": 189,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "190": {
+      "Idx": 190,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "191": {
+      "Idx": 191,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "192": {
+      "Idx": 192,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "193": {
+      "Idx": 193,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "194": {
+      "Idx": 194,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "195": {
+      "Idx": 195,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "196": {
+      "Idx": 196,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "197": {
+      "Idx": 197,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "198": {
+      "Idx": 198,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "199": {
+      "Idx": 199,
+      "Name": "空",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "200": {
+      "Idx": 200,
+      "Name": "镖轻",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "201": {
+      "Idx": 201,
+      "Name": "镖地八方绝",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "202": {
+      "Idx": 202,
+      "Name": "镖空",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "203": {
+      "Idx": 203,
+      "Name": "镖怒起手",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "204": {
+      "Idx": 204,
+      "Name": "镖怒出招",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "205": {
+      "Idx": 205,
+      "Name": "镖怒收招",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "206": {
+      "Idx": 206,
+      "Name": "枪轻射击",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "207": {
+      "Idx": 207,
+      "Name": "枪重射击",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "208": {
+      "Idx": 208,
+      "Name": "枪小绝破防",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "209": {
+      "Idx": 209,
+      "Name": "镖重",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "210": {
+      "Idx": 210,
+      "Name": "镖杀",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "211": {
+      "Idx": 211,
+      "Name": "镖空落地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "212": {
+      "Idx": 212,
+      "Name": "枪进入准备",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "214": {
+      "Idx": 214,
+      "Name": "镖空踢",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "215": {
+      "Idx": 215,
+      "Name": "枪小绝乱枪",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "216": {
+      "Idx": 216,
+      "Name": "枪怒瞄准",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "217": {
+      "Idx": 217,
+      "Name": "枪怒射击",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "218": {
+      "Idx": 218,
+      "Name": "轮轻射",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "219": {
+      "Idx": 219,
+      "Name": "轮轻收",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "220": {
+      "Idx": 220,
+      "Name": "轮重射",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "221": {
+      "Idx": 221,
+      "Name": "轮重收",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "222": {
+      "Idx": 222,
+      "Name": "轮杀射",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "223": {
+      "Idx": 223,
+      "Name": "轮杀收",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "224": {
+      "Idx": 224,
+      "Name": "轮怒射",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "225": {
+      "Idx": 225,
+      "Name": "轮怒收",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "226": {
+      "Idx": 226,
+      "Name": "刺空旋转",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "227": {
+      "Idx": 227,
+      "Name": "刺空展臂",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 1
+    },
+    "228": {
+      "Idx": 228,
+      "Name": "刺空上A踢",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "229": {
+      "Idx": 229,
+      "Name": "刺空上A2踢腿",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 1
+    },
+    "235": {
+      "Idx": 235,
+      "Name": "双刺空中下A",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 1
+    },
+    "236": {
+      "Idx": 236,
+      "Name": "双刺空中下A2",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 1
+    },
+    "245": {
+      "Idx": 245,
+      "Name": "匕首空A1",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "246": {
+      "Idx": 246,
+      "Name": "匕首空A2",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "247": {
+      "Idx": 247,
+      "Name": "匕首空A3",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "248": {
+      "Idx": 248,
+      "Name": "匕首地A1",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "249": {
+      "Idx": 249,
+      "Name": "匕首地A2",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "250": {
+      "Idx": 250,
+      "Name": "匕首前A",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "251": {
+      "Idx": 251,
+      "Name": "匕首前A2",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "252": {
+      "Idx": 252,
+      "Name": "匕首空下A",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 1
+    },
+    "253": {
+      "Idx": 253,
+      "Name": "匕首上上A",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "256": {
+      "Idx": 256,
+      "Name": "匕首空上下A",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "257": {
+      "Idx": 257,
+      "Name": "匕首后前A前",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "258": {
+      "Idx": 258,
+      "Name": "匕首后前A后",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "259": {
+      "Idx": 259,
+      "Name": "匕首大招",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "260": {
+      "Idx": 260,
+      "Name": "剑空A1",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "261": {
+      "Idx": 261,
+      "Name": "剑空A2",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "265": {
+      "Idx": 265,
+      "Name": "剑空下刺",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 1
+    },
+    "282": {
+      "Idx": 282,
+      "Name": "枪下扎",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "283": {
+      "Idx": 283,
+      "Name": "枪下扎转地2",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "298": {
+      "Idx": 298,
+      "Name": "刀空下劈",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "292": {
+      "Idx": 292,
+      "Name": "枪左右上A",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "310": {
+      "Idx": 310,
+      "Name": "刀绝招起始",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "311": {
+      "Idx": 311,
+      "Name": "刀定身",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "312": {
+      "Idx": 312,
+      "Name": "刀大招开始",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "313": {
+      "Idx": 313,
+      "Name": "刀大招二",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "314": {
+      "Idx": 314,
+      "Name": "刀大决砍下(锁帧等落地)",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "318": {
+      "Idx": 318,
+      "Name": "锤子空中下锤",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "325": {
+      "Idx": 325,
+      "Name": "锤绝升天",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "326": {
+      "Idx": 326,
+      "Name": "锤绝扔出锤子",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "327": {
+      "Idx": 327,
+      "Name": "锤绝翻滚落地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "329": {
+      "Idx": 329,
+      "Name": "脚踢回锤子",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "331": {
+      "Idx": 331,
+      "Name": "刀落地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "332": {
+      "Idx": 332,
+      "Name": "匕首空A落地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "333": {
+      "Idx": 333,
+      "Name": "匕首空A落地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "334": {
+      "Idx": 334,
+      "Name": "匕首空A落地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "338": {
+      "Idx": 338,
+      "Name": "重武器空踢",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "339": {
+      "Idx": 339,
+      "Name": "重武器空踢下落",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "340": {
+      "Idx": 340,
+      "Name": "剑空中出招落地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "341": {
+      "Idx": 341,
+      "Name": "剑空中出招落地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "342": {
+      "Idx": 342,
+      "Name": "剑空中出招落地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "343": {
+      "Idx": 343,
+      "Name": "匕首后A",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "370": {
+      "Idx": 370,
+      "Name": "匕首左A1",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "371": {
+      "Idx": 371,
+      "Name": "匕首左A2",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "405": {
+      "Idx": 405,
+      "Name": "拳套空A",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "406": {
+      "Idx": 406,
+      "Name": "拳套空A2",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "410": {
+      "Idx": 410,
+      "Name": "拳套空下A",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "414": {
+      "Idx": 414,
+      "Name": "拳套地面下A",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "415": {
+      "Idx": 415,
+      "Name": "拳套后后A",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "425": {
+      "Idx": 425,
+      "Name": "拳套大绝升天",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "426": {
+      "Idx": 426,
+      "Name": "拳套大绝落地",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "427": {
+      "Idx": 427,
+      "Name": "拳套空A落地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "428": {
+      "Idx": 428,
+      "Name": "拳套空A2落地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "429": {
+      "Idx": 429,
+      "Name": "拳套空下A落地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "432": {
+      "Idx": 432,
+      "Name": "乾坤A",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "433": {
+      "Idx": 433,
+      "Name": "乾坤AA",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "434": {
+      "Idx": 434,
+      "Name": "乾坤AAA",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "446": {
+      "Idx": 446,
+      "Name": "乾坤空中下A",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 1
+    },
+    "451": {
+      "Idx": 451,
+      "Name": "乾坤大招起手",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "452": {
+      "Idx": 452,
+      "Name": "乾坤怒首斬",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "453": {
+      "Idx": 453,
+      "Name": "乾坤怒雙斬",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "454": {
+      "Idx": 454,
+      "Name": "乾坤怒再雙",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "455": {
+      "Idx": 455,
+      "Name": "乾坤怒終斬",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "456": {
+      "Idx": 456,
+      "Name": "乾坤怒回鞘",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "457": {
+      "Idx": 457,
+      "Name": "乾坤空砸緩",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "458": {
+      "Idx": 458,
+      "Name": "乾坤空A",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "459": {
+      "Idx": 459,
+      "Name": "乾坤空落地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "465": {
+      "Idx": 465,
+      "Name": "忍刀下踩",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 1
+    },
+    "466": {
+      "Idx": 466,
+      "Name": "忍刀上下A",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "467": {
+      "Idx": 467,
+      "Name": "忍刀上下A2",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "471": {
+      "Idx": 471,
+      "Name": "忍刀下上A",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "478": {
+      "Idx": 478,
+      "Name": "忍刀空A",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 1
+    },
+    "479": {
+      "Idx": 479,
+      "Name": "忍刀空A2",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "483": {
+      "Idx": 483,
+      "Name": "忍刀空A落地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "484": {
+      "Idx": 484,
+      "Name": "忍刀下上A落地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "488": {
+      "Idx": 488,
+      "Name": "拳套大招落地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "489": {
+      "Idx": 489,
+      "Name": "拳套-嗜血BUFF",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "526": {
+      "Idx": 526,
+      "Name": "忍刀前闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "527": {
+      "Idx": 527,
+      "Name": "忍刀右闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "528": {
+      "Idx": 528,
+      "Name": "忍刀左闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "529": {
+      "Idx": 529,
+      "Name": "忍刀后闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "530": {
+      "Idx": 530,
+      "Name": "忍空前闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "531": {
+      "Idx": 531,
+      "Name": "忍空右闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "532": {
+      "Idx": 532,
+      "Name": "忍空左闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "533": {
+      "Idx": 533,
+      "Name": "忍空后闪",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "535": {
+      "Idx": 535,
+      "Name": "忍遁地",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "541": {
+      "Idx": 541,
+      "Name": "忍踩",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "542": {
+      "Idx": 542,
+      "Name": "忍再踩",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "551": {
+      "Idx": 551,
+      "Name": "镖空八方绝",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "554": {
+      "Idx": 554,
+      "Name": "飞轮空吸星",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "556": {
+      "Idx": 556,
+      "Name": "双刺轮转小绝",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "557": {
+      "Idx": 557,
+      "Name": "双刺-踏风BUFF",
+      "IgnoreMove": 1,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "558": {
+      "Idx": 558,
+      "Name": "匕首下下A",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "559": {
+      "Idx": 559,
+      "Name": "匕首上下下A",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "562": {
+      "Idx": 562,
+      "Name": "枪小绝起身",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
+    "563": {
+      "Idx": 563,
+      "Name": "枪小绝砸",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 1,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    },
+    "565": {
+      "Idx": 565,
+      "Name": "刀雷电斩",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 0,
+      "IgnoreXZVelocity": 0
+    }
+  }
+}

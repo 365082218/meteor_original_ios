@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Excel2Json;
 
 public class EscDialogState : CommonDialogState<EscDialog>
 {
@@ -264,15 +265,15 @@ public class EscDialog : Dialog
     void InitLevel()
     {
         Transform LevelRoot = NodeHelper.Find("LevelRoot", WndObject).transform;
-        List<LevelDatas.LevelDatas> LevelInfo = Main.Ins.DataMgr.GetDatasArray<LevelDatas.LevelDatas>();
-        for (int i = 0; i < LevelInfo.Count; i++)
+        LevelDataMgr LevelInfo = Main.Ins.DataMgr.GetTable<LevelDataMgr>("Level");
+        foreach (var each in LevelInfo.LevelDatas)
         {
-            string strKey = LevelInfo[i].Name;
-            AddGridItem(LevelInfo[i], strKey, EnterLevel, LevelRoot);
+            string strKey = each.Value.Name;
+            AddGridItem(each.Value, strKey, EnterLevel, LevelRoot);
         }
     }
 
-    void AddGridItem(LevelDatas.LevelDatas i, string strTag, UnityEngine.Events.UnityAction<LevelDatas.LevelDatas> call, Transform parent)
+    void AddGridItem(LevelData i, string strTag, UnityEngine.Events.UnityAction<LevelData> call, Transform parent)
     {
         GameObject objPrefab = Resources.Load("LevelItem", typeof(GameObject)) as GameObject;
         GameObject obj = GameObject.Instantiate(objPrefab) as GameObject;
@@ -284,7 +285,7 @@ public class EscDialog : Dialog
         obj.transform.localScale = Vector3.one;
     }
 
-    private void EnterLevel(LevelDatas.LevelDatas lev)
+    private void EnterLevel(LevelData lev)
     {
         OnBackPress();
         Main.Ins.GameBattleEx.Pause();

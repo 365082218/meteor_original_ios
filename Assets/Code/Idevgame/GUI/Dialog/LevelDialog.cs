@@ -3,6 +3,8 @@ using System.Collections;
 using System;
 using UnityEngine.UI;
 using Idevgame.GameState.DialogState;
+using Excel2Json;
+
 public class LevelDialogState:CommonDialogState<LevelDialog>
 {
     public override string DialogName { get { return "LevelDialog"; } }
@@ -67,7 +69,7 @@ public class LevelDialog : Dialog {
             //单机关卡
             for (int i = 1; i <= Main.Ins.GameStateMgr.gameStatus.Level; i++)
             {
-                LevelDatas.LevelDatas lev = Main.Ins.DataMgr.GetData<LevelDatas.LevelDatas>(i);
+                LevelData lev = Main.Ins.DataMgr.GetLevelData(i);
                 if (lev == null)
                     continue;
                 Idevgame.Util.LevelUtils.AddGridItem(lev, rootMenu.transform, OnSelectLevel);
@@ -79,7 +81,7 @@ public class LevelDialog : Dialog {
             //剧本关卡
             for (int i = 1; i <= Main.Ins.CombatData.Chapter.level; i++)
             {
-                LevelDatas.LevelDatas lev = Main.Ins.CombatData.Chapter.GetItem(i);
+                LevelData lev = Main.Ins.CombatData.Chapter.GetItem(i);
                 if (lev == null)
                     continue;
                 Idevgame.Util.LevelUtils.AddGridItem(lev, rootMenu.transform, OnSelectLevel);
@@ -89,8 +91,8 @@ public class LevelDialog : Dialog {
         OnSelectLevel(select);
     }
 
-    LevelDatas.LevelDatas select;
-    void OnSelectLevel(LevelDatas.LevelDatas lev)
+    LevelData select;
+    void OnSelectLevel(LevelData lev)
     {
         Material loadingTexture = null;
         if (!string.IsNullOrEmpty(lev.BgTexture))
@@ -134,7 +136,7 @@ public class LevelDialog : Dialog {
             }
             else
             {
-                Main.Ins.DlcMng.PlayDlc(Main.Ins.CombatData.Chapter, select.ID);
+                Main.Ins.DlcMng.PlayDlc(Main.Ins.CombatData.Chapter, select.Id);
             }
             if (background.material == null)
                 OnBackPress();

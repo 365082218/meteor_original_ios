@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using System.Reflection;
 using UnityEngine.UI;
+using Excel2Json;
 
 //for loadingui updateui
 public interface LoadingUI
@@ -41,7 +42,7 @@ public class LevelHelper : MonoBehaviour
         int displayProgress = 0;
         int toProgress = 0;
         yield return 0;
-        LevelDatas.LevelDatas lev = Main.Ins.CombatData.GLevelItem;
+        LevelData lev = Main.Ins.CombatData.GLevelItem;
         ResMng.LoadScene(lev.Scene);
         mAsync = SceneManager.LoadSceneAsync(lev.Scene);
         mAsync.allowSceneActivation = false;
@@ -105,13 +106,13 @@ public class LevelHelper : MonoBehaviour
 
     //只加载地图/地图物件.要令所有客户端初始化完毕后状态一致，然后用指令播放器，播放帧指令.
     //如果是单机，就使用帧播放
-    void OnLoadFinishedEx(LevelDatas.LevelDatas lev)
+    void OnLoadFinishedEx(LevelData lev)
     {
         Main.Ins.SoundManager.Enable(true);
         LevelScriptBase script = GetLevelScript(lev.LevelScript);
         if (script == null)
         {
-            UnityEngine.Debug.LogError(string.Format("level script is null levId:{0}, levScript:{1}", lev.ID, lev.LevelScript));
+            UnityEngine.Debug.LogError(string.Format("level script is null levId:{0}, levScript:{1}", lev.Id, lev.LevelScript));
             return;
         }
 
@@ -155,10 +156,10 @@ public class LevelHelper : MonoBehaviour
 
         Main.Ins.DlcMng.Init();
 
-        LevelDatas.LevelDatas lev = Main.Ins.DataMgr.GetData<LevelDatas.LevelDatas>(level);
+        LevelData lev = Main.Ins.DataMgr.GetLevelData(level);
         LevelScriptBase script = GetLevelScript(lev.LevelScript);
         if (script == null) {
-            UnityEngine.Debug.LogError(string.Format("level script is null levId:{0}, levScript:{1}", lev.ID, lev.LevelScript));
+            UnityEngine.Debug.LogError(string.Format("level script is null levId:{0}, levScript:{1}", lev.Id, lev.LevelScript));
             return;
         }
 

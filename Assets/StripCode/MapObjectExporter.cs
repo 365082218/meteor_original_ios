@@ -1,4 +1,5 @@
-﻿using Idevgame.Util;
+﻿using Excel2Json;
+using Idevgame.Util;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ public class MapObjectExporter : MonoBehaviour {
     const string SavePath = "Assets/MeteorObj/";//+sn/xxx.obj xxx.mat
     const string ItemSavePath = "Assets/MeteorObj/Items/";
     public bool saveSceneModel;
-    Dictionary<string, LevelDatas.LevelDatas> levAll = new Dictionary<string, LevelDatas.LevelDatas>();
+    Dictionary<string, LevelData> levAll = new Dictionary<string, LevelData>();
     List<string> ModelInScene = new List<string>();
     //List<string> ModelInModel = new List<string>();
     private void Awake()

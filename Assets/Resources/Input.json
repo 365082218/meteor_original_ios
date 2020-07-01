@@ -1,0 +1,184 @@
+{
+  "InputData": {
+    "1": {
+      "Idx": 1,
+      "Lines": "1,5,9,13,25,35,48,61,73,91,95,101,108,123,",
+      "LinesAir": "85,22,32,46,59,107,122,105,",
+      "InputString": "J",
+      "DelayFrame": "",
+      "Desc": "攻击",
+      "Detail": "59较特殊，估计所有重武器的空中A都是338动作"
+    },
+    "2": {
+      "Idx": 2,
+      "Lines": "3,7,11,19,37,84,49,63,75,92,98,113,125,",
+      "LinesAir": "24,33,47,60,72,83,106,109,126,",
+      "InputString": "SJ",
+      "DelayFrame": "",
+      "Desc": "下攻击",
+      "Detail": "所有的基础动作，都不由连招系统负责，而由基本按键识别系统识别"
+    },
+    "3": {
+      "Idx": 3,
+      "Lines": "16,28,38,64,89,100,",
+      "LinesAir": "",
+      "InputString": "AJ",
+      "DelayFrame": "",
+      "Desc": "左攻击",
+      "Detail": "这里面只会缺少86爆气行"
+    },
+    "4": {
+      "Idx": 4,
+      "Lines": "15,29,39,65,93,99,",
+      "LinesAir": "",
+      "InputString": "DJ",
+      "DelayFrame": "",
+      "Desc": "右攻击",
+      "Detail": ""
+    },
+    "5": {
+      "Idx": 5,
+      "Lines": "2,6,10,14,26,36,50,62,74,96,124,",
+      "LinesAir": "87,23,",
+      "InputString": "WJ",
+      "DelayFrame": "",
+      "Desc": "上攻击",
+      "Detail": ""
+    },
+    "6": {
+      "Idx": 6,
+      "Lines": "88,40,52,68,78,94,114,140,90,",
+      "LinesAir": "150,133,",
+      "InputString": "SSJ",
+      "DelayFrame": "",
+      "Desc": "下下攻击",
+      "Detail": ""
+    },
+    "7": {
+      "Idx": 7,
+      "Lines": "20,27,43,54,66,77,97,117,137,160",
+      "LinesAir": "130,",
+      "InputString": "WWJ",
+      "DelayFrame": "",
+      "Desc": "上上攻击",
+      "Detail": ""
+    },
+    "8": {
+      "Idx": 8,
+      "Lines": "139,111,",
+      "LinesAir": "132,",
+      "InputString": "AAJ",
+      "DelayFrame": "",
+      "Desc": "左左攻击",
+      "Detail": ""
+    },
+    "9": {
+      "Idx": 9,
+      "Lines": "138,112,",
+      "LinesAir": "131,",
+      "InputString": "DDJ",
+      "DelayFrame": "",
+      "Desc": "右右攻击",
+      "Detail": ""
+    },
+    "10": {
+      "Idx": 10,
+      "Lines": "143,147,145,18,30,41,53,67,76,102,159,116,134,",
+      "LinesAir": "144,146,",
+      "InputString": "SWJ",
+      "DelayFrame": "",
+      "Desc": "下上攻击",
+      "Detail": ""
+    },
+    "11": {
+      "Idx": 11,
+      "Lines": "42,103,118,127,",
+      "LinesAir": "34,",
+      "InputString": "WSJ",
+      "DelayFrame": "",
+      "Desc": "上下攻击",
+      "Detail": ""
+    },
+    "12": {
+      "Idx": 12,
+      "Lines": "17,55,151,69,79,110,142,",
+      "LinesAir": "",
+      "InputString": "ADJ",
+      "DelayFrame": "",
+      "Desc": "左右攻击",
+      "Detail": ""
+    },
+    "13": {
+      "Idx": 13,
+      "Lines": "152,51,155,80,",
+      "LinesAir": "",
+      "InputString": "DAJ",
+      "DelayFrame": "",
+      "Desc": "右左攻击",
+      "Detail": ""
+    },
+    "14": {
+      "Idx": 14,
+      "Lines": "71,81,120,128,154,",
+      "LinesAir": "",
+      "InputString": "ADSJ",
+      "DelayFrame": "",
+      "Desc": "左右下攻击",
+      "Detail": ""
+    },
+    "15": {
+      "Idx": 15,
+      "Lines": "21,",
+      "LinesAir": "",
+      "InputString": "SADJ",
+      "DelayFrame": "",
+      "Desc": "下左右攻击",
+      "Detail": "双刺大招"
+    },
+    "16": {
+      "Idx": 16,
+      "Lines": "70,115,148,45,57,157,135",
+      "LinesAir": "",
+      "InputString": "ADWJ",
+      "DelayFrame": "",
+      "Desc": "左右上攻击",
+      "Detail": ""
+    },
+    "17": {
+      "Idx": 17,
+      "Lines": "121,56,104,129,156,82,149",
+      "LinesAir": "",
+      "InputString": "SSWJ",
+      "DelayFrame": "",
+      "Desc": "下下上攻击",
+      "Detail": ""
+    },
+    "18": {
+      "Idx": 18,
+      "Lines": "158,58,119,4,8,12,31,44,141,",
+      "LinesAir": "",
+      "InputString": "SWWJ",
+      "DelayFrame": "",
+      "Desc": "下上上攻击",
+      "Detail": ""
+    },
+    "19": {
+      "Idx": 19,
+      "Lines": "153,",
+      "LinesAir": "",
+      "InputString": "WWWJ",
+      "DelayFrame": "",
+      "Desc": "上上上攻击",
+      "Detail": ""
+    },
+    "20": {
+      "Idx": 20,
+      "Lines": "136,",
+      "LinesAir": "",
+      "InputString": "ADWSJ",
+      "DelayFrame": "",
+      "Desc": "左右上下攻击",
+      "Detail": ""
+    }
+  }
+}

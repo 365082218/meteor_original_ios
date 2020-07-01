@@ -120,7 +120,7 @@ public class FightUiConroller : Dialog
         NodeHelper.Find("Reborn", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnRebornClick);
 
         //单机-金华城
-        if (Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask && Main.Ins.CombatData.GLevelItem.ID == 4)
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask && Main.Ins.CombatData.GLevelItem.Id == 4)
             NodeHelper.Find("Reborn", WndObject).SetActive(true);
         else
         {

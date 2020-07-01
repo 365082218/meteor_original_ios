@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using Excel2Json;
 
 [ProtoBuf.ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
 public class UpdateFile
@@ -307,18 +308,18 @@ public class GameStateMgr
     public GameState gameStatus;
     public InventoryItem MakeEquip(int unitIdx)
     {
-        ItemDatas.ItemDatas info = FindItemByIdx(unitIdx);
+        ItemData info = FindItemByIdx(unitIdx);
         if (info == null)
             return null;
         InventoryItem item = new InventoryItem();
         item.Count = 1;
-        item.Idx = info.ID;
+        item.Idx = info.Key;
         return item;
     }
 
-    public ItemDatas.ItemDatas FindItemByIdx(int itemid)
+    public ItemData FindItemByIdx(int itemid)
     {
-        ItemDatas.ItemDatas ItemProperty = Main.Ins.DataMgr.GetData<ItemDatas.ItemDatas>(itemid);
+        ItemData ItemProperty = Main.Ins.DataMgr.GetItemData(itemid);
         //缺失读取外部加载的部分
         //if (ItemProperty == null)
         //    ItemProperty = Main.Instance..GetItem(itemid);
@@ -436,7 +437,7 @@ public class GameStateMgr
     public int GetWeaponCode(string model)
     {
         int unitId = -1;
-        List<WeaponDatas.WeaponDatas> wItems = Main.Ins.DataMgr.GetDatasArray<WeaponDatas.WeaponDatas>();
+        List<WeaponData> wItems = Main.Ins.DataMgr.GetWeaponDatas();
         for (int i = 0; i < wItems.Count; i++)
         {
             if (wItems[i].WeaponR == model)
@@ -459,11 +460,11 @@ public class GameStateMgr
         //    }
         //}
 
-        List<ItemDatas.ItemDatas> items = Main.Ins.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
+        List<ItemData> items = Main.Ins.DataMgr.GetItemDatas();
         for (int i = 0; i < items.Count; i++)
         {
             if (items[i].UnitId == unitId && items[i].MainType == 1)
-                return items[i].ID;
+                return items[i].Key;
         }
         return -1;
     }
@@ -610,7 +611,7 @@ public class CombatData
     public int SpecialWeaponProbability = 98;//100-98=2几率切换到远程武器，每次Think都有2%几率
     public float AimDegree = 30.0f;//夹角超过30度，需要重新瞄准
     public MeteorInput GMeteorInput = null;
-    public LevelDatas.LevelDatas GLevelItem = null;//普通关卡
+    public LevelData GLevelItem = null;//普通关卡
     public LevelMode GLevelMode;//建立房间时选择的类型，从主界面进，都是Normal
     public GameMode GGameMode;//游戏玩法类型
     public Vector3[] GLevelSpawn;
@@ -671,19 +672,19 @@ public class CombatData
         }
     }
 
-    private List<LevelDatas.LevelDatas> AllLevel;
+    private List<LevelData> AllLevel;
     public void ClearLevel()
     {
         AllLevel = null;
     }
 
-    public LevelDatas.LevelDatas[] GetAllLevel()
+    public LevelData[] GetAllLevel()
     {
         if (AllLevel != null)
             return AllLevel.ToArray();
         if (AllLevel == null)
-            AllLevel = new List<LevelDatas.LevelDatas>();
-        List<LevelDatas.LevelDatas> baseLevel = Main.Ins.DataMgr.GetDatasArray<LevelDatas.LevelDatas>();
+            AllLevel = new List<LevelData>();
+        List<LevelData> baseLevel = Main.Ins.DataMgr.GetLevelDatas();
         for (int i = 0; i < baseLevel.Count; i++)
         {
             AllLevel.Add(baseLevel[i]);
@@ -700,26 +701,26 @@ public class CombatData
         return AllLevel.ToArray();
     }
 
-    public LevelDatas.LevelDatas GetGlobalLevel(int mix)
+    public LevelData GetGlobalLevel(int mix)
     {
         int c = (mix / 1000) * 1000;
         int l = mix % 1000;
         return GetLevel(c, l);
     }
 
-    public LevelDatas.LevelDatas GetLevel(int chapterId, int id)
+    public LevelData GetLevel(int chapterId, int id)
     {
         if (chapterId == 0)
         {
-            LevelDatas.LevelDatas lev = Main.Ins.DataMgr.GetData<LevelDatas.LevelDatas>(id);
+            LevelData lev = Main.Ins.DataMgr.GetLevelData(id);
             if (lev != null)
                 return lev;
         }
 
-        List<LevelDatas.LevelDatas> l = Main.Ins.DlcMng.GetDlcLevel(chapterId);
+        List<LevelData> l = Main.Ins.DlcMng.GetDlcLevel(chapterId);
         for (int i = 0; i < l.Count; i++)
         {
-            if (l[i].ID == id)
+            if (l[i].Id == id)
                 return l[i];
         }
         Debug.LogError(string.Format("无法找到指定的剧本{0}关卡{1}", chapterId, id));
@@ -732,10 +733,10 @@ public class CombatData
         {
             return DlcMng.GetPluginModel(id).Name;
         }
-        return Main.Ins.DataMgr.GetData<ModelDatas.ModelDatas>(id).Name;
+        return Main.Ins.DataMgr.GetModelData(id).Name;
     }
 
-    public static List<WayPoint> GetWayPoint(LevelDatas.LevelDatas level)
+    public static List<WayPoint> GetWayPoint(LevelData level)
     {
         List<WayPoint> wayPoint = new List<WayPoint>();
         string items = level.sceneItems;

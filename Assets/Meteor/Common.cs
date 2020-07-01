@@ -6,6 +6,8 @@ using System.IO;
 using ProtoBuf;
 using System.Net;
 using protocol;
+using Excel2Json;
+
 [ProtoContract]
 public class RBase
 {
@@ -29,7 +31,7 @@ public class InventoryItem
     [ProtoMember(5)]
     public int WeaponPos;//武器当前姿态。记录乾坤刀的长枪 短柄 分开，当捡到一件物品的时候，要根据外观设置他武器的姿态，只针对乾坤刀这种可切换单双手的
 
-    public ItemDatas.ItemDatas Info()
+    public ItemData Info()
     {
         return Main.Ins.GameStateMgr.FindItemByIdx(this.Idx);
     }

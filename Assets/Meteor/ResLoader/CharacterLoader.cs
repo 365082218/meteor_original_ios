@@ -413,10 +413,6 @@ public class CharacterLoader
             bo[i].localRotation = status.BoneQuat[i];
 
         bool IgnoreActionMoves = PoseStatus.IgnoreActionMove(po.Idx);
-        //if (owner.IsDebugUnit())
-        //    IgnoreActionMoves = false;
-        bool IgnoreActionXZMove = PoseStatus.IgnoreXZMove(po.Idx);
-
         if (lastPosIdx == po.Idx)
         {
             Vector3 targetPos = status.DummyPos[0];
@@ -427,10 +423,6 @@ public class CharacterLoader
                 vec.x = 0;
                 vec.z = 0;
                 vec.y = 0;
-            }
-            else if (IgnoreActionXZMove)
-            {
-                vec.x = vec.z = 0;
             }
             moveDelta += vec;
             //if (po.Idx == 151)
@@ -636,10 +628,7 @@ public class CharacterLoader
         {
             if (OnAnimationFrame != null)
                 OnAnimationFrame(po.SourceIdx, po.Idx, curIndex, timeRatio);
-            //IgnoreActionMoves = false;
         }
-
-        bool IgnoreActionXZMove = PoseStatus.IgnoreXZMove(po.Idx);
 
         if (lastStatus != null && status != null)
         {
@@ -652,10 +641,6 @@ public class CharacterLoader
                     vec.x = 0;
                     vec.z = 0;
                     vec.y = 0;
-                }
-                else if (IgnoreActionXZMove)
-                {
-                    vec.x = vec.z = 0;
                 }
                 moveDelta += vec;
                 lastDBasePos = targetPos;

@@ -1,4 +1,5 @@
-﻿using Idevgame.GameState.DialogState;
+﻿using Excel2Json;
+using Idevgame.GameState.DialogState;
 using protocol;
 using System.Collections;
 using System.Collections.Generic;
@@ -71,10 +72,10 @@ public class RoomOptionDialog : Dialog
 
         //地图模板，应该从所有地图表里获取，包括外部载入的地图.
         TemplateRoot = Control("WorldRoot", WndObject);
-        LevelDatas.LevelDatas[] allLevel = Main.Ins.CombatData.GetAllLevel();
+        LevelData[] allLevel = Main.Ins.CombatData.GetAllLevel();
         for (int i = 0; i < allLevel.Length; i++)
         {
-            LevelDatas.LevelDatas lev = allLevel[i];
+            LevelData lev = allLevel[i];
             if (lev == null)
                 continue;
             Idevgame.Util.LevelUtils.AddGridItem(lev, TemplateRoot.transform, OnSelectLevel);
@@ -105,11 +106,11 @@ public class RoomOptionDialog : Dialog
         }
     }
 
-    LevelDatas.LevelDatas select;
-    void OnSelectLevel(LevelDatas.LevelDatas lev)
+    LevelData select;
+    void OnSelectLevel(LevelData lev)
     {
         select = lev;
-        Main.Ins.GameStateMgr.gameStatus.NetWork.LevelTemplate = lev.ID;
+        Main.Ins.GameStateMgr.gameStatus.NetWork.LevelTemplate = lev.Id;
         Control("Task").GetComponent<Text>().text = select.Name;
     }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Excel2Json;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -155,7 +156,7 @@ public class DartLoader : NetBehaviour {
         if (item.Info().MainType == (int)EquipType.Weapon)
         {
             float scale = 2.0f;
-            WeaponDatas.WeaponDatas weaponProperty = U3D.GetWeaponProperty(item.Info().UnitId);
+            WeaponData weaponProperty = U3D.GetWeaponProperty(item.Info().UnitId);
             string weaponR = "";
             weaponR = weaponProperty.WeaponR;
 

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using Excel2Json;
 
 public class InputItem
 {
@@ -236,11 +237,11 @@ public class InputModule
         if (inputs.Count != 0)
             return;
         mOwner = owner;
-        List<InputDatas.InputDatas> ipts = Main.Ins.DataMgr.GetDatasArray<InputDatas.InputDatas>();
+        List<InputData> ipts = Main.Ins.DataMgr.GetInputDatas();
         for (int i = 0; i < ipts.Count; i++)
         {
             InputItem it = new InputItem(owner);
-            it.Idx = ipts[i].ID;
+            it.Idx = ipts[i].Key;
             it.keyInput = ipts[i].InputString.ToCharArray();
             it.KeyInput = new EKeyList[it.keyInput.Length];
             for (int j = 0; j < it.keyInput.Length; j++)

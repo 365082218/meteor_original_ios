@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using Idevgame.GameState.DialogState;
+using Excel2Json;
 
 public class MainMenuState:CommonDialogState<MainMenu>
 {
@@ -120,7 +121,7 @@ public class MainMenu : Dialog
     //教学关卡.
     void OnTeachingLevel()
     {
-        U3D.LoadLevel(Main.Ins.DataMgr.GetDatasArray<LevelDatas.LevelDatas>()[30], LevelMode.Teach, GameMode.SIDOU);
+        U3D.LoadLevel(Main.Ins.DataMgr.GetLevelData(30), LevelMode.Teach, GameMode.SIDOU);
     }
 
     void OnCreateRoom()

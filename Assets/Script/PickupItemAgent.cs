@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Excel2Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -37,8 +38,8 @@ public class PickupItemAgent : NetBehaviour {
     public void SetPickupItem(string des)
     {
         model = des;
-        List<WeaponDatas.WeaponDatas> allWeapons = new List<WeaponDatas.WeaponDatas>();
-        List<WeaponDatas.WeaponDatas> weapons = Main.Ins.DataMgr.GetDatasArray<WeaponDatas.WeaponDatas>();
+        List<WeaponData> allWeapons = new List<WeaponData>();
+        List<WeaponData> weapons = Main.Ins.DataMgr.GetWeaponDatas();
         //WeaponDatas.WeaponDatas[] weapons2 = PluginWeaponMng.Instance.GetAllItem();
         for (int i = 0; i < weapons.Count; i++)
         {
@@ -123,30 +124,30 @@ public class PickupItemAgent : NetBehaviour {
             if (unit.Attr.Weapon != 0 && unit.Attr.Weapon2 != 0)
                 return;
             //相同武器，不能捡
-            ItemDatas.ItemDatas ib0 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
-            WeaponDatas.WeaponDatas wb0 = U3D.GetWeaponProperty(ib0.UnitId);
+            ItemData ib0 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
+            WeaponData wb0 = U3D.GetWeaponProperty(ib0.UnitId);
             if (wb0 != null && wb0.WeaponR == model)
                 return;
 
             if (unit.Attr.Weapon2 != 0)
             {
-                ItemDatas.ItemDatas ib1 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
-                WeaponDatas.WeaponDatas wb1 = U3D.GetWeaponProperty(ib1.UnitId);
+                ItemData ib1 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
+                WeaponData wb1 = U3D.GetWeaponProperty(ib1.UnitId);
                 if (wb1 != null && wb1.WeaponR == model)
                     return;
             }
 
             //同类武器不能捡
             int weaponPickup = Main.Ins.GameStateMgr.GetWeaponCode(model);
-            ItemDatas.ItemDatas wb = Main.Ins.GameStateMgr.FindItemByIdx(weaponPickup);
+            ItemData wb = Main.Ins.GameStateMgr.FindItemByIdx(weaponPickup);
             if (wb == null)
                 return;
 
-            ItemDatas.ItemDatas wbl = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
+            ItemData wbl = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
             if (wbl == null)
                 return;
 
-            ItemDatas.ItemDatas wbr = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
+            ItemData wbr = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
             if (wb.SubType == wbl.SubType)
                 return;
 

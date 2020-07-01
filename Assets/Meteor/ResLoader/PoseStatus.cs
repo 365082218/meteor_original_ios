@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.Diagnostics;
+using Excel2Json;
 //管理角色的动画帧，用自己的方式实现动画
 [Serializable]
 public class PoseStatus
@@ -236,44 +237,36 @@ public class PoseStatus
 
     public static bool IgnoreActionMove(int idx)
     {
-        ActionDatas.ActionDatas act = Main.Ins.DataMgr.GetData<ActionDatas.ActionDatas>(idx);
+        ActionData act = Main.Ins.DataMgr.GetActionData(idx);
         if (act == null)
             return false;
-        return act.IgnoreMove;
-    }
-
-    public static bool IgnoreXZMove(int idx)
-    {
-        ActionDatas.ActionDatas act = Main.Ins.DataMgr.GetData<ActionDatas.ActionDatas>(idx);
-        if (act == null)
-            return false;
-        return act.IgnoreXZMove;
+        return act.IgnoreMove == 1;
     }
 
     public static bool IgnoreVelocityXZ(int idx)
     {
-        ActionDatas.ActionDatas act = Main.Ins.DataMgr.GetData<ActionDatas.ActionDatas>(idx);
+        ActionData act = Main.Ins.DataMgr.GetActionData(idx);
         if (act == null)
             return false;
-        return act.IgnoreXZVelocity;
+        return act.IgnoreXZVelocity == 1;
     }
 
     public static bool IgnorePhysical(int idx)
     {
-        ActionDatas.ActionDatas act = Main.Ins.DataMgr.GetData<ActionDatas.ActionDatas>(idx);
+        ActionData act = Main.Ins.DataMgr.GetActionData(idx);
         if (act == null)
             return false;
-        return act.IgnoreCollision;
+        return act.IgnoreCollision == 1;
     }
 
     public static bool IgnoreGravity(int idx)
     {
-        ActionDatas.ActionDatas act = Main.Ins.DataMgr.GetData<ActionDatas.ActionDatas>(idx);
+        ActionData act = Main.Ins.DataMgr.GetActionData(idx);
         if (act == null)
         {
             return false;
         }
-        return act.IgnoreGravity;
+        return act.IgnoreGravity == 1;
     }
 
     public bool IsHurtPose()

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using protocol;
 using System;
 using UnityEngine.SceneManagement;
+using Excel2Json;
 
 //只能缓存一下房间战斗相关的数据,与联机战斗/房间相关的这里处理.
 public class NetWorkBattle
@@ -174,7 +175,7 @@ public class NetWorkBattle
 
     public void Load()
     {
-        LevelDatas.LevelDatas lev = Main.Ins.CombatData.GetGlobalLevel(LevelId);
+        LevelData lev = Main.Ins.CombatData.GetGlobalLevel(LevelId);
         Main.Ins.CombatData.Chapter = Main.Ins.DlcMng.FindChapter((LevelId / 1000) * 1000);
         Main.Ins.CombatData.GLevelItem = lev;
         Main.Ins.CombatData.GLevelMode = LevelMode.MultiplyPlayer;

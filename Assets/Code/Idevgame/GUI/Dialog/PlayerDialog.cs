@@ -1,4 +1,5 @@
-﻿using Idevgame.GameState.DialogState;
+﻿using Excel2Json;
+using Idevgame.GameState.DialogState;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -39,7 +40,7 @@ public class PlayerDialog : Dialog
         objPlayer.transform.localScale = Vector3.one;
         d.gameObject.layer = obj.gameObject.layer;
         d.Init(Main.Ins.LocalPlayer.UnitId, LayerMask.NameToLayer("3DUIPlayer"));
-        WeaponDatas.WeaponDatas weaponProperty = U3D.GetWeaponProperty(Main.Ins.LocalPlayer.weaponLoader.GetCurrentWeapon().Info().UnitId);
+        WeaponData weaponProperty = U3D.GetWeaponProperty(Main.Ins.LocalPlayer.weaponLoader.GetCurrentWeapon().Info().UnitId);
         d.weaponLoader.StrWeaponR = weaponProperty.WeaponR;
         d.weaponLoader.StrWeaponL = weaponProperty.WeaponL;
         //d.weaponLoader.EquipWeapon();

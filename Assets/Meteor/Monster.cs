@@ -2,6 +2,7 @@
 using UnityEngine;
 using ProtoBuf;
 using SLua;
+using Excel2Json;
 
 [ProtoContract]
 public class MonsterEx
@@ -158,7 +159,7 @@ public class MonsterEx
     //脱掉一件物品.
     public void UnEquipItem(InventoryItem item)
     {
-        ItemDatas.ItemDatas unit = item.Info();
+        ItemData unit = item.Info();
         if (unit != null)
         {
             
@@ -169,7 +170,7 @@ public class MonsterEx
     public InventoryItem EquipItems(InventoryItem item)
     {
         InventoryItem itemUnEquip = null;
-        ItemDatas.ItemDatas unit = item.Info();
+        ItemData unit = item.Info();
 
 
         if (unit != null)
@@ -298,7 +299,7 @@ public class MonsterEx
                 Weapon = U3D.GetWeaponByType(Main.Ins.CombatData.MainWeapon);
                 Weapon2 = U3D.GetWeaponByType(Main.Ins.CombatData.SubWeapon);
                 Model = Main.Ins.CombatData.PlayerModel;
-                name = Main.Ins.DataMgr.GetDatasArray<ModelDatas.ModelDatas>()[Model].Name;
+                name = Main.Ins.DataMgr.GetModelDatas()[Model].Name;
             }
         } 
         View = 500;

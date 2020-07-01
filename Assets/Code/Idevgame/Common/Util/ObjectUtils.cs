@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using Excel2Json;
 namespace Idevgame.Util
 {
     //关卡
     public static class LevelUtils
     {
-        public static void AddGridItem(LevelDatas.LevelDatas lev, Transform parent, System.Action<LevelDatas.LevelDatas> OnSelect)
+        public static void AddGridItem(LevelData lev, Transform parent, System.Action<LevelData> OnSelect)
         {
             GameObject objPrefab = Resources.Load("LevelSelectItem", typeof(GameObject)) as GameObject;
             GameObject obj = GameObject.Instantiate(objPrefab) as GameObject;

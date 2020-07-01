@@ -68,7 +68,7 @@ public class MainLobbyDialog : Dialog
         Control("Pattern", roomObj).GetComponent<Text>().text = "";
         Control("Password", roomObj).GetComponent<Text>().text = "无";
         Control("Rule", roomObj).GetComponent<Text>().text = ruleS[(int)room.rule - 1];//盟主，死斗，暗杀
-        Control("LevelName", roomObj).GetComponent<Text>().text = Main.Ins.DataMgr.GetData<LevelDatas.LevelDatas>((int)room.levelIdx).Name;
+        Control("LevelName", roomObj).GetComponent<Text>().text = Main.Ins.DataMgr.GetLevelData((int)room.levelIdx).Name;
         Control("Version", roomObj).GetComponent<Text>().text = Main.Ins.AppInfo.MeteorVersion;
         Control("Ping", roomObj).GetComponent<Text>().text = "???";
         Control("Group1", roomObj).GetComponent<Text>().text = room.Group1.ToString();

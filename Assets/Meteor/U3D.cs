@@ -11,6 +11,7 @@ using protocol;
 using System.Linq;
 using System.Net;
 using System.ComponentModel;
+using Excel2Json;
 
 [CustomLuaClassAttribute]
 public class U3D : MonoBehaviour {
@@ -137,23 +138,23 @@ public class U3D : MonoBehaviour {
     //sort -x->+x标识当前武器得前/后多少个武器
     public static int GetWeaponBySort(int weapon, int sort)
     {
-        List<ItemDatas.ItemDatas> we = Main.Ins.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
+        List<ItemData> we = Main.Ins.DataMgr.GetItemDatas();
         for (int i = 0; i < we.Count; i++)
         {
             if (we[i].MainType == 1)
             {
                 //武器
-                if (we[i].ID == weapon)
+                if (we[i].Key == weapon)
                 {
                     if (i + sort < we.Count)
                     {
                         if (we[i + sort].MainType == 1)
-                            return we[i + sort].ID;
+                            return we[i + sort].Key;
                         else
-                            return we[0].ID;
+                            return we[0].Key;
                     }
                     else
-                        return we[0].ID;
+                        return we[0].Key;
                 }
             }
         }
@@ -170,14 +171,14 @@ public class U3D : MonoBehaviour {
             weaponList = new List<int>();
         if (weaponList.Count == 0)
         {
-            List<ItemDatas.ItemDatas> we = Main.Ins.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
+            List<ItemData> we = Main.Ins.DataMgr.GetItemDatas();
             for (int i = 0; i < we.Count; i++)
             {
                 if (we[i].MainType == 1)
                 {
                     if (we[i].SubType == (int)weaponIndex)
                     {
-                        weaponList.Add(we[i].ID);
+                        weaponList.Add(we[i].Key);
                     }
                 }
             }
@@ -207,14 +208,14 @@ public class U3D : MonoBehaviour {
             weaponList = new List<int>();
         if (weaponList.Count == 0)
         {
-            List<ItemDatas.ItemDatas> we = Main.Ins.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
+            List<ItemData> we = Main.Ins.DataMgr.GetItemDatas();
             for (int i = 0; i < we.Count; i++)
             {
                 if (we[i].MainType == 1)
                 {
                     if (we[i].SubType == (int)weaponIndex)
                     {
-                        weaponList.Add(we[i].ID);
+                        weaponList.Add(we[i].Key);
                     }
                 }
             }
@@ -645,7 +646,7 @@ public class U3D : MonoBehaviour {
     }
 
     //走参数指定关卡.非剧本&非回放
-    public static void LoadLevel(LevelDatas.LevelDatas lev, LevelMode levelmode, GameMode gamemode)
+    public static void LoadLevel(LevelData lev, LevelMode levelmode, GameMode gamemode)
     {
         Main.Ins.CombatData.GRecord = null;
         Main.Ins.CombatData.Chapter = null;
@@ -666,7 +667,7 @@ public class U3D : MonoBehaviour {
             int number = 0;
             if (int.TryParse(num, out number))
             {
-                if (lev.ID >= 0 && lev.ID <= 9)
+                if (lev.Id >= 0 && lev.Id <= 9)
                 {
                     string movie = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, "mmv/" + "b" + number + ".mv");
                     U3D.PlayMovie(movie);
@@ -1474,7 +1475,7 @@ public class U3D : MonoBehaviour {
     //仍物品到前方地面上
     public static void MakeItem(int itemIdx)
     {
-        ItemDatas.ItemDatas it = Main.Ins.GameStateMgr.FindItemByIdx(itemIdx);
+        ItemData it = Main.Ins.GameStateMgr.FindItemByIdx(itemIdx);
         if (it.MainType == 1)//武器
             Main.Ins.DropMng.DropWeapon2(it.UnitId);
         else if (it.MainType == 2)//
@@ -1496,7 +1497,7 @@ public class U3D : MonoBehaviour {
 
     public static bool IsSpecialWeapon(int itemIdx)
     {
-        ItemDatas.ItemDatas it0 = Main.Ins.GameStateMgr.FindItemByIdx(itemIdx);
+        ItemData it0 = Main.Ins.GameStateMgr.FindItemByIdx(itemIdx);
         if (it0 == null)
             return false;
         if (it0.SubType == (int)EquipWeaponType.Gun || 
@@ -1511,14 +1512,14 @@ public class U3D : MonoBehaviour {
     public static int GetMaxLevel()
     {
         //内置关卡的最后一个关卡.
-        List< LevelDatas.LevelDatas> level = Main.Ins.DataMgr.GetDatasArray<LevelDatas.LevelDatas>();
+        List<LevelData> level = Main.Ins.DataMgr.GetLevelDatas();
         if (level == null)
             return 0;
         int max = 0;
-        for (int i = 0; i < level.Count; i++)
+        foreach (var each in level)
         {
-            if (level[i].ID > max)
-                max = level[i].ID;
+            if (each.Id > max)
+                max = each.Id;
         }
         return max;
     }
@@ -1596,9 +1597,9 @@ public class U3D : MonoBehaviour {
         //EscWnd.Instance.Open();
     }
 
-    public static WeaponDatas.WeaponDatas GetWeaponProperty(int weaponIdx)
+    public static WeaponData GetWeaponProperty(int weaponIdx)
     {
-        WeaponDatas.WeaponDatas w = Main.Ins.DataMgr.GetData<WeaponDatas.WeaponDatas>(weaponIdx);
+        WeaponData w = Main.Ins.DataMgr.GetWeaponData(weaponIdx);
         //if (w == null)
         //    w = PluginWeaponMng.Instance.GetItem(weaponIdx);
         if (w == null)

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using Excel2Json;
 //using DG.Tweening;
 //damage为物件是否可以伤害玩家角色,需要des文件里带伤害值
 //damagevalue为物件是否可以被玩家伤害,并且每次伤害值是多少.
@@ -140,30 +141,30 @@ public class SceneItemAgent :NetBehaviour {
                 if (unit.Attr.Weapon != 0 && unit.Attr.Weapon2 != 0)
                     return;
                 //相同武器，不能捡
-                ItemDatas.ItemDatas ib0 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
-                WeaponDatas.WeaponDatas wb0 = U3D.GetWeaponProperty(ib0.UnitId);
+                ItemData ib0 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
+                WeaponData wb0 = U3D.GetWeaponProperty(ib0.UnitId);
                 if (wb0 != null && wb0.WeaponR == ItemInfo.model)
                     return;
 
                 if (unit.Attr.Weapon2 != 0)
                 {
-                    ItemDatas.ItemDatas ib1 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
-                    WeaponDatas.WeaponDatas wb1 = U3D.GetWeaponProperty(ib1.UnitId);
+                    ItemData ib1 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
+                    WeaponData wb1 = U3D.GetWeaponProperty(ib1.UnitId);
                     if (wb1 != null && wb1.WeaponR == ItemInfo.model)
                         return;
                 }
 
                 //同类武器不能捡
                 int weaponPickup = Main.Ins.GameStateMgr.GetWeaponCode(ItemInfo.model);
-                ItemDatas.ItemDatas wb = Main.Ins.GameStateMgr.FindItemByIdx(weaponPickup);
+                ItemData wb = Main.Ins.GameStateMgr.FindItemByIdx(weaponPickup);
                 if (wb == null)
                     return;
 
-                ItemDatas.ItemDatas wbl = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
+                ItemData wbl = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
                 if (wbl == null)
                     return;
 
-                ItemDatas.ItemDatas wbr = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
+                ItemData wbr = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
                 if (wb.SubType == wbl.SubType)
                     return;
 
@@ -211,37 +212,37 @@ public class SceneItemAgent :NetBehaviour {
             if (ItemInfoEx.MainType == 1)
             {
                 string weaponModel = "";
-                WeaponDatas.WeaponDatas wp = U3D.GetWeaponProperty(ItemInfoEx.UnitId);
+                WeaponData wp = U3D.GetWeaponProperty(ItemInfoEx.UnitId);
                 if (wp != null)
                     weaponModel = wp.WeaponR;
                 //满武器，不能捡
                 if (unit.Attr.Weapon != 0 && unit.Attr.Weapon2 != 0)
                     return;
                 //相同武器，不能捡
-                ItemDatas.ItemDatas ib0 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
-                WeaponDatas.WeaponDatas wb0 = U3D.GetWeaponProperty(ib0.UnitId);
+                ItemData ib0 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
+                WeaponData wb0 = U3D.GetWeaponProperty(ib0.UnitId);
                 if (wb0 != null && wb0.WeaponR == weaponModel)
                     return;
 
                 if (unit.Attr.Weapon2 != 0)
                 {
-                    ItemDatas.ItemDatas ib1 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
-                    WeaponDatas.WeaponDatas wb1 = U3D.GetWeaponProperty(ib1.UnitId);
+                    ItemData ib1 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
+                    WeaponData wb1 = U3D.GetWeaponProperty(ib1.UnitId);
                     if (wb1 != null && wb1.WeaponR == weaponModel)
                         return;
                 }
 
                 //同类武器不能捡
                 int weaponPickup = Main.Ins.GameStateMgr.GetWeaponCode(weaponModel);
-                ItemDatas.ItemDatas wb = Main.Ins.GameStateMgr.FindItemByIdx(weaponPickup);
+                ItemData wb = Main.Ins.GameStateMgr.FindItemByIdx(weaponPickup);
                 if (wb == null)
                     return;
 
-                ItemDatas.ItemDatas wbl = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
+                ItemData wbl = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
                 if (wbl == null)
                     return;
 
-                ItemDatas.ItemDatas wbr = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
+                ItemData wbr = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
                 if (wb.SubType == wbl.SubType)
                     return;
 
@@ -290,7 +291,7 @@ public class SceneItemAgent :NetBehaviour {
 
     public Transform root;
     public Option ItemInfo;
-    public ItemDatas.ItemDatas ItemInfoEx;
+    public ItemData ItemInfoEx;
     void ApplyPrev(Option op)
     {
         if (ItemInfo == null)
@@ -368,12 +369,12 @@ public class SceneItemAgent :NetBehaviour {
                 //不是一个Meteor.res里的物件
                 if (ItemInfo == null)
                 {
-                    List<ItemDatas.ItemDatas> its = Main.Ins.DataMgr.GetDatasArray<ItemDatas.ItemDatas>();
+                    List<ItemData> its = Main.Ins.DataMgr.GetItemDatas();
                     for (int i = 0; i < its.Count; i++)
                     {
                         if (its[i].MainType == 1)
                         {
-                            WeaponDatas.WeaponDatas weapon = U3D.GetWeaponProperty(its[i].UnitId);
+                            WeaponData weapon = U3D.GetWeaponProperty(its[i].UnitId);
                             if (weapon.WeaponR == s)
                             {
                                 ItemInfoEx = its[i];

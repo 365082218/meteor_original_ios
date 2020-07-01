@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using Excel2Json;
+using ProtoBuf;
 using protocol;
 using System;
 using System.Collections;
@@ -41,7 +42,7 @@ public class RecordMgr : Singleton<RecordMgr> {
         record.Name = GenerateRecordName(Main.Ins.CombatData.GLevelItem, Main.Ins.CombatData.GLevelMode, Main.Ins.CombatData.GGameMode);
         record.Mode = (int)Main.Ins.CombatData.GLevelMode;
         record.Chapter = (int)(Main.Ins.CombatData.Chapter == null ? 0 : Main.Ins.CombatData.Chapter.ChapterId);
-        record.Id = (int)(Main.Ins.CombatData.GLevelItem.ID);
+        record.Id = (int)(Main.Ins.CombatData.GLevelItem.Id);
         record.RandomSeed = Main.Ins.CombatData.RandSeed;
         record.frames = Main.Ins.FrameSync.Frames;
 
@@ -69,7 +70,7 @@ public class RecordMgr : Singleton<RecordMgr> {
         WriteThread = null;
     }
 
-    string GenerateRecordName(LevelDatas.LevelDatas data, LevelMode lm, GameMode gm)
+    string GenerateRecordName(LevelData data, LevelMode lm, GameMode gm)
     {
         //是什么类型的，单机，模组，联机，
         //模式-场景-主角-{单机/联机}

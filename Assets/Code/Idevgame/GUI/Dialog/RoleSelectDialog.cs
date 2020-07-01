@@ -47,7 +47,7 @@ public class RoleSelectDialog : Dialog
     void OnNextHero()
     {
         heroIdx += 1;
-        if (heroIdx >= Main.Ins.DataMgr.GetDatasArray<ModelDatas.ModelDatas>().Count)
+        if (heroIdx >= Main.Ins.DataMgr.GetModelDatas().Count)
             heroIdx = 0;
         heroImg.material = ResMng.Load(string.Format("Hero{0}", heroIdx)) as Material;
     }
@@ -56,7 +56,7 @@ public class RoleSelectDialog : Dialog
     {
         heroIdx -= 1;
         if (heroIdx < 0)
-            heroIdx = Main.Ins.DataMgr.GetDatasArray<ModelDatas.ModelDatas>().Count - 1;
+            heroIdx = Main.Ins.DataMgr.GetModelDatas().Count - 1;
         heroImg.material = ResMng.Load(string.Format("Hero{0}", heroIdx)) as Material;
     }
 
