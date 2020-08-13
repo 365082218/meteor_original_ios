@@ -178,6 +178,9 @@ public class FrameReplay : MonoBehaviour {
     //当场景以及物件全部加载完成，重新开局时
     public void OnBattleStart()
     {
+        //for (int i = 0; i < NetObjects.Count; i++) {
+        //    Debug.Log(NetObjects[i]);
+        //}
         currentFrame = null;
         Started = true;
         LogicTurnIndex = 0;
@@ -186,6 +189,10 @@ public class FrameReplay : MonoBehaviour {
         firstFrame = true;
         actions.Clear();
         Main.Ins.FrameSync.Reset();
+        Main.Ins.CombatData.GameFinished = false;
+        if (Main.Ins.JoyStick.isActiveAndEnabled) {
+            Main.Ins.JoyStick.OnBattleStart();
+        }
         if (Main.Ins.CombatData.GRecord != null)
             Main.Ins.FrameSync.OnReceiveCommands(Main.Ins.CombatData.GRecord.frames);
     }
@@ -205,7 +212,6 @@ public class FrameReplay : MonoBehaviour {
         LogicFrameIndex = 0;
         LogicTurnIndex = 0;
         Main.Ins.FrameSync.Reset();
-        NetObjects.Clear();
     }
 
     public void OnDisconnected()

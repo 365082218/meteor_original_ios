@@ -5,6 +5,7 @@ using System;
 using protocol;
 using Idevgame.GameState;
 using Idevgame.Meteor.AI;
+using UnityEngine.AI;
 
 public enum Direct
 {
@@ -270,8 +271,6 @@ public class Buff
 
 public partial class MeteorUnit : NetBehaviour
 {
-    public bool GameFinished { get; set; }
-    public bool Finished { get { return Dead; } }
     public virtual bool IsDebugUnit() { return false; }
     public int UnitId;
     public int InstanceId;
@@ -291,6 +290,7 @@ public partial class MeteorUnit : NetBehaviour
     public CharacterLoader charLoader;
     public MeteorController controller;
     public WeaponLoader weaponLoader;
+    public float rotateTick = 0;//角色开始旋转后，计时，一定时间内没有再旋转，则视为不再旋转，跳出循环动作(待能切换动作时)
     //与主角的距离-的平方
     public float distance;
     //与主角的夹角
@@ -347,7 +347,8 @@ public partial class MeteorUnit : NetBehaviour
     //public MeteorUnit NGUIJoystick_skill_TargetUnit;//技能目标
     //public List<SkillInput> SkillList = new List<SkillInput>();
     //MeteorUnit wantTarget = null;//绿色目标.只有主角拥有。
-    
+
+    protected bool pause = false;
     Vector3 pos2 = Vector3.zero;
     public Vector3 mPos2d { get { pos2 = transform.position; pos2.y = 0; return pos2; } }
     public Vector3 mSkeletonPivot { get { return transform.position + Main.Ins.CombatData.BodyHeight; } }
@@ -361,6 +362,7 @@ public partial class MeteorUnit : NetBehaviour
     public bool OnGround = false;//控制器是否收到阻隔无法前进.
     public bool MoveOnGroundEx = false;//移动的瞬间，射线是否与地相聚不到4M。下坡的时候很容易离开地面
     public bool OnTouchWall = false;//贴着墙壁
+    public GameObject blobShadow;
     //public bool IsShow = true;
     float MoveSpeedScale = 1.0f;
     float ActionSpeedScale = 1.0f;
@@ -643,7 +645,6 @@ public partial class MeteorUnit : NetBehaviour
     protected new void Awake()
     {
         base.Awake();
-        GameFinished = false;
         //单场景启动.
 #if !STRIP_DBG_SETTING
         if (!IsDebugUnit() && WSDebug.Ins) {
@@ -668,6 +669,9 @@ public partial class MeteorUnit : NetBehaviour
     {
         if (!gameObject.activeInHierarchy)
             return;
+        if (pause) {
+            return;
+        }
         if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             ProcessCommand();
         if (Climbing)
@@ -676,6 +680,9 @@ public partial class MeteorUnit : NetBehaviour
             ClimbingTime = 0;
         if (posMng.Jump)
             posMng.JumpTick += FrameReplay.deltaTime;
+        if (posMng.Rotateing) {
+            rotateTick += FrameReplay.deltaTime;
+        }
         keyM.Clear();
         keyM.AddRange(Damaged.Keys);
         removedM.Clear();
@@ -739,7 +746,7 @@ public partial class MeteorUnit : NetBehaviour
             if (StateMachine != null && gameObject.activeInHierarchy)
                 StateMachine.Update();
         }
-        ProcessGravity();
+        ProcessVelocity();
 
         //除了受击，防御，其他动作在有锁定目标下，都要转向锁定目标.
         if (LockTarget != null && posMng.mActiveAction.Idx == CommonAction.Run)
@@ -771,7 +778,12 @@ public partial class MeteorUnit : NetBehaviour
                 {
 #if STRIP_KEYBOARD
                     //Debug.LogError(string.Format("deltaLast.x:{0}", NGUICameraJoystick.instance.deltaLast.x));
-                    yRotate = NGUICameraJoystick.instance.deltaLast.x * Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.x;
+                    //读取手柄上的相机左旋转，相机右旋.
+                    if (Main.Ins.JoyStick.isActiveAndEnabled) {
+                        yRotate = 5.0f * Main.Ins.JoyStick.CameraAxisX;
+                    } else {
+                        yRotate = NGUICameraJoystick.instance.deltaLast.x * Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.x;
+                    }
 #else
                 yRotate = Input.GetAxis("Mouse X") * 5;
 #endif
@@ -781,7 +793,11 @@ public partial class MeteorUnit : NetBehaviour
 
                 float xRotate = 0;
 #if STRIP_KEYBOARD
-                xRotate = NGUICameraJoystick.instance.deltaLast.y * Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.y;
+                if (Main.Ins.JoyStick.isActiveAndEnabled) {
+                    xRotate = 2.0f * Main.Ins.JoyStick.CameraAxisY;
+                } else {
+                    xRotate = NGUICameraJoystick.instance.deltaLast.y * Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.y;
+                }
 #else
                 xRotate = Input.GetAxis("Mouse Y") * 2;
 #endif
@@ -794,7 +810,16 @@ public partial class MeteorUnit : NetBehaviour
                     else
                         OnPlayerMouseDelta(xRotate, yRotate);
                 }
+                if (posMng.Rotateing) {
+                    CheckRotateEnd();
+                }
             }
+        }
+    }
+
+    protected void CheckRotateEnd() {
+        if (rotateTick >= 0.2f) {
+            OnCameraRotateEnd();
         }
     }
 
@@ -849,8 +874,14 @@ public partial class MeteorUnit : NetBehaviour
         //存储上一帧鼠标或者触屏的偏移.
         xRotateDelta = x;
         yRotateDelta = y;
-        if (this == Main.Ins.LocalPlayer)
-            Main.Ins.CameraFollow.OnTargetRotate(xRotateDelta, yRotateDelta);
+        if (this == Main.Ins.LocalPlayer) {
+            if (Main.Ins.MainCamera == Main.Ins.CameraFollow.m_Camera) {
+                Main.Ins.CameraFollow.OnTargetRotate(xRotateDelta, yRotateDelta);
+            } else {
+                //观察相机的俯仰
+                Main.Ins.CameraFree.OnTargetRotate(xRotateDelta, yRotateDelta);
+            }
+        }
     }
 
     public const float Jump2Velocity = 160;//蹬腿反弹速度
@@ -935,9 +966,9 @@ public partial class MeteorUnit : NetBehaviour
         }
     }
 
-    public virtual void ProcessGravity()
+    public virtual void ProcessVelocity()
     {
-        if (!charController.enabled)
+        if (charController == null || !charController.enabled)
             return;
         //Debug.Log("f:" + Time.frameCount);
         float gScale = Main.Ins.CombatData.gGravity;
@@ -962,7 +993,7 @@ public partial class MeteorUnit : NetBehaviour
 
         if (IsOnGround())
         {
-            ImpluseVec.y = 0;
+            ImpluseVec.y = -Main.Ins.CombatData.gOnGroundCheck;
             if (OnGround || OnTopGround)//如果在地面，或者顶到天花板，那么应用摩擦力.
                 ProcessFriction();
             else if (MoveOnGroundEx)
@@ -1127,6 +1158,7 @@ public partial class MeteorUnit : NetBehaviour
     public CharacterController charController;
     public void Init(int modelIdx, MonsterEx mon = null, bool updateModel = false)
     {
+        pause = false;
         //wayIndex = mon == null ? 0 : mon.SpawnPoint;
         WeaponReturned(0);
         Vector3 vec = transform.position;
@@ -1144,11 +1176,11 @@ public partial class MeteorUnit : NetBehaviour
             gameObject.layer = LayerMask.NameToLayer("LocalPlayer");
 
         //单机模式下有ai
-        if (Main.Ins.CombatData.GLevelMode <= LevelMode.CreateWorld)
-        {
+        if (Main.Ins.CombatData.GLevelMode <= LevelMode.CreateWorld){
             StateMachine = Attr.IsPlayer ? null : new StateMachine();
-            if (StateMachine != null)
+            if (StateMachine != null) {
                 StateMachine.Init(this);
+            }
         }
         
         if (controller == null)
@@ -1213,10 +1245,12 @@ public partial class MeteorUnit : NetBehaviour
         charController = gameObject.GetComponent<CharacterController>();
         if (charController == null)
             charController = gameObject.AddComponent<CharacterController>();
-        charController.center = new Vector3(0, 16, 0);
-        charController.height = 32;
-        charController.radius = 8.0f;//不这么大碰不到寻路点.
-        charController.stepOffset = 7.6f;
+        if (charController != null) {
+            charController.center = new Vector3(0, 16, 0);
+            charController.height = 32;
+            charController.radius = 8.0f;//足够大不会挂在墙壁上不下来
+            charController.stepOffset = 7.6f;
+        }
 
         if (controller != null)
             controller.Init(this);
@@ -1238,6 +1272,14 @@ public partial class MeteorUnit : NetBehaviour
 
         GunReady = false;
         IsPlaySkill = false;
+
+        //初始化阴影
+        if (blobShadow == null) {
+            blobShadow = GameObject.Instantiate(Resources.Load("BlobShadow"), transform, false) as GameObject;
+            blobShadow.transform.localRotation = Quaternion.Euler(-90, 0, 0);
+            blobShadow.transform.localScale = new Vector3(2, 2, 2);
+            blobShadow.transform.localPosition = new Vector3(0, 0, 0);
+        }
     }
 
     public bool IsPlaySkill { get; set; }
@@ -1566,17 +1608,24 @@ public partial class MeteorUnit : NetBehaviour
         bool Floating = false;
         RaycastHit hit;
 
-        if (Physics.SphereCast(transform.position + Vector3.up * 2f, 0.5f, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene") | 1 << LayerMask.NameToLayer("Trigger")))
+        if (Physics.SphereCast(transform.position + Vector3.up * 2f, 0.5f, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene")))
         {
             MoveOnGroundEx = hit.distance <= 4f;
             //Debug.Log(string.Format("distance:{0}", hit.distance));
             Floating = hit.distance >= 12.0f;
+            if (blobShadow != null) {
+                blobShadow.transform.position = hit.point + new Vector3(0, 0.2f, 0);
+            }
         }
         else
         {
             MoveOnGroundEx = false;
             Floating = true;
+            if (blobShadow != null) {
+                blobShadow.transform.position = new Vector3(10000, 10000, 10000);
+            }
         }
+
         if (OnGround)
         {
             //检测脚底是否踩住地面了
@@ -1769,12 +1818,15 @@ public partial class MeteorUnit : NetBehaviour
         {
             if (MoveOnGroundEx || OnGround)
             {
-                if ((posMng.mActiveAction.Idx >= CommonAction.Jump && posMng.mActiveAction.Idx <= CommonAction.JumpBackFall) || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
-                {
+                if (posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround) {
                     posMng.ChangeAction(0, 0.1f);
-                    groundTick = FrameReplay.Instance.time;
+                } else if ((posMng.mActiveAction.Idx == CommonAction.Jump || posMng.mActiveAction.Idx == CommonAction.JumpLeft || posMng.mActiveAction.Idx == CommonAction.JumpRight || posMng.mActiveAction.Idx == CommonAction.JumpBack)) {
+                    posMng.ChangeAction(posMng.mActiveAction.Idx + 1, 0.1f);
                 }
-                //ResetYVelocity();
+                else if ((posMng.mActiveAction.Idx == CommonAction.JumpFall || posMng.mActiveAction.Idx == CommonAction.JumpLeftFall || posMng.mActiveAction.Idx == CommonAction.JumpRightFall || posMng.mActiveAction.Idx == CommonAction.JumpBackFall)){
+                    posMng.ChangeAction(0, 0.1f);
+                }
+                groundTick = FrameReplay.Instance.time;
             }
         }
 
@@ -1788,13 +1840,16 @@ public partial class MeteorUnit : NetBehaviour
 
     public void Move(Vector3 trans)
     {
-        if (charController != null && charController.enabled)
-        {
-            CollisionFlags collisionFlags = charController.Move(trans);
-            UpdateFlags(collisionFlags);
+        //主角
+        if (charController != null) {
+            if (charController != null && charController.enabled) {
+                CollisionFlags collisionFlags = charController.Move(trans);
+                UpdateFlags(collisionFlags);
+            } else
+                transform.position += trans;
+        } else {
+            //本来是其他组件的，取消了.NavMeshAgent
         }
-        else
-            transform.position += trans;
     }
 
     public void SetWorldVelocityExcludeY(Vector3 vec)
@@ -1820,8 +1875,13 @@ public partial class MeteorUnit : NetBehaviour
     //设置世界坐标系的速度,z向人物面前，x向人物右侧
     public void SetJumpVelocity(Vector2 velocityM)
     {
-        float z = velocityM.y * JumpVelocityForward;
-        float x = velocityM.x * JumpVelocityForward;
+        float z = 0;
+        if (velocityM.y > 0) {
+            z = velocityM.y * JumpVelocityForward;
+        } else {
+            z = velocityM.y * JumpVelocityOther;
+        }
+        float x = velocityM.x * JumpVelocityOther;
         Vector3 vec = z * -transform.forward + x * -transform.right;
         ImpluseVec.z = vec.z;
         ImpluseVec.x = vec.x;
@@ -2016,6 +2076,7 @@ public partial class MeteorUnit : NetBehaviour
         if (Attr.IsPlayer)
             if (FightState.Exist())
                 FightState.Instance.UpdatePlayerInfo();
+        pause = false;
     }
 
     //盟主模式下的自动复活.
@@ -2083,8 +2144,13 @@ public partial class MeteorUnit : NetBehaviour
 
     public void EnableAI(bool enable)
     {
-        if (StateMachine != null)
+        if (StateMachine != null) {
             StateMachine.Enable(enable);
+        }
+    }
+
+    public void EnableUpdate(bool enable) {
+        pause = !enable;
     }
 
     public void AddAngry(int angry)
@@ -2116,6 +2182,9 @@ public partial class MeteorUnit : NetBehaviour
     public bool IgnorePhysical;
     public void PhysicalIgnore(MeteorUnit unit, bool ignore)
     {
+        if (charController == null || unit.charController == null) {
+            return;
+        }
         Physics.IgnoreCollision(charController, unit.charController, ignore);
         //IgnorePhysical = ignore;
     }
@@ -2124,6 +2193,7 @@ public partial class MeteorUnit : NetBehaviour
     Vector3 hitNormal;//碰撞面法线
     public void OnControllerColliderHit(ControllerColliderHit hit)
     {
+        //Debug.Log("hit:" + hit.gameObject.name);
         if (hit.gameObject.transform.root.tag.Equals("meteorUnit"))
         {
             MeteorUnit hitUnit = hit.gameObject.transform.root.GetComponent<MeteorUnit>();
@@ -3047,10 +3117,25 @@ public partial class MeteorUnit : NetBehaviour
         }
     }
 
+    public void OnCameraRotateEnd() {
+        posMng.Rotateing = false;
+        rotateTick = 0;
+        if (posMng.mActiveAction.Idx == CommonAction.WalkLeft || posMng.mActiveAction.Idx == CommonAction.WalkRight) {
+            posMng.ChangeAction(CommonAction.Idle, 0.1f);
+            return;
+        }
+        
+        if (posMng.mActiveAction.Idx == CommonAction.CrouchLeft || posMng.mActiveAction.Idx == CommonAction.CrouchRight) {
+            posMng.ChangeAction(CommonAction.Crouch, 0.1f);
+            return;
+        }
+    }
+
     //当视角开始准备拉动前,
     public void OnCameraRotateStart()
     {
         posMng.Rotateing = true;
+        rotateTick = 0;
     }
 
     public void OnGameResult(int result)

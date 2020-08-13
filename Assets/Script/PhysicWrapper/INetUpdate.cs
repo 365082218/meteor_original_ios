@@ -10,6 +10,7 @@ public class NetBehaviour:MonoBehaviour {
 
     protected void OnDestroy()
     {
+        ////Debug.Log(this);
         FrameReplay.Instance.UnRegisterObject(this);
     }
 

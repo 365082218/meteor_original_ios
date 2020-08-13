@@ -1355,8 +1355,9 @@ public class LevelScript_sn01:LevelScriptBase
         if (c2 >= 0)
         {
             ChangeBehavior(c, "follow", c2);
-            SetTarget(0, "char", c2);
-            ChangeBehavior(c, "attacktarget", 0);
+            //冗余语句
+            //SetTarget(0, "char", c2);
+            //ChangeBehavior(c, "attacktarget", 0);
             return 1;
         }
 
@@ -8794,7 +8795,7 @@ public class LevelScript_sn24 : LevelScriptBase
 {
     int Rule = 5;
     int RoundTime = 15;
-    int PlayerSpawn = 5;
+    int PlayerSpawn = 2;
     int PlayerSpawnDir = 90;
     int PlayerWeapon = 5;
     int PlayerWeapon2 = 0;

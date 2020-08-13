@@ -2,11 +2,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Idevgame.GameState.DialogState;
-public class DlcDialogState:CommonDialogState<DlcWnd>
-{
+public class DlcDialogState : CommonDialogState<DlcWnd> {
     public override string DialogName { get { return "DlcWnd"; } }
-    public DlcDialogState(MainDialogStateManager stateMgr):base(stateMgr)
-    {
+    public DlcDialogState(MainDialogStateManager stateMgr) : base(stateMgr) {
 
     }
 }

@@ -86,15 +86,15 @@ public class NGUIJoystick : MonoBehaviour
         reactiveRange = 145.0f;
         if (Main.Ins != null)
         {
-            wKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyW); JoyCollider.enabled = false; });
-            sKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyS); JoyCollider.enabled = false; });
-            aKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyA); JoyCollider.enabled = false; });
-            dKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyD); JoyCollider.enabled = false; });
+            wKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyW);});
+            sKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyS);});
+            aKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyA);});
+            dKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyD);});
 
-            wKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW); if (!Main.Ins.GameStateMgr.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
-            sKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS); if (!Main.Ins.GameStateMgr.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
-            aKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA); if (!Main.Ins.GameStateMgr.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
-            dKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD); if (!Main.Ins.GameStateMgr.gameStatus.DisableJoystick) { JoyCollider.enabled = true; } });
+            wKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW);  });
+            sKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS);  });
+            aKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA);  });
+            dKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD);  });
         }
         //if (wKey != null)
         //    wKey.SetKeyActive(false);
@@ -115,7 +115,7 @@ public class NGUIJoystick : MonoBehaviour
 
 		if (isPress)
 		{
-			mPressTime += Time.deltaTime;
+			mPressTime += FrameReplay.deltaTime;
 
 //			if (mPressTime >= mShowTime && mClickPos.x < 0)
 //			{
@@ -144,17 +144,6 @@ public class NGUIJoystick : MonoBehaviour
 
 	Vector2 leftDown = UIHelper.ScreenPointToUIPoint(new Vector2(0, 0));
 	Vector2 leftUp = UIHelper.ScreenPointToUIPoint(new Vector2(0, Screen.height));
-    void EnableArrowButton(bool enable)
-    {
-        //wKey.gameObject.SetActive(enable);
-        //sKey.gameObject.SetActive(enable);
-        //aKey.gameObject.SetActive(enable);
-        //dKey.gameObject.SetActive(enable);
-        //wKey.Reset();
-        //sKey.Reset();
-        //aKey.Reset();
-        //dKey.Reset();
-    }
 
     void OnPress(bool pressed)
     {
@@ -164,7 +153,6 @@ public class NGUIJoystick : MonoBehaviour
             if (pressed)
             {
                 //Debug.Log("NGUIJoystick OnPress");
-                EnableArrowButton(false);
                 JoyCollider.radius = 200;
                 //background.gameObject.SetActive(true);
 
@@ -213,10 +201,6 @@ public class NGUIJoystick : MonoBehaviour
 
     void ClearKeyStack()
     {
-        //wKey.SetKeyActive(false);
-        //sKey.SetKeyActive(false);
-        //aKey.SetKeyActive(false);
-        //dKey.SetKeyActive(false);
         if (Main.Ins != null && Main.Ins.CombatData.GMeteorInput != null)
         {
             Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW);
@@ -224,170 +208,6 @@ public class NGUIJoystick : MonoBehaviour
             Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA);
             Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD);
         }
-    }
-
-    public void RecalcKeyActive(Vector2 diff)
-    {
-        //特殊的X无法作为0被其他数除以,把圆周看作有8个方向组成的，每个方向45度，每个轴控制其二侧的22.5度
-        //if (diff.x == 0)
-        //{
-        //    if (diff.y < 0)
-        //    {
-        //        if (Global.GMeteorInput != null)
-        //        {
-        //            if (!Global.GMeteorInput.IsKeyOnActive(EKeyList.KL_KeyS))
-        //            {
-        //                sKey.SetKeyActive(true);
-        //                Global.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyS);
-        //            }
-        //        }
-        //    }
-        //    else
-        //    {
-        //        if (Global.GMeteorInput != null)
-        //        {
-        //            if (!Global.GMeteorInput.IsKeyOnActive(EKeyList.KL_KeyW))
-        //            {
-        //                wKey.SetKeyActive(true);
-        //                Global.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyW);
-        //            }
-        //        }
-        //    }
-        //}
-        //else
-        //if (diff.x > 0 && diff.y > 0)
-        //{
-        //    //1象限取值0-90
-        //    float angle = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
-        //    Debug.Log("x > 0 y > 0 angle = " + angle);
-        //    if (angle > 67.5f)
-        //    {
-        //        //查看堆栈是否被清空，若无清空表明上次点击W按键后，还没弹起，不能重复按一个键不放
-        //        //这个堆栈数据，放在当前操纵角色的输入器内。
-        //        if (Global.GMeteorInput != null)
-        //        {
-        //            if (!Global.GMeteorInput.IsKeyOnActive(EKeyList.KL_KeyW))
-        //            {
-        //                wKey.SetKeyActive(true);
-        //                Global.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyW);
-        //            }
-        //        }
-        //    }
-        //    else if (angle < 22.5f)
-        //    {
-        //        if (Global.GMeteorInput != null)
-        //        {
-        //            if (!Global.GMeteorInput.IsKeyOnActive(EKeyList.KL_KeyD))
-        //            {
-        //                dKey.SetKeyActive(true);
-        //                Global.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyD);
-        //            }
-        //        }
-        //    }
-        //    else
-        //    {
-        //        if (Global.GMeteorInput != null)
-        //        {
-        //            wKey.SetKeyActive(false);
-        //            dKey.SetKeyActive(false);
-        //            Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW);
-        //            Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD);
-        //        }
-        //    }
-        //}
-        //else if (diff.x < 0 && diff.y > 0)
-        //{
-        //    float angle = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
-        //    Debug.Log("x < 0 y > 0 angle = " + angle);
-        //    if (angle < 112.5f)
-        //    {
-        //        if (!Global.GMeteorInput.IsKeyOnActive(EKeyList.KL_KeyW))
-        //        {
-        //            wKey.SetKeyActive(true);
-        //            Global.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyW);
-        //        }
-        //    }
-        //    else if (angle > 157.5f)
-        //    {
-        //        if (!Global.GMeteorInput.IsKeyOnActive(EKeyList.KL_KeyA))
-        //        {
-        //            aKey.SetKeyActive(true);
-        //            Global.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyA);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        if (Global.GMeteorInput != null)
-        //        {
-        //            wKey.SetKeyActive(false);
-        //            aKey.SetKeyActive(false);
-        //            Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW);
-        //            Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA);
-        //        }
-        //    }
-        //}
-        //else if (diff.x < 0 && diff.y < 0)
-        //{
-        //    float angle = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
-        //    Debug.Log("x < 0 y < 0 angle = " + angle);
-        //    if (angle < -157.5f)
-        //    {
-        //        if (!Global.GMeteorInput.IsKeyOnActive(EKeyList.KL_KeyA))
-        //        {
-        //            aKey.SetKeyActive(true);
-        //            Global.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyA);
-        //        }
-        //    }
-        //    else if (angle > -112.5f)
-        //    {
-        //        if (!Global.GMeteorInput.IsKeyOnActive(EKeyList.KL_KeyS))
-        //        {
-        //            sKey.SetKeyActive(true);
-        //            Global.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyS);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        if (Global.GMeteorInput != null)
-        //        {
-        //            aKey.SetKeyActive(false);
-        //            sKey.SetKeyActive(false);
-        //            Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA);
-        //            Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS);
-        //        }
-        //    }
-        //}
-        //else if (diff.x > 0 && diff.y < 0)
-        //{
-        //    float angle = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
-        //    Debug.Log("x > 0 y < 0 angle = " + angle);
-        //    if (angle < -67.5f)
-        //    {
-        //        if (!Global.GMeteorInput.IsKeyOnActive(EKeyList.KL_KeyS))
-        //        {
-        //            sKey.SetKeyActive(true);
-        //            Global.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyS);
-        //        }
-        //    }
-        //    else if (angle > -22.5f)
-        //    {
-        //        if (!Global.GMeteorInput.IsKeyOnActive(EKeyList.KL_KeyD))
-        //        {
-        //            dKey.SetKeyActive(true);
-        //            Global.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyD);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        if (Global.GMeteorInput != null)
-        //        {
-        //            sKey.SetKeyActive(false);
-        //            dKey.SetKeyActive(false);
-        //            Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS);
-        //            Global.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD);
-        //        }
-        //    }
-        //}
     }
 
     //消息由于NGUI CAMERA触发，点击第一次的时候进一次，后面会由NGUI相机继续调
@@ -399,8 +219,7 @@ public class NGUIJoystick : MonoBehaviour
             {
                 Vector2 touchPos = UICamera.currentTouch.pos - mFingerDownPos;
 
-                if (touchPos.sqrMagnitude > reactiveRange * reactiveRange)
-                    RecalcKeyActive(touchPos);
+                if (touchPos.sqrMagnitude > reactiveRange * reactiveRange) { }
                 else
                     ClearKeyStack();
 
@@ -429,7 +248,6 @@ public class NGUIJoystick : MonoBehaviour
         mDelta = Vector2.zero;
         mLastFingerId = -2;
         mJoyPressed = false;
-        EnableArrowButton(true);
         ClearKeyStack();
     }
 
@@ -439,8 +257,6 @@ public class NGUIJoystick : MonoBehaviour
         sKey.enabled = !state;
         aKey.enabled = !state;
         dKey.enabled = !state;
-        if (!Main.Ins.GameStateMgr.gameStatus.DisableJoystick)
-            JoyCollider.enabled = !state;
         //background.gameObject.SetActive(!state);
     }
 }

@@ -131,7 +131,7 @@ PlayerSettings:
   AndroidMinSdkVersion: 14
   AndroidPreferredInstallLocation: 0
   aotOptions: 
-  apiCompatibilityLevel: 2
+  apiCompatibilityLevel: 1
   stripEngineCode: 1
   iPhoneStrippingLevel: 2
   iPhoneScriptCallOptimization: 1
@@ -474,7 +474,7 @@ PlayerSettings:
   webGLUseWasm: 0
   webGLCompressionFormat: 1
   scriptingDefineSymbols:
-    1: BUILD_PC;RAVEN_COMPILED
+    1: BUILD_PC;RAVEN_COMPILED;STRIP_KEYBOARD
     4: 
     7: 
     13: RAVEN_COMPILED

@@ -55,6 +55,7 @@ public class EscConfirmWnd : Dialog
         Main.Ins.SoundManager.StopAll();
         Main.Ins.BuffMng.Clear();
         Main.Ins.MeteorManager.Clear();
+        PathHelper.Ins.StopCalc();
         OnBackPress();
         Main.Ins.ExitState(Main.Ins.FightState);
         if (GameOverlayDialogState.Exist())

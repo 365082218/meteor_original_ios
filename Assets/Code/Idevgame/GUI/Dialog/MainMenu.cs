@@ -26,6 +26,8 @@ public class MainMenu : Dialog
     [SerializeField]
     Button DlcLevel;
     [SerializeField]
+    Button DlcManager;
+    [SerializeField]
     Button TeachingLevel;
     [SerializeField]
     Button CreateBattle;
@@ -56,7 +58,7 @@ public class MainMenu : Dialog
 
     void Init()
     {
-        Version.text = Main.Ins.AppInfo.MeteorVersion;
+        Version.text = string.Format("游戏:{0}_内核:{1}", Main.Ins.AppInfo.AppVersion(), Main.Ins.AppInfo.MeteorVersion);
         SinglePlayerMode.onClick.AddListener(() =>
         {
             subMenuOpen = !subMenuOpen;
@@ -67,6 +69,7 @@ public class MainMenu : Dialog
         {
             OnSinglePlayer();
         });
+        DlcManager.onClick.AddListener(() => { OnDlcManager(); });
         DlcLevel.onClick.AddListener(() =>
         {
             OnDlcWnd();
@@ -99,7 +102,7 @@ public class MainMenu : Dialog
         {
             OnEnterQueue();
         });
-        if (Main.Ins.GameStateMgr.gameStatus.GodLike)
+        if (Main.Ins.GameStateMgr.gameStatus.CheatEnable)
         {
             UploadLog.gameObject.SetActive(true);
         }
@@ -113,6 +116,11 @@ public class MainMenu : Dialog
         Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LevelDialogState, true);
     }
 
+    void OnDlcManager() {
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.DlcManagerDialogState);
+    }
+
+    //查看安装好的DLC
     void OnDlcWnd()
     {
         Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.DlcDialogState);

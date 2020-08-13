@@ -3,28 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace Idevgame.Meteor.AI
 {
-    public class WaitState :State
-    {
-        public WaitState(StateMachine mathine) : base(mathine)
-        {
-
-        }
-
-        public override void OnEnter(State previous, object data)
-        {
-            base.OnEnter(previous, data);
-        }
-
-        public override void OnExit(State next)
-        {
-            base.OnExit(next);
-        }
-
-        public override void Think()
-        {
-        }
-    }
-    //待机状态.可识别目标
+    //待机状态
     public class IdleState : State
     {
         public IdleState(StateMachine mathine) : base(mathine)
@@ -137,28 +116,79 @@ namespace Idevgame.Meteor.AI
 
     public class PatrolState : State
     {
-        //寻路相关的.
-        public int curPatrolIndex;
-        //int startPathIndex;
-        bool reverse = false;
-        public int targetPatrolIndex;
-        public List<WayPoint> PatrolPath = new List<WayPoint>();
-        List<WayPoint> PatrolTemp = new List<WayPoint>();
-        List<WayPoint> PatrolTemp2 = new List<WayPoint>();
+        //巡逻.
+        //1：如果角色不在任意巡逻点上，那么需要先导航 从角色走向最近的巡逻点。
+        //2：如果角色在某个巡逻点上，那么可以开始巡逻，可以正向，或者反向.
+
+        bool reverse = false;//反转巡逻.
+        public int curPatrolIndex;//当前处于哪个巡逻节点
+        public int targetPatrolIndex;//下一个巡逻节点是哪个
+
+
         public List<int> patrolData = new List<int>();
-        public bool FindWayFinished = false;
-        public bool FindPatrolFinished = false;
-        public int curIndex = 0;
-        public int targetIndex = 0;
+        public List<WayPoint> patrolPath = new List<WayPoint>();
         public PatrolState(StateMachine mathine) : base(mathine)
         {
 
         }
 
-
         public override void OnEnter(State previous, object data)
         {
             base.OnEnter(previous, data);
+            curPatrolIndex = -1;
+            targetPatrolIndex = -1;
+            curIndex = -1;
+            targetIndex = -1;
+            int k = GetPatrolIndex();
+            if (k == -1) {
+                targetPatrolIndex = GetNearestPatrolPoint();
+            }
+            
+            if (k == -1) {
+                //当前角色需要跑到最近的巡逻点开始巡逻.
+                Debug.Log("最近的巡逻点:" + targetPatrolIndex);
+                if (Machine.Path.state != 0) {
+                    //不在查询中.则查询这次到最近巡逻点的路径
+                    PathHelper.Ins.CalcPath(Machine, Player.mSkeletonPivot, targetPatrolIndex);
+                }
+            } else {
+                //在巡逻点上.
+                targetPatrolIndex = k;//下一个目标点就在这个点，且不用寻路，直接转向走过去.
+                subState = EAISubStatus.RotateToPatrolPoint;
+            }
+
+            Debug.Log("enter patrol state");
+        }
+
+        //寻路阶段完成，当前点到第一个点的路径
+        public void OnPathCalcFinished() {
+            Debug.Log("calc finished on patrolstate");
+            targetIndex = 0;
+            subState = EAISubStatus.RotateToWayPoint;
+        }
+
+        int GetPatrolIndex() {
+            int k = Main.Ins.PathMng.GetWayIndex(Player.mSkeletonPivot);
+            if (k == -1)
+                return -1;
+            for (int i = 0; i < patrolPath.Count; i++) {
+                if (patrolPath[i].index == k)
+                    return i;
+            }
+            return -1;
+        }
+
+        int GetNearestPatrolPoint() {
+            float dis = 25000000.0f;
+            int ret = -1;
+            for (int i = 0; i < patrolPath.Count; i++) {
+                float d = Vector3.SqrMagnitude(patrolPath[i].pos - Player.mSkeletonPivot);
+                if (d < dis) {
+                    dis = d;
+                    ret = i;
+                }
+            }
+            return ret;
         }
 
         public override void OnExit(State next)
@@ -166,6 +196,40 @@ namespace Idevgame.Meteor.AI
             base.OnExit(next);
         }
 
+        //每一帧，检查是否有目标，若有目标，则不再继续跑
+        public override void Update() {
+            base.Update();
+            if (Machine.CurrentState != this) {
+                return;
+            }
+
+            switch (subState) {
+                case EAISubStatus.None:
+                    break;
+                case EAISubStatus.PatrolInPlace:
+                    PatrolInPlace();
+                    break;
+                case EAISubStatus.RotateToWayPoint:
+                    RotateToWayPoint();
+                    break;
+                case EAISubStatus.RotateToPatrolPoint:
+                    RotateToPatrolPoint();
+                    break;
+                case EAISubStatus.GotoWayPoint:
+                    GotoWayPoint();
+                    break;
+                case EAISubStatus.GotoPatrolPoint:
+                    GotoPatrolPoint();
+                    break;
+            }
+            //原地巡逻
+            if (patrolPath.Count == 1 && patrolData.Count == 1) {
+                //原地巡逻.四周旋转.
+                return;
+            }
+        }
+
+        //一个思考周期
         public override void Think()
         {
             //主要负责巡逻事务
@@ -174,14 +238,182 @@ namespace Idevgame.Meteor.AI
         public void SetPatrolPath(List<int> path)
         {
             patrolData.Clear();
-            for (int i = 0; i < path.Count; i++)
+            patrolPath.Clear();
+            for (int i = 0; i < path.Count; i++) {
                 patrolData.Add(path[i]);
-            PatrolPath.Clear();
-            FindPatrolFinished = false;
-            curPatrolIndex = -1;
-            targetPatrolIndex = -1;
-            curIndex = -1;
-            targetIndex = -1;
+                patrolPath.Add(Main.Ins.CombatData.wayPoints[path[i]]);
+            }
+        }
+
+        //到达某个巡逻点后.四周查看,
+        //退出时,如果仅一个巡逻点,状态不变,如果多个巡逻点,切换到
+        float rotateDuration = 0.0f;//这一圈转完需要的时间 
+        float rotateTick = 0.0f;//当前圈旋转的时长
+        float rotateDelay = 2.0f;//每圈之间间隔时间
+        float rotateFrozen = 0.0f;//旋转CD间隔
+        int rotateRound = -1;//旋转圈数 -1代表还未计算过.
+        float rotateAngle;
+        bool rightRotate;//是否向右侧转动
+        bool rotating = false;//旋转中.
+        bool frozening = false;//旋转冷却中.
+        float rotateOffset = 0.0f;
+        void PatrolInPlace() {
+            if (rotateRound == -1) {
+                rotating = false;
+                frozening = false;
+                rotateFrozen = rotateDelay;
+                rotateTick = 0.0f;
+                rotateRound = Random.Range(1, 3);
+                return;
+            }
+            if (rotating) {
+                rotateTick += FrameReplay.deltaTime;
+                float yOffset = 0.0f;
+                if (rightRotate)
+                    yOffset = Mathf.Lerp(0, rotateAngle, rotateTick / rotateDuration);
+                else
+                    yOffset = -Mathf.Lerp(0, rotateAngle, rotateTick / rotateDuration);
+                Player.SetOrientation(yOffset - rotateOffset);
+                rotateOffset = yOffset;
+                if (rotateTick >= rotateDuration) {
+                    if (Player.posMng.mActiveAction.Idx == CommonAction.WalkRight || Player.posMng.mActiveAction.Idx == CommonAction.WalkLeft)
+                        Player.posMng.ChangeAction(0, 0.1f);
+                    rotating = false;//转圈转完了,进入冷却状态.
+                    frozening = true;
+                }
+            } else {
+                if (frozening) {
+                    rotateFrozen -= FrameReplay.deltaTime;
+                    if (rotateFrozen <= 0.0f) {
+                        //判断是否还能旋转.
+                        rotateRound -= 1;
+                        rotateFrozen = rotateDelay;
+                        if (rotateRound > 0) {
+                            //计算下一次旋转
+                            frozening = false;//开始下次旋转
+                        } else {
+                            if (patrolData.Count > 1) {
+                                subState = EAISubStatus.RotateToPatrolPoint;
+                                return;
+                            }
+                        }
+                    }
+                } else {
+                    //既没转圈,又没进入CD,那么开始转圈
+                    rotateAngle = Random.Range(-180, 180);
+                    rightRotate = Random.Range(-1, 2) >= 0;
+                    rotating = true;
+                    rotateOffset = 0.0f;
+                    rotateDuration = rotateAngle / CombatData.AngularVelocity;
+                }
+            }
+        }
+
+        void RotateToWayPoint() {
+            Player.FaceToTarget(Machine.Path.ways[targetIndex].pos);
+            subState = EAISubStatus.GotoWayPoint;
+        }
+
+        void RotateToPatrolPoint() {
+            Player.FaceToTarget(patrolPath[targetPatrolIndex].pos);
+            subState = EAISubStatus.GotoPatrolPoint;
+        }
+
+        void GotoPatrolPoint() {
+            NextFramePos = patrolPath[targetPatrolIndex].pos - Player.mSkeletonPivot;
+            NextFramePos.y = 0;
+            if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
+                NextFramePos.y = 0;
+                NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                float s = GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(patrolPath[targetPatrolIndex].pos - NextFramePos));
+                if (s < 0) {
+                    Stop();
+                    curPatrolIndex = targetPatrolIndex;
+                    //仅一个巡逻点,切换状态.
+                    if (patrolPath.Count == 1) {
+                        subState = EAISubStatus.PatrolInPlace;
+                        rotateRound = -1;
+                        return;
+                    }
+                    //多个巡逻点,到达这个巡逻点后,切换为巡视中.四周看.
+                    subState = EAISubStatus.PatrolInPlace;
+                    rotateRound = -1;
+                    if (reverse) {
+                        if (targetPatrolIndex == 0) {
+                            targetPatrolIndex += 1;
+                            reverse = false;
+                            return;
+                        } else {
+                            targetPatrolIndex -= 1;
+                            return;
+                        }
+                    } else {
+                        if (targetPatrolIndex == patrolPath.Count - 1) {
+                            reverse = true;
+                            targetPatrolIndex -= 1;
+                        } else {
+                            targetPatrolIndex += 1;
+                        }
+                    }
+                    if (targetPatrolIndex < 0 || targetPatrolIndex >= patrolPath.Count) {
+                        Debug.LogError("下个巡逻点计算错误,越界");
+                    }
+                    return;
+                }
+            }
+
+            if (curPatrolIndex != -1) {
+                if (Main.Ins.PathMng.GetWalkMethod(patrolPath[curPatrolIndex].index, patrolPath[targetPatrolIndex].index) == WalkType.Jump) {
+                    if (Player.IsOnGround()) {
+                        Player.FaceToTarget(patrolPath[targetPatrolIndex].pos);
+                        Stop();
+                        Jump(patrolPath[targetPatrolIndex].pos);
+                    }
+                } else {
+                    Player.FaceToTarget(patrolPath[targetPatrolIndex].pos);
+                    Move();
+                }
+            } else {
+                Player.FaceToTarget(patrolPath[targetPatrolIndex].pos);
+                Move();
+            }
+        }
+
+        void GotoWayPoint() {
+            NextFramePos = Machine.Path.ways[targetIndex].pos - Player.mSkeletonPivot;
+            NextFramePos.y = 0;
+            if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
+                NextFramePos.y = 0;
+                NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                float s = GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(Machine.Path.ways[targetIndex].pos - NextFramePos));
+                if (s < 0) {
+                    Stop();
+                    curIndex = targetIndex;
+                    targetIndex += 1;
+                    if (targetIndex >= Machine.Path.ways.Count) {
+                        subState = EAISubStatus.RotateToPatrolPoint;
+                    } else {
+                        subState = EAISubStatus.RotateToWayPoint;
+                    }
+                    return;
+                }
+            }
+
+            if (curIndex != -1) {
+                if (Main.Ins.PathMng.GetWalkMethod(Machine.Path.ways[curIndex].index, Machine.Path.ways[targetIndex].index) == WalkType.Jump) {
+                    if (Player.IsOnGround()) {
+                        Player.FaceToTarget(Machine.Path.ways[targetIndex].pos);
+                        Stop();
+                        Jump(Machine.Path.ways[targetIndex].pos);
+                    }
+                } else {
+                    Player.FaceToTarget(Machine.Path.ways[targetIndex].pos);
+                    Move();
+                }
+            } else {
+                Player.FaceToTarget(Machine.Path.ways[targetIndex].pos);
+                Move();
+            }
         }
     }
 
@@ -455,11 +687,11 @@ namespace Idevgame.Meteor.AI
     }
     //战斗基类
     //需要处理倒地起身状态.
-    public class FightOnGroundState:State
+    public class FightState:State
     {
         public int AttackCount;//攻击次数.
         public Vector3 AttackTarget;//攻击目标-指定位置.
-        public FightOnGroundState(StateMachine mathine) : base(mathine)
+        public FightState(StateMachine mathine) : base(mathine)
         {
 
         }

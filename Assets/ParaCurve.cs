@@ -13,8 +13,8 @@ public class ParaCurve : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        velocity.y += g * Time.deltaTime;
-        float s = velocity.y * Time.deltaTime;
+        velocity.y += g * FrameReplay.deltaTime;
+        float s = velocity.y * FrameReplay.deltaTime;
         if (transform.position.y > targetPosition.y)
         {
             if (transform.position.y + s <= targetPosition.y)
@@ -37,7 +37,7 @@ public class ParaCurve : MonoBehaviour {
             }
 
         }
-        transform.position = new Vector3(transform.position.x + velocity.x * Time.deltaTime, transform.position.y + s, transform.position.z + velocity.z * Time.deltaTime);
+        transform.position = new Vector3(transform.position.x + velocity.x * FrameReplay.deltaTime, transform.position.y + s, transform.position.z + velocity.z * FrameReplay.deltaTime);
     }
     Vector3 velocity;
     float g;

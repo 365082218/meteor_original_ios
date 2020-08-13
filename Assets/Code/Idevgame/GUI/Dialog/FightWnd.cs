@@ -163,6 +163,13 @@ public class FightUiConroller : Dialog
         Control("ClickPanel").SetActive(false);
         Control("JoyArrow").SetActive(false);
 #endif
+        //使用手柄时，不再显示右下侧按键和方向盘.
+        if (Main.Ins.GameStateMgr.gameStatus.UseJoyDevice) {
+            Control("ClickPanel").SetActive(false);
+            Control("JoyArrow").SetActive(false);
+        }
+
+        OnBattleStart();
     }
 
     public override void OnRefresh(int message, object param)
@@ -200,7 +207,7 @@ public class FightUiConroller : Dialog
         }
     }
 
-    void OnRebornClick()
+    public void OnRebornClick()
     {
         if (Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask)
         {
@@ -270,24 +277,13 @@ public class FightUiConroller : Dialog
         NodeHelper.Find("WeaponSelect", gameObject).SetActive(Main.Ins.GameStateMgr.gameStatus.EnableWeaponChoose);
         NodeHelper.Find("SfxMenu", gameObject).SetActive(Main.Ins.GameStateMgr.gameStatus.EnableDebugSFX);
         NodeHelper.Find("Robot", gameObject).SetActive(Main.Ins.GameStateMgr.gameStatus.EnableDebugRobot);
-#if !STRIP_DBG_SETTING
-        NodeHelper.Find("DBG", gameObject).SetActive(Main.Ins.GameStateMgr.gameStatus.LevelDebug);
-#endif
         NodeHelper.Find("MiniMap", gameObject).SetActive(true);
 
         if (NGUIJoystick.instance != null)
         {
-            if (Main.Ins.GameStateMgr.gameStatus.DisableJoystick)
-                NGUIJoystick.instance.OnDisabled();
-            else
-                NGUIJoystick.instance.OnEnabled();
+            NGUIJoystick.instance.OnDisabled();
         }
-#if !STRIP_DBG_SETTING
-        if (Main.Ins.GameStateMgr.gameStatus.EnableLog)
-            WSDebug.Ins.OpenLogView();
-        else
-            WSDebug.Ins.CloseLogView();
-#endif
+
         if (NGUIJoystick.instance != null)
             NGUIJoystick.instance.SetAnchor(Main.Ins.GameStateMgr.gameStatus.JoyAnchor);
         int j = 0;
@@ -303,7 +299,7 @@ public class FightUiConroller : Dialog
         }
     }
 
-    void OnAttackPress()
+    public void OnAttackPress()
     {
         if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
         Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Attack, false);//也可看作普攻
@@ -314,7 +310,7 @@ public class FightUiConroller : Dialog
         LockSprite.enabled = locked;
     }
 
-    void OnClickChangeLock()
+    public void OnClickChangeLock()
     {
         if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
         //远程武器禁止切换锁定状态
@@ -328,7 +324,7 @@ public class FightUiConroller : Dialog
             Main.Ins.GameBattleEx.Lock();
     }
 
-    void OnClickDrop()
+    public void OnClickDrop()
     {
         if (Main.Ins.LocalPlayer.Dead)
             return;
@@ -337,7 +333,7 @@ public class FightUiConroller : Dialog
         Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_DropWeapon, false);
     }
 
-    void OnCrouchPress()
+    public void OnCrouchPress()
     {
         if (Main.Ins.LocalPlayer.Dead)
             return;
@@ -346,13 +342,13 @@ public class FightUiConroller : Dialog
         Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Crouch, false);
     }
 
-    void OnCrouchRelease()
+    public void OnCrouchRelease()
     {
         if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
         Main.Ins.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Crouch);
     }
 
-    void OnChangeWeaponPress()
+    public void OnChangeWeaponPress()
     {
         if (Main.Ins.LocalPlayer.Dead)
             return;
@@ -361,7 +357,7 @@ public class FightUiConroller : Dialog
         Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_ChangeWeapon, false);
     }
 
-    void OnChangeWeaponRelease()
+    public void OnChangeWeaponRelease()
     {
         if (Main.Ins.LocalPlayer.Dead)
             return;
@@ -370,13 +366,13 @@ public class FightUiConroller : Dialog
         Main.Ins.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_ChangeWeapon);
     }
 
-    void OnAttackRelease()
+    public void OnAttackRelease()
     {
         if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
         Main.Ins.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Attack);
     }
 
-    void OnDefencePress()
+    public void OnDefencePress()
     {
         if (Main.Ins.LocalPlayer.Dead)
             return;
@@ -385,7 +381,7 @@ public class FightUiConroller : Dialog
 
     }
 
-    void OnDefenceRelease()
+    public void OnDefenceRelease()
     {
         if (Main.Ins.LocalPlayer.Dead)
             return;
@@ -393,7 +389,7 @@ public class FightUiConroller : Dialog
         Main.Ins.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Defence);
     }
 
-    void OnJumpPress()
+    public void OnJumpPress()
     {
         //if (!MeteorManager.Instance.LocalPlayer.posMng.CanJump)
         //    return;
@@ -402,7 +398,7 @@ public class FightUiConroller : Dialog
         Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Jump, false);//
     }
 
-    void OnJumpRelease()
+    public void OnJumpRelease()
     {
         if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
         Main.Ins.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Jump);
@@ -444,6 +440,7 @@ public class FightUiConroller : Dialog
 
     public void OnBattleStart()
     {
+        //Debug.Log("OnBattleStart");
         currentHP = nextHp = Main.Ins.LocalPlayer.Attr.hpCur;
         hpBar.fillAmount = currentHP / (float)Main.Ins.LocalPlayer.Attr.HpMax;
     }
@@ -487,19 +484,19 @@ public class FightUiConroller : Dialog
     {
         if (currentHP != nextHp)
         {
-            currentHP = Mathf.MoveTowards(currentHP, nextHp, 1000f * Time.deltaTime);
+            currentHP = Mathf.MoveTowards(currentHP, nextHp, 1000f * FrameReplay.deltaTime);
             hpBar.fillAmount = currentHP / (float)Main.Ins.LocalPlayer.Attr.TotalHp;
         }
 
         if (currentTargetHp != nextTargetHp)
         {
-            currentTargetHp = Mathf.MoveTowards(currentTargetHp, nextTargetHp, 1000f * Time.deltaTime);
+            currentTargetHp = Mathf.MoveTowards(currentTargetHp, nextTargetHp, 1000f * FrameReplay.deltaTime);
             TargetHp.fillAmount = currentTargetHp / CurrentMonster.Attr.TotalHp;
         }
 
         if (CheckHideTarget)
         {
-            TargetInfoLast -= Time.deltaTime;
+            TargetInfoLast -= FrameReplay.deltaTime;
             if (TargetInfoLast <= 0.0f)
                 HideTargetInfo();
         }

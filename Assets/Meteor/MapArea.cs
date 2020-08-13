@@ -112,7 +112,7 @@ public class MapArea : MonoBehaviour {
                 {
                     if (leftTime.ContainsKey(unit))
                     {
-                        leftTime[unit] -= Time.deltaTime;
+                        leftTime[unit] -= FrameReplay.deltaTime;
                         if (leftTime[unit] <= 0.0f)
                         {
                             //不是熔岩骷髅则死

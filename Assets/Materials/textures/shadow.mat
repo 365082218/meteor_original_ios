@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: shadow
-  m_Shader: {fileID: 4800000, guid: 2323b97ae197d1d4db8e715c40aed57d, type: 3}
+  m_Shader: {fileID: 4800000, guid: a1d1c302ef4dcfb41a89b64bb72a4528, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_CustomRenderQueue: -1
@@ -35,6 +35,9 @@ Material:
     - first:
         name: _Color
       second: {r: 1, g: 1, b: 1, a: 1}
+    - first:
+        name: _EmisColor
+      second: {r: 1, g: 1, b: 1, a: 0.822}
     - first:
         name: _TintColor
       second: {r: 1, g: 1, b: 1, a: 1}

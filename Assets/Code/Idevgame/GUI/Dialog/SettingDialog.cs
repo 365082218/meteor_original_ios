@@ -7,13 +7,13 @@ using System.Collections.Generic;
 using System.Net;
 using Idevgame.GameState.DialogState;
 using Idevgame.GameState;
+using DG.Tweening;
 
 public class SettingDialogState:CommonDialogState<SettingDialog>
 {
     public override string DialogName { get { return "SettingDialog"; } }
     public SettingDialogState(MainDialogStateManager stateMgr):base(stateMgr)
     {
-
     }
 }
 
@@ -24,20 +24,8 @@ public class SettingDialog : Dialog {
         Init();
     }
 
-    Coroutine Update;
-    Coroutine PluginPageUpdate;//插件翻页
-    Coroutine GamePageUpdate;//游戏推荐页翻页
-    Coroutine PluginUpdate;
-    GameObject PluginRoot;
     GameObject DebugRoot;
-    int gamePage;
-    int gamePageMax;
-    const int pluginPerPage = 12;//一页最大插件数量
-    int pluginPage;//当前插件页
-    int pageMax;//最大页
-    int pluginCount;//插件数量
-    bool showInstallPlugin = true;
-    List<GameObject> Install = new List<GameObject>();
+
     void Init()
     {
         Control("Return").GetComponent<Button>().onClick.AddListener(() =>
@@ -56,19 +44,12 @@ public class SettingDialog : Dialog {
         Control("AppVerText").GetComponent<Text>().text = Main.Ins.AppInfo.AppVersion();
         Control("MeteorVerText").GetComponent<Text>().text = Main.Ins.AppInfo.MeteorVersion;
 
-        
-        Control("Nick").GetComponentInChildren<Text>().text = Main.Ins.CombatData.Logined ?  Main.Ins.GameStateMgr.gameStatus.NickName:"未登录";
+        Control("DoScript").GetComponent<Button>().onClick.AddListener(()=> { U3D.DoScript(); });
+        Control("Nick").GetComponentInChildren<Text>().text = Main.Ins.GameStateMgr.gameStatus.NickName;
         Control("Nick").GetComponent<Button>().onClick.AddListener(
             () =>
             {
-                if (Main.Ins.CombatData.Logined)
-                {
-                    Main.Ins.EnterState(Main.Ins.NickNameDialogState);
-                }
-                else
-                {
-                    
-                }
+                Main.Ins.EnterState(Main.Ins.NickNameDialogState);
             }
         );
         Toggle highPerfor = Control("HighPerformance").GetComponent<Toggle>();
@@ -106,6 +87,10 @@ public class SettingDialog : Dialog {
         Control("HSliderBar").GetComponent<Slider>().onValueChanged.AddListener(OnXSensitivityChange);
         Control("VSliderBar").GetComponent<Slider>().onValueChanged.AddListener(OnYSensitivityChange);
         Control("SetJoyPosition").GetComponent<Button>().onClick.AddListener(OnSetUIPosition);
+
+        Toggle EnableJoy = Control("EnableJoy").GetComponent<Toggle>();
+        EnableJoy.isOn = Main.Ins.GameStateMgr.gameStatus.UseJoyDevice;
+        EnableJoy.onValueChanged.AddListener((bool selected) => { Main.Ins.GameStateMgr.gameStatus.UseJoyDevice = selected; Main.Ins.JoyStick.enabled = selected; });
 
         //显示战斗界面的调试按钮
         Toggle toggleDebug = Control("EnableSFX").GetComponent<Toggle>();
@@ -157,39 +142,19 @@ public class SettingDialog : Dialog {
         toggleDisableParticle.onValueChanged.AddListener(OnDisableParticle);
         OnDisableParticle(toggleDisableParticle.isOn);
 
-        //关闭摇杆
-        Toggle toggleDisableJoyStick = Control("Joystick").GetComponent<Toggle>();
-        toggleDisableJoyStick.isOn = Main.Ins.GameStateMgr.gameStatus.DisableJoystick;
-        toggleDisableJoyStick.onValueChanged.AddListener(OnDisableJoyStick);
-        OnDisableJoyStick(toggleDisableJoyStick.isOn);
-
         Toggle toggleSkipVideo = Control("SkipVideo").GetComponent<Toggle>();
         toggleSkipVideo.isOn = Main.Ins.GameStateMgr.gameStatus.SkipVideo;
         toggleSkipVideo.onValueChanged.AddListener(OnSkipVideo);
 
-        Toggle toggleOnlyWifi = Control("OnlyWifi").GetComponent<Toggle>();
-        toggleOnlyWifi.isOn = Main.Ins.GameStateMgr.gameStatus.OnlyWifi;
-        toggleOnlyWifi.onValueChanged.AddListener(OnOnlyWifi);
-
-        GameObject pluginTab = Control("PluginTab", WndObject);
         GameObject debugTab = Control("DebugTab", WndObject);
-        Control("PluginPrev").GetComponent<Button>().onClick.AddListener(OnPrevPagePlugin);
-        Control("PluginNext").GetComponent<Button>().onClick.AddListener(OnNextPagePlugin);
+
         Control("AnimationDebug").GetComponent<Button>().onClick.AddListener(() => { OnBackPress(); UnityEngine.SceneManagement.SceneManager.LoadScene("DebugScene0"); });
         Control("SfxDebug").GetComponent<Button>().onClick.AddListener(() => { OnBackPress(); UnityEngine.SceneManagement.SceneManager.LoadScene("DebugScene1"); });
-        PluginRoot = Control("Content", pluginTab);
         DebugRoot = Control("Content", debugTab);
-
-        //模组分页内的功能设定
-        Control("DeletePlugin").GetComponent<Button>().onClick.AddListener(() => { U3D.DeletePlugins(); SettingDialogState.Instance.ShowTab(4);});
-        Toggle togShowInstallPlugin = Control("ShowInstallToggle").GetComponent<Toggle>();
-        togShowInstallPlugin.onValueChanged.AddListener((bool value) => { this.showInstallPlugin = value; Main.Ins.DlcMng.CollectAll(this.showInstallPlugin); this.PluginPageRefreshEx(); });
-        togShowInstallPlugin.isOn = true;
 
         //透明度设定
         Control("AlphaSliderBar").GetComponent<Slider>().value = Main.Ins.GameStateMgr.gameStatus.UIAlpha;
         Control("AlphaSliderBar").GetComponent<Slider>().onValueChanged.AddListener(OnUIAlphaChange);
-        Control("InstallAll").GetComponent<Button>().onClick.AddListener(OnInstallAll);
 
         if (Main.Ins.AppInfo.AppVersionIsSmallThan(Main.Ins.GameNotice.newVersion))
         {
@@ -208,14 +173,186 @@ public class SettingDialog : Dialog {
             tabs[i].onValueChanged.AddListener(OnTabShow);
         }
 
+        //把一些模式禁用，例如作弊之类的.
+        if (Main.Ins.GameStateMgr.gameStatus.CheatEnable) {
+
+        } else {
+            Control("EnableRobot").SetActive(false);//屏蔽可添加电脑
+            Control("EnableWeaponChoose").SetActive(false);
+            Control("ShowWayPoint").SetActive(false);
+            Control("EnableUnDead").SetActive(false);
+            Control("EnableGodMode").SetActive(false);
+            Control("EnableInfiniteAngry").SetActive(false);
+            Control("EnableSFX").SetActive(false);
+        }
+
+        //起始页显示
+        OnTabShow(true);
+
+        Button JoyW = Control("JoyW").GetComponent<Button>();
+        JoyW.onClick.AddListener(()=> { FlashButton(JoyW, EKeyList.KL_KeyW, "上:[{0}]"); });
+
+        Button JoyS = Control("JoyS").GetComponent<Button>();
+        JoyS.onClick.AddListener(() => { FlashButton(JoyS, EKeyList.KL_KeyS, "下:[{0}]"); });
+
+        Button JoyA = Control("JoyA").GetComponent<Button>();
+        JoyA.onClick.AddListener(() => { FlashButton(JoyA, EKeyList.KL_KeyA, "左:[{0}]"); });
+
+        Button JoyD = Control("JoyD").GetComponent<Button>();
+        JoyD.onClick.AddListener(() => { FlashButton(JoyD, EKeyList.KL_KeyD, "右:[{0}]"); });
+
+        Button JoyCW = Control("JoyCW").GetComponent<Button>();
+        JoyCW.onClick.AddListener(() => { FlashButton(JoyCW, EKeyList.KL_CameraAxisYU, "视角上:[{0}]"); });
+
+        Button JoyCS = Control("JoyCS").GetComponent<Button>();
+        JoyCS.onClick.AddListener(() => { FlashButton(JoyCS, EKeyList.KL_CameraAxisYD, "视角下:[{0}]"); });
+
+        Button JoyCA = Control("JoyCA").GetComponent<Button>();
+        JoyCA.onClick.AddListener(() => { FlashButton(JoyCA, EKeyList.KL_CameraAxisXL, "视角左:[{0}]"); });
+
+        Button JoyCD = Control("JoyCD").GetComponent<Button>();
+        JoyCD.onClick.AddListener(() => { FlashButton(JoyCD, EKeyList.KL_CameraAxisXR, "视角右:[{0}]"); });
+
+        Button JoyAttack = Control("JoyAttack").GetComponent<Button>();
+        JoyAttack.onClick.AddListener(() => { FlashButton(JoyAttack, EKeyList.KL_Attack, "攻击:[{0}]"); });
+
+        Button JoyDefence = Control("JoyDefence").GetComponent<Button>();
+        JoyDefence.onClick.AddListener(() => { FlashButton(JoyDefence, EKeyList.KL_Defence, "防守:[{0}]"); });
+
+        Button JoyJump = Control("JoyJump").GetComponent<Button>();
+        JoyJump.onClick.AddListener(() => { FlashButton(JoyJump, EKeyList.KL_Jump, "跳跃:[{0}]"); });
+
+        Button JoyBurst = Control("JoyBurst").GetComponent<Button>();
+        JoyBurst.onClick.AddListener(() => { FlashButton(JoyBurst, EKeyList.KL_BreakOut, "爆气:[{0}]"); });
+
+        Button JoyChangeWeapon = Control("JoyChangeWeapon").GetComponent<Button>();
+        JoyChangeWeapon.onClick.AddListener(() => { FlashButton(JoyChangeWeapon, EKeyList.KL_ChangeWeapon, "切换武器:[{0}]"); });
+
+        Button JoyDrop = Control("JoyDrop").GetComponent<Button>();
+        JoyDrop.onClick.AddListener(() => { FlashButton(JoyDrop, EKeyList.KL_DropWeapon, "丢弃武器:[{0}]"); });
+
+        Button JoyCrouch = Control("JoyCrouch").GetComponent<Button>();
+        JoyCrouch.onClick.AddListener(() => { FlashButton(JoyCrouch, EKeyList.KL_Crouch, "蹲下:[{0}]"); });
+
+        Button JoyUnlock = Control("JoyUnlock").GetComponent<Button>();
+        JoyUnlock.onClick.AddListener(() => { FlashButton(JoyUnlock, EKeyList.KL_KeyQ, "锁定:[{0}]"); });
+
+        Button JoyHelp = Control("JoyHelp").GetComponent<Button>();
+        JoyHelp.onClick.AddListener(() => { FlashButton(JoyHelp, EKeyList.KL_Help, "救助:[{0}]"); });
     }
 
-    void OnInstallAll()
-    {
-        for (int i = 0; i < pluginList.Count; i++)
-        {
-            Main.Ins.DlcMng.AddDownloadTask(pluginList[i]);
+    //按照最新的设置，读取显示出来.
+    void Refresh() {
+        Button JoyW = Control("JoyW").GetComponent<Button>();
+        JoyW.GetComponentInChildren<Text>().text = string.Format("上:[{0}]", Main.Ins.JoyStick.keyMapping[EKeyList.KL_KeyW].key.ToString());
+        Button JoyS = Control("JoyS").GetComponent<Button>();
+        JoyS.GetComponentInChildren<Text>().text = string.Format("下:[{0}]", Main.Ins.JoyStick.keyMapping[EKeyList.KL_KeyS].key.ToString());
+        Button JoyA = Control("JoyA").GetComponent<Button>();
+        JoyA.GetComponentInChildren<Text>().text = string.Format("左:[{0}]", Main.Ins.JoyStick.keyMapping[EKeyList.KL_KeyA].key.ToString());
+        Button JoyD = Control("JoyD").GetComponent<Button>();
+        JoyD.GetComponentInChildren<Text>().text = string.Format("右:[{0}]", Main.Ins.JoyStick.keyMapping[EKeyList.KL_KeyD].key.ToString());
+
+        Button JoyCW = Control("JoyCW").GetComponent<Button>();
+        JoyCW.GetComponentInChildren<Text>().text = string.Format("视角上:[{0}]", Main.Ins.JoyStick.keyMapping[EKeyList.KL_CameraAxisYU].key.ToString());
+
+        Button JoyCS = Control("JoyCS").GetComponent<Button>();
+        JoyCS.GetComponentInChildren<Text>().text = string.Format("视角下:[{0}]", Main.Ins.JoyStick.keyMapping[EKeyList.KL_CameraAxisYD].key.ToString());
+
+        Button JoyCA = Control("JoyCA").GetComponent<Button>();
+        JoyCA.GetComponentInChildren<Text>().text = string.Format("视角左:[{0}]", Main.Ins.JoyStick.keyMapping[EKeyList.KL_CameraAxisXL].key.ToString());
+
+        Button JoyCD = Control("JoyCD").GetComponent<Button>();
+        JoyCD.GetComponentInChildren<Text>().text = string.Format("视角右:[{0}]", Main.Ins.JoyStick.keyMapping[EKeyList.KL_CameraAxisXR].key.ToString());
+
+        Button JoyAttack = Control("JoyAttack").GetComponent<Button>();
+        JoyAttack.GetComponentInChildren<Text>().text = string.Format("攻击:[{0}]", Main.Ins.JoyStick.keyMapping[EKeyList.KL_Attack].key.ToString());
+
+        Button JoyDefence = Control("JoyDefence").GetComponent<Button>();
+        JoyDefence.GetComponentInChildren<Text>().text = string.Format("防守:[{0}]", Main.Ins.JoyStick.keyMapping[EKeyList.KL_Defence].key.ToString());
+
+        Button JoyJump = Control("JoyJump").GetComponent<Button>();
+        JoyJump.GetComponentInChildren<Text>().text = string.Format("跳跃:[{0}]", Main.Ins.JoyStick.keyMapping[EKeyList.KL_Jump].key.ToString());
+
+        Button JoyBurst = Control("JoyBurst").GetComponent<Button>();
+        JoyBurst.GetComponentInChildren<Text>().text = string.Format("爆气:[{0}]", Main.Ins.JoyStick.keyMapping[EKeyList.KL_BreakOut].key.ToString());
+
+        Button JoyChangeWeapon = Control("JoyChangeWeapon").GetComponent<Button>();
+        JoyChangeWeapon.GetComponentInChildren<Text>().text = string.Format("切换武器:[{0}]", Main.Ins.JoyStick.keyMapping[EKeyList.KL_ChangeWeapon].key.ToString());
+
+        Button JoyDrop = Control("JoyDrop").GetComponent<Button>();
+        JoyDrop.GetComponentInChildren<Text>().text = string.Format("丢弃武器:[{0}]", Main.Ins.JoyStick.keyMapping[EKeyList.KL_DropWeapon].key.ToString());
+
+        Button JoyCrouch = Control("JoyCrouch").GetComponent<Button>();
+        JoyCrouch.GetComponentInChildren<Text>().text = string.Format("蹲下:[{0}]", Main.Ins.JoyStick.keyMapping[EKeyList.KL_Crouch].key.ToString());
+
+        Button JoyUnlock = Control("JoyUnlock").GetComponent<Button>();
+        JoyUnlock.GetComponentInChildren<Text>().text = string.Format("锁定:[{0}]", Main.Ins.JoyStick.keyMapping[EKeyList.KL_KeyQ].key.ToString());
+
+        Button JoyHelp = Control("JoyHelp").GetComponent<Button>();
+        JoyHelp.GetComponentInChildren<Text>().text = string.Format("救助:[{0}]", Main.Ins.JoyStick.keyMapping[EKeyList.KL_Help].key.ToString());
+    }
+
+    bool flashing = false;
+    EKeyList flashKey = EKeyList.KL_None;
+    Color initializeColor;
+    Tweener colorFade;
+    Button flashButton;
+    string formatString = "";
+    private void Update() {
+        if (flashing) {
+            string currentButton = "无";
+            KeyCode k = KeyCode.None;
+            var values = Enum.GetValues(typeof(KeyCode));//存储所有的按键
+            for (int x = 0; x < values.Length; x++) {
+                KeyCode j = (KeyCode)values.GetValue(x);
+                if (Input.GetKeyDown((KeyCode)values.GetValue(x))) {
+                    currentButton = values.GetValue(x).ToString();//遍历并获取当前按下的按键
+                    k = (KeyCode)values.GetValue(x);
+                    break;
+                }
+            }
+            if (k != KeyCode.None) {
+                flashButton.GetComponentInChildren<Text>().text = string.Format(formatString, currentButton);
+                KillFade();
+                flashing = false;
+                flashButton = null;
+                formatString = "";
+                Main.Ins.JoyStick.Register(flashKey, k);
+                Refresh();
+            } else {
+
+            }
         }
+    }
+
+    void KillFade() {
+        if (colorFade != null) {
+            colorFade.Pause();
+            colorFade.Kill();
+            colorFade = null;
+            if (flashButton != null) {
+                flashButton.GetComponent<Image>().color = initializeColor;
+            }
+        }
+    }
+
+    //闪亮显示一个要设置的按键.当按下任意一个按键时，与对应的动作绑定.
+    public void FlashButton(Button btn, EKeyList vkey, string format) {
+        if (flashing) {
+            KillFade();
+        }
+        flashButton = btn;
+        formatString = format;
+        flashKey = vkey;
+        flashing = true;
+
+        initializeColor = flashButton.GetComponent<Image>().color;
+        MyPingPong(flashButton.GetComponent<Image>(), initializeColor, Color.white, 0.5f);
+    }
+
+    void MyPingPong(Image img, Color from, Color to, float duration) {
+        colorFade = img.DOColor(to, duration);
+        colorFade.OnComplete(() => MyPingPong(img, to, from, duration));
     }
 
     public void OnUIAlphaChange(float v)
@@ -239,26 +376,9 @@ public class SettingDialog : Dialog {
         Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.UIAdjustDialogState);
     }
 
-    void OnOnlyWifi(bool only)
-    {
-        Main.Ins.GameStateMgr.gameStatus.OnlyWifi = only;
-    }
-
     void OnSkipVideo(bool skip)
     {
         Main.Ins.GameStateMgr.gameStatus.SkipVideo = skip;
-    }
-
-    void OnDisableJoyStick(bool disable)
-    {
-        Main.Ins.GameStateMgr.gameStatus.DisableJoystick = disable;
-        if (NGUIJoystick.instance != null)
-        {
-            if (Main.Ins.GameStateMgr.gameStatus.DisableJoystick)
-                NGUIJoystick.instance.OnDisabled();
-            else
-                NGUIJoystick.instance.OnEnabled();
-        }
     }
 
     void OnDisableParticle(bool disable)
@@ -399,226 +519,9 @@ public class SettingDialog : Dialog {
 
     void OnTabShow(bool show)
     {
-        if (Control("PluginTab", WndObject).activeInHierarchy && show)
-        {
-            PluginUpdate = Main.Ins.StartCoroutine(UpdatePluginInfo());//下载插件信息，显示插件
+        if (Control("JoyStick", WndObject).activeInHierarchy && show) {
+            Refresh();
         }
-    }
-
-    IEnumerator UpdatePluginInfo()
-    {
-        if (!Main.Ins.CombatData.PluginUpdated)
-        {
-            UnityWebRequest vFile = new UnityWebRequest();
-            vFile.url = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, Main.strPlugins);
-            vFile.timeout = 5;
-            DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
-            vFile.downloadHandler = dH;
-            yield return vFile.Send();
-            if (vFile.isError || vFile.responseCode != 200)
-            {
-                Debug.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
-                Control("Warning").SetActive(true);
-                vFile.Dispose();
-                Update = null;
-                pluginCount = 0;
-                //显示出存档中保存得DLC信息
-                Main.Ins.DlcMng.ClearModel();
-                for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginModel.Count; i++)
-                {
-                    Main.Ins.DlcMng.Models.Add(Main.Ins.GameStateMgr.gameStatus.pluginModel[i]);
-                }
-                //for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
-                //{
-                //InsertModel(DlcMng.Instance.Models[i]);
-                //}
-                pluginCount = Main.Ins.DlcMng.Models.Count;
-                Main.Ins.DlcMng.ClearDlc();
-                for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginChapter.Count; i++)
-                {
-                    Main.Ins.DlcMng.Dlcs.Add(Main.Ins.GameStateMgr.gameStatus.pluginChapter[i]);
-                }
-                pluginCount += Main.Ins.DlcMng.Dlcs.Count;
-                //for (int i = 0; i < DlcMng.Instance.Dlcs.Count; i++)
-                //{
-                //    InsertDlc(DlcMng.Instance.Dlcs[i]);
-                //}
-                pluginPage = 0;
-                pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
-                Main.Ins.DlcMng.CollectAll(this.showInstallPlugin);
-                Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
-                PluginPageUpdate = Main.Ins.StartCoroutine(PluginPageRefresh());
-                yield break;
-            }
-
-            Control("Warning").SetActive(false);
-            pluginCount = 0;
-            CleanModelList();
-            LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
-            for (int i = 0; i < js["Scene"].Count; i++)
-            {
-                //ServerInfo s = new ServerInfo();
-                //if (!int.TryParse(js["services"][i]["port"].ToString(), out s.ServerPort))
-                //    continue;
-                //if (!int.TryParse(js["services"][i]["type"].ToString(), out s.type))
-                //    continue;
-                //if (s.type == 0)
-                //    s.ServerHost = js["services"][i]["addr"].ToString();
-                //else
-                //    s.ServerIP = js["services"][i]["addr"].ToString();
-                //s.ServerName = js["services"][i]["name"].ToString();
-                //Global.Instance.Servers.Add(s);
-            }
-
-            for (int i = 0; i < js["Weapon"].Count; i++)
-            {
-                //ServerInfo s = new ServerInfo();
-                //if (!int.TryParse(js["services"][i]["port"].ToString(), out s.ServerPort))
-                //    continue;
-                //if (!int.TryParse(js["services"][i]["type"].ToString(), out s.type))
-                //    continue;
-                //if (s.type == 0)
-                //    s.ServerHost = js["services"][i]["addr"].ToString();
-                //else
-                //    s.ServerIP = js["services"][i]["addr"].ToString();
-                //s.ServerName = js["services"][i]["name"].ToString();
-                //Global.Instance.Servers.Add(s);
-            }
-
-            Main.Ins.DlcMng.ClearModel();
-            for (int i = 0; i < js["Model"].Count; i++)
-            {
-                int modelIndex = int.Parse(js["Model"][i]["Idx"].ToString());
-                //Debug.LogError(modelIndex + js["Model"][i]["name"].ToString());
-                ModelItem Info = new ModelItem();
-                Info.ModelId = modelIndex;
-                Info.Name = js["Model"][i]["name"].ToString();
-                Info.Path = js["Model"][i]["zip"].ToString();
-                if (js["Model"][i]["desc"] != null)
-                    Info.Desc = js["Model"][i]["desc"].ToString();
-                Info.useFemalePos = js["Model"][i]["gender"] != null;
-                Main.Ins.DlcMng.AddModel(Info);
-            }
-
-            pluginCount += Main.Ins.DlcMng.Models.Count;
-            //for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
-            //{
-            //    InsertModel(DlcMng.Instance.Models[i]);
-            //}
-            Main.Ins.DlcMng.ClearDlc();
-            for (int i = 0; i < js["Dlc"].Count; i++)
-            {
-                Chapter c = new Chapter();
-                c.Installed = false;
-                c.ChapterId = int.Parse(js["Dlc"][i]["Idx"].ToString());
-                c.Name = js["Dlc"][i]["name"].ToString();
-                c.Path = js["Dlc"][i]["zip"].ToString();
-                if (js["Dlc"][i]["version"] != null)
-                    c.version = js["Dlc"][i]["version"].ToString();
-                if (js["Dlc"][i]["desc"] != null)
-                    c.Desc = js["Dlc"][i]["desc"].ToString();
-                if (js["Dlc"][i]["reference"] != null)
-                {
-                    Dependence dep = new Dependence();
-                    for (int j = 0; j < js["Dlc"][i]["reference"].Count; j++)
-                    {
-                        if (js["Dlc"][i]["reference"][j]["Scene"] != null)
-                        {
-                            dep.scene = new List<int>();
-                            for (int l = 0; l < js["Dlc"][i]["reference"][j]["Scene"].Count; l++)
-                            {
-                                dep.scene.Add(int.Parse(js["Dlc"][i]["reference"][j]["Scene"][l].ToString()));
-                            }
-                        }
-                        if (js["Dlc"][i]["reference"][j]["Model"] != null)
-                        {
-                            dep.model = new List<int>();
-                            for (int l = 0; l < js["Dlc"][i]["reference"][j]["Model"].Count; l++)
-                            {
-                                dep.model.Add(int.Parse(js["Dlc"][i]["reference"][j]["Model"][l].ToString()));
-                            }
-                        }
-
-                        if (js["Dlc"][i]["reference"][j]["Weapon"] != null)
-                        {
-                            dep.weapon = new List<int>();
-                            for (int l = 0; l < js["Dlc"][i]["reference"][j]["Weapon"].Count; l++)
-                            {
-                                dep.weapon.Add(int.Parse(js["Dlc"][i]["reference"][j]["Weapon"][l].ToString()));
-                            }
-                        }
-                    }
-                    c.Res = dep;
-                }
-                Main.Ins.DlcMng.AddDlc(c);
-            }
-
-            pluginCount += Main.Ins.DlcMng.Dlcs.Count;
-            //for (int i = 0; i < DlcMng.Instance.Dlcs.Count; i++)
-            //{
-            //    InsertDlc(DlcMng.Instance.Dlcs[i]);
-            //}
-            pluginPage = 0;
-            pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
-            Main.Ins.DlcMng.CollectAll(this.showInstallPlugin);
-            PluginPageUpdate = Main.Ins.StartCoroutine(PluginPageRefresh());
-            Main.Ins.CombatData.PluginUpdated = true;
-            PluginUpdate = null;
-        }
-        else
-        {
-            if (PluginPageUpdate != null)
-                yield break;
-            pluginCount = Main.Ins.DlcMng.Models.Count + Main.Ins.DlcMng.Dlcs.Count;
-            pluginPage = 0;
-            pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
-            PluginPageUpdate = Main.Ins.StartCoroutine(PluginPageRefresh());
-        }
-        Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
-    }
-
-    void OnPrevPagePlugin()
-    {
-        if (pluginPage != 0)
-            pluginPage--;
-        else
-            return;
-        PluginPageRefreshEx();
-    }
-
-    void OnNextPagePlugin()
-    {
-        if (pluginPage < pageMax - 1)
-            pluginPage++;
-        else
-            return;
-        PluginPageRefreshEx();
-    }
-
-    void PluginPageRefreshEx()
-    {
-        Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
-        if (PluginPageUpdate != null)
-            Main.Ins.StopCoroutine(PluginPageUpdate);
-        PluginPageUpdate = Main.Ins.StartCoroutine(PluginPageRefresh());
-    }
-
-    IEnumerator PluginPageRefresh()
-    {
-        for (int i = 0; i < pluginList.Count; i++)
-        {
-            GameObject.Destroy(pluginList[i].gameObject);
-        }
-        pluginList.Clear();
-        for (int i = pluginPage * pluginPerPage; i < Mathf.Min((pluginPage + 1) * pluginPerPage, Main.Ins.DlcMng.allItem.Count); i++)
-        {
-            if (Main.Ins.DlcMng.allItem[i] is ModelItem)
-                InsertModel(Main.Ins.DlcMng.allItem[i] as ModelItem);
-            else
-                InsertDlc(Main.Ins.DlcMng.allItem[i] as Chapter);
-            yield return 0;
-        }
-        PluginPageUpdate = null;
     }
 
     public override void OnRefresh(int message, object param)
@@ -631,86 +534,9 @@ public class SettingDialog : Dialog {
 
     public override void OnClose()
     {
-        if (Update != null)
-        {
-            Main.Ins.StopCoroutine(Update);
-            Update = null;
+        if (flashing) {
+            flashing = false;
+            KillFade();
         }
-        if (PluginUpdate != null)
-        {
-            Main.Ins.StopCoroutine(PluginUpdate);
-            PluginUpdate = null;
-        }
-
-        if (PluginPageUpdate != null)
-        {
-            Main.Ins.StopCoroutine(PluginPageUpdate);
-            PluginPageUpdate = null;
-        }
-
-        if (GamePageUpdate != null)
-        {
-            Main.Ins.StopCoroutine(GamePageUpdate);
-            GamePageUpdate = null;
-        }
-
-        for (int i = 0; i < Install.Count; i++)
-        {
-            GameObject.Destroy(Install[i]);
-        }
-
-        Install.Clear();
-    }
-
-    void CleanModelList()
-    {
-        for (int i = 0; i < Install.Count; i++)
-        {
-            GameObject.Destroy(Install[i]);
-        }
-
-        Install.Clear();
-    }
-    List<MoreGameCtrl> GameList = new List<MoreGameCtrl>();
-    List<PluginCtrl> pluginList = new List<PluginCtrl>();
-    GameObject prefabPluginWnd;
-    GameObject prefabGameItem;
-    void InsertModel(ModelItem item)
-    {
-        if (prefabPluginWnd == null)
-            prefabPluginWnd = ResMng.Load("PluginWnd") as GameObject;
-        GameObject insert = GameObject.Instantiate(prefabPluginWnd);
-        insert.transform.SetParent(PluginRoot.transform);
-        insert.transform.localPosition = Vector3.zero;
-        insert.transform.localScale = Vector3.one;
-        insert.transform.localRotation = Quaternion.identity;
-        PluginCtrl ctrl = insert.GetComponent<PluginCtrl>();
-        if (ctrl != null)
-        {
-            ctrl.AttachModel(item);
-            if (!Main.Ins.GameStateMgr.gameStatus.IsModelInstalled(item))
-                Main.Ins.DlcMng.AddPreviewTask(ctrl);
-        }
-        pluginList.Add(ctrl);
-    }
-
-    void InsertDlc(Chapter item)
-    {
-        if (prefabPluginWnd == null)
-            prefabPluginWnd = ResMng.Load("PluginWnd") as GameObject;
-        GameObject insert = GameObject.Instantiate(prefabPluginWnd);
-        insert.transform.SetParent(PluginRoot.transform);
-        insert.transform.localPosition = Vector3.zero;
-        insert.transform.localScale = Vector3.one;
-        insert.transform.localRotation = Quaternion.identity;
-        PluginCtrl ctrl = insert.GetComponent<PluginCtrl>();
-        if (ctrl != null)
-        {
-            ctrl.AttachDlc(item);
-            Chapter c;
-            if (!Main.Ins.GameStateMgr.gameStatus.IsDlcInstalled(item, out c))
-                Main.Ins.DlcMng.AddPreviewTask(ctrl);
-        }
-        pluginList.Add(ctrl);
     }
 }

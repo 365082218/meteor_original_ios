@@ -118,7 +118,7 @@ public class SceneItemAgent :NetBehaviour {
 
         if (ItemInfo != null && (ItemInfo.IsItem() || ItemInfo.IsWeapon()) && Refresh)
         {
-            refresh_tick -= Time.deltaTime;
+            refresh_tick -= FrameReplay.deltaTime;
             if (refresh_tick <= 0.0f)
             {
                 OnRefresh();

@@ -385,7 +385,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1000012323132876
 GameObject:
   m_ObjectHideFlags: 1
@@ -836,7 +836,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1004962149260492
 GameObject:
   m_ObjectHideFlags: 1
@@ -1817,7 +1817,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c791d05ee1871b4cb2704e96fb1c658, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 980
   deltaLast: {x: 0, y: 0}
   mShowTime: 0.1
 --- !u!114 &114000010229314696
@@ -5607,7 +5606,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 305, y: -44.7}
+  m_AnchoredPosition: {x: 305, y: -41.98}
   m_SizeDelta: {x: 30, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224000010269691676
@@ -5852,7 +5851,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0, y: -65}
-  m_SizeDelta: {x: 245, y: 145}
+  m_SizeDelta: {x: 185, y: 185}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!224 &224000010945866268
 RectTransform:
@@ -6146,7 +6145,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: -65, y: 0}
-  m_SizeDelta: {x: 245, y: 145}
+  m_SizeDelta: {x: 185, y: 185}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!224 &224000012816376064
 RectTransform:
@@ -6278,7 +6277,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: 65, y: 0}
-  m_SizeDelta: {x: 245, y: 145}
+  m_SizeDelta: {x: 185, y: 185}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!224 &224000013436346108
 RectTransform:
@@ -6960,7 +6959,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 65}
-  m_SizeDelta: {x: 245, y: 145}
+  m_SizeDelta: {x: 185, y: 185}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!224 &224569123349347972
 RectTransform:

@@ -35,11 +35,21 @@ public class PathContext
     }
 }
 
+
 public class PathPameter
 {
+    public PathPameter(StateMachine machine) {
+        stateMachine = machine;
+        state = -1;
+    }
+
+    public int state;//查询处于什么阶段，-1，无效，0，查询中，1，有结果
+    public int type;//查找路线使用的参数，0，使用2个位置，1，使用起始点和结束路点序号
     public StateMachine stateMachine;//使用者 AI/系统
     public Vector3 start;//寻路起始点
     public Vector3 end;//结束点
+    public int startIndex;
+    public int endIndex;
     public List<WayPoint> ways = new List<WayPoint>();//寻路结果路径
     public PathContext context = new PathContext();//寻路上下文.如果多线程，就需要，单线程结构不好.
 }
@@ -56,16 +66,27 @@ public class PathHelper:Singleton<PathHelper>
     List<PathPameter> pathQueue = new List<PathPameter>();
     public void CalcPath(StateMachine machine, Vector3 start, Vector3 end)
     {
-        PathPameter pameter = new PathPameter();
-        pameter.stateMachine = machine;
-        pameter.start = start;
-        pameter.end = end;
+        machine.Path.start = start;
+        machine.Path.end = end;
+        machine.Path.state = 0;
         lock (pathQueue)
         {
-            pathQueue.Add(pameter);
+            pathQueue.Add(machine.Path);
             waitEvent.Set();
         }
     }
+
+    public void CalcPath(StateMachine machine, Vector3 start, int end) {
+        machine.Path.type = 1;
+        machine.Path.state = 0;
+        machine.Path.start = start;
+        machine.Path.endIndex = end;
+        lock (pathQueue) {
+            pathQueue.Add(machine.Path);
+            waitEvent.Set();
+        }
+    }
+
 
     //取消某个请求
     public void CancelCalc(StateMachine machine)
@@ -89,12 +110,13 @@ public class PathHelper:Singleton<PathHelper>
     {
         if (CalcThread != null)
         {
+            CalcThread.Abort();
             UnityEngine.Debug.Log("计算线程还未停止");
             return;
         }
         CalcThread = new System.Threading.Thread(new System.Threading.ThreadStart(this.CalcCore));
         CalcThread.Start();
-        UnityEngine.Debug.Log("创建寻路线程");
+        //UnityEngine.Debug.Log("创建寻路线程");
     }
 
     public void StopCalc()
@@ -111,13 +133,30 @@ public class PathHelper:Singleton<PathHelper>
         while (true)
         {
             waitEvent.WaitOne();
+
+            if (quit) {
+                break;
+            }
+
             lock (pathQueue)
             {
                 while (pathQueue.Count != 0)
                 {
+                    if (quit) {
+                        break;
+                    }
+
                     PathPameter pameter = pathQueue[0];
                     pathQueue.RemoveAt(0);
-                    PathMng.Ins.FindPath(pameter.context, pameter.start, pameter.end, pameter.ways);
+                    switch (pameter.type) {
+                        case 0:
+                            Main.Ins.PathMng.FindPath(pameter.context, pameter.start, pameter.end, pameter.ways);
+                            break;
+                        case 1:
+                            Main.Ins.PathMng.FindPath(pameter.context, pameter.start, pameter.endIndex, pameter.ways);
+                            break;
+                    }
+                    pameter.state = 1;
                     LocalMsg msg = new LocalMsg();
                     msg.Message = (int)LocalMsgType.PathCalcFinished;
                     msg.context = pameter;
@@ -125,6 +164,12 @@ public class PathHelper:Singleton<PathHelper>
                 }
             }
         }
+
+        lock (pathQueue) {
+            pathQueue.Clear();
+        }
+        
+        CalcThread = null;
     }
 
 }
@@ -141,15 +186,16 @@ public enum WalkType
     Jump = 1,
 }
 
-public class PathMng:Singleton<PathMng>
+public class PathMng
 {
+    //通过起始坐标，结束坐标，得到一条通路.
     public void FindPath(PathContext context, Vector3 source, Vector3 target, List<WayPoint> waypoint)
     {
         int startPathIndex = GetWayIndex(source);
         int endPathIndex = GetWayIndex(target);
         if (startPathIndex == -1 || endPathIndex == -1)
         {
-            Debug.LogError("无法得到该位置所属路点");
+            Debug.LogError("无法得到正确线路");
             return;
         }
         context.looked.Clear();
@@ -169,6 +215,18 @@ public class PathMng:Singleton<PathMng>
         return WalkType.Normal;
     }
 
+    public void FindPath(PathContext context, Vector3 start, int end, List<WayPoint> waypoint) {
+        int startPathIndex = GetWayIndex(start);
+        if (startPathIndex == -1 || end == -1) {
+            Debug.LogError("无法得到正确线路");
+            return;
+        }
+        context.looked.Clear();
+        waypoint.Clear();
+        FindPathCore(context, startPathIndex, end, waypoint);
+    }
+
+    //通过起始路点，结束路点，得到一条通路
     public void FindPath(PathContext context, int start, int end, List<WayPoint> wp)
     {
         context.looked.Clear();

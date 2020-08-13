@@ -96,7 +96,6 @@ public class GameState
     public int Level;//当前最远通过的关卡
     public int ChapterTemplate;//创建单机适默认剧本
     public string NickName;
-    public bool useJoystickOrKeyBoard;//是否使用外设摇杆
     public bool EnableDebugSFX;//战斗UI调试特效是否显示
     public bool EnableDebugStatus;//角色头顶的信息条显示 动作 帧 状态 属性 等信息
     public bool EnableWeaponChoose;//战斗UI控制面板是否显示按钮
@@ -107,7 +106,6 @@ public class GameState
     public string Password;
     public bool AutoLogin;
     public bool RememberPassword;
-    public bool OnlyWifi;//仅在WIFI下更新和下载模组.
     public RoomSetting Single = new RoomSetting();//单机房间设置
     public RoomSetting NetWork = new RoomSetting();//联机房间设置
     public Dictionary<string, string> LocalMovie = new Dictionary<string, string>();//已更新到本地的
@@ -236,14 +234,14 @@ public class GameState
         }
     }
     //调试作弊栏
-    bool _GodLike;
-    public bool GodLike
+    bool _CheatEnable;
+    public bool CheatEnable
     {
         get
         {
             if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
                 return false;
-            return _GodLike;
+            return _CheatEnable;
         }
         set
         {
@@ -251,7 +249,7 @@ public class GameState
             {
                 return;
             }
-            _GodLike = value;
+            _CheatEnable = value;
         }
     }
     public MyVector2 JoyAnchor;//摇杆坐标.
@@ -264,30 +262,13 @@ public class GameState
     public bool ShowFPS;//显示fps
     public bool ShowSysMenu2;//显示左侧复活和战况
     public bool ShowWayPoint;//显示路点
-    public bool EnableLog;//HIDEBUG日志
-    bool _LevelDebug;
-    public bool LevelDebug
-    {
-        get
-        {
-            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
-                return false;
-            return _LevelDebug;
-        }
-        set
-        {
-            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
-            {
-                return;
-            }
-            _LevelDebug = value;
-        }
-    }//关卡内功能
     public bool AutoLock;//无锁定
     public bool DisableParticle;//无粒子特效
     public bool SnowParticle;//雪粒子
-    public bool DisableJoystick;//不显示摇杆.
+    public bool UseJoyDevice;//使用手柄设备-不显示战斗UI的操作部分-当未识别到手柄设备时，不起效
     public bool SkipVideo;//忽略过场视频
+    public int UseModel = -1;//强制使用的主角模型,可能会被特殊关卡设置无效 默认为-1
+    public Dictionary<EKeyList, KeyCode> KeyMapping = new Dictionary<EKeyList, KeyCode>();//虚拟键映射关系.
     public List<ServerInfo> ServerList;//自定义服务器
 
     public void FixServerList()
@@ -389,15 +370,35 @@ public class GameStateMgr
             svr.type = 0;
             gameStatus.ServerList = new List<ServerInfo>();//用户自定义的服务器列表.
             gameStatus.ServerList.Add(svr);
-            gameStatus.GodLike = false;
+            gameStatus.CheatEnable = false;
             gameStatus.Undead = false;
             gameStatus.ShowBlood = false;
             gameStatus.Quality = 0;
-            gameStatus.DisableJoystick = true;
             gameStatus.DisableParticle = true;
             gameStatus.AutoLock = true;
             gameStatus.SkipVideo = true;
-            gameStatus.OnlyWifi = true;
+            gameStatus.UseJoyDevice = false;
+            gameStatus.UseModel = -1;
+
+            //手柄默认按键配置
+            gameStatus.KeyMapping.Add(EKeyList.KL_KeyW, KeyCode.JoystickButton4);
+            gameStatus.KeyMapping.Add(EKeyList.KL_KeyS, KeyCode.JoystickButton6);
+            gameStatus.KeyMapping.Add(EKeyList.KL_KeyA, KeyCode.JoystickButton7);
+            gameStatus.KeyMapping.Add(EKeyList.KL_KeyD, KeyCode.JoystickButton5);
+            gameStatus.KeyMapping.Add(EKeyList.KL_CameraAxisXL, KeyCode.JoystickButton10);
+            gameStatus.KeyMapping.Add(EKeyList.KL_CameraAxisXR, KeyCode.JoystickButton11);
+            gameStatus.KeyMapping.Add(EKeyList.KL_CameraAxisYU, KeyCode.JoystickButton8);
+            gameStatus.KeyMapping.Add(EKeyList.KL_CameraAxisYD, KeyCode.JoystickButton9);
+
+            gameStatus.KeyMapping.Add(EKeyList.KL_Attack, KeyCode.JoystickButton15);
+            gameStatus.KeyMapping.Add(EKeyList.KL_Defence, KeyCode.JoystickButton13);
+            gameStatus.KeyMapping.Add(EKeyList.KL_Jump, KeyCode.JoystickButton14);
+            gameStatus.KeyMapping.Add(EKeyList.KL_BreakOut, KeyCode.JoystickButton12);
+            gameStatus.KeyMapping.Add(EKeyList.KL_ChangeWeapon, KeyCode.JoystickButton0);
+            gameStatus.KeyMapping.Add(EKeyList.KL_DropWeapon, KeyCode.JoystickButton3);
+            gameStatus.KeyMapping.Add(EKeyList.KL_Crouch, KeyCode.JoystickButton1);
+            gameStatus.KeyMapping.Add(EKeyList.KL_KeyQ, KeyCode.JoystickButton2);
+            gameStatus.KeyMapping.Add(EKeyList.KL_Help, KeyCode.JoystickButton16);
             SaveState();
         }
         else
@@ -419,7 +420,7 @@ public class GameStateMgr
             save.Flush();
             save.Close();
             save.Dispose();
-            Debug.Log("save success");
+            //Debug.Log("save success");
 
             save = null;
         }
@@ -594,17 +595,18 @@ public class UpdateHelper
 
 public class CombatData
 {
-    public bool Logined = false;
     public ServerInfo Server;//当前选择的服务器.
     public List<ServerInfo> Servers = new List<ServerInfo>();
     public float FPS = 1.0f / 30.0f;//动画设计帧率
-    public float gGravity = 1000;
+    public float gGravity = 1000;//重力加速度
+    public float gOnGroundCheck = 100;//如果在地面，也给一个向地面的移动测试（每1帧重置，如果离地则继续叠加），避免上下坡时没有向下移动导致的抖动
     public const float AngularVelocity = 360.0f;
     public const float RebornDelay = 15.0f;//复活队友的CD间隔
     public const float RebornRange = 125.0f;//复活队友的距离最大限制
     public const float RefreshFollowPathDelay = 5.0f;//如果跟随一个动态的目标，那么每5秒刷新一次位置
     public bool useShadowInterpolate = true;//是否使用影子跟随插值
     public bool PluginUpdated = false;//是否已成功更新过资料片配置文件
+    public bool GameFinished = false;
     public int MaxPlayer;
     public int RoundTime;
     public int MainWeapon;

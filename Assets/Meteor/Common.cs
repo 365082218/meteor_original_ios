@@ -92,6 +92,7 @@ public class ServerInfo
 }
 public enum EKeyList
 {
+    KL_None = -1,
     KL_Defence,//防御
     KL_BreakOut,//爆气
     KL_Crouch,//蹲着
@@ -107,7 +108,12 @@ public enum EKeyList
     KL_KeyQ,//解除锁定
     KL_Attack,//攻击
     KL_Jump,//跳跃
+    KL_CameraAxisXL,//视角左旋转
+    KL_CameraAxisXR,//视角右旋转
+    KL_CameraAxisYU,//视角上旋转
+    KL_CameraAxisYD,//视角下旋转
     KL_Max,
+
 };
 
 /// EInputType

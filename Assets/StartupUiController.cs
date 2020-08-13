@@ -81,5 +81,6 @@ public class StartupUiController : Dialog {
         Main.Ins.DlcMng.Init();
         Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainMenuState);
         Main.Ins.SplashScreenHidden = true;
+        Main.Ins.JoyStick.enabled = Main.Ins.GameStateMgr.gameStatus.UseJoyDevice;
     }
 }

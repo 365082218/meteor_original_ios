@@ -113,6 +113,11 @@ public class MeteorInput
 
         KeyStates[(int)EKeyList.KL_Taunt].AxisName = "Taunt";
         KeyStates[(int)EKeyList.KL_Taunt].Key = EKeyList.KL_Taunt;
+
+        KeyStates[(int)EKeyList.KL_CameraAxisXL].Key = EKeyList.KL_CameraAxisXL;
+        KeyStates[(int)EKeyList.KL_CameraAxisXR].Key = EKeyList.KL_CameraAxisXR;
+        KeyStates[(int)EKeyList.KL_CameraAxisYU].Key = EKeyList.KL_CameraAxisYU;
+        KeyStates[(int)EKeyList.KL_CameraAxisYD].Key = EKeyList.KL_CameraAxisYD;
     }
 
     public void ResetVector()
@@ -127,15 +132,26 @@ public class MeteorInput
             Vector2 vec = Vector2.zero;
             if (!mOwner.controller.InputLocked)
             {
-                if (mOwner.Attr.IsPlayer && NGUIJoystick.instance != null)
+                if (mOwner.Attr.IsPlayer)
                 {
-                    //如果方向键按下了
-                    if (NGUIJoystick.instance.mJoyPressed)
-                        vec = new Vector2(NGUIJoystick.instance.Delta.x, NGUIJoystick.instance.Delta.y);
-                    else if (NGUIJoystick.instance.ArrowPressed)
-                        vec = new Vector2(NGUIJoystick.instance.Delta.x, NGUIJoystick.instance.Delta.y);
-                    else
-                        vec = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+                    //手柄不为空,且在使用的情况下.
+                    if (Main.Ins.JoyStick.isActiveAndEnabled) {
+                        if (Main.Ins.JoyStick.mJoyPressed) {
+                            //如果左侧摇杆在操作。
+                            vec = new Vector2(Main.Ins.JoyStick.Delta.x, Main.Ins.JoyStick.Delta.y);
+                        } else if (Main.Ins.JoyStick.ArrowPressed) {
+                            vec = new Vector2(Main.Ins.JoyStick.Delta.x, Main.Ins.JoyStick.Delta.y);
+                        }
+                    } else {
+                        //使用触摸屏UI操作
+                        if (NGUIJoystick.instance != null) {
+                            //如果方向键按下了
+                            if (NGUIJoystick.instance.mJoyPressed)
+                                vec = new Vector2(NGUIJoystick.instance.Delta.x, NGUIJoystick.instance.Delta.y);
+                            else if (NGUIJoystick.instance.ArrowPressed)
+                                vec = new Vector2(NGUIJoystick.instance.Delta.x, NGUIJoystick.instance.Delta.y);
+                        }
+                    }
                 }
                 else
                     vec = new Vector2(OffX, OffZ);//AIMove 自动战斗输入
@@ -181,19 +197,23 @@ public class MeteorInput
             //只有使用键盘的时候，键的状态才从与键盘状态同步。
             //return;
             //UNITY的时候，会从硬件扫描
+            if (Main.Ins.JoyStick.isActiveAndEnabled) {
+                //使用手柄时.
+            } else {
 #if (UNITY_EDITOR || UNITY_STANDALONE_WIN) && !STRIP_KEYBOARD
-            if (mOwner.Attr.IsPlayer)//主角才读取键盘输入
-            {
-                float kValue = Input.GetAxisRaw(keyStatus.AxisName);
-                bool pressed = kValue > 0;
-                if (pressed && keyStatus.Pressed == 0 && !keyStatus.IsAI)
-                    OnKeyDownProxy(keyStatus, false);
-                else if (!pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
-                    OnKeyUpProxy(keyStatus);
-                else if (pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
-                    OnKeyPressingProxy(keyStatus);
-            }
+                if (mOwner.Attr.IsPlayer)//主角才读取键盘输入
+                {
+                    float kValue = Input.GetAxisRaw(keyStatus.AxisName);
+                    bool pressed = kValue > 0;
+                    if (pressed && keyStatus.Pressed == 0 && !keyStatus.IsAI)
+                        OnKeyDownProxy(keyStatus, false);
+                    else if (!pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
+                        OnKeyUpProxy(keyStatus);
+                    else if (pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
+                        OnKeyPressingProxy(keyStatus);
+                }
 #endif
+            }
         }
     }
 

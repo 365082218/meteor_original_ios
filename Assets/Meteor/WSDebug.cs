@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using UnityEngine.Events;
 using System.Reflection;
-using Idevgame.Debug;
+using Idevgame.Debugs;
 using UnityEngine.UI;
 using System;
 

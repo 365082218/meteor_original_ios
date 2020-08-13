@@ -32,11 +32,20 @@ public class CameraFree : NetBehaviour {
         base.OnDestroy();
     }
 
+    /// <summary>
+    /// 当跟随目标发生俯仰或旋转
+    /// </summary>
+    float yRotate = 0.0f;
+    float xRotate = 0.0f;
+    public void OnTargetRotate(float xDelta, float yDelta) {
+        yRotate = yDelta;
+        xRotate = xDelta;
+    }
+
+    public MeteorUnit Watched { get { return UnitTarget; } }
     MeteorUnit UnitTarget;
-    int CameraType = 0;
     public void Init(MeteorUnit target)
     {
-        CameraType = target != null ? 1 : 0;
         //GameObject.Destroy(Main.Instance.playerListener);
         //Main.Instance.playerListener = gameObject.AddComponent<AudioListener>();
         UnitTarget = target;
@@ -70,8 +79,11 @@ public class CameraFree : NetBehaviour {
             CameraSmoothFollow(Smooth);
     }
 
-    void LateUpdate()
+    public override void NetLateUpdate()
     {
+        if (m_Camera && !m_Camera.enabled) {
+            return;
+        }
         if (UnitTarget != null)
         {
             if (UnitTarget.Dead)
@@ -83,6 +95,12 @@ public class CameraFree : NetBehaviour {
         {
             CameraSmoothFollow(Smooth);
         }
+        ResetState();
+    }
+
+    private void ResetState() {
+        xRotate = 0;
+        yRotate = 0;
     }
 
     public void RefreshTarget()
@@ -148,29 +166,14 @@ public class CameraFree : NetBehaviour {
 
     protected void CameraSmoothFollow(bool smooth = true)
     {
-        //y = ax + b;
-        //a = 10 y = 75;
-        //a = 140 y = 60;
         float CameraRadis = 0.0f;
         float angleY = 0;//此角度由目标与玩家间的距离的来计算，距离越近越大
         Vector3 newPos = Vector3.zero;
         Vector3 vecTarget = Vector3.zero;
         Vector3 wallHitPos = Vector3.zero;//撞到墙壁的位置
-
-        //固定视角
-        //视角1：背后固定跟随角色
-
-        //电影视角
-        //视角2: 左侧望着格斗的2人
-        //视角3: 右侧望着格斗的2人
-        //视角4：顶部望着格斗的2人
-
-        //过程1：由固定视角，切换到电影视角
-        //过程2: 由电影视角，切换到固定视角
-
-        //不是AI观察相机时
-        if (UnitTarget.LockTarget != null && this.CameraType != 1)
+        if (UnitTarget.LockTarget != null)
         {
+            //观察格斗的双方
             LockTarget = UnitTarget.LockTarget.transform;
             //有锁定目标
             //开启摄像机锁定系统
@@ -240,6 +243,24 @@ public class CameraFree : NetBehaviour {
         }
         else
         {
+            if (xRotate != 0.0f) {
+                //根据参数调整高度，和距离.
+                //最高俯仰75度。
+                lastAngle -= xRotate;//鼠标往上，是仰视，往下是俯视
+                if (lastAngle >= angleMax) {
+                    lastAngle = angleMax;
+                    followDistance = Mathf.Abs(fRadis * Mathf.Cos(lastAngle * Mathf.Deg2Rad));
+                    followHeight = Mathf.Abs(fRadis * Mathf.Sin(lastAngle * Mathf.Deg2Rad));
+                } else if (lastAngle <= angleMin) {
+                    lastAngle = angleMin;
+                    followDistance = Mathf.Abs(fRadis * Mathf.Cos(lastAngle * Mathf.Deg2Rad));
+                    followHeight = -Mathf.Abs(fRadis * Mathf.Sin(lastAngle * Mathf.Deg2Rad));
+                } else {
+                    followDistance = Mathf.Abs(fRadis * Mathf.Cos(lastAngle * Mathf.Deg2Rad));
+                    followHeight = lastAngle == 0.0f ? 0 : (lastAngle / Mathf.Abs(lastAngle)) * Mathf.Abs(fRadis * Mathf.Sin(lastAngle * Mathf.Deg2Rad));
+                }
+            }
+
             newPos.x = Target.transform.position.x;
             newPos.y = Target.position.y + BodyHeight + followHeight;
             newPos.z = Target.transform.position.z;
@@ -248,8 +269,6 @@ public class CameraFree : NetBehaviour {
             vecTarget.x = Target.position.x;
             vecTarget.y = Target.position.y + BodyHeight;
             vecTarget.z = Target.position.z;
-
-            CameraLookAt.position = vecTarget;
 
             //如果新的位置，与目标注视点中间隔着墙壁
             RaycastHit wallHit;
@@ -274,20 +293,20 @@ public class CameraFree : NetBehaviour {
             {
                 newPos.x = Target.transform.position.x;
                 newPos.z = Target.transform.position.z;
-                float y = Mathf.SmoothDamp(CameraPosition.position.y, Target.position.y + BodyHeight + followHeight, ref currentVelocityY, f_DampTime);
+                float y = Mathf.SmoothDamp(CameraPosition.position.y, newPos.y, ref currentVelocityY, f_DampTime / 2);
                 newPos.y = y;
                 newPos += Main.Ins.LocalPlayer.transform.forward * followDistance;
             }
             else
             {
-                float y = Mathf.SmoothDamp(CameraPosition.position.y, newPos.y, ref currentVelocityY, f_DampTime);
+                float y = Mathf.SmoothDamp(CameraPosition.position.y, newPos.y, ref currentVelocityY, f_DampTime / 2);
                 newPos.y = y;
             }
 
             CameraPosition.position = newPos;
 
             vecTarget.x = Target.position.x;
-            vecTarget.y = Mathf.SmoothDamp(CameraLookAt.position.y, Target.position.y + BodyHeight, ref currentVelocityY2, f_DampTime);
+            vecTarget.y = Mathf.SmoothDamp(CameraLookAt.position.y, Target.position.y + BodyHeight, ref currentVelocityY2, f_DampTime / 2);
             vecTarget.z = Target.position.z;
 
             CameraLookAt.position = vecTarget;

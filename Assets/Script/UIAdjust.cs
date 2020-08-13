@@ -13,7 +13,7 @@ public class UIAdjust : MonoBehaviour {
     void Awake()
     {
         Target.anchoredPosition = Main.Ins.GameStateMgr.gameStatus.JoyAnchor;
-        posLabel.text = string.Format("{0} {1}", Main.Ins.GameStateMgr.gameStatus.JoyAnchor.x, Main.Ins.GameStateMgr.gameStatus.JoyAnchor.y);
+        //posLabel.text = string.Format("{0} {1}", Main.Ins.GameStateMgr.gameStatus.JoyAnchor.x, Main.Ins.GameStateMgr.gameStatus.JoyAnchor.y);
     }
 
     //Vector2 mFingerDownPos;
@@ -65,7 +65,7 @@ public class UIAdjust : MonoBehaviour {
     {
         if (enabled && gameObject.activeSelf && Target != null)
         {
-            Debug.Log(string.Format("currentTouch.pos {0}-{1}", UICamera.currentTouch.pos.x, UICamera.currentTouch.pos.y));
+            //Debug.Log(string.Format("currentTouch.pos {0}-{1}", UICamera.currentTouch.pos.x, UICamera.currentTouch.pos.y));
             if (mLastFingerId == UICamera.currentTouchID)
             {
                 Target.anchoredPosition = UICamera.currentTouch.pos - vecOffset;
@@ -81,7 +81,7 @@ public class UIAdjust : MonoBehaviour {
                     Main.Ins.GameStateMgr.gameStatus.UIAnchor[UIIndex - 1].y = Target.anchoredPosition.y;
                     Main.Ins.GameStateMgr.gameStatus.HasUIAnchor[UIIndex - 1] = true;
                 }
-                posLabel.text = string.Format("{0} {1}", Target.anchoredPosition.x, Target.anchoredPosition.y);
+                //posLabel.text = string.Format("{0} {1}", Target.anchoredPosition.x, Target.anchoredPosition.y);
             }
         }
     }

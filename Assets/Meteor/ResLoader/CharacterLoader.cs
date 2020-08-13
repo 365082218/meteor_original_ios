@@ -749,7 +749,7 @@ public class CharacterLoader
             }
             else if ((po.Idx >= CommonAction.Idle && po.Idx <= 21) || (po.Idx >= CommonAction.WalkForward && po.Idx <= CommonAction.RunOnDrug))
             {
-                if (owner.GameFinished)
+                if (Main.Ins.CombatData.GameFinished)
                     loop = false;
             }
             else if (po.Idx == 219 || po.Idx == 221 || po.Idx == 223)//飞轮出击后等待接回飞轮

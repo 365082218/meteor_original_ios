@@ -31,7 +31,7 @@ public class NGUICameraJoystick : MonoBehaviour
 	{
         if (isPress)
         {
-            mPressTime += Time.deltaTime;
+            mPressTime += FrameReplay.deltaTime;
             //if (mLastFingerId == UICamera.currentTouchID && !MeteorManager.Instance.LocalPlayer.Dead)
             //{
             //    Vector2 touchPos = UICamera.currentTouch.pos - mFingerDownPos;

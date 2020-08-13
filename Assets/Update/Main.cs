@@ -40,8 +40,8 @@ public class Main : MonoBehaviour {
     public GameObject fpsCanvas;
     public AudioSource Music;
     public AudioSource Sound;
-    public AudioListener listener;
-    public AudioListener playerListener;
+    public AudioListener listener;//ui
+    public AudioListener playerListener;//相机
 
     public static HttpClient UpdateClient = null;
 
@@ -56,6 +56,7 @@ public class Main : MonoBehaviour {
     public HostEditDialogState HostEditDialogState;//服务器主机编辑界面.
     public NickNameDialogState NickNameDialogState;//昵称界面.
     public BattleStatusDialogState BattleStatusDialogState;//当局战斗信息界面
+    public ConnectServerDialogState ConnectServerState;//与指定服务器进行连接.
     public PlayerDialogState PlayerDialogState;
     public ChatDialogState ChatDialogState;
     public PsdEditDialogState PsdEditDialogState;
@@ -74,6 +75,7 @@ public class Main : MonoBehaviour {
     public CameraFree CameraFree;
 
     //全局唯一对象全挂在Main之下
+    public PlayerJoyStick JoyStick;
     public GameStateMgr GameStateMgr;
     public UpdateHelper UpdateHelper;
     public AppInfo AppInfo;
@@ -168,6 +170,7 @@ public class Main : MonoBehaviour {
         ReplayState = new ReplayState();
         NickNameDialogState = new NickNameDialogState();
         BattleStatusDialogState = new BattleStatusDialogState();
+        ConnectServerState = new ConnectServerDialogState();
         PlayerDialogState = new PlayerDialogState();
         ChatDialogState = new ChatDialogState();
         PsdEditDialogState = new PsdEditDialogState();
@@ -212,7 +215,7 @@ public class Main : MonoBehaviour {
         SoundManager = new SoundManager();
         ResMng = new ResMng();
         DlcMng = new DlcMng();
-
+        PathMng = new PathMng();
         DontDestroyOnLoad(gameObject);
         Log.WriteError(string.Format("GameStart AppVersion:{0}", Main.Ins.AppInfo.AppVersion()));
     }
@@ -304,22 +307,13 @@ public class Main : MonoBehaviour {
     //这个热更新系统不好维护，仅支持一些资源文件的更新等
 	IEnumerator CheckNeedUpdate()
 	{
-        //仅在局域网下可用
         if (Application.internetReachability == NetworkReachability.NotReachable)
         {
-            //不可用
+            //无网络连接
             GameStart();
             yield break;
         }
-        else if (Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork && GameStateMgr.gameStatus.OnlyWifi)
-        {
-            //3G-4G流量套餐
-            //别更新
-            GameStart();
-            yield break;
-        }
-        else
-		if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork || !GameStateMgr.gameStatus.OnlyWifi)
+        else if (Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork || Application.internetReachability == NetworkReachability.ReachableViaCarrierDataNetwork)
         {
             //Debug.LogError("download:" + string.Format(strVFile, strHost, Main.port, strProjectUrl, strPlatform, strVFileName));
             UnityWebRequest vFile = new UnityWebRequest();

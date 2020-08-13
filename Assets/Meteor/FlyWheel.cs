@@ -63,7 +63,7 @@ public class FlyWheel :NetBehaviour {
         List<MeteorUnit> deleted = new List<MeteorUnit>();
 		foreach (var each in attackTick)
         {
-            if (each.Value - Time.deltaTime <= 0.0f)
+            if (each.Value - FrameReplay.deltaTime <= 0.0f)
                 deleted.Add(each.Key);
         }
         for (int i = 0; i < deleted.Count; i++)
@@ -197,9 +197,9 @@ public class FlyWheel :NetBehaviour {
             Vector3 dir = auto_target.mSkeletonPivot - transform.position;
             //Debug.LogError("dir.magnitude:" + dir.sqrMagnitude + " speed*time.deltatime:" + speed * Time.deltaTime);
             //WsGlobal.AddDebugLine(transform.position, transform.position + dir, Color.red, "dir");
-            if (dir.magnitude <= speed * Time.deltaTime)//下一帧能够超过目标.
+            if (dir.magnitude <= speed * FrameReplay.deltaTime)//下一帧能够超过目标.
                 status = FlyStatus.FlyReturn;
-            transform.position = transform.position + dir.normalized * speed * Time.deltaTime;
+            transform.position = transform.position + dir.normalized * speed * FrameReplay.deltaTime;
         }
         else if (status == FlyStatus.FlyReturn)
         {
@@ -209,7 +209,7 @@ public class FlyWheel :NetBehaviour {
             Vector3 dir = owner.WeaponR.position - transform.position;
             //Debug.LogError("dir.magnitude:" + dir.sqrMagnitude + " speed*time.deltatime:" + speed * Time.deltaTime);
             //WsGlobal.AddDebugLine(transform.position, transform.position + dir, Color.red, "dir");
-            if (dir.magnitude <= speed * Time.deltaTime)//速度太大的时候，可能会2边跑，而且距离都大于5，这样要看夹角是否改变了方向.
+            if (dir.magnitude <= speed * FrameReplay.deltaTime)//速度太大的时候，可能会2边跑，而且距离都大于5，这样要看夹角是否改变了方向.
             {
                 //Debug.LogError("WeaponReturned");
                 owner.WeaponReturned(_attack.PoseIdx);
@@ -217,7 +217,7 @@ public class FlyWheel :NetBehaviour {
                 GameObject.Destroy(gameObject);
                 return;
             }
-            transform.position = transform.position + dir.normalized * speed * Time.deltaTime;
+            transform.position = transform.position + dir.normalized * speed * FrameReplay.deltaTime;
         }
     }
 

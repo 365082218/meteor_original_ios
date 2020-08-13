@@ -4,7 +4,7 @@
 
 using System;
 
-namespace Idevgame.Debug {
+namespace Idevgame.Debugs {
     
 #if STRIP_DBG_SETTINGS
     [System.Diagnostics.ConditionalAttribute("FALSE")]

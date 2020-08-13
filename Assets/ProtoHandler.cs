@@ -444,10 +444,16 @@ class ProtoHandler
     static int retryNum = 3;
     static void OnConnect(int result, string message)
     {
+        if (ConnectServerDialogState.Exist())
+            Main.Ins.ExitState(Main.Ins.ConnectServerState);
         //取得房间信息
         if (result == 1)
         {
             retryNum = 3;
+            GameOverlayDialogState.Instance.InsertSystemMsg("连接成功,等待请求房间列表");
+            if (MainLobbyDialogState.Exist) {
+                MainLobbyDialogState.Instance.OnSelectService();
+            }
             TcpClientProxy.UpdateGameServer();
             //TcpClientProxy.AutoLogin();//验证客户端的合法性
         }
@@ -495,7 +501,7 @@ class ProtoHandler
         if (msg.context is PathPameter)
         {
             PathPameter pameter = msg.context as PathPameter;
-            pameter.stateMachine.OnPathCalcFinished(pameter);
+            pameter.stateMachine.OnPathCalcFinished();
         }
     }
 }

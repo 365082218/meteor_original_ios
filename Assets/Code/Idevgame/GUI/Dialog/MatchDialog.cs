@@ -94,7 +94,7 @@ public class MatchDialog : Dialog
     //bool queue = false;//排队中
     void Update()
     {
-        tick += Time.deltaTime;
+        tick += FrameReplay.deltaTime;
         if (quit)
         {
             if (tick >= 5.0)

@@ -139,7 +139,13 @@ public class SceneMng
         
         unit.transform.rotation = new Quaternion(0, 0, 0, 1);
         U3D.InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
-        mon.OnStart();
+        if (FrameReplay.Instance.Started) {
+            mon.OnStart();
+            //Debug.Log("关卡剧情加入NPC自己初始化");
+        } else {
+            //Debug.Log("关卡默认NPC统一初始化");
+        }
+
         return unit;
     }
 

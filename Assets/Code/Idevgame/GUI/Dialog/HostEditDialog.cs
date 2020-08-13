@@ -85,7 +85,7 @@ public class HostEditDialog : Dialog
                 if (ServerListDialogState.Exist)
                     ServerListDialogState.Instance.OnRefresh(ServerListDialog.ADD, info);
                 Main.Ins.CombatData.OnServiceChanged(1, info);
-                OnBackPress();
+                Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.ServerListDialogState);
             }
             else if (!string.IsNullOrEmpty(serverIP.text))
             {
@@ -98,12 +98,12 @@ public class HostEditDialog : Dialog
                 if (ServerListDialogState.Exist)
                     ServerListDialogState.Instance.OnRefresh(ServerListDialog.ADD, info);
                 Main.Ins.CombatData.OnServiceChanged(1, info);
-                OnBackPress();
+                Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.ServerListDialogState);
             }
         });
         Control("Cancel").GetComponent<Button>().onClick.AddListener(() =>
         {
-            OnBackPress();
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.ServerListDialogState);
         });
     }
 }

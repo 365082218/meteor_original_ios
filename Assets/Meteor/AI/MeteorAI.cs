@@ -42,12 +42,10 @@ public enum EAISubStatus
     SubStatusWait,
     FollowGotoTarget,
     FollowSubRotateToTarget,
-    Patrol,
-    PatrolGotoFirstPoint,//跑到第一个寻路点
-    PatrolSubInPlace,//原地
+
     PatrolSubRotateInPlace,//原地随机旋转.
     PatrolSubRotateToTarget,//原地一定时间内旋转到指定方向
-    PatrolSubRotateToPatrolPoint,
+
     PatrolSubGotoTarget,//跑向指定位置
     KillThink,//思考是走近还是切换状态
     KillGotoTarget,//离角色一定距离，需要先跑过去
@@ -61,6 +59,13 @@ public enum EAISubStatus
     StartFind,//开始寻路
     FindWait,//等待寻路完成,
     FindWaitPatrol,//等待巡逻所有路点间的寻路完成.
+
+    //第二版状态机
+    PatrolInPlace,//原地巡逻
+    RotateToPatrolPoint,//旋转朝向巡逻点
+    RotateToWayPoint,//旋转朝向路点
+    GotoWayPoint,//走向下一个路点.
+    GotoPatrolPoint,//走向下一个巡逻点.
 }
 
 //寻路流程，得到自己和目标所在路点，取得路点序列，向下一个路点进发，到达最后一个路点->往目的进发->到达目的，结束.
@@ -307,14 +312,14 @@ public class MeteorAI {
                     case EAIStatus.Patrol:
                         switch (SubStatusOnComplete)
                         {
-                            case EAISubStatus.Patrol:
-                                //RefreshPathCoroutine = Main.Ins.StartCoroutine(RefreshPatrolPath());
-                                SubStatus = EAISubStatus.FindWaitPatrol;
-                                break;
-                            case EAISubStatus.PatrolGotoFirstPoint:
-                                RefreshPath(owner.mSkeletonPivot, PatrolPath[targetPatrolIndex].pos);
-                                SubStatus = EAISubStatus.FindWait;
-                                break;
+                            //case EAISubStatus.Patrol:
+                            //    //RefreshPathCoroutine = Main.Ins.StartCoroutine(RefreshPatrolPath());
+                            //    SubStatus = EAISubStatus.FindWaitPatrol;
+                            //    break;
+                            //case EAISubStatus.PatrolGotoFirstPoint:
+                            //    RefreshPath(owner.mSkeletonPivot, PatrolPath[targetPatrolIndex].pos);
+                            //    SubStatus = EAISubStatus.FindWait;
+                            //    break;
                         }
                         break;
                     case EAIStatus.Follow:
@@ -2089,7 +2094,7 @@ public class MeteorAI {
         }
         else if (type == EAIStatus.Patrol)
         {
-            SubStatus = EAISubStatus.Patrol;
+            //SubStatus = EAISubStatus.Patrol;
         }
         else if (type == EAIStatus.Follow)
         {
@@ -2721,7 +2726,7 @@ public class MeteorAI {
         if (vec.x == owner.transform.position.x && vec.z == owner.transform.position.z)
         {
             PatrolRotateToPatrolPointCoroutine = null;
-            SubStatus = EAISubStatus.PatrolGotoFirstPoint;
+            //SubStatus = EAISubStatus.PatrolGotoFirstPoint;
             yield break;
         }
         //WsGlobal.AddDebugLine(vec, vec + Vector3.up * 10, Color.red, "PatrolPoint", 20.0f);
@@ -2755,7 +2760,7 @@ public class MeteorAI {
             yield return 0;
         }
         PatrolRotateToPatrolPointCoroutine = null;
-        SubStatus = EAISubStatus.PatrolGotoFirstPoint;
+        //SubStatus = EAISubStatus.PatrolGotoFirstPoint;
     }
 
     int RotateRound;
@@ -2793,113 +2798,113 @@ public class MeteorAI {
     {
         switch (SubStatus)
         {
-            case EAISubStatus.Patrol:
-                {
-                    if (PatrolPath.Count == 0)
-                    {
-                        //Debug.LogError("巡逻，路径为空进入寻路");
-                        ChangeState(EAIStatus.FindWay, EAIStatus.Patrol, EAISubStatus.Patrol);
-                        return;
-                    }
+            //case EAISubStatus.Patrol:
+            //    {
+            //        if (PatrolPath.Count == 0)
+            //        {
+            //            //Debug.LogError("巡逻，路径为空进入寻路");
+            //            ChangeState(EAIStatus.FindWay, EAIStatus.Patrol, EAISubStatus.Patrol);
+            //            return;
+            //        }
 
-                    int k = GetPatrolIndex();
-                    if (k == -1)
-                    {
-                        int n = GetNearestPatrolPoint();
-                        targetPatrolIndex = n;//目的地
-                        //当不在任何一个巡逻点中时，跑到第一个巡逻点的过程
-                        //SubStatus = EAISubStatus.PatrolGotoFirstPoint;
-                        //Debug.LogError("巡逻，从当前位置走到第一个巡逻点寻路");
-                        ChangeState(EAIStatus.FindWay, EAIStatus.Patrol, EAISubStatus.PatrolGotoFirstPoint);
-                        return;
-                    }
+            //        int k = GetPatrolIndex();
+            //        if (k == -1)
+            //        {
+            //            int n = GetNearestPatrolPoint();
+            //            targetPatrolIndex = n;//目的地
+            //            //当不在任何一个巡逻点中时，跑到第一个巡逻点的过程
+            //            //SubStatus = EAISubStatus.PatrolGotoFirstPoint;
+            //            //Debug.LogError("巡逻，从当前位置走到第一个巡逻点寻路");
+            //            ChangeState(EAIStatus.FindWay, EAIStatus.Patrol, EAISubStatus.PatrolGotoFirstPoint);
+            //            return;
+            //        }
 
-                    //原地巡逻
-                    if (PatrolPath.Count == 1 && patrolData.Count == 1)
-                    {
-                        SubStatus = EAISubStatus.PatrolSubInPlace;
-                        return;
-                    }
+            //        //原地巡逻
+            //        if (PatrolPath.Count == 1 && patrolData.Count == 1)
+            //        {
+            //            SubStatus = EAISubStatus.PatrolSubInPlace;
+            //            return;
+            //        }
 
-                    //逆序巡逻
-                    if (reverse)
-                    {
-                        if (curPatrolIndex <= 0)
-                        {
-                            reverse = false;
-                            break;
-                        }
-                        else
-                        {
-                            targetPatrolIndex = (curPatrolIndex - 1) % PatrolPath.Count;
-                            if (targetPatrolIndex != curPatrolIndex)
-                            {
-                                if (PatrolPath.Count <= targetPatrolIndex)
-                                {
-                                    OnIdle();
-                                    return;
-                                }
+            //        //逆序巡逻
+            //        if (reverse)
+            //        {
+            //            if (curPatrolIndex <= 0)
+            //            {
+            //                reverse = false;
+            //                break;
+            //            }
+            //            else
+            //            {
+            //                targetPatrolIndex = (curPatrolIndex - 1) % PatrolPath.Count;
+            //                if (targetPatrolIndex != curPatrolIndex)
+            //                {
+            //                    if (PatrolPath.Count <= targetPatrolIndex)
+            //                    {
+            //                        OnIdle();
+            //                        return;
+            //                    }
 
-                                //Debug.LogError("进入巡逻子状态-朝目标旋转");
-                                SubStatus = EAISubStatus.PatrolSubRotateToTarget;//准备先对准目标
-                            }
-                            else
-                            {
-                                RotateRound = Random.Range(1, 3);
-                                SubStatus = EAISubStatus.PatrolSubRotateInPlace;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        //顺序巡逻
-                        if (curPatrolIndex == PatrolPath.Count - 1)
-                        {
-                            reverse = true;
-                            break;
-                        }
-                        else
-                            targetPatrolIndex = (curPatrolIndex + 1) % PatrolPath.Count;
-                        if (targetPatrolIndex != curPatrolIndex)
-                        {
-                            if (PatrolPath.Count <= targetPatrolIndex)
-                            {
-                                //Debug.LogError("PatrolPath->OnIdle");
-                                OnIdle();
-                                return;
-                            }
+            //                    //Debug.LogError("进入巡逻子状态-朝目标旋转");
+            //                    SubStatus = EAISubStatus.PatrolSubRotateToTarget;//准备先对准目标
+            //                }
+            //                else
+            //                {
+            //                    RotateRound = Random.Range(1, 3);
+            //                    SubStatus = EAISubStatus.PatrolSubRotateInPlace;
+            //                }
+            //            }
+            //        }
+            //        else
+            //        {
+            //            //顺序巡逻
+            //            if (curPatrolIndex == PatrolPath.Count - 1)
+            //            {
+            //                reverse = true;
+            //                break;
+            //            }
+            //            else
+            //                targetPatrolIndex = (curPatrolIndex + 1) % PatrolPath.Count;
+            //            if (targetPatrolIndex != curPatrolIndex)
+            //            {
+            //                if (PatrolPath.Count <= targetPatrolIndex)
+            //                {
+            //                    //Debug.LogError("PatrolPath->OnIdle");
+            //                    OnIdle();
+            //                    return;
+            //                }
 
-                            //Debug.LogError("进入巡逻子状态-朝目标旋转");
-                            SubStatus = EAISubStatus.PatrolSubRotateToTarget;//准备先对准目标
-                        }
-                        else
-                        {
-                            RotateRound = Random.Range(1, 3);
-                            SubStatus = EAISubStatus.PatrolSubRotateInPlace;
-                        }
-                    }
-                }
-                break;
-            case EAISubStatus.PatrolSubRotateInPlace:
-                if (RotateRound > 0)
-                {
-                    if (PatrolRotateCoroutine == null)
-                    {
-                        //Debug.LogError("进入巡逻子状态-到底指定地点后旋转.启动协程");
-                        PatrolRotateCoroutine = owner.StartCoroutine(PatrolRotate());
-                    }
-                }
-                else
-                {
-                    //旋转轮次使用完毕，下一次巡逻
-                    SubStatus = EAISubStatus.Patrol;
-                }
-                break;
+            //                //Debug.LogError("进入巡逻子状态-朝目标旋转");
+            //                SubStatus = EAISubStatus.PatrolSubRotateToTarget;//准备先对准目标
+            //            }
+            //            else
+            //            {
+            //                RotateRound = Random.Range(1, 3);
+            //                SubStatus = EAISubStatus.PatrolSubRotateInPlace;
+            //            }
+            //        }
+            //    }
+            //    break;
+            //case EAISubStatus.PatrolSubRotateInPlace:
+            //    if (RotateRound > 0)
+            //    {
+            //        if (PatrolRotateCoroutine == null)
+            //        {
+            //            //Debug.LogError("进入巡逻子状态-到底指定地点后旋转.启动协程");
+            //            PatrolRotateCoroutine = owner.StartCoroutine(PatrolRotate());
+            //        }
+            //    }
+            //    else
+            //    {
+            //        //旋转轮次使用完毕，下一次巡逻
+            //        SubStatus = EAISubStatus.Patrol;
+            //    }
+            //    break;
             case EAISubStatus.PatrolSubRotateToTarget:
                 if (PatrolRotateToTargetCoroutine == null)
                     PatrolRotateToTargetCoroutine = owner.StartCoroutine(PatrolRotateToTarget(PatrolPath[targetPatrolIndex].pos));
                 break;
-            case EAISubStatus.PatrolSubRotateToPatrolPoint:
+            case EAISubStatus.RotateToPatrolPoint:
                 if (PatrolRotateToPatrolPointCoroutine == null)
                 {
                     Vector3 vec;
@@ -2937,84 +2942,84 @@ public class MeteorAI {
                     owner.controller.Input.AIMove(0, 1);
                 }
                 break;
-            case EAISubStatus.PatrolGotoFirstPoint:
-                if (curIndex == -1)
-                    targetIndex = 0;
+            //case EAISubStatus.PatrolGotoFirstPoint:
+            //    if (curIndex == -1)
+            //        targetIndex = 0;
 
-                if (targetIndex >= Path.Count)
-                {
-                    NextFramePos = PatrolPath[targetPatrolIndex].pos - owner.mSkeletonPivot;
-                    NextFramePos.y = 0;
-                    if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance)
-                    {
-                        NextFramePos.y = 0;
-                        NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * FrameReplay.deltaTime * 0.15f;
-                        float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(PatrolPath[targetPatrolIndex].pos - NextFramePos));
-                        if (s < 0)
-                        {
-                            //不在寻路点上，说明已经到达终点,进入巡逻队列状态
-                            owner.controller.Input.AIMove(0, 0);
-                            SubStatus = EAISubStatus.Patrol;
-                            curPatrolIndex = targetPatrolIndex;
-                            targetPatrolIndex += 1;
-                            if (targetPatrolIndex >= PatrolPath.Count)
-                                reverse = true;
-                            return;
-                        }
-                    }
-                    owner.FaceToTarget(PatrolPath[targetPatrolIndex].pos);
-                    owner.controller.Input.AIMove(0, 1);
-                }
-                else
-                {
-                    NextFramePos = Path[targetIndex].pos - owner.mSkeletonPivot;
-                    NextFramePos.y = 0;
-                    if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance)
-                    {
-                        NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * FrameReplay.deltaTime * 0.15f;
-                        float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(Path[targetIndex].pos - NextFramePos));
-                        if (s < 0)
-                        {
-                            owner.controller.Input.AIMove(0, 0);
-                            curIndex = targetIndex;
-                            targetIndex += 1;
-                            RotateRound = Random.Range(1, 3);
-                            SubStatus = EAISubStatus.PatrolSubRotateToPatrolPoint;//到指定地点后旋转到目标.
-                            return;
-                        }
-                    }
+            //    if (targetIndex >= Path.Count)
+            //    {
+            //        NextFramePos = PatrolPath[targetPatrolIndex].pos - owner.mSkeletonPivot;
+            //        NextFramePos.y = 0;
+            //        if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance)
+            //        {
+            //            NextFramePos.y = 0;
+            //            NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+            //            float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(PatrolPath[targetPatrolIndex].pos - NextFramePos));
+            //            if (s < 0)
+            //            {
+            //                //不在寻路点上，说明已经到达终点,进入巡逻队列状态
+            //                owner.controller.Input.AIMove(0, 0);
+            //                SubStatus = EAISubStatus.Patrol;
+            //                curPatrolIndex = targetPatrolIndex;
+            //                targetPatrolIndex += 1;
+            //                if (targetPatrolIndex >= PatrolPath.Count)
+            //                    reverse = true;
+            //                return;
+            //            }
+            //        }
+            //        owner.FaceToTarget(PatrolPath[targetPatrolIndex].pos);
+            //        owner.controller.Input.AIMove(0, 1);
+            //    }
+            //    else
+            //    {
+            //        NextFramePos = Path[targetIndex].pos - owner.mSkeletonPivot;
+            //        NextFramePos.y = 0;
+            //        if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance)
+            //        {
+            //            NextFramePos = owner.mSkeletonPivot + NextFramePos.normalized * owner.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+            //            float s = GetAngleBetween(Vector3.Normalize(NextFramePos - owner.mSkeletonPivot), Vector3.Normalize(Path[targetIndex].pos - NextFramePos));
+            //            if (s < 0)
+            //            {
+            //                owner.controller.Input.AIMove(0, 0);
+            //                curIndex = targetIndex;
+            //                targetIndex += 1;
+            //                RotateRound = Random.Range(1, 3);
+            //                SubStatus = EAISubStatus.RotateToPatrolPoint;//到指定地点后旋转到目标.
+            //                return;
+            //            }
+            //        }
 
-                    //模拟跳跃键，移动到下一个位置.还得按住上
-                    if (curIndex != -1)
-                    {
-                        if (Main.Ins.PathMng.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump)
-                        {
-                            if (owner.IsOnGround())
-                            {
-                                owner.FaceToTarget(Path[targetIndex].pos);
-                                owner.controller.Input.AIMove(0, 0);
-                                AIJump(Path[targetIndex].pos);
-                                AIJumpDelay = 0.0f;
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            owner.FaceToTarget(Path[targetIndex].pos);
-                            owner.controller.Input.AIMove(0, 1);
-                        }
-                    }
-                    else
-                    {
-                        owner.FaceToTarget(Path[targetIndex].pos);
-                        owner.controller.Input.AIMove(0, 1);
-                    }
-                }
-                break;
-            case EAISubStatus.PatrolSubInPlace:
-                if (PatrolRotateCoroutine == null)
-                    PatrolRotateCoroutine = owner.StartCoroutine(PatrolRotate(90.0f));
-                break;
+            //        //模拟跳跃键，移动到下一个位置.还得按住上
+            //        if (curIndex != -1)
+            //        {
+            //            if (Main.Ins.PathMng.GetWalkMethod(Path[curIndex].index, Path[targetIndex].index) == WalkType.Jump)
+            //            {
+            //                if (owner.IsOnGround())
+            //                {
+            //                    owner.FaceToTarget(Path[targetIndex].pos);
+            //                    owner.controller.Input.AIMove(0, 0);
+            //                    AIJump(Path[targetIndex].pos);
+            //                    AIJumpDelay = 0.0f;
+            //                    return;
+            //                }
+            //            }
+            //            else
+            //            {
+            //                owner.FaceToTarget(Path[targetIndex].pos);
+            //                owner.controller.Input.AIMove(0, 1);
+            //            }
+            //        }
+            //        else
+            //        {
+            //            owner.FaceToTarget(Path[targetIndex].pos);
+            //            owner.controller.Input.AIMove(0, 1);
+            //        }
+            //    }
+            //    break;
+            //case EAISubStatus.PatrolSubInPlace:
+            //    if (PatrolRotateCoroutine == null)
+            //        PatrolRotateCoroutine = owner.StartCoroutine(PatrolRotate(90.0f));
+            //    break;
         }
     }
 
@@ -3057,12 +3062,12 @@ public class MeteorAI {
                         return;
                     switch (SubStatus)
                     {
-                        case EAISubStatus.Patrol:
-                            owner.controller.Input.AIMove(0, 0);
-                            RotateRound = Random.Range(1, 3);
-                            SubStatus = EAISubStatus.PatrolSubRotateInPlace;//到底指定地点后旋转
-                            curPatrolIndex = idx;
-                            break;
+                        //case EAISubStatus.Patrol:
+                        //    owner.controller.Input.AIMove(0, 0);
+                        //    RotateRound = Random.Range(1, 3);
+                        //    SubStatus = EAISubStatus.PatrolSubRotateInPlace;//到底指定地点后旋转
+                        //    curPatrolIndex = idx;
+                        //    break;
                         case EAISubStatus.PatrolSubGotoTarget:
                             RotateRound = Random.Range(1, 3);
                             SubStatus = EAISubStatus.PatrolSubRotateInPlace;//到底指定地点后旋转

@@ -25,11 +25,6 @@ public class U3D : MonoBehaviour {
 #endif
     }
 
-    public static void ReloadTable()
-    {
-        //重新加载表格
-    }
-
     public static List<string> Nicks;
     public static string GetRandomName()
     {
@@ -292,6 +287,7 @@ public class U3D : MonoBehaviour {
         Main.Ins.LocalPlayer.Init(model, Main.Ins.LocalPlayer.Attr, true);
         Main.Ins.CombatData.PauseAll = false;
         Main.Ins.LocalPlayer.controller.InputLocked = false;
+        Main.Ins.GameStateMgr.gameStatus.UseModel = model;
     }
 
     public static MeteorUnit InitNetPlayer(PlayerEventData player)
@@ -351,6 +347,10 @@ public class U3D : MonoBehaviour {
         MeteorUnit unit = ins.GetComponent<MeteorUnit>();
         Main.Ins.LocalPlayer = unit;
         unit.Camp = EUnitCamp.EUC_FRIEND;//流星阵营
+        //单机剧本.用设置的主角，刷新替换掉，关卡里设定的.
+        if (Main.Ins.GameStateMgr.gameStatus.UseModel != -1 && Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask) {
+            mon.Model = Main.Ins.GameStateMgr.gameStatus.UseModel; 
+        }
         unit.Init(mon.Model, mon);
         Main.Ins.MeteorManager.OnGenerateUnit(unit);
         unit.SetGround(false);
@@ -1579,6 +1579,7 @@ public class U3D : MonoBehaviour {
         for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
             Main.Ins.MeteorManager.UnitInfos[i].EnableAI(false);
+            Main.Ins.MeteorManager.UnitInfos[i].EnableUpdate(false);
         }
     }
 
@@ -1587,14 +1588,19 @@ public class U3D : MonoBehaviour {
         for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
             Main.Ins.MeteorManager.UnitInfos[i].EnableAI(true);
+            Main.Ins.MeteorManager.UnitInfos[i].EnableUpdate(true);
         }
+    }
+
+    public static void DoScript() {
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.ScriptInputDialogState);
     }
 
     //以下为脚本系统执行面板里能响应的操作
     public static void GodLike()
     {
-        Main.Ins.GameStateMgr.gameStatus.GodLike = !Main.Ins.GameStateMgr.gameStatus.GodLike;
-        U3D.InsertSystemMsg(Main.Ins.GameStateMgr.gameStatus.GodLike ? "作弊[开]" : "作弊[关]");
+        Main.Ins.GameStateMgr.gameStatus.CheatEnable = !Main.Ins.GameStateMgr.gameStatus.CheatEnable;
+        U3D.InsertSystemMsg(Main.Ins.GameStateMgr.gameStatus.CheatEnable ? "作弊[开]" : "作弊[关]");
         //if (EscWnd.Exist)
         //    EscWnd.Instance.Close();
         //EscWnd.Instance.Open();

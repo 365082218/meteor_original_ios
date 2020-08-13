@@ -114,7 +114,7 @@ public class MainLobbyDialog : Dialog
         });
         Control("Close").GetComponent<Button>().onClick.AddListener(() =>
         {
-            OnPreviousPress();
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainMenuState);
         });
 
         RoomRoot = Control("RoomRoot");
@@ -200,11 +200,17 @@ public class MainLobbyDialog : Dialog
         btn.transform.localRotation = Quaternion.identity;
         btn.GetComponent<Button>().onClick.AddListener(() =>
         {
+            //弹出一个连接框，告知正在与服务器连接
             if (Main.Ins.CombatData.Server == Main.Ins.CombatData.Servers[i])
             {
-                TcpClientProxy.CheckNeedReConnect();
+                if (TcpClientProxy.CheckNeedReConnect()) {
+                    if (!ConnectServerDialogState.Exist())
+                        Main.Ins.EnterState(Main.Ins.ConnectServerState);
+                }
                 return;
             }
+            if (!ConnectServerDialogState.Exist())
+                Main.Ins.EnterState(Main.Ins.ConnectServerState);
             TcpClientProxy.Exit();
             ClearRooms();
             Main.Ins.CombatData.Server = svr;

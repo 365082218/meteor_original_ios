@@ -106,6 +106,7 @@ public class MonsterEx
             f.call(sState);
         }
     }
+
     public void UpdateAttr()
     {
         //主角属性无法更改

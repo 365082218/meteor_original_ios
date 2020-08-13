@@ -592,7 +592,7 @@ public class PoseStatus
         //    UnityEngine.Debug.Log(stackInfo);
         //}
         CanAdjust = false;
-        if (_Self.GameFinished && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle))
+        if (Main.Ins.CombatData.GameFinished && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle))
         {
             playResultAction = true;
             if (_Self.Camp == EUnitCamp.EUC_ENEMY && Main.Ins.GameBattleEx.BattleLose())

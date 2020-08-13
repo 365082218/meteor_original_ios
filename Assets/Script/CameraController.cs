@@ -39,7 +39,7 @@ public class CameraController : MonoBehaviour {
         {
             if (show)
             {
-                time -= Time.deltaTime;
+                time -= FrameReplay.deltaTime;
                 if (time < 0)
                 {
                     time = 3;

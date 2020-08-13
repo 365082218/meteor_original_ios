@@ -126,6 +126,7 @@ namespace Idevgame.GameState.DialogState {
         public StartupDialogState StartupDialogState;
         public LevelDialogState LevelDialogState;//关卡选择页面,单机/剧本
         public DlcDialogState DlcDialogState;//剧本选择界面
+        public DlcManagerDialogState DlcManagerDialogState;//模组管理器-从设置面板分离出来的.
         public WorldTemplateDialogState WorldTemplateDialogState;
         public MainLobbyDialogState MainLobbyDialogState;
         public SettingDialogState SettingDialogState;
@@ -155,6 +156,7 @@ namespace Idevgame.GameState.DialogState {
             LevelDialogState = new LevelDialogState(this);
             UpdateDialogState = new UpdateDialogState(this);
             DlcDialogState = new DlcDialogState(this);
+            DlcManagerDialogState = new DlcManagerDialogState(this);
             WorldTemplateDialogState = new WorldTemplateDialogState(this);
             MainLobbyDialogState = new MainLobbyDialogState(this);
             RoomOptionDialogState = new RoomOptionDialogState(this);

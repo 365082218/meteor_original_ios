@@ -10,7 +10,6 @@ namespace Excel2Json {
     }
 
     public class DataMgr {
-        Dictionary<string, LevelDataMgr> Dict;//每个key对应本地名称或者文件路径
         public LevelDataMgr levelData;
         public ItemDataMgr itemData;
         public WeaponDataMgr weaponData;
@@ -146,14 +145,6 @@ namespace Excel2Json {
         }
         public List<InputData> GetInputDatas() {
             return inputData.InputDatas.Values.ToList();
-        }
-
-        //取得某个表内所有数据
-        public T GetTable<T>(string table) where T : class {
-            if (Dict.ContainsKey(table)) {
-                return Dict[table] as T;
-            }
-            return null;
         }
     }
 

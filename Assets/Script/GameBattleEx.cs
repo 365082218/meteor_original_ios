@@ -76,22 +76,23 @@ public partial class GameBattleEx : NetBehaviour {
     {
         if (Result != -10)
             return;
-        //遍历所有玩家，设置为结束状态.
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
-            Main.Ins.MeteorManager.UnitInfos[i].GameFinished = true;
+        Main.Ins.CombatData.GameFinished = true;
         if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
         {
             //等待服务器再开一局.逻辑先不处理.
             return;
         }
 
+        PathHelper.Ins.StopCalc();
         Main.Ins.CombatData.PauseAll = true;
 #if !STRIP_DBG_SETTING
         ShowWayPoint(false);
 #endif
         Main.Ins.LocalPlayer.controller.LockInput(true);
-        GameObject.Destroy(Main.Ins.playerListener);
-        Main.Ins.playerListener = null;
+        if (Main.Ins.playerListener != null) {
+            GameObject.Destroy(Main.Ins.playerListener);
+            Main.Ins.playerListener = null;
+        }
         Main.Ins.listener.enabled = true;
         if (Main.Ins.CameraFree != null && Main.Ins.CameraFree.enabled)
         {
@@ -223,7 +224,7 @@ public partial class GameBattleEx : NetBehaviour {
             if (UnitActionStack.ContainsKey(UnitActKey[i]))
             {
                 //StackAction act = UnitActionStack[UnitActKey[i]].action[UnitActionStack[UnitActKey[i]].action.Count - 1].type;
-                UnitActionStack[UnitActKey[i]].Update(Time.deltaTime);
+                UnitActionStack[UnitActKey[i]].Update(FrameReplay.deltaTime);
                 if (UnitActionStack[UnitActKey[i]].action.Count == 0)
                 {
                     //MeteorUnit unit = U3D.GetUnit(UnitActKey[i]);
@@ -493,10 +494,10 @@ public partial class GameBattleEx : NetBehaviour {
                     Main.Ins.SFXLoader.PlayEffect("vipred.ef", uEnemy.gameObject, false);
             }
         }
-        CrateCamera();
+        CreateCamera();
     }
 
-    void CrateCamera()
+    void CreateCamera()
     {
         //先创建一个相机
         GameObject camera = GameObject.Instantiate(Resources.Load("CameraEx")) as GameObject;
@@ -508,6 +509,13 @@ public partial class GameBattleEx : NetBehaviour {
         followCamera.FollowTarget(Main.Ins.LocalPlayer.transform);
         Main.Ins.MainCamera = followCamera.GetComponent<Camera>();
         Main.Ins.CameraFollow = followCamera;
+
+        //把音频侦听移到角色
+        Main.Ins.listener.enabled = false;
+        Main.Ins.playerListener = Main.Ins.MainCamera.gameObject.AddComponent<AudioListener>();
+
+        if (!string.IsNullOrEmpty(Main.Ins.CombatData.GLevelItem.BgmName))
+            Main.Ins.SoundManager.PlayMusic(Main.Ins.CombatData.GLevelItem.BgmName);
     }
 
     void SpawnAllRobot()
@@ -545,17 +553,8 @@ public partial class GameBattleEx : NetBehaviour {
     {
         //设置主角属性
         U3D.InitPlayer(Main.Ins.CombatData.GScript);
-        //把音频侦听移到角色
-        Main.Ins.listener.enabled = false;
-        Main.Ins.playerListener = Main.Ins.LocalPlayer.gameObject.AddComponent<AudioListener>();
-
         if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld)
             SpawnAllRobot();
-
-        //摄像机完毕后
-        //FightWnd.Instance.Open();
-        if (!string.IsNullOrEmpty(Main.Ins.CombatData.GLevelItem.BgmName))
-            Main.Ins.SoundManager.PlayMusic(Main.Ins.CombatData.GLevelItem.BgmName);
 
         //除了主角的所有角色,开始输出,选择阵营, 进入战场
         for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
@@ -567,8 +566,6 @@ public partial class GameBattleEx : NetBehaviour {
         }
 
         U3D.InsertSystemMsg("新回合开始计时");
-        if (FightState.Exist())
-            FightState.Instance.OnBattleStart();
     }
 
     //场景物件的受击框
@@ -907,8 +904,10 @@ public partial class GameBattleEx : NetBehaviour {
             NGUIJoystick.instance.Lock(true);
         if (NGUICameraJoystick.instance != null)
             NGUICameraJoystick.instance.Lock(true);
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++) {
             Main.Ins.MeteorManager.UnitInfos[i].EnableAI(false);
+            Main.Ins.MeteorManager.UnitInfos[i].EnableUpdate(false);
+        }
         Main.Ins.CombatData.PauseAll = true;
     }
 
@@ -924,16 +923,17 @@ public partial class GameBattleEx : NetBehaviour {
 
     public void Resume()
     {
-        if (Main.Ins.LocalPlayer != null)
-        {
+        if (Main.Ins.LocalPlayer != null){
             Main.Ins.LocalPlayer.controller.LockInput(false);
         }
         if (NGUIJoystick.instance != null)
             NGUIJoystick.instance.Lock(false);
         if (NGUICameraJoystick.instance != null)
             NGUICameraJoystick.instance.Lock(false);
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++) {
             Main.Ins.MeteorManager.UnitInfos[i].EnableAI(true);
+            Main.Ins.MeteorManager.UnitInfos[i].EnableUpdate(true);
+        }
         Main.Ins.CombatData.PauseAll = false;
     }
 
@@ -992,8 +992,8 @@ public partial class GameBattleEx : NetBehaviour {
             bLocked = true;
             Main.Ins.CameraFollow.OnChangeLockTarget(lockedTarget.transform);
         }
-        //if (FightWnd.Exist)
-        //    FightWnd.Instance.OnChangeLock(bLocked);
+        if (FightState.Exist())
+            FightState.Instance.OnChangeLock(bLocked);
     }
     //存在自动目标时，把自动目标删除，然后设置其为锁定目标.
     public bool bLocked = false;
@@ -1056,8 +1056,8 @@ public partial class GameBattleEx : NetBehaviour {
         Main.Ins.LocalPlayer.SetLockedTarget(null);
         Main.Ins.CameraFollow.OnUnlockTarget();
         bLocked = false;
-        //if (FightWnd.Exist)
-        //    FightWnd.Instance.OnChangeLock(bLocked);
+        if (FightState.Exist())
+            FightState.Instance.OnChangeLock(bLocked);
     }
 
     //远程武器自动锁定系统.血滴子算特殊武器，
@@ -1388,6 +1388,13 @@ public partial class GameBattleEx : NetBehaviour {
         {
             Main.Ins.CameraFollow.m_Camera.enabled = enable;
             Main.Ins.CameraFollow.enabled = enable;
+            AudioListener listener = Main.Ins.CameraFree.GetComponent<AudioListener>();
+            if (listener != null) {
+                listener.enabled = enable;
+                if (enable) {
+                    Main.Ins.playerListener = listener;
+                }
+            }
         }
     }
 
@@ -1397,6 +1404,13 @@ public partial class GameBattleEx : NetBehaviour {
         {
             Main.Ins.CameraFree.m_Camera.enabled = enable;
             Main.Ins.CameraFree.enabled = enable;
+            AudioListener listener = Main.Ins.CameraFree.GetComponent<AudioListener>();
+            if (listener != null) {
+                listener.enabled = enable;
+                if (enable) {
+                    Main.Ins.playerListener = listener;
+                }
+            }
         }
     }
 
@@ -1407,6 +1421,7 @@ public partial class GameBattleEx : NetBehaviour {
             GameObject FreeCamera = GameObject.Instantiate(Resources.Load("CameraFreeEx")) as GameObject;
             FreeCamera.name = "FreeCamera";
             Main.Ins.CameraFree = FreeCamera.GetComponent<CameraFree>();
+            FreeCamera.AddComponent<AudioListener>();
         }
         Main.Ins.CameraFree.GetComponent<Camera>().enabled = true;
         Main.Ins.CameraFree.enabled = true;
@@ -1556,9 +1571,13 @@ public partial class GameBattleEx : NetBehaviour {
         PushAction(id, StackAction.Follow, 0, "", target);
     }
 
+    //这个指令是立即执行，不入栈的.
     public void PushActionWait(int id)
     {
-        PushAction(id, StackAction.Wait);
+        //PushAction(id, StackAction.Wait);
+        MeteorUnit unit = U3D.GetUnit(id);
+        if (unit != null && unit.StateMachine != null)
+            unit.StateMachine.ChangeState(unit.StateMachine.IdleState);
     }
 
     public void PushActionFaceTo(int id, int target)
@@ -1648,14 +1667,14 @@ public enum StackAction
     CROUCH = 4,
     BLOCK = 5,
     GUARD = 6,
-    Wait = 7,
-    Follow = 8,
-    Patrol = 9,
-    FaceTo = 10,
-    Kill = 11,
-    Aggress = 12,
-    AttackTarget = 13,
-    Use = 14,//使用道具
+    //Wait = 7,
+    Follow = 7,
+    Patrol = 8,
+    FaceTo = 9,
+    Kill = 10,
+    Aggress = 11,
+    AttackTarget = 12,
+    Use = 13,//使用道具
 }
 
 //基本上只能存在单机模式下,联机不支持
@@ -1736,9 +1755,8 @@ public class ActionConfig
                 MeteorUnit unit = U3D.GetUnit(id);
                 if (unit != null)
                 {
-                    unit.controller.LockInput(action[action.Count - 1].param == 1);
-                    if (!unit.Dead)
-                        unit.posMng.LinkAction(0);
+                    bool locked = action[action.Count - 1].param == 1;
+                    unit.controller.LockInput(locked);
                 }
                 action.RemoveAt(action.Count - 1);
             }
@@ -1759,13 +1777,13 @@ public class ActionConfig
                     action.RemoveAt(action.Count - 1);
                 }
             }
-            else if (action[action.Count - 1].type == StackAction.Wait)
-            {
-                MeteorUnit unit = U3D.GetUnit(id);
-                if (unit != null && unit.StateMachine != null)
-                    unit.StateMachine.ChangeState(unit.StateMachine.IdleState);
-                action.RemoveAt(action.Count - 1);
-            }
+            //else if (action[action.Count - 1].type == StackAction.Wait)
+            //{
+            //    MeteorUnit unit = U3D.GetUnit(id);
+            //    if (unit != null && unit.StateMachine != null)
+            //        unit.StateMachine.ChangeState(unit.StateMachine.IdleState);
+            //    action.RemoveAt(action.Count - 1);
+            //}
             else if (action[action.Count - 1].type == StackAction.Follow)
             {
                 MeteorUnit unit = U3D.GetUnit(id);
@@ -1809,11 +1827,11 @@ public class ActionConfig
                 if (unit != null && unit.StateMachine != null && !unit.Dead)
                 {
                     if (!unit.StateMachine.IsFighting())
-                        unit.StateMachine.ChangeState(unit.StateMachine.FightOnGroundState);
+                        unit.StateMachine.ChangeState(unit.StateMachine.FightState);
                     //部分情况下，子状态不正确会导致很多奇怪的情况
                     //if (unit.StateMachine.SubStatus != EAISubStatus.AttackGotoTarget && unit.StateMachine.SubStatus != EAISubStatus.AttackTarget && unit.StateMachine.SubStatus != EAISubStatus.AttackTargetSubRotateToTarget)
                     //    unit.StateMachine.SubStatus = EAISubStatus.AttackGotoTarget;
-                    Idevgame.Meteor.AI.FightOnGroundState fs = unit.StateMachine.CurrentState as Idevgame.Meteor.AI.FightOnGroundState;
+                    Idevgame.Meteor.AI.FightState fs = unit.StateMachine.CurrentState as Idevgame.Meteor.AI.FightState;
                     fs.AttackCount = action[action.Count - 1].param;
                     fs.AttackTarget = action[action.Count - 1].target;
                     if (fs.AttackTargetComplete())

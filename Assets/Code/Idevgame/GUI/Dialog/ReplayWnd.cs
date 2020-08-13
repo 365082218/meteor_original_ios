@@ -152,19 +152,19 @@ public class ReplayUiConroller : Dialog
     {
         if (currentHP != nextHp)
         {
-            currentHP = Mathf.MoveTowards(currentHP, nextHp, 1000f * Time.deltaTime);
+            currentHP = Mathf.MoveTowards(currentHP, nextHp, 1000f * FrameReplay.deltaTime);
             hpBar.fillAmount = currentHP / (float)Main.Ins.LocalPlayer.Attr.TotalHp;
         }
 
         if (currentTargetHp != nextTargetHp)
         {
-            currentTargetHp = Mathf.MoveTowards(currentTargetHp, nextTargetHp, 1000f * Time.deltaTime);
+            currentTargetHp = Mathf.MoveTowards(currentTargetHp, nextTargetHp, 1000f * FrameReplay.deltaTime);
             TargetHp.fillAmount = currentTargetHp / CurrentMonster.Attr.TotalHp;
         }
 
         if (CheckHideTarget)
         {
-            TargetInfoLast -= Time.deltaTime;
+            TargetInfoLast -= FrameReplay.deltaTime;
             if (TargetInfoLast <= 0.0f)
                 HideTargetInfo();
         }

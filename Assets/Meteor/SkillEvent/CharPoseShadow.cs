@@ -33,7 +33,7 @@ public class CharPoseShadow : MonoBehaviour {
 
         if (!stop)
         {
-            genfreq -= Time.deltaTime;
+            genfreq -= FrameReplay.deltaTime;
             if (genfreq <= 0.0f || distanceLimit < Vector3.Distance(pos, transform.position))
             {
                 CopyModel();
@@ -54,7 +54,7 @@ public class CharPoseShadow : MonoBehaviour {
             keys.Clear();
             foreach (var each in copyedModel)
             {
-                each.Value.shadowLast -= Time.deltaTime;
+                each.Value.shadowLast -= FrameReplay.deltaTime;
                 each.Value.alpha = Mathf.Lerp(0.0f, alphaInitialize, each.Value.shadowLast / shadowLast);
                 if (each.Value.shadowLast <= 0.0f)
                     keys.Add(each.Key);

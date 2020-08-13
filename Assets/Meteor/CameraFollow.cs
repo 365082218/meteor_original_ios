@@ -18,14 +18,13 @@ public class CameraFollow : NetBehaviour {
     //public Transform[] m_Targets;//摄像机的各个视角的调试对象.
     public Transform CameraLookAt;//摄像机注视的目标
     public Transform CameraPosition;//摄像机经过缓动后的期望位置
-    public Transform Target;
+    public Transform Target;//主角
     public Transform LockTarget;//锁定目标，战斗系统里的摄像机针对的除了主角外的第二目标.
-    public float followDistance = 50;//在角色身后多远
+    public float followDistance = 55;//在角色身后多远
     public float followHeight = 0;//离跟随点多高。
     public float m_MinSize = 55;//fov最小55
     public float f_speedMax = 150.0f;//移动速度最大限制
     public float f_DampTime = 0.1f;
-    public float f_eulerMax = 60.0f;//角速度最大值
     [HideInInspector]
     public Camera m_Camera;
     public float fRadis;
@@ -38,6 +37,10 @@ public class CameraFollow : NetBehaviour {
         CameraPosition = new GameObject("CameraPosition").transform;
         CameraLookAt = new GameObject("CameraLookAt").transform;
         enabled = false;
+    }
+
+    private void Start() {
+        
     }
 
     private new void OnDestroy()
@@ -109,15 +112,6 @@ public class CameraFollow : NetBehaviour {
         m_Camera.fieldOfView = m_MinSize;
         fRadis = Mathf.Sqrt(followDistance * followDistance + followHeight * followHeight);
         lastAngle = Mathf.Atan2(followHeight, followDistance) * Mathf.Rad2Deg;
-        //m_Targets = new Transform[3];
-        //for (int i = 0; i < 3; i++)
-        //{
-        //    m_Targets[i] = GameObject.CreatePrimitive(PrimitiveType.Sphere).transform;
-        //    m_Targets[i].GetComponent<Renderer>().material.color = Color.white;
-        //    m_Targets[i].GetComponent<Collider>().enabled = false;
-        //    m_Targets[i].gameObject.layer = LayerMask.NameToLayer("Debug");
-        //    m_Targets[i].localScale = 10 * Vector3.one;
-        //}
     }
 
     public void ForceUpdate()
@@ -149,8 +143,12 @@ public class CameraFollow : NetBehaviour {
         }
     }
 
-    public override void NetUpdate()
+    public override void NetLateUpdate()
     {
+        //如果切换到其他相机,这一步是可以不计算的
+        if (m_Camera && !m_Camera.enabled) {
+            return;
+        }
         //Debug.LogError("lockupdate:" + Time.frameCount);
         if (Main.Ins.LocalPlayer != null && !Main.Ins.CombatData.PauseAll)
         {
@@ -414,8 +412,6 @@ public class CameraFollow : NetBehaviour {
             vecTarget.y = Target.position.y + BodyHeight;
             vecTarget.z = Target.position.z;
 
-            CameraLookAt.position = vecTarget;
-
             //如果新的位置，与目标注视点中间隔着墙壁
             RaycastHit wallHit;
             bool hitWall = false;
@@ -439,20 +435,20 @@ public class CameraFollow : NetBehaviour {
             {
                 newPos.x = Target.transform.position.x;
                 newPos.z = Target.transform.position.z;
-                float y = Mathf.SmoothDamp(CameraPosition.position.y, Target.position.y + BodyHeight + followHeight, ref currentVelocityY, f_DampTime);
+                float y = Mathf.SmoothDamp(CameraPosition.position.y, newPos.y, ref currentVelocityY, f_DampTime / 2);
                 newPos.y = y;
                 newPos += Main.Ins.LocalPlayer.transform.forward * followDistance;
             }
             else
             {
-                float y = Mathf.SmoothDamp(CameraPosition.position.y, newPos.y, ref currentVelocityY, f_DampTime);
+                float y = Mathf.SmoothDamp(CameraPosition.position.y, newPos.y, ref currentVelocityY, f_DampTime / 2);
                 newPos.y = y;
             }
 
             CameraPosition.position = newPos;
 
             vecTarget.x = Target.position.x;
-            vecTarget.y = Mathf.SmoothDamp(CameraLookAt.position.y, Target.position.y + BodyHeight, ref currentVelocityY2, f_DampTime);
+            vecTarget.y = Mathf.SmoothDamp(CameraLookAt.position.y, Target.position.y + BodyHeight, ref currentVelocityY2, f_DampTime / 2);
             vecTarget.z = Target.position.z;
 
             CameraLookAt.position = vecTarget;

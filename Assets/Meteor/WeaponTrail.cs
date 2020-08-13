@@ -121,7 +121,7 @@ public class WeaponTrail : MonoBehaviour
 		
 		if (_emit && _emitTime != 0)
 		{
-			_emitTime -= Time.deltaTime;
+			_emitTime -= FrameReplay.deltaTime;
 			if (_emitTime == 0) _emitTime = -1;
 			if (_emitTime < 0) _emit = false;
 		}

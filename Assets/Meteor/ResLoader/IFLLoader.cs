@@ -36,7 +36,7 @@ public class IFLLoader :MonoBehaviour {
 	
 	// Update is called once per frame
 	public void Update() {
-        run += Time.deltaTime;
+        run += FrameReplay.deltaTime;
         if (PlayAnimation)
             Play();
     }

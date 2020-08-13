@@ -19,3 +19,17 @@ public class ConnectWnd:Dialog
         base.OnDialogStateEnter(ownerState, previousDialog, data);
     }
 }
+
+public class ConnectServerDialogState :PersistDialog<ConnectServerWnd> {
+    public ConnectServerDialogState() {
+
+    }
+    public override string DialogName { get { return "ConnectServer"; } }
+}
+
+public class ConnectServerWnd : Dialog {
+    //希望有一个入场动画，缩放0-1
+    public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data) {
+        base.OnDialogStateEnter(ownerState, previousDialog, data);
+    }
+}

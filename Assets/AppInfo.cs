@@ -75,6 +75,6 @@ public class AppInfo
     }
     public int LinkDelay()
     {
-        return Application.targetFrameRate * 10 / 30;
+        return Application.targetFrameRate * 8 / 30;
     }
 }

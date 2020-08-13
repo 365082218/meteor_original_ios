@@ -28,7 +28,7 @@ public class ServerListDialog : Dialog
         {
             case ADD:
                 ServerInfo info = param as ServerInfo;
-                GameObject prefab = ResMng.LoadPrefab("SelectListItem") as GameObject;
+                GameObject prefab = ResMng.LoadPrefab("UI/Dialogs/SelectListItem") as GameObject;
                 InsertServerItem(info, prefab);
                 break;
         }
@@ -38,7 +38,7 @@ public class ServerListDialog : Dialog
     void Init()
     {
         ServerListRoot = Control("ServerListRoot");
-        GameObject prefab = ResMng.LoadPrefab("SelectListItem") as GameObject;
+        GameObject prefab = ResMng.LoadPrefab("UI/Dialogs/SelectListItem") as GameObject;
         for (int i = 0; i < serverList.Count; i++)
         {
             GameObject.Destroy(serverList[i]);

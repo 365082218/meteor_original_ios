@@ -197,13 +197,8 @@ public class SoundManager
         if (!enable)
             return -2;
         Vector3 listenerPos = position;
-        MeteorUnit localPlayer = Main.Ins.LocalPlayer;
-        if (localPlayer != null)
-        {
-            if (Main.Ins.CameraFree != null)
-                listenerPos = Main.Ins.CameraFree.transform.position;
-            else
-                listenerPos = localPlayer.transform.position;
+        if (Main.Ins.MainCamera != null) {
+            listenerPos = Main.Ins.MainCamera.transform.position;
         }
         // clip sound too far.仅在2D音效下，判断距离是否超越范围，打击音效只有播放或者不播放，没有3D效果
         float distance = MathUtility.DistanceMax(listenerPos, position);

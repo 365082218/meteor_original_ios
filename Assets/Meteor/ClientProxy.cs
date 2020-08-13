@@ -372,13 +372,18 @@ class TcpClientProxy
 
     public static Socket sProxy = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     //检查链接是否超过3次失败，超过时
-    public static void CheckNeedReConnect()
+    public static bool CheckNeedReConnect()
     {
         //如果没连接上，或者尝试已终止
         if (quit || sProxy == null || !sProxy.Connected)
         {
             ReStart();
+            return true;
         }
+
+        if (sProxy != null && sProxy.Connected)
+            GameOverlayDialogState.Instance.InsertSystemMsg("与指定服务器连接成功");
+        return false;
     }
 
     public static void Exit()
