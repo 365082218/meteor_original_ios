@@ -13,8 +13,8 @@ function npc09_01()
 	class.Guard =	20;
 	class.Dodge =	0;
 	class.Jump = 10;
-	class.Look = 50;
-	class.Burst = 20;
+	class.Look = 10;
+	class.Burst = 10;
 	class.Aim = 100;
 	class.GetItem = 100;
 	class.Spawn = 7;

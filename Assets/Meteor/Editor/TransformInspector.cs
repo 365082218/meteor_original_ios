@@ -33,6 +33,13 @@ namespace Outfit7.UI {
             EditorGUILayout.Vector3Field(new GUIContent("World Pos"), ((Transform) serializedObject.targetObject).position);
             GUI.color = Color.white;
             GUILayout.EndHorizontal();
+
+            Quaternion q = ((Transform)serializedObject.targetObject).rotation;
+            Vector3 vec = new Vector4(q.eulerAngles.x, q.eulerAngles.y, q.eulerAngles.z);
+            GUILayout.BeginHorizontal();
+            EditorGUILayout.Vector3Field(new GUIContent("World Rot"), vec);
+            GUILayout.EndHorizontal();
+
             GUILayout.BeginHorizontal();
             {
                 string info = LocalPosition.FindPropertyRelative("x").floatValue + ";" +

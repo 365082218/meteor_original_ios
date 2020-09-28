@@ -11,10 +11,16 @@ public class SfxDialogState : CommonDialogState<SfxDialog>
     {
 
     }
+
+    protected override float GetX() {
+        return -550;
+    }
+
 }
 
 public class SfxDialog : Dialog
 {
+   
     public GameObject SfxRoot;
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
     {

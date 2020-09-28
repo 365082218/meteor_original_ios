@@ -5,20 +5,21 @@ using UnityEngine.UI;
 
 public class UIHelper
 {
-    public static float CanvasWidth = 0;
-    public static float CanvasHeight = 0;
+    public static float CanvasWidth = 0;//实际的宽度
+    public static float CanvasHeight = 0;//实际的高度
     public static float Aspect = 0;//画布与实际屏幕的比例.
-
+    public static Vector2 resolution;//设计的
     //只要在开始时得到，后面就不会再改了.
     public static void InitCanvas(Canvas target)
     {
-        Canvas CurrntCanvas;
+        //Canvas CurrntCanvas;
         CanvasScaler CurrentScaler;
-        CurrntCanvas = target;
+        //CurrntCanvas = target;
         CurrentScaler = target.GetComponent<CanvasScaler>();
         RectTransform r = target.GetComponent<RectTransform>();
         CanvasWidth = r.sizeDelta.x;
         CanvasHeight = r.sizeDelta.y;
+        resolution = CurrentScaler.referenceResolution;
         if (CurrentScaler.screenMatchMode == CanvasScaler.ScreenMatchMode.MatchWidthOrHeight)
             Aspect = (CanvasWidth / Screen.width) * (1 - CurrentScaler.matchWidthOrHeight) + CurrentScaler.matchWidthOrHeight * (CanvasHeight / Screen.height);
     }

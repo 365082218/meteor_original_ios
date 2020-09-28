@@ -13,17 +13,23 @@ public class EscDialogState : CommonDialogState<EscDialog>
     {
 
     }
+
 }
 
 
 public class EscDialog : Dialog
 {
-    static bool watchAi = false;//是否在观察AI行为.
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
         Init();
         Main.Ins.GameBattleEx.Pause();
+    }
+
+    public override void OnDialogStateExit() {
+        base.OnDialogStateExit();
+        Main.Ins.GameStateMgr.SaveState();
+        Main.Ins.GameBattleEx.Resume();
     }
 
     void Init()
@@ -47,17 +53,17 @@ public class EscDialog : Dialog
 
         Control("ChangeModel").GetComponent<Button>().onClick.AddListener(() => { Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.ModelSelectDialogState); });
 
-        Control("SpeedFast").GetComponent<Button>().onClick.AddListener(() => { OnChangeSpeed(true); });
-        Control("SpeedSlow").GetComponent<Button>().onClick.AddListener(() => { OnChangeSpeed(false); });
-
         //观察AI行为，调试AI是否存在问题
         Toggle toggleFollowEnemy = Control("FollowEnemy").GetComponent<Toggle>();
-        toggleFollowEnemy.isOn = watchAi;
-        OnFollowEnemy(watchAi);
+        toggleFollowEnemy.isOn = U3D.WatchAi;
+        OnFollowEnemy(U3D.WatchAi);
         toggleFollowEnemy.onValueChanged.AddListener(OnFollowEnemy);
 
         Control("PrevRobot").GetComponent<Button>().onClick.AddListener(WatchPrevRobot);
         Control("NextRobot").GetComponent<Button>().onClick.AddListener(WatchNextRobot);
+
+        Control("Mission").GetComponent<Text>().text = GetMission();
+        Control("LevelDesc").GetComponent<Text>().text = GetLevelDesc();
         //把一些模式禁用，例如作弊之类的.
         if (Main.Ins.GameStateMgr.gameStatus.CheatEnable)
         {
@@ -67,8 +73,7 @@ public class EscDialog : Dialog
         {
             Control("ChangeModel").SetActive(false);
             Control("Snow").SetActive(false);
-            Control("SpeedFast").SetActive(false);
-            Control("SpeedSlow").SetActive(false);
+           
         }
     }
 
@@ -79,22 +84,8 @@ public class EscDialog : Dialog
         return false;
     }
 
-    void OnChangeSpeed(bool fast)
-    {
-        if (Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
-        {
-            if (Main.Ins.LocalPlayer != null)
-            {
-                if (fast)
-                    Main.Ins.LocalPlayer.SpeedFast();
-                else
-                    Main.Ins.LocalPlayer.SpeedSlow();
-            }
-        }
-    }
-
     void WatchPrevRobot() {
-        if (!watchAi) {
+        if (!U3D.WatchAi) {
             U3D.InsertSystemMsg("需要先[观察电脑]");
             return;
         }
@@ -118,7 +109,7 @@ public class EscDialog : Dialog
     }
 
     void WatchNextRobot() {
-        if (!watchAi) {
+        if (!U3D.WatchAi) {
             U3D.InsertSystemMsg("需要先[观察电脑]");
             return;
         }
@@ -143,10 +134,10 @@ public class EscDialog : Dialog
 
     void OnFollowEnemy(bool follow)
     {
-        if (watchAi != follow)
+        if (U3D.WatchAi != follow)
         {
-            watchAi = follow;
-            if (watchAi)
+            U3D.WatchAi = follow;
+            if (U3D.WatchAi)
             {
                 //找到第一个未死亡的角色
                 MeteorUnit watchTarget = null;
@@ -225,5 +216,20 @@ public class EscDialog : Dialog
     void OnClickQuit()
     {
         Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.EscConfirmDialogState);
+    }
+
+    //取得关卡的目标描述
+    string GetMission() {
+        if (Main.Ins.CombatData.GLevelItem != null) {
+            return Main.Ins.CombatData.GLevelItem.Mission;
+        }
+        return "";
+    }
+
+    string GetLevelDesc() {
+        if (Main.Ins.CombatData.GLevelItem != null) {
+            return Main.Ins.CombatData.GLevelItem.Desc;
+        }
+        return "";
     }
 }

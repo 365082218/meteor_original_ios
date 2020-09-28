@@ -7,6 +7,7 @@ using UnityEngine.Events;
 public class JoyKeyState {
     public KeyCode key;
     public bool PointDown;
+    public UnityEvent OnPressing;
     public UnityEvent OnPress;
     public UnityEvent OnRelease;
     public JoyKeyState(KeyCode joykey = KeyCode.None) {
@@ -14,6 +15,7 @@ public class JoyKeyState {
         PointDown = false;
         OnPress = new UnityEvent();
         OnRelease = new UnityEvent();
+        OnPressing = new UnityEvent();
     }
 }
 
@@ -79,21 +81,29 @@ public class PlayerJoyStick : NetBehaviour {
         keyMapping.Add(EKeyList.KL_Help, help);
     }
 
-    private void OnEnable() {
+    void Sync() {
         foreach (var each in Main.Ins.GameStateMgr.gameStatus.KeyMapping) {
             RegisterInternal(each.Key, each.Value);
         }
     }
 
+    private void OnEnable() {
+        Sync();
+    }
+
     public void ResetAll() {
         wKey.OnPress.RemoveAllListeners();
         wKey.OnRelease.RemoveAllListeners();
+        wKey.OnPressing.RemoveAllListeners();
         sKey.OnPress.RemoveAllListeners();
         sKey.OnRelease.RemoveAllListeners();
+        sKey.OnPressing.RemoveAllListeners();
         aKey.OnPress.RemoveAllListeners();
         aKey.OnRelease.RemoveAllListeners();
+        aKey.OnPressing.RemoveAllListeners();
         dKey.OnPress.RemoveAllListeners();
         dKey.OnRelease.RemoveAllListeners();
+        dKey.OnPressing.RemoveAllListeners();
         attack.OnPress.RemoveAllListeners();
         attack.OnRelease.RemoveAllListeners();
         defence.OnPress.RemoveAllListeners();
@@ -116,6 +126,11 @@ public class PlayerJoyStick : NetBehaviour {
         sKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyS); });
         aKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyA); });
         dKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyD); });
+
+        wKey.OnPressing.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnKeyPressingProxy(EKeyList.KL_KeyW); });
+        sKey.OnPressing.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnKeyPressingProxy(EKeyList.KL_KeyS); });
+        aKey.OnPressing.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnKeyPressingProxy(EKeyList.KL_KeyA); });
+        dKey.OnPressing.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnKeyPressingProxy(EKeyList.KL_KeyD); });
 
         wKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW); });
         sKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS); });
@@ -159,15 +174,23 @@ public class PlayerJoyStick : NetBehaviour {
     }
 
     public void Register(EKeyList ek, KeyCode k) {
-        keyMapping[ek].key = k;
         Main.Ins.GameStateMgr.gameStatus.UseJoyDevice = true;
-        enabled = true;
+        List<EKeyList> Keys = new List<EKeyList>();
         foreach (var each in Main.Ins.GameStateMgr.gameStatus.KeyMapping) {
-            if (each.Value == k) {
-                Main.Ins.GameStateMgr.gameStatus.KeyMapping[each.Key] = KeyCode.None;
+            Keys.Add(each.Key);
+        }
+        for (int i = 0; i < Keys.Count; i++) {
+            if (Main.Ins.GameStateMgr.gameStatus.KeyMapping[Keys[i]] == k) {
+                Main.Ins.GameStateMgr.gameStatus.KeyMapping[Keys[i]] = KeyCode.None;
             }
         }
+
         Main.Ins.GameStateMgr.gameStatus.KeyMapping[ek] = k;
+        if (!enabled) {
+            enabled = true;//触发onenable
+        } else {
+            Sync();//主动同步.
+        }
     }
 
     [HideInInspector]
@@ -198,34 +221,71 @@ public class PlayerJoyStick : NetBehaviour {
 
     public override void NetUpdate() {
         //getAxis();
+        if (Main.Ins.GameBattleEx != null && Main.Ins.GameBattleEx.BattleFinished())
+            return;
+        if (Main.Ins.LocalPlayer != null) {
+            if (Main.Ins.LocalPlayer.meteorController.InputLocked)
+                return;
+        }
         getButtons();
     }
 
     /// <summary>
     /// Get Button data of the joysick
     /// </summary>
+    List<JoyKeyState> Pressed = new List<JoyKeyState>();
+    List<JoyKeyState> Released = new List<JoyKeyState>();
+    List<JoyKeyState> Pressing = new List<JoyKeyState>();
     void getButtons() {
+        Pressed.Clear();
+        Released.Clear();
+        Pressing.Clear();
         foreach (var each in keyMapping) {
             //识别抬起，按下基础事件
             bool old = each.Value.PointDown;
             each.Value.PointDown = Input.GetKey(each.Value.key);
             if (old && !each.Value.PointDown) {
-                if (each.Value.OnRelease != null) {
-                    each.Value.OnRelease.Invoke();
-                }
+                Released.Add(each.Value);
+                //if (each.Value.OnRelease != null) {
+                //    each.Value.OnRelease.Invoke();
+                //}
             }
             if (!old && each.Value.PointDown) {
-                if (each.Value.OnPress != null) {
-                    each.Value.OnPress.Invoke();
-                }
+                Pressed.Add(each.Value);
+                //if (each.Value.OnPress != null) {
+                //    each.Value.OnPress.Invoke();
+                //}
+            }
+
+            if (old && each.Value.PointDown) {
+                Pressing.Add(each.Value);
+                //if (each.Value.OnPressing != null) {
+                //    each.Value.OnPressing.Invoke();
+                //}
             }
         }
-        //var values = Enum.GetValues(typeof(KeyCode));//存储所有的按键
-        //for (int x = 0; x < values.Length; x++) {
-        //    if (Input.GetKeyDown((KeyCode)values.GetValue(x))) {
-        //        currentButton = values.GetValue(x).ToString();//遍历并获取当前按下的按键
-        //    }
-        //}
+
+        //先按下
+        for (int i = 0; i < Pressed.Count; i++) {
+            if (Pressed[i].OnPress != null) {
+                Pressed[i].OnPress.Invoke();
+                //Debug.Log("OnPress");
+            }
+        }
+        //再蓄力
+        for (int i = 0; i < Pressing.Count; i++) {
+            if (Pressing[i].OnPressing != null) {
+                Pressing[i].OnPressing.Invoke();
+                //Debug.Log("OnPressing");
+            }
+        }
+        //再弹起
+        for (int i = 0; i < Released.Count; i++) {
+            if (Released[i].OnRelease != null) {
+                Released[i].OnRelease.Invoke();
+                //Debug.Log("OnRelease");
+            }
+        }
     }
 
     /// <summary>

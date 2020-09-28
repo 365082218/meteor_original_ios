@@ -57,7 +57,7 @@ public class PickupItemAgent : NetBehaviour {
                 break;
             }
         }
-        WsGlobal.ShowMeteorObject(model, transform);
+        Utility.ShowMeteorObject(model, transform);
         startTick = delay;
     }
 
@@ -94,6 +94,51 @@ public class PickupItemAgent : NetBehaviour {
         }
         curve.postWrapMode = WrapMode.PingPong;
         curve.preWrapMode = WrapMode.PingPong;
+    }
+
+    void ProcessWeaponCollider() {
+        if (model == "W2_0") {
+            GameObject tri = NodeHelper.Find("Object01", gameObject);
+            if (tri != null)
+                GameObject.Destroy(tri);
+            GameObject wpnFA03 = NodeHelper.Find("wpnFA03", gameObject);
+            MeshCollider mr = wpnFA03.GetComponent<MeshCollider>();
+            if (mr != null)
+                GameObject.Destroy(mr);
+            BoxCollider box = wpnFA03.GetComponent<BoxCollider>();
+            if (box == null)
+                box = wpnFA03.AddComponent<BoxCollider>();
+            box.isTrigger = true;
+            return;
+        }
+        Transform weapon = null;//实际武器
+        Transform atbox = null;//碰撞范围
+        for (int i = 0; i < transform.childCount; i++) {
+            Transform tr = transform.GetChild(i);
+            MeshRenderer mr = tr.GetComponent<MeshRenderer>();
+            if (mr != null) {
+                if (mr.enabled)
+                    weapon = tr;
+                else
+                    atbox = tr;
+            }
+        }
+
+        //一些武器并没有攻击范围盒，自身就是
+        if (atbox == null) {
+            MeshCollider me = weapon.GetComponent<MeshCollider>();
+            if (me != null)
+                GameObject.Destroy(me);
+            BoxCollider b = weapon.GetComponent<BoxCollider>();
+            if (b == null) {
+                b = weapon.gameObject.AddComponent<BoxCollider>();
+            }
+            b.isTrigger = true;
+        } else {
+            MeshCollider me = weapon.GetComponent<MeshCollider>();
+            if (me != null)
+                GameObject.Destroy(me);
+        }
     }
 
     bool up = true;

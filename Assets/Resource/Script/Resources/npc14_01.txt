@@ -13,23 +13,20 @@ function npc14_01()
 	class.Guard = 5;
 	class.Dodge = 5;
 	class.Jump = 5;
-	class.Look = 60;
+	class.Look = 5;
 	class.Burst = 1;
 	class.Aim = 50;
-	class.GetItem = 0;
+	class.GetItem = 10;
 	class.Spawn = 0;
 	class.HP = 1000;
-
-	class.g_selfAddr = 0;
 	class.g_self = 0;
 	return class;
 end
 
 function class:OnInit(a)
-	class.g_selfAddr = a;
+	class.g_self = a;
 end
 
 function class:OnStart()
-	class.g_self = GetSelf(class.g_selfAddr);
 	ChangeBehavior(class.g_self, "wait");
 end

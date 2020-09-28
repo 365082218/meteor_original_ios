@@ -9,7 +9,7 @@ namespace Idevgame.GameState.DialogState {
         public BaseDialogStateManager DialogStateManager { get; private set; }
         protected static GameObject mRootUI;
         protected static GameObject mCanvasRoot;
-
+        public static Camera UICamera;
         public virtual string Tag { get { return this.GetType().Name; } }
 
         public abstract string DialogName { get; }
@@ -32,6 +32,9 @@ namespace Idevgame.GameState.DialogState {
                 GameObject.DontDestroyOnLoad(mRootUI);
                 mCanvasRoot = mRootUI.transform.Find("Canvas").gameObject;
                 UIHelper.InitCanvas(mCanvasRoot.GetComponent<Canvas>());
+                UICamera = NodeHelper.Find("UICamera", mRootUI).GetComponent<Camera>();
+                UICamera.clearFlags = CameraClearFlags.Color;
+                UICamera.backgroundColor = Color.black;
             }
         }
     }

@@ -17,6 +17,7 @@ Object LatBox
   TextureAnimation: 0 0.000 0.000
   Custom:
   {
+    visible=0
   }
 }
 Object d_wpnLE

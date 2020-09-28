@@ -12,8 +12,8 @@ function npc03_06()
 	class.Attack3 = 20;
 	class.Guard =	25;
 	class.Dodge =	0;
-	class.Jump = 20;
-	class.Look = 50;
+	class.Jump = 10;
+	class.Look = 10;
 	class.Burst = 10;
 	class.Aim = 70;
 	class.GetItem = 10;

@@ -10,7 +10,7 @@ namespace Idevgame.GameState.DialogState {
     public abstract class PersistState
     {
         public MonoBehaviour Owner;
-        public virtual void OnStateEnter()
+        public virtual void OnStateEnter(object data = null)
         {
             
         }
@@ -65,14 +65,13 @@ namespace Idevgame.GameState.DialogState {
                 return "UI/Dialogs/" + DialogName;
             }
         }
-        public override void OnStateEnter()
+        public override void OnStateEnter(object data = null)
         {
             BaseDialogState.InitRoot();
             LoadGui();
             if (DialogController != null) {
-                DialogController.OnDialogStateEnter(this, null, null);
+                DialogController.OnDialogStateEnter(this, null, data);
             }
-
         }
         public override void OnStateExit()
         {
@@ -86,7 +85,7 @@ namespace Idevgame.GameState.DialogState {
             }
         }
 
-        protected void UnloadGui()
+        protected virtual void UnloadGui()
         {
             UnityEngine.Object.Destroy(Dialog);
             Dialog = null;
@@ -361,7 +360,7 @@ namespace Idevgame.GameState.DialogState {
                         rectTran.sizeDelta = new Vector2(0, 0);
                 }
                 if (rectTran != null)
-                    rectTran.anchoredPosition3D = new Vector3(0, 0, GetZ());
+                    rectTran.anchoredPosition3D = new Vector3(GetX(), GetY(), GetZ());
             }
 #else
         mRootUI = GameObject.Find("Anchor");
@@ -406,6 +405,14 @@ namespace Idevgame.GameState.DialogState {
 
         protected virtual float GetZ()
         {
+            return 0;
+        }
+
+        protected virtual float GetX() {
+            return 0;
+        }
+
+        protected virtual float GetY() {
             return 0;
         }
     }

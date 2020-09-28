@@ -49,6 +49,8 @@ public class Main : MonoBehaviour {
     public MainDialogStateManager DialogStateManager;
     public MainPopupStateManager PopupStateManager;
 
+    //下载工具
+    public DownloadManager DownloadManager;
     //常驻状态管理
     public GameOverlayDialogState GameOverlay;//进入主界面叠加
     public FightState FightState;//战斗界面叠加
@@ -63,7 +65,8 @@ public class Main : MonoBehaviour {
     public RoomChatDialogState RoomChatDialogState;
     public LoadingEXDialogState LoadingEx;
     public ItemInfoDialogState ItemInfoDialogState;
-    public GunShootDialogStatus GunShootDialogStatus;
+    public GunShootDialogState GunShootDialogState;
+    public TipDialogState TipDialogState;
     List<PersistState> ActiveState;
     Dictionary<MonoBehaviour, PersistState> StateHash = new Dictionary<MonoBehaviour, PersistState>();
 
@@ -82,7 +85,6 @@ public class Main : MonoBehaviour {
     public CombatData CombatData;
     public DlcMng DlcMng;
     public GameNotice GameNotice;
-    public GMBLoader GMBLoader;
     public Log Log;
     public SoundManager SoundManager;
     public BuffMng BuffMng;
@@ -91,34 +93,41 @@ public class Main : MonoBehaviour {
     public MeteorManager MeteorManager;
     public ResMng ResMng;
     public ScriptMng ScriptMng;
-    public SFXLoader SFXLoader;
+    //路径查询
     public PathMng PathMng;
-    public ActionInterrupt ActionInterrupt;
+
     public EventBus EventBus;
-    public GMCLoader GMCLoader;
-    public DesLoader DesLoader;
     public SceneMng SceneMng;
     public MeteorUnit LocalPlayer;
-    //帧同步相关
+    //帧同步相关.
     public FrameSync FrameSync;
-
+    //全角色通用逻辑.
     public MeteorBehaviour MeteorBehaviour;
-    public MenuResLoader MenuResLoader;
+    //物件抛出
     public DropMng DropMng;
+    //加载器相关-每个loader加载数据时都先判断是否是处于资料片环境
+    //加载器在离开战斗场景时都要把全部数据清理
     public SkcLoader SkcLoader;
     public BncLoader BncLoader;
     public FMCLoader FMCLoader;
+    public AmbLoader AmbLoader;
+    public GMCLoader GMCLoader;
+    public DesLoader DesLoader;
+    public SFXLoader SFXLoader;
+    public GMBLoader GMBLoader;
     public FMCPoseLoader FMCPoseLoader;
+    public MenuResLoader MenuResLoader;
+    public ActionInterrupt ActionInterrupt;
 
     public SfxMeshGenerator SfxMeshGenerator;
     public RoomMng RoomMng;
     public DataMgr DataMgr;
 
-    public void EnterState(PersistState state)
+    public void EnterState(PersistState state, object data = null)
     {
         if (ActiveState.Contains(state))
             return;
-        state.OnStateEnter();
+        state.OnStateEnter(data);
         ActiveState.Add(state);
         if (state.Owner != null)
             StateHash.Add(state.Owner, state);
@@ -164,6 +173,7 @@ public class Main : MonoBehaviour {
     {
         Ins = this;
         Log = new Log();
+        LayerManager.Init();
         ActiveState = new List<PersistState>();
         GameOverlay = new GameOverlayDialogState();
         FightState = new FightState();
@@ -177,7 +187,8 @@ public class Main : MonoBehaviour {
         RoomChatDialogState = new RoomChatDialogState();
         LoadingEx = new LoadingEXDialogState();
         ItemInfoDialogState = new ItemInfoDialogState();
-        GunShootDialogStatus = new GunShootDialogStatus();
+        GunShootDialogState = new GunShootDialogState();
+        TipDialogState = new TipDialogState();
         //面板管理器.
         DialogStateManager = new MainDialogStateManager();
         //顺序排队弹出框.
@@ -190,7 +201,7 @@ public class Main : MonoBehaviour {
         GameNotice = new GameNotice();
         MeteorManager = new MeteorManager();
         ScriptMng = new ScriptMng();
-        SFXLoader = new SFXLoader();
+
         ActionInterrupt = new ActionInterrupt();
         
         BuffMng = new BuffMng();
@@ -209,6 +220,8 @@ public class Main : MonoBehaviour {
         GMCLoader = new GMCLoader();
         DesLoader = new DesLoader();
         FMCPoseLoader = new FMCPoseLoader();
+        SFXLoader = new SFXLoader();
+        AmbLoader = new AmbLoader();
         DataMgr = new DataMgr();
         SfxMeshGenerator = new SfxMeshGenerator();
         RoomMng = new RoomMng();
@@ -216,6 +229,7 @@ public class Main : MonoBehaviour {
         ResMng = new ResMng();
         DlcMng = new DlcMng();
         PathMng = new PathMng();
+        DownloadManager = new DownloadManager();
         DontDestroyOnLoad(gameObject);
         Log.WriteError(string.Format("GameStart AppVersion:{0}", Main.Ins.AppInfo.AppVersion()));
     }
@@ -235,6 +249,8 @@ public class Main : MonoBehaviour {
     {
         UpdateHelper.LoadCache();
         GameStateMgr.LoadState();
+        GameStateMgr.LoadDlcState();
+        GameStateMgr.SyncDlcState();//同步设置里的数据和DLC存档数据，避免设置被删除后，DLC需要重新下载.
         DataMgr.LoadAllData();
         ResMng.Reload();
         SoundManager.Init();
@@ -270,7 +286,7 @@ public class Main : MonoBehaviour {
             {
                 if (CombatData.GLevelItem.Id >= 0 && CombatData.GLevelItem.Id <= 9)
                 {
-                    string movie = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, "mmv/" + "v" + number + ".mv");
+                    string movie = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, "Mmv/" + "v" + number + ".mv");
                     U3D.PlayMovie(movie);
                 }
             }
@@ -281,7 +297,6 @@ public class Main : MonoBehaviour {
 
     void GotoMenu()
     {
-        MeteorManager.Clear();
         if (CombatData.GLevelMode == LevelMode.Teach || CombatData.GLevelMode == LevelMode.CreateWorld)
             U3D.GoBack();
         else 
@@ -307,6 +322,7 @@ public class Main : MonoBehaviour {
     //这个热更新系统不好维护，仅支持一些资源文件的更新等
 	IEnumerator CheckNeedUpdate()
 	{
+        Debug.Log(Application.persistentDataPath);
         if (Application.internetReachability == NetworkReachability.NotReachable)
         {
             //无网络连接
@@ -324,7 +340,7 @@ public class Main : MonoBehaviour {
             yield return vFile.Send();
             if (vFile.isError || vFile.responseCode != 200)
             {
-                Debug.LogError(string.Format("update version file:{0} error:{1} or responseCode:{2}", vFile.url, vFile.error, vFile.responseCode));
+                Debug.LogWarning(string.Format("update version file:{0} error:{1} or responseCode:{2}", vFile.url, vFile.error, vFile.responseCode));
                 vFile.Dispose();
                 GameStart();
                 yield break;
@@ -352,7 +368,7 @@ public class Main : MonoBehaviour {
             {
                 if (v[i].strVersion == AppInfo.AppVersion() && v[i].strVersionMax != v[i].strVersion)
                 {
-                    UpdateHelper.ApplyVersion(v[i], this);
+                    UpdateHelper.ApplyVersion(v[i]);
                     yield break;
                 }
             }
@@ -433,13 +449,13 @@ public class Main : MonoBehaviour {
             Complete = null;
         }
 
-        if (GameBattleEx != null && !GameBattleEx.BattleFinished() && CombatData.GLevelMode <= LevelMode.CreateWorld)
-        {
-            if (Input.GetKeyUp(KeyCode.Escape))
-            {
-                //DialogStateManager.OpenDialog(DialogStateManager.escapeDialogState);
-            }
-        }
+        //if (GameBattleEx != null && !GameBattleEx.BattleFinished() && CombatData.GLevelMode <= LevelMode.CreateWorld)
+        //{
+        //    if (Input.GetKeyUp(KeyCode.Escape))
+        //    {
+        //        DialogStateManager.OpenDialog(DialogStateManager.escapeDialogState);
+        //    }
+        //}
 
         DialogStateManager.Update();
         PopupStateManager.Update();
@@ -449,7 +465,7 @@ public class Main : MonoBehaviour {
         }
         //模组管理器下载
         if (CombatData.GLevelItem == null)
-            DlcMng.Update();
+            DownloadManager.Update();
     }
 
     private void LateUpdate()
@@ -522,7 +538,7 @@ public class Main : MonoBehaviour {
                         req.fs = null;
                     }
                     req.bDone = true;
-                    req.Status = TaskStatus.Done;
+                    req.Status = TaskStatus.Loaded;
                     Complete = zipInfo;
                     HttpManager.Instance.Quit();
                 }
@@ -578,7 +594,7 @@ public class Main : MonoBehaviour {
         yield return vFile.Send();
         if (vFile.isError || vFile.responseCode != 200)
         {
-            Debug.LogError(string.Format("update version file:{0} error:{1} or responseCode:{2}", vFile.url, vFile.error, vFile.responseCode));
+            Debug.LogWarning(string.Format("update version file:{0} error:{1} or responseCode:{2}", vFile.url, vFile.error, vFile.responseCode));
             vFile.Dispose();
             GlobalJsonUpdate = null;
             GlobalJsonLoaded = true;
@@ -588,5 +604,8 @@ public class Main : MonoBehaviour {
         LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
         GameNotice.LoadGrid(js);
         GlobalJsonLoaded = true;
+    }
+
+    private void FixedUpdate() {
     }
 }

@@ -555,7 +555,7 @@ using System.Text;
 
             void SerializeString(string str)
             {
-                string s = builder.ToString();
+                //string s = builder.ToString();
                 builder.Append('\"');
 
                 char[] charArray = str.ToCharArray();
@@ -599,8 +599,8 @@ using System.Text;
                 }
 
                 builder.Append('\"');
-                string s2 = builder.ToString();
-                string s3 = s2.Replace(s, "");
+                //string s2 = builder.ToString();
+                //string s3 = s2.Replace(s, "");
             }
 
             void SerializeOther(object value)

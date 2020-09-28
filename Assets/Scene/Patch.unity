@@ -941,7 +941,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Meshes:
   - {fileID: 0}
-  - {fileID: 4300000, guid: dab5016fc5e97ff42a11b2c8501b82d9, type: 3}
+  - {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   - {fileID: 4300004, guid: 182f3ed070f39c84181730911cc73dca, type: 3}
   - {fileID: 0}
   - {fileID: 0}
@@ -3936,6 +3936,8 @@ MonoBehaviour:
   time: 0
   LogicFrameLength: 20
   actions: []
+  globalTime: 0
+  globalFrame: 0
 --- !u!4 &2044160629
 Transform:
   m_ObjectHideFlags: 0

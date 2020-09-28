@@ -1,7 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
+public enum WeaponPos {
+    Pos = 0,//太刀-l,r 左手柄，右手刀
+    PosA = 1,//持枪-a-左手
+    PosB = 2,//居合-b-左手
+}
 public enum FrameEvent
 {
     ChangeWeaponPos0 = 430,//430拔刀切换持枪
@@ -97,7 +101,7 @@ public class ActionEvent
                 owner.ChangeWeaponPos(0);
                 break;
             case FrameEvent.ChangeWeaponPos5:
-                owner.ChangeWeaponPos(0);
+                owner.ChangeWeaponPos(WeaponPos.Pos);
                 break;
             case FrameEvent.ChangeWeaponPos449_0:
                 owner.ChangeWeaponPos(0);
@@ -124,7 +128,7 @@ public class ActionEvent
         {
             case (int)FrameEvent.ChangeWeaponPos7://收刀切换为居合最后一帧
             case (int)FrameEvent.ChangeWeaponPos8://收刀切换为居合
-                owner.ChangeWeaponPos(2);
+                owner.ChangeWeaponPos(WeaponPos.PosB);
                 break;
         }
     }
@@ -144,11 +148,11 @@ public class ActionEvent
         switch ((FrameEvent)Action)
         {
             case FrameEvent.ChangeWeaponPos7://收刀切换为居合最后一帧
-                owner.ChangeWeaponPos(2);
+                owner.ChangeWeaponPos(WeaponPos.PosB);
                 break;
             //0拔刀1长枪2居合
             case FrameEvent.ChangeWeaponPos0:
-                owner.ChangeWeaponPos(1);
+                owner.ChangeWeaponPos(WeaponPos.PosA);
                 //owner.ChangeWeaponPos(2);
                 break;
 
@@ -159,20 +163,20 @@ public class ActionEvent
                 //    owner.ChangeWeaponPos(2);
                 //    break;
             case FrameEvent.ChangeWeaponPos8:
-                owner.ChangeWeaponPos(2);
+                owner.ChangeWeaponPos(WeaponPos.PosB);
                 break;
             case FrameEvent.ChangeWeaponPos5:
-                owner.ChangeWeaponPos(1);
+                owner.ChangeWeaponPos(WeaponPos.PosA);
                 break;
             case FrameEvent.ChangeWeapon0://左打虎
             case FrameEvent.ChangeWeapon1://右打虎
                 owner.ChangeNextWeapon();
             break;
             case FrameEvent.ChangeWeaponPose570_0:
-                owner.ChangeWeaponPos(1);
+                owner.ChangeWeaponPos(WeaponPos.PosA);
                 break;
             case FrameEvent.ChangeWeaponPose451_0:
-                owner.ChangeWeaponPos(0);
+                owner.ChangeWeaponPos(WeaponPos.Pos);
                 break;
             case FrameEvent.RebornFriend:
                 owner.RebornFriend();

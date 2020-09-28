@@ -18,9 +18,8 @@ public class LevelData:ITableItem{
 	public string StartScript;
 	public string sceneItems;
 	public string BgTexture;
-	public int Pass;
-	public string Param;
-
+    public string Desc;
+    public string Mission;
 }
 public partial class LevelDataMgr {
 public Dictionary<int,LevelData> LevelDatas;

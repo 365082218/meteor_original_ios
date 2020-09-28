@@ -45,11 +45,11 @@ public class LevelDialog : Dialog {
     Button Cancel;
     [SerializeField]
     Text Task;
-    bool singlePlayer;
+    bool normalLevel;//是普通关卡还是资料片关卡
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
-        singlePlayer = (bool)data;
+        normalLevel = (bool)data;
         Init();
     }
 
@@ -64,7 +64,7 @@ public class LevelDialog : Dialog {
             OnPreviousPress();
         });
 
-        if (singlePlayer)
+        if (normalLevel)
         {
             //单机关卡
             for (int i = 1; i <= Main.Ins.GameStateMgr.gameStatus.Level; i++)
@@ -81,7 +81,7 @@ public class LevelDialog : Dialog {
             //剧本关卡
             for (int i = 1; i <= Main.Ins.CombatData.Chapter.level; i++)
             {
-                LevelData lev = Main.Ins.CombatData.Chapter.GetItem(i);
+                LevelData lev = Main.Ins.CombatData.Chapter.GetLevel(i);
                 if (lev == null)
                     continue;
                 Idevgame.Util.LevelUtils.AddGridItem(lev, rootMenu.transform, OnSelectLevel);
@@ -94,33 +94,34 @@ public class LevelDialog : Dialog {
     LevelData select;
     void OnSelectLevel(LevelData lev)
     {
-        Material loadingTexture = null;
+        Texture2D loadingTexture = null;
         if (!string.IsNullOrEmpty(lev.BgTexture))
         {
-            if (singlePlayer)
+            if (normalLevel)
             {
-                loadingTexture = GameObject.Instantiate(Resources.Load<Material>(lev.BgTexture)) as Material;
-                if (loadingTexture != null)
-                    background.material = loadingTexture;
-            }
+                loadingTexture = GameObject.Instantiate(Resources.Load<Texture2D>(lev.BgTexture));
+              }
             else
             {
-                for (int i = 0; i < Main.Ins.CombatData.Chapter.resPath.Length; i++)
+                for (int i = 0; i < Main.Ins.CombatData.Chapter.resPath.Count; i++)
                 {
                     if (Main.Ins.CombatData.Chapter.resPath[i].EndsWith(lev.BgTexture + ".jpg"))
                     {
                         byte[] array = System.IO.File.ReadAllBytes(Main.Ins.CombatData.Chapter.resPath[i]);
                         Texture2D tex = new Texture2D(0, 0);
                         tex.LoadImage(array);
-                        loadingTexture = GameObject.Instantiate(Resources.Load<Material>("Scene10")) as Material;
-                        loadingTexture.SetTexture("_MainTex", tex);
-                        loadingTexture.SetColor("_TintColor", Color.white);
-                        background.material = loadingTexture;
+                        loadingTexture = tex;
                         break;
                     }
                 }
             }
         }
+
+        if (loadingTexture != null) {
+            background.sprite = Sprite.Create(loadingTexture, new Rect(0, 0, loadingTexture.width, loadingTexture.height), Vector2.zero);
+            background.color = Color.white;
+        }
+        Utility.Expand(background, loadingTexture.width, loadingTexture.height);
         select = lev;
         Task.text = select.Name;
     }
@@ -130,7 +131,7 @@ public class LevelDialog : Dialog {
         if (select != null)
         {
             //单机全部是普通关卡对待.
-            if (singlePlayer)
+            if (normalLevel)
             {
                 U3D.LoadLevel(select, LevelMode.SinglePlayerTask, GameMode.Normal);
             }

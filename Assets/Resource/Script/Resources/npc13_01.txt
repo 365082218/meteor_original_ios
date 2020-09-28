@@ -11,13 +11,13 @@ function npc13_01()
 	class.Attack1	= 30;
 	class.Attack2 = 30;
 	class.Attack3 = 20;
-	class.Guard =	20;
-	class.Dodge =	30;
-	class.Jump = 20;
-	class.Look = 30;
-	class.Burst = 30;
+	class.Guard =	10;
+	class.Dodge =	10;
+	class.Jump = 2;
+	class.Look = 5;
+	class.Burst = 10;
 	class.Aim = 80;
-	class.GetItem = 50;
+	class.GetItem = 0;
 	class.Spawn = 62;
 	class.HP = 2000;
 	

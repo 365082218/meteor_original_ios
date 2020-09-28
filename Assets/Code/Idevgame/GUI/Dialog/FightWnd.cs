@@ -20,7 +20,15 @@ public class FightUiConroller : Dialog
     public override void OnDialogStateEnter(PersistState ownerState, BaseDialogState previousDialog, object data)
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
+        Input.multiTouchEnabled = true;//忍刀
         Init();
+        BaseDialogState.UICamera.clearFlags = CameraClearFlags.Depth;
+    }
+
+    public override void OnDialogStateExit() {
+        base.OnDialogStateExit();
+        BaseDialogState.UICamera.clearFlags = CameraClearFlags.Color;
+        BaseDialogState.UICamera.backgroundColor = Color.black;
     }
 
 
@@ -54,6 +62,15 @@ public class FightUiConroller : Dialog
     {
         if (NGUIJoystick.instance != null)
             NGUIJoystick.instance.JoyCollider.enabled = false;
+    }
+
+    //显示所有人属性
+    public void ShowPlayerInfo() {
+
+    }
+
+    public void ShowPlayerPosition() {
+
     }
 
     public void ShowCameraBtn()
@@ -119,7 +136,7 @@ public class FightUiConroller : Dialog
             (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer));
         NodeHelper.Find("Reborn", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnRebornClick);
 
-        //单机-金华城
+        //单机-金华城-只有这一关能复活冷燕
         if (Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask && Main.Ins.CombatData.GLevelItem.Id == 4)
             NodeHelper.Find("Reborn", WndObject).SetActive(true);
         else
@@ -140,11 +157,7 @@ public class FightUiConroller : Dialog
             //非联机屏蔽按键-单人游戏
             NodeHelper.Find("Chat", WndObject).SetActive(false);
         }
-#if !STRIP_DBG_SETTING
-        NodeHelper.Find("DBG", WndObject).GetComponent<Button>().onClick.AddListener(OnDebugCanvas);
-#else
-        NodeHelper.Find("DBG", WndObject).SetActive(false);
-#endif
+
         if (Main.Ins.LocalPlayer != null)
         {
             angryBar.fillAmount = 0.0f;
@@ -186,13 +199,6 @@ public class FightUiConroller : Dialog
             Main.Ins.ExitState(Main.Ins.ChatDialogState);
     }
 
-#if !STRIP_DBG_SETTING
-    void OnDebugCanvas()
-    {
-        U3D.Instance.ShowDbg();
-    }
-#endif
-
     void OnStatusPress()
     {
         if (!BattleStatusDialogState.Exist())
@@ -215,14 +221,14 @@ public class FightUiConroller : Dialog
                 return;
 
             if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-                Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Help, false);
+                Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Help);
         }
         else if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld)
         {
             if (Main.Ins.CombatData.GGameMode == GameMode.ANSHA)
             {
                 if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-                    Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Help, false);
+                    Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Help);
             }
         }
     }
@@ -295,6 +301,8 @@ public class FightUiConroller : Dialog
             RectTransform r = tri.GetComponent<RectTransform>();
             if (Main.Ins.GameStateMgr.gameStatus.HasUIAnchor[j])
                 r.anchoredPosition = Main.Ins.GameStateMgr.gameStatus.UIAnchor[j];
+            float scale = Main.Ins.GameStateMgr.gameStatus.UIScale[j];
+            r.localScale = new Vector3(scale, scale, 1);
             j++;
         }
     }
@@ -302,7 +310,7 @@ public class FightUiConroller : Dialog
     public void OnAttackPress()
     {
         if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Attack, false);//也可看作普攻
+        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Attack);//也可看作普攻
     }
 
     public void OnChangeLock(bool locked)
@@ -330,7 +338,7 @@ public class FightUiConroller : Dialog
             return;
 
         if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_DropWeapon, false);
+        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_DropWeapon);
     }
 
     public void OnCrouchPress()
@@ -339,7 +347,7 @@ public class FightUiConroller : Dialog
             return;
 
         if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Crouch, false);
+        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Crouch);
     }
 
     public void OnCrouchRelease()
@@ -354,7 +362,7 @@ public class FightUiConroller : Dialog
             return;
 
         if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_ChangeWeapon, false);
+        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_ChangeWeapon);
     }
 
     public void OnChangeWeaponRelease()
@@ -377,7 +385,7 @@ public class FightUiConroller : Dialog
         if (Main.Ins.LocalPlayer.Dead)
             return;
         if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Defence, true);//不要被键盘状态同步，否则按下马上就抬起，那么防御姿势就消失了
+        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Defence);//不要被键盘状态同步，否则按下马上就抬起，那么防御姿势就消失了
 
     }
 
@@ -395,7 +403,7 @@ public class FightUiConroller : Dialog
         //    return;
 
         if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Jump, false);//
+        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Jump);//
     }
 
     public void OnJumpRelease()
@@ -412,7 +420,7 @@ public class FightUiConroller : Dialog
             return;
         if (Main.Ins.LocalPlayer.AngryValue >= 60 || Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
         {
-            Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_BreakOut, false);
+            Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_BreakOut);
             //Debug.Log("OnKeyDown");
         }
     }

@@ -93,7 +93,7 @@ public class BattleStatusDialog : Dialog
         Text Killed = Control("Killed", obj).GetComponent<Text>();
         Text Dead = Control("Dead", obj).GetComponent<Text>();
         Idx.text = (id + 1).ToString();
-        Name.text = U3D.GetUnit(instance).Name;
+        Name.text = U3D.GetUnit(instance).name;
 
         Killed.text = killed.ToString();
         Dead.text = dead.ToString();
@@ -146,7 +146,7 @@ public class BattleStatusDialog : Dialog
         Text Killed = Control("Killed", obj).GetComponent<Text>();
         Text Dead = Control("Dead", obj).GetComponent<Text>();
         Idx.text = (result.id + 1).ToString();
-        Name.text = U3D.GetUnit(instanceId).Name;
+        Name.text = U3D.GetUnit(instanceId).name;
         //Camp.text = result.camp == 1 ""
         Killed.text = result.killCount.ToString();
         Dead.text = result.deadCount.ToString();

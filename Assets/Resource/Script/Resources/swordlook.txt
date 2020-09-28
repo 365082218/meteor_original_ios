@@ -1,0 +1,32 @@
+local class = {}
+function swordlook()
+	class.Name = "律香川";
+	class.Model = 19;
+	class.Weapon = 6;
+	class.Weapon2 = 0;
+	class.Team = 0;
+	class.View = 500;
+	class.Think = 100;
+	class.Attack1 = 10;
+	class.Attack2 = 20;
+	class.Attack3 = 35;
+	class.Guard = 0;
+	class.Dodge = 0;
+	class.Jump = 0;
+	class.Look = 10;
+	class.Burst = 0;
+	class.Aim = 0;
+	class.GetItem = 0;
+	class.Spawn = 5;
+	class.HP = 3000;
+	class.g_self = -1;
+	return class;
+end
+
+function class:OnInit(a)
+	class.g_self = a;
+end
+
+function class:OnStart()
+	ChangeBehavior(class.g_self, "wait");
+end

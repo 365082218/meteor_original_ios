@@ -28,7 +28,7 @@ public class IFLLoader :MonoBehaviour {
     }
 
     void Start () {
-        delay = 1.0f / 12.0f;
+        delay = 1.0f / 30.0f;
         
         if (AutoPlay)
             LoadIFL();

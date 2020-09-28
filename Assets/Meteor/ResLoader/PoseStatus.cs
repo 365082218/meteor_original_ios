@@ -5,54 +5,75 @@ using System.Linq;
 using System;
 using System.Diagnostics;
 using Excel2Json;
+using Idevgame.Util;
+using System.IO;
 //管理角色的动画帧，用自己的方式实现动画
 [Serializable]
-public class PoseStatus
-{
+public class ActionManager {
     public static Dictionary<int, List<Pose>> ActionList = new Dictionary<int, List<Pose>>();
-    public static bool ActionExist(int unit, int action)
-    {
+    //加载全部，在游戏过程中尽量不要发生IO
+    public static void LoadAll() {
+        for (int i = 0; i < 20; i++) {
+            if (!ActionList.ContainsKey(i)) {
+                ActionList.Add(i, new List<Pose>());
+                TextAsset asset = Resources.Load<TextAsset>(string.Format("{0}/P{1}.pos", Main.Ins.AppInfo.MeteorVersion, i));
+                string text = System.Text.Encoding.ASCII.GetString(asset.bytes);
+                Parse(text, i);
+                //检查配置是否存在问题 pose 9内 loopStart比start还小
+                //for (int j = 0; j < ActionList[i].Count; j++) {
+                //    if (ActionList[i][j].LoopStart == 0 && ActionList[i][j].LoopEnd == 0)
+                //        continue;
+                //    if (ActionList[i][j].LoopStart < ActionList[i][j].Start || ActionList[i][j].LoopEnd > ActionList[i][j].End) {
+                //        UnityEngine.Debug.LogError("file" + i + " pose:" + j + " contains error");
+                //    }
+                //}
+            }
+        }
+    }
+
+    public static bool ActionExist(int unit, int action) {
         if (ActionList[unit] != null && ActionList[unit].Count > action && action >= 0)
             return true;
         return false;
     }
-    //1一定不要重力，因为招式向上 2一定要重力，因为招式向下，3如果在空中，忽略重力
-    //public static Dictionary<int, int> IgnoreGravity = new Dictionary<int, int>();
-    public Pose mActiveAction = null;
-    public static void Clear()
-    {
+
+    public static void Clear() {
         ActionList.Clear();
     }
-    MeteorUnit _Self;
-    public static bool IsReadyAction(int idx)
-    {
+
+    public static bool IsJumpAction(int idx) {
+        return idx >= CommonAction.Jump && idx <= CommonAction.WallLeftJump;
+    }
+
+    public static bool IsReadyAction(int idx) {
         if (idx >= CommonAction.DartReady && idx <= CommonAction.HammerReady)
             return true;
         if (idx >= CommonAction.GloveReady && idx <= CommonAction.RendaoReady)
             return true;
         return false;
     }
+
+    public Pose mActiveAction = null;//正在播放的
+    MeteorUnit mOwner;
+    public Vector3 moveDelta;//上一帧的位移
     int UnitId;
     public int mActiveActionIdx;
-    public bool CanMove;
     public bool CanControl;
-    public bool CanRotateY
-    {
-        get
-        {
+    public bool CanRotateY {
+        get {
             //如果被锁定
-            if (_Self.IsDebugUnit())
+            if (mOwner.IsDebugUnit())
                 return false;
-            if (_Self.controller.InputLocked)
+            if (mOwner.meteorController.InputLocked)
                 return false;
             //如果有锁定目标，不许转向(在有锁系统下)
-            if (_Self.LockTarget != null && Main.Ins.GameStateMgr.gameStatus.AutoLock)
+            if (mOwner.LockTarget != null && Main.Ins.GameStateMgr.gameStatus.AutoLock)
                 return false;
             //攻击动作播放时不许摇杆控制角色转向
             if (IsAttackPose())
                 return false;
             //爬墙不许转向
-            if (_Self.Climbing)
+            if (mOwner.Climbing)
                 return false;
             //等待收回飞轮不许转向
             if (mActiveAction.Idx == CommonAction.WaitWeaponReturn)
@@ -81,13 +102,11 @@ public class PoseStatus
             return true;
         }
     }
-    
+
     //public bool CanJump;
     public bool CanChangeWeapon;
-    public bool CanDefence
-    {
-        get
-        {
+    public bool CanDefence {
+        get {
             if (onDefence)
                 return false;
             if (onhurt)
@@ -109,18 +128,14 @@ public class PoseStatus
             return true;
         }
     }
-    public bool CanSkill
-    {
-        get
-        {
+    public bool CanSkill {
+        get {
             return CanDefence;
         }
     }
     public bool Rotateing = false;
-    public bool onDefence
-    {
-        get
-        {
+    public bool onDefence {
+        get {
             if (mActiveAction.Idx >= CommonAction.DartDefence && mActiveAction.Idx <= CommonAction.HammerDefence)
                 return true;
             if (mActiveAction.Idx >= CommonAction.ZhihuDefence && mActiveAction.Idx <= CommonAction.RendaoDefence)
@@ -135,10 +150,8 @@ public class PoseStatus
         }
     }
 
-    public bool onhurt
-    {
-        get
-        {
+    public bool onhurt {
+        get {
             if (mActiveAction == null)
                 return false;
             if (mActiveAction.Idx >= CommonAction.HitStart && mActiveAction.Idx <= CommonAction.HitEnd)
@@ -147,15 +160,13 @@ public class PoseStatus
         }
     }
     public float ClimbFallTick { get; set; }
-    public const float ClimbFallLimit = 0.5f;
+    
     public bool CanAdjust { get; set; }
     public bool CheckClimb { get; set; }//检查轻功开始，在按住上键和跳跃后，上键一旦松开就不再检查轻工
     public float JumpTick = 0.2f;//0.2f内算为跳.
-    public bool Jump
-    {
-        get
-        {
-            if (mActiveAction.Idx == CommonAction.Jump || 
+    public bool Jump {
+        get {
+            if (mActiveAction.Idx == CommonAction.Jump ||
                 mActiveAction.Idx == CommonAction.JumpLeft ||
                 mActiveAction.Idx == CommonAction.JumpRight ||
                 mActiveAction.Idx == CommonAction.JumpBack ||
@@ -165,45 +176,39 @@ public class PoseStatus
             return false;
         }
     }
-
-    //加载全部，在游戏过程中尽量不要发生IO
-    public static void LoadAll()
-    {
-        for (int i = 0; i < 20; i++)
-        {
-            if (!ActionList.ContainsKey(i))
-            {
-                ActionList.Add(i, new List<Pose>());
-                TextAsset asset = Resources.Load<TextAsset>(string.Format("{0}/P{1}.pos", Main.Ins.AppInfo.MeteorVersion, i));
-                string text = System.Text.Encoding.ASCII.GetString(asset.bytes);
-                Parse(text, i);
-            }
-        }
-    }
-
-    public void Init(MeteorUnit owner)
-    {
-        _Self = owner;
+    public void Init(MeteorUnit owner) {
+        activeStatus.InitWith(30, 6);
+        fadeOutStatus.InitWith(30, 6);
+        mOwner = owner;
         CheckClimb = false;
         CanAdjust = true;
         playResultAction = false;
         ClimbFallTick = 0.0f;
-        load = owner.charLoader;
-        UnitId = _Self == null ? 0 : _Self.UnitId;
-        CanMove = true;
-        if (!ActionList.ContainsKey(UnitId))
-        {
+        Characterloader = owner.characterLoader;
+        UnitId = mOwner == null ? 0 : mOwner.UnitId;
+        if (!ActionList.ContainsKey(UnitId)) {
             //int TargetIdx = UnitId >= 20 ? 0 : UnitId;
-            if (UnitId >= 20)
-            {
+            //最先从安装的资料片里找-正在用的
+            if (Main.Ins.CombatData.Chapter != null) {
+                Dictionary<int, string> models = Main.Ins.CombatData.GScript.GetModel();
+                if (models != null && models.ContainsKey(UnitId)) {
+                    string path = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Pos, models[UnitId]);
+                    if (!string.IsNullOrEmpty(path)) {
+                        if (File.Exists(path)) {
+                            ActionList.Add(UnitId, new List<Pose>());
+                            string context = File.ReadAllText(path);
+                            Parse(context, UnitId);
+                            return;
+                        }
+                    }
+                }
+            }
+            if (UnitId >= 20) {
                 //先找到插件里是否包含此Pos文件
                 ModelItem m = DlcMng.GetPluginModel(UnitId);
-                if (m != null && m.Installed)
-                {
-                    for (int i = 0; i < m.resPath.Length; i++)
-                    {
-                        if (m.resPath[i].ToLower().EndsWith(".pos"))
-                        {
+                if (m != null && m.Installed) {
+                    for (int i = 0; i < m.resPath.Count; i++) {
+                        if (m.resPath[i].ToLower().EndsWith(".pos")) {
                             ActionList.Add(UnitId, new List<Pose>());
                             string text = System.IO.File.ReadAllText(m.resPath[i]);
                             Parse(text, UnitId);
@@ -215,10 +220,7 @@ public class PoseStatus
                     else
                         ActionList.Add(UnitId, ActionList[0]);
                 }
-                
-            }
-            else
-            {
+            } else {
                 ActionList.Add(UnitId, new List<Pose>());
                 TextAsset asset = Resources.Load<TextAsset>(string.Format("{0}/P{1}.pos", Main.Ins.AppInfo.MeteorVersion, UnitId));
                 string text = System.Text.Encoding.ASCII.GetString(asset.bytes);
@@ -227,118 +229,103 @@ public class PoseStatus
         }
     }
 
-    public void StopAction()
-    {
-        if (load != null)
-            load.SetPosData(null);
+    public void StopAction() {
+        ChangeActionCore(null);
     }
 
     public Dictionary<int, int> LinkInput = new Dictionary<int, int>();
-
-    public static bool IgnoreActionMove(int idx)
-    {
+    public Dictionary<int, int> QueuedAction = new Dictionary<int, int>();
+    public static bool IgnoreActionMove(int idx) {
         ActionData act = Main.Ins.DataMgr.GetActionData(idx);
         if (act == null)
             return false;
+        //if (idx == 152)
+        //    return true;
+        //if (idx == 100)
+        //    return false;
         return act.IgnoreMove == 1;
     }
 
-    public static bool IgnoreVelocityXZ(int idx)
-    {
+    public static bool IgnoreVelocityXZ(int idx) {
         ActionData act = Main.Ins.DataMgr.GetActionData(idx);
         if (act == null)
             return false;
         return act.IgnoreXZVelocity == 1;
     }
 
-    public static bool IgnorePhysical(int idx)
-    {
+    public static bool IgnorePhysical(int idx) {
         ActionData act = Main.Ins.DataMgr.GetActionData(idx);
         if (act == null)
             return false;
         return act.IgnoreCollision == 1;
     }
 
-    public static bool IgnoreGravity(int idx)
-    {
+    public static bool IgnoreGravity(int idx) {
         ActionData act = Main.Ins.DataMgr.GetActionData(idx);
-        if (act == null)
-        {
+        //if (idx == 151)
+        //    return true;
+        //if (idx == 100)
+        //    return false;
+        if (act == null) {
             return false;
         }
         return act.IgnoreGravity == 1;
     }
 
-    public bool IsHurtPose()
-    {
+    public bool IsHurtPose() {
         return (mActiveAction.Idx >= CommonAction.HitStart && mActiveAction.Idx <= CommonAction.HitEnd);
     }
 
     //受击或者被击，都无法转变X轴视角，在没有锁定目标状态下才能转变Y视角.
-    public bool IsAttackPose()
-    {
+    public bool IsAttackPose() {
         return !(mActiveAction.Attack == null || mActiveAction.Attack.Count == 0);
     }
 
-    public bool IsAttackPose(int i)
-    {
+    public bool IsAttackPose(int i) {
         if (i < 0 || i > 600)
             return false;
         Pose p = ActionList[UnitId][i];
         return !(p.Attack == null || p.Attack.Count == 0);
     }
 
-    event Action OnActionFinishedEvt;
-    public void LinkEvent(Action evt)
-    {
-        OnActionFinishedEvt += evt;
-    }
-
-    public void ClearEvent()
-    {
-        OnActionFinishedEvt = null;
+    //在循环动作中添加一个链接动作，如果循环动作准备播放下一次了，那么先检查连接动作，有的话就切换动作.
+    public void QueueAction(int idx, PoseEvt evt = PoseEvt.None) {
+        if (!QueuedAction.ContainsValue(idx)) {
+            QueuedAction.Add(mActiveAction.Idx, idx);
+            if (evt != PoseEvt.None)
+                LinkEvent(idx, evt);
+        }
     }
 
     //这个动作做完后，链接到其他动作上.
-    public void LinkAction(int idx)
-    {
+    public void LinkAction(int idx) {
         //先把虚拟动作转换为实际动作ID
-        if (idx >= (int)600)
-        {
-            switch (idx)
-            {
-                case (int)600:idx = 0;break;
+        if (idx >= (int)600) {
+            switch (idx) {
+                case (int)600: idx = 0; break;
             }
         }
-
-        if (mActiveAction != null)
-        {
+        mOwner.UpdateNinjaState(NinjaState.None);
+        if (mActiveAction != null) {
             PosAction act = null;
-            int curIndex = load.GetCurrentFrameIndex();
-            for (int i = 0; i < mActiveAction.ActionList.Count; i++)
-            {
-                if (mActiveAction.ActionList[i].Type.Equals("Blend"))
-                {
+            int curIndex = GetCurrentFrameIndex();
+            for (int i = 0; i < mActiveAction.ActionList.Count; i++) {
+                if (mActiveAction.ActionList[i].Type.Equals("Blend")) {
                     act = mActiveAction.ActionList[i];
                     //在可切换帧范围内
-                    if (curIndex >= act.Start && curIndex <= act.End)
-                    {
+                    if (curIndex >= act.Start && curIndex <= act.End) {
                         //如果角色在空中，那么出招会凝滞重力
-                        if (!_Self.IsOnGround())
-                            _Self.ResetYVelocity();
+                        if (!mOwner.IsOnGround())
+                            mOwner.ResetYVelocity();
                         //_Self.IgnoreGravitys(IgnoreGravity(idx));
                         //Debug.LogError("link action");
-                        if (mActiveAction.Next != null)
-                        {
+                        if (mActiveAction.Next != null) {
                             //Debug.LogError("直接切换动作：" + idx + " NextPose:" + mActiveAction.Next.Time);
                             ChangeAction(idx, mActiveAction.Next.Time);
-                        }
-                        else
+                        } else
                             ChangeAction(idx);
                         return;
-                    }
-                    else if (curIndex < act.Start)
-                    {
+                    } else if (curIndex < act.Start) {
                         LinkInput[mActiveAction.Idx] = idx;
                         //Debug.LogError("等待混合动作：" + idx);
                         return;
@@ -348,20 +335,17 @@ public class PoseStatus
             //如果动作无尾部融合之类的，就立即切换动作吧,表明这个动作一开始跑,任意时候都接受输入并转换状态.
             //如果角色在空中或者招式有向上的移动，那么出招会凝滞重力
             //在空中出任意招式，向上的跳跃能力将会被清空
-            if (!_Self.IsOnGround())
-                _Self.ResetYVelocity();
+            if (!mOwner.IsOnGround())
+                mOwner.ResetYVelocity();
             //某些时候，XZ轴速度也会发生改变。这个部分比较细致，
             //_Self.IgnoreGravitys(IgnoreGravity(idx));
             //MeteorManager.Instance.PhysicalIgnore(_Self, IgnorePhysical(idx));
             //else if (!_Self.IsOnGround())
             //    _Self.EnableGravity(false);
-            if (IsAttackPose())
-            {
+            if (IsAttackPose()) {
                 LinkInput[mActiveAction.Idx] = idx;
                 //Debug.LogError("等待结束后连接动作：" + idx);
-            }
-            else
-            {
+            } else {
                 //Debug.LogError("link action 2");
                 if (mActiveAction.Next != null)
                     ChangeAction(idx, mActiveAction.Next.Time);
@@ -373,261 +357,306 @@ public class PoseStatus
 
     //动作播放完毕，切换下一个可连接动作.
     public bool playResultAction = false;
-    public System.Action OnDebugActionFinished;
-    public void OnActionFinished()
-    {
-        if (OnDebugActionFinished != null)
-            OnDebugActionFinished();
-        if (waitPause)
-        {
-            //死亡后接事件
-            if (OnActionFinishedEvt != null)
-            {
-                OnActionFinishedEvt();//关闭碰撞盒
-                OnActionFinishedEvt = null;
+    //public System.Action OnDebugActionFinished;
+    public void OnActionFinished() {
+        if (mOwner.Dead) {
+            if (mOwner.charController.enabled) {
+                mOwner.charController.enabled = false;
             }
+            return;
         }
-        else
-        {
-            if (mActiveAction.Idx == CommonAction.Struggle0 || mActiveAction.Idx == CommonAction.Struggle)
-                return;
 
-            //使用火枪，状态机与普通状态机不一致
-            if (_Self.GetWeaponType() == (int)EquipWeaponType.Gun)
-            {
-                //212=>213
-                if (mActiveAction.Idx == CommonAction.GunReload)
-                {
-                    ChangeAction(CommonAction.GunIdle, 0.1f);
-                }
-                else
-                {
-                    if (_Self.IsOnGround())
-                    {
-                        //213=>213
-                        if (mActiveAction.Idx == CommonAction.GunIdle)
-                        {
-                            ChangeAction(CommonAction.GunIdle);
-                        }
-                        else
-                        {
-                            if (LinkInput.ContainsKey(mActiveAction.Idx))
-                            {
-                                //拿着火枪在空中踢人.
-                                //int TargetActionIdx = mActiveAction.Idx;
-                                if (mActiveAction.Next != null)
-                                    ChangeAction(LinkInput[mActiveAction.Idx], mActiveAction.Next.Time);//
-                                else
-                                    ChangeAction(LinkInput[mActiveAction.Idx], 0.1f);//ok
-                                LinkInput.Clear();
-                            }
+        if (mActiveAction.Idx == CommonAction.Struggle0 || mActiveAction.Idx == CommonAction.Struggle)
+            return;
+
+        if (QueuedAction.ContainsKey(mActiveAction.Idx)) {
+            int idx = mActiveAction.Idx;
+            ChangeAction(QueuedAction[idx]);
+            QueuedAction.Remove(idx);
+            return;
+        }
+        //使用火枪，状态机与普通状态机不一致
+        if (mOwner.GetWeaponType() == (int)EquipWeaponType.Gun) {
+            //212=>213
+            if (mActiveAction.Idx == CommonAction.GunReload) {
+                ChangeAction(CommonAction.GunIdle, 0.1f);
+            } else {
+                if (mOwner.IsOnGround()) {
+                    //213=>213
+                    if (mActiveAction.Idx == CommonAction.GunIdle) {
+                        ChangeAction(CommonAction.GunIdle);
+                    } else {
+                        if (LinkInput.ContainsKey(mActiveAction.Idx)) {
+                            //拿着火枪在空中踢人.
+                            //int TargetActionIdx = mActiveAction.Idx;
+                            if (mActiveAction.Next != null)
+                                ChangeAction(LinkInput[mActiveAction.Idx], mActiveAction.Next.Time);//
                             else
-                            if (mActiveAction.Link != 0)
-                            {
-                                if (mActiveAction.Next != null)
-                                    ChangeAction(mActiveAction.Link, mActiveAction.Next.Time);
-                                else
-                                    ChangeAction(mActiveAction.Link, 0.1f);
-                            }
+                                ChangeAction(LinkInput[mActiveAction.Idx], 0.1f);//ok
+                            LinkInput.Clear();
+                        } else
+                        if (mActiveAction.Link != 0) {
+                            if (mActiveAction.Next != null)
+                                ChangeAction(mActiveAction.Link, mActiveAction.Next.Time);
                             else
-                            {
-                                if (!_Self.GunReady)
-                                {
-                                    if (mActiveAction.Next != null)
-                                        ChangeAction(CommonAction.Idle, mActiveAction.Next.Time);
-                                    else
-                                        ChangeAction(CommonAction.Idle, 0.1f);
-                                }
-                                else
-                                {
-                                    //没有重装子弹的进入213
-                                    if (mActiveAction.Next != null)
-                                        ChangeAction(CommonAction.GunIdle, mActiveAction.Next.Time);
-                                    else
-                                        ChangeAction(CommonAction.GunIdle, 0.1f);
-                                }
-                            }
-                        }
-                    }
-                    else if (_Self.posMng.onhurt)
-                    {
-                        //浮空受击.
-                    }
-                    else
-                        ChangeAction(CommonAction.JumpFall);//拿着枪从空中落下.
-                }
-            }
-            else
-            {
-                if (LinkInput.ContainsKey(mActiveAction.Idx))
-                {
-                    //int TargetActionIdx = mActiveAction.Idx;
-                    if (mActiveAction.Next != null)
-                        ChangeAction(LinkInput[mActiveAction.Idx], mActiveAction.Next.Time);//
-                    else
-                        ChangeAction(LinkInput[mActiveAction.Idx], 0.1f);//ok
-                    LinkInput.Clear();
-                }
-                else
-                {
-                    if (mActiveAction.Link != 0)
-                    {
-                        if (mActiveAction.Next != null)
-                            ChangeAction(mActiveAction.Link, mActiveAction.Next.Time);
-                        else
-                            ChangeAction(mActiveAction.Link, 0.01f);//给一个微弱得过渡时间,因为一些动作过渡需要把d_base得偏移对上去(针对152接180导致得角色轻微位移)
-                    }
-                    else
-                    {
-                        if (_Self.IsOnGround())
-                        {
-                            //如果处于防御-受击状态中,恢复为防御pose
-                            if (onDefence)
-                            {
-                                _Self.Defence();
-                            }
-                            else
-                            if (_Self.LockTarget != null && Main.Ins.GameStateMgr.gameStatus.AutoLock)
-                            {
-                                int ReadyAction = 0;
-                                switch ((EquipWeaponType)_Self.GetWeaponType())
-                                {
-                                    case EquipWeaponType.Knife: ReadyAction = CommonAction.KnifeReady; break;
-                                    case EquipWeaponType.Sword: ReadyAction = CommonAction.SwordReady; break;
-                                    case EquipWeaponType.Blade: ReadyAction = CommonAction.BladeReady; break;
-                                    case EquipWeaponType.Lance: ReadyAction = CommonAction.LanceReady; break;
-                                    case EquipWeaponType.Brahchthrust: ReadyAction = CommonAction.BrahchthrustReady; break;
-                                    case EquipWeaponType.Dart: ReadyAction = CommonAction.DartReady; break;
-                                    case EquipWeaponType.Gloves: ReadyAction = CommonAction.GloveReady; break;
-                                    case EquipWeaponType.Guillotines: ReadyAction = CommonAction.GuillotinesReady; break;
-                                    case EquipWeaponType.Hammer: ReadyAction = CommonAction.HammerReady; break;
-                                    case EquipWeaponType.NinjaSword: ReadyAction = CommonAction.RendaoReady; break;
-                                    case EquipWeaponType.HeavenLance:
-                                        switch (_Self.GetWeaponSubType())
-                                        {
-                                            case 0: ReadyAction = CommonAction.QK_BADAO_READY; break;
-                                            case 1: ReadyAction = CommonAction.QK_CHIQIANG_READY; break;
-                                            case 2: ReadyAction = CommonAction.QK_JUHE_READY; break;
-                                        }
-                                        break;
-                                    case EquipWeaponType.Gun: ReadyAction = CommonAction.GunReady; break;
-                                }
-                                if (mActiveAction.Next != null)
-                                    ChangeAction(ReadyAction, mActiveAction.Next.Time);
-                                else
-                                    ChangeAction(ReadyAction, 0.1f);
-                            }
-                            else
-                            {
+                                ChangeAction(mActiveAction.Link, 0.1f);
+                        } else {
+                            if (!mOwner.GunReady) {
                                 if (mActiveAction.Next != null)
                                     ChangeAction(CommonAction.Idle, mActiveAction.Next.Time);
                                 else
                                     ChangeAction(CommonAction.Idle, 0.1f);
+                            } else {
+                                //没有重装子弹的进入213
+                                if (mActiveAction.Next != null)
+                                    ChangeAction(CommonAction.GunIdle, mActiveAction.Next.Time);
+                                else
+                                    ChangeAction(CommonAction.GunIdle, 0.1f);
                             }
                         }
-                        else if (_Self.posMng.onhurt)
-                        {
-                            //Debug.Log("目标受到伤害浮空");
-                        }
-                        else
-                            ChangeAction(CommonAction.JumpFall);
                     }
+                } else if (mOwner.ActionMgr.onhurt) {
+                    //浮空受击.
+                } else if (mActiveAction.Link != 0) {
+                    if (mActiveAction.Next != null)
+                        ChangeAction(mActiveAction.Link, mActiveAction.Next.Time);
+                    else
+                        ChangeAction(mActiveAction.Link, 0.1f);
+                } else
+                    ChangeAction(CommonAction.JumpFall, 0.1f);//拿着枪从空中落下.
+            }
+        } else {
+            if (LinkInput.ContainsKey(mActiveAction.Idx)) {
+                //int TargetActionIdx = mActiveAction.Idx;
+                if (mActiveAction.Next != null)
+                    ChangeAction(LinkInput[mActiveAction.Idx], mActiveAction.Next.Time);//
+                else
+                    ChangeAction(LinkInput[mActiveAction.Idx], 0.1f);//ok
+                LinkInput.Clear();
+            } else {
+                //忍刀无限飞,招式结束阶段，若
+                if (!mOwner.IsOnGround()) {
+                    if (mOwner.SuperJump())
+                        return;
+                }
+                        
+                if (mActiveAction.Link != 0) {
+                    if (mActiveAction.Next != null)
+                        ChangeAction(mActiveAction.Link, mActiveAction.Next.Time);
+                    else
+                        ChangeAction(mActiveAction.Link, 0.1f);
+                } else {
+                    if (mOwner.IsOnGround()) {
+                        //如果处于防御-受击状态中,恢复为防御pose
+                        if (onDefence) {
+                            mOwner.Defence();
+                        } else
+                        if (mOwner.LockTarget != null && Main.Ins.GameStateMgr.gameStatus.AutoLock) {
+                            int ReadyAction = 0;
+                            switch ((EquipWeaponType)mOwner.GetWeaponType()) {
+                                case EquipWeaponType.Knife: ReadyAction = CommonAction.KnifeReady; break;
+                                case EquipWeaponType.Sword: ReadyAction = CommonAction.SwordReady; break;
+                                case EquipWeaponType.Blade: ReadyAction = CommonAction.BladeReady; break;
+                                case EquipWeaponType.Lance: ReadyAction = CommonAction.LanceReady; break;
+                                case EquipWeaponType.Brahchthrust: ReadyAction = CommonAction.BrahchthrustReady; break;
+                                case EquipWeaponType.Dart: ReadyAction = CommonAction.DartReady; break;
+                                case EquipWeaponType.Gloves: ReadyAction = CommonAction.GloveReady; break;
+                                case EquipWeaponType.Guillotines: ReadyAction = CommonAction.GuillotinesReady; break;
+                                case EquipWeaponType.Hammer: ReadyAction = CommonAction.HammerReady; break;
+                                case EquipWeaponType.NinjaSword: ReadyAction = CommonAction.RendaoReady; break;
+                                case EquipWeaponType.HeavenLance:
+                                    switch (mOwner.GetWeaponSubType()) {
+                                        case 0: ReadyAction = CommonAction.QK_BADAO_READY; break;
+                                        case 1: ReadyAction = CommonAction.QK_CHIQIANG_READY; break;
+                                        case 2: ReadyAction = CommonAction.QK_JUHE_READY; break;
+                                    }
+                                    break;
+                                case EquipWeaponType.Gun: ReadyAction = CommonAction.GunReady; break;
+                            }
+                            if (mActiveAction.Next != null)
+                                ChangeAction(ReadyAction, mActiveAction.Next.Time);
+                            else
+                                ChangeAction(ReadyAction, 0.1f);
+                        } else {
+                            if (mActiveAction.Next != null)
+                                ChangeAction(CommonAction.Idle, mActiveAction.Next.Time);
+                            else
+                                ChangeAction(CommonAction.Idle, 0.1f);
+                        }
+                    } else if (mOwner.ActionMgr.onhurt) {
+                        //Debug.Log("目标受到伤害浮空");
+                    } else
+                        ChangeAction(CommonAction.JumpFall, 0.1f);
                 }
             }
         }
     }
 
-    bool waitPause = false;
-    public void WaitPause(bool wait = true)
-    {
-        waitPause = wait;//等待
+    public void OnReborn() {
+        CanControl = true;
+        PoseStartEvent.Clear();
     }
 
-    public void OnReborn()
-    {
-        CanControl = CanMove = true;
-        ClearEvent();
+    public void OnDead() {
+        CanControl = false;
     }
 
-    public void OnDead()
-    {
-        CanControl = CanMove = false;
+    //生成骨架节点名称
+    public static string GetHierarchyPath(Transform root, Transform son) {
+        string s = "";
+        List<string> hierarchy = new List<string>();
+        Transform t = son;
+        while (t != root) {
+            hierarchy.Insert(0, t.name);
+            t = t.parent;
+        }
+        s = hierarchy[0];
+        for (int i = 1; i < hierarchy.Count; i++) {
+            s += "/" + hierarchy[i];
+        }
+        return s;
     }
+    //使用Pose生成AnimationClip,可转换动画模式为此，就不用自己做动画混合那块了.
+    Dictionary<int, AnimationClip> ClipMap = new Dictionary<int, AnimationClip>();
+    Animation Bake;
+    public void BakePose(int pose) {
+        if (ClipMap.ContainsKey(pose)) {
+            return;
+        }
+        Pose po = ActionList[UnitId][pose];
+        AnimationClip clip = new AnimationClip();
+        clip.name = pose.ToString();
+        clip.frameRate = Pose.FPS;
+        clip.legacy = true;
+
+        for (int i = 0; i < Characterloader.dummy.Count; i++) {
+            //每一帧,每个骨骼的状态变化
+            AnimationCurve curveRotX = new AnimationCurve();
+            AnimationCurve curveRotY = new AnimationCurve();
+            AnimationCurve curveRotZ = new AnimationCurve();
+            AnimationCurve curveRotW = new AnimationCurve();
+            Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curveRotX, i, BakeInto.BakeLocalDummyRotationX);
+            Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curveRotY, i, BakeInto.BakeLocalDummyRotationY);
+            Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curveRotZ, i, BakeInto.BakeLocalDummyRotationZ);
+            Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curveRotW, i, BakeInto.BakeLocalDummyRotationW);
+            string strHierarchy = GetHierarchyPath(Characterloader.mOwner.gameObject.transform, Characterloader.dummy[i]);
+            clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.x", curveRotX);
+            clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.y", curveRotY);
+            clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.z", curveRotZ);
+            clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.w", curveRotW);
+            if (i == 0) {
+                AnimationCurve curvePosX = new AnimationCurve();
+                AnimationCurve curvePosY = new AnimationCurve();
+                AnimationCurve curvePosZ = new AnimationCurve();
+                //读取帧数据，得到关键帧，设置到曲线上
+                Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curvePosX, i, BakeInto.BakeLocalDummyPosX);
+                Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curvePosY, i, BakeInto.BakeLocalDummyPosY);
+                Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curvePosZ, i, BakeInto.BakeLocalDummyPosZ);
+                clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.x", curvePosX);
+                clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.y", curvePosY);
+                clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.z", curvePosZ);
+            }
+        }
+        for (int i = 0; i < Characterloader.bo.Count; i++) {
+            //每一帧,每个骨骼的状态变化
+            AnimationCurve curveRotX = new AnimationCurve();
+            AnimationCurve curveRotY = new AnimationCurve();
+            AnimationCurve curveRotZ = new AnimationCurve();
+            AnimationCurve curveRotW = new AnimationCurve();
+            Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curveRotX, i, BakeInto.BakeLocalRotationX);
+            Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curveRotY, i, BakeInto.BakeLocalRotationY);
+            Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curveRotZ, i, BakeInto.BakeLocalRotationZ);
+            Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curveRotW, i, BakeInto.BakeLocalRotationW);
+            string strHierarchy = GetHierarchyPath(Characterloader.mOwner.gameObject.transform, Characterloader.bo[i]);
+            clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.x", curveRotX);
+            clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.y", curveRotY);
+            clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.z", curveRotZ);
+            clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.w", curveRotW);
+            //每个骨骼
+            //第一个骨骼有位置的
+            if (i == 0) {
+                AnimationCurve curvePosX = new AnimationCurve();
+                AnimationCurve curvePosY = new AnimationCurve();
+                AnimationCurve curvePosZ = new AnimationCurve();
+                //读取帧数据，得到关键帧，设置到曲线上
+                Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curvePosX, i, BakeInto.BakeLocalPosX);
+                Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curvePosY, i, BakeInto.BakeLocalPosY);
+                Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curvePosZ, i, BakeInto.BakeLocalPosZ);
+                clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.x", curvePosX);
+                clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.y", curvePosY);
+                clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.z", curvePosZ);
+            }
+        }
+
+        ClipMap.Add(pose, clip);
+        if (Bake == null) {
+            Bake = mOwner.GetComponent<Animation>();
+            if (Bake == null) {
+                Bake = mOwner.gameObject.AddComponent<Animation>();
+            }
+        }
+        Bake.AddClip(clip, clip.name);
+        Bake.clip = clip;
+    }
+
     //根据动作号开始动画.
-    public CharacterLoader AnimalCtrlEx { get { return load; } }
-    CharacterLoader load;
-    //动作在地面还是空中
-    //动作是移动 防守 还是攻击 受伤 待机 
-    public void ChangeActionSingle(int idx = CommonAction.Idle)
-    {
-        ChangeAction(idx, 0);
-    }
-
+    CharacterLoader Characterloader;
     //被动情况下播放动画，类似，受到攻击，或者防御住对方的攻击
-    public void OnChangeAction(int idx)
-    {
+    public void OnChangeAction(int idx) {
         //如果是一些倒地动作，动作播放完之后还需要固定长时间才能起身
         ChangeAction(idx, 0.1f);
     }
 
-    bool IsSkillStartPose(int pose)
-    {
+    bool IsSkillStartPose(int pose) {
         if (pose == 244)//合太极起始
             return true;
         return false;
     }
 
-    bool IsSkillEndPose(int pose)
-    {
+    bool IsSkillEndPose(int pose) {
         if (pose == 364)//合太极收尾
             return true;
         return false;
     }
 
-    public void ChangeAction(int idx = CommonAction.Idle, float time = 0.01f)
-    {
-        //if (idx == 151 || idx == 152)
-        //{
-        //    string stackInfo = new StackTrace().ToString();
-        //    UnityEngine.Debug.Log(stackInfo);
-        //}
+    public void ChangeAction(int idx = CommonAction.Idle, float time = 0.01f) {
+        if ((idx < 0 || idx > 573) && idx != 1000){
+            Log.WriteError("can not change to action:" + idx);
+            return;
+        }
         CanAdjust = false;
-        if (Main.Ins.CombatData.GameFinished && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle))
-        {
+        if (Main.Ins.CombatData.GameFinished && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle)) {
             playResultAction = true;
-            if (_Self.Camp == EUnitCamp.EUC_ENEMY && Main.Ins.GameBattleEx.BattleLose())
-            {
+            if (mOwner.Camp == EUnitCamp.EUC_ENEMY && Main.Ins.GameBattleEx.BattleLose()) {
                 ChangeAction(CommonAction.Taunt, 0.1f);
                 return;
-            }
-            else if (_Self.Camp == EUnitCamp.EUC_FRIEND && Main.Ins.GameBattleEx.BattleWin())
-            {
+            } else if (mOwner.Camp == EUnitCamp.EUC_FRIEND && Main.Ins.GameBattleEx.BattleWin()) {
                 ChangeAction(CommonAction.Taunt, 0.1f);
                 return;
             }
         }
 
-        _Self.IgnoreGravitys(PoseStatus.IgnoreGravity(idx));//设置招式重力
+        //if (idx == 0 && mActiveAction != null && mActiveAction.Idx == 152) {
+        //    UnityEngine.Debug.LogError("climbing change to idle");
+        //}
+        mOwner.IgnoreGravitys(ActionManager.IgnoreGravity(idx));//设置招式重力
         bool ignorePhy = IgnorePhysical(idx);
-        if (ignorePhy != _Self.IgnorePhysical)
-            Main.Ins.MeteorManager.PhysicalIgnore(_Self, ignorePhy);//设置招式是否忽略角色障碍
+        if (ignorePhy != mOwner.IgnorePhysical)
+            Main.Ins.MeteorManager.PhysicalIgnore(mOwner, ignorePhy);//设置招式是否忽略角色障碍
 
         //看是否是大绝的起始招式/结束招式，大绝起始和结束招式之间的招式，不许响应输入切换招式.大绝不可取消.
-        if (IsSkillStartPose(idx) && !_Self.IsPlaySkill)
-            _Self.IsPlaySkill = true;
-        else if ((IsSkillEndPose(idx) || onhurt) && _Self.IsPlaySkill)
-            _Self.IsPlaySkill = false;
+        if (IsSkillStartPose(idx) && !mOwner.IsPlaySkill)
+            mOwner.IsPlaySkill = true;
+        else if ((IsSkillEndPose(idx) || onhurt) && mOwner.IsPlaySkill)
+            mOwner.IsPlaySkill = false;
 
         //设置招式是否冻结世界轴XZ上得速度.
-        _Self.ResetWorldVelocity(IgnoreVelocityXZ(idx));
-        if (load != null)
-        {
-            int weapon = _Self.GetWeaponType();
-            CanMove = false;
-            if (idx == CommonAction.Defence)
-            {
-                switch ((EquipWeaponType)weapon)
-                {
+        mOwner.ResetWorldVelocity(IgnoreVelocityXZ(idx));
+        if (Characterloader != null) {
+            int weapon = mOwner.GetWeaponType();
+            if (idx == CommonAction.Defence) {
+                mOwner.meteorController.LockMove(true);
+                switch ((EquipWeaponType)weapon) {
                     case EquipWeaponType.Knife: idx = CommonAction.KnifeDefence; break;
                     case EquipWeaponType.Sword: idx = CommonAction.SwordDefence; break;
                     case EquipWeaponType.Blade: idx = CommonAction.BladeDefence; break;
@@ -641,89 +670,714 @@ public class PoseStatus
                     case EquipWeaponType.HeavenLance: idx = CommonAction.QiankunDefenct; break;//
                                                                                                //case EquipWeaponType.Gun: return;//
                 }
+            } else
+            if (idx == CommonAction.Jump) {
+                CanAdjust = true;//跳跃后，可以微量移动
+                mOwner.meteorController.LockMove(false);
+            } else if ((idx >= CommonAction.WalkForward && idx <= CommonAction.RunOnDrug) || idx == CommonAction.Crouch) {
+                mOwner.meteorController.LockMove(false);
+            } else if (idx == CommonAction.Idle) {
+                mOwner.meteorController.LockMove(false);
+            } else if (idx == CommonAction.ClimbLeft || idx == CommonAction.ClimbRight || idx == CommonAction.ClimbUp) {
+                mOwner.meteorController.LockMove(false);//爬墙也需要按住方向
+            }
+            else if (IsReadyAction(idx)) {
+                mOwner.meteorController.LockMove(false);
             }
             else
-            if (idx == CommonAction.Jump)
-            {
-                CanAdjust = true;//跳跃后，可以微量移动
-                CanMove = true;
-            }
-            else if ((idx >= CommonAction.WalkForward && idx <= CommonAction.RunOnDrug) || idx == CommonAction.Crouch)
-            {
-                CanMove = true;
-            }
-            else if (idx == CommonAction.Idle)
-            {
-                CanMove = true;
-            }
-
+                mOwner.meteorController.LockMove(true);
             //蹲下左右旋转-蹲下前后左右移动，只要之前处于火枪预备则都可以瞬间出火枪的攻击
-            if (weapon == (int)EquipWeaponType.Gun)
-            {
-                if ((idx >= CommonAction.CrouchForw && idx <= CommonAction.CrouchBack) || idx == CommonAction.GunIdle)
-                {
-                    if (idx == CommonAction.GunIdle && !_Self.GunReady)
-                        _Self.SetGunReady(true);
-                    if (_Self.Attr.IsPlayer)
-                    {
-                        if (_Self.GunReady)
-                        {
-                            Main.Ins.EnterState(Main.Ins.GunShootDialogStatus);
-                        }
-                        else
-                        {
-                            Main.Ins.ExitState(Main.Ins.GunShootDialogStatus);
+            if (weapon == (int)EquipWeaponType.Gun) {
+                if ((idx >= CommonAction.CrouchForw && idx <= CommonAction.CrouchBack) || idx == CommonAction.GunIdle) {
+                    if (idx == CommonAction.GunIdle && !mOwner.GunReady)
+                        mOwner.SetGunReady(true);
+                    if (mOwner.Attr.IsPlayer) {
+                        if (mOwner.GunReady) {
+                            Main.Ins.EnterState(Main.Ins.GunShootDialogState);
+                        } else {
+                            Main.Ins.ExitState(Main.Ins.GunShootDialogState);
                         }
                     }
-                }
-                else
-                {
-                    if (_Self.Attr.IsPlayer)
-                    {
-                        Main.Ins.ExitState(Main.Ins.GunShootDialogStatus);
+                } else {
+                    if (mOwner.Attr.IsPlayer) {
+                        Main.Ins.ExitState(Main.Ins.GunShootDialogState);
                     }
                 }
-            }
-            else if (_Self.Attr.IsPlayer)
-            {
-                Main.Ins.ExitState(Main.Ins.GunShootDialogStatus);
+            } else if (mOwner.Attr.IsPlayer) {
+                Main.Ins.ExitState(Main.Ins.GunShootDialogState);
             }
 
             //除了受击，防御，其他动作在有锁定目标下，都要转向锁定目标.
-            if (_Self.LockTarget != null && !onDefence && !onhurt)
-            {
+            if (mOwner.LockTarget != null && !onDefence && !onhurt) {
                 //是否旋转面向目标.
-                if (_Self.StateMachine != null && _Self.StateMachine.IsFighting())
-                {
+                if (mOwner.StateMachine != null && mOwner.StateMachine.IsFighting()) {
                     //NPC.
                     //远程武器无需转向.
-                    if (_Self.GetWeaponType() != (int)EquipWeaponType.Guillotines &&
-                        _Self.GetWeaponType() != (int)EquipWeaponType.Gun &&
-                        _Self.GetWeaponType() != (int)EquipWeaponType.Dart)
-                    {
-                        _Self.FaceToTarget(_Self.LockTarget);
+                    if (mOwner.GetWeaponType() != (int)EquipWeaponType.Guillotines &&
+                        mOwner.GetWeaponType() != (int)EquipWeaponType.Gun &&
+                        mOwner.GetWeaponType() != (int)EquipWeaponType.Dart) {
+                        mOwner.FaceToTarget(mOwner.LockTarget);
                     }
-                }
-                else if (_Self.StateMachine == null && Main.Ins.GameStateMgr.gameStatus.AutoLock && idx != CommonAction.Idle)
-                {
+                } else if (mOwner.StateMachine == null && Main.Ins.GameStateMgr.gameStatus.AutoLock && idx != CommonAction.Idle) {
                     //主角.
-                    if (_Self.GetWeaponType() != (int)EquipWeaponType.Guillotines &&
-                        _Self.GetWeaponType() != (int)EquipWeaponType.Gun &&
-                        _Self.GetWeaponType() != (int)EquipWeaponType.Dart)
-                        _Self.FaceToTarget(_Self.LockTarget);
+                    if (mOwner.GetWeaponType() != (int)EquipWeaponType.Guillotines &&
+                        mOwner.GetWeaponType() != (int)EquipWeaponType.Gun &&
+                        mOwner.GetWeaponType() != (int)EquipWeaponType.Dart)
+                        mOwner.FaceToTarget(mOwner.LockTarget);
                 }
             }
-            load.SetPosData(ActionList[UnitId][idx], time);
-            mActiveAction = ActionList[UnitId][idx];
+
+            if (mActiveAction != null && mActiveAction.Idx == idx)
+                time = 0.0f;
+
+            ChangeActionCore(ActionList[UnitId][idx], time);
             mActiveActionIdx = mActiveAction.Idx;
             LinkInput.Clear();
         }
     }
 
-    static void Parse(string text, int id)
-    {
-        if (ActionList.ContainsKey(id) && ActionList[id].Count != 0)
-        {
+    public void NetUpdate() {
+        moveDelta = Vector3.zero;
+        if (mActiveAction != null) {
+            
+            //UpdateAnimation(FrameReplay.deltaTime);
+            UpdateAnimation2();
+        }
+    }
+
+    void PlayNextKeyFrame() {
+        //Debug.Log("PlayKeyFrame");
+        TryPlayEffect();
+        ChangeAttack();
+        ChangeWeaponTrail();
+        ActionEvent.HandlerActionEvent(mOwner, mActiveAction.Idx, curIndex);
+        if (PoseStartEvent.ContainsKey(mActiveAction.Idx)) {
+            //当218发射飞轮，很快返回，还未到219动作时，218播放完接着播放219，就得立即取消循环，221 223
+            int evt = PoseStartEvent[mActiveAction.Idx];
+            PoseStartEvent.Remove(mActiveAction.Idx);
+            switch (evt) {
+                case (int)PoseEvt.WeaponIsReturned:
+                    loop = false;
+                    break;
+                case (int)PoseEvt.Fall:
+                    mOwner.ProcessFall();
+                    break;
+            }
+        }
+
+        //有连招.
+        if (TestInputLink())
+            return;
+
+        if (loop) {
+            if (LockCurrentFrame) {
+                if (PoseStraight > 0.0f)
+                    PoseStraight -= FrameReplay.deltaTime;
+                if (PoseStraight <= 0.0f) {
+                    loop = false;
+                    //curIndex = mActiveAction.LoopEnd + 1;
+                    playedTimeFadeIn = mActiveAction.KeyFrames[mActiveAction.LoopEnd - mActiveAction.Start];
+                    LockCurrentFrame = false;
+                    return;
+                }
+            }
+            if (curIndex >= mActiveAction.LoopEnd) {
+                if (curIndex >= mActiveAction.LoopStart) {
+                    bool actionchanged = PlayPosEvent();
+                    if (actionchanged)
+                        return;
+                    if (loop)
+                        playedTimeFadeIn = mActiveAction.KeyFrames[mActiveAction.LoopStart - mActiveAction.Start];
+                    else
+                        playedTimeFadeIn = mActiveAction.KeyFrames[mActiveAction.LoopEnd - mActiveAction.Start];
+                    return;
+                }
+                playedTimeFadeIn = mActiveAction.KeyFrames[mActiveAction.LoopStart - mActiveAction.Start];
+            }
+        } else {
+            if (curIndex >= mActiveAction.End) {
+                OnActionFinished();
+                return;
+            }
+
+            if (TheFirstFrame <= curIndex && TheFirstFrame != -1) {
+                ActionEvent.HandlerFirstActionFrame(mOwner, mActiveAction.Idx);
+                TheFirstFrame = -1;
+            }
+            if (TheLastFrame <= curIndex && TheLastFrame != -1) {
+                ActionEvent.HandlerFinalActionFrame(mOwner, mActiveAction.Idx);
+                TheLastFrame = -1;
+            }
+        }
+        //Debug.Log("PlayKeyFrame:" + Time.frameCount);
+        //BoneStatus status = null;
+        //if (mActiveAction.SourceIdx == 0)
+        //    status = Main.Ins.AmbLoader.CharCommon[curIndex];
+        //else if (mActiveAction.SourceIdx == 1)
+        //    status = Main.Ins.AmbLoader.PlayerAnimation[mOwner.UnitId][curIndex];
+
+        ////Debug.LogError("play keyframe " + " idx:" + curIndex);
+        //if (Characterloader.bo.Count != 0) {
+        //    Characterloader.bo[0].localRotation = status.BoneQuat[0];
+        //    Characterloader.bo[0].localPosition = status.BonePos;
+        //}
+
+        //for (int i = 1; i < Characterloader.bo.Count; i++)
+        //    Characterloader.bo[i].localRotation = status.BoneQuat[i];
+
+        //bool IgnoreActionMoves = ActionManager.IgnoreActionMove(mActiveAction.Idx);
+        //if (lastPosIdx == mActiveAction.Idx) {
+        //    Vector3 targetPos = status.DummyPos[0];
+        //    Vector3 vec = Characterloader.Target.rotation * (targetPos - lastDBasePos) * moveScale;
+        //    //如果忽略位移，或者在动作的循环帧中，即第一次从循环头开始播放后，不再计算位移.
+        //    if (IgnoreActionMoves) {
+        //        vec.x = 0;
+        //        vec.z = 0;
+        //        vec.y = 0;
+        //    }
+        //    moveDelta += vec;
+        //    //if (po.Idx == 151)
+        //    //    Debug.LogError(string.Format("pose:{0} frame:{1} move: x ={2}, y ={3} z = {4}", po.Idx, curIndex, moveDelta.x, moveDelta.y, moveDelta.z));
+        //    lastDBasePos = targetPos;
+        //}
+
+        //for (int i = 1; i < Characterloader.dummy.Count; i++) {
+        //    Characterloader.dummy[i].localRotation = status.DummyQuat[i];
+        //    Characterloader.dummy[i].localPosition = status.DummyPos[i];
+        //}
+
+        //lastFrameIndex = curIndex;
+        
+        lastPosIdx = mActiveAction.Idx;
+    }
+
+    BoneStatus lastFrameStatus;
+    public void GetCurrentSnapShot() {
+        if (lastFrameStatus == null) {
+            lastFrameStatus = new BoneStatus();
+            lastFrameStatus.Init();
+            for (int i = 0; i < Characterloader.bo.Count; i++) {
+                lastFrameStatus.BoneQuat.Add(new MyQuaternion());
+                if (i == 0)
+                    lastFrameStatus.BonePos = new MyVector();
+            }
+            for (int i = 0; i < Characterloader.dummy.Count; i++) {
+                lastFrameStatus.DummyQuat.Add(new MyQuaternion());
+                lastFrameStatus.DummyPos.Add(new MyVector());
+            }
+        }
+        for (int i = 0; i < Characterloader.bo.Count; i++) {
+            lastFrameStatus.BoneQuat[i] = Characterloader.bo[i].localRotation;
+            if (i == 0)
+                lastFrameStatus.BonePos = Characterloader.bo[i].localPosition;
+        }
+        for (int i = 0; i < Characterloader.dummy.Count; i++) {
+            lastFrameStatus.DummyQuat[i] = Characterloader.dummy[i].localRotation;
+            lastFrameStatus.DummyPos[i] = Characterloader.dummy[i].localPosition;
+        }
+    }
+
+    void UpdateAnimation2() {
+        if (mActiveAction != null) {
+            if (blendTime == 0.0f) {
+                playedTimeFadeInWrapped = WrapperTime(mActiveAction, playedTimeFadeIn, loop);
+                playedTimeFadeIn += FrameReplay.deltaTime;
+                //lastFrameIndex = curIndex;
+                bool runCycle = false;
+                if (loop) {
+                    if (playedTimeFadeIn >= mActiveAction.LoopCache.Key) {
+                        runCycle = true;
+                    }
+                }
+                curIndex = PoseState.EvaluatePoseClamp(playedTimeFadeInWrapped, mActiveAction, ref activeStatus, UnitId, runCycle);
+                ApplyPose(activeStatus, true);
+                PlayNextKeyFrame();
+            } else {
+                ChangeWeaponTrail();
+                BoneStatus status = null;
+                if (mActiveAction.SourceIdx == 0 && Main.Ins.AmbLoader.CharCommon.Count > blendStart && blendStart >= 0)
+                    status = Main.Ins.AmbLoader.CharCommon[blendStart];
+                else if (mActiveAction.SourceIdx == 1 && Main.Ins.AmbLoader.PlayerAnimation.ContainsKey(mOwner.UnitId) && Main.Ins.AmbLoader.PlayerAnimation[mOwner.UnitId].Count > blendStart && blendStart >= 0)
+                    status = Main.Ins.AmbLoader.PlayerAnimation[mOwner.UnitId][blendStart];
+
+                if (blendingTime < blendTime && blendTime != 0.0f) {
+                    //取得目标动作的左右关键帧
+                    blendingTime += FrameReplay.deltaTime;
+                    Characterloader.bo[0].localRotation = Quaternion.Slerp(lastFrameStatus.BoneQuat[0], status.BoneQuat[0], blendingTime / blendTime);
+                    Characterloader.bo[0].localPosition = Vector3.Lerp(lastFrameStatus.BonePos, status.BonePos, blendingTime / blendTime);
+                    for (int i = 1; i < Characterloader.bo.Count; i++) {
+                        Characterloader.bo[i].localRotation = Quaternion.Slerp(lastFrameStatus.BoneQuat[i], status.BoneQuat[i], blendingTime / blendTime);
+                    }
+                    lastDBasePos = status.DummyPos[0];
+                    for (int i = 1; i < Characterloader.dummy.Count; i++) {
+                        Characterloader.dummy[i].localRotation = Quaternion.Slerp(lastFrameStatus.DummyQuat[i], status.DummyQuat[i], blendingTime / blendTime);
+                        Characterloader.dummy[i].localPosition = Vector3.Lerp(lastFrameStatus.DummyPos[i], status.DummyPos[i], blendingTime / blendTime);
+                    }
+                    
+                    //weight_fadein += FrameReplay.deltaTime * weight_fadein_delta;
+                    //weight_fadeout += FrameReplay.deltaTime * weight_fadeout_delta;
+                    //if (weight_fadein > weight_fadein_target)
+                    //    weight_fadein = weight_fadein_target;
+                    //if (weight_fadeout < weight_fadeout_target)
+                    //    weight_fadeout = weight_fadeout_target;
+                    //float weightSum = weight_fadein + weight_fadeout;
+                    ////取得blendStart的帧姿势，
+
+
+                    //playedTimeFadeIn += FrameReplay.deltaTime;
+                    //playedTimeFadeInWrapped = WrapperTime(mActiveAction, playedTimeFadeIn, loop);
+                    ////取得当前动画姿势-继续往前播放中.
+                    //playedTimeFadeOut += FrameReplay.deltaTime;
+                    //bool loopFadeOut = mFadeOutAction.LoopEnd != 0 && mFadeOutAction.LoopStart != 0;
+                    //playedTimeFadeOutWrapped = WrapperTime(mFadeOutAction, playedTimeFadeOut, loopFadeOut);
+                    ////取得当前动作的左右关键帧
+                    //bool runCycle = false;
+                    //if (loop) {
+                    //    if (playedTimeFadeIn > mActiveAction.LoopCache.Key) {
+                    //        runCycle = true;
+                    //    }
+                    //}
+                    //PoseState.EvaluatePoseClamp(playedTimeFadeInWrapped, mActiveAction, ref activeStatus, UnitId, runCycle);
+                    //if (weight_fadeout != 0.0f)
+                    //    PoseState.EvaluatePoseClamp(playedTimeFadeOutWrapped, mFadeOutAction, ref fadeOutStatus, UnitId, false);
+                    //BoneStatus sampleStatus = new BoneStatus();
+                    //sampleStatus.InitWith(30, 6);
+                    //if (weight_fadeout != 0.0f)
+                    //    Process(sampleStatus, fadeOutStatus, weight_fadeout / weightSum);
+                    //Process(sampleStatus, activeStatus, weight_fadein / weightSum);
+                    //ApplyPose(sampleStatus, false);
+                } else {
+                    blendTime = 0.0f;
+                    curIndex = blendStart;
+                    blendingTime = 0;
+                    //playedTimeFadeOut = 0;
+                    //weight_fadein = 1;
+                    //weight_fadein_delta = 0;
+                    //weight_fadein_target = 0;
+                    //weight_fadeout = 1;
+                    //weight_fadeout_delta = 0;
+                    //weight_fadeout_target = 0;
+                }
+            }
+        }
+    }
+
+    //取得时间
+    float WrapperTime(Pose pose, float t, bool useloop = true) {
+        float start = pose.Cache.Key;
+        float end = pose.Cache.Value;
+        bool loop = pose.LoopStart != 0 && pose.LoopEnd != 0;
+        if (useloop && loop) {
+            start = pose.LoopCache.Key;
+            end = pose.LoopCache.Value;
+            if (t > end) {
+                float left = t - end;
+                float times = left / (end - start);
+                return start + left - Mathf.FloorToInt(times) * (end - start);
+            }
+            else {
+                return t;
+            }
+        }
+        return Mathf.Clamp(t, start, end);
+    }
+
+
+    //合并已经计算出的结果，和下一个动画的采样
+    //主要是由于关节的已存在四元数如果和当前四元数的DOT值为负，则权重要取反
+    public static void Process(BoneStatus source, BoneStatus sample, float weights) {
+        float weight = weights;
+        for (int i = 0; i < source.BoneQuat.Count; i++) {
+            weight = weights;
+            if (Quaternion.Dot(source.BoneQuat[i], sample.BoneQuat[i]) < 0.0f) {
+                weight = -weights;
+            }
+            source.BoneQuat[i] += sample.BoneQuat[i].Scale(weight);
+        }
+
+        for (int i = 0; i < source.DummyQuat.Count; i++) {
+            weight = weights;
+            if (Quaternion.Dot(source.DummyQuat[i], sample.DummyQuat[i]) < 0.0f) {
+                weight = -weights;
+            }
+            source.DummyQuat[i] += sample.DummyQuat[i].Scale(weight);
+        }
+        weight = weights;
+        for (int i = 0; i < source.DummyPos.Count; i++) {
+            source.DummyPos[i] += sample.DummyPos[i].Scale(weight);
+        }
+        source.BonePos += sample.BonePos.Scale(weight);
+    }
+
+    //应用骨架姿势
+    void ApplyPose(BoneStatus status, bool rootMotion) {
+        for (int i = 0; i < Characterloader.bo.Count; i++) {
+            Characterloader.bo[i].localRotation = status.BoneQuat[i];
+            if (i == 0)
+                Characterloader.bo[i].localPosition = status.BonePos;
+        }
+        bool IgnoreActionMoves = IgnoreActionMove(mActiveAction.Idx);
+        if (lastPosIdx == mActiveAction.Idx && rootMotion) {
+            Vector3 targetPos = status.DummyPos[0];
+            Vector3 vec = Characterloader.Target.rotation * (targetPos - lastDBasePos) * moveScale;
+            //如果忽略位移，或者在动作的循环帧中，即第一次从循环头开始播放后，不再计算位移.
+            if (IgnoreActionMoves) {
+                vec.x = 0;
+                vec.z = 0;
+                vec.y = 0;
+            }
+            moveDelta += vec;
+            //if (po.Idx == 151)
+            //    Debug.LogError(string.Format("pose:{0} frame:{1} move: x ={2}, y ={3} z = {4}", po.Idx, curIndex, moveDelta.x, moveDelta.y, moveDelta.z));
+            lastDBasePos = targetPos;
+        }
+        for (int i = 1; i < Characterloader.dummy.Count; i++) {
+            Characterloader.dummy[i].localRotation = status.DummyQuat[i];
+            Characterloader.dummy[i].localPosition = status.DummyPos[i];
+        }
+    }
+
+    public float FPS = 1.0f / 30.0f;
+    int lastFrameIndex = 1;
+    //int lastSource = 1;
+    int lastPosIdx = 0;
+    Vector3 lastDBasePos = Vector3.zero;//上一帧的d_base骨骼坐标.没应用到骨骼上，只是记录下来
+
+    //设置动作位移的根骨骼移动比例,比如完整动作，会让角色Y轴移动10，那么比例为2时，这个动作就会让角色移动20，而帧数不变
+    float moveScale = 1.0f;
+    public void SetActionScale(float scale) {
+        moveScale = scale;
+    }
+
+    bool LockCurrentFrame = false;
+    public void LockTime(float t) {
+        PoseStraight = t;
+    }
+
+    public bool IsInStraight() {
+        return PoseStraight > 0;
+    }
+
+    public bool InTransition() {
+        return blendTime != 0.0;
+    }
+
+    public float PoseStraight = 0.0f;
+    //循环动作锁定，（一直在2个帧段之间播放，待特定条件打成就退出该帧段）
+    public bool PlayPosEvent() {
+        //有硬直时间存在，但是还没开始消耗硬直时间时，先消耗硬直时间
+        if (IsInStraight()) {
+            //能否开始计算硬直?如果角色在空中播放循环落地动作,这个硬直是无法开始计算的，只有落地后，才能开始计算硬直
+            if (!mOwner.IsOnGround())
+                return false;
+            //已经开始计算硬直时间的流逝
+            if (LockCurrentFrame)
+                return false;
+
+            LockCurrentFrame = true;//开始计算硬直流逝，一直到硬直时间结束.
+            return false;
+        } else {
+            if (mActiveAction.Idx == CommonAction.JumpFallOnGround || mActiveAction.Idx == CommonAction.KnifeA2Fall) {
+                if (mOwner.IsOnGround()) {
+                    //ChangeAction(0, 0);
+                    loop = false;
+                    return false;
+                }
+            } else if (mActiveAction.Idx == CommonAction.ChangeWeapon) {
+                mOwner.ChangeNextWeapon();
+                loop = false;
+                return false;
+            } else if (mActiveAction.Idx == CommonAction.AirChangeWeapon) {
+                mOwner.ChangeNextWeapon();
+                loop = false;
+                return false;
+            } else if ((mActiveAction.Idx >= CommonAction.Idle && mActiveAction.Idx <= 21) || (mActiveAction.Idx >= CommonAction.WalkForward && mActiveAction.Idx <= CommonAction.RunOnDrug)) {
+                if (Main.Ins.CombatData.GameFinished && !playResultAction)
+                    loop = false;
+                return false;
+            }
+            else if (mActiveAction.Idx == 219 || mActiveAction.Idx == 221 || mActiveAction.Idx == 223)//飞轮出击后等待接回飞轮
+            {
+                return false;
+                //等着收回武器
+            } else if (QueuedAction.ContainsKey(mActiveAction.Idx)) {
+                int idx = mActiveAction.Idx;
+                ChangeAction(QueuedAction[idx], 0.1f);
+                QueuedAction.Remove(idx);
+                return true;
+            }
+            else {
+                //锁帧，等着结束.
+                if (mOwner.IsOnGround()) {
+                    //ChangeAction(CommonAction.Idle, 0.1f);
+                    loop = false;
+                    return false;
+                }
+            }
+            return false;
+        }
+    }
+
+    float GetTimePlayed(int frame) {
+        float frameCost = 0.0f;
+        for (int i = mActiveAction.Start; i < frame; i++) {
+            float speedScale = 1.0f;
+            for (int j = 0; j < mActiveAction.ActionList.Count; j++) {
+                if (i >= mActiveAction.ActionList[j].Start && i <= mActiveAction.ActionList[j].End) {
+                    speedScale = (mActiveAction.ActionList[j].Speed == 0.0f ? 1.0f : mActiveAction.ActionList[j].Speed);
+                    break;
+                }
+            }
+            frameCost += (Pose.FCS / speedScale);
+        }
+        return frameCost;
+    }
+
+    void PlayEffect() {
+        float timePlayed = 0;
+        //锤绝-匕首A+上上A，音效有点问题 剑 前前A2
+        //if (po.Idx == 325 || po.Idx == 253 || po.Idx == 276 || po.Idx == 560 || po.Idx == 471)
+        //if (po.Idx != 325)
+        timePlayed = GetTimePlayed(curIndex);
+        if (!string.IsNullOrEmpty(mActiveAction.EffectID) && !string.Equals(mActiveAction.EffectID, "0")) {
+            Characterloader.sfxEffect = Main.Ins.SFXLoader.PlayEffect(string.Format("{0}.ef", mActiveAction.EffectID), mOwner, timePlayed);
+
+            //表明特效是由动作触发的,不在该动作中关闭特效的攻击盒时,特效攻击盒仍存在
+            //这种一般是特效出来后，在角色受到攻击前打开了特效的攻击盒，但角色受到攻击打断了动作，会立刻关闭攻击特效的攻击属性，这种应该是不对的.
+            //类似雷电斩，特效出来后只要攻击盒被打开过，一旦动作被打断，那么攻击特效会一直到特效完毕.
+        }
+        effectPlayed = true;
+    }
+
+    public float blendTime = 0.3f;
+    float blendingTime = 0;
+    public int curIndex = 0;//帧编号
+    int blendStart = 0;//接到哪一帧
+    public void SetCurrentFrameIndex(int v) { curIndex = v; }
+    public int GetCurrentFrameIndex() { return curIndex; }
+
+    //僵直清空/飞轮回收，等一些情况时，取消循环,立即切换到动作结束
+    public void SetLoop(bool looped) {
+        loop = looped;
+        curIndex = mActiveAction.LoopEnd;
+        playedTimeFadeIn = mActiveAction.KeyFrames[mActiveAction.LoopEnd - mActiveAction.Start];
+    }
+
+    public bool GetLoop() {
+        return loop;
+    }
+
+    //动作开始播放时触发的事件
+    Dictionary<int, int> PoseStartEvent = new Dictionary<int, int>();
+    public void LinkEvent(int pose, PoseEvt evt) {
+        if (PoseStartEvent.ContainsKey(pose))
+            PoseStartEvent[pose] = (int)evt;
+        else
+            PoseStartEvent.Add(pose, (int)evt);
+    }
+
+    bool loop = false;
+    //这2个用来实现一些技能
+    int TheFirstFrame = -1;//第一个Action的第一帧，0则无
+    int TheLastFrame = -1;//最后一个Action的最后一帧，0则无
+    bool effectPlayed = false;
+
+    
+    //float weight_fadein;//混入权重
+    //float weight_fadein_target;//混入权重目标
+    //float weight_fadein_delta;
+    //float weight_fadeout;//混出权重
+    //float weight_fadeout_target;//混出权重目标
+    //float weight_fadeout_delta;
+    bool blending;//是否处于混合中
+    BoneStatus activeStatus = new BoneStatus();
+    BoneStatus fadeOutStatus = new BoneStatus();
+    public void ChangeActionCore(Pose pos, float BlendTime = 0.0f) {
+        //UnityEngine.Debug.Log("change action:" + pos.Idx);
+        //一些招式，需要把尾部事件执行完才能切换武器.
+        LockCurrentFrame = false;
+        if (TheLastFrame != -1 && mActiveAction != null) {
+            ActionEvent.HandlerFinalActionFrame(mOwner, mActiveAction.Idx);
+            TheLastFrame = -1;
+        } else {
+            if (mActiveAction != null && mActiveAction.Link != 0)
+                //一些动作，默认连接其他动作，类似,486第一帧会收刀，收刀会切换武器为2
+                ActionEvent.HandlerPoseAction(mOwner, mActiveAction.Link);
+        }
+        //一些招式，动作结束会给使用者加上BUFF，另外一些招式，会让受击方得到BUFF
+        moveScale = 1.0f;
+        //重置速度
+        bool isAttackPos = false;
+        if (mActiveAction == null)
+            isAttackPos = false;
+        else
+            isAttackPos = IsAttackPose(mActiveAction.Idx);
+        //保存当前帧的姿势，用于和下个动作融合
+        //当前状态下有姿势，且帧存在状态缓存
+        if (mActiveAction != null)
+            lastPosIdx = mActiveAction.Idx;
+        else
+            lastPosIdx = pos.Idx;
+        mActiveAction = pos;
+        loop = (pos.LoopStart != 0 && pos.LoopEnd != 0);//2帧都不为0
+
+        //查看第一个blend的最后一帧，如果有，切换目标帧设置为这个,若第一个是act则目标帧为起始帧
+        //PosAction blend = null;
+        PosAction act = null;
+        if (pos.ActionList.Count != 0) {
+            if (isAttackPos) {
+                for (int i = 0; i < pos.ActionList.Count; i++) {
+                    //过滤掉565，刀雷电斩的头一个 第一个混合段与整个动画一致.
+                    if (pos.ActionList[i].Start == pos.Start && pos.ActionList[i].End == pos.End)
+                        continue;
+                    act = pos.ActionList[i];
+                    break;
+                }
+            } else
+                act = pos.ActionList[0];
+        }
+
+        TheLastFrame = pos.End - 1;
+        TheFirstFrame = pos.Start;
+
+        //算第一个过渡帧条件很多，有切换目的帧是否设定，第一个过渡帧是否存在，上一个动作是否攻击动作，锤绝325BUG，其他招式接325，还要在地面等，应该不需要在地面等
+        //curIndex = targetFrame != 0 ? targetFrame : (act != null ? (act.Type == "Action" ? act.Start: (isAttackPos ? act.End : pos.Start)): pos.Start);
+        curIndex = act != null ? (act.Type == "Action" ? (isAttackPos ? act.Start : pos.Start) : (isAttackPos ? act.End : act.Start)) : pos.Start;
+        //部分动作混合帧比开始帧还靠前
+        if (curIndex < pos.Start)
+            curIndex = pos.Start;
+        blendStart = curIndex;
+        effectPlayed = false;
+        Characterloader.sfxEffect = null;
+        //下一个动作的第一帧所有虚拟物体，因为2个动作的d_base骨骼不能跨动作算位置移动，就是把d_base归位，同一个动作的d_base的移动，才能计算角色移动.
+        if (mActiveAction.SourceIdx == 0)
+            lastDBasePos = Main.Ins.AmbLoader.CharCommon[curIndex].DummyPos[0];
+        else if (mActiveAction.SourceIdx == 1)
+            lastDBasePos = Main.Ins.AmbLoader.PlayerAnimation[mOwner.UnitId][curIndex].DummyPos[0];
+
+        blendTime = 0.0f;
+        //blendTime = BlendTime;
+        if (BlendTime > 0.01f) {
+            GetCurrentSnapShot();
+            blendTime = BlendTime;
+            //playedTimeFadeOut = playedTimeFadeIn;
+            playedTimeFadeIn = pos.KeyFrames[blendStart - pos.Start];//淡入动作进入时刻
+            //weight_fadein = 0.0f;
+            //weight_fadein_target = 1.0f;
+            //weight_fadein_delta = 1.0f / blendTime;
+            //weight_fadeout = 1.0f;
+            //weight_fadeout_target = 0.0f;
+            //weight_fadeout_delta = -1.0f / blendTime;
+        } else {
+            playedTimeFadeIn = 0;
+            //playedTimeFadeOut = 0;
+        }
+
+        //部分动作第一帧就比循环锁定帧要大
+        if (loop) {
+            float t = pos.KeyFrames[pos.LoopStart - pos.Start];
+            if (playedTimeFadeIn > t) {
+                playedTimeFadeIn = t;
+                //UnityEngine.Debug.LogError("error");
+                blendStart = pos.LoopStart;
+                curIndex = pos.LoopStart;
+            }
+        }
+
+        if (lastPosIdx != 0) {
+            Option poseInfo = Main.Ins.MenuResLoader.GetPoseInfo(lastPosIdx);
+            if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 18 && lastPosIdx != 468)//18为，使用招式后获取物品ID 468-469都会调用微尘，hack掉468pose的
+                mOwner.GetItem(poseInfo.first[0].flag[1]);//忍刀小绝，同归于尽，会获得微尘物品，会即刻死亡
+        }
+
+        //部分事件会发生在动作之前，要在播放指定动作时，处理
+        if (PoseStartEvent.ContainsKey(mActiveAction.Idx)) {
+            int evt = PoseStartEvent[mActiveAction.Idx];
+            switch (evt) {
+                case (int)PoseEvt.WeaponIsReturned:
+                    loop = false;
+                    //blendTime = 0.0f;
+                    break;
+            }
+            PoseStartEvent.Remove(mActiveAction.Idx);
+        }
+
+        if (pos.Idx == CommonAction.Struggle || pos.Idx == CommonAction.Struggle0) {
+            if (PoseStraight <= 0.0) {
+                LockTime(0.2f);//硬直0.3f
+            }
+        }
+    }
+
+    float playedTimeFadeOut;//当前正在播放的
+    float playedTimeFadeOutWrapped;
+    float playedTimeFadeIn;//要过渡到的目的动画播放
+    float playedTimeFadeInWrapped;
+    void TryPlayEffect() {
+        if (!effectPlayed) {
+            try {
+                //在其他调试场景里屏蔽掉特效
+                if (Main.Ins.GameBattleEx != null)
+                    PlayEffect();
+            } catch (System.Exception exp) {
+                UnityEngine.Debug.LogError("Effect: [" + mActiveAction.EffectID + " ] Contains Error" + exp.StackTrace);
+                effectPlayed = true;
+            }
+            effectPlayed = true;
+        }
+    }
+
+    void ChangeAttack() {
+        bool open = false;
+        for (int i = 0; i < mActiveAction.Attack.Count; i++) {
+            if (curIndex >= mActiveAction.Attack[i].Start && curIndex <= mActiveAction.Attack[i].End) {
+                mOwner.ChangeAttack(mActiveAction.Attack[i]);
+                open = true;
+                break;
+            }
+        }
+        if (!open) {
+            mOwner.ChangeAttack(null);
+        }
+    }
+
+    void ChangeWeaponTrail() {
+        if (U3D.IsSpecialWeapon(mOwner.weaponLoader.WeaponSubType()))
+            return;
+        //开启武器拖尾
+        if (mActiveAction.Drag != null) {
+            if (curIndex >= mActiveAction.Drag.Start && curIndex <= mActiveAction.Drag.End)
+                mOwner.ChangeWeaponTrail(mActiveAction.Drag);
+            else
+                mOwner.ChangeWeaponTrail(null);
+        } else
+            mOwner.ChangeWeaponTrail(null);
+    }
+
+    bool TestInputLink() {
+        //有连招等待播放
+        if (LinkInput.ContainsKey(mActiveAction.Idx)) {
+            //当前正处于融合帧中，可以立即切换动画
+            for (int i = 0; i < mActiveAction.ActionList.Count; i++) {
+                if (mActiveAction.ActionList[i].Type == "Blend") {
+                    if (curIndex >= mActiveAction.ActionList[i].Start && curIndex <= mActiveAction.ActionList[i].End) {
+                        //Debug.LogError("TestInputLink");
+                        int targetIdx = mActiveAction.Idx;
+                        if (mActiveAction.Next != null)
+                            ChangeAction(LinkInput[targetIdx], mActiveAction.Next.Time);
+                        else
+                            ChangeAction(LinkInput[targetIdx]);
+                        LinkInput.Clear();
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    static void Parse(string text, int id) {
+        if (ActionList.ContainsKey(id) && ActionList[id].Count != 0) {
             UnityEngine.Debug.LogError("重复解析某个角色的动画配置文件");
             return;
         }
@@ -738,281 +1392,219 @@ public class PoseStatus
         int leftDra = 0;
         int leftNex = 0;
         string[] pos = text.Split(new char[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
-        for (int i = 0; i < pos.Length; i++)
-        {
+        for (int i = 0; i < pos.Length; i++) {
             string line = pos[i];
             string[] lineObject = line.Split(new char[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
-            if (lineObject.Length == 0)
-            {
-                //Debug.Log("line i:" + i);
+            if (lineObject.Length == 0) {
+                //if (i == 7574)
+                //    UnityEngine.Debug.Log("line i:" + i);
                 //空行跳过
                 continue;
-            }
-            else if (lineObject[0].StartsWith("#"))
+            } else if (lineObject[0].StartsWith("#"))
                 continue;
             else
-            if (lineObject[0] == "Pose" && left == 0 && leftAct == 0)
-            {
+              if (lineObject[0] == "Pose" && left == 0 && leftAct == 0) {
                 Pose insert = new Pose();
                 ActionList[id].Add(insert);
                 int idx = int.Parse(lineObject[1]);
                 insert.Idx = idx;
                 current = insert;
-            }
-            else if (lineObject[0] == "{")
-            {
+            } else if (lineObject[0] == "{") {
                 if (nex != null)
                     leftNex++;
                 else
                 if (dra != null)
                     leftDra++;
                 else
-                if (att != null)
-                {
+                if (att != null) {
                     leftAtt++;
-                }
-                else
+                } else
                     if (curAct != null)
                     leftAct++;
                 else
                     left++;
-            }
-            else if (lineObject[0] == "}")
-            {
-                if (nex != null)
-                {
+            } else if (lineObject[0] == "}") {
+                if (nex != null) {
                     leftNex--;
                     if (leftNex == 0)
                         nex = null;
-                }
-                else
-                if (dra != null)
-                {
+                } else
+                if (dra != null) {
                     leftDra--;
                     if (leftDra == 0)
                         dra = null;
-                }
-                else
-                if (att != null)
-                {
+                } else
+                if (att != null) {
                     leftAtt--;
                     if (leftAtt == 0)
                         att = null;
-                }
-                else
-                if (curAct != null)
-                {
+                } else
+                if (curAct != null) {
                     leftAct--;
                     if (leftAct == 0)
                         curAct = null;
-                }
-                else
-                {
+                } else {
                     left--;
                     if (left == 0)
                         current = null;
                 }
 
-            }
-            else if (lineObject[0] == "link" || lineObject[0] == "Link" || lineObject[0] == "Link\t" || lineObject[0] == "link\t")
-            {
+            } else if (lineObject[0] == "link" || lineObject[0] == "Link" || lineObject[0] == "Link\t" || lineObject[0] == "link\t") {
                 current.Link = int.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "source" || lineObject[0] == "Source")
-            {
+            } else if (lineObject[0] == "source" || lineObject[0] == "Source") {
                 current.SourceIdx = int.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "Start" || lineObject[0] == "start")
-            {
-                if (nex != null)
-                {
+            } else if (lineObject[0] == "Start" || lineObject[0] == "start") {
+                //if (pose295) {
+                //    UnityEngine.Debug.LogError("295");
+                //}
+                if (nex != null) {
                     nex.Start = int.Parse(lineObject[1]);
-                }
-                else
-                if (dra != null)
-                {
+                } else
+                if (dra != null) {
                     dra.Start = int.Parse(lineObject[1]);
-                }
-                else
-                if (att != null)
-                {
+                } else
+                if (att != null) {
                     att.Start = int.Parse(lineObject[1]);
-                }
-                else
+                } else
                 if (curAct != null)
                     curAct.Start = int.Parse(lineObject[1]);
                 else
                     current.Start = int.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "End" || lineObject[0] == "end")
-            {
-                if (nex != null)
-                {
+            } else if (lineObject[0] == "End" || lineObject[0] == "end") {
+                //if (pose295) {
+                //    UnityEngine.Debug.LogError("295");
+                //}
+                if (nex != null) {
                     nex.End = int.Parse(lineObject[1]);
-                }
-                else
-                if (dra != null)
-                {
+                } else
+                if (dra != null) {
                     dra.End = int.Parse(lineObject[1]);
-                }
-                else
-                if (att != null)
-                {
+                } else
+                if (att != null) {
                     att.End = int.Parse(lineObject[1]);
-                }
-                else
+                } else
                 if (curAct != null)
                     curAct.End = int.Parse(lineObject[1]);
                 else
                     current.End = int.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "Speed" || lineObject[0] == "speed")
-            {
+            } else if (lineObject[0] == "Speed" || lineObject[0] == "speed") {
                 if (curAct != null)
                     curAct.Speed = float.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "LoopStart")
-            {
+            } else if (lineObject[0] == "LoopStart") {
                 current.LoopStart = int.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "LoopEnd")
-            {
+                //部分pos改的乱了，pose 09 锤子的预备姿势
+                if (current.LoopStart < current.Start)
+                    current.LoopStart = current.Start;
+            } else if (lineObject[0] == "LoopEnd") {
                 current.LoopEnd = int.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "EffectType")
-            {
+            } else if (lineObject[0] == "EffectType") {
                 current.EffectType = int.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "EffectID")
-            {
+            } else if (lineObject[0] == "EffectID") {
                 current.EffectID = lineObject[1];
-            }
-            else if (lineObject[0] == "Blend")
-            {
+            } else if (lineObject[0] == "Blend") {
                 PosAction act = new PosAction();
                 act.Type = "Blend";
                 current.ActionList.Add(act);
                 curAct = act;
-            }
-            else if (lineObject[0] == "Action")
-            {
+            } else if (lineObject[0] == "Action") {
                 PosAction act = new PosAction();
                 act.Type = "Action";
                 current.ActionList.Add(act);
                 curAct = act;
-            }
-            else if (lineObject[0] == "Attack")
-            {
+            } else if (lineObject[0] == "Attack") {
                 att = new AttackDes();
                 att.PoseIdx = current.Idx;
+                //if (att.PoseIdx == 295) {
+                //    pose295 = true;
+                //}
                 current.Attack.Add(att);
-            }
-            else if (lineObject[0] == "bone")
-            {
+            } else if (lineObject[0] == "bone") {
                 //重新分割，=号分割，右边的,号分割
                 lineObject = line.Split(new char[] { '=' }, System.StringSplitOptions.RemoveEmptyEntries);
                 string bones = lineObject[1];
-                while (bones.EndsWith(","))
-                {
+                bool restore = false;
+                while (bones.EndsWith(",")) {
                     i++;
                     lineObject = new string[1];
                     lineObject[0] = pos[i];
-                    bones += lineObject[0];
+                    
+                    //部分招式，在受击列表最后一行后加了,导致读到下一行去了. 907的pose 295存在这个问题
+                    if (lineObject[0].Contains("Start") || lineObject[0].Contains("start"))
+                        restore = true;
+                    else
+                        bones += lineObject[0];
                 }
+                if (restore)
+                    i--;
                 //bones = bones.Replace(' ', '_');
                 string[] bonesstr = bones.Split(new char[] { ',' });
-                for (int j = 0; j < bonesstr.Length; j++)
-                {
+                for (int j = 0; j < bonesstr.Length; j++) {
                     string b = bonesstr[j].TrimStart(new char[] { ' ', '\"' });
                     b = b.TrimEnd(new char[] { '\"', ' ' });
                     b = b.Replace(' ', '_');
                     att.bones.Add(b);
                 }
-            }
-            else if (lineObject[0] == "AttackType")
-            {
+            } else if (lineObject[0] == "AttackType") {
                 att._AttackType = int.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "CheckFriend")
-            {
+            } else if (lineObject[0] == "CheckFriend") {
                 att.CheckFriend = int.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "DefenseValue")
-            {
+            } else if (lineObject[0] == "DefenseValue") {
                 att.DefenseValue = float.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "DefenseMove")
-            {
+            } else if (lineObject[0] == "DefenseMove") {
                 att.DefenseMove = float.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "TargetValue")
-            {
+            } else if (lineObject[0] == "TargetValue") {
                 att.TargetValue = float.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "TargetMove")
-            {
+            } else if (lineObject[0] == "TargetMove") {
                 att.TargetMove = float.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "TargetPose")
-            {
+            } else if (lineObject[0] == "TargetPose") {
                 att.TargetPose = int.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "TargetPoseFront")
-            {
+            } else if (lineObject[0] == "TargetPoseFront") {
                 att.TargetPoseFront = int.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "TargetPoseBack")
-            {
+            } else if (lineObject[0] == "TargetPoseBack") {
                 att.TargetPoseBack = int.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "TargetPoseLeft")
-            {
+            } else if (lineObject[0] == "TargetPoseLeft") {
                 att.TargetPoseLeft = int.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "TargetPoseRight")
-            {
+            } else if (lineObject[0] == "TargetPoseRight") {
                 att.TargetPoseRight = int.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "Drag")
-            {
+            } else if (lineObject[0] == "Drag") {
                 dra = new DragDes();
                 current.Drag = dra;
-            }
-            else if (lineObject[0] == "Time")
-            {
+            } else if (lineObject[0] == "Time") {
                 if (nex != null)
                     nex.Time = float.Parse(lineObject[1]);
                 else
                     dra.Time = float.Parse(lineObject[1]);
-            }
-            else if (lineObject[0] == "Color")
-            {
+            } else if (lineObject[0] == "Color") {
                 string[] rgb = lineObject[1].Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                 dra.Color.x = int.Parse(rgb[0]);
                 dra.Color.y = int.Parse(rgb[1]);
                 dra.Color.z = int.Parse(rgb[2]);
-            }
-            else if (lineObject[0] == "NextPose")
-            {
+            } else if (lineObject[0] == "NextPose") {
                 current.Next = new NextPose();
                 nex = current.Next;
-            }
-            else if (lineObject[0] == "{}")
-            {
+            } else if (lineObject[0] == "{}") {
                 current = null;
                 continue;
-            }
-            else
-            {
+            } else {
                 UnityEngine.Debug.Log("line :" + i + " can t understand：" + pos[i]);
                 break;
             }
         }
+
+        if (id >= 20) {
+            //额外的模型检查一下动画数据，有些动画片段切割有问题.
+            for (int i = 0; i < ActionList[id].Count; i++) {
+                ActionList[id][i].Check(id);
+            }
+        }
+        for (int i = 0; i < ActionList[id].Count; i++) {
+            ActionList[id][i].Bake();
+        }
     }
 }
 
-public class Pose
-{
+public class Pose {
+    public static float FCS;//1.0f/30.0f
     public static int FPS;
     public int Idx;
     public int SourceIdx;
@@ -1027,11 +1619,105 @@ public class Pose
     public List<AttackDes> Attack = new List<AttackDes>();
     public DragDes Drag;
     public NextPose Next;
+    //检查每个动作的开始帧和结束帧，是否都有对应的数据
+    public void Check(int unitid) {
+        BoneStatus bstart = Main.Ins.AmbLoader.GetBoneStatus(SourceIdx, unitid, Start);
+        BoneStatus bend = Main.Ins.AmbLoader.GetBoneStatus(SourceIdx, unitid, End);
+        if (bstart == null || bend == null) {
+            UnityEngine.Debug.LogError("pos:" + Idx + " on unit:" + unitid + " contains error");
+        }
+    }
+    public void Bake() {
+        float speedScale = 1.0f;
+        int Prev = Start;
+        float time = 0.0f;
+        for (int i = Start; i <= End; i++) {
+            speedScale = 1.0f;
+            for (int j = 0; j < ActionList.Count; j++) {
+                if (i >= ActionList[j].Start && i <= ActionList[j].End) {
+                    speedScale = (ActionList[j].Speed == 0.0f ? 1.0f : ActionList[j].Speed);
+                    break;
+                }
+            }
+            time += (i - Prev) * FCS / speedScale;
+            Prev = i;
+            KeyFrames.Add(time);
+        }
+        Cache = new KeyValuePair<float, float>(KeyFrames[0], KeyFrames[KeyFrames.Count - 1]);
+        if (LoopStart != 0 && LoopEnd != 0)
+            LoopCache = new KeyValuePair<float, float>(KeyFrames[LoopStart - Start], KeyFrames[LoopEnd - Start]);
+    }
+    //每个pose烘培一个自己的.
+    public List<float> KeyFrames = new List<float>();
+    public KeyValuePair<float, float> Cache;//非循环起始时间
+    public KeyValuePair<float, float> LoopCache;//循环起始时间
+    public int GetFrame(float t) {
+        int ret = 0;
+        for (int i = 0; i < KeyFrames.Count; i++) {
+            if (KeyFrames[i] <= t)
+                ret = i;
+            else
+                break;
+        }
+        return ret;
+    }
+}
+
+//动作状态,记录播放某个动作的混合相关的数据
+public class PoseState {
+    //找到对应时间左右的2个关键帧，计算插值，得到临时骨架的姿势
+    public static int EvaluatePoseClamp(float time, Pose clip, ref BoneStatus pose, int playerId, bool useloop = true) {
+        int keyframe = clip.GetFrame(time);
+        int lhs = 0;
+        int rhs = 0;
+        int Start = clip.Start;
+        int End = clip.End;
+        //float playedTimes = 0.0f;
+        //float duration = 0.0f;
+        bool clipLoop = clip.LoopEnd != 0 && clip.LoopStart != 0;
+        if (clipLoop && useloop) {
+            if (Start + keyframe >= clip.LoopEnd) {
+                lhs = clip.LoopEnd;
+                rhs = clip.Start;
+            } else {
+                lhs = Start + keyframe;
+                rhs = Start + keyframe + 1;
+            }
+        } else {
+            if (Start + keyframe >= End) {
+                lhs = End;
+                rhs = Start;
+            } else {
+                lhs = Start + keyframe;
+                rhs = Start + keyframe + 1;
+            }
+        }
+
+        //UnityEngine.Debug.Log("action:" + clip.Idx + "lhs:" + lhs + " rhs:" + rhs);
+        //返回较大的帧编号
+        int ret = Mathf.Max(lhs, rhs);
+        if (lhs != rhs) {
+            float p = 0.0f;
+            if (lhs < rhs) {
+                p = (time - clip.KeyFrames[lhs - clip.Start]) / (clip.KeyFrames[rhs - clip.Start] - clip.KeyFrames[lhs - clip.Start]);
+            } else {
+                p = (time - clip.KeyFrames[lhs - clip.Start]) / (clip.KeyFrames[lhs - clip.Start] - clip.KeyFrames[rhs - clip.Start]);
+            }
+            BoneStatus prevPose = Main.Ins.AmbLoader.GetBoneStatus(clip.SourceIdx, playerId, lhs);
+            BoneStatus nextPose = Main.Ins.AmbLoader.GetBoneStatus(clip.SourceIdx, playerId, rhs);
+            Utility.HermiteInterpolatePose(prevPose, nextPose, ref pose, p);
+        }
+        else {
+            BoneStatus nextPose = Main.Ins.AmbLoader.GetBoneStatus(clip.SourceIdx, playerId, rhs);
+            nextPose.Clone(ref pose);
+        }
+
+        return ret;
+    }
 }
 
 //[System.Serializable]
-public class AttackDes
-{
+public class AttackDes {
     public List<string> bones = new List<string>();//攻击伤害盒
     public int PoseIdx;//伤害由哪个动作赋予，由动作可以反向查找技能，以此算伤害
     public int Start;
@@ -1050,8 +1736,7 @@ public class AttackDes
 }
 
 //[System.Serializable]
-public class DragDes
-{
+public class DragDes {
     public int Start;
     public int End;
     public float Time;
@@ -1059,8 +1744,7 @@ public class DragDes
 }
 
 //[System.Serializable]
-public class NextPose
-{
+public class NextPose {
     public int Start;
     public int End;
     public float Time;
@@ -1143,8 +1827,7 @@ public class NextPose
   }
  */
 [System.Serializable]
-public class PosAction
-{
+public class PosAction {
     public string Type;//"Blend/Action"
     public int Start;
     public int End;

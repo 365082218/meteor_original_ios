@@ -34,7 +34,33 @@ public class SceneItemAgent :NetBehaviour {
     float initializeY;
     bool billBoard = false;
     bool animate = false;
-    
+    public bool TakeUp { get { return Refresh; } }//是否被占据，如果在刷新中，则被占据
+
+    int replaceQueue = -1;
+    public void SetAlpha(float alpha) {
+        MeshRenderer[] mr = GetComponentsInChildren<MeshRenderer>();
+        for (int i = 0; i < mr.Length; i++) {
+            if (mr[i].sharedMaterials.Length == 0)
+                return;
+            if (replaceQueue == -1)
+                replaceQueue = mr[i].material.renderQueue;
+            mr[i].material.renderQueue = 3000;
+            mr[i].material.SetFloat("_Alpha", alpha);
+        }
+    }
+
+    public void RestoreAlpha() {
+        MeshRenderer[] mr = GetComponentsInChildren<MeshRenderer>();
+        for (int i = 0; i < mr.Length; i++) {
+            if (mr[i].sharedMaterials.Length == 0)
+                return;
+            mr[i].material.SetFloat("_Alpha", 1.0f);
+            if (replaceQueue != -1)
+                mr[i].material.renderQueue = replaceQueue;
+        }
+        replaceQueue = -1;
+    }
+
     //场景初始化调用，或者爆出物品，待物品落地时调用
     public void OnStart(LevelScriptBase script = null)
     {
@@ -80,8 +106,7 @@ public class SceneItemAgent :NetBehaviour {
             }
         }
 
-        if (MethodOnAttack != null || OnAttackCallBack != null)
-            RefreshCollision();
+        RefreshCollision();
     }
 
     //bool up = true;
@@ -89,7 +114,7 @@ public class SceneItemAgent :NetBehaviour {
     void yMove()
     {
         float y = curve.Evaluate(FrameReplay.Instance.time);
-        transform.position = new Vector3(transform.position.x, initializeY + 5 * y, transform.position.z);
+        transform.position = new Vector3(transform.position.x, initializeY + 2 + 5 * y, transform.position.z);
         transform.Rotate(new Vector3(0, 90 * FrameReplay.deltaTime, 0));
     }
 
@@ -116,16 +141,15 @@ public class SceneItemAgent :NetBehaviour {
         else if (OnIdle != null)
             OnIdle.Invoke(InstanceId, Index);
 
-        if (ItemInfo != null && (ItemInfo.IsItem() || ItemInfo.IsWeapon()) && Refresh)
-        {
+        if (animate && root != null && root.gameObject.activeInHierarchy)
+            yMove();
+
+        if (ItemInfo != null && (ItemInfo.IsItem() || ItemInfo.IsWeapon()) && Refresh) {
             refresh_tick -= FrameReplay.deltaTime;
-            if (refresh_tick <= 0.0f)
-            {
+            if (refresh_tick <= 0.0f) {
                 OnRefresh();
             }
         }
-        if (animate && root != null && root.gameObject.activeInHierarchy)
-            yMove();
     }
 
     public void OnPickUped(MeteorUnit unit)
@@ -209,7 +233,7 @@ public class SceneItemAgent :NetBehaviour {
         }
         else if (ItemInfoEx != null)
         {
-            if (ItemInfoEx.MainType == 1)
+            if (ItemInfoEx.MainType == (int)UnitType.Weapon)
             {
                 string weaponModel = "";
                 WeaponData wp = U3D.GetWeaponProperty(ItemInfoEx.UnitId);
@@ -287,6 +311,8 @@ public class SceneItemAgent :NetBehaviour {
         Refresh = false;
         if (ItemInfo.IsWeapon() || ItemInfo.IsItem())
             refresh_tick = ItemInfo.first[1].flag[1];
+        //要处理一下碰撞网格太多的问题
+        RefreshCollision();
     }
 
     public Transform root;
@@ -372,7 +398,7 @@ public class SceneItemAgent :NetBehaviour {
                     List<ItemData> its = Main.Ins.DataMgr.GetItemDatas();
                     for (int i = 0; i < its.Count; i++)
                     {
-                        if (its[i].MainType == 1)
+                        if (its[i].MainType == (int)UnitType.Weapon)
                         {
                             WeaponData weapon = U3D.GetWeaponProperty(its[i].UnitId);
                             if (weapon.WeaponR == s)
@@ -386,10 +412,11 @@ public class SceneItemAgent :NetBehaviour {
             }
 
             //证明此物品不是可拾取物品
-            gameObject.layer = (ItemInfo != null || ItemInfoEx != null) ?  LayerMask.NameToLayer("Trigger") : LayerMask.NameToLayer("Scene");
+            //gameObject.layer = (ItemInfo != null || ItemInfoEx != null) ?  LayerManager.Trigger : LayerManager.Scene;
+            gameObject.layer = LayerManager.Trigger;
             root.gameObject.layer = gameObject.layer;
             //箱子椅子桌子酒坛都不允许为场景物品.
-            WsGlobal.ShowMeteorObject(s, root);
+            Utility.ShowMeteorObject(s, root);
             DesFile fIns = Main.Ins.DesLoader.Load(s);
             //把子物件的属性刷到一起.
             for (int i = 0; i < fIns.SceneItems.Count; i++)
@@ -465,6 +492,9 @@ public class SceneItemAgent :NetBehaviour {
                 {
                     GameObject obj = NodeHelper.Find(na, root.gameObject);
                     MeshRenderer mr = obj.GetComponent<MeshRenderer>();
+                    if (mr == null) {
+                        mr = obj.GetComponentInChildren<MeshRenderer>();
+                    }
                     if (mr != null)
                         mr.enabled = (int.Parse(v) == 1);
                 }
@@ -621,8 +651,12 @@ public class SceneItemAgent :NetBehaviour {
                 if (root != null)
                     root.gameObject.SetActive(value != 0);
                 //删除受击框
-                if (value == 0)
-                    Main.Ins.GameBattleEx.RemoveCollision(this);
+                if (value == 0) {
+                    for (int i = 0; i < collisions.Count; i++) {
+                        Destroy(collisions[i]);
+                    }
+                    collisions.Clear();
+                }
                 if (OnIdle != null && value == 0)
                 {
                     Main.Ins.MeteorManager.OnDestroySceneItem(this);
@@ -647,14 +681,14 @@ public class SceneItemAgent :NetBehaviour {
                 //交互切换
                 if (MethodOnAttack != null || OnAttackCallBack != null)
                 {
-                    if (value == 0)
-                        Main.Ins.GameBattleEx.RemoveCollision(this);
+                    if (value == 0) {
+
+                    }
                     else if (value == 1)
                     {
                         //刷新受击框.
-                        Main.Ins.GameBattleEx.RemoveCollision(this);
                         RefreshCollision();
-                        Main.Ins.GameBattleEx.RegisterCollision(this);
+                        
                     }
                 }
             }
@@ -714,14 +748,182 @@ public class SceneItemAgent :NetBehaviour {
         collisions.Clear();
         if (MethodOnAttack != null || OnAttackCallBack != null)
         {
-            Collider[] co = GetComponentsInChildren<Collider>();
-            for (int i = 0; i < co.Length; i++)
-            {
-                //不显示出来的都没有受击框
-                MeshRenderer mr = co[i].GetComponent<MeshRenderer>();
-                if (mr != null && mr.enabled)
-                    collisions.Add(co[i]);
+            ///针对能击碎的物件，合并碰撞盒放到顶级
+            if (name.StartsWith("D_BBox") || name.StartsWith("D_BBBox") || name.StartsWith("D_RJug")) {
+                CombineChildren combine = gameObject.GetComponent<CombineChildren>();
+                if (combine != null) {
+                    combine.Combine();
+                }
+                BoxCollider b = gameObject.GetComponent<BoxCollider>();
+                if (b == null) {
+                    b = gameObject.AddComponent<BoxCollider>();
+                }
+                MeshCollider[] co = GetComponentsInChildren<MeshCollider>();
+                for (int i = 0; i < co.Length; i++) {
+                    Destroy(co[i]);
+                }
             }
+            if (name.ToLower().Contains("chair") || name.ToLower().Contains("desk")) {
+
+            } else {
+                Collider[] co = GetComponentsInChildren<Collider>();
+                for (int i = 0; i < co.Length; i++) {
+                    //不显示出来的都没有受击框
+                    MeshRenderer mr = co[i].GetComponent<MeshRenderer>();
+                    if (mr != null && mr.enabled)
+                        collisions.Add(co[i]);
+                }
+            }
+            
+        } else {//不能受击的物件，可能可以拾取，或者
+            if (ItemInfo != null && ItemInfo.IsItem() && root != null) {
+                //炼化
+                if (ItemInfo.Idx == 9 || ItemInfo.Idx == 23 || ItemInfo.Idx == 24 || ItemInfo.Idx == 25) {
+                    BoxCollider b = root.GetComponent<BoxCollider>();
+                    if (b == null) {
+                        b = root.gameObject.AddComponent<BoxCollider>();
+                    }
+                    b.center = new Vector3(0, 7.5f, 0);
+                    b.size = new Vector3(15, 15, 15);
+                    b.isTrigger = true;
+                    MeshCollider[] co = GetComponentsInChildren<MeshCollider>();
+                    for (int i = 0; i < co.Length; i++) {
+                        Destroy(co[i]);
+                    }
+                }
+                else {
+                    //其他道具类
+                    ReplaceMeshCollider();
+                }
+            } else if (name.StartsWith("D_itBBox")){
+                ReplaceMeshCollider();
+            } else if (name.StartsWith("D_wpBBox")) {
+                ProcessWeaponCollider();
+            } else if (name.StartsWith("D_wpBBBox")) {
+                ProcessWeaponCollider();
+            } else if (name.StartsWith("D_Wpn") || name.StartsWith("D_wpn") || name.StartsWith("D_Wp") || name.StartsWith("D_wp")) {
+                ProcessWeaponCollider();
+            } else if (name.StartsWith("D_sn03")){
+                //尖刺-如果有box的对象，取消box对象上的触发器
+                ProcessSn03Collider();
+            } else if (name.StartsWith("D_ston")){
+                //可击碎的石头-击碎后可攻击角色
+            } else if (name.StartsWith("D_tp")){
+                
+            } else
+                Debug.LogError("not processed:" + name);
+        }
+    }
+
+    //如果有子对象名称为box，取消碰撞盒上的istrigger
+    void ProcessSn03Collider() {
+        if (transform.childCount >= 2) {
+            for (int i = 0; i < transform.childCount; i++) {
+                Transform tri = transform.GetChild(i);
+                if (tri.name.StartsWith("Box")) {
+                    BoxCollider b = tri.gameObject.GetComponent<BoxCollider>();
+                    if (b != null) {
+                        b.isTrigger = false;
+                    }
+                }
+            }
+        }
+    }
+
+    //只要有没开渲染的碰撞器，把其他网格上的碰撞器去掉
+    void ProcessWeaponCollider() {
+        if (ItemInfo.model == "W2_0") {
+            Transform tri = root.Find("Object01");
+            if (tri != null)
+                GameObject.Destroy(tri.gameObject);
+            Transform wpnFA03 = root.Find("wpnFA03");
+            MeshCollider mr = wpnFA03.gameObject.GetComponent<MeshCollider>();
+            if (mr != null)
+                GameObject.Destroy(mr);
+            BoxCollider box = wpnFA03.gameObject.GetComponent<BoxCollider>();
+            if (box == null)
+                box = wpnFA03.gameObject.AddComponent<BoxCollider>();
+            box.isTrigger = true;
+            return;
+        }
+        Transform weapon = null;//实际武器
+        Transform atbox = null;//碰撞范围
+        for (int i = 0; i < root.childCount; i++) {
+            Transform tr = root.GetChild(i);
+            MeshRenderer mr = tr.GetComponent<MeshRenderer>();
+            if (mr != null) {
+                if (mr.enabled)
+                    weapon = tr;
+                else
+                    atbox = tr;
+            }
+        }
+
+        //一些武器并没有攻击范围盒，自身就是
+        if (atbox == null) {
+            if (weapon != null) {
+                MeshCollider me = weapon.GetComponent<MeshCollider>();
+                if (me != null)
+                    GameObject.Destroy(me);
+                BoxCollider b = weapon.GetComponent<BoxCollider>();
+                if (b == null) {
+                    b = weapon.gameObject.AddComponent<BoxCollider>();
+                }
+                b.isTrigger = true;
+            }
+        }
+        else {
+            if (weapon != null) {
+                MeshCollider me = weapon.GetComponent<MeshCollider>();
+                if (me != null)
+                    GameObject.Destroy(me);
+            }
+        }
+    }
+
+    void ReplaceMeshCollider() {
+        if (root.childCount == 1) {
+            //D_itSt31
+            BoxCollider b = root.GetChild(0).GetComponent<BoxCollider>();
+            if (b == null) {
+                b = root.GetChild(0).gameObject.AddComponent<BoxCollider>();
+            }
+            b.isTrigger = true;
+            MeshCollider[] co = root.GetComponentsInChildren<MeshCollider>();
+            for (int i = 0; i < co.Length; i++) {
+                Destroy(co[i]);
+            }
+        } else {
+            //Debug.LogError("多个子网格的需要自己处理");
+            CombineItem();
+        }
+    }
+
+    //检查root下的材质能否合并，能则尝试合并
+    void CombineItem() {
+        bool combine = true;
+        Material mat = null;
+        //金华城 D_itBBox33
+        for (int i = 0; i < root.childCount; i++) {
+            MeshRenderer mr = root.GetChild(i).GetComponent<MeshRenderer>();
+            if (mr != null && mr.sharedMaterial != mat && mat != null) {
+                combine = false;
+                break;
+            }
+            if (mat == null)
+                mat = mr.sharedMaterial;
+        }
+        if (combine) {
+            CombineChildren cm = root.gameObject.AddComponent<CombineChildren>();
+            cm.Combine();
+            BoxCollider b = root.gameObject.AddComponent<BoxCollider>();
+            b.isTrigger = true;
+            MeshCollider[] co = GetComponentsInChildren<MeshCollider>();
+            for (int i = 0; i < co.Length; i++) {
+                Destroy(co[i]);
+            }
+        } else {
+            Debug.LogError("无法合并材质");
         }
     }
 
@@ -859,11 +1061,9 @@ public class SceneItemAgent :NetBehaviour {
     {
         OnAttackCallBack = act;
         OnIdle = idle;
-        Main.Ins.GameBattleEx.RemoveCollision(this);
         RefreshCollision();
-        Main.Ins.GameBattleEx.RegisterCollision(this);
         Index = int.Parse(name.Substring(name.Length - 2));
-        WsGlobal.SetObjectLayer(gameObject, LayerMask.NameToLayer("Trigger"));
+        Utility.SetObjectLayer(gameObject, LayerManager.Trigger);
     }
 
     public bool CanPickup()

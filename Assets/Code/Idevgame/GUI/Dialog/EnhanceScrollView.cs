@@ -119,7 +119,7 @@ public class EnhanceScrollView : MonoBehaviour
         {
             if (m_CurItemName != value)
             {
-                Debug.Log(value);
+                //Debug.Log(value);
                 m_CurItemName = value;
             }
         }

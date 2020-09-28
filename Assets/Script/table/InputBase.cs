@@ -29,58 +29,36 @@ public class InputItem
         mOwner = owner;
     }
 
-    public bool OnKeyDown(KeyState k)
-    {
-        if (KeyInput.Length < state || state < 0)
-            return false;
-        if (k.Key == KeyInput[state])
-        {
-            state++;
-            if (state == totalState)
-            {
-                int target = -1;
-                if (Check(out target))
-                {
-                    //Debug.LogError("action change:" + target);
-                    mOwner.posMng.LinkAction(target);
-                    Reset();
-                    return true;
-                }
-                else
-                {
-                    Reset();//有部分情况会影响其他招式输入状态
-                }
-            }
-            else
-            {
+    public EKeyList Pressing = EKeyList.KL_None;
+    public void OnKeyPressing(KeyState k) {
+        if (state == 0) {
+            if (k.Key == KeyInput[state]) {
+                state++;
+                Pressing = k.Key;//等待蓄力招式后续输入
                 frame = Main.Ins.AppInfo.LinkDelay();
             }
         }
-        return false;
     }
 
-    public bool OnKeyUp(KeyState k)
+    public bool OnKeyDown(KeyState k)
     {
-        return false;
-    }
-
-    public bool OnKeyPressing(KeyState k)
-    {
-        if (k.Key == KeyInput[state] && totalState != 1)
+        if (KeyInput.Length <= state || state < 0)
+            return false;
+        if (k.Key == KeyInput[state])
         {
+            Pressing = EKeyList.KL_None;
             state++;
             if (state == totalState)
             {
                 int target = -1;
                 if (Check(out target))
                 {
-                    mOwner.posMng.LinkAction(target);
-                    Reset();
+                    mOwner.ActionMgr.LinkAction(target);
                     return true;
                 }
                 else
                 {
-                    Reset();//有部分情况会影响其他招式输入状态
+                    Reset();
                 }
             }
             else
@@ -96,7 +74,7 @@ public class InputItem
         if (mOwner != null)
         {
             //在硬直中
-            if (mOwner.charLoader.IsInStraight())
+            if (mOwner.ActionMgr.IsInStraight())
             {
                 //Debug.LogError("in straight:" + mOwner.charLoader.PoseStraight);
                 targetPose = -1;
@@ -108,21 +86,23 @@ public class InputItem
                 targetPose = -1;
                 return false;
             }
-            if (Main.Ins.ActionInterrupt.Whole.ContainsKey(mOwner.posMng.mActiveAction.Idx) || mOwner.GetWeaponType() == (int)EquipWeaponType.Gun)
+            if (Main.Ins.ActionInterrupt.Whole.ContainsKey(mOwner.ActionMgr.mActiveAction.Idx) || mOwner.GetWeaponType() == (int)EquipWeaponType.Gun)
             {
-                int targetIdx = mOwner.posMng.mActiveAction.Idx;
+                int targetIdx = mOwner.ActionMgr.mActiveAction.Idx;
 
                 //滚动或者闪动。可以连任意Pose与Idle一样
                 if (targetIdx >= 164 && targetIdx <= 179)
                     targetIdx = 0;
+                if (targetIdx >= 112 && targetIdx <= 113)
+                    targetIdx = 0;
 
                 //任意准备动作，可以接任意Pose与Idle一样
-                if (PoseStatus.IsReadyAction(targetIdx))
+                if (ActionManager.IsReadyAction(targetIdx))
                     targetIdx = 0;
 
                 //部分火枪动作，翻滚，攻击，都有后摇，不允许立即切换，必须等待动作完成
-                if (mOwner.GunReady && !mOwner.posMng.IsAttackPose() && 
-                    !(mOwner.posMng.mActiveAction.Idx >= CommonAction.DCForw && mOwner.posMng.mActiveAction.Idx <= CommonAction.DCBack))
+                if (mOwner.GunReady && !mOwner.ActionMgr.IsAttackPose() && 
+                    !(mOwner.ActionMgr.mActiveAction.Idx >= CommonAction.DCForw && mOwner.ActionMgr.mActiveAction.Idx <= CommonAction.DCBack))
                 {
                     targetIdx = CommonAction.Idle;//模拟普通IDLE就可以发其他火枪招式了
                     //Debug.LogError("useGun");
@@ -131,6 +111,12 @@ public class InputItem
                 if (!Main.Ins.ActionInterrupt.Whole.ContainsKey(targetIdx))
                 {
                     //Debug.LogError(string.Format("not contains:{0}", targetIdx));
+                    targetPose = -1;
+                    return false;
+                }
+
+                //枪射击大招
+                if (mOwner.ActionMgr.mActiveAction.Idx == 216) {
                     targetPose = -1;
                     return false;
                 }
@@ -154,11 +140,16 @@ public class InputItem
                     {
                         for (int i = 0; i < no.target.Count; i++)
                         {
+                            
                             if (each.Value.Contains(no.target[i].ActionIdx))
                             {
-                                bool ret = mOwner.controller.Input.CheckPos(each.Key, no.target[i].ActionIdx);
+                                //if (no.target[i].ActionIdx == 407)
+                                //    Debug.LogError("hit");
+                                bool ret = mOwner.meteorController.Input.CheckPos(each.Key, no.target[i].ActionIdx);
                                 if (ret)
                                 {
+                                    //if (no.target[i].ActionIdx == 407)
+                                    //    Debug.LogError("hit ok");
                                     targetPose = no.target[i].ActionIdx;
                                     //if (targetPose == 200 && targetIdx == 200)
                                     //{
@@ -166,6 +157,9 @@ public class InputItem
                                     //    Debug.LogError("link 200");
                                     //}
                                     return ret;
+                                } else {
+                                    //if (no.target[i].ActionIdx == 407)
+                                    //    Debug.LogError("hit error");
                                 }
                             }
                         }
@@ -179,7 +173,7 @@ public class InputItem
                         {
                             if (each.Value.Contains(no.target[i].ActionIdx))
                             {
-                                bool ret = mOwner.controller.Input.CheckPos(each.Key, no.target[i].ActionIdx);
+                                bool ret = mOwner.meteorController.Input.CheckPos(each.Key, no.target[i].ActionIdx);
                                 if (ret)
                                 {
                                     targetPose = no.target[i].ActionIdx;
@@ -199,6 +193,7 @@ public class InputItem
     {
         state = 0;
         frame = Main.Ins.AppInfo.LinkDelay();
+        Pressing = EKeyList.KL_None;
     }
 
     public bool Wait()
@@ -222,8 +217,7 @@ public class KeyState
     public string AxisName;
     public float PressedTime = 10.0f;
     public float ReleasedTime = 10.0f;
-    public int Pressed = 0;// 0=release 1=click 2=double click
-    public bool IsAI;
+    public int Pressed = 0;
     public EKeyList Key;
 };
 
@@ -310,10 +304,6 @@ public class InputModule
             inputs.Add(it);
             //input.Add(i, it.);
         }
-        //foreach (DictionaryEntry each in input)
-        //{
-        //    Debug.LogError("line:" + (each.Value));
-        //}
     }
 
     public void Update()
@@ -323,6 +313,10 @@ public class InputModule
             //等待下一个指令输入的，需要更新
             if (inputs[i].Wait())
                 inputs[i].Update();
+            else 
+            {
+                //重置了状态的，需要响应角色的蓄力键
+            }
         }
     }
 
@@ -332,49 +326,31 @@ public class InputModule
             inputs[i].Reset();
     }
 
-    //这里要集中处理，因为招式很有可能会同时满足多个
-    //类似 匕首 后前前手，既触发 大绝招 又出发 前前手，这个时候，应该设置一个冲掉机制，让输入长度长的招式 优先与 输入长度短的招式
     public bool OnKeyDown(KeyState keyStatus)
     {
-        //从后往前遍历，长的招式冲断短的招式。
-        //测试招式
-        //for (int i = inputs.Count - 1; i >= 0; i--)
-        //{
-        //    if (mOwner.Attr.IsPlayer && keyStatus.Key == EKeyList.KL_Attack)
-        //        Debug.LogError(string.Format("testinput:{0}", inputs[i].ToString()));
-        //}
-
         for (int i = inputs.Count - 1; i >= 0; i--)
         {
             //if (inputs[i].ToString() == "SSWJ" && keyStatus.Key == EKeyList.KL_Attack && mOwner.Attr.IsPlayer && (mOwner.posMng.mActiveAction.Idx == 431 || mOwner.posMng.mActiveAction.Idx == 485))//乾坤刀绝招?
             //    Debug.DebugBreak();
             if (inputs[i].OnKeyDown(keyStatus))
             {
-                //if (mOwner.Attr.IsPlayer && keyStatus.Key == EKeyList.KL_Attack)
-                //    Debug.LogError(string.Format("accept testinput:{0}", inputs[i].ToString()));
                 return true;
             }
         }
         return false;
     }
 
-    public void OnKeyUp(KeyState keyStatus)
-    {
-        //从后往前遍历，长的招式冲断短的招式。
-        for (int i = inputs.Count - 1; i >= 0; i--)
-        {
-            if (inputs[i].OnKeyUp(keyStatus))
-                break;
+    public void OnKeyPressing(KeyState keyStatus) {
+        for (int i = inputs.Count - 1; i >= 0; i--) {
+            inputs[i].OnKeyPressing(keyStatus);
         }
     }
 
-    public void OnKeyPressing(KeyState keyStatus)
-    {
-        //从后往前遍历，长的招式冲断短的招式。
-        for (int i = inputs.Count - 1; i >= 0; i--)
-        {
-            if (inputs[i].OnKeyPressing(keyStatus))
-                return;
+    public void RemovePressing(EKeyList key) {
+        for (int i = 0; i < inputs.Count; i++) {
+            if (inputs[i].Pressing == key) {
+                inputs[i].Reset(); 
+            }
         }
     }
 }

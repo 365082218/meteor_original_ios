@@ -146,7 +146,7 @@ namespace UnityEngine.UI
         {
             if (!this.IsActive())
                 return;
-
+            return;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(this.m_CanvasRectTransform, data.position, data.pressEventCamera, out this.m_PointerStartPosition);
             this.m_TargetStartPosition = this.m_Target.anchoredPosition;
             this.m_Velocity = Vector2.zero;
@@ -164,7 +164,7 @@ namespace UnityEngine.UI
         public void OnEndDrag(PointerEventData data)
         {
             this.m_Dragging = false;
-
+            return;
             if (!this.IsActive())
                 return;
 
@@ -181,7 +181,7 @@ namespace UnityEngine.UI
         {
             if (!this.IsActive() || this.m_Canvas == null)
                 return;
-
+            return;
             Vector2 mousePos;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(this.m_CanvasRectTransform, data.position, data.pressEventCamera, out mousePos);
 

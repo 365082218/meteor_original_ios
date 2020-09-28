@@ -123,38 +123,6 @@ public class IFLInspector : Editor
     }
 }
 
-[CustomEditor(typeof(MeteorUnitDebug))]
-public class MeteorUnitDebugInspector : Editor
-{
-    int source = 0;
-    int keyframe = 0;
-    string src = "source";
-    string key = "keyframe";
-    string action = "action";
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-        MeteorUnitDebug myTarget = (MeteorUnitDebug)target;
-        src = GUILayout.TextField(src);
-        key = GUILayout.TextField(key);
-        action = GUILayout.TextField(action);
-
-
-        if (GUILayout.Button("SetKeyFrame"))
-        {
-            keyframe = int.Parse(key);
-            source = int.Parse(src);
-            if (!string.IsNullOrEmpty(src))
-                myTarget.charLoader.ChangeFrame(source, keyframe);
-        }
-
-        if (GUILayout.Button("ChangeAction"))
-        {
-            int act = int.Parse(action);
-            myTarget.posMng.ChangeActionSingle(act);
-        }
-    }
-}
 
 //public class StatusMachineEditor
 //{
@@ -180,6 +148,23 @@ public class MeteorUnitDebugInspector : Editor
 //        AssetDatabase.Refresh();
 //    }
 //}
+[CustomEditor(typeof(CalcDistance))]
+public class CalcDistanceInspector : Editor {
+
+    public override void OnInspectorGUI() {
+        base.OnInspectorGUI();
+        CalcDistance myTarget = (CalcDistance)target;
+        if (GUILayout.Button("CalcDis")) {
+            myTarget.CalcDis();
+        }
+        if (GUILayout.Button("CalcAngle")) {
+            myTarget.CalcAngle();
+        }
+        if (GUILayout.Button("LookAt")) {
+            myTarget.LookAt();
+        }
+    }
+}
 
 [CustomEditor(typeof(CharacterLoader))]
 public class CharacterLoaderInspector : Editor
@@ -189,20 +174,6 @@ public class CharacterLoaderInspector : Editor
     {
         base.OnInspectorGUI();
        
-    }
-}
-
-[CustomEditor(typeof(CameraSnapShot))]
-public class CameraSnapShotInspector : Editor
-{
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-        CameraSnapShot myTarget = (CameraSnapShot)target;
-        if (GUILayout.Button("SnapShot"))
-        {
-            myTarget.OnSaveMapFogTexture();
-        }
     }
 }
 
@@ -243,19 +214,6 @@ public class MapLoaderInspector : Editor
     }
 }
 
-[CustomEditor(typeof(CalcDistance))]
-public class CalcDistanceInspector : Editor
-{
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-        CalcDistance myTarget = (CalcDistance)target;
-        if (GUILayout.Button("Calc"))
-        {
-            myTarget.Calc();
-        }
-    }
-}
 
 [CustomEditor(typeof(MeteorUnit))]
 public class MeteorUnitInspector : Editor
@@ -263,20 +221,24 @@ public class MeteorUnitInspector : Editor
     public int wayIndex = -1;
     public string way = "";
     public GameObject vecTarget;
+    string action = "action";
+    float step = 0.05f;
+    float FadeIn = 0.1f;
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
         MeteorUnit myTarget = (MeteorUnit)target;
         way = GUILayout.TextField(way);
+        action = GUILayout.TextField(action);
         if (GUILayout.Button("GetWayIndex"))
         {
-            wayIndex = Main.Ins.PathMng.GetWayIndex(myTarget.transform.position);
+            wayIndex = Main.Ins.PathMng.GetWayIndex(myTarget.mSkeletonPivot);
             way = wayIndex.ToString();
         }
 
         if (GUILayout.Button("GetWayIndex2"))
         {
-            wayIndex = Main.Ins.PathMng.GetWayIndex(myTarget.transform.position);
+            wayIndex = Main.Ins.PathMng.GetWayIndex(myTarget.mSkeletonPivot);
             way = wayIndex.ToString();
         }
 
@@ -287,6 +249,28 @@ public class MeteorUnitInspector : Editor
             if (vecTarget == null)
                 return;
             myTarget.StateMachine.ChangeState(myTarget.StateMachine.FaceToState, vecTarget.transform.position);
+        }
+
+        if (GUILayout.Button("BakeAnimation")) {
+            int act = int.Parse(action);
+            myTarget.ActionMgr.BakePose(act);
+        }
+
+        if (GUILayout.Button("StopAllAction")) {
+            
+        }
+
+        if (GUILayout.Button("SampleFrame")) {
+            //PoseState FadeOutState = myTarget.ActionMgr.AddState(0);//从原先的动作
+            //FadeInState.SetEnabled(true);
+            //FadeInState.SetNormalizedTime(FadeIn);
+            //FadeInState.SetWeight(1);
+            //FadeOutState.SetEnabled(true);
+            //FadeOutState.SetNormalizedTime(1 - FadeIn);
+            //FadeOutState.SetWeight(1);
+            //FrameReplay.deltaTime = Time.deltaTime;
+            //FrameReplay.Instance.time += Time.deltaTime;
+            
         }
     }
 }

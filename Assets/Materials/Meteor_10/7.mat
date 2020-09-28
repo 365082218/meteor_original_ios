@@ -37,4 +37,4 @@ Material:
       second: {r: 1, g: 1, b: 1, a: 1}
     - first:
         name: _ColorKey
-      second: {r: 0.03676468, g: 0.034331724, b: 0.034331724, a: 1}
+      second: {r: 0.003921569, g: 0.003921569, b: 0.003921569, a: 1}

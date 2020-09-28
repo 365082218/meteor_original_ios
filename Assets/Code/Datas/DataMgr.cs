@@ -10,6 +10,7 @@ namespace Excel2Json {
     }
 
     public class DataMgr {
+        public LevelDataMgr debugData;
         public LevelDataMgr levelData;
         public ItemDataMgr itemData;
         public WeaponDataMgr weaponData;
@@ -56,7 +57,7 @@ namespace Excel2Json {
                         method.Invoke(destion, new object[] { System.Convert.ToInt32(each.Key), data });
                     }
                     catch (System.Exception exp) {
-                        Debug.LogError(each.Key);
+                        Debug.LogError(each.Key + " " + exp.StackTrace);
                     }
                     
                 }
@@ -70,7 +71,7 @@ namespace Excel2Json {
                     if (source.ContainsKey(fields[i].Name))
                         fields[i].SetValue(target, source[fields[i].Name]);
                 } catch (System.Exception exp) {
-                    Debug.LogError("exist error:" + fields[i].Name);
+                    Debug.LogError("exist error:" + fields[i].Name + " " + exp.StackTrace);
                 }
                 
             }
@@ -78,6 +79,7 @@ namespace Excel2Json {
 
         //读取所有默认的表.除了插件的
         public void LoadAllData() {
+            debugData = LoadData<LevelDataMgr>("Debug");
             levelData = LoadData<LevelDataMgr>("Level");
             itemData = LoadData<ItemDataMgr>("Item");
             weaponData = LoadData<WeaponDataMgr>("Weapon");
@@ -98,6 +100,9 @@ namespace Excel2Json {
             return levelData.LevelDatas.Values.ToList();
         }
 
+        public List<LevelData> GetDebugLevelDatas() {
+            return debugData.LevelDatas.Values.ToList();
+        }
         public ItemData GetItemData(int id) {
             if (itemData.ItemDatas.ContainsKey(id))
                 return itemData.ItemDatas[id];

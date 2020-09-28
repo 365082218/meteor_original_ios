@@ -44,7 +44,7 @@ public class EscConfirmWnd : Dialog
         Leave = Control("Leave").GetComponent<Button>();
         Leave.onClick.AddListener(OnLeave);
         Continue = Control("Continue").GetComponent<Button>();
-        Continue.onClick.AddListener(OnBackPress);
+        Continue.onClick.AddListener(OnContinue);
     }
 
     void OnLeave()
@@ -53,8 +53,6 @@ public class EscConfirmWnd : Dialog
         Main.Ins.GameBattleEx.Pause();
         Main.Ins.StopAllCoroutines();
         Main.Ins.SoundManager.StopAll();
-        Main.Ins.BuffMng.Clear();
-        Main.Ins.MeteorManager.Clear();
         PathHelper.Ins.StopCalc();
         OnBackPress();
         Main.Ins.ExitState(Main.Ins.FightState);
@@ -68,5 +66,10 @@ public class EscConfirmWnd : Dialog
             FrameReplay.Instance.OnDisconnected();
             U3D.GoBack();
         }
+    }
+
+    void OnContinue() {
+        Main.Ins.GameBattleEx.Resume();
+        OnBackPress();
     }
 }

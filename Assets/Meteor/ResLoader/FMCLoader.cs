@@ -8,14 +8,27 @@ public class FMCLoader
     Dictionary<string, FMCFile> FmcFile = new Dictionary<string, FMCFile>();
     public FMCFile Load(string file)
     {
+        string file_no_ext = file;
         file += ".fmc";
+        FMCFile fi = null;
         if (FmcFile.ContainsKey(file))
             return FmcFile[file];
-        FMCFile fi = new FMCFile();
-        FMCFile ret = fi.LoadFile(file);
-        if (ret != null)
-            FmcFile.Add(file, ret);
-        return ret;
+        if (Main.Ins.CombatData.Chapter != null) {
+            string path = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Fmc, file_no_ext);
+            if (!string.IsNullOrEmpty(path)) {
+                fi = new FMCFile();
+                fi = fi.LoadFile(path);
+                if (fi != null) {
+                    FmcFile.Add(file, fi);
+                    return fi;
+                }
+            }
+        }
+        fi = new FMCFile();
+        fi = fi.LoadFile(file);
+        if (fi != null)
+            FmcFile.Add(file, fi);
+        return fi;
     }
 
     public FMCFile Load(TextAsset asset)
@@ -23,13 +36,13 @@ public class FMCLoader
         if (FmcFile.ContainsKey(asset.name))
             return FmcFile[asset.name];
         FMCFile fi = new FMCFile();
-        FMCFile ret = fi.LoadFile(asset);
+        FMCFile ret = fi.LoadFile(asset.bytes);
         if (ret != null)
             FmcFile.Add(asset.name, ret);
         return ret;
     }
 
-    public void Refresh()
+    public void Clear()
     {
         FmcFile.Clear();
     }
@@ -50,9 +63,9 @@ public class FMCFile
     public int DummyObjCount;
     public Dictionary<int, FMCFrame> frame = new Dictionary<int, FMCFrame>();
 
-    public FMCFile LoadFile(TextAsset asset)
+    public FMCFile LoadFile(byte [] body)
     {
-        MemoryStream ms = new MemoryStream(asset.bytes);
+        MemoryStream ms = new MemoryStream(body);
         StreamReader text = new StreamReader(ms);
         FMCFrame f = null;
         int fNum = -1;
@@ -102,9 +115,17 @@ public class FMCFile
     }
     public FMCFile LoadFile(string file)
     {
+        byte[] body = null;
         TextAsset asset = Resources.Load<TextAsset>(file);
-        if (asset == null)
+        if (asset == null) {
+            if (File.Exists(file)) {
+                body = File.ReadAllBytes(file);
+            }
+        } else {
+            body = asset.bytes;
+        }
+        if (body == null)
             return null;
-        return LoadFile(asset);
+        return LoadFile(body);
     }
 }

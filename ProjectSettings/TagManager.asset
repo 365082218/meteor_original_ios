@@ -23,17 +23,17 @@ TagManager:
   - 
   - 
   - NGUI
-  - SpecialText
+  - DetectAll
   - Scene
-  - Monster
-  - LocalPlayer
+  - 
+  - Player
   - Weapon
   - Bone
-  - 3DUIPlayer
+  - WayPoint
   - Flight
   - 
-  - Checker
-  - Wall
+  - 
+  - 
   - Trigger
   - 
   - 
@@ -41,11 +41,11 @@ TagManager:
   - 
   - 
   - 
-  - ObstacleAI
+  - 
   - RenderModel
-  - WayPoint
-  - DebugCanvas
-  - Debug
+  - 
+  - 
+  - 
   m_SortingLayers:
   - name: Default
     uniqueID: 0

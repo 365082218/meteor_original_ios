@@ -8,6 +8,7 @@ using System.Net;
 using Idevgame.GameState.DialogState;
 using Idevgame.GameState;
 using DG.Tweening;
+using Excel2Json;
 
 public class SettingDialogState:CommonDialogState<SettingDialog>
 {
@@ -25,7 +26,9 @@ public class SettingDialog : Dialog {
     }
 
     GameObject DebugRoot;
-
+    Toggle lowPerfor;
+    Toggle highPerfor;
+    Toggle superHighPerfor;
     void Init()
     {
         Control("Return").GetComponent<Button>().onClick.AddListener(() =>
@@ -41,9 +44,11 @@ public class SettingDialog : Dialog {
         });
 
         Control("ChangeLog").GetComponent<Text>().text = ResMng.LoadTextAsset("ChangeLog").text;
+        Text cheat = Control("CheatCodeList").GetComponent<Text>();
+        cheat.text = ResMng.LoadTextAsset("CheatCodeList").text;
+        cheat.fontSize = 33;
         Control("AppVerText").GetComponent<Text>().text = Main.Ins.AppInfo.AppVersion();
         Control("MeteorVerText").GetComponent<Text>().text = Main.Ins.AppInfo.MeteorVersion;
-
         Control("DoScript").GetComponent<Button>().onClick.AddListener(()=> { U3D.DoScript(); });
         Control("Nick").GetComponentInChildren<Text>().text = Main.Ins.GameStateMgr.gameStatus.NickName;
         Control("Nick").GetComponent<Button>().onClick.AddListener(
@@ -52,9 +57,18 @@ public class SettingDialog : Dialog {
                 Main.Ins.EnterState(Main.Ins.NickNameDialogState);
             }
         );
-        Toggle highPerfor = Control("HighPerformance").GetComponent<Toggle>();
+        highPerfor = Control("HighPerformance").GetComponent<Toggle>();
         highPerfor.isOn = Main.Ins.GameStateMgr.gameStatus.TargetFrame == 60;
         highPerfor.onValueChanged.AddListener(OnChangePerformance);
+
+        lowPerfor = Control("LowPerformance").GetComponent<Toggle>();
+        lowPerfor.isOn = Main.Ins.GameStateMgr.gameStatus.TargetFrame == 30;
+        lowPerfor.onValueChanged.AddListener(OnChangePerformance);
+
+        superHighPerfor = Control("SuperHighPerformance").GetComponent<Toggle>();
+        superHighPerfor.isOn = Main.Ins.GameStateMgr.gameStatus.TargetFrame == 120;
+        superHighPerfor.onValueChanged.AddListener(OnChangePerformance);
+
         Toggle High = Control("High").GetComponent<Toggle>();
         Toggle Medium = Control("Medium").GetComponent<Toggle>();
         Toggle Low = Control("Low").GetComponent<Toggle>();
@@ -79,13 +93,9 @@ public class SettingDialog : Dialog {
         {
             Control("BGMSlider").GetComponent<Slider>().value = Main.Ins.GameStateMgr.gameStatus.MusicVolume;
             Control("EffectSlider").GetComponent<Slider>().value = Main.Ins.GameStateMgr.gameStatus.SoundVolume;
-            Control("HSliderBar").GetComponent<Slider>().value = Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.x;
-            Control("VSliderBar").GetComponent<Slider>().value = Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.y;
         }
         Control("BGMSlider").GetComponent<Slider>().onValueChanged.AddListener(OnMusicVolumeChange);
         Control("EffectSlider").GetComponent<Slider>().onValueChanged.AddListener(OnEffectVolumeChange);
-        Control("HSliderBar").GetComponent<Slider>().onValueChanged.AddListener(OnXSensitivityChange);
-        Control("VSliderBar").GetComponent<Slider>().onValueChanged.AddListener(OnYSensitivityChange);
         Control("SetJoyPosition").GetComponent<Button>().onClick.AddListener(OnSetUIPosition);
 
         Toggle EnableJoy = Control("EnableJoy").GetComponent<Toggle>();
@@ -119,19 +129,17 @@ public class SettingDialog : Dialog {
         toggleEnableGodMode.isOn = Main.Ins.GameStateMgr.gameStatus.EnableGodMode;
         toggleEnableGodMode.onValueChanged.AddListener(OnEnableGodMode);
 
+        Toggle toggleHidePlayer = Control("HidePlayer").GetComponent<Toggle>();
+        toggleHidePlayer.isOn = Main.Ins.GameStateMgr.gameStatus.HidePlayer;
+        toggleHidePlayer.onValueChanged.AddListener(OnHidePlayer);
+        
         Toggle toggleEnableUndead = Control("EnableUnDead").GetComponent<Toggle>();
         toggleEnableUndead.isOn = Main.Ins.GameStateMgr.gameStatus.Undead;
         toggleEnableUndead.onValueChanged.AddListener(OnEnableUndead);
 
         Toggle toggleShowWayPoint = Control("ShowWayPoint").GetComponent<Toggle>();
         toggleShowWayPoint.isOn = Main.Ins.GameStateMgr.gameStatus.ShowWayPoint;
-#if !STRIP_DBG_SETTING
         toggleShowWayPoint.onValueChanged.AddListener(OnShowWayPoint);
-        if (Main.Ins.GameStateMgr.gameStatus.ShowWayPoint)
-            OnShowWayPoint(true);
-#else
-        Destroy(toggleShowWayPoint.gameObject);
-#endif
         Control("ChangeV107").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("1.07"); });
         Control("ChangeV907").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("9.07"); });
         Control("UnlockAll").GetComponent<Button>().onClick.AddListener(() => { U3D.UnlockLevel(); });
@@ -147,14 +155,10 @@ public class SettingDialog : Dialog {
         toggleSkipVideo.onValueChanged.AddListener(OnSkipVideo);
 
         GameObject debugTab = Control("DebugTab", WndObject);
+        Toggle debugToggle = Control("Debug", WndObject).GetComponent<Toggle>();
+        Toggle cheatToggle = Control("Cheat", WndObject).GetComponent<Toggle>();
 
-        Control("AnimationDebug").GetComponent<Button>().onClick.AddListener(() => { OnBackPress(); UnityEngine.SceneManagement.SceneManager.LoadScene("DebugScene0"); });
-        Control("SfxDebug").GetComponent<Button>().onClick.AddListener(() => { OnBackPress(); UnityEngine.SceneManagement.SceneManager.LoadScene("DebugScene1"); });
         DebugRoot = Control("Content", debugTab);
-
-        //透明度设定
-        Control("AlphaSliderBar").GetComponent<Slider>().value = Main.Ins.GameStateMgr.gameStatus.UIAlpha;
-        Control("AlphaSliderBar").GetComponent<Slider>().onValueChanged.AddListener(OnUIAlphaChange);
 
         if (Main.Ins.AppInfo.AppVersionIsSmallThan(Main.Ins.GameNotice.newVersion))
         {
@@ -175,7 +179,8 @@ public class SettingDialog : Dialog {
 
         //把一些模式禁用，例如作弊之类的.
         if (Main.Ins.GameStateMgr.gameStatus.CheatEnable) {
-
+            debugToggle.gameObject.SetActive(true);
+            cheatToggle.gameObject.SetActive(true);
         } else {
             Control("EnableRobot").SetActive(false);//屏蔽可添加电脑
             Control("EnableWeaponChoose").SetActive(false);
@@ -186,6 +191,7 @@ public class SettingDialog : Dialog {
             Control("EnableSFX").SetActive(false);
         }
 
+        LoadDebugLevel();
         //起始页显示
         OnTabShow(true);
 
@@ -304,7 +310,7 @@ public class SettingDialog : Dialog {
             KeyCode k = KeyCode.None;
             var values = Enum.GetValues(typeof(KeyCode));//存储所有的按键
             for (int x = 0; x < values.Length; x++) {
-                KeyCode j = (KeyCode)values.GetValue(x);
+                //KeyCode j = (KeyCode)values.GetValue(x);
                 if (Input.GetKeyDown((KeyCode)values.GetValue(x))) {
                     currentButton = values.GetValue(x).ToString();//遍历并获取当前按下的按键
                     k = (KeyCode)values.GetValue(x);
@@ -353,11 +359,6 @@ public class SettingDialog : Dialog {
     void MyPingPong(Image img, Color from, Color to, float duration) {
         colorFade = img.DOColor(to, duration);
         colorFade.OnComplete(() => MyPingPong(img, to, from, duration));
-    }
-
-    public void OnUIAlphaChange(float v)
-    {
-        Main.Ins.GameStateMgr.gameStatus.UIAlpha = v;
     }
 
     public void ShowTab(int tab)
@@ -462,6 +463,10 @@ public class SettingDialog : Dialog {
         Main.Ins.GameStateMgr.gameStatus.EnableGodMode = on;
     }
 
+    void OnHidePlayer(bool hide) {
+        Main.Ins.GameStateMgr.gameStatus.HidePlayer = hide;
+    }
+
     void OnEnableInfiniteAngry(bool on)
     {
         Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry = on;
@@ -479,36 +484,28 @@ public class SettingDialog : Dialog {
 
     void OnChangePerformance(bool on)
     {
-        Main.Ins.GameStateMgr.gameStatus.TargetFrame = on ? 60 : 30;
+        if (on) {
+            if (lowPerfor.isOn)
+                Main.Ins.GameStateMgr.gameStatus.TargetFrame = 30;
+            if (highPerfor.isOn)
+                Main.Ins.GameStateMgr.gameStatus.TargetFrame = 60;
+            if (superHighPerfor.isOn)
+                Main.Ins.GameStateMgr.gameStatus.TargetFrame = 120;
+        }
         Application.targetFrameRate = Main.Ins.GameStateMgr.gameStatus.TargetFrame;
-#if UNITY_EDITOR
-        Application.targetFrameRate = 120;
-#endif
     }
 
-#if !STRIP_DBG_SETTING
     void OnShowWayPoint(bool on)
     {
-        if (Main.Ins.GameBattleEx != null)
-            Main.Ins.GameBattleEx.ShowWayPoint(on);
+        Main.Ins.GameStateMgr.gameStatus.ShowWayPoint = on;
     }
-#endif
+
 
     void OnMusicVolumeChange(float vo)
     {
         Main.Ins.SoundManager.SetMusicVolume(vo);
         if (Main.Ins != null)
             Main.Ins.GameStateMgr.gameStatus.MusicVolume = vo;
-    }
-
-    void OnXSensitivityChange(float v)
-    {
-        Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.x = v;
-    }
-
-    void OnYSensitivityChange(float v)
-    {
-        Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.y = v;
     }
 
     void OnEffectVolumeChange(float vo)
@@ -538,5 +535,24 @@ public class SettingDialog : Dialog {
             flashing = false;
             KillFade();
         }
+    }
+
+    void LoadDebugLevel() {
+        GameObject prefab = Control("Level_debug");
+        List<LevelData> levels = Main.Ins.DataMgr.GetDebugLevelDatas();
+        for (int i = 1; i < levels.Count; i++) {
+            LevelData lev = levels[i];
+            GameObject btn = GameObject.Instantiate(prefab, prefab.transform.parent);
+
+            btn.GetComponent<Button>().onClick.AddListener(() => {
+                EnterLevel(lev);
+            });
+            btn.GetComponentInChildren<Text>().text = lev.Name;
+            btn.SetActive(true);
+        }
+    }
+
+    void EnterLevel(LevelData lev) {
+        U3D.LoadLevel(lev, LevelMode.SinglePlayerTask, (GameMode)lev.LevelType);
     }
 }

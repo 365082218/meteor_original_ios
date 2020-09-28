@@ -139,17 +139,13 @@ public class NetWorkBattle
             //在联机战斗场景中.
             Main.Ins.GameBattleEx.Pause();
             Main.Ins.SoundManager.StopAll();
-            Main.Ins.BuffMng.Clear();
-            Main.Ins.MeteorManager.Clear();
-            //if (FightWnd.Exist)
-            //    FightWnd.Instance.Close();
             RoomId = -1;
             RoomName = "";
             FrameReplay.Instance.OnDisconnected();
             FrameIndex = ServerFrameIndex = 0;
             U3D.InsertSystemMsg("与服务器断开链接.");
-            //if (!MainWnd.Exist)
-            //    U3D.GoBack();            
+            if (!MainMenuState.Exist)
+                U3D.GoBack();
         }
         RoomId = -1;
         waitReborn = false;

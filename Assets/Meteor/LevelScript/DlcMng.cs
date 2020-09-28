@@ -7,23 +7,488 @@ using System.Reflection;
 using UnityEngine;
 using Excel2Json;
 using System.Linq;
+using System.IO;
 
-public class DlcLevelMng
-{
+//下载的资料类型
+public enum TaskType {
+    Chapter,//剧本
+    Model,//模型
+    ChapterPreview,//剧本预览图
+    ModelPreview,//模型预览图
+}
+
+public class DownloadTask {
+    public TaskType type;
+    public int index;
+    public int progress;
+    public TaskStatus state;//0队列中，1正在处理，2已安装待删除--只针对ZIP格式的
+    public Action<object, DownloadProgressChangedEventArgs> OnProgressChanged;
+    public Action<object, AsyncCompletedEventArgs> OnComplete;//成功完成
+    public Action OnError;//出问题
+    public Action OnCancel;//取消
+    public int errno;
+    public string url;
+    public DownloadTask(TaskType t, int k = 0, string path = "") {
+        type = t;
+        url = path;
+        index = k;
+        state = TaskStatus.None;
+        if (string.IsNullOrEmpty(url)) {
+            VaildUrl();
+        }
+    }
+
+    void VaildUrl() {
+        Chapter chapter = null;
+        ModelItem model = null;
+        switch (type) {
+            case TaskType.Chapter:
+                chapter = Main.Ins.DlcMng.GetChapterMeta(index);
+                url = chapter.Path;
+                break;
+            case TaskType.Model:
+                model = Main.Ins.DlcMng.GetModelMeta(index);
+                url = model.Path;
+                break;
+            case TaskType.ChapterPreview:
+                chapter = Main.Ins.DlcMng.GetChapterMeta(index);
+                url = chapter.webPreview;
+                break;
+            case TaskType.ModelPreview:
+                model = Main.Ins.DlcMng.GetModelMeta(index);
+                url = model.webPreview;
+                break;
+        }
+    }
+}
+
+public class UnzipCallbackExDefault : ZipUtility.UnzipCallback {
+    DownloadManager Target;
+    public UnzipCallbackExDefault(DownloadManager ctrl) {
+        Target = ctrl;
+    }
+    /// <summary>
+    /// 解压执行完毕后的回调
+    /// </summary>
+    /// <param name="_result">true表示解压成功，false表示解压失败</param>
+    public override void OnFinished(bool _result) {
+        if (_result) {
+            if (Target != null)
+                Target.OnUnZipComplete();//安装成功
+        } else {
+            if (Target != null)
+                Target.OnUnZipFailed();//安装失败，可能是磁盘空间不足
+        }
+    }
+}
+//记录了所有的任务列表
+public class DownloadManager {
+    public bool processing = false;
+    private DownloadTask processingTask = null;
+    UnzipCallbackExDefault OnUnZipFinishDefault;
+    public DownloadManager() {
+        OnUnZipFinishDefault = new UnzipCallbackExDefault(this);
+    }
+
+    public void OnUnZipComplete() {
+        if (processingTask != null) {
+            if (processingTask.type == TaskType.Model) {
+                ModelItem Model = Main.Ins.DlcMng.GetModelMeta(processingTask.index);
+                if (Model != null) {
+                    string[] files = System.IO.Directory.GetFiles(Model.LocalPath.Substring(0, Model.LocalPath.Length - 4), "*.*", System.IO.SearchOption.AllDirectories);
+                    if (Model.resPath == null)
+                        Model.resPath = new List<string>();
+                    if (Model.resCrc == null)
+                        Model.resCrc = new List<string>();
+                    Model.resPath.Clear();
+                    Model.resCrc.Clear();
+                    for (int i = 0; i < files.Length; i++) {
+                        Model.resPath.Add(files[i].Replace("\\", "/"));
+                        Model.resCrc.Add(Utility.getFileHash(files[i]));
+                    }
+                    Model.Installed = true;
+                    Main.Ins.GameStateMgr.gameStatus.RegisterModel(Model);
+                }
+            } else if (processingTask.type == TaskType.Chapter) {
+                Chapter Chapter = Main.Ins.DlcMng.GetChapterMeta(processingTask.index);
+                if (Chapter != null) {
+                    string[] files = System.IO.Directory.GetFiles(Chapter.LocalPath.Substring(0, Chapter.LocalPath.Length - 4), "*.*", System.IO.SearchOption.AllDirectories);
+                    if (Chapter.resPath == null)
+                        Chapter.resPath = new List<string>();
+                    if (Chapter.resCrc == null)
+                        Chapter.resCrc = new List<string>();
+                    if (Chapter.Res == null)
+                        Chapter.Res = new List<ReferenceItem>();
+                    Chapter.resPath.Clear();
+                    Chapter.resCrc.Clear();
+                    Chapter.Res.Clear();
+                    for (int i = 0; i < files.Length; i++) {
+                        //Debug.Log(files[i]);
+                        System.IO.FileInfo fi = new System.IO.FileInfo(files[i]);
+                        ReferenceItem template = new ReferenceItem();
+                        template.Name = fi.Name.Substring(0, fi.Name.Length - fi.Extension.Length);
+                        template.Path = files[i].Replace("\\", "/");
+
+                        if (fi.Extension.ToLower() == ".txt") {
+                            if (fi.FullName.Contains("npc/") || fi.FullName.Contains("npc\\")) {
+                                template.Type = FileExt.Txt;
+                            }
+                        } else if (fi.Extension.ToLower() == ".pos") {//动画分段配置
+                            template.Type = FileExt.Pos;
+                        } else if (fi.Extension.ToLower() == ".des") {//关卡配置
+                            template.Type = FileExt.Des;
+                        } else if (fi.Extension.ToLower() == ".skc") {//角色皮肤
+                            template.Type = FileExt.Skc;
+                        } else if (fi.Extension.ToLower() == ".bnc") {//角色骨架
+                            template.Type = FileExt.Bnc;
+                        } else if (fi.Extension.ToLower() == ".png") {//贴图
+                            template.Type = FileExt.Png;
+                        } else if (fi.Extension.ToLower() == ".jpg") {//贴图
+                            template.Type = FileExt.Jpeg;
+                        } else if (fi.Extension.ToLower() == ".amb") {//动画
+                            template.Type = FileExt.Amb;
+                        } else if (fi.Extension.ToLower() == ".wp") {//路点
+                            template.Type = FileExt.WayPoint;
+                        } else if (fi.Extension.ToLower() == ".gmc") {//模型
+                            template.Type = FileExt.Gmc;
+                        } else if (fi.Extension.ToLower() == ".fmc") {//动画
+                            template.Type = FileExt.Fmc;
+                        } else if (fi.Extension.ToLower() == ".gmb") {//模型
+                            template.Type = FileExt.Gmc;
+                        } else if (fi.Extension.ToLower() == ".ef") {//特效
+                            template.Type = FileExt.Sfx;
+                        } else if (fi.Extension.ToLower() == ".dll") {//特效
+                            template.Type = FileExt.Dll;
+                        } else if (fi.Extension.ToLower() == ".json") {//特效
+                            template.Type = FileExt.Json;
+                        }
+                        Chapter.Res.Add(template);
+                        Chapter.resPath.Add(files[i].Replace("\\", "/"));
+                        Chapter.resCrc.Add(Utility.getFileHash(files[i]));
+                    }
+                    Chapter.Installed = true;
+                    Main.Ins.GameStateMgr.gameStatus.RegisterDlc(Chapter);
+                }
+            }
+            Main.Ins.GameStateMgr.SaveState();
+            Main.Ins.GameStateMgr.SyncGameState();
+            Main.Ins.GameStateMgr.SaveDlc();
+            processingTask.state = TaskStatus.Installed;
+            //刷新一下各个任务的状态.
+            if (DlcManagerDialogState.Exist) {
+                DlcManagerDialogState.Instance.OnRefresh(0, null);
+            }
+
+            if (client != null) {
+                client.Dispose();
+                client = null;
+            }
+            if (processingTask != null)
+                RemoveTask(processingTask.type, processingTask.index);
+            processingTask = null;
+            processing = false;
+        }
+
+    }
+    public void OnUnZipFailed() {
+
+    }
+    //队列里的全部任务
+    List<DownloadTask> Tasks = new List<DownloadTask>();
+    public DownloadTask GetTask(TaskType type, int key) {
+        for (int i = 0; i < Tasks.Count; i++) {
+            if (Tasks[i].index == key && Tasks[i].type == type) {
+                return Tasks[i];
+            }
+        }
+        return null;
+    }
+
+    public DownloadTask AddTask(TaskType type, int key) {
+        DownloadTask t = GetTask(type, key);
+        if (t == null) {
+            //这是个新任务.
+            t = new DownloadTask(type, key);
+            //if (type == TaskType.Chapter)
+            //    Debug.LogError("add task once");
+            //如果UI没有了，不影响我后台安装.
+            if (type == TaskType.Chapter || type == TaskType.Model) {
+                t.OnComplete = OnFileDownload;
+            }
+            Tasks.Insert(0, t);
+        }
+        return t;
+    }
+    
+    //默认处理各种资料片下载后的行为
+    public void OnFileDownload(object sender, AsyncCompletedEventArgs e) {
+        if (e.Error != null) {
+            Debug.LogError(e.Error);
+            return;
+        }
+
+        if (e.Cancelled) {
+            return;
+        }
+
+        if (processingTask != null) {
+            processingTask.state = TaskStatus.Loaded;
+            if (processingTask.type == TaskType.Model) {
+                ModelItem Model = Main.Ins.DlcMng.GetModelMeta(processingTask.index);
+                if (Model != null) {
+                    ZipUtility.UnzipFile(Model.LocalPath, Model.LocalPath.Substring(0, Model.LocalPath.Length - 4), null, OnUnZipFinishDefault);
+                }
+            }
+            else if (processingTask.type == TaskType.Chapter) {
+                Chapter Chapter = Main.Ins.DlcMng.GetChapterMeta(processingTask.index);
+                if (Chapter != null) {
+                    ZipUtility.UnzipFile(Chapter.LocalPath, Chapter.LocalPath.Substring(0, Chapter.LocalPath.Length - 4), null, OnUnZipFinishDefault);
+                }
+            }
+
+        }
+    }
+
+    //已经下载完毕正在安装的时候删除，返回失败
+    public bool CancelTask(TaskType type, int key) {
+        DownloadTask task = GetTask(type, key);
+        if (task != null) {
+            if (processingTask == task) {
+                if (processingTask.state >= TaskStatus.Loaded)
+                    return false;
+                if (client != null) {
+                    client.CancelAsync();
+                    client.Dispose();
+                    client = null;
+                }
+                processing = false;
+            }
+            if (task.OnCancel != null)
+                task.OnCancel.Invoke();
+            Tasks.Remove(task);
+            return true;
+        }
+        return false;
+    }
+
+    public bool RemoveTask(TaskType type, int key) {
+        DownloadTask task = GetTask(type, key);
+        if (task != null) {
+            if (processingTask == task) {
+                if (client != null) {
+                    client.CancelAsync();
+                    client.Dispose();
+                    client = null;
+                }
+            }
+            if (task.OnCancel != null)
+                task.OnCancel.Invoke();
+            Tasks.Remove(task);
+            return true;
+        }
+        return false;
+    }
+
+    WebClient client = null;
+    public delegate void OnCrossThreadFunc();
+    List<OnCrossThreadFunc> handler = new List<OnCrossThreadFunc>();
+    public void Update() {
+        if (!processing) {
+            //下载预览图任务
+            if (Tasks.Count != 0) {
+                processingTask = Tasks[0];
+                if (processingTask.type == TaskType.ModelPreview) {
+                    ModelItem it = Main.Ins.DlcMng.GetModelMeta(processingTask.index);
+                    if (it != null) {
+                        //如果该封面已经下载过，并且存储到本地了，那么从本地读取
+                        if (File.Exists(it.Preview)) {
+                            System.IO.FileStream fs = new System.IO.FileStream(it.Preview, System.IO.FileMode.Open, System.IO.FileAccess.ReadWrite, System.IO.FileShare.None);
+                            byte[] bitIcon = new byte[fs.Length];
+                            fs.Read(bitIcon, 0, (int)fs.Length);
+                            fs.Close();
+                            if (processingTask != null && processingTask.OnComplete != null)
+                                processingTask.OnComplete.Invoke(null, null);
+                            processingTask = null;
+                            Tasks.RemoveAt(0);
+                            return;
+                        }
+                        //如果该封面没有下载过.开始下载
+                        processing = true;
+                        string urlIconPreview = string.Format("http://{0}/meteor/{1}", Main.strHost, it.webPreview);
+                        try {
+                            if (client == null) {
+                                client = new WebClient();
+                                client.DownloadDataCompleted += OnDownloadPreviewComplete;
+                            }
+                            client.DownloadDataAsync(new Uri(urlIconPreview));
+                        } catch {
+                            processing = false;
+                        }
+                        return;
+                    }
+                } else if (processingTask.type == TaskType.ChapterPreview) {
+                    //dlc的预览图.
+                    Chapter cha = Main.Ins.DlcMng.GetChapterMeta(processingTask.index);
+                    //如果该封面已经下载过，并且存储到本地了，那么从本地读取
+                    if (File.Exists(cha.Preview)) {
+                        System.IO.FileStream fs = new System.IO.FileStream(cha.Preview, System.IO.FileMode.Open, System.IO.FileAccess.ReadWrite, System.IO.FileShare.None);
+                        byte[] bitIcon = new byte[fs.Length];
+                        fs.Read(bitIcon, 0, (int)fs.Length);
+                        fs.Close();
+                        //Texture2D tex = new Texture2D(200, 150);
+                        //tex.LoadImage(bitIcon);
+                        //processingTask.Preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+                        if (processingTask != null && processingTask.OnComplete != null)
+                            processingTask.OnComplete.Invoke(null, null);
+                        processingTask = null;
+                        Tasks.RemoveAt(0);
+                        return;
+                    }
+                    processing = true;
+                    string urlIconPreview = string.Format("http://{0}/meteor/{1}", Main.strHost, cha.webPreview);
+                    try {
+                        if (client == null) {
+                            client = new WebClient();
+                            client.DownloadDataCompleted += OnDownloadPreviewComplete;
+                        }
+                        client.DownloadDataAsync(new Uri(urlIconPreview));
+                    } catch {
+                        processing = false;
+                    }
+                } else if (processingTask.type == TaskType.Model) {
+                    processing = true;
+                    processingTask.state = TaskStatus.Normal;
+                    ModelItem it = Main.Ins.DlcMng.GetModelMeta(processingTask.index);
+                    if (client == null) {
+                        client = new WebClient();
+                        client.DownloadProgressChanged += this.DownLoadProgressChanged;
+                        client.DownloadFileCompleted += this.DownLoadFileCompleted;
+                        string downloadUrl = string.Format("http://{0}/meteor/{1}", Main.strHost, it.Path);
+                        client.DownloadFileAsync(new System.Uri(downloadUrl), it.LocalPath);
+                    }
+                } else if (processingTask.type == TaskType.Chapter) {
+                    processing = true;
+                    processingTask.state = TaskStatus.Normal;
+                    Chapter cha = Main.Ins.DlcMng.GetChapterMeta(processingTask.index);
+                    //dlc的下载.
+                    if (client == null) {
+                        client = new WebClient();
+                        client.DownloadProgressChanged += this.DownLoadProgressChanged;
+                        client.DownloadFileCompleted += this.DownLoadFileCompleted;
+                        string downloadUrl = string.Format("http://{0}/meteor/{1}", Main.strHost, cha.Path);
+                        client.DownloadFileAsync(new System.Uri(downloadUrl), cha.LocalPath);
+                    }
+                }
+            }
+        }
+
+        lock (handler) {
+            for (int i = 0; i < handler.Count; i++) {
+                handler[i].Invoke();
+            }
+            handler.Clear();
+        }
+    }
+
+    void DownLoadFileCompleted(object sender, AsyncCompletedEventArgs e) {
+        lock (handler) {
+            handler.Add(() => {
+                if (processingTask != null && processingTask.OnComplete != null) {
+                    processingTask.OnComplete(sender, e);
+                }
+            });
+        }
+    }
+
+    void DownLoadProgressChanged(object sender, DownloadProgressChangedEventArgs e) {
+        lock (handler) {
+            handler.Add(() => {
+                if (processingTask != null){
+                    processingTask.progress = e.ProgressPercentage;
+                    if (processingTask.OnProgressChanged != null)
+                        processingTask.OnProgressChanged(sender, e);
+                }
+            });
+        }
+    }
+
+    private void OnDownloadPreviewComplete(object sender, DownloadDataCompletedEventArgs e) {
+        lock (handler) {
+            handler.Add(() => {
+                if (e.Error != null) {
+                    if (client != null) {
+                        client.Dispose();
+                        client = null;
+                    }
+                    if (processingTask != null) {
+                        RemoveTask(processingTask.type, processingTask.index);
+                    }
+                    processingTask = null;
+                    processing = false;
+                } else {
+                    if (processingTask == null) {
+                        processing = false;
+                        return;
+                    }
+                    byte[] bitIcon = e.Result;
+                    if (bitIcon != null && bitIcon.Length != 0) {
+                        if (processingTask.type == TaskType.ModelPreview) {
+                            ModelItem model = Main.Ins.DlcMng.GetModelMeta(processingTask.index);
+                            if (model != null) {
+                                try {
+                                    System.IO.File.WriteAllBytes(model.Preview, bitIcon);
+                                } catch (Exception exp) {
+                                    Debug.Log(exp.Message);
+                                }
+                                //刷新UI
+                                if (processingTask.OnComplete != null) {
+                                    processingTask.OnComplete.Invoke(null, null);
+                                }
+                                client.Dispose();
+                                client = null;
+                                if (processingTask != null) {
+                                    RemoveTask(processingTask.type, processingTask.index);
+                                }
+                                processingTask = null;
+                                processing = false;
+                            }
+                        } else if (processingTask.type == TaskType.ChapterPreview) {
+                            Chapter chapter = Main.Ins.DlcMng.GetChapterMeta(processingTask.index);
+                            if (chapter != null) {
+                                if (bitIcon != null && bitIcon.Length != 0) {
+                                    System.IO.File.WriteAllBytes(chapter.Preview, bitIcon);
+                                }
+                                if (processingTask.OnComplete != null) {
+                                    processingTask.OnComplete.Invoke(null, null);
+                                }
+                                client.Dispose();
+                                client = null;
+                                if (processingTask != null) {
+                                    RemoveTask(processingTask.type, processingTask.index);
+                                }
+                                processingTask = null;
+                                processing = false;
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+}
+
+public class DlcLevelMng {
     LevelDataMgr data;
-    public DlcLevelMng(string lev)
-    {
+    public DlcLevelMng(string lev) {
         data = new LevelDataMgr();
         Main.Ins.DataMgr.loadJson<LevelDataMgr>(data, lev);
     }
 
-    public List<LevelData> GetAllLevel()
-    {
+    public List<LevelData> GetAllLevel() {
         return data.LevelDatas.Values.ToList();
     }
 
-    public LevelData GetLevel(int level)
-    {
+    public LevelData GetLevel(int level) {
         if (data.LevelDatas.ContainsKey(level))
             return data.LevelDatas[level];
         return null;
@@ -31,30 +496,26 @@ public class DlcLevelMng
 }
 
 //资料片管理器
-public class DlcMng
-{
+public class DlcMng {
     //取得资料片内所有关卡资料.
-    public List<LevelData> GetDlcLevel(int idx)
-    {
+    public List<LevelData> GetDlcLevel(int idx) {
         Chapter cha = GetPluginChapter(idx);
         return cha.LoadAll();
     }
 
     //打开资料片中指定关卡
-    public void PlayDlc(Chapter chapter, int levelIdx)
-    {
-        LevelData lev = chapter.GetItem(levelIdx);
+    public void PlayDlc(Chapter chapter, int levelIdx) {
+        LevelData lev = chapter.GetLevel(levelIdx);
         Main.Ins.CombatData.GLevelItem = lev;
         Main.Ins.CombatData.GRecord = null;
         Main.Ins.CombatData.GLevelMode = LevelMode.SinglePlayerTask;
-        Main.Ins.CombatData.GGameMode = GameMode.Normal;
+        Main.Ins.CombatData.GGameMode = (GameMode)lev.LevelType;
         Main.Ins.CombatData.wayPoints = CombatData.GetWayPoint(lev);
         U3D.LoadLevelEx();
     }
 
     //初始化各个路径.
-    public void Init()
-    {
+    public void Init() {
         if (!System.IO.Directory.Exists(Application.persistentDataPath + "/Plugins/"))
             System.IO.Directory.CreateDirectory(Application.persistentDataPath + "/Plugins/");
 
@@ -69,28 +530,25 @@ public class DlcMng
             System.IO.Directory.CreateDirectory(Application.persistentDataPath + "/Plugins/Def/");
     }
 
+    //全部模型
     public List<ModelItem> Models = new List<ModelItem>();
-    public void ClearModel()
-    {
+    public void ClearModel() {
         Models.Clear();
     }
 
     //加入从json里获取到得一项资源
-    public void AddModel(ModelItem Info)
-    {
+    public void AddModel(ModelItem Info) {
         //Debug.Log("增加外部角色:" + Info.Name);
         Models.Add(Info);
     }
 
-    //资料片
+    //资料片,已知的全部剧本
     public List<Chapter> Dlcs = new List<Chapter>();
-    public void ClearDlc()
-    {
+    public void ClearDlc() {
         Dlcs.Clear();
     }
 
-    public void AddDlc(Chapter cha)
-    {
+    public void AddDlc(Chapter cha) {
         //插件版本缺失，不再显示在面板里.
         if (!string.IsNullOrEmpty(cha.version)) {
             Dlcs.Add(cha);
@@ -108,61 +566,27 @@ public class DlcMng
         return true;
     }
 
-    public bool CheckDependence(Chapter chapter, out string tip)
-    {
-        tip = "";
-        if (chapter.Res == null)
-            return false;
-
-        if (chapter.Res.model != null)
-        {
-            for (int i = 0; i < chapter.Res.model.Count; i++)
-            {
-                ModelItem m = GetPluginModel(chapter.Res.model[i]);
-                if (m == null)
-                {
-                    m = FindModel(chapter.Res.model[i]);
-                    tip = "需要先安装模型[" + m.Name + "-" + chapter.Res.model[i] + "]";
-                    return true;
-                }
-
-                m.Check();
-                if (!m.Installed)
-                {
-                    tip = "需要先安装模型[" + m.Name + "-" + chapter.Res.model[i] + "]";
-                    return true;
-                }
-            }
+    public Chapter GetChapterMeta(int dlc) {
+        for (int i = 0; i < Dlcs.Count; i++) {
+            if (Dlcs[i].ChapterId == dlc)
+                return Dlcs[i];
         }
-
-        if (chapter.Res.scene != null)
-        {
-            //地图暂时无效.
-            for (int i = 0; i < chapter.Res.scene.Count; i++)
-            {
-
-            }
-        }
-
-        if (chapter.Res.weapon != null)
-        {
-            //武器暂时无效.
-            for (int i = 0; i < chapter.Res.weapon.Count; i++)
-            {
-
-            }
-        }
-
-        return false;
+        return null;
     }
 
-    public static Chapter GetPluginChapter(int dlc)
-    {
+    public ModelItem GetModelMeta(int model) {
+        for (int i = 0; i < Models.Count; i++) {
+            if (Models[i].ModelId == model)
+                return Models[i];
+        }
+        return null;
+    }
+
+    //找到已经安装成功的章节信息
+    public static Chapter GetPluginChapter(int dlc) {
         Chapter Target = null;
-        for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginChapter.Count; i++)
-        {
-            if (Main.Ins.GameStateMgr.gameStatus.pluginChapter[i].ChapterId == dlc)
-            {
+        for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginChapter.Count; i++) {
+            if (Main.Ins.GameStateMgr.gameStatus.pluginChapter[i].ChapterId == dlc) {
                 Target = Main.Ins.GameStateMgr.gameStatus.pluginChapter[i];
                 break;
             }
@@ -170,13 +594,11 @@ public class DlcMng
         return Target;
     }
 
-    public static ModelItem GetPluginModel(int model)
-    {
+    //找到已经安装成功的模型信息
+    public static ModelItem GetPluginModel(int model) {
         ModelItem Target = null;
-        for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginModel.Count; i++)
-        {
-            if (Main.Ins.GameStateMgr.gameStatus.pluginModel[i].ModelId == model)
-            {
+        for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginModel.Count; i++) {
+            if (Main.Ins.GameStateMgr.gameStatus.pluginModel[i].ModelId == model) {
                 Target = Main.Ins.GameStateMgr.gameStatus.pluginModel[i];
                 break;
             }
@@ -184,22 +606,17 @@ public class DlcMng
         return Target;
     }
 
-    public Chapter FindChapterByLevel(LevelData lev)
-    {
-        if (Dlcs.Count == 0 && Main.Ins.GameStateMgr.gameStatus.pluginChapter != null)
-        {
-            for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginChapter.Count; i++)
-            {
+    public Chapter FindChapterByLevel(LevelData lev) {
+        if (Dlcs.Count == 0 && Main.Ins.GameStateMgr.gameStatus.pluginChapter != null) {
+            for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginChapter.Count; i++) {
                 if (Main.Ins.GameStateMgr.gameStatus.pluginChapter[i].Installed)
                     Dlcs.Add(Main.Ins.GameStateMgr.gameStatus.pluginChapter[i]);
             }
         }
 
-        for (int i = 0; i < Dlcs.Count; i++)
-        {
+        for (int i = 0; i < Dlcs.Count; i++) {
             List<LevelData> all = Dlcs[i].LoadAll();
-            for (int j = 0; j < all.Count; j++)
-            {
+            for (int j = 0; j < all.Count; j++) {
                 if (all[j] == lev)
                     return Dlcs[i];
             }
@@ -207,13 +624,10 @@ public class DlcMng
         return null;
     }
 
-    public Chapter FindChapter(int dlc)
-    {
+    public Chapter FindChapter(int dlc) {
         Chapter Target = null;
-        for (int i = 0; i < Dlcs.Count; i++)
-        {
-            if (Dlcs[i].ChapterId == dlc)
-            {
+        for (int i = 0; i < Dlcs.Count; i++) {
+            if (Dlcs[i].ChapterId == dlc) {
                 Target = Dlcs[i];
                 break;
             }
@@ -221,13 +635,10 @@ public class DlcMng
         return Target;
     }
 
-    public ModelItem FindModel(int model)
-    {
+    public ModelItem FindModel(int model) {
         ModelItem Target = null;
-        for (int i = 0; i < Models.Count; i++)
-        {
-            if (Models[i].ModelId == model)
-            {
+        for (int i = 0; i < Models.Count; i++) {
+            if (Models[i].ModelId == model) {
                 Target = Models[i];
                 break;
             }
@@ -236,380 +647,22 @@ public class DlcMng
     }
 
     //把插件放到一个集合里，便于翻页.
-    public void CollectAll(bool showInstall = true)
-    {
+    public void CollectAll(bool showInstall = true, int filter = 0) {
         allItem.Clear();
-        for (int i = 0; i < Models.Count; i++)
-        {
-            if (Models[i].Installed && !showInstall)
-                continue;
-            allItem.Add(Models[i]);
-        }
-        for (int i = 0; i < Dlcs.Count; i++)
-        {
-            if (Dlcs[i].Installed && !showInstall)
-                continue;
-            allItem.Add(Dlcs[i]);
+        if (filter == 0) {
+            for (int i = 0; i < Dlcs.Count; i++) {
+                if (Dlcs[i].Installed && !showInstall)
+                    continue;
+                allItem.Add(Dlcs[i]);
+            }
+        } else {
+            for (int i = 0; i < Models.Count; i++) {
+                if (Models[i].Installed && !showInstall)
+                    continue;
+                allItem.Add(Models[i]);
+            }
         }
     }
 
     public List<object> allItem = new List<object>();
-    public bool processing = false;
-    private PluginCtrl processingCtrl = null;
-    //存储得取消掉得预览图
-    private string cancelPreviewTask = "";
-    //存储得取消掉得下载任务
-    private string cancelDownloadTask = "";
-    //放到预览图下载队列里，绑定到一个UI,做任务控制，避免多个UI同时更新自己的预览图.
-    List<PluginCtrl> PreviewTask = new List<PluginCtrl>();
-    List<string> PreviewTaskCache = new List<string>();//已经下载过预览图的，下次翻页不要再下载.单次运行APP下载一次
-    public void AddPreviewTask(PluginCtrl uiCtrl)
-    {
-        lock (PreviewTask)
-        {
-            if (!PreviewTask.Contains(uiCtrl))
-                PreviewTask.Add(uiCtrl);
-        }
-    }
-
-    public void RemovePreviewTask(PluginCtrl uiCtrl)
-    {
-        lock (PreviewTask)
-        {
-            if (processingCtrl == uiCtrl)
-            {
-                if (uiCtrl.Target != null)
-                    cancelPreviewTask = uiCtrl.Target.Preview;
-                else if (uiCtrl.Chapter != null)
-                    cancelPreviewTask = uiCtrl.Chapter.Preview;
-                if (client != null)
-                {
-                    client.CancelAsync();
-                    client.Dispose();
-                    client = null;
-                }
-            }
-            if (PreviewTask.Contains(uiCtrl))
-                PreviewTask.Remove(uiCtrl);
-        }
-    }
-
-    public void RemoveDownloadTask(PluginCtrl uiCtrl)
-    {
-        lock (DownloadTask)
-        {
-            if (processingCtrl == uiCtrl)
-            {
-                if (client != null)
-                {
-                    client.CancelAsync();
-                    client.Dispose();
-                    client = null;
-                }
-            }
-            if (DownloadTask.Contains(uiCtrl))
-                DownloadTask.Remove(uiCtrl);
-        }
-    }
-    
-    //下载队列，避免多个控制器一起下载.
-    List<PluginCtrl> DownloadTask = new List<PluginCtrl>();
-    public void AddDownloadTask(PluginCtrl uiCtrl)
-    {
-        lock (DownloadTask)
-        {
-            if (!DownloadTask.Contains(uiCtrl))
-                DownloadTask.Insert(0, uiCtrl);
-        }
-    }
-
-    WebClient client = null;
-    public delegate void OnCrossThreadFunc();
-    List<OnCrossThreadFunc> handler = new List<OnCrossThreadFunc>();
-    public void Update()
-    {
-        if (!processing)
-        {
-            //下载预览图任务
-            if (PreviewTask.Count != 0)
-            {
-                processingCtrl = PreviewTask[0];
-                ModelItem it = processingCtrl.Target;
-                if (it != null)
-                {
-                    //如果该封面已经下载过，并且存储到本地了，那么从本地读取
-                    if (PreviewTaskCache.Contains(processingCtrl.Target.Preview))
-                    {
-                        System.IO.FileStream fs = new System.IO.FileStream(processingCtrl.Target.Preview, System.IO.FileMode.Open, System.IO.FileAccess.ReadWrite, System.IO.FileShare.None);
-                        byte[] bitIcon = new byte[fs.Length];
-                        fs.Read(bitIcon, 0, (int)fs.Length);
-                        fs.Close();
-                        Texture2D tex = new Texture2D(200, 150);
-                        tex.LoadImage(bitIcon);
-                        processingCtrl.Preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
-                        processingCtrl = null;
-                        PreviewTask.RemoveAt(0);
-                        return;
-                    }
-                    //如果该封面没有下载过.开始下载
-                    processing = true;
-                    string urlIconPreview = string.Format("http://{0}/meteor/{1}", Main.strHost, it.webPreview);
-                    try
-                    {
-                        if (client == null)
-                        {
-                            client = new WebClient();
-                            client.DownloadDataCompleted += OnDownloadPreviewComplete;
-                        }
-                        client.DownloadDataAsync(new Uri(urlIconPreview));
-                    }
-                    catch
-                    {
-                        processing = false;
-                    }
-                    return;
-                }
-                else
-                {
-                    //dlc的预览图.
-                    Chapter cha = processingCtrl.Chapter;
-                    //如果该封面已经下载过，并且存储到本地了，那么从本地读取
-                    if (PreviewTaskCache.Contains(processingCtrl.Chapter.Preview))
-                    {
-                        System.IO.FileStream fs = new System.IO.FileStream(processingCtrl.Chapter.Preview, System.IO.FileMode.Open, System.IO.FileAccess.ReadWrite, System.IO.FileShare.None);
-                        byte[] bitIcon = new byte[fs.Length];
-                        fs.Read(bitIcon, 0, (int)fs.Length);
-                        fs.Close();
-                        Texture2D tex = new Texture2D(200, 150);
-                        tex.LoadImage(bitIcon);
-                        processingCtrl.Preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
-                        processingCtrl = null;
-                        PreviewTask.RemoveAt(0);
-                        return;
-                    }
-                    processing = true;
-                    string urlIconPreview = string.Format("http://{0}/meteor/{1}", Main.strHost, cha.webPreview);
-                    try
-                    {
-                        if (client == null)
-                        {
-                            client = new WebClient();
-                            client.DownloadDataCompleted += OnDownloadPreviewComplete;
-                        }
-                        client.DownloadDataAsync(new Uri(urlIconPreview));
-                       
-                    }
-                    catch
-                    {
-
-                    }
-                }
-            }
-
-            //下载模组zip任务.
-            if (DownloadTask.Count != 0)
-            {
-                processingCtrl = DownloadTask[0];
-                ModelItem it = processingCtrl.Target;
-                if (it != null)
-                {
-                    //如果该模组没有
-                    processing = true;
-                    if (client == null)
-                    {
-                        client = new WebClient();
-                        client.DownloadProgressChanged += this.DownLoadProgressChanged;
-                        client.DownloadFileCompleted += this.DownLoadFileCompleted;
-                        
-                        string downloadUrl = string.Format("http://{0}/meteor/{1}", Main.strHost, processingCtrl.Target.Path);
-                        client.DownloadFileAsync(new System.Uri(downloadUrl), processingCtrl.Target.LocalPath);
-                    }
-                    return;
-                }
-                else
-                {
-                    processing = true;
-                    //dlc的下载.
-                    if (client == null)
-                    {
-                        client = new WebClient();
-                        client.DownloadProgressChanged += this.DownLoadProgressChanged;
-                        client.DownloadFileCompleted += this.DownLoadFileCompleted;
-
-                        string downloadUrl = string.Format("http://{0}/meteor/{1}", Main.strHost, processingCtrl.Chapter.Path);
-                        client.DownloadFileAsync(new System.Uri(downloadUrl), processingCtrl.Chapter.LocalPath);
-                    }
-                    return;
-                }
-            }
-        }
-
-        lock (handler)
-        {
-            for (int i = 0; i < handler.Count; i++)
-            {
-                handler[i].Invoke();
-            }
-            handler.Clear();
-        }
-    }
-
-    void DownLoadFileCompleted(object sender, AsyncCompletedEventArgs e)
-    {
-        lock (handler)
-        {
-            handler.Add(() =>
-            {
-                if (processingCtrl != null)
-                    processingCtrl.DownLoadFileCompleted(sender, e);
-                if (client != null)
-                {
-                    client.Dispose();
-                    client = null;
-                }
-                lock (DownloadTask)
-                {
-                    if (DownloadTask.Contains(processingCtrl))
-                        DownloadTask.Remove(processingCtrl);
-                }
-                processingCtrl = null;
-                processing = false;
-            });
-        }
-    }
-
-    void DownLoadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-    {
-        lock (handler)
-        {
-            handler.Add(() =>
-            {
-                if (processingCtrl != null)
-                    processingCtrl.DownLoadProgressChanged(sender, e);
-            });
-        }
-    }
-
-    private void OnDownloadPreviewComplete(object sender, DownloadDataCompletedEventArgs e)
-    {
-        lock (handler)
-        {
-            handler.Add(() => {
-                if (e.Error != null)
-                {
-                    if (processingCtrl != null)
-                    {
-                        if (processingCtrl.retryNum >= 1)
-                        {
-                            //跳过这个任务，开始下载下一个的预览图
-                            lock (PreviewTask)
-                            {
-                                if (PreviewTask.Contains(processingCtrl))
-                                    PreviewTask.Remove(processingCtrl);
-                            }
-                        }
-                        else
-                            processingCtrl.retryNum++;
-                    }
-                    
-                    if (client != null)
-                    {
-                        client.Dispose();
-                        client = null;
-                    }
-                    processingCtrl = null;
-                    processing = false;
-                }
-                else
-                {
-                    if (processingCtrl == null)
-                    {
-                        //保存到本地，下次直接从本地读取.
-                        //中断得下载预览图任务存储路径
-                        if (!string.IsNullOrEmpty(cancelPreviewTask))
-                        {
-                            byte[] bitPrev = e.Result;
-                            if (bitPrev != null && bitPrev.Length != 0)
-                            {
-                                System.IO.FileStream fs = new System.IO.FileStream(cancelPreviewTask, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.ReadWrite, System.IO.FileShare.None);
-                                fs.Write(bitPrev, 0, bitPrev.Length);
-                                fs.SetLength(bitPrev.Length);
-                                fs.Flush();
-                                fs.Close();
-                                lock (PreviewTaskCache)
-                                {
-                                    PreviewTaskCache.Add(cancelPreviewTask);
-                                }
-                            }
-                        }
-                        processing = false;
-                        return;
-                    }
-                    byte[] bitIcon = e.Result;
-                    if (bitIcon != null && bitIcon.Length != 0)
-                    {
-                        if (processingCtrl.Target != null)
-                        {
-                            try
-                            {
-                                lock (PreviewTask)
-                                {
-                                    if (PreviewTask.Contains(processingCtrl))
-                                    {
-                                        System.IO.FileStream fs = new System.IO.FileStream(processingCtrl.Target.Preview, System.IO.FileMode.OpenOrCreate, System.IO.FileAccess.ReadWrite, System.IO.FileShare.None);
-                                        fs.Write(bitIcon, 0, bitIcon.Length);
-                                        fs.SetLength(bitIcon.Length);
-                                        fs.Flush();
-                                        fs.Close();
-                                        PreviewTask.Remove(processingCtrl);
-                                    }
-                                }
-                            }
-                            catch (System.Exception exp)
-                            {
-                                Debug.Log(exp.Message);
-                            }
-                            Texture2D tex = new Texture2D(200, 150);
-                            tex.LoadImage(bitIcon);
-                            processingCtrl.Preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
-                            lock (PreviewTaskCache)
-                            {
-                                PreviewTaskCache.Add(processingCtrl.Target.Preview);
-                            }
-                            client.Dispose();
-                            client = null;
-                            processingCtrl = null;
-                            processing = false;
-                        }
-                        else if (processingCtrl.Chapter != null)
-                        {
-                            lock (PreviewTask)
-                            {
-                                if (PreviewTask.Contains(processingCtrl))
-                                {
-                                    if (bitIcon != null && bitIcon.Length != 0)
-                                    {
-                                        System.IO.File.WriteAllBytes(processingCtrl.Chapter.Preview, bitIcon);
-                                        Texture2D tex = new Texture2D(200, 150);
-                                        tex.LoadImage(bitIcon);
-                                        processingCtrl.Preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
-                                    }
-                                    PreviewTask.Remove(processingCtrl);
-                                }
-                            }
-
-                            lock (PreviewTaskCache)
-                            {
-                                PreviewTaskCache.Add(processingCtrl.Chapter.Preview);
-                            }
-                            client.Dispose();
-                            client = null;
-                            processingCtrl = null;
-                            processing = false;
-                        }
-                    }
-                }
-            });
-        }
-    }
 }

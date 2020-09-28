@@ -17,19 +17,30 @@ public class GameRecord
     public int Id;//关卡ID-单机有效
     public long RandomSeed;//随机种子
     public List<GameFrames> frames;//操作帧.
+    public int screenWidth;
+    public int screenHeight;
+    public int frameCount;//逻辑帧数量
+    public int frameRate;
+    public byte[] ScreenPng;//截图文件
 }
 
 public class RecordMgr : Singleton<RecordMgr> {
 
     System.Threading.Thread WriteThread;
     string version;
-    string recordPath;
+    string recordPath;//路径
+    byte[] screenShot;
+    int frame;
+    int frameRate;
     public void WriteFile()
     {
         version = Main.Ins.AppInfo.AppVersion();
         if (WriteThread != null)
             return;
-        recordPath = string.Format("{0}/record/", Application.persistentDataPath);
+        recordPath = string.Format("{0}/Record/", Application.persistentDataPath);
+        screenShot = Utility.CaptureScreen(Main.Ins.MainCamera);
+        frame = FrameReplay.Instance.globalFrame;
+        frameRate = 1000 / FrameReplay.Instance.LogicFrameLength;
         WriteThread = new System.Threading.Thread(new System.Threading.ThreadStart(this.WriteFileCore));
         WriteThread.Start();
     }
@@ -45,10 +56,14 @@ public class RecordMgr : Singleton<RecordMgr> {
         record.Id = (int)(Main.Ins.CombatData.GLevelItem.Id);
         record.RandomSeed = Main.Ins.CombatData.RandSeed;
         record.frames = Main.Ins.FrameSync.Frames;
-
+        record.screenWidth = (int)(UIHelper.CanvasWidth / 5);
+        record.screenHeight = (int)(UIHelper.CanvasHeight / 5);
+        record.ScreenPng = screenShot;
+        record.frameCount = frame;
+        record.frameRate = frameRate;
         try
         {
-            System.IO.FileStream fs = System.IO.File.Create(recordPath + record.Name + ".mrc");
+            System.IO.FileStream fs = System.IO.File.Create(recordPath + record.Name + "_" + record.guid.ToString() +  ".mrc");
             ProtoBuf.Serializer.Serialize(fs, record);
             fs.Close();
         }
@@ -74,11 +89,11 @@ public class RecordMgr : Singleton<RecordMgr> {
     {
         //是什么类型的，单机，模组，联机，
         //模式-场景-主角-{单机/联机}
-        string [] gms = new string[] { "盟主","劫镖","护城", "暗杀", "死斗", "普通" };
+        string [] gms = new string[] { "盟主","劫镖","护城", "暗杀", "死斗", "剧情" };
         if (lm == LevelMode.MultiplyPlayer)
         {
             return string.Format("{0}_{1}_{2}_{3}人_联机", gms[(int)gm -1], data.Name, Main.Ins.GameStateMgr.gameStatus.NickName, Main.Ins.RoomMng.Current.maxPlayer);
         }
-        return string.Format("{0}-{1}-{2}_剧情", gms[(int)gm - 1], data.Name, Main.Ins.GameStateMgr.gameStatus.NickName);
+        return string.Format("{0}-{1}", gms[(int)gm - 1], data.Name);
     }
 }

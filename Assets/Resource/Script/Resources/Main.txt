@@ -66,10 +66,6 @@ function Drop(it)
 	U3D.Drop(it);
 end
 
-function LevelScript_sn26()
-	U3D.AddNPC("AI_01");
-end
-
 function sn1000_1()
 	U3D.AddNPC("npc1000_1")
 end
@@ -119,4 +115,20 @@ end
 
 function sn1000_5()
 	U3D.AddNPC("npc1000_5")
+end
+
+function Kill(id)
+	U3D.Kill(id)
+end
+
+function Kick(id)
+	U3D.Kick(id)
+end
+
+function Skick(id)
+	U3D.Skick(id)
+end
+
+function Box()
+	U3D.Box()
 end

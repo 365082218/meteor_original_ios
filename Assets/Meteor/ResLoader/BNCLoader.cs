@@ -1,11 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 public class BncLoader
 {
     Dictionary<string, BncFile> BncFile = new Dictionary<string, BncFile>();
-    Dictionary<int, BncFile> PluginBncFile = new Dictionary<int, BncFile>();
+    Dictionary<int, BncFile> GlobalBncFile = new Dictionary<int, BncFile>();
+    public void Clear() {
+        BncFile.Clear();
+        GlobalBncFile.Clear();
+    }
     BncFile Load(string file)
     {
         if (BncFile.ContainsKey(file))
@@ -20,36 +25,42 @@ public class BncLoader
 
     public BncFile LoadPluginBone(int modelIdx, string content)
     {
-        if (PluginBncFile.ContainsKey(modelIdx))
-            return PluginBncFile[modelIdx];
+        if (GlobalBncFile.ContainsKey(modelIdx))
+            return GlobalBncFile[modelIdx];
         BncFile f = new global::BncFile();
         f.LoadBnc(content);
         if (f.error)
             return null;
-        PluginBncFile.Add(modelIdx, f);
+        GlobalBncFile.Add(modelIdx, f);
         return f;
     }
 
     public BncFile Load(int characterIdx)
     {
-        if (characterIdx == 22 || characterIdx == 23)//22，23有自己的骨骼
-            return Load("p" + characterIdx + ".bnc");
-        //if (characterIdx == 25)
-        //    return Load("p" + 12 + ".bnc");
-        if (characterIdx >= 20)
-        {
+        if (Main.Ins.CombatData.Chapter != null) {
+            Dictionary<int, string> models = Main.Ins.CombatData.GScript.GetModel();
+            if (models != null && models.ContainsKey(characterIdx)) {
+                string path = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Bnc, models[characterIdx]);
+                if (!string.IsNullOrEmpty(path)) {
+                    return Load(path);
+                }
+            }
+        }
+
+        if (characterIdx >= 20) {
             //如果这个插件拥有骨骼文件，加载骨骼文件，否则加载默认的0号主角骨骼.
             ModelItem m = DlcMng.GetPluginModel(characterIdx);
-            if (m != null && m.Installed)
-            {
-                for (int i = 0; i < m.resPath.Length; i++)
-                {
-                    if (m.resPath[i].ToLower().EndsWith(".bnc"))
-                    {
+            if (m != null && m.Installed) {
+                for (int i = 0; i < m.resPath.Count; i++) {
+                    if (m.resPath[i].ToLower().EndsWith(".bnc")) {
                         string text = System.IO.File.ReadAllText(m.resPath[i]);
                         return LoadPluginBone(characterIdx, text);
                     }
                 }
+            }
+            if (m != null) {
+                if (m.useFemalePos)
+                    return Load("p1.bnc");
             }
             return Load("p0.bnc");
         }
@@ -141,14 +152,19 @@ public class BncFile
 
     public void Load(string file)
     {
+        string text = null;
         TextAsset assets = Resources.Load<TextAsset>(file);
         if (assets == null)
         {
-            errorno = ParseError.Miss;
-            return;
+            if (!File.Exists(file)) {
+                errorno = ParseError.Miss;
+                return;
+            }
+            text = File.ReadAllText(file);
+        } else {
+            text = assets.text;
         }
-
-        Parse(assets.text);
+        Parse(text);
     }
 
     public void Parse(string text)
@@ -256,7 +272,7 @@ public class BncFile
         rootBone.bone.localPosition = Vector3.zero;
         rootBone.bone.localRotation = Quaternion.identity;
         rootBone.bone.localScale = Vector3.one;
-        //rootBone.bone.gameObject.layer = layer;
+        rootBone.bone.gameObject.layer = LayerManager.Bone;
         while (true)
         {
             for (int i = 0; i < allNode.Count; i++)
@@ -265,6 +281,7 @@ public class BncFile
                 {
                     allNode[i].bone = new GameObject().transform;
                     allNode[i].bone.name = allNode[i].name;
+                    allNode[i].bone.gameObject.layer = LayerManager.Bone;
                     //allNode[i].bone.gameObject.layer = layer;
                 }
             }

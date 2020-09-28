@@ -8,19 +8,29 @@ public class DesLoader
     Dictionary<string, DesFile> DesFile = new Dictionary<string, global::DesFile>();
     public DesFile Load(string file)
     {
+        string file_no_ext = file;
         file += ".des";
-        if (Application.isPlaying)
-        {
-            if (DesFile.ContainsKey(file))
-                return DesFile[file];
+        if (DesFile.ContainsKey(file))
+            return DesFile[file];
+
+        DesFile f = null;
+        if (Main.Ins.CombatData.Chapter != null) {
+            string path = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Des, file_no_ext);
+            if (!string.IsNullOrEmpty(path)) {
+                f = new DesFile();
+                f.Load(path);
+                DesFile[file] = f;
+                return f;
+            }
         }
-        DesFile f = new global::DesFile();
+
+        f = new DesFile();
         f.Load(file);
         DesFile[file] = f;
         return f;
     }
 
-    public void Refresh() { DesFile = new Dictionary<string, global::DesFile>(); }
+    public void Clear() { DesFile.Clear(); }
 }
 
 public class DesItem
@@ -128,16 +138,20 @@ public class DesFile
     public void Load(string strFile)
     {
         SceneItems.Clear();
-       
         if (!string.IsNullOrEmpty(strFile))
         {
             TextAsset assetDes = Resources.Load<TextAsset>(strFile);
-            if (assetDes == null)
-            {
-                //Debug.LogError(string.Format("des file miss:{0} maybe is a Prefab", strFile));
-                return;
+            byte[] body = null;
+            if (assetDes == null){
+                if (File.Exists(strFile))
+                    body = File.ReadAllBytes(strFile);
             }
-            MemoryStream ms = new MemoryStream(assetDes.bytes);
+            else {
+                body = assetDes.bytes;
+            }
+            if (body == null)
+                return;
+            MemoryStream ms = new MemoryStream(body);
             StreamReader asset = new StreamReader(ms);
             while (!asset.EndOfStream)
             {

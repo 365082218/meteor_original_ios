@@ -15,7 +15,13 @@ public struct MyVector
 	public float y;
 	[ProtoBuf.ProtoMember(3)]
 	public float z;
-	
+	public MyVector Scale(float scale) {
+        MyVector clone = new MyVector();
+        clone.x = x * scale;
+        clone.y = y * scale;
+        clone.z = z * scale;
+        return clone;
+    }
 	public static implicit operator Vector3(MyVector a)
 	{
 		return new Vector3(a.x, a.y, a.z);
@@ -29,6 +35,10 @@ public struct MyVector
     public static Vector3 operator -(MyVector a, MyVector b)
     {
         return new Vector3(a.x, a.y, a.z) - new Vector3(b.x, b.y, b.z);
+    }
+
+    public static MyVector operator +(MyVector a, MyVector b) {
+        return new Vector3(a.x, a.y, a.z) + new Vector3(b.x, b.y, b.z);
     }
 }
 [System.Serializable]
@@ -77,6 +87,14 @@ public struct MyQuaternion
         y = y1;
         z = z1;
     }
+    public MyQuaternion Scale(float scale) {
+        MyQuaternion clone = new MyQuaternion();
+        clone.x = x * scale;
+        clone.y = y * scale;
+        clone.z = z * scale;
+        clone.w = w * scale;
+        return clone;
+    }
     [ProtoBuf.ProtoMember(1)]
     public float w;
     [ProtoBuf.ProtoMember(2)]
@@ -93,6 +111,10 @@ public struct MyQuaternion
     public static implicit operator MyQuaternion(Quaternion a)
     {
         return new MyQuaternion(a.w, a.x, a.y, a.z);
+    }
+
+    public static MyQuaternion operator +(MyQuaternion a, MyQuaternion b) {
+        return new Quaternion(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
     }
 }
 

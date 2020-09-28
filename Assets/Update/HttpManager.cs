@@ -9,11 +9,13 @@ using System;
 
 public enum TaskStatus
 {
-	Normal,//下载中
-	Pause,//暂停中
-    Wait,//等待下载中
-    Done,//下载完成
+    None = 0,//队列中等待
+	Normal = 1,//下载中
+    Loaded,//下载完成
+    Installed,//解压完毕
     Error,//出错.
+    Pause,//暂停中
+    Wait,//等待下载中
 }
 
 //unity下载器

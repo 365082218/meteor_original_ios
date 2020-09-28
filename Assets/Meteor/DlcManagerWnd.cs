@@ -15,13 +15,19 @@ public class DlcManagerDialogState : CommonDialogState<DlcManagerWnd> {
 public class DlcManagerWnd : Dialog {
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data) {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
+        filter = data == null ? 0 : (int)data;
         Init();
     }
 
-    Coroutine Update;
     Coroutine PluginPageUpdate;//插件翻页
-    Coroutine PluginUpdate;
-    GameObject PluginRoot;
+    Coroutine PluginUpdate;//重新更新插件列表信息
+    GameObject ChapterRoot;
+    GameObject ModelRoot;
+    GameObject PluginRoot {
+        get {
+            return filter == 0 ? ChapterRoot : ModelRoot;
+        }
+    }
     GameObject DebugRoot;
     int gamePage;
     int gamePageMax;
@@ -32,34 +38,63 @@ public class DlcManagerWnd : Dialog {
     bool showInstallPlugin = true;
     List<GameObject> Install = new List<GameObject>();
     void Init() {
+        GameObject chapterTab = Control("ChapterTab", WndObject);
+        GameObject modelTab = Control("ModelTab", WndObject);
         Control("Return").GetComponent<Button>().onClick.AddListener(() => {
-            Main.Ins.GameStateMgr.SaveState();
-            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainMenuState);
+            Close();
         });
-
-        GameObject pluginTab = Control("ChapterTab", WndObject);
         Control("PluginPrev").GetComponent<Button>().onClick.AddListener(OnPrevPagePlugin);
         Control("PluginNext").GetComponent<Button>().onClick.AddListener(OnNextPagePlugin);
-        PluginRoot = Control("Content", pluginTab);
-
+        Control("ResetModel").GetComponent<Button>().onClick.AddListener(()=> {
+            Main.Ins.GameStateMgr.gameStatus.UseModel = -1;
+            U3D.PopupTip("已设置使用默认角色");
+        });
+        ChapterRoot = Control("Content", chapterTab);
+        ModelRoot = Control("Content", modelTab);
         //模组分页内的功能设定
-        Control("DeletePlugin").GetComponent<Button>().onClick.AddListener(() => { U3D.DeletePlugins(); SettingDialogState.Instance.ShowTab(4); });
+        Control("DeletePlugin").GetComponent<Button>().onClick.AddListener(() => {
+            U3D.DeletePlugins(filter);
+            int f = filter;
+            Close();
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.DlcManagerDialogState, f);
+        });
         Toggle togShowInstallPlugin = Control("ShowInstallToggle").GetComponent<Toggle>();
-        togShowInstallPlugin.onValueChanged.AddListener((bool value) => { this.showInstallPlugin = value; Main.Ins.DlcMng.CollectAll(this.showInstallPlugin); this.PluginPageRefreshEx(); });
+        togShowInstallPlugin.onValueChanged.AddListener((bool value) => { this.showInstallPlugin = value; Main.Ins.DlcMng.CollectAll(this.showInstallPlugin, filter); this.PluginPageRefreshEx(); });
         togShowInstallPlugin.isOn = true;
 
         Control("InstallAll").GetComponent<Button>().onClick.AddListener(OnInstallAll);
+        UITab select = null;
         UITab[] tabs = WndObject.GetComponentsInChildren<UITab>();
         for (int i = 0; i < tabs.Length; i++) {
             tabs[i].onValueChanged.AddListener(OnTabShow);
+            if (filter == i)
+                select = tabs[i];
+        }
+        if (select != null) {
+            if (!select.isOn) {
+                select.Select();
+                return;
+            }
         }
         OnTabShow(true);
     }
 
+    void Close() {
+        Main.Ins.GameStateMgr.SaveState();
+        Main.Ins.GameStateMgr.SyncGameState();
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainMenuState);
+    }
+
     void OnInstallAll() {
         for (int i = 0; i < pluginList.Count; i++) {
-            Main.Ins.DlcMng.AddDownloadTask(pluginList[i]);
+            if (pluginList[i].Chapter != null) {
+                Main.Ins.DownloadManager.AddTask(TaskType.Chapter, pluginList[i].Chapter.ChapterId);
+            }
+            else {
+                Main.Ins.DownloadManager.AddTask(TaskType.Model, pluginList[i].Model.ModelId);
+            }
         }
+            
     }
 
     public void ShowTab(int tab) {
@@ -71,55 +106,80 @@ public class DlcManagerWnd : Dialog {
         }
     }
 
+    int filter;
     void OnTabShow(bool show) {
         if (Control("ChapterTab", WndObject).activeInHierarchy && show) {
-            PluginUpdate = Main.Ins.StartCoroutine(UpdatePluginInfo());//下载插件信息，显示插件
+            filter = 0;
+        } else if (Control("ModelTab", WndObject).activeInHierarchy && show) {
+            filter = 1;
+        }
+        if (show) {
+            pluginPage = 0;
+            OnTabEnter();
         }
     }
 
+    void OnTabEnter() {
+        if (Main.Ins.CombatData.PluginUpdated) {
+            //已经更新过插件列表
+            if (PluginPageUpdate != null)//翻页中
+                Main.Ins.StopCoroutine(PluginPageUpdate);
+            
+            Main.Ins.DlcMng.CollectAll(this.showInstallPlugin, filter);
+            pluginCount = Main.Ins.DlcMng.allItem.Count;
+            pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
+            if (PluginPageUpdate != null) {
+                Main.Ins.StopCoroutine(PluginPageUpdate);
+            }
+            PluginPageUpdate = Main.Ins.StartCoroutine(PluginPageRefresh());
+            Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
+        } else {
+            if (PluginUpdate == null)
+                PluginUpdate = Main.Ins.StartCoroutine(UpdatePluginInfo());//下载插件信息，显示插件
+        }
+    }
     IEnumerator UpdatePluginInfo() {
-        if (!Main.Ins.CombatData.PluginUpdated) {
-            UnityWebRequest vFile = new UnityWebRequest();
-            vFile.url = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, Main.strPlugins);
-            vFile.timeout = 5;
-            DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
-            vFile.downloadHandler = dH;
-            yield return vFile.Send();
-            if (vFile.isError || vFile.responseCode != 200) {
-                Debug.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
-                Control("Warning").SetActive(true);
-                vFile.Dispose();
-                Update = null;
-                pluginCount = 0;
-                //显示出存档中保存得DLC信息
-                Main.Ins.DlcMng.ClearModel();
-                for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginModel.Count; i++) {
+        UnityWebRequest vFile = new UnityWebRequest();
+        vFile.url = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, Main.strPlugins);
+        vFile.timeout = 5;
+        DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
+        vFile.downloadHandler = dH;
+        yield return vFile.Send();
+        if (vFile.isError || vFile.responseCode != 200) {
+            Debug.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
+            Control("Warning").SetActive(false);//
+            U3D.InsertSystemMsg("无法连接至服务器");
+            vFile.Dispose();
+            pluginCount = 0;
+            //显示出存档中保存得DLC信息
+            Main.Ins.DlcMng.ClearModel();
+            for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginModel.Count; i++) {
+                if (Main.Ins.GameStateMgr.gameStatus.pluginModel[i] == null)
+                    continue;
+                Main.Ins.GameStateMgr.gameStatus.pluginModel[i].Check();
+                if (Main.Ins.GameStateMgr.gameStatus.pluginModel[i].Installed)
                     Main.Ins.DlcMng.Models.Add(Main.Ins.GameStateMgr.gameStatus.pluginModel[i]);
-                }
-                //for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
-                //{
-                //InsertModel(DlcMng.Instance.Models[i]);
-                //}
-                pluginCount = Main.Ins.DlcMng.Models.Count;
-                Main.Ins.DlcMng.ClearDlc();
-                for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginChapter.Count; i++) {
+            }
+            Main.Ins.DlcMng.ClearDlc();
+            for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginChapter.Count; i++) {
+                if (Main.Ins.GameStateMgr.gameStatus.pluginChapter[i] == null)
+                    continue;
+                Main.Ins.GameStateMgr.gameStatus.pluginChapter[i].Check();
+                if (Main.Ins.GameStateMgr.gameStatus.pluginChapter[i].Installed)
                     Main.Ins.DlcMng.Dlcs.Add(Main.Ins.GameStateMgr.gameStatus.pluginChapter[i]);
-                }
-                pluginCount += Main.Ins.DlcMng.Dlcs.Count;
-                //for (int i = 0; i < DlcMng.Instance.Dlcs.Count; i++)
-                //{
-                //    InsertDlc(DlcMng.Instance.Dlcs[i]);
-                //}
-                pluginPage = 0;
-                pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
-                Main.Ins.DlcMng.CollectAll(this.showInstallPlugin);
-                Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
-                PluginPageUpdate = Main.Ins.StartCoroutine(PluginPageRefresh());
-                yield break;
             }
 
+            pluginPage = 0;
+            Main.Ins.DlcMng.CollectAll(this.showInstallPlugin, filter);
+            pluginCount = Main.Ins.DlcMng.allItem.Count;
+            pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
+
+            Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
+            PluginPageUpdate = Main.Ins.StartCoroutine(PluginPageRefresh());
+            PluginUpdate = null;
+            yield break;
+        } else {
             Control("Warning").SetActive(false);
-            pluginCount = 0;
             CleanModelList();
             LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
             for (int i = 0; i < js["Scene"].Count; i++) {
@@ -160,15 +220,9 @@ public class DlcManagerWnd : Dialog {
                 Info.Path = js["Model"][i]["zip"].ToString();
                 if (js["Model"][i]["desc"] != null)
                     Info.Desc = js["Model"][i]["desc"].ToString();
-                Info.useFemalePos = js["Model"][i]["gender"] != null;
+                Info.useFemalePos = js["Model"][i]["gender"] != null ? js["Model"][i]["gender"].ToString() == "1" : false;
                 Main.Ins.DlcMng.AddModel(Info);
             }
-
-            pluginCount += Main.Ins.DlcMng.Models.Count;
-            //for (int i = 0; i < DlcMng.Instance.Models.Count; i++)
-            //{
-            //    InsertModel(DlcMng.Instance.Models[i]);
-            //}
             Main.Ins.DlcMng.ClearDlc();
             for (int i = 0; i < js["Dlc"].Count; i++) {
                 Chapter c = new Chapter();
@@ -180,50 +234,17 @@ public class DlcManagerWnd : Dialog {
                     c.version = js["Dlc"][i]["version"].ToString();
                 if (js["Dlc"][i]["desc"] != null)
                     c.Desc = js["Dlc"][i]["desc"].ToString();
-                if (js["Dlc"][i]["reference"] != null) {
-                    Dependence dep = new Dependence();
-                    for (int j = 0; j < js["Dlc"][i]["reference"].Count; j++) {
-                        if (js["Dlc"][i]["reference"][j]["Scene"] != null) {
-                            dep.scene = new List<int>();
-                            for (int l = 0; l < js["Dlc"][i]["reference"][j]["Scene"].Count; l++) {
-                                dep.scene.Add(int.Parse(js["Dlc"][i]["reference"][j]["Scene"][l].ToString()));
-                            }
-                        }
-                        if (js["Dlc"][i]["reference"][j]["Model"] != null) {
-                            dep.model = new List<int>();
-                            for (int l = 0; l < js["Dlc"][i]["reference"][j]["Model"].Count; l++) {
-                                dep.model.Add(int.Parse(js["Dlc"][i]["reference"][j]["Model"][l].ToString()));
-                            }
-                        }
-
-                        if (js["Dlc"][i]["reference"][j]["Weapon"] != null) {
-                            dep.weapon = new List<int>();
-                            for (int l = 0; l < js["Dlc"][i]["reference"][j]["Weapon"].Count; l++) {
-                                dep.weapon.Add(int.Parse(js["Dlc"][i]["reference"][j]["Weapon"][l].ToString()));
-                            }
-                        }
-                    }
-                    c.Res = dep;
-                }
                 Main.Ins.DlcMng.AddDlc(c);
             }
-
-            pluginCount += Main.Ins.DlcMng.Dlcs.Count;
             pluginPage = 0;
+            Main.Ins.DlcMng.CollectAll(this.showInstallPlugin, filter);
+            pluginCount = Main.Ins.DlcMng.allItem.Count;
             pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
-            Main.Ins.DlcMng.CollectAll(this.showInstallPlugin);
             PluginPageUpdate = Main.Ins.StartCoroutine(PluginPageRefresh());
             Main.Ins.CombatData.PluginUpdated = true;
             PluginUpdate = null;
-        } else {
-            if (PluginPageUpdate != null)
-                yield break;
-            pluginCount = Main.Ins.DlcMng.Models.Count + Main.Ins.DlcMng.Dlcs.Count;
-            pluginPage = 0;
-            pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
-            PluginPageUpdate = Main.Ins.StartCoroutine(PluginPageRefresh());
+            Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
         }
-        Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
     }
 
     void OnPrevPagePlugin() {
@@ -265,16 +286,12 @@ public class DlcManagerWnd : Dialog {
     }
 
     public override void OnRefresh(int message, object param) {
-        if (message == 0) {
-            Control("Nick").GetComponentInChildren<Text>().text = Main.Ins.GameStateMgr.gameStatus.NickName;
+        for (int i = 0; i < pluginList.Count; i++) {
+            pluginList[i].OnStateChange();
         }
     }
 
     public override void OnClose() {
-        if (Update != null) {
-            Main.Ins.StopCoroutine(Update);
-            Update = null;
-        }
         if (PluginUpdate != null) {
             Main.Ins.StopCoroutine(PluginUpdate);
             PluginUpdate = null;
@@ -299,7 +316,7 @@ public class DlcManagerWnd : Dialog {
 
         Install.Clear();
     }
-    List<MoreGameCtrl> GameList = new List<MoreGameCtrl>();
+    //List<MoreGameCtrl> GameList = new List<MoreGameCtrl>();
     List<PluginCtrl> pluginList = new List<PluginCtrl>();
     GameObject prefabPluginWnd;
     GameObject prefabGameItem;
@@ -314,8 +331,6 @@ public class DlcManagerWnd : Dialog {
         PluginCtrl ctrl = insert.GetComponent<PluginCtrl>();
         if (ctrl != null) {
             ctrl.AttachModel(item);
-            if (!Main.Ins.GameStateMgr.gameStatus.IsModelInstalled(item))
-                Main.Ins.DlcMng.AddPreviewTask(ctrl);
         }
         pluginList.Add(ctrl);
     }
@@ -331,9 +346,6 @@ public class DlcManagerWnd : Dialog {
         PluginCtrl ctrl = insert.GetComponent<PluginCtrl>();
         if (ctrl != null) {
             ctrl.AttachDlc(item);
-            Chapter c;
-            if (!Main.Ins.GameStateMgr.gameStatus.IsDlcInstalled(item, out c))
-                Main.Ins.DlcMng.AddPreviewTask(ctrl);
         }
         pluginList.Add(ctrl);
     }

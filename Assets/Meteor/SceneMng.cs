@@ -65,10 +65,6 @@ public class SceneMng
     public void OnEnterLevel()
     {
         string sceneItems = Main.Ins.CombatData.GLevelItem.sceneItems;
-        string items = Main.Ins.CombatData.GScript.GetDesName();
-        if (!string.IsNullOrEmpty(items))
-            sceneItems = items;
-
         OnEnterLevel(Main.Ins.CombatData.GScript, sceneItems);
     }
 
@@ -104,18 +100,18 @@ public class SceneMng
         if (Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             if (Main.Ins.CombatData.wayPoints.Count != 0)
-                unit.transform.position = Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                unit.SetPosition(Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos);//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
         }
         else if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld)
         {
             if (Main.Ins.CombatData.GGameMode == GameMode.Normal)
             {
-                unit.transform.position = Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                unit.SetPosition(Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos);//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
             }
             else if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
             {
                 //16个点
-                unit.transform.position = Main.Ins.CombatData.GLevelSpawn[Main.Ins.CombatData.SpawnIndex];
+                unit.SetPosition(Main.Ins.CombatData.GLevelSpawn[Main.Ins.CombatData.SpawnIndex]);
                 Main.Ins.CombatData.SpawnIndex++;
                 Main.Ins.CombatData.SpawnIndex %= 16;
             }
@@ -124,20 +120,20 @@ public class SceneMng
                 //2个队伍8个点.
                 if (unit.Camp == EUnitCamp.EUC_FRIEND)
                 {
-                    unit.transform.position = Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampASpawnIndex];
+                    unit.SetPosition(Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampASpawnIndex]);
                     Main.Ins.CombatData.CampASpawnIndex++;
                     Main.Ins.CombatData.CampASpawnIndex %= 8;
                 }
                 else if (unit.Camp == EUnitCamp.EUC_ENEMY)
                 {
-                    unit.transform.position = Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampBSpawnIndex];
+                    unit.SetPosition(Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampBSpawnIndex]);
                     Main.Ins.CombatData.CampBSpawnIndex++;
                     Main.Ins.CombatData.CampBSpawnIndex %= 8;
                 }
             }
         }
-        
-        unit.transform.rotation = new Quaternion(0, 0, 0, 1);
+
+        unit.SetRotationImmediate(new Quaternion(0, 0, 0, 1));
         U3D.InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
         if (FrameReplay.Instance.Started) {
             mon.OnStart();

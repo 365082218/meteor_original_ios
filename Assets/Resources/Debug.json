@@ -1,0 +1,80 @@
+{
+  "LevelData": {
+    "1": {
+      "Id": 1,
+      "Scene": "Meteor_06",
+      "Name": "近战AI测试",
+      "LevelType": 5,
+      "LevelScript": "sn1000",
+      "BgmName": "S5",
+      "StartScript": "sn1000_1",
+      "sceneItems": "sn06",
+      "BgTexture": "",
+      "Pass": 1
+    },
+    "2": {
+      "Id": 2,
+      "Scene": "Meteor_06",
+      "Name": "远程AI测试",
+      "LevelType": 5,
+      "LevelScript": "sn1000",
+      "BgmName": "S5",
+      "StartScript": "sn1000_2",
+      "sceneItems": "sn06",
+      "BgTexture": "",
+      "Pass": 1
+    },
+    "3": {
+      "Id": 3,
+      "Scene": "Meteor_06",
+      "Name": "防御硬直测试",
+      "LevelType": 5,
+      "LevelScript": "sn1000",
+      "BgmName": "S5",
+      "StartScript": "sn1000_3",
+      "sceneItems": "sn06",
+      "BgTexture": "",
+      "Pass": 1,
+      "WayPoint": 1
+    },
+    "4": {
+      "Id": 4,
+      "Scene": "Meteor_06",
+      "Name": "火枪测试",
+      "LevelType": 5,
+      "LevelScript": "sn1000",
+      "BgmName": "S5",
+      "StartScript": "sn1000_4",
+      "sceneItems": "sn06",
+      "BgTexture": "",
+      "Pass": 1,
+      "WayPoint": 1
+    },
+    "5": {
+      "Id": 5,
+      "Scene": "Meteor_06",
+      "Name": "跟随测试",
+      "LevelType": 5,
+      "LevelScript": "sn1000",
+      "BgmName": "S5",
+      "StartScript": "sn1000_5",
+      "sceneItems": "sn06",
+      "BgTexture": "",
+      "Pass": 1,
+      "Param": ""
+    },
+    "6": {
+      "Id": 6,
+      "Scene": "Meteor_02",
+      "Name": "皇陵地宫",
+      "LevelType": 2,
+      "LevelScript": "sn02_1",
+      "BgmName": "S2",
+      "StartScript": "",
+      "sceneItems": "sn02",
+      "BgTexture": "",
+      "Pass": 1,
+      "Param": ""
+    }
+  }
+}

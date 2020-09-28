@@ -10,8 +10,8 @@
       "StartScript": "",
       "sceneItems": "sn14",
       "BgTexture": "scene1",
-      "Pass": 1,
-      "Param": ""
+      "Desc": "来自「快活林」的杀手「孟星魂」,接到高老大的任务指令后，为了不打草惊蛇，准备潜入炎硫岛，一探「紫鳞金刀·范璇」的底细",
+      "Mission": "杀光所有敌人."
     },
     "2": {
       "Id": 2,
@@ -23,8 +23,8 @@
       "StartScript": "",
       "sceneItems": "sn01",
       "BgTexture": "scene2",
-      "Pass": 1,
-      "Param": ""
+      "Desc":"想不到炎硫岛竟有伏兵等待，星为达成任务没时间迟疑，在通过这个险境后，「星」进入了钟乳洞，原来在这个洞穴中竟然隐藏着秘密，星看到了一个像是头目的人，正在吆喝着他的下属，想必这里是「范璇」的巢寨", 
+      "Mission": "杀光所有敌人."
     },
     "3": {
       "Id": 3,
@@ -36,8 +36,8 @@
       "StartScript": "",
       "sceneItems": "sn03",
       "BgTexture": "scene3",
-      "Pass": 0,
-      "Param": ""
+      "Desc": "在出任务之前，高老大有说过，若想接近「范璇」，必须先拿到入关的信物，因为范有收集珍宝的兴趣，每月都有古董商前去兜售，他们身上都带着范璇所给的「信物」，只要能夺取信物，相信要入关绝无问题",
+      "Mission": "夺取信物(击败铁胡子掉落)后，破坏拒马，用关隘上的机关开门(攻击扶手机关)，打开门后迅速出关."
     },
     "4": {
       "Id": 4,
@@ -49,8 +49,8 @@
       "StartScript": "",
       "sceneItems": "sn13",
       "BgTexture": "scene4",
-      "Pass": 2,
-      "Param": "npc13_02"
+      "Desc": "星在取得了入关的「信物」之后，来到了金华城，本想找个地方歇歇脚，但事出突然，撞见了一位奇女子，使得星再次陷入险境。",
+      "Mission": "杀掉捕头王强，与冷燕一起突围."
     },
     "5": {
       "Id": 5,
@@ -62,8 +62,8 @@
       "StartScript": "",
       "sceneItems": "sn04",
       "BgTexture": "scene5",
-      "Pass": 0,
-      "Param": ""
+      "Desc": "差点事迹败露的星，心想此地不宜久留，必须尽快通过炽雪城，星乔装成一般的古董商，排队入关，在等待入关的期间，星发现先前所撞见的女子已被捉住，但事不关己的星，还是假装若无其事的等待，不料，星被发现是假冒的古董商，城内士兵蜂拥而至，企图将星拿下，星别无选择，只有破坏关卡的城门，强行闯关！",
+      "Mission": "破坏城门前的拒马."
     },
     "6": {
       "Id": 6,
@@ -75,8 +75,8 @@
       "StartScript": "",
       "sceneItems": "sn15",
       "BgTexture": "scene6",
-      "Pass": 2,
-      "Param": "npc15_01"
+      "Desc": "现在星的处境非常险恶，行踪已完全暴露的星，只好偷偷潜入飞鹏堡，探查范璇的下落。不料，撞见最初在钟乳洞见到的头目，眼前只能硬闯虎穴，一探究竟了。",
+      "Mission": "解决萧银鹏，通过飞鹏堡."
     },
     "7": {
       "Id": 7,
@@ -88,8 +88,8 @@
       "StartScript": "",
       "sceneItems": "sn05",
       "BgTexture": "scene7",
-      "Pass": 1,
-      "Param": ""
+      "Desc": "萧银鹏之死，气坏了范璇，范璇已得知星是来刺杀他的，命令屠大鹏严守皇天城同时活捉星，誓要问出究竟主使者是谁。",
+      "Mission": "杀光护卫，找出范璇."
     },
     "8": {
       "Id": 8,
@@ -101,8 +101,8 @@
       "StartScript": "",
       "sceneItems": "sn09",
       "BgTexture": "scene8",
-      "Pass": 0,
-      "Param": ""
+      "Desc": "星被陷害落入陷阱后，身中奇毒，但料想不到之前那位女子，也在陷阱之中，从她的脸色看来，相信也中了毒，正当星苦思对策之时，屠大鹏从上丢下了一瓶解药，看来是要让两人为了解药而互相残杀...",
+      "Mission": "诱导冷燕至安全区域."
     },
     "9": {
       "Id": 9,
@@ -114,8 +114,8 @@
       "StartScript": "",
       "sceneItems": "sn10",
       "BgTexture": "scene9",
-      "Pass": 2,
-      "Param": "npc10_01"
+      "Desc": "星纵身跳入深井之中，虽是要找寻出口，但心中却是为了寻找那位女子的下落，在避过这些凶险的环境之后，看见那位女子伤重倒卧在地，正要前去解救时，屠大鹏却从中杀出...",
+      "Mission": "杀死屠大鹏."
     },
     "10": {
       "Id": 10,
@@ -126,9 +126,7 @@
       "BgmName": "S8",
       "StartScript": "",
       "sceneItems": "sn07",
-      "BgTexture": "",
-      "Pass": 0,
-      "Param": ""
+      "BgTexture": ""
     },
     "11": {
       "Id": 11,
@@ -139,9 +137,7 @@
       "BgmName": "S8",
       "StartScript": "",
       "sceneItems": "sn08",
-      "BgTexture": "",
-      "Pass": 0,
-      "Param": ""
+      "BgTexture": ""
     },
     "12": {
       "Id": 12,
@@ -152,9 +148,7 @@
       "BgmName": "S9",
       "StartScript": "",
       "sceneItems": "sn11",
-      "BgTexture": "",
-      "Pass": 0,
-      "Param": ""
+      "BgTexture": ""
     },
     "13": {
       "Id": 13,
@@ -165,9 +159,7 @@
       "BgmName": "S1",
       "StartScript": "",
       "sceneItems": "sn12",
-      "BgTexture": "",
-      "Pass": 0,
-      "Param": ""
+      "BgTexture": ""
     },
     "14": {
       "Id": 14,
@@ -178,9 +170,7 @@
       "BgmName": "S6",
       "StartScript": "",
       "sceneItems": "sn16",
-      "BgTexture": "",
-      "Pass": 0,
-      "Param": ""
+      "BgTexture": ""
     },
     "15": {
       "Id": 15,
@@ -191,9 +181,7 @@
       "BgmName": "S7",
       "StartScript": "",
       "sceneItems": "sn17",
-      "BgTexture": "",
-      "Pass": 0,
-      "Param": ""
+      "BgTexture": ""
     },
     "16": {
       "Id": 16,
@@ -204,9 +192,7 @@
       "BgmName": "S5",
       "StartScript": "",
       "sceneItems": "sn18",
-      "BgTexture": "",
-      "Pass": 0,
-      "Param": ""
+      "BgTexture": ""
     },
     "17": {
       "Id": 17,
@@ -217,9 +203,7 @@
       "BgmName": "S4",
       "StartScript": "",
       "sceneItems": "sn19",
-      "BgTexture": "",
-      "Pass": 0,
-      "Param": ""
+      "BgTexture": ""
     },
     "18": {
       "Id": 18,
@@ -230,9 +214,7 @@
       "BgmName": "S4",
       "StartScript": "",
       "sceneItems": "sn19",
-      "BgTexture": "",
-      "Pass": 0,
-      "Param": ""
+      "BgTexture": ""
     },
     "19": {
       "Id": 19,
@@ -243,9 +225,7 @@
       "BgmName": "S7",
       "StartScript": "",
       "sceneItems": "sn20",
-      "BgTexture": "",
-      "Pass": 0,
-      "Param": ""
+      "BgTexture": ""
     },
     "20": {
       "Id": 20,
@@ -256,9 +236,7 @@
       "BgmName": "S10",
       "StartScript": "",
       "sceneItems": "sn21",
-      "BgTexture": "",
-      "Pass": 0,
-      "Param": ""
+      "BgTexture": ""
     },
     "21": {
       "Id": 21,
@@ -269,9 +247,7 @@
       "BgmName": "S5",
       "StartScript": "",
       "sceneItems": "sn22",
-      "BgTexture": "",
-      "Pass": 0,
-      "Param": ""
+      "BgTexture": ""
     },
     "22": {
       "Id": 22,
@@ -282,87 +258,18 @@
       "BgmName": "S5",
       "StartScript": "",
       "sceneItems": "sn06",
-      "BgTexture": "",
-      "Pass": 0,
-      "Param": ""
+      "BgTexture": ""
     },
     "23": {
       "Id": 23,
       "Scene": "Meteor_02",
       "Name": "秦皇陵",
-      "LevelType": 5,
+      "LevelType": 2,
       "LevelScript": "sn02",
       "BgmName": "S2",
       "StartScript": "",
       "sceneItems": "sn02",
-      "BgTexture": "",
-      "Pass": 0,
-      "Param": ""
-    },
-    "26": {
-      "Id": 26,
-      "Scene": "Meteor_06",
-      "Name": "近战AI测试",
-      "LevelType": 5,
-      "LevelScript": "sn1000",
-      "BgmName": "S5",
-      "StartScript": "sn1000_1",
-      "sceneItems": "sn06",
-      "BgTexture": "",
-      "Pass": 1,
-      "Param": ""
-    },
-    "27": {
-      "Id": 27,
-      "Scene": "Meteor_06",
-      "Name": "远程AI测试",
-      "LevelType": 5,
-      "LevelScript": "sn1000",
-      "BgmName": "S5",
-      "StartScript": "sn1000_2",
-      "sceneItems": "sn06",
-      "BgTexture": "",
-      "Pass": 1,
-      "Param": ""
-    },
-    "28": {
-      "Id": 28,
-      "Scene": "Meteor_06",
-      "Name": "防御硬直测试",
-      "LevelType": 5,
-      "LevelScript": "sn1000",
-      "BgmName": "S5",
-      "StartScript": "sn1000_3",
-      "sceneItems": "sn06",
-      "BgTexture": "",
-      "Pass": 1,
-      "Param": ""
-    },
-    "29": {
-      "Id": 29,
-      "Scene": "Meteor_06",
-      "Name": "火枪测试",
-      "LevelType": 5,
-      "LevelScript": "sn1000",
-      "BgmName": "S5",
-      "StartScript": "sn1000_4",
-      "sceneItems": "sn06",
-      "BgTexture": "",
-      "Pass": 1,
-      "Param": ""
-    },
-    "30": {
-      "Id": 30,
-      "Scene": "Meteor_06",
-      "Name": "跟随测试",
-      "LevelType": 5,
-      "LevelScript": "sn1000",
-      "BgmName": "S5",
-      "StartScript": "sn1000_5",
-      "sceneItems": "sn06",
-      "BgTexture": "",
-      "Pass": 1,
-      "Param": ""
+      "BgTexture": ""
     },
     "31": {
       "Id": 31,
@@ -373,9 +280,7 @@
       "BgmName": "S5",
       "StartScript": "",
       "sceneItems": "sn22",
-      "BgTexture": "",
-      "Pass": 0,
-      "Param": ""
+      "BgTexture": ""
     },
     "33": {
       "Id": 33,
@@ -386,9 +291,7 @@
       "BgmName": "S5",
       "StartScript": "",
       "sceneItems": "sn24",
-      "BgTexture": "",
-      "Pass": 0,
-      "Param": ""
+      "BgTexture": ""
     }
   }
 }

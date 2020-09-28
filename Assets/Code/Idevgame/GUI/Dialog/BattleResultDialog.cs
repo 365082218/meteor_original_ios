@@ -34,7 +34,7 @@ public class BattleResultDialog : Dialog
             {
                 if (Main.Ins.MeteorManager.UnitInfos[i].StateMachine != null)
                     Main.Ins.MeteorManager.UnitInfos[i].StateMachine.Stop();
-                Main.Ins.MeteorManager.UnitInfos[i].controller.Input.ResetVector();
+                Main.Ins.MeteorManager.UnitInfos[i].meteorController.Input.ResetVector();
                 Main.Ins.MeteorManager.UnitInfos[i].OnGameResult(result);
             }
         }
@@ -80,8 +80,6 @@ public class BattleResultDialog : Dialog
             Main.Ins.GameBattleEx.Pause();
             Main.Ins.StopAllCoroutines();
             Main.Ins.SoundManager.StopAll();
-            Main.Ins.BuffMng.Clear();
-            Main.Ins.MeteorManager.Clear();
             OnBackPress();
             Main.Ins.ExitState(Main.Ins.FightState);
             if (GameOverlayDialogState.Exist())
@@ -106,9 +104,6 @@ public class BattleResultDialog : Dialog
 
     public void Init()
     {
-#if !STRIP_DBG_SETTING
-        U3D.Instance.CloseDbg();
-#endif
         MeteorResult = Control("MeteorResult").transform;
         ButterflyResult = Control("ButterflyResult").transform;
         BattleResult = NodeHelper.Find("BattleResult", WndObject);
@@ -174,7 +169,7 @@ public class BattleResultDialog : Dialog
         Text Killed = Control("Killed", obj).GetComponent<Text>();
         Text Dead = Control("Dead", obj).GetComponent<Text>();
         Idx.text = (id + 1).ToString();
-        Name.text = U3D.GetUnit(instanceId).Name;
+        Name.text = U3D.GetUnit(instanceId).name;
         //Camp.text = result.camp == 1 ""
         Killed.text = killed.ToString();
         Dead.text = dead.ToString();
@@ -218,7 +213,7 @@ public class BattleResultDialog : Dialog
         Text Killed = Control("Killed", obj).GetComponent<Text>();
         Text Dead = Control("Dead", obj).GetComponent<Text>();
         Idx.text = (result.id + 1).ToString();
-        Name.text = U3D.GetUnit(instanceId).Name;
+        Name.text = U3D.GetUnit(instanceId).name;
         if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
         {
 

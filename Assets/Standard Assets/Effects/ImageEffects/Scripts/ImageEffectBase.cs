@@ -20,20 +20,35 @@ namespace UnityStandardAssets.ImageEffects
             if (!SystemInfo.supportsImageEffects)
             {
                 enabled = false;
+                Debug.LogError("not support Image Effect");
                 return;
             }
 
+            if (shader == null) {
+                shader = Find("GrayscaleEffect");
+            }
             // Disable the image effect if the shader can't
             // run on the users graphics card
-            if (!shader || !shader.isSupported)
+            if (!shader || !shader.isSupported) {
                 enabled = false;
+                Debug.LogError("shader not support");
+            }
         }
 
+        public static Shader Find(string shader) {
+            int nindex = shader.LastIndexOf('/');
+            string sub = shader.Substring(nindex + 1);
+            Shader sh = Resources.Load<Shader>(sub);
+            return sh;
+        }
 
         protected Material material
         {
             get
             {
+                if (shader == null) {
+                    shader = Find("GrayscaleEffect");
+                }
                 if (m_Material == null)
                 {
                     m_Material = new Material(shader);

@@ -14,22 +14,17 @@ public class CameraFree : NetBehaviour {
     public float f_speedMax = 150.0f;//移动速度最大限制
     public float f_DampTime = 0.1f;
     public float f_eulerMax = 60.0f;//角速度最大值
+    SceneItemAgent occlusionItem;//遮蔽住主角与相机间的物件
     [HideInInspector]
     public Camera m_Camera;
     public float fRadis;
     public float lastAngle;
     float angleMax = 75.0f;
     float angleMin = -75.0f;
-    private new void Awake()
-    {
+    new void Awake() {
         base.Awake();
         CameraPosition = new GameObject("CameraPosition").transform;
         CameraLookAt = new GameObject("CameraLookAt").transform;
-    }
-
-    private new void OnDestroy()
-    {
-        base.OnDestroy();
     }
 
     /// <summary>
@@ -139,7 +134,6 @@ public class CameraFree : NetBehaviour {
     public void OnUnlockTarget()
     {
         animationTick = 0.0f;
-        animationPlay = true;
         currentVelocityX = 0;
         currentVelocityY = 0;
         currentVelocityZ = 0;
@@ -162,7 +156,7 @@ public class CameraFree : NetBehaviour {
     Vector3 currentVelocity = Vector3.zero;
     float currentVelocityY2;
     public Vector3[] newViewIndex = new Vector3[3];
-    int ViewIndex = 0;
+    //int ViewIndex = 0;
 
     protected void CameraSmoothFollow(bool smooth = true)
     {
@@ -204,7 +198,7 @@ public class CameraFree : NetBehaviour {
             dis = 1000.0f;
             for (int i = 0; i < 2; i++)
             {
-                if (CameraCanLookTarget(newViewIndex[i], out wallHitPos))
+                if (Utility.CameraCanLookTarget(UnitTarget, newViewIndex[i], out wallHitPos))
                 {
                     float fdis = Vector3.Distance(newViewIndex[i], transform.position);
                     if (fdis < dis)
@@ -228,7 +222,7 @@ public class CameraFree : NetBehaviour {
             //左侧右侧都被墙壁堵住，并且太近
             if (vecTarget == Vector3.zero)
             {
-                if (CameraCanLookTarget(newViewIndex[2], out wallHitPos))
+                if (Utility.CameraCanLookTarget(UnitTarget, newViewIndex[2], out wallHitPos))
                     vecTarget = newViewIndex[2];
                 else
                     vecTarget = wallHitPos;
@@ -273,18 +267,30 @@ public class CameraFree : NetBehaviour {
             //如果新的位置，与目标注视点中间隔着墙壁
             RaycastHit wallHit;
             bool hitWall = false;
-            if (Physics.Linecast(CameraLookAt.position, newPos, out wallHit,
-                1 << LayerMask.NameToLayer("Scene") |
-                (1 << LayerMask.NameToLayer("Default")) |
-                (1 << LayerMask.NameToLayer("Wall")) |
-                (1 << LayerMask.NameToLayer("Water"))))
+            if (Physics.Linecast(CameraLookAt.position, newPos, out wallHit, LayerManager.AllSceneMask))
             {
-                if (!wallHit.collider.isTrigger)
-                {
-                    hitWall = true;
-                    //Debug.LogError("hitWall" + wallHit.transform.name);
-                    //摄像机与角色间有物件遮挡住角色，开始自动计算摄像机位置.
+                hitWall = true;
+                SceneItemAgent item = wallHit.collider.gameObject.GetComponentInParent<SceneItemAgent>();
+                if (item != null) {
+                    //不需要移动相机的位置
+                    if (occlusionItem != null) {
+                        if (item != occlusionItem) {
+                            occlusionItem.RestoreAlpha();
+                            occlusionItem = item;
+                            occlusionItem.SetAlpha(0.3f);
+                        }
+                    } else {
+                        occlusionItem = item;
+                        item.SetAlpha(0.3f);
+                    }
+                } else {
+                    float dis = Vector3.Distance(CameraLookAt.position, wallHit.point);
                     newPos = wallHit.point + Vector3.Normalize(CameraLookAt.position - wallHit.point) * 5;
+                }
+            } else {
+                if (occlusionItem != null) {
+                    occlusionItem.RestoreAlpha();
+                    occlusionItem = null;
                 }
             }
 
@@ -332,29 +338,8 @@ public class CameraFree : NetBehaviour {
             else
             {
                 transform.position = CameraPosition.position;
-                transform.LookAt(CameraLookAt.position);
+                transform.LookAt(CameraLookAt.position, Vector3.up);
             }
         }
-    }
-
-    //由玩家Y轴25位置向摄像机期望点发射线，如果碰到墙壁返回false，否则true
-    bool CameraCanLookTarget(Vector3 pos, out Vector3 hit)
-    {
-        RaycastHit wallHit;
-        Vector3 targetPos = Target.transform.position + new Vector3(0, 25, 0);
-        if (Physics.Linecast(targetPos, pos, out wallHit,
-            1 << LayerMask.NameToLayer("Scene") |
-            (1 << LayerMask.NameToLayer("Default")) |
-            (1 << LayerMask.NameToLayer("Wall")) |
-            (1 << LayerMask.NameToLayer("Water"))))
-        {
-            if (!wallHit.collider.isTrigger)
-            {
-                hit = wallHit.point + Vector3.Normalize(targetPos - wallHit.point);
-                return false;
-            }
-        }
-        hit = pos;
-        return true;
     }
 }

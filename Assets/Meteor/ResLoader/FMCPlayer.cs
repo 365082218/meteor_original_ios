@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 public class MiniPose
 {
@@ -11,17 +12,33 @@ public class MiniPose
 
 public class FMCPoseLoader
 {
+    public void Clear() {
+        fmcPose.Clear();
+    }
     public Dictionary<string, FMCPose> fmcPose = new Dictionary<string, FMCPose>();
     public FMCPose LoadPose(string file)
     {
+        string file_no_ext = file;
         file += ".pos";
         if (fmcPose.ContainsKey(file))
             return fmcPose[file];
+        byte[] body = null;
+        if (Main.Ins.CombatData.Chapter != null) {
+            string path = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Pos, file_no_ext);
+            if (!string.IsNullOrEmpty(path)) {
+                if (File.Exists(path)) {
+                    body = File.ReadAllBytes(path);
+                }
+            }
+        }
+        if (body == null) {
+            TextAsset asset = Resources.Load<TextAsset>(file);
+            if (asset == null)
+                return null;
+            body = asset.bytes;
+        }
         FMCPose pose = new FMCPose();
-        TextAsset asset = Resources.Load<TextAsset>(file);
-        if (asset == null)
-            return null;
-        string text = System.Text.Encoding.ASCII.GetString(asset.bytes);
+        string text = System.Text.Encoding.ASCII.GetString(body);
         string[] pos = text.Split(new char[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
         int idx = 0;
         MiniPose po = null;

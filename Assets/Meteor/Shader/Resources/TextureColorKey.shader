@@ -54,7 +54,7 @@ Properties
 		{
 			fixed4 col = tex2D(_MainTex, i.texcoord);
 			UNITY_APPLY_FOG(i.fogCoord, col);
-			if (abs(col.r - _ColorKey.r) <= 0.1 && abs(col.g - _ColorKey.g) <= 0.1 && abs(col.b - _ColorKey.b) <= 0.1)
+			if (abs(col.r - _ColorKey.r) <= 0.05 && abs(col.g - _ColorKey.g) <= 0.05 && abs(col.b - _ColorKey.b) <= 0.05)
 				col.a = 0;
 			else
 				col.a = _Alpha;

@@ -14,7 +14,9 @@ public class MenuResLoader
     //    [镖物]
     //    [地图]
     //    ]
-
+    public void Clear() {
+        Info.Clear();
+    }
     public List<Option> Info = new List<Option>();
     public Option FindOpt(int idx, int type)
     {

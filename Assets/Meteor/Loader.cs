@@ -17,7 +17,7 @@ public class Loader : MonoBehaviour {
     public void LoadSceneObjsFromDes(string des)
     {
         //mapObjectList.Clear();
-        Main.Ins.DesLoader.Refresh();
+        Main.Ins.DesLoader.Clear();
         DesFile desDat = Main.Ins.DesLoader.Load(des);
         int j = 0;
         for (int i = desDat.ObjectCount; i < desDat.SceneItems.Count; i++)
@@ -77,7 +77,7 @@ public class Loader : MonoBehaviour {
             {
                 if (!string.IsNullOrEmpty(model))
                 {
-                    WsGlobal.ShowMeteorObject(model, obj.transform);
+                    Utility.ShowMeteorObject(model, obj.transform);
                 }
             }
             string Iden;

@@ -17,7 +17,6 @@ public class UnitTopUI : Dialog {
     Transform target;
     RectTransform rect;
     MeteorUnit owner;
-    UnitDebugInfo Info;
     const float ViewLimit = 250.0f;
     // Use this for initialization
     public override void OnDialogStateEnter(PersistState ownerState, BaseDialogState previousDialog, object data)
@@ -49,8 +48,6 @@ public class UnitTopUI : Dialog {
             else if ((unitDis > ViewLimit) && MonsterName.gameObject.activeSelf)
             {
                 MonsterName.gameObject.SetActive(false);
-                if (Info.gameObject.activeInHierarchy)
-                    Info.gameObject.SetActive(false);
             }
         }
         else
@@ -58,8 +55,6 @@ public class UnitTopUI : Dialog {
             //UnityEngine.Debug.LogError(string.Format("主角背向{0}", owner.name));
             if (MonsterName.gameObject.activeSelf)
                 MonsterName.gameObject.SetActive(false);
-            if (Info.gameObject.activeInHierarchy)
-                Info.gameObject.SetActive(false);
         }
         //1.6f 1.7666f
         if (MonsterName.gameObject.activeSelf)
@@ -69,25 +64,12 @@ public class UnitTopUI : Dialog {
             Vector3 vec = Main.Ins.MainCamera.WorldToScreenPoint(top);
             vec = UIHelper.ScreenPointToCanvasPoint(vec);
             rect.anchoredPosition3D = new Vector3(vec.x, vec.y, 1);
-            if (Main.Ins.GameStateMgr.gameStatus.EnableDebugStatus)
-            {
-                if (!Info.gameObject.activeInHierarchy)
-                    Info.gameObject.SetActive(true);
-            }
          }
-    }
-
-    public void EnableInfo(bool enable)
-    {
-        if (Info != null && MonsterName.gameObject.activeSelf)
-            Info.gameObject.SetActive(enable);
     }
 
     public void Init(MonsterEx attr, Transform attach, EUnitCamp camp)
     {
         owner = attach.GetComponent<MeteorUnit>();
-        Info = GetComponentInChildren<UnitDebugInfo>(true);
-        Info.SetOwner(owner);
         //Transform mainCanvas = GameObject.Find("Canvas").transform;
         //transform.SetParent(mainCanvas);
         transform.localScale = Vector3.one;

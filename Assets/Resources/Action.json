@@ -659,7 +659,7 @@
     "245": {
       "Idx": 245,
       "Name": "匕首空A1",
-      "IgnoreMove": 1,
+      "IgnoreMove": 0,
       "IgnoreGravity": 1,
       "IgnoreCollision": 0,
       "IgnoreXZVelocity": 0
@@ -734,7 +734,7 @@
       "IgnoreMove": 0,
       "IgnoreGravity": 0,
       "IgnoreCollision": 1,
-      "IgnoreXZVelocity": 0
+      "IgnoreXZVelocity": 1
     },
     "257": {
       "Idx": 257,
@@ -804,7 +804,7 @@
       "Idx": 298,
       "Name": "刀空下劈",
       "IgnoreMove": 0,
-      "IgnoreGravity": 0,
+      "IgnoreGravity": 1,
       "IgnoreCollision": 1,
       "IgnoreXZVelocity": 0
     },
@@ -1100,7 +1100,7 @@
       "Idx": 446,
       "Name": "乾坤空中下A",
       "IgnoreMove": 0,
-      "IgnoreGravity": 1,
+      "IgnoreGravity": 0,
       "IgnoreCollision": 1,
       "IgnoreXZVelocity": 1
     },
@@ -1180,7 +1180,7 @@
       "Idx": 465,
       "Name": "忍刀下踩",
       "IgnoreMove": 0,
-      "IgnoreGravity": 1,
+      "IgnoreGravity": 0,
       "IgnoreCollision": 1,
       "IgnoreXZVelocity": 1
     },
@@ -1205,7 +1205,7 @@
       "Name": "忍刀下上A",
       "IgnoreMove": 0,
       "IgnoreGravity": 1,
-      "IgnoreCollision": 1,
+      "IgnoreCollision": 0,
       "IgnoreXZVelocity": 0
     },
     "478": {

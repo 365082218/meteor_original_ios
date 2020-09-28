@@ -40,7 +40,7 @@ public class MonsterEx
     public int Speed;
     //public int ActionSpeed;
     public int Crit;
-    public int View;
+    public int View;//视野直径
     public int Think;
     public int Attack1;
     public int Attack2;
@@ -61,7 +61,7 @@ public class MonsterEx
     {
         //name 
     }
-
+    public float CombatChance;
     public int Weapon;
     public int Weapon2;
     public int Team;
@@ -77,19 +77,20 @@ public class MonsterEx
         //name = (string)ScriptMng.ins.GetVariable("Name");
         //Weapon = (int)(double)ScriptMng.ins.GetVariable("Weapon");
         //Weapon2 = (int)(double)ScriptMng.ins.GetVariable("Weapon2");
+        CombatChance = CombatData.CombatBase + (Random.Range(1, 101) / 100.0f) * CombatData.CombatChance;
         Team = 2;
         View = 600;
-        Think = 50;
+        Think = Random.Range(45, 100);
         //默认属性即为机器人属性.
-        Attack1 = 35;
-        Attack2 = 45;
-        Attack3 = 10;
-        Guard = 30;
-        GetItem = 30;
+        Attack1 = Random.Range(20, 35);
+        Attack2 = Random.Range(30, 45);
+        Attack3 = Random.Range(40, 55);
+        Guard = Random.Range(5, 12);
+        GetItem = Random.Range(1, 5);
         Aim = 80;
-        Burst = 30;
-        Look = 30;
-        Jump = 30;
+        Burst = Random.Range(1, 8);
+        Look = Random.Range(1, 8);
+        Jump = Random.Range(1, 8);
         HpMax = HPMAX;
         //SpawnPoint = 1;
         Speed = 1000;
@@ -152,6 +153,7 @@ public class MonsterEx
         Attack1 = (int)(double)sState["Attack1"];
         Attack2 = (int)(double)sState["Attack2"];
         Attack3 = (int)(double)sState["Attack3"];
+        CombatChance = CombatData.CombatBase + (Random.Range(1, 101) / 100.0f) * CombatData.CombatChance;
         hpCur = HpMax;
         mpCur = MpMax;
         return true;
@@ -168,21 +170,21 @@ public class MonsterEx
     }
     
 
-    public InventoryItem EquipItems(InventoryItem item)
-    {
-        InventoryItem itemUnEquip = null;
-        ItemData unit = item.Info();
+    //public InventoryItem EquipItems(InventoryItem item)
+    //{
+    //    InventoryItem itemUnEquip = null;
+    //    ItemData unit = item.Info();
 
 
-        if (unit != null)
-        {
-            Speed += unit.Speed;
-            if (Speed > 2500)
-                Speed = 2500;
-        }
+    //    if (unit != null)
+    //    {
+    //        Speed += unit.Speed;
+    //        if (Speed > 2500)
+    //            Speed = 2500;
+    //    }
 
-        return itemUnEquip;
-    }
+    //    return itemUnEquip;
+    //}
 
     //仅修改移动速度,非动作速度
     public void MultiplySpeed(float per)
@@ -190,14 +192,15 @@ public class MonsterEx
         Speed = (int)((float)Speed * per);
     }
 
-    public void AddSpeed(int speed)
-    {
-        Speed += speed;
-        Speed = Mathf.Clamp(Speed, 1000, 3500);
-    }
+    //public void AddSpeed(int speed)
+    //{
+    //    Speed += speed;
+    //    Speed = Mathf.Clamp(Speed, 1000, 3500);
+    //}
 
     public void AddDefence(int def)
     {
+        Debug.Log("add buff def:" + def);
         BuffDef += def;
     }
 
@@ -260,7 +263,7 @@ public class MonsterEx
         Speed = 1000;
         if (script == null)
         {
-            name = "孟星魂";
+            name = StringUtils.DefaultPlayer;
             SpawnPoint = 0;
             SpawnDir = 0;
             

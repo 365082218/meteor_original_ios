@@ -13,7 +13,7 @@ function npc04_04()
 	class.Guard =	20;
 	class.Dodge =	0;
 	class.Jump = 10;
-	class.Look = 60;
+	class.Look = 10;
 	class.Burst = 10;
 	class.Aim = 90;
 	class.GetItem = 0;

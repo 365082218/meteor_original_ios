@@ -28,10 +28,22 @@ public class ScriptInputDialog:Dialog
     Button Close;
     [SerializeField]
     Button DoScript;
+    public override void OnDialogStateExit() {
+        base.OnDialogStateExit();
+        if (Main.Ins.LocalPlayer != null) {
+            inputLocked = Main.Ins.LocalPlayer.meteorController.InputLocked;
+            Main.Ins.LocalPlayer.meteorController.LockInput(inputLocked);
+        }
+    }
 
+    bool inputLocked;
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
+        if (Main.Ins.LocalPlayer != null) {
+            inputLocked = Main.Ins.LocalPlayer.meteorController.InputLocked;
+            Main.Ins.LocalPlayer.meteorController.LockInput(true);
+        }
         Close.onClick.AddListener(() => { OnPreviousPress(); });
         DoScript.onClick.AddListener(() =>
         {
@@ -48,7 +60,7 @@ public class ScriptInputDialog:Dialog
                     return;
                 }
 
-                if (!UseCheatCode(scriptInput.text))
+                if (!CheatCode.UseCheatCode(scriptInput.text))
                     Main.Ins.ScriptMng.CallString(scriptInput.text);
                 result.text = "秘籍成功执行";
             }
@@ -57,24 +69,5 @@ public class ScriptInputDialog:Dialog
                 result.text = "执行出错:" + exp.Message + "-" + exp.StackTrace;
             }
         });
-    }
-
-    //使用作弊码
-    bool UseCheatCode(string cheatcode)
-    {
-        bool ret = false;
-        if (CheatOK(cheatcode, "god"))
-        {
-            U3D.GodLike();
-            ret = true;
-        }
-        return ret;
-    }
-
-    bool CheatOK(string cheat, string code)
-    {
-        if (cheat.ToUpper() == code || cheat.ToLower() == code)
-            return true;
-        return false;
     }
 }

@@ -5,6 +5,17 @@ using Excel2Json;
 
 public class DropMng
 {
+    //从角色头顶掉落物件
+    public void DropItem(MeteorUnit player, Option item) {
+        if (item.IsItem() || item.IsFlag()) {
+            GameObject trigget = CreateObj(item.model, player.transform, -player.transform.forward);
+            ExplosionObject01.DropItem(trigget, player.transform.position, Quaternion.AngleAxis(30, Vector3.up) * -player.transform.forward);
+        } else if (item.IsWeapon()) {
+            GameObject trigget = CreateTriggerObj(item.model, player.transform, -player.transform.forward);
+            ExplosionObject01.DropItem(trigget, player.transform.position, Quaternion.AngleAxis(30, Vector3.up) * -player.transform.forward);
+        }
+    }
+
     public void DropWeapon(MeteorUnit player)
     {
         int mainWeapon = player.Attr.Weapon2;
@@ -28,6 +39,7 @@ public class DropMng
         ExplosionObject01.DropItem(trigget, player.transform.position, -player.transform.forward);
     }
 
+    //丢掉角色的武器，如果角色带有道具，丢掉道具.
     public void Drop(MeteorUnit player)
     {
         //player.Attr;
@@ -79,7 +91,7 @@ public class DropMng
         obj.transform.localScale = Vector3.one;
         obj.transform.SetParent(Loader.Instance == null ? null : Loader.Instance.transform);
         obj.transform.position = pos.position + Vector3.up * 50 + forward * 35;
-        obj.layer = LayerMask.NameToLayer("Trigger");
+        obj.layer = LayerManager.Trigger;
         obj.tag = "PickupItemAgent";
         PickupItemAgent agent = obj.AddComponent<PickupItemAgent>();
         agent.SetPickupItem(des);

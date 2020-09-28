@@ -44,9 +44,14 @@ public class DartLoader : NetBehaviour {
         //计算位置
         //是否该
         _speed += gspeed * FrameReplay.deltaTime;
+        if (_speed > MaxSpeed) {
+            _speed = MaxSpeed;
+            addVelocity = false;
+        }
         float dis = FrameReplay.deltaTime * _speed;
         transform.position = transform.position + velocity * FrameReplay.deltaTime;
-        velocity += velocity.normalized * gspeed * FrameReplay.deltaTime;
+        if (addVelocity)
+            velocity += velocity.normalized * gspeed * FrameReplay.deltaTime;
         maxDistance -= dis;
         if (maxDistance <= 0.0f)
             DestroyObject(gameObject);
@@ -55,10 +60,13 @@ public class DartLoader : NetBehaviour {
     public AttackDes _attack;
     Vector3 velocity;
     public static float InitializeSpeed = 350.0f;
-    float _speed = InitializeSpeed;//初始速度.
+    public static float MaxSpeed = 650.0f;//可能超过这个速度就经常碰撞检测失败了-速度过大一帧就超过了
+    public float _speed = InitializeSpeed;//初始速度.
     public static float gspeed = 140.0f;//加速度.
     float maxDistance = 5000;//最远射程
+    bool addVelocity = true;
     List<DamageRecord> recordList = new List<DamageRecord>();
+    BoxCollider hitBox;
     public void LoadAttack(InventoryItem weapon, Vector3 forward, AttackDes att, MeteorUnit Owner)
     {
         owner = Owner;
@@ -75,26 +83,36 @@ public class DartLoader : NetBehaviour {
         transform.LookAt(transform.position + forward);
         MeshRenderer mr = gameObject.GetComponentInChildren<MeshRenderer>();
 
-        BoxCollider bc = mr.gameObject.AddComponent<BoxCollider>();
-        bc.isTrigger = true;
-        bc.size = new Vector3(6, 3, 6);
+        hitBox = mr.gameObject.AddComponent<BoxCollider>();
+        hitBox.isTrigger = true;
+        hitBox.size = new Vector3(6, 3, 6);
 
+        _speed = InitializeSpeed;
         velocity = forward * InitializeSpeed;
-        Main.Ins.GameBattleEx.AddDamageCollision(owner, bc);
+        addVelocity = true;
+        
+        if (U3D.showBox) {
+            BoundsGizmos.Instance.AddCollider(hitBox);
+        }
+        //取消这个对象和同队或者自己的碰撞
+        if (owner != null) {
+            owner.IgnoreOthers(hitBox);
+        }
     }
 
     public static void Init(Vector3 spawn, Vector3 forw, InventoryItem weapon, AttackDes att, MeteorUnit owner)
     {
         GameObject dartObj = GameObject.Instantiate(ResMng.LoadPrefab("DartLoader"), spawn, Quaternion.identity, null) as GameObject;
-        dartObj.layer = LayerMask.NameToLayer("Flight");
+        dartObj.layer = LayerManager.Flight;
         DartLoader dart = dartObj.GetComponent<DartLoader>();
         dart.LoadAttack(weapon, forw, att, owner);
+        
     }
 
     //反复计算飞镖伤害问题
     public void OnTriggerEnter(Collider other)
     {
-        if (other.transform.root.gameObject.layer == LayerMask.NameToLayer("Scene"))
+        if (other.transform.root.gameObject.layer == LayerManager.Scene)
         {
             SceneItemAgent it = other.GetComponentInParent<SceneItemAgent>();
             if (it != null)
@@ -153,7 +171,7 @@ public class DartLoader : NetBehaviour {
     public void LoadWeapon()
     {
         InventoryItem item = Weapon;
-        if (item.Info().MainType == (int)EquipType.Weapon)
+        if (item.Info().MainType == (int)UnitType.Weapon)
         {
             float scale = 2.0f;
             WeaponData weaponProperty = U3D.GetWeaponProperty(item.Info().UnitId);
@@ -181,7 +199,7 @@ public class DartLoader : NetBehaviour {
                     if (R != null)
                         DestroyImmediate(R);
                     GameObject objWeapon = GameObject.Instantiate(weaponPrefab);
-                    objWeapon.layer = LayerMask.NameToLayer("Flight");
+                    objWeapon.layer = LayerManager.Flight;
                     R = objWeapon.transform;
                     //L = new GameObject().transform;
                     R.SetParent(WeaponRoot);
@@ -197,7 +215,7 @@ public class DartLoader : NetBehaviour {
                     {
                         box.enabled = false;
                         //box.gameObject.tag = "Flight";
-                        box.gameObject.layer = LayerMask.NameToLayer("Flight");
+                        box.gameObject.layer = LayerManager.Flight;
                     }
                     else
                     {
@@ -219,7 +237,7 @@ public class DartLoader : NetBehaviour {
         if (R != null)
             DestroyImmediate(R);
         R = new GameObject().transform;
-        R.gameObject.layer = LayerMask.NameToLayer("Flight");
+        R.gameObject.layer = LayerManager.Flight;
         R.SetParent(WeaponRoot);
         R.localRotation = Quaternion.identity;
         R.localPosition = Vector3.zero;
@@ -422,7 +440,7 @@ public class DartLoader : NetBehaviour {
         if (R != null)
             DestroyImmediate(R);
         R = new GameObject().transform;
-        R.gameObject.layer = LayerMask.NameToLayer("Flight");
+        R.gameObject.layer = LayerManager.Flight;
         R.SetParent(WeaponRoot);
         R.localRotation = Quaternion.identity;
         R.localPosition = Vector3.zero;

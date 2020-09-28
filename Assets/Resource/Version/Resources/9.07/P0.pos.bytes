@@ -91,7 +91,7 @@ Pose 9
   source     0
   Start      7592
   End        7640
-  LoopStart  7542
+  LoopStart  7592
   LoopEnd    7640
   EffectType 0
   EffectID   0
@@ -4757,7 +4757,7 @@ Pose 252     #匕首空重1 下插起手
     End         9151
     AttackType  0
     CheckFriend 0
-    DefenseValue     0.2 
+    DefenseValue     0.2
     DefenseMove      0
     TargetValue      0.4
     TargetMove       0
@@ -7572,7 +7572,7 @@ Pose 295     #刀輕右揮
   Attack
   {
     bone = "weapon",
-           "bau R Forearm","bau R Hand",
+           "bau R Forearm","bau R Hand"
     Start       5760
     End         5763
     AttackType  0

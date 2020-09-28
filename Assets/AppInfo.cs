@@ -7,7 +7,7 @@ using UnityEngine;
 public class AppInfo
 {
     public const string versionKey = "APPVERSION";
-    public string localVer = "0.3.0";
+    public string localVer = "1.0.0";
     //返回本地版本号是否大于指定版本号，本地版本号即localVer;
     public bool VersionIsEqual(string s)
     {
@@ -63,7 +63,7 @@ public class AppInfo
         PlayerPrefs.SetString(versionKey, v);
     }
 
-    public const int ProtocolVersion = 20190805;//对战协议版本，在网络初始化后，如果服务器协议版本与此数字相等，则可以进行联机对战，否则需要更新到最新版本
+    public const int ProtocolVersion = 20190925;//对战协议版本，在网络初始化后，如果服务器协议版本与此数字相等，则可以进行联机对战，否则需要更新到最新版本
     public string MeteorVersion = "9.07";
     public int MeteorV1()
     {
@@ -75,6 +75,6 @@ public class AppInfo
     }
     public int LinkDelay()
     {
-        return Application.targetFrameRate * 8 / 30;
+        return Application.targetFrameRate * 6 / 30;
     }
 }

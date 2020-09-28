@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 //查找亲儿子,给个时间显示,之后渐变Alpha,之后删除
 public class AutoMsgCtrl : MonoBehaviour {
-    float lastTime = 2.0f;
+    float lastTime = 2.5f;
     float alphaTime = 0.5f;
     Coroutine fade;
     // Use this for initialization

@@ -2,6 +2,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Idevgame.GameState.DialogState;
+using System.Collections.Generic;
+
 public class DlcDialogState : CommonDialogState<DlcWnd> {
     public override string DialogName { get { return "DlcWnd"; } }
     public DlcDialogState(MainDialogStateManager stateMgr) : base(stateMgr) {
@@ -28,7 +30,9 @@ public class DlcWnd : Dialog {
     Text Title;
     [SerializeField]
     Text Desc;
-
+    [SerializeField]
+    Text PageLabel;
+    List<Chapter> Chapters = new List<Chapter>();
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
@@ -37,6 +41,7 @@ public class DlcWnd : Dialog {
 
     void Init()
     {
+        Chapters.Clear();
         Yes.onClick.AddListener(() =>
         {
             OnEnterChapter();
@@ -66,6 +71,10 @@ public class DlcWnd : Dialog {
             if (insertCount != 0)
                 rootCtrl.Reload(OnSelectChapter);
         }
+        if (Chapters.Count != 0)
+            PageLabel.text = string.Format("剧本:{0}/{1}", 1, Chapters.Count);
+        else
+            PageLabel.text = "剧本:未安装任何剧本";
         OnSelectChapter(select);
     }
 
@@ -91,12 +100,21 @@ public class DlcWnd : Dialog {
             warningWnd.SetActive(false);
         }
 
+
+
         select = lev;
         Title.text = select.Name;
         Desc.text = select.Desc;
         descPanel.GetComponent<RectTransform>().anchoredPosition = new Vector2(-450, -250);
         descPanel.GetComponent<CanvasGroup>().alpha = 0;
         seq = descPanel.Fade(1.0f, 250);
+
+        for (int i = 0; i < Chapters.Count; i++) {
+            if (Chapters[i].ChapterId == select.ChapterId) {
+                PageLabel.text = string.Format("剧本:{0}/{1}", i+1, Chapters.Count);
+                break;
+            }
+        }
     }
 
     void OnEnterChapter()
@@ -105,15 +123,7 @@ public class DlcWnd : Dialog {
         {
             //普通关卡对待.
             Main.Ins.CombatData.Chapter = select;
-            string tip = "";
-            if (!Main.Ins.DlcMng.CheckDependence(Main.Ins.CombatData.Chapter, out tip))
-            {
-                Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LevelDialogState, false);
-            }
-            else
-            {
-                U3D.PopupTip("Dlc依赖\n" + tip);
-            }
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LevelDialogState, false);
         }
         else
         {
@@ -123,6 +133,7 @@ public class DlcWnd : Dialog {
 
     void AddGridItem(Chapter lev, Transform parent)
     {
+        Chapters.Add(lev);
         GameObject obj = GameObject.Instantiate(rootCtrl.itemPrefab) as GameObject;
         obj.transform.SetParent(parent);
         obj.name = lev.Name;

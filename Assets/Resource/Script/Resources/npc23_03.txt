@@ -1,0 +1,35 @@
+local class = {}
+function npc23_03()
+	class.Name = "萧安";
+	class.Model = 7;
+	class.Weapon = 306;
+	class.Weapon2 = 246;
+	class.Team = 2;
+	class.View = 400;
+	class.Think = 50;
+	class.Attack1 = 55;
+	class.Attack2 = 40;
+	class.Attack3 = 0;
+	class.Guard = 5;
+	class.Dodge = 5;
+	class.Jump = 5;
+	class.Look = 10;
+	class.Burst = 1;
+	class.Aim = 50;
+	class.GetItem = 0;
+	class.Spawn = 14;
+	class.HP = 4500;
+	
+	class.g_selfAddr = 0;
+	class.g_self = 0;
+	return class;
+end
+
+function class:OnInit(a)
+	class.g_selfAddr = a;
+end
+
+function class:OnStart()
+	class.g_self = GetSelf(class.g_selfAddr);
+	ChangeBehavior(class.g_self, "wait");
+end

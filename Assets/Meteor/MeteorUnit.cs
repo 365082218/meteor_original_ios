@@ -6,23 +6,29 @@ using protocol;
 using Idevgame.GameState;
 using Idevgame.Meteor.AI;
 using UnityEngine.AI;
+using UnityStandardAssets.ImageEffects;
+using Excel2Json;
 
-public enum Direct
-{
+public enum NinjaState {
+    None,//
+    WaitPress,//等待按下跳跃蓄力
+    Ready,//等待触发超级跳
+    Interrupt,//打断无法继续，招式可以重置掉这个.(类似失误在空中没有接上超级跳，然后输入了一个动作，动作重置此状态后，可以继续使用超级跳)
+}
+
+public enum Direct {
     Back = 0,
     Front = 1,
     Right = 2,
     Left = 3
 }
 
-public enum EBUFF_ID
-{ 
+public enum EBUFF_ID {
     Drug = 10,//钝筋
     DrugEx = 13,//错骨，
 }
 
-public enum EBUFF_Type
-{
+public enum EBUFF_Type {
     MaxHP = 1,//最大气血+
     HP,//现有气血
     ATT,
@@ -32,29 +38,23 @@ public enum EBUFF_Type
     HIDE = 10,
 }
 
-public class BuffMng
-{
+public class BuffMng {
     public SortedDictionary<int, Buff> BufDict = new SortedDictionary<int, Buff>();
-    public void Clear()
-    {
+    public void Clear() {
         BufDict.Clear();
     }
 
     //取得某对象是否拥有某BUFF
-    public bool HasBuff(int id, MeteorUnit unit)
-    {
-        foreach (var each in BufDict)
-        {
+    public bool HasBuff(int id, MeteorUnit unit) {
+        foreach (var each in BufDict) {
             if (each.Value.Units.ContainsKey(unit) && each.Value.Id == id)
                 return true;
         }
         return false;
     }
 
-    public bool HasBuff(EBUFF_Type type, MeteorUnit unit)
-    {
-        foreach (var each in BufDict)
-        {
+    public bool HasBuff(EBUFF_Type type, MeteorUnit unit) {
+        foreach (var each in BufDict) {
             if (each.Value.Units.ContainsKey(unit) && each.Value.type == type)
                 return true;
         }
@@ -62,12 +62,9 @@ public class BuffMng
     }
 
     //某个角色删除全部BUFF
-    public void RemoveUnit(MeteorUnit unit)
-    {
-        foreach (var each in BufDict)
-        {
-            if (each.Value.Units.ContainsKey(unit))
-            {
+    public void RemoveUnit(MeteorUnit unit) {
+        foreach (var each in BufDict) {
+            if (each.Value.Units.ContainsKey(unit)) {
                 each.Value.ClearBuff(unit);
                 each.Value.Units.Remove(unit);
             }
@@ -75,15 +72,13 @@ public class BuffMng
     }
 }
 
-public class BuffContainer
-{
+public class BuffContainer {
     public float refresh_tick;
     public float refresh_round_tick;
     public SFXEffectPlay effect;
 }
 
-public class Buff
-{
+public class Buff {
     public bool Finished { get { return false; } }
     public EBUFF_Type type;
     public int Id;//12是蛊毒，
@@ -94,17 +89,13 @@ public class Buff
     public int effectIdx;//角色一直带特效.
     public int last_time;//BUFF持续时间
     public Dictionary<MeteorUnit, BuffContainer> Units = new Dictionary<MeteorUnit, BuffContainer>();
-    public void AddUnit(MeteorUnit unit)
-    {
-        if (!Units.ContainsKey(unit))
-        {
+    public void AddUnit(MeteorUnit unit) {
+        if (!Units.ContainsKey(unit)) {
             BuffContainer con = new BuffContainer();
             con.effect = effectIdx == 0 ? null : Main.Ins.SFXLoader.PlayEffect(effectIdx, unit.gameObject, false);
             Units.Add(unit, con);
             DoBuff(unit);
-        }
-        else
-        {
+        } else {
             //重复一次BUFF。要看这个BUFF是否可叠加,
             //生命上限，无法叠加
             //生命值，无法叠加
@@ -123,10 +114,8 @@ public class Buff
         //}
     }
 
-    public void Clear()
-    {
-        foreach (var each in Units)
-        {
+    public void Clear() {
+        foreach (var each in Units) {
             if (each.Value != null)
                 ClearBuff(each.Key);
         }
@@ -134,12 +123,10 @@ public class Buff
     }
 
     //清除一个对象的某个BUFF，除了状态值都不需要处理,但是要把特效清理掉
-    public void ClearBuff(MeteorUnit unit)
-    {
+    public void ClearBuff(MeteorUnit unit) {
         if (!Units.ContainsKey(unit))
             return;
-        if (Units[unit].effect != null)
-        {
+        if (Units[unit].effect != null) {
             Units[unit].effect.OnPlayAbort();
             Units[unit].effect = null;
         }
@@ -150,8 +137,7 @@ public class Buff
         //    FightWnd.Instance.RemoveBuff(this, unit);
         if (unit.Dead)
             return;
-        switch (type)
-        {
+        switch (type) {
             case EBUFF_Type.MaxHP:
                 unit.Attr.AddMaxHP(-value);
                 break;
@@ -159,7 +145,7 @@ public class Buff
                 //unit.Attr.AddHP(value / 10);//无需处理
                 break;
             case EBUFF_Type.ANG:
-            //    unit.AddAngry(value);
+                //    unit.AddAngry(value);
                 break;
             case EBUFF_Type.ATT:
                 unit.Attr.AddDamage(-value);
@@ -176,11 +162,9 @@ public class Buff
         }
     }
 
-    void DoBuff(MeteorUnit unit)
-    {
+    void DoBuff(MeteorUnit unit) {
         //无论如何都要执行一次BUFF
-        switch (type)
-        {
+        switch (type) {
             //要看同BUFF，可否叠加，比如最大气血值
             case EBUFF_Type.MaxHP:
                 unit.Attr.AddMaxHP(value);
@@ -210,41 +194,34 @@ public class Buff
     }
 
     List<MeteorUnit> unitRemoved = new List<MeteorUnit>();
-    public void NetUpdate()
-    {
+    public void NetUpdate() {
         unitRemoved.Clear();
-        switch (refresh_type)
-        {
+        switch (refresh_type) {
             case 1:
             case 99999://间隔多久刷一次，整体时间到了，删除对象
-                foreach (var each in Units)
-                {
+                foreach (var each in Units) {
                     each.Value.refresh_tick -= FrameReplay.deltaTime;
-                    if (each.Value.refresh_tick <= 0.0f)
-                    {
+                    if (each.Value.refresh_tick <= 0.0f) {
                         unitRemoved.Add(each.Key);//整体时间到了，就不要算单轮了
                         continue;
                     }
                     each.Value.refresh_round_tick -= FrameReplay.deltaTime;
-                    if (each.Value.refresh_round_tick <= 0.0f)
-                    {
+                    if (each.Value.refresh_round_tick <= 0.0f) {
                         each.Value.refresh_round_tick = refresh_delay;
                         DoBuff(each.Key);
-                        if (each.Key.Attr.Dead)
-                        {
+                        if (each.Key.Attr.Dead) {
                             unitRemoved.Add(each.Key);
                             continue;
                         }
                     }
-                    //if (each.Key.Attr.IsPlayer)
-                    //    FightWnd.Instance.UpdatePlayerInfo();
-                    //else if (!each.Key.SameCamp(MeteorManager.Instance.LocalPlayer) && GameData.Instance.gameStatus.ShowBlood)
-                    //    FightWnd.Instance.UpdateMonsterInfo(each.Key);
+                    if (each.Key.Attr.IsPlayer && FightState.Exist())
+                        FightState.Instance.UpdatePlayerInfo();
+                    else if (!each.Key.SameCamp(Main.Ins.LocalPlayer) && Main.Ins.GameStateMgr.gameStatus.ShowBlood)
+                        FightState.Instance.UpdateMonsterInfo(each.Key);
                 }
                 break;
             case -1://状态，持续时间到了取消状态，且删除对象
-                foreach (var each in Units)
-                {
+                foreach (var each in Units) {
                     each.Value.refresh_tick -= FrameReplay.deltaTime;
                     if (each.Value.refresh_tick <= 0.0f)
                         unitRemoved.Add(each.Key);
@@ -254,31 +231,30 @@ public class Buff
                 break;
         }
         //把超时的BUFF都删除掉
-        for (int i = 0; i < unitRemoved.Count; i++)
-        {
+        for (int i = 0; i < unitRemoved.Count; i++) {
             ClearBuff(unitRemoved[i]);
             Units.Remove(unitRemoved[i]);
             if (unitRemoved[i].Attr.Dead)
                 unitRemoved[i].OnDead();
-            //if (unitRemoved[i].Attr.IsPlayer)
-            //    FightWnd.Instance.UpdatePlayerInfo();
-            //else if (unitRemoved[i] == MeteorManager.Instance.LocalPlayer.GetLockedTarget())
-            //    FightWnd.Instance.UpdateMonsterInfo(unitRemoved[i]);
+            if (unitRemoved[i].Attr.IsPlayer && FightState.Exist())
+                FightState.Instance.UpdatePlayerInfo();
+            else if (unitRemoved[i] == Main.Ins.LocalPlayer.LockTarget && FightState.Exist())
+                FightState.Instance.UpdateMonsterInfo(unitRemoved[i]);
         }
     }
 }
 
+public enum RushDirection {
+    Front,
+    Back,
+    Left,
+    Right,
+}
 
-public partial class MeteorUnit : NetBehaviour
-{
+public partial class MeteorUnit : NetBehaviour {
     public virtual bool IsDebugUnit() { return false; }
     public int UnitId;
     public int InstanceId;
-    public Vector3 ShadowPosition;//影子坐标-服务器
-    public Quaternion ShadowRotation;//影子旋转-服务器
-    public float ShadowDelta = 0.0f;
-    public bool ShadowSynced = false;//是否同步完影子位置
-    public bool ShadowUpdate = false;//影子是否更新位置
     public Transform WeaponL;//右手骨骼
     public Transform WeaponR;
     public Transform ROOTNull;
@@ -286,17 +262,16 @@ public partial class MeteorUnit : NetBehaviour
     public Transform HeadBone;//头部骨骼.在自动目标存在时,头部骨骼朝向自动目标
     public Transform D_top;//头顶挂点.
     public EUnitCamp Camp = EUnitCamp.EUC_FRIEND;
-    public PoseStatus posMng;
-    public CharacterLoader charLoader;
-    public MeteorController controller;
+    public ActionManager ActionMgr;
+    public CharacterLoader characterLoader;
+    public MeteorController meteorController;
     public WeaponLoader weaponLoader;
     public float rotateTick = 0;//角色开始旋转后，计时，一定时间内没有再旋转，则视为不再旋转，跳出循环动作(待能切换动作时)
     //与主角的距离-的平方
     public float distance;
     //与主角的夹角
     public float angle;
-    public float TargetWeight()
-    {
+    public float TargetWeight() {
         //以此判定-越小表示更该被设定为自动目标
         return distance + angle * angle;
     }
@@ -304,41 +279,24 @@ public partial class MeteorUnit : NetBehaviour
     public float RebornTick = 0;//复活需要在死亡后多久间隔
     public bool WaitReborn = false;//盟主模式-等待系统复活
     public StateMachine StateMachine;//状态机
-    //按照角色的坐标围成一圈，每个30度 12个空位，距离50，其实应该按
-    //指定的对象是否在自己视野内
-    public bool Find(MeteorUnit unit)
-    {
-        float d = Vector3.Distance(unit.transform.position, transform.position);
-        if (unit.HasBuff(EBUFF_Type.HIDE))
-        {
-            //隐身20码内可发现，2个角色相距较近
-            if (d >= 3600.0f)
-                return false;
-        }
-        else
-        {
-            float v = U3D.IsSpecialWeapon(Attr.Weapon) ? Attr.View : Attr.View / 2;
-            if (d >= (v + 50))//给一定距离以免不停的切换目标
-                return false;
-        }
-        return true;
-    }
+    
 
     //单机关卡设置位置到路点.
-    public void SetPosition(Vector3 position)
-    {
+    public void SetPosition(Vector3 position) {
         transform.position = position;
     }
 
-    public void SetPosition(int spawnPoint)
-    {
+    public void SetPosition(int spawnPoint) {
         if (spawnPoint >= Main.Ins.CombatData.wayPoints.Count)
             return;
         transform.position = Main.Ins.CombatData.wayPoints[spawnPoint].pos;
     }
 
-    public void AIPause(bool pause, float t = 0.0f)
-    {
+    public void SetRotationImmediate(Quaternion quat) {
+        transform.rotation = quat;
+    }
+
+    public void AIPause(bool pause, float t = 0.0f) {
         if (StateMachine != null)
             StateMachine.Pause(pause, t);
     }
@@ -348,76 +306,62 @@ public partial class MeteorUnit : NetBehaviour
     //public List<SkillInput> SkillList = new List<SkillInput>();
     //MeteorUnit wantTarget = null;//绿色目标.只有主角拥有。
 
-    protected bool pause = false;
+    public bool Pause = false;
     Vector3 pos2 = Vector3.zero;
     public Vector3 mPos2d { get { pos2 = transform.position; pos2.y = 0; return pos2; } }
+    public Vector3 mShootPivot {
+        get {
+            if (Mathf.Abs(D_top.transform.position.y - transform.position.y) <= 20) {
+                return transform.position + Vector3.up * 5;
+            }
+            return mSkeletonPivot;
+        }
+    }
+    //被射击中的点，低一点，否则部分动作的时候，没法击中
     public Vector3 mSkeletonPivot { get { return transform.position + Main.Ins.CombatData.BodyHeight; } }
-    public bool Crouching { get { return posMng.mActiveAction.Idx == CommonAction.Crouch || (posMng.mActiveAction.Idx >= CommonAction.CrouchForw && posMng.mActiveAction.Idx <= CommonAction.CrouchBack); } }
-    public bool Climbing { get { return posMng.mActiveAction.Idx == CommonAction.ClimbLeft || posMng.mActiveAction.Idx == CommonAction.ClimbRight || posMng.mActiveAction.Idx == CommonAction.ClimbUp; } }
-    public bool ClimbJumping { get { return posMng.mActiveAction.Idx == CommonAction.WallRightJump || posMng.mActiveAction.Idx == CommonAction.WallLeftJump; } }
+    public bool Crouching { get { return ActionMgr.mActiveAction.Idx == CommonAction.Crouch || (ActionMgr.mActiveAction.Idx >= CommonAction.CrouchForw && ActionMgr.mActiveAction.Idx <= CommonAction.CrouchBack); } }
+    //攀爬
+    public bool Climbing { get { return ActionMgr.mActiveAction.Idx == CommonAction.ClimbLeft || ActionMgr.mActiveAction.Idx == CommonAction.ClimbRight || ActionMgr.mActiveAction.Idx == CommonAction.ClimbUp; } }
+    //左侧右侧蹬墙
+    public bool ClimbJumping { get { return ActionMgr.mActiveAction.Idx == CommonAction.WallRightJump || ActionMgr.mActiveAction.Idx == CommonAction.WallLeftJump; } }
     //int mCacheLayerMask;
     public float ClimbingTime;//限制爬墙Y轴速度持续
     public bool Dead = false;
     public bool OnTopGround = false;//顶部顶着了,无法向上继续
-    public bool OnGround = false;//控制器是否收到阻隔无法前进.
+    public bool OnGround = false;//控制器是否收到阻隔无法前进.踩在敌方或友方身体上也算
     public bool MoveOnGroundEx = false;//移动的瞬间，射线是否与地相聚不到4M。下坡的时候很容易离开地面
     public bool OnTouchWall = false;//贴着墙壁
     public GameObject blobShadow;
-    //public bool IsShow = true;
-    float MoveSpeedScale = 1.0f;
-    float ActionSpeedScale = 1.0f;
-    
-    public void SpeedFast()
-    {
-        MoveSpeedScale = Mathf.MoveTowards(MoveSpeedScale, SpeedMax, 0.1f);
-        ActionSpeedScale = Mathf.MoveTowards(ActionSpeedScale, SpeedMax, 0.1f);
-    }
-
-    public void SpeedSlow()
-    {
-        MoveSpeedScale = Mathf.MoveTowards(MoveSpeedScale, SpeedMin, 0.1f);
-        ActionSpeedScale = Mathf.MoveTowards(ActionSpeedScale, SpeedMin, 0.1f);
-    }
-
-    public static float SpeedMax = 16.0f;
-    public static float SpeedMin = 0.01f;
-
-    public float ActionSpeed { get { return ActionSpeedScale; } }
     //MoveSpeed
-    public float GetMoveSpeedScale()
-    {
-        return (CalcSpeed() / 100.0f) * MoveSpeedScale;
+    public float GetMoveSpeedScale() {
+        return (CalcSpeed() / 100.0f);
     }
 
+    public int ClimbingSpeed { get { return 6000; } }//这个值是慢慢调出来的，没有实际参考意义，不会1S就跑这么多
+    public int ClimbingSpeedY { get { return 850; } }
     public int MoveSpeed { get { return (int)(Attr.Speed * GetMoveSpeedScale()); } }
-
+    public float MoveActionSpeed { get { return (MoveSpeed / 1000.0f); } }
     //远程近战武器，攻击距离
-    public float AttackRange
-    {
-        get
-        {
+    public float AttackRange {
+        get {
             if (U3D.IsSpecialWeapon(Attr.Weapon))
                 return float.MaxValue;
             return CombatData.AttackRange;
         }
     }
 
-    public bool WillDead
-    {
-        get
-        {
-            return Attr.hpCur <= (0.25f * Attr.HpMax);
+    public float DeadZone = 0.25f;
+    public bool WillDead {
+        get {
+            return Attr.hpCur <= (DeadZone * Attr.HpMax);
         }
     }
 
-    public int AngryValue
-    {
-        get
-        {
+    public int AngryValue {
+        get {
             return Attr.AngryValue;
         }
-        set
-        {
+        set {
             Attr.AngryValue = Mathf.Clamp(value, 0, 100);
             if (Attr.IsPlayer && FightState.Exist())
                 FightState.Instance.UpdateAngryBar();
@@ -427,10 +371,8 @@ public partial class MeteorUnit : NetBehaviour
     //当前武器
     public int GetWeaponSubType() { return weaponLoader == null ? 0 : weaponLoader.WeaponSubType(); }
     public int GetWeaponType() { return weaponLoader == null ? -1 : weaponLoader.WeaponType(); }
-    public int GetGuardPose(Direct direction)
-    {
-        switch ((EquipWeaponType)GetWeaponType())
-        {
+    public int GetGuardPose(Direct direction) {
+        switch ((EquipWeaponType)GetWeaponType()) {
             case EquipWeaponType.Brahchthrust:
                 if (direction == Direct.Back)
                     return 52;
@@ -529,39 +471,29 @@ public partial class MeteorUnit : NetBehaviour
     }
 
 
-    public MeteorUnit GetKillTarget()
-    {
-        return KillTarget;
-    }
-
     public SceneItemAgent TargetItem;//当前选择的
     public MeteorUnit LockTarget = null;//攻击目标.主角主动攻击敌方后，没解锁前，都以这个目标作为锁定攻击目标
     public MeteorUnit KillTarget = null;//追杀目标.
     public MeteorUnit FollowTarget = null;//跟随目标.
-    public void SetLockedTarget(MeteorUnit target)
-    {
+    public void SetLockedTarget(MeteorUnit target) {
         LockTarget = target;
     }
 
-    protected new void OnDestroy()
-    {
+    protected new void OnDestroy() {
         base.OnDestroy();
         Main.Ins.ExitStateByOwner(this);
         if (weaponLoader != null)
             weaponLoader.RemoveTrail();
     }
 
-    public bool ExistDamage(MeteorUnit t)
-    {
-        return Damaged.ContainsKey(t);
+    public bool ExistDamage(MeteorUnit t) {
+        return HurtUnit.ContainsKey(t);
     }
 
-    public bool ExistDamage(SceneItemAgent t)
-    {
-        return Damaged2.ContainsKey(t);
+    public bool ExistDamage(SceneItemAgent t) {
+        return HurtSceneItem.ContainsKey(t);
     }
-    public bool SameCamp(MeteorUnit t)
-    {
+    public bool SameCamp(MeteorUnit t) {
         if (t.Camp == EUnitCamp.EUC_KILLALL)
             return false;
         if (t.Camp == EUnitCamp.EUC_NONE)
@@ -573,21 +505,25 @@ public partial class MeteorUnit : NetBehaviour
         return t.Camp == Camp;
     }
 
-    public void Guard(bool guard)
-    {
+    public void Guard(bool guard, float time) {
         if (StateMachine != null)
-            StateMachine.ChangeState(guard ? StateMachine.GuardState as State: StateMachine.IdleState as State, null);
+            StateMachine.ChangeState(guard ? StateMachine.GuardState as State : StateMachine.WaitState as State, time);
+        else {//主角
+            if (guard) {
+                Defence();
+            } else {
+                ReleaseDefence();
+            }
+        }
     }
 
     //初始化的时候，设置默认选择友军是谁，所有治疗技能，增益BUFF均默认释放给他
-    void SelectFriend()
-    {
-        float dis = Attr.View;
+    void SelectFriend() {
+        float dis = Attr.View / 2.0f;
         if (dis <= 10)
             dis = 100.0f;
         //int index = -1;
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
-        {
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++) {
             MeteorUnit unit = Main.Ins.MeteorManager.UnitInfos[i];
             if (unit == this)
                 continue;
@@ -596,61 +532,48 @@ public partial class MeteorUnit : NetBehaviour
             if (unit.Dead)
                 continue;
             float d = Vector3.Distance(transform.position, Main.Ins.MeteorManager.UnitInfos[i].transform.position);
-            if (dis > d)
-            {
+            if (dis > d) {
                 dis = d;
                 //index = i;
             }
         }
     }
 
-    public bool HasBuff(int id)
-    {
+    public bool HasBuff(int id) {
         return Main.Ins.BuffMng.HasBuff(id, this);
 
     }
     //查看角色是否拥有某个类型的BUF
-    public bool HasBuff(EBUFF_Type type)
-    {
+    public bool HasBuff(EBUFF_Type type) {
         return Main.Ins.BuffMng.HasBuff(type, this);
     }
 
     bool canControlOnAir;//是跳跃到空中落下，还是被击飞到空中落下.击飞落下时是不能控制出招的.
-    public bool CanActionOnAir()
-    {
+    public bool CanActionOnAir() {
         return canControlOnAir;
     }
 
     //是否精确在地面，由控制器返回在地面标识
-    public bool IsOnGroundEx()
-    {
+    public bool IsOnGroundEx() {
         bool ret = OnGround;
-        return posMng.Jump ? false : ret;
+        return ActionMgr.Jump ? false : ret;
     }
 
-    public bool IsOnGround()
-    {
+    public bool IsOnGround() {
         bool ret = OnGround || MoveOnGroundEx;
-        return posMng.Jump ? false : ret;
+        return ActionMgr.Jump ? false : ret;
     }
 
-    public void SetGround(bool onground)
-    {
+    public void SetGround(bool onground) {
         OnGround = onground;
         MoveOnGroundEx = onground;
     }
 
 
     public MonsterEx Attr;
-    protected new void Awake()
-    {
+    protected new void Awake() {
         base.Awake();
         //单场景启动.
-#if !STRIP_DBG_SETTING
-        if (!IsDebugUnit() && WSDebug.Ins) {
-            WSDebug.Ins.AddDebuggableObject(this);
-        }
-#endif
     }
 
 
@@ -665,55 +588,61 @@ public partial class MeteorUnit : NetBehaviour
     List<SceneItemAgent> removedT = new List<SceneItemAgent>();
     public float xRotateDelta = 0;
     public float yRotateDelta = 0;
-    public override void NetUpdate()
-    {
+
+    public override void NetUpdate() {
         if (!gameObject.activeInHierarchy)
             return;
-        if (pause) {
+        if (Pause) {
             return;
         }
+        FrameUpdate();
+    }
+
+    public void FrameUpdate() {
+        //if (Input.GetKeyDown(KeyCode.N)) {
+        //    OnDebugDamage();
+        //}
         if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             ProcessCommand();
         if (Climbing)
             ClimbingTime += FrameReplay.deltaTime;
-        else
+        else {
             ClimbingTime = 0;
-        if (posMng.Jump)
-            posMng.JumpTick += FrameReplay.deltaTime;
-        if (posMng.Rotateing) {
+            ActionMgr.ClimbFallTick = 0.0f;
+        }
+        if (ActionMgr.Jump)
+            ActionMgr.JumpTick += FrameReplay.deltaTime;
+        if (ActionMgr.Rotateing) {
             rotateTick += FrameReplay.deltaTime;
         }
         keyM.Clear();
-        keyM.AddRange(Damaged.Keys);
+        keyM.AddRange(HurtUnit.Keys);
         removedM.Clear();
-        foreach (var each in keyM)
-        {
-            Damaged[each] -= FrameReplay.deltaTime;
+        foreach (var each in keyM) {
+            HurtUnit[each] -= FrameReplay.deltaTime;
             //Debug.LogError("time:" + Time.deltaTime);
-            if (Damaged[each] < 0.0f)
+            if (HurtUnit[each] < 0.0f)
                 removedM.Add(each);
         }
         for (int i = 0; i < removedM.Count; i++)
-            Damaged.Remove(removedM[i]);
+            HurtUnit.Remove(removedM[i]);
         keyS.Clear();
-        keyS.AddRange(Damaged2.Keys);
+        keyS.AddRange(HurtSceneItem.Keys);
         removedS.Clear();
-        foreach (var each in keyS)
-        {
-            Damaged2[each] -= FrameReplay.deltaTime;
-            if (Damaged2[each] < 0.0f)
+        foreach (var each in keyS) {
+            HurtSceneItem[each] -= FrameReplay.deltaTime;
+            if (HurtSceneItem[each] < 0.0f)
                 removedS.Add(each);
         }
 
         for (int i = 0; i < removedS.Count; i++)
-            Damaged2.Remove(removedS[i]);
+            HurtSceneItem.Remove(removedS[i]);
 
         //机关或者尖刺打到我.
         keyD.Clear();
         keyD.AddRange(attackDelay.Keys);
         removedD.Clear();
-        foreach (var each in keyD)
-        {
+        foreach (var each in keyD) {
             attackDelay[each] -= FrameReplay.deltaTime;
             if (attackDelay[each] < 0.0f)
                 removedD.Add(each);
@@ -725,8 +654,7 @@ public partial class MeteorUnit : NetBehaviour
         keyT.Clear();
         keyT.AddRange(touchDelay.Keys);
         removedT.Clear();
-        foreach (var each in keyT)
-        {
+        foreach (var each in keyT) {
             touchDelay[each] -= FrameReplay.deltaTime;
             if (touchDelay[each] < 0.0f)
                 removedT.Add(each);
@@ -736,27 +664,25 @@ public partial class MeteorUnit : NetBehaviour
             touchDelay.Remove(removedT[i]);
 
         //动画帧和位置
-        charLoader.NetUpdate();
-        //控制者更新
-        if (controller != null)
-            controller.NetUpdate();
+        if (ActionMgr != null)
+            ActionMgr.NetUpdate();
 
-        if (!Main.Ins.CombatData.PauseAll)
-        {
+        //控制者更新
+        if (meteorController != null)
+            meteorController.NetUpdate();
+
+        if (!Main.Ins.CombatData.PauseAll) {
             if (StateMachine != null && gameObject.activeInHierarchy)
                 StateMachine.Update();
         }
         ProcessVelocity();
 
         //除了受击，防御，其他动作在有锁定目标下，都要转向锁定目标.
-        if (LockTarget != null && posMng.mActiveAction.Idx == CommonAction.Run)
-        {
-            if (StateMachine == null && Main.Ins.GameStateMgr.gameStatus.AutoLock)
-            {
+        if (LockTarget != null && ActionMgr.mActiveAction.Idx == CommonAction.Run) {
+            if (StateMachine == null && Main.Ins.GameStateMgr.gameStatus.AutoLock) {
                 if (GetWeaponType() != (int)EquipWeaponType.Guillotines &&
                     GetWeaponType() != (int)EquipWeaponType.Gun &&
-                    GetWeaponType() != (int)EquipWeaponType.Dart)
-                {
+                    GetWeaponType() != (int)EquipWeaponType.Dart) {
                     MeteorUnit target = LockTarget;
                     float dis = Vector2.SqrMagnitude(target.mPos2d - this.mPos2d);
                     //小于一定距离后，不再改变朝向.否则一直抖动
@@ -766,16 +692,12 @@ public partial class MeteorUnit : NetBehaviour
             }
         }
 
-        if (IsDebugUnit())
-        {
-        }
-        else
-        {
-            if (Attr.IsPlayer)
-            {
-                float yRotate = 0;
-                if (posMng.CanRotateY)
-                {
+        if (IsDebugUnit()) {
+        } else {
+            if (Attr.IsPlayer) {
+                if (!meteorController.InputLocked && !Main.Ins.GameBattleEx.BattleFinished()) {
+                    float yRotate = 0;
+                    if (ActionMgr.CanRotateY) {
 #if STRIP_KEYBOARD
                     //Debug.LogError(string.Format("deltaLast.x:{0}", NGUICameraJoystick.instance.deltaLast.x));
                     //读取手柄上的相机左旋转，相机右旋.
@@ -785,33 +707,33 @@ public partial class MeteorUnit : NetBehaviour
                         yRotate = NGUICameraJoystick.instance.deltaLast.x * Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.x;
                     }
 #else
-                yRotate = Input.GetAxis("Mouse X") * 5;
+                        yRotate = Input.GetAxis("Mouse X") * 5;
 #endif
-                }
-                //if (yRotate != 0)
-                //    MeteorManager.Instance.LocalPlayer.SetOrientation(yRotate, false);
+                    }
+                    //if (yRotate != 0)
+                    //    MeteorManager.Instance.LocalPlayer.SetOrientation(yRotate, false);
 
-                float xRotate = 0;
+                    float xRotate = 0;
 #if STRIP_KEYBOARD
-                if (Main.Ins.JoyStick.isActiveAndEnabled) {
-                    xRotate = 2.0f * Main.Ins.JoyStick.CameraAxisY;
-                } else {
-                    xRotate = NGUICameraJoystick.instance.deltaLast.y * Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.y;
-                }
+                    if (Main.Ins.JoyStick.isActiveAndEnabled) {
+                        xRotate = 2.0f * Main.Ins.JoyStick.CameraAxisY;
+                    } else {
+                        xRotate = NGUICameraJoystick.instance.deltaLast.y * Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.y;
+                    }
 #else
-                xRotate = Input.GetAxis("Mouse Y") * 2;
+                    xRotate = Input.GetAxis("Mouse Y") * 2;
 #endif
-                //把Mouse的移动事件/触屏的拖拽事件发送到
-                if (xRotate != 0 || yRotate != 0)
-                {
-                    //Debug.LogError("push mouse move");
-                    if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
-                        Main.Ins.FrameSync.PushMouseDelta(InstanceId, (int)(1000 * xRotate), (int)(1000 * yRotate));
-                    else
-                        OnPlayerMouseDelta(xRotate, yRotate);
-                }
-                if (posMng.Rotateing) {
-                    CheckRotateEnd();
+                    //把Mouse的移动事件/触屏的拖拽事件发送到
+                    if (xRotate != 0 || yRotate != 0) {
+                        //Debug.LogError("push mouse move");
+                        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+                            Main.Ins.FrameSync.PushMouseDelta(InstanceId, (int)(1000 * xRotate), (int)(1000 * yRotate));
+                        else
+                            OnPlayerMouseDelta(xRotate, yRotate);
+                    }
+                    if (ActionMgr.Rotateing) {
+                        CheckRotateEnd();
+                    }
                 }
             }
         }
@@ -824,20 +746,16 @@ public partial class MeteorUnit : NetBehaviour
     }
 
     //解析角色的真动作.
-    protected void ProcessCommand()
-    {
+    protected void ProcessCommand() {
         List<FrameCommand> command = FrameReplay.Instance.actions;
-        if (command != null)
-        {
-            for (int i = 0; i < command.Count; i++)
-            {
+        if (command != null) {
+            for (int i = 0; i < command.Count; i++) {
                 if (command[i].playerId != InstanceId)
                     continue;
                 if (command[i].LogicFrame != FrameReplay.Instance.LogicFrameIndex)
                     continue;
                 //取得该角色得操作指令，并且执行.
-                switch (command[i].command)
-                {
+                switch (command[i].command) {
                     case MeteorMsg.Command.MouseMove:
                         //Debug.LogError("mouse move");
                         Vector2_ vec = ProtoBuf.Serializer.Deserialize<Vector2_>(new System.IO.MemoryStream(command[i].data));
@@ -848,27 +766,22 @@ public partial class MeteorUnit : NetBehaviour
                         OnPlayerJoyMove(vec2.x / 1000.0f, vec2.y / 1000.0f);
                         break;
                     case MeteorMsg.Command.KeyDown:
-                        controller.Input.OnKeyDown((EKeyList)command[i].data[0]);
+                        meteorController.Input.OnKeyDown((EKeyList)command[i].data[0]);
                         break;
                     case MeteorMsg.Command.KeyUp:
-                        controller.Input.OnKeyUp((EKeyList)command[i].data[0]);
-                        break;
-                    case MeteorMsg.Command.KeyLast:
-                        controller.Input.OnKeyPressing((EKeyList)command[i].data[0]);
+                        meteorController.Input.OnKeyUp((EKeyList)command[i].data[0]);
                         break;
                 }
             }
         }
     }
 
-    protected void OnPlayerJoyMove(float x, float y)
-    {
-        controller.Input.mInputVector.x = x;
-        controller.Input.mInputVector.y = y;
+    protected void OnPlayerJoyMove(float x, float y) {
+        meteorController.Input.mInputVector.x = x;
+        meteorController.Input.mInputVector.y = y;
     }
 
-    protected void OnPlayerMouseDelta(float x, float y)
-    {
+    protected void OnPlayerMouseDelta(float x, float y) {
         if (y != 0)
             Main.Ins.LocalPlayer.SetOrientation(y, false);
         //存储上一帧鼠标或者触屏的偏移.
@@ -884,37 +797,25 @@ public partial class MeteorUnit : NetBehaviour
         }
     }
 
-    public const float Jump2Velocity = 160;//蹬腿反弹速度
-    public const float JumpVelocityForward = 180.0f;//向前跳跃速度
-    public const float JumpVelocityOther = 100.0f;//其他方向上的速度
     
-    //public const float gGravity = 980.0f;//971.4f;//向上0.55秒，向下0.45秒
-    public const float groundFriction = 3000.0f;//地面摩擦力，在地面不是瞬间停止下来的。
-    public const float yLimitMin = -700f;//最大向下速度
-    public const float yLimitMax = 700;//最大向上速度
-    public const float yClimbLimitMax = 180.0f;
-    public const float yClimbEndLimit = -30.0f;//爬墙时,Y速度到达此速度，开始计时，时间到就从墙壁落下
     //角色跳跃高度74，是以脚趾算最低点，倒过来算出dbase,则需要减去差值。
     public bool IgnoreGravity = false;
     //物体动量(质量*速度)的改变,等于物体所受外力冲量的总和.这就是动量定理
     public Vector3 ImpluseVec = Vector3.zero;//冲量，ft = mat = mv2 - mv1,冲量在时间内让物体动量由A变化为B
 
     //增加一点速度，让其爬墙，或者持续跳
-    public void AddYVelocity(float y)
-    {
+    public void AddYVelocity(float y) {
         //return;
         ImpluseVec.y += y;
-        if (ImpluseVec.y > yClimbLimitMax)
-            ImpluseVec.y = yClimbLimitMax;
+        if (ImpluseVec.y > CombatData.yClimbLimitMax)
+            ImpluseVec.y = CombatData.yClimbLimitMax;
     }
 
-    public void ResetYVelocity()
-    {
+    public void ResetYVelocity() {
         ImpluseVec.y = 0;
     }
 
-    public void IgnoreGravitys(bool ignore)
-    {
+    public void IgnoreGravitys(bool ignore) {
         IgnoreGravity = ignore;
         //招式忽略重力时，等招式结束的时候，这个速度开始向下加速到落地
         if (IgnoreGravity)
@@ -922,52 +823,42 @@ public partial class MeteorUnit : NetBehaviour
     }
 
     //处理地面摩擦力, scale地面摩擦力倍数，空中时摩擦力为0.2倍
-    void ProcessFriction(float scale = 1.0f)
-    {
+    void ProcessFriction(float scale = 1.0f) {
         //return;
-        if (ImpluseVec.x != 0)
-        {
-            if (ImpluseVec.x > 0)
-            {
-                ImpluseVec.x -= scale * groundFriction * FrameReplay.deltaTime;
+        if (Climbing)
+            return;
+        if (ImpluseVec.x != 0) {
+            if (ImpluseVec.x > 0) {
+                ImpluseVec.x -= scale * CombatData.groundFriction * FrameReplay.deltaTime;
                 if (ImpluseVec.x < 0)
                     ImpluseVec.x = 0;
-            }
-            else
-            {
-                ImpluseVec.x += scale * groundFriction * FrameReplay.deltaTime;
+            } else {
+                ImpluseVec.x += scale * CombatData.groundFriction * FrameReplay.deltaTime;
                 if (ImpluseVec.x > 0)
                     ImpluseVec.x = 0;
             }
         }
-        if (ImpluseVec.z != 0)
-        {
-            if (ImpluseVec.z > 0)
-            {
-                ImpluseVec.z -= scale * groundFriction * FrameReplay.deltaTime;
+        if (ImpluseVec.z != 0) {
+            if (ImpluseVec.z > 0) {
+                ImpluseVec.z -= scale * CombatData.groundFriction * FrameReplay.deltaTime;
                 if (ImpluseVec.z < 0)
                     ImpluseVec.z = 0;
-            }
-            else
-            {
-                ImpluseVec.z += scale * groundFriction * FrameReplay.deltaTime;
+            } else {
+                ImpluseVec.z += scale * CombatData.groundFriction * FrameReplay.deltaTime;
                 if (ImpluseVec.z > 0)
                     ImpluseVec.z = 0;
             }
         }
     }
 
-    public void ResetWorldVelocity(bool reset)
-    {
-        if (reset)
-        {
+    public void ResetWorldVelocity(bool reset) {
+        if (reset) {
             ImpluseVec.x = 0.3f * ImpluseVec.x;
             ImpluseVec.z = 0.3f * ImpluseVec.z;
         }
     }
 
-    public virtual void ProcessVelocity()
-    {
+    public virtual void ProcessVelocity() {
         if (charController == null || !charController.enabled)
             return;
         //Debug.Log("f:" + Time.frameCount);
@@ -977,178 +868,149 @@ public partial class MeteorUnit : NetBehaviour
         //过渡帧不计算重力.
         v.y = IgnoreGravity ? 0 : ImpluseVec.y * FrameReplay.deltaTime;
         v.z = ImpluseVec.z * FrameReplay.deltaTime;
-        v += charLoader.moveDelta;
+        v += ActionMgr.moveDelta;
         if (v != Vector3.zero)
             Move(v);
-        if (IgnoreGravity)
-        {
+        if (IgnoreGravity) {
 
-        }
-        else
-        {
+        } else {
             ImpluseVec.y = ImpluseVec.y - gScale * FrameReplay.deltaTime;
-            if (ImpluseVec.y < yLimitMin)
-                ImpluseVec.y = yLimitMin;
+            if (ImpluseVec.y < CombatData.yLimitMin)
+                ImpluseVec.y = CombatData.yLimitMin;
         }
 
-        if (IsOnGround())
-        {
-            ImpluseVec.y = -Main.Ins.CombatData.gOnGroundCheck;
-            if (OnGround || OnTopGround)//如果在地面，或者顶到天花板，那么应用摩擦力.
-                ProcessFriction();
-            else if (MoveOnGroundEx)
-                ProcessFriction(0.9f);//没贴着地面，还是要有摩擦力，否则房顶滑动太厉害
+        if (IsOnGround()) {
+            if (Climbing) {
+
+            } else {
+                ImpluseVec.y = -Main.Ins.CombatData.gOnGroundCheck;
+                if (OnGround || OnTopGround)//如果在地面，或者顶到天花板，那么应用摩擦力.
+                    ProcessFriction();
+                else if (MoveOnGroundEx)
+                    ProcessFriction(0.9f);//没贴着地面，还是要有摩擦力，否则房顶滑动太厉害
+            }
+        } else if (OnTouchWall) {
+            if (Climbing) {
+
+            } else
+                ProcessFriction(0.3f);//爬墙或者在墙面滑动，摩擦力是地面的0.2倍
         }
-        else if (OnTouchWall)
-            ProcessFriction(0.3f);//爬墙或者在墙面滑动，摩擦力是地面的0.2倍
     }
 
-    public bool CanBurst()
-    {
+    public bool CanBreakout() {
         return (AngryValue >= CombatData.ANGRYBURST);
     }
 
     //专门用来播放左转，右转动画的，直接面对角色不要调用这个。
-    public void SetOrientation(float orient, bool ai = true)
-    {
-        if (ai && posMng != null && posMng.onhurt)
+    public void SetOrientation(float orient, bool ai = true) {
+        if (ai && ActionMgr != null && ActionMgr.onhurt)
             return;
         Quaternion quat = Quaternion.identity;
-        try
-        {
+        try {
             quat = Quaternion.Euler(transform.eulerAngles.x, transform.eulerAngles.y + orient, transform.eulerAngles.z);
-        }
-        catch (Exception exp)
-        {
+        } catch (Exception exp) {
             Debug.LogError(exp.Message);
             Debug.DebugBreak();
         }
         transform.rotation = quat;
-        if (controller.Input.OnInputMoving())
-        {
+        if (meteorController.Input.OnInputMoving()) {
             //if (!Attr.IsPlayer)
             //    Debug.Log("SetOrientation returned");
             return;
         }
         OnCameraRotateStart();
-        if (GetWeaponType() == (int)EquipWeaponType.Gun)
-        {
-            if (orient < 0.0f)
-            {
-                if (Crouching || posMng.mActiveAction.Idx == CommonAction.GunIdle)
-                {
-                    if (posMng.mActiveAction.Idx == CommonAction.Crouch || posMng.mActiveAction.Idx == CommonAction.GunIdle
-                    || (posMng.mActiveAction.Idx == CommonAction.CrouchRight && controller.Input.mInputVector.x == 0))
-                        posMng.ChangeAction(CommonAction.CrouchLeft, 0.1f);
-                }
-                else
-                if (posMng.mActiveAction.Idx < CommonAction.Crouch
-                    || (posMng.mActiveAction.Idx == CommonAction.WalkRight && controller.Input.mInputVector.x == 0))
-                    posMng.ChangeAction(CommonAction.WalkLeft, 0.1f);
+        if (GetWeaponType() == (int)EquipWeaponType.Gun) {
+            if (orient < 0.0f) {
+                if (Crouching || ActionMgr.mActiveAction.Idx == CommonAction.GunIdle) {
+                    if (ActionMgr.mActiveAction.Idx == CommonAction.Crouch || ActionMgr.mActiveAction.Idx == CommonAction.GunIdle
+                    || (ActionMgr.mActiveAction.Idx == CommonAction.CrouchRight && meteorController.Input.mInputVector.x == 0))
+                        ActionMgr.ChangeAction(CommonAction.CrouchLeft, 0.1f);
+                } else
+                if (ActionManager.IsReadyAction(ActionMgr.mActiveAction.Idx) || ActionMgr.mActiveAction.Idx == CommonAction.Idle
+                    || (ActionMgr.mActiveAction.Idx == CommonAction.WalkRight && meteorController.Input.mInputVector.x == 0))
+                        ActionMgr.ChangeAction(CommonAction.WalkLeft, 0.1f);
+            } else
+            if (orient > 0.0f) {
+                if (Crouching || ActionMgr.mActiveAction.Idx == CommonAction.GunIdle) {
+                    if (ActionMgr.mActiveAction.Idx == CommonAction.Crouch || ActionMgr.mActiveAction.Idx == CommonAction.GunIdle
+                    || (ActionMgr.mActiveAction.Idx == CommonAction.CrouchLeft && meteorController.Input.mInputVector.x == 0))
+                        ActionMgr.ChangeAction(CommonAction.CrouchRight, 0.1f);
+                } else
+                if (ActionManager.IsReadyAction(ActionMgr.mActiveAction.Idx) || 
+                    ActionMgr.mActiveAction.Idx == CommonAction.Idle || 
+                    (ActionMgr.mActiveAction.Idx == CommonAction.WalkLeft && meteorController.Input.mInputVector.x == 0))
+                        ActionMgr.ChangeAction(CommonAction.WalkRight, 0.1f);
             }
-            else
-            if (orient > 0.0f)
-            {
-                if (Crouching || posMng.mActiveAction.Idx == CommonAction.GunIdle)
-                {
-                    if (posMng.mActiveAction.Idx == CommonAction.Crouch || posMng.mActiveAction.Idx == CommonAction.GunIdle
-                    || (posMng.mActiveAction.Idx == CommonAction.CrouchLeft && controller.Input.mInputVector.x == 0))
-                        posMng.ChangeAction(CommonAction.CrouchRight, 0.1f);
-                }
-                else
-                if (posMng.mActiveAction.Idx < CommonAction.Crouch
-                    || (posMng.mActiveAction.Idx == CommonAction.WalkLeft && controller.Input.mInputVector.x == 0))
-                    posMng.ChangeAction(CommonAction.WalkRight, 0.1f);
-            }
-        }
-        else
-        {
-            if (orient < 0.0f)
-            {
-                if (Crouching)
-                {
-                    if (posMng.mActiveAction.Idx == CommonAction.Crouch
-                    || (posMng.mActiveAction.Idx == CommonAction.CrouchRight && controller.Input.mInputVector.x == 0))
-                        posMng.ChangeAction(CommonAction.CrouchLeft, 0.1f);
-                }
-                else
-                if (posMng.mActiveAction.Idx < CommonAction.Crouch
-                    || (posMng.mActiveAction.Idx == CommonAction.WalkRight && controller.Input.mInputVector.x == 0))
-                    posMng.ChangeAction(CommonAction.WalkLeft, 0.1f);
-            }
-            else
-            if (orient > 0.0f)
-            {
-                if (Crouching)
-                {
-                    if (posMng.mActiveAction.Idx == CommonAction.Crouch
-                    || (posMng.mActiveAction.Idx == CommonAction.CrouchLeft && controller.Input.mInputVector.x == 0))
-                        posMng.ChangeAction(CommonAction.CrouchRight, 0.1f);
-                }
-                else
-                if (posMng.mActiveAction.Idx < CommonAction.Crouch
-                    || (posMng.mActiveAction.Idx == CommonAction.WalkLeft && controller.Input.mInputVector.x == 0))
-                    posMng.ChangeAction(CommonAction.WalkRight, 0.1f);
+        } else {
+            if (orient < 0.0f) {
+                if (Crouching) {
+                    if (ActionMgr.mActiveAction.Idx == CommonAction.Crouch
+                    || (ActionMgr.mActiveAction.Idx == CommonAction.CrouchRight && meteorController.Input.mInputVector.x == 0))
+                        ActionMgr.ChangeAction(CommonAction.CrouchLeft, 0.1f);
+                } else
+                if (ActionManager.IsReadyAction(ActionMgr.mActiveAction.Idx) || ActionMgr.mActiveAction.Idx == CommonAction.Idle
+                    || (ActionMgr.mActiveAction.Idx == CommonAction.WalkRight && meteorController.Input.mInputVector.x == 0))
+                        ActionMgr.ChangeAction(CommonAction.WalkLeft, 0.1f);
+            } else
+            if (orient > 0.0f) {
+                if (Crouching) {
+                    if (ActionMgr.mActiveAction.Idx == CommonAction.Crouch
+                    || (ActionMgr.mActiveAction.Idx == CommonAction.CrouchLeft && meteorController.Input.mInputVector.x == 0))
+                            ActionMgr.ChangeAction(CommonAction.CrouchRight, 0.1f);
+                } else
+                if (ActionManager.IsReadyAction(ActionMgr.mActiveAction.Idx) || ActionMgr.mActiveAction.Idx == CommonAction.Idle
+                    || (ActionMgr.mActiveAction.Idx == CommonAction.WalkLeft && meteorController.Input.mInputVector.x == 0))
+                        ActionMgr.ChangeAction(CommonAction.WalkRight, 0.1f);
             }
         }
     }
 
     //角色是否面向指定位置.
-    public bool IsFacetoVector3(Vector3 target)
-    {
+    public bool IsFacetoVector3(Vector3 target) {
         return Vector3.Dot(-transform.forward, (new Vector3(target.x, 0, target.z) - new Vector3(transform.position.x, 0, transform.position.z)).normalized) >= 0;
     }
 
-    public bool IsFacetoTarget(MeteorUnit target)
-    {
+    public bool IsFacetoTarget(MeteorUnit target) {
         return Vector3.Dot(-transform.forward, (new Vector3(target.transform.position.x, 0, target.transform.position.z) - new Vector3(transform.position.x, 0, transform.position.z)).normalized) >= 0;
     }
 
     //战斗场景,控制视角相机
-    public void SetOrientation(Quaternion quatDiff, Quaternion orig)
-    {
+    public void SetOrientation(Quaternion quatDiff, Quaternion orig) {
         transform.rotation = quatDiff * orig;
         float orient = quatDiff.eulerAngles.y * Mathf.Deg2Rad;
-        if (orient <= 0.0f)
-        {
-            if (posMng.mActiveAction.Idx == CommonAction.Idle || 
-                posMng.mActiveAction.Idx == CommonAction.WalkRight)
-                posMng.ChangeAction(CommonAction.WalkLeft);
-        }
-        else
-        if (orient > 0.0f)
-        {
-            if (posMng.mActiveAction.Idx == CommonAction.Idle ||
-                posMng.mActiveAction.Idx == CommonAction.WalkLeft)
-                posMng.ChangeAction(CommonAction.WalkRight);
+        if (orient <= 0.0f) {
+            if (ActionMgr.mActiveAction.Idx == CommonAction.Idle ||
+                ActionMgr.mActiveAction.Idx == CommonAction.WalkRight)
+                ActionMgr.ChangeAction(CommonAction.WalkLeft);
+        } else
+        if (orient > 0.0f) {
+            if (ActionMgr.mActiveAction.Idx == CommonAction.Idle ||
+                ActionMgr.mActiveAction.Idx == CommonAction.WalkLeft)
+                ActionMgr.ChangeAction(CommonAction.WalkRight);
         }
     }
 
-    
-    public void Kill(MeteorUnit unit)
-    {
-        if (StateMachine != null)
-        {
-            StateMachine.ChangeState(StateMachine.KillState, unit);
+
+    public void Kill(MeteorUnit unit) {
+        if (StateMachine != null) {
+            if (unit != null && unit.isActiveAndEnabled) {
+                KillTarget = unit;
+                if (!KillTarget.Dead) {
+                    StateMachine.ChangeState(StateMachine.KillState);
+                }
+            }
         }
     }
 
-    public void FaceToTarget(Vector3 target)
-    {
+    public void FaceToTarget(Vector3 target) {
         Vector3 vdiff = transform.position - target;
         vdiff.y = 0;
         if (vdiff == Vector3.zero)
             return;
         transform.rotation = Quaternion.LookRotation(new Vector3(vdiff.x, 0, vdiff.z), Vector3.up);
-        if (this == Main.Ins.LocalPlayer)
-        {
-            if (Main.Ins.CameraFollow != null)
-                Main.Ins.CameraFollow.ForceUpdate();
-        }
     }
 
-    public void FaceToTarget(MeteorUnit unit)
-    {
+    public void FaceToTarget(MeteorUnit unit) {
         if (unit == this)
             return;
         //UnityEngine.Debug.LogError(string.Format("{0} faceto :{1}", name, unit.name));
@@ -1156,11 +1018,9 @@ public partial class MeteorUnit : NetBehaviour
     }
 
     public CharacterController charController;
-    public void Init(int modelIdx, MonsterEx mon = null, bool updateModel = false)
-    {
-        pause = false;
-        //wayIndex = mon == null ? 0 : mon.SpawnPoint;
-        WeaponReturned(0);
+    public void Init(int modelIdx, MonsterEx mon = null, bool updateModel = false) {
+        DeadZone = 0.25f;
+        Pause = false;
         Vector3 vec = transform.position;
         Quaternion rotation = transform.rotation;
 
@@ -1170,71 +1030,57 @@ public partial class MeteorUnit : NetBehaviour
         IgnoreGravity = true;
         IgnorePhysical = false;
         name = Attr.Name;
-        if (Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
-            gameObject.layer = Attr.IsPlayer ? LayerMask.NameToLayer("LocalPlayer") : LayerMask.NameToLayer("Monster");
-        else
-            gameObject.layer = LayerMask.NameToLayer("LocalPlayer");
+        gameObject.layer = LayerManager.Player;
 
         //单机模式下有ai
-        if (Main.Ins.CombatData.GLevelMode <= LevelMode.CreateWorld){
+        if (Main.Ins.CombatData.GLevelMode <= LevelMode.CreateWorld) {
             StateMachine = Attr.IsPlayer ? null : new StateMachine();
             if (StateMachine != null) {
                 StateMachine.Init(this);
             }
         }
-        
-        if (controller == null)
-            controller = new MeteorController();
 
-        if (updateModel)
-        {
-            //把伤害盒子去掉，把受击盒子去掉
-            hitList.Clear();
-            Main.Ins.GameBattleEx.ClearDamageCollision(this);
+        if (meteorController == null)
+            meteorController = new MeteorController();
 
+        if (updateModel) {
             //切换模型把BUFF删掉
             Main.Ins.BuffMng.RemoveUnit(this);
-
+            HurtList.Clear();
             if (flag)
                 flagEffect.OnPlayAbort();
 
-            if (charLoader != null)
-            {
-                GameObject.Destroy(charLoader.rootBone.parent.gameObject);
-                GameObject.Destroy(charLoader.Skin.gameObject);
-                charLoader = null;
+            if (characterLoader != null) {
+                GameObject.Destroy(characterLoader.rootBone.parent.gameObject);
+                GameObject.Destroy(characterLoader.Skin.gameObject);
+                characterLoader = null;
             }
         }
 
-        if (charLoader == null)
-            charLoader = new CharacterLoader();
-        if (posMng == null)
-            posMng = new PoseStatus();
+        if (characterLoader == null)
+            characterLoader = new CharacterLoader();
+        if (ActionMgr == null)
+            ActionMgr = new ActionManager();
 
-        if (updateModel)
-        {
+        if (updateModel) {
             transform.position = Vector3.zero;
             transform.rotation = Quaternion.identity;
         }
-        charLoader.LoadCharactor(UnitId, transform);
-        try
-        {
-            posMng.Init(this);
-        }
-        catch
-        {
+        characterLoader.LoadCharactor(UnitId, transform);
+        try {
+            ActionMgr.Init(this);
+        } catch {
             Debug.LogError("unit id:" + UnitId);
         }
-        WeaponR = NodeHelper.Find("d_wpnR", charLoader.rootBone.gameObject).transform;
-        WeaponL = NodeHelper.Find("d_wpnL", charLoader.rootBone.gameObject).transform;
-        ROOTNull = NodeHelper.Find("b", charLoader.rootBone.gameObject).transform;
-        HeadBone = NodeHelper.Find("bau_Head", charLoader.rootBone.gameObject).transform;
-        D_top = NodeHelper.Find("d_top", charLoader.rootBone.gameObject).transform;
-        RootdBase = charLoader.rootBone;
+        WeaponR = NodeHelper.Find("d_wpnR", characterLoader.rootBone.gameObject).transform;
+        WeaponL = NodeHelper.Find("d_wpnL", characterLoader.rootBone.gameObject).transform;
+        ROOTNull = NodeHelper.Find("b", characterLoader.rootBone.gameObject).transform;
+        HeadBone = NodeHelper.Find("bau_Head", characterLoader.rootBone.gameObject).transform;
+        D_top = NodeHelper.Find("d_top", characterLoader.rootBone.gameObject).transform;
+        RootdBase = characterLoader.rootBone;
 
         weaponLoader = gameObject.GetComponent<WeaponLoader>();
-        if (updateModel)
-        {
+        if (updateModel) {
             Destroy(weaponLoader);
             weaponLoader = null;
         }
@@ -1242,28 +1088,27 @@ public partial class MeteorUnit : NetBehaviour
             weaponLoader = gameObject.AddComponent<WeaponLoader>();
         weaponLoader.Init(this);
 
-        charController = gameObject.GetComponent<CharacterController>();
-        if (charController == null)
-            charController = gameObject.AddComponent<CharacterController>();
-        if (charController != null) {
-            charController.center = new Vector3(0, 16, 0);
-            charController.height = 32;
-            charController.radius = 8.0f;//足够大不会挂在墙壁上不下来
-            charController.stepOffset = 7.6f;
-        }
+        //charController = gameObject.GetComponent<CharacterController>();
+        //if (charController == null)
+        //    charController = gameObject.AddComponent<CharacterController>();
+        //if (charController != null) {
+        //    charController.center = new Vector3(0, 16, 0);
+        //    charController.height = 32;
+        //    charController.radius = 8.0f;//足够大不会挂在墙壁上不下来
+        //    charController.stepOffset = 7.6f;
+        //}
 
-        if (controller != null)
-            controller.Init(this);
+        if (meteorController != null)
+            meteorController.Init(this);
 
         InventoryItem itWeapon = Main.Ins.GameStateMgr.MakeEquip(Attr.Weapon);
         weaponLoader.EquipWeapon(itWeapon);
 
-        posMng.ChangeAction(CommonAction.Idle, 0);
+        ActionMgr.ChangeAction(CommonAction.Idle, 0);
         //换主角模型用
-        if (updateModel)
-        {
-            transform.position = vec;
-            transform.rotation = rotation;
+        if (updateModel) {
+            SetPosition(vec);
+            SetRotationImmediate(rotation);
         }
 
         //换主角模型用
@@ -1280,18 +1125,34 @@ public partial class MeteorUnit : NetBehaviour
             blobShadow.transform.localScale = new Vector3(2, 2, 2);
             blobShadow.transform.localPosition = new Vector3(0, 0, 0);
         }
+
+        charController = gameObject.GetComponent<CharacterController>();
+        ModelData modeldata = Main.Ins.DataMgr.GetModelData(UnitId);
+        float height = modeldata != null ? modeldata.Height : 34;
+        float pivot = modeldata != null ? modeldata.Pivot: 14.5f;
+        //一定要让角色倒地的时候，还在地面上一点高度，否则很多招式就无法再打到这个倒地的角色了
+        if (charController == null)
+            charController = gameObject.AddComponent<CharacterController>();
+        if (charController != null) {
+            charController.center = new Vector3(0, pivot, 0);
+            charController.height = height;
+            charController.radius = 10.0f;
+            charController.stepOffset = 7.6f;
+        }
+        ShowAttackBox();
     }
 
     public bool IsPlaySkill { get; set; }
-    public void EquipWeapon(InventoryItem it)
-    {
+    public void EquipWeapon(InventoryItem it) {
         IndicatedWeapon = it;
         ChangeWeapon();
     }
 
     InventoryItem IndicatedWeapon;
-    public void ChangeWeaponCode(int weaponCode)
-    {
+    public void ChangeWeaponCode(int weaponCode) {
+        InventoryItem w = Main.Ins.GameStateMgr.MakeEquip(weaponCode);
+        if (w == null)
+            return;
         if (weaponLoader != null)
             weaponLoader.UnEquipWeapon();
 
@@ -1305,19 +1166,56 @@ public partial class MeteorUnit : NetBehaviour
         //    OnEquipChanged.Invoke(toEquip);
         IndicatedWeapon = null;
         //没有自动目标，攻击目标，不许计算自动/锁定目标，无转向
-        if (Attr.IsPlayer && (GetWeaponType() == (int)EquipWeaponType.Gun || GetWeaponType() == (int)EquipWeaponType.Dart))
+        //血滴子即使有自动目标，切换时也应该先解锁
+        if (Attr.IsPlayer && (GetWeaponType() == (int)EquipWeaponType.Gun || GetWeaponType() == (int)EquipWeaponType.Dart || GetWeaponType() == (int)EquipWeaponType.Guillotines))
             Main.Ins.GameBattleEx.Unlock();
+        ShowAttackBox();
     }
 
-    public void ChangeWeaponPos(int pose)
-    {
+    public void ChangeWeaponPos(WeaponPos pose) {
         if (weaponLoader != null)
             weaponLoader.ChangeWeaponPos(pose);
     }
 
+    NinjaState ninjaState;
+    public void UpdateNinjaState(NinjaState st) {
+        if (GetWeaponType() == (int)EquipWeaponType.NinjaSword && !IsOnGround()) {
+            if (ninjaState == NinjaState.None) {
+                if (st == NinjaState.WaitPress) {
+                    ninjaState = st;
+                }
+            } else if (ninjaState == NinjaState.WaitPress) {
+                if (st == NinjaState.Ready) {
+                    ninjaState = NinjaState.Ready;
+                }
+            } else if (ninjaState == NinjaState.Ready) {//当蓄力等待触发无限飞时，如果抬起，则此次被打断
+                if (st == NinjaState.WaitPress) {
+                    ninjaState = NinjaState.Interrupt;
+                }
+            } else if (ninjaState == NinjaState.Interrupt) {
+                if (st == NinjaState.None) {
+                    ninjaState = st;
+                }
+            }
+        }
+    }
+
+    //松开跳跃键，如果使用的忍刀，且在松开前，有成功的招式输入，则可以无限跳跃
+    public bool SuperJump() {
+        if (GetWeaponType() == (int)EquipWeaponType.NinjaSword) {
+            //跳跃键现在状态是按下，按下的时间超过0.3S
+            if (ninjaState == NinjaState.Ready) {
+                if (meteorController.Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_PressingEnough)) {
+                    Jump(false, CommonAction.Jump);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     //移动速度/非动作速度
-    public int CalcSpeed()
-    {
+    public int CalcSpeed() {
         if (weaponLoader == null || weaponLoader.GetCurrentWeapon() == null || weaponLoader.GetCurrentWeapon().Info() == null)
             return 100;
         if (weaponLoader.GetCurrentWeapon().Info().Speed == 0)
@@ -1325,18 +1223,15 @@ public partial class MeteorUnit : NetBehaviour
         return weaponLoader.GetCurrentWeapon().Info().Speed;
     }
 
-    public int CalcDamage()
-    {
+    public int CalcDamage() {
         return weaponLoader.GetCurrentWeapon().Info().Damage;
     }
 
-    public int CalcDef()
-    {
+    public int CalcDef() {
         return weaponLoader.GetCurrentWeapon().Info().Def;
     }
 
-    public int GetNextWeaponType()
-    {
+    public int GetNextWeaponType() {
         if (Attr.Weapon2 == 0)
             return -1;
         InventoryItem it = Main.Ins.GameStateMgr.MakeEquip(Attr.Weapon2);
@@ -1345,10 +1240,8 @@ public partial class MeteorUnit : NetBehaviour
         return -1;
     }
 
-    public void SyncWeapon(int weapon1, int weapon2)
-    {
-        if (weaponLoader == null && Attr.Weapon == weapon1)
-        {
+    public void SyncWeapon(int weapon1, int weapon2) {
+        if (weaponLoader == null && Attr.Weapon == weapon1) {
             Attr.Weapon2 = weapon2;
             return;
         }
@@ -1359,13 +1252,12 @@ public partial class MeteorUnit : NetBehaviour
         if (IndicatedWeapon != null && weaponLoader != null)
             weaponLoader.EquipWeapon(IndicatedWeapon);
         IndicatedWeapon = null;
+        ShowAttackBox();
     }
 
     //丢掉主武器，切换到武器2
-    public void DropAndChangeWeapon()
-    {
-        if (Attr.Weapon2 != 0)
-        {
+    public void DropAndChangeWeapon() {
+        if (Attr.Weapon2 != 0) {
             if (weaponLoader != null)
                 weaponLoader.UnEquipWeapon();
             Attr.Weapon = Attr.Weapon2;
@@ -1383,13 +1275,12 @@ public partial class MeteorUnit : NetBehaviour
             Main.Ins.GameBattleEx.Unlock();
         if (StateMachine != null)
             StateMachine.OnChangeWeapon();
+        ShowAttackBox();
     }
 
-    public void ChangeNextWeapon()
-    {
+    public void ChangeNextWeapon() {
         //Debug.Log("ChangeNextWeapon");
-        if (Attr.Weapon2 != 0)
-        {
+        if (Attr.Weapon2 != 0) {
             if (weaponLoader != null)
                 weaponLoader.UnEquipWeapon();
             int weapon = Attr.Weapon;
@@ -1401,94 +1292,89 @@ public partial class MeteorUnit : NetBehaviour
             weaponLoader.EquipWeapon(IndicatedWeapon);
         IndicatedWeapon = null;
         //没有自动目标，攻击目标，不许计算自动/锁定目标，无转向
-        if (Attr.IsPlayer && 
-            (GetWeaponType() == (int)EquipWeaponType.Gun || 
-             GetWeaponType() == (int)EquipWeaponType.Dart || 
+        if (Attr.IsPlayer &&
+            (GetWeaponType() == (int)EquipWeaponType.Gun ||
+             GetWeaponType() == (int)EquipWeaponType.Dart ||
              GetWeaponType() == (int)EquipWeaponType.Guillotines))
             Main.Ins.GameBattleEx.Unlock();
         if (StateMachine != null)
             StateMachine.OnChangeWeapon();
+        ShowAttackBox();
     }
 
-
-    public void ChangeWeapon()
-    {
-        posMng.ChangeAction(IsOnGround() ? CommonAction.ChangeWeapon : CommonAction.AirChangeWeapon, 0.0f);
+    public void ShowAttackBox() {
+        if (U3D.showBox) {
+            for (int i = 0; i < HurtList.Count; i++) {
+                BoundsGizmos.Instance.AddCollider(HurtList[i]);
+            }
+            BoundsGizmos.Instance.AddColliders(WeaponL.GetComponentsInChildren<Collider>());
+            BoundsGizmos.Instance.AddColliders(WeaponR.GetComponentsInChildren<Collider>());
+            BoundsGizmos.Instance.AddTransform(transform);
+        }
     }
 
-    public void OnCrouch()
-    {
-        posMng.ChangeAction(CommonAction.Crouch, 0.1f);
+    public void ChangeWeapon() {
+        ActionMgr.ChangeAction(IsOnGround() ? CommonAction.ChangeWeapon : CommonAction.AirChangeWeapon, 0.1f);
     }
 
-    public void Defence()
-    {
+    public void OnCrouch() {
+        ActionMgr.ChangeAction(CommonAction.Crouch, 0.1f);
+    }
+
+    public void Defence() {
         int weapon = GetWeaponType();
         if (weapon == (int)EquipWeaponType.Gun || weapon == (int)EquipWeaponType.Dart || weapon == (int)EquipWeaponType.Guillotines)
             return;
-        posMng.ChangeAction(CommonAction.Defence, 0.1f);
+        ActionMgr.ChangeAction(CommonAction.Defence, 0.1f);
     }
 
     //火枪是否进入预备状态，这个状态下，除了跳跃，爆气，受击之外都会继续回到预备姿势，而不进入默认的IDLE
     public bool GunReady { get; set; }
-    public void SetGunReady(bool ready)
-    {
+    public void SetGunReady(bool ready) {
         GunReady = ready;
     }
 
 
-    public void DoBreakOut()
-    {
-        if (AngryValue >= 60 || Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
-        {
-            posMng.ChangeAction(CommonAction.BreakOut);
-            charLoader.LockTime(0);
+    public void DoBreakOut() {
+        if (AngryValue >= 60 || Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry) {
+            ActionMgr.ChangeAction(CommonAction.BreakOut);
+            ActionMgr.LockTime(0);
             AngryValue -= Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry ? 0 : 60;
-            //if (Attr.IsPlayer)
-            //    FightWnd.Instance.UpdateAngryBar();
+            if (Attr.IsPlayer) {
+                if (FightState.Exist())
+                    FightState.Instance.UpdateAngryBar();
+            }
         }
     }
 
     //处理上升途中的跳跃键，查看周围有无可伸腿踩的点，如果有，则判断方向，切换姿势，并给一个速度
     //面向左45，面向，面向右45，查看是否
-    public void ProcessJump2()
-    {
-        if (Climbing)
-        {
-            if (posMng.mActiveAction.Idx == CommonAction.ClimbUp)
-            {
+    public void ProcessJump2() {
+        if (Climbing) {
+            if (ActionMgr.mActiveAction.Idx == CommonAction.ClimbUp) {
                 //倒跳
-                SetWorldVelocity(transform.forward * Jump2Velocity);
-                Jump2(CommonAction.JumpBack);
-            }
-            else if (posMng.mActiveAction.Idx == CommonAction.ClimbRight)
-            {
+                SetWorldVelocity((transform.forward + transform.up) * CombatData.Jump2Velocity);
+                Jump3(CommonAction.JumpBack);
+            } else if (ActionMgr.mActiveAction.Idx == CommonAction.ClimbRight) {
                 //像右
-                SetWorldVelocity(-transform.right * Jump2Velocity);
-                Jump2(CommonAction.WallLeftJump);
+                SetWorldVelocity((-transform.right + transform.up) * CombatData.Jump2Velocity);
+                Jump3(CommonAction.WallLeftJump);
+            } else if (ActionMgr.mActiveAction.Idx == CommonAction.ClimbLeft) {
+                SetWorldVelocity((transform.right + transform.up) * CombatData.Jump2Velocity);
+                Jump3(CommonAction.WallRightJump);
             }
-            else if (posMng.mActiveAction.Idx == CommonAction.ClimbLeft)
-            {
-                SetWorldVelocity(transform.right * Jump2Velocity);
-                Jump2(CommonAction.WallRightJump);
-            }
-        }
-        else
-        {
+        } else {
             RaycastHit hit;
             Vector3 vec = Vector3.zero;
             Vector3 nearest = Vector3.zero;
             float length = 100.0f;
             int idx = -3;//0左侧，1中间，2右侧
-            for (int i = -2; i < 3; i++)
-            {
-                if (Physics.Raycast(transform.position, Quaternion.AngleAxis(i * 45, Vector3.up) * -transform.forward, out hit, charController.radius + 5, 1 << LayerMask.NameToLayer("Scene")))
-                {
+            for (int i = -1; i < 2; i++) {
+                if (Physics.Raycast(transform.position, Quaternion.AngleAxis(i * 45, Vector3.up) * -transform.forward, out hit, charController.radius + 5, LayerManager.SceneMask)) {
                     vec = transform.position - hit.point;
                     vec.y = 0;
                     // = vec.magnitude;
-                    if (length > vec.magnitude)
-                    {
+                    if (length > vec.magnitude) {
                         length = vec.magnitude;
                         nearest = vec;
                         idx = i;
@@ -1496,98 +1382,61 @@ public partial class MeteorUnit : NetBehaviour
                 }
             }
 
-            //Debug.LogError("idx:" + idx);
-            switch (idx)
-            {
-                case -2:
+            nearest = Vector3.Normalize(nearest);
+            Vector3 dir = nearest * CombatData.Jump2Velocity;
+            dir.y = CalcVelocity(CombatData.Jump2Velocity);
+            switch (idx) {
                 case -1:
-                    SetWorldVelocity(Vector3.Normalize(vec) * Jump2Velocity);
-                    Jump2(CommonAction.WallLeftJump);
+                    SetWorldVelocity(dir);
+                    Jump3(CommonAction.WallLeftJump);
                     break;
                 case 0:
-                    SetWorldVelocity(Vector3.Normalize(vec) * Jump2Velocity);
-                    Jump2(CommonAction.JumpBack);
+                    SetWorldVelocity(dir);
+                    Jump3(CommonAction.JumpBack);
                     break;
                 case 1:
-                case 2:
-                    SetWorldVelocity(Vector3.Normalize(vec) * Jump2Velocity);
-                    Jump2(CommonAction.WallRightJump);
+                    SetWorldVelocity(dir);
+                    Jump3(CommonAction.WallRightJump);
                     break;
             }
         }
     }
     //处理贴墙轻功时,给XY初速度，再给Y初速度
-    public void ProcessTouchWallJump(bool minVelocity)
-    {
+    public void ProcessTouchWallJump(bool minVelocity) {
         //Debug.LogError("hit Wall Jump");
-        if (posMng.mActiveAction.Idx == CommonAction.ClimbUp)
-        {
+        Vector3 vecNormal = transform.forward + transform.up;
+        if (ActionMgr.mActiveAction.Idx == CommonAction.ClimbUp) {
             //倒跳
-            SetWorldVelocity(hitNormal * Jump2Velocity);
-            Jump2(CommonAction.JumpBack);
-        }
-        else if (posMng.mActiveAction.Idx == CommonAction.ClimbRight)
-        {
-            //像右
-            SetWorldVelocity(Quaternion.AngleAxis(-45, Vector3.up) * hitNormal * Jump2Velocity);
-            Jump2(CommonAction.WallLeftJump);
-        }
-        else if (posMng.mActiveAction.Idx == CommonAction.ClimbLeft)
-        {
-            SetWorldVelocity(Quaternion.AngleAxis(45, Vector3.up) * hitNormal * Jump2Velocity);
-            Jump2(CommonAction.WallRightJump);
+            SetWorldVelocity((vecNormal) * CombatData.Jump2Velocity);
+            Jump3(CommonAction.JumpBack);
+        } else if (ActionMgr.mActiveAction.Idx == CommonAction.ClimbRight) {
+            //右 -2为惯性模拟-不能让速度直接替换之前爬墙的速度，否则看起来不符合物理规律
+            SetWorldVelocity((-2 * transform.right + hitNormal + 2 * transform.up) * CombatData.Jump2Velocity);
+            Jump3(CommonAction.WallLeftJump);
+        } else if (ActionMgr.mActiveAction.Idx == CommonAction.ClimbLeft) {
+            SetWorldVelocity((2 * transform.right + hitNormal + 2 * transform.up) * CombatData.Jump2Velocity);
+            Jump3(CommonAction.WallRightJump);
         }
     }
 
     //被墙壁推开.
-    public void ProcessFall(float scale = 1.0f)
-    {
+    public void ProcessFall(bool lockMove = true) {
         //return;
         Vector3 vec = transform.position - hitPoint;
         vec.y = 0;
         //恰好碰撞点，就是自己所处的坐标,把角色向前推一定距离.
         if (vec == Vector3.zero)
-            vec = -transform.forward;
-        AddWorldVelocity(Vector3.Normalize(vec) * 30 * scale);
-        //如果在墙壁处被推开
-        //if (robot != null)
-        //    robot.ChangeState(EAIStatus.PushByWall);
-        //WsGlobal.AddDebugLine(hitPoint, hitPoint + Vector3.Normalize(vec) * 30, Color.red, "pushDir", 10);
-        //Debug.LogError("被墙壁推开");
-        //RaycastHit hit;
-        //bool processed = false;
-        //for (int i = 0; i < 12; i++)
-        //{
-        //    if (Physics.Raycast(mPos, Quaternion.AngleAxis(i * 30, Vector3.up) * -transform.forward, out hit, charController.radius + 5, 1 << LayerMask.NameToLayer("Scene")))
-        //    {
-        //        Vector3 vec = mPos - hit.point;
-        //        if (posMng.mActiveAction.Idx == CommonAction.Run ||
-        //            posMng.mActiveAction.Idx == CommonAction.RunOnDrug ||
-        //            posMng.mActiveAction.Idx == CommonAction.WalkLeft ||
-        //            posMng.mActiveAction.Idx == CommonAction.WalkRight ||
-        //            posMng.mActiveAction.Idx == CommonAction.WalkBackward ||
-        //            posMng.mActiveAction.Idx == CommonAction.ClimbRight ||
-        //            posMng.mActiveAction.Idx == CommonAction.ClimbLeft ||
-        //            posMng.mActiveAction.Idx == CommonAction.ClimbUp)
-
-        //        SetWorldVelocity(Vector3.Normalize(vec) * 30);
-        //        //Jump(0.01f, CommonAction.JumpFall);
-        //        processed = true;
-        //        break;
-        //    }
-        //}
-        ////没有处理？？？
-        //if (!processed)
-        //{
-        //    SetWorldVelocity(transform.forward * 30);
-        //Jump(0.01f, CommonAction.JumpFall);
-        //}
+            vec = transform.forward;
+        if (hit.collider.gameObject.layer != LayerManager.Player)
+            AddWorldVelocity(Vector3.Normalize(vec) * 100);
+        if (lockMove) {
+            meteorController.LockMove(true);//在恢复到正常状态前，不可以再输入方向键.
+        }
     }
 
     float floatTick = -1.0f;//浮空时刻
-    public float groundTick = -1.0f;//贴地面时刻
-    void UpdateFlags(CollisionFlags flag)
-    {
+    RaycastHit hit;//射线打到了谁身上，如果是角色，那么在processfall时，不要处理速度
+    void UpdateFlags(CollisionFlags flag) {
         if ((flag & CollisionFlags.Sides) != 0)
             OnTouchWall = true;
         else
@@ -1599,26 +1448,22 @@ public partial class MeteorUnit : NetBehaviour
         if ((flag & CollisionFlags.Below) != 0)
             OnGround = true;
 
-        if (OnGround || OnTopGround || OnTouchWall)
-        {
-            if (posMng.JumpTick != 0.0f)
-                posMng.CanAdjust = false;
+        if (OnGround || OnTopGround || OnTouchWall) {
+            if (ActionMgr.JumpTick != 0.0f)
+                ActionMgr.CanAdjust = false;
         }
         //减少射线发射次数.
         bool Floating = false;
-        RaycastHit hit;
 
-        if (Physics.SphereCast(transform.position + Vector3.up * 2f, 0.5f, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene")))
-        {
+        if (Physics.SphereCast(transform.position + Vector3.up * 2f, 0.5f, Vector3.down, out hit, 1000, LayerManager.AllSceneMask)) {
             MoveOnGroundEx = hit.distance <= 4f;
             //Debug.Log(string.Format("distance:{0}", hit.distance));
             Floating = hit.distance >= 12.0f;
             if (blobShadow != null) {
                 blobShadow.transform.position = hit.point + new Vector3(0, 0.2f, 0);
+                blobShadow.transform.forward = hit.normal;
             }
-        }
-        else
-        {
+        } else {
             MoveOnGroundEx = false;
             Floating = true;
             if (blobShadow != null) {
@@ -1626,207 +1471,182 @@ public partial class MeteorUnit : NetBehaviour
             }
         }
 
-        if (OnGround)
-        {
+        if (OnGround) {
+            //无法真正意义的表明在地面，踩在其他角色头顶或真身体上也算
             //检测脚底是否踩住地面了
             //Y轴速度下降到速度超过能爬墙的速度.停止攀爬.被墙壁弹开.
-            if (Climbing)
-            {
+            if (Climbing) {
                 //爬墙
-                if (!MoveOnGroundEx && ImpluseVec.y < yClimbEndLimit)
-                {
-                    posMng.ClimbFallTick += FrameReplay.deltaTime;
-                    if (posMng.ClimbFallTick > PoseStatus.ClimbFallLimit)
-                    {
-                        //Debug.LogError("爬墙速度低于最低速度-爬墙落下");
-                        posMng.ChangeAction(CommonAction.JumpFall);//短时间内落地姿势
+                if (!MoveOnGroundEx && ImpluseVec.y < CombatData.yClimbEndLimit) {
+                    ActionMgr.ClimbFallTick += FrameReplay.deltaTime;
+                    if (ActionMgr.ClimbFallTick > CombatData.ClimbFallLimit) {
+                        Debug.LogError("爬墙速度低于最低速度-爬墙落下-持续半秒");
                         ProcessFall();
-                        posMng.ClimbFallTick = 0.0f;
+                        ActionMgr.ChangeAction(CommonAction.JumpFall, 0.1f);
+                        ActionMgr.ClimbFallTick = 0.0f;
                     }
-                }
-                else if (MoveOnGroundEx)
-                {
-                    //Debug.LogError("爬墙碰到地面-落到地面");
-                    posMng.ChangeAction(CommonAction.JumpFall, 0.0f);//短时间内落地姿势
-                }
-                else
-                {
+                } else if (MoveOnGroundEx) {
+                    Debug.LogError("爬墙碰到地面-落到地面");
+                    ProcessFall();
+                    ActionMgr.ChangeAction(CommonAction.JumpFall, 0.1f);
+                    //ActionMgr.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
+                } else {
                     //只要在爬行中接触到可以算做落地的位置，都弹开
                     //尝试被推开.
                     ProcessFall();
+                    ActionMgr.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                 }
-            }
-            else if (OnTouchWall && Floating && Time.timeSinceLevelLoad - floatTick >= 0.75f)//贴墙浮空，被墙壁推开
-            {
-                if (posMng.mActiveAction.Idx == CommonAction.Idle ||
-                    posMng.mActiveAction.Idx == CommonAction.WalkLeft ||
-                    posMng.mActiveAction.Idx == CommonAction.Run ||
-                    posMng.mActiveAction.Idx == CommonAction.RunOnDrug ||
-                        posMng.mActiveAction.Idx == CommonAction.WalkRight ||
-                        posMng.mActiveAction.Idx == CommonAction.WalkBackward ||
-                        posMng.mActiveAction.Idx == CommonAction.Jump ||
-                        posMng.mActiveAction.Idx == CommonAction.JumpLeft ||
-                        posMng.mActiveAction.Idx == CommonAction.JumpRight ||
-                        posMng.mActiveAction.Idx == CommonAction.JumpBack ||
-                        posMng.mActiveAction.Idx == CommonAction.JumpLeftFall ||
-                        posMng.mActiveAction.Idx == CommonAction.JumpRightFall ||
-                        posMng.mActiveAction.Idx == CommonAction.JumpBackFall ||
-                        posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
-                {
+            } else if (OnTouchWall && Floating && Time.timeSinceLevelLoad - floatTick >= 0.75f)//贴墙浮空，被墙壁推开
+              {
+                if (ActionMgr.mActiveAction.Idx == CommonAction.Idle ||
+                    ActionMgr.mActiveAction.Idx == CommonAction.WalkLeft ||
+                    ActionMgr.mActiveAction.Idx == CommonAction.Run ||
+                    ActionMgr.mActiveAction.Idx == CommonAction.RunOnDrug ||
+                        ActionMgr.mActiveAction.Idx == CommonAction.WalkRight ||
+                        ActionMgr.mActiveAction.Idx == CommonAction.WalkBackward ||
+                        ActionMgr.mActiveAction.Idx == CommonAction.Jump ||
+                        ActionMgr.mActiveAction.Idx == CommonAction.JumpLeft ||
+                        ActionMgr.mActiveAction.Idx == CommonAction.JumpRight ||
+                        ActionMgr.mActiveAction.Idx == CommonAction.JumpBack ||
+                        ActionMgr.mActiveAction.Idx == CommonAction.JumpLeftFall ||
+                        ActionMgr.mActiveAction.Idx == CommonAction.JumpRightFall ||
+                        ActionMgr.mActiveAction.Idx == CommonAction.JumpBackFall ||
+                        ActionMgr.mActiveAction.Idx == CommonAction.JumpFallOnGround) {
                     //Debug.LogError("贴着墙壁-贴着地面-被墙壁推开");
                     ProcessFall();
+                    ActionMgr.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                     floatTick = Time.timeSinceLevelLoad;
                 }
-            }
-            else if (Floating)
-            {
+            } else if (Floating) {
                 //Debug.LogError(name + " 在地面-但是角色底部浮空推开");
-                ProcessFall(0.75f);
-                floatTick = Time.timeSinceLevelLoad;
+                //ProcessFall(false);
+                //floatTick = Time.timeSinceLevelLoad;
+            } else {
+                //没有浮空，不在爬行状态，没有贴墙壁
+                //Debug.LogError("onground or stand on wall");
             }
-        }
-        else
-        {
-            if (OnTouchWall)
-            {
+        } else {
+            if (OnTouchWall) {
                 //碰到墙壁
-                if (!MoveOnGroundEx)
-                {
+                if (!MoveOnGroundEx) {
                     //却没碰到地面.
-                    if (ImpluseVec.y > 0)
-                    {
+                    if (ImpluseVec.y > 0) {
                         //向上跳，轻功处理。??
-                        if (Climbing)
-                        {
+                        if (Climbing) {
                             //已经在爬墙过程中,按跳跃键时，弹开墙壁.
                             //if (controller.Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_Click, Time.deltaTime))
                             //    ProcessTouchWallJump(false);
-                        }
-                        else
-                        {
+                        } else {
                             //只有当前跳时,或者爬墙时.或者从墙壁弹开时，可以继续爬墙.|| ClimbJumping
-                            if (posMng.JumpTick >= CombatData.JumpTimeLimit && 
-                                (posMng.mActiveAction.Idx == CommonAction.Jump || Climbing || posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround && Floating) &&
+                            if (ActionMgr.JumpTick >= CombatData.JumpTimeLimit &&
+                                (ActionMgr.mActiveAction.Idx == CommonAction.Jump || Climbing || ActionMgr.mActiveAction.Idx == CommonAction.JumpFallOnGround && Floating) &&
                                 ImpluseVec.y > 100.0f &&
-                                posMng.CheckClimb)//速度最少要达到多少才能轻功
+                                ActionMgr.CheckClimb)//速度最少要达到多少才能轻功
                             {
                                 //3条射线，-5°面向 5°左边近就调用右爬，中间则上爬，右边近则左爬.
                                 //Debug.LogError("轻功开始");
-                                posMng.CheckClimb = false;//单次爬墙不重复检测
+                                ActionMgr.CheckClimb = false;//单次爬墙不重复检测
                                 float left = 100;
                                 float middle = 100;
                                 float right = 100;
-                                if (Physics.Raycast(transform.position, Quaternion.AngleAxis(-5, Vector3.up) * -transform.forward, out hit, charController.radius + 5, 1 << LayerMask.NameToLayer("Scene")))
+                                if (Physics.Raycast(transform.position, Quaternion.AngleAxis(-5, Vector3.up) * -transform.forward, out hit, charController.radius + 5, LayerManager.SceneMask))
                                     left = Vector3.Distance(hit.point, transform.position);
-                                if (Physics.Raycast(transform.position, -transform.forward, out hit, charController.radius + 5, 1 << LayerMask.NameToLayer("Scene")))
+                                if (Physics.Raycast(transform.position, -transform.forward, out hit, charController.radius + 5, LayerManager.SceneMask))
                                     middle = Vector3.Distance(hit.point, transform.position);
-                                if (Physics.Raycast(transform.position, Quaternion.AngleAxis(5, Vector3.up) * -transform.forward, out hit, charController.radius + 5, 1 << LayerMask.NameToLayer("Scene")))
+                                if (Physics.Raycast(transform.position, Quaternion.AngleAxis(5, Vector3.up) * -transform.forward, out hit, charController.radius + 5, LayerManager.SceneMask))
                                     right = Vector3.Distance(hit.point, transform.position);
                                 float fMin = Mathf.Min(left, middle, right);
-                                if (fMin != 100)
-                                {
+                                if (fMin != 100) {
                                     if (fMin == left)
-                                        posMng.ChangeAction(CommonAction.ClimbRight, 0.1f);
+                                        ActionMgr.ChangeAction(CommonAction.ClimbRight, 0.1f);
                                     else if (fMin == right)
-                                        posMng.ChangeAction(CommonAction.ClimbLeft, 0.1f);
+                                        ActionMgr.ChangeAction(CommonAction.ClimbLeft, 0.1f);
                                     else if (fMin == middle)
-                                        posMng.ChangeAction(CommonAction.ClimbUp, 0.1f);
+                                        ActionMgr.ChangeAction(CommonAction.ClimbUp, 0.1f);
                                 }
                             }
                         }
 
-                    }
-                    else//下落
-                    if (Climbing)
-                    {
+                    } else//下落
+                    if (Climbing) {
                         //爬墙
-                        if (!MoveOnGroundEx && ImpluseVec.y < yClimbEndLimit)
-                        {
-                            posMng.ClimbFallTick += FrameReplay.deltaTime;
-                            if (posMng.ClimbFallTick > PoseStatus.ClimbFallLimit)
-                            {
+                        if (!MoveOnGroundEx && ImpluseVec.y < CombatData.yClimbEndLimit) {
+                            ActionMgr.ClimbFallTick += FrameReplay.deltaTime;
+                            if (ActionMgr.ClimbFallTick > CombatData.ClimbFallLimit) {
                                 //Debug.LogError("爬墙速度低于最低速度-爬墙落下");
-                                posMng.ChangeAction(CommonAction.JumpFall);//短时间内落地姿势
+                                ActionMgr.ChangeAction(CommonAction.JumpFall, 0.1f);
                                 ProcessFall();
-                                posMng.ClimbFallTick = 0.0f;
+                                ActionMgr.ClimbFallTick = 0.0f;
                             }
-                        }
-                        else if (MoveOnGroundEx)
-                        {
+                        } else if (MoveOnGroundEx) {
                             //Debug.LogError("爬墙碰到地面-落到地面");
-                            posMng.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
+                            ActionMgr.ChangeAction(CommonAction.JumpFall, 0.1f);
                         }
-                    }
-                    else //落地时候碰到墙壁.给一个反向的推力,
-                    {
+                    } else //落地时候碰到墙壁.给一个反向的推力,
+                      {
                         //!!!!贴墙落下，不能站在墙壁上，必须被弹开，否则城墙直接跳就可以上去
-                        if (posMng.mActiveAction.Idx == CommonAction.Idle ||
-                            posMng.mActiveAction.Idx == CommonAction.Run ||
-                            posMng.mActiveAction.Idx == CommonAction.RunOnDrug ||
-                            posMng.mActiveAction.Idx == CommonAction.WalkLeft ||
-                            posMng.mActiveAction.Idx == CommonAction.WalkRight ||
-                            posMng.mActiveAction.Idx == CommonAction.WalkBackward ||
-                            posMng.mActiveAction.Idx == CommonAction.JumpLeft ||
-                            posMng.mActiveAction.Idx == CommonAction.JumpRight ||
-                            posMng.mActiveAction.Idx == CommonAction.JumpBack ||
-                            posMng.mActiveAction.Idx == CommonAction.JumpLeftFall ||
-                            posMng.mActiveAction.Idx == CommonAction.JumpRightFall ||
-                            posMng.mActiveAction.Idx == CommonAction.JumpBackFall ||
-                            posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround)
-                        {
+                        if (ActionMgr.mActiveAction.Idx == CommonAction.Idle ||
+                            ActionMgr.mActiveAction.Idx == CommonAction.Run ||
+                            ActionMgr.mActiveAction.Idx == CommonAction.RunOnDrug ||
+                            ActionMgr.mActiveAction.Idx == CommonAction.WalkLeft ||
+                            ActionMgr.mActiveAction.Idx == CommonAction.WalkRight ||
+                            ActionMgr.mActiveAction.Idx == CommonAction.WalkBackward ||
+                            ActionMgr.mActiveAction.Idx == CommonAction.JumpLeft ||
+                            ActionMgr.mActiveAction.Idx == CommonAction.JumpRight ||
+                            ActionMgr.mActiveAction.Idx == CommonAction.JumpBack ||
+                            ActionMgr.mActiveAction.Idx == CommonAction.JumpLeftFall ||
+                            ActionMgr.mActiveAction.Idx == CommonAction.JumpRightFall ||
+                            ActionMgr.mActiveAction.Idx == CommonAction.JumpBackFall ||
+                            ActionMgr.mActiveAction.Idx == CommonAction.JumpFallOnGround) {
                             //Debug.LogError("被墙壁轻微推开，避免悬挂在墙壁上");
                             ProcessFall();
+                            ActionMgr.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                         }
                     }
-                }
-                else
-                {
+                } else {
                     //碰到墙壁，也碰到地面（离地面不足4M）。贴着墙壁走，没什么需要处理的.
                 }
-            }
-            else if (Climbing)
-            {
+            } else if (Climbing) {
                 //爬墙过程中忽然没贴着墙壁了???直接落下
                 //Debug.LogError("爬墙没有贴着墙壁-结束爬墙");
-                posMng.ChangeAction(CommonAction.JumpFall, 0.0f);
-                ProcessFall();
-            }
-            else if (Floating)
-            {
-                if (posMng.mActiveAction.Idx == CommonAction.Run ||
-                    posMng.mActiveAction.Idx == CommonAction.Idle ||
-                    posMng.mActiveAction.Idx == CommonAction.RunOnDrug ||
-                    posMng.mActiveAction.Idx == CommonAction.WalkLeft ||
-                    posMng.mActiveAction.Idx == CommonAction.WalkRight ||
-                    posMng.mActiveAction.Idx == CommonAction.WalkBackward)
-                {
-
-                    //Debug.LogError(name + " 浮空-落地" + Time.frameCount);
-                    //AddYVelocity(-100);//让他快速一点落地
-                    //与落地的间隔超过0.2S再切换动作，否则就会抽搐
-                    if (groundTick + 0.2f < FrameReplay.Instance.time)
-                        posMng.ChangeAction(CommonAction.JumpFall, 0.2f);
-                    //看是否被物件推开
-                    //ProcessFall();
-                    //floatTick = Time.timeSinceLevelLoad;
+                meteorController.LockMove(true);
+                ActionMgr.QueueAction(CommonAction.JumpFall);
+            } else if (Floating) {
+                if (ActionMgr.mActiveAction.Idx == CommonAction.Run ||
+                    ActionMgr.mActiveAction.Idx == CommonAction.Idle ||
+                    ActionMgr.mActiveAction.Idx == CommonAction.RunOnDrug ||
+                    ActionMgr.mActiveAction.Idx == CommonAction.WalkLeft ||
+                    ActionMgr.mActiveAction.Idx == CommonAction.WalkRight ||
+                    ActionMgr.mActiveAction.Idx == CommonAction.WalkBackward) {
+                    ActionMgr.ChangeAction(CommonAction.JumpFall, 0.1f);
                 }
             }
         }
 
         //如果Y轴速度向下，但是已经接触地面了
-        if (ImpluseVec.y <= 0 && !IgnoreGravity)
-        {
-            if (MoveOnGroundEx || OnGround)
-            {
-                if (posMng.mActiveAction.Idx == CommonAction.JumpFallOnGround) {
-                    posMng.ChangeAction(0, 0.1f);
-                } else if ((posMng.mActiveAction.Idx == CommonAction.Jump || posMng.mActiveAction.Idx == CommonAction.JumpLeft || posMng.mActiveAction.Idx == CommonAction.JumpRight || posMng.mActiveAction.Idx == CommonAction.JumpBack)) {
-                    posMng.ChangeAction(posMng.mActiveAction.Idx + 1, 0.1f);
+        if (ImpluseVec.y <= 0 && !IgnoreGravity) {
+            if (MoveOnGroundEx || OnGround) {
+                if (ActionMgr.mActiveAction.Idx == CommonAction.JumpFallOnGround) {
+                    if (Floating) {
+                        ProcessFall();
+                        ActionMgr.ChangeAction(CommonAction.JumpFall, 0.1f);
+                    } else {
+                        //是切换到待机，还是被墙壁给推开，或者继续轻工
+                        ActionMgr.ChangeAction(0, 0.1f);
+                    }
+                } else
+                if ((ActionMgr.mActiveAction.Idx == CommonAction.Jump || ActionMgr.mActiveAction.Idx == CommonAction.JumpLeft || ActionMgr.mActiveAction.Idx == CommonAction.JumpRight || ActionMgr.mActiveAction.Idx == CommonAction.JumpBack)) {
+                    ActionMgr.ChangeAction(ActionMgr.mActiveAction.Idx + 1, 0.1f);
+                } else if ((ActionMgr.mActiveAction.Idx == CommonAction.JumpFall || ActionMgr.mActiveAction.Idx == CommonAction.JumpLeftFall || ActionMgr.mActiveAction.Idx == CommonAction.JumpRightFall || ActionMgr.mActiveAction.Idx == CommonAction.JumpBackFall)) {
+                    //是切换到待机，还是被墙壁给推开，或者继续轻工
+                    //如果速度足够大，且
+                    //if (Floating) {
+                    //    ProcessFall();
+                    //    ActionMgr.ChangeAction(CommonAction.JumpFall, 0.1f);
+                    //} else {
+                        ActionMgr.ChangeAction(0, 0.1f);
+                    //}
                 }
-                else if ((posMng.mActiveAction.Idx == CommonAction.JumpFall || posMng.mActiveAction.Idx == CommonAction.JumpLeftFall || posMng.mActiveAction.Idx == CommonAction.JumpRightFall || posMng.mActiveAction.Idx == CommonAction.JumpBackFall)){
-                    posMng.ChangeAction(0, 0.1f);
-                }
-                groundTick = FrameReplay.Instance.time;
             }
         }
 
@@ -1838,124 +1658,137 @@ public partial class MeteorUnit : NetBehaviour
 
     }
 
-    public void Move(Vector3 trans)
-    {
+    public void Move(Vector3 trans) {
         //主角
         if (charController != null) {
             if (charController != null && charController.enabled) {
                 CollisionFlags collisionFlags = charController.Move(trans);
                 UpdateFlags(collisionFlags);
             } else
-                transform.position += trans;
+                SetPosition(transform.position + trans);
         } else {
             //本来是其他组件的，取消了.NavMeshAgent
         }
     }
 
-    public void SetWorldVelocityExcludeY(Vector3 vec)
-    {
+    public void SetWorldVelocityExcludeY(Vector3 vec) {
         ImpluseVec.x = vec.x;
         ImpluseVec.z = vec.z;
     }
 
-    public void SetWorldVelocity(Vector3 vec)
-    {
+    public void SetWorldVelocity(Vector3 vec) {
+        //Debug.LogError("vec1");
         ImpluseVec.x = vec.x;
         ImpluseVec.y = vec.y;
         ImpluseVec.z = vec.z;
     }
 
-    public void AddWorldVelocity(Vector3 vec)
-    {
+    public void AddWorldVelocity(Vector3 vec) {
+        //Debug.LogError("vec2");
         ImpluseVec.x += vec.x;
         ImpluseVec.y += vec.y;
         ImpluseVec.z += vec.z;
     }
 
     //设置世界坐标系的速度,z向人物面前，x向人物右侧
-    public void SetJumpVelocity(Vector2 velocityM)
-    {
+    public void SetJumpVelocity(Vector2 velocityM) {
         float z = 0;
         if (velocityM.y > 0) {
-            z = velocityM.y * JumpVelocityForward;
+            z = velocityM.y * CombatData.JumpVelocityForward;
         } else {
-            z = velocityM.y * JumpVelocityOther;
+            z = velocityM.y * CombatData.JumpVelocityOther;
         }
-        float x = velocityM.x * JumpVelocityOther;
+        float x = velocityM.x * CombatData.JumpVelocityOther;
         Vector3 vec = z * -transform.forward + x * -transform.right;
         ImpluseVec.z = vec.z;
         ImpluseVec.x = vec.x;
     }
 
-    public void SetVelocity(float z, float x)
-    {
+    public void SetVelocity(float z, float x) {
         Vector3 vec = z * -transform.forward + x * -transform.right;
         ImpluseVec.z = vec.z;
         ImpluseVec.x = vec.x;
         //Log.Print("z:" + ImpluseVec.z);
     }
 
-    public float CalcVelocity(float h)
-    {
+    public float CalcVelocity(float h) {
         //vt2 - v02 = 2AS;
         float ret = Mathf.Sqrt(2 * h * Main.Ins.CombatData.gGravity);
-        if (ret > yLimitMax)
-            ret = yLimitMax;
+        if (ret > CombatData.yLimitMax)
+            ret = CombatData.yLimitMax;
         return ret;
     }
-    
-    public const float JumpLimit = 70f;
+
+
     //踏墙壁跳跃,y为正常跳跃高度倍数.
-    public void Jump2(float y, int act = CommonAction.Jump)
-    {
+    public void Jump2(float y, int act = CommonAction.Jump) {
         canControlOnAir = true;
         OnGround = false;
         ImpluseVec.y = CalcVelocity(y);
-        posMng.JumpTick = 0.0f;
-        posMng.CanAdjust = true;
-        posMng.CheckClimb = true;
-        posMng.ChangeAction(act, 0.1f);
-        controller.Input.ResetLink();
+        ActionMgr.JumpTick = 0.0f;
+        ActionMgr.CanAdjust = true;
+        ActionMgr.CheckClimb = true;
+        ActionMgr.ChangeAction(act, 0.1f);
+        meteorController.Input.ResetLink();
+        ninjaState = NinjaState.None;
     }
 
-    //给3个参数,Y轴完整跳跃的高度缩放(就是按下跳跃的压力缩放)，前方速度，右方速度
-    public void Jump(bool Short, float ShortScale, int act = CommonAction.Jump)
-    {
+    public void Jump3(int act = CommonAction.Jump) {
         canControlOnAir = true;
         OnGround = false;
-        //float jumpScale = Short ? (ShortScale * 0.32f) : 1.0f;
-        float jumpScale = Short ? (0.32f) : 1.0f;
-        float h = JumpLimit * jumpScale;
-        ImpluseVec.y = CalcVelocity(h);
-        posMng.JumpTick = 0.0f;
-        posMng.CanAdjust = true;
-        posMng.CheckClimb = true;
-        posMng.ChangeAction(act, 0.1f);
-        controller.Input.ResetLink();
+        ActionMgr.JumpTick = 0.0f;
+        ActionMgr.CanAdjust = true;
+        ActionMgr.CheckClimb = true;
+        ActionMgr.ChangeAction(act, 0.1f);
+        meteorController.Input.ResetLink();
+        ninjaState = NinjaState.None;
+        meteorController.LockMove(true);
     }
 
-    public void ReleaseDefence()
-    {
-        posMng.ChangeAction(CommonAction.Idle, 0.1f);
+    //Jump完整14帧动画/按30帧每秒算，约=0.46S
+    //0.46S跳跃高度70左右
+    //现在给个跳跃高度，需要反求，跳跃所需时间，然后按时间修改动画播放速度，让这个跳跃动画看起来合适
+    //给3个参数,Y轴完整跳跃的高度缩放(就是按下跳跃的压力缩放)，前方速度，右方速度
+    public void Jump(bool ShortJump, int act = CommonAction.Jump) {
+        canControlOnAir = true;
+        OnGround = false;
+        float ShortScale = ShortJump ? 0.5f:1.0f;
+        float h = CombatData.JumpLimit * ShortScale;
+        ImpluseVec.y = CalcVelocity(h);
+        ActionMgr.JumpTick = 0.0f;
+        ActionMgr.CanAdjust = true;
+        ActionMgr.CheckClimb = true;
+        ActionMgr.ChangeAction(act, 0.1f);
+        //IgnoreGravity = true;
+        meteorController.Input.ResetLink();
+        ninjaState = NinjaState.None;
+    }
+
+    public void ReleaseDefence() {
+        if ((ActionMgr.mActiveAction.Idx >= CommonAction.BrahchthrustDefence
+              && ActionMgr.mActiveAction.Idx <= CommonAction.HammerDefence) ||
+              (ActionMgr.mActiveAction.Idx >= CommonAction.ZhihuDefence
+              && ActionMgr.mActiveAction.Idx <= CommonAction.RendaoDefence)) {
+            //Debug.LogError("release defence");
+            ActionMgr.ChangeAction(CommonAction.Idle, 0.1f);
+        }
     }
 
     MeteorUnit RebornTarget = null;
     SFXEffectPlay RebornEffect = null;
-    public bool HasRebornTarget()
-    {
+    //附近有队友挂了，队长可以复活
+    public bool HasRebornTarget() {
         if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             return false;
         //创建房间-盟主-死斗-无法复活队友
-        if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld)
-        {
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld) {
             if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU || Main.Ins.CombatData.GGameMode == GameMode.SIDOU)
                 return false;
         }
-        RebornTarget = null;
         float dis = CombatData.RebornRange;
         int index = -1;
-        for (int i = 0; i < Main.Ins.MeteorManager.DeadUnits.Count; i++)
-        {
+        //没法碰到已经挂的角色，还是遍历看谁最近，1队最多8人,队友7人
+        for (int i = 0; i < Main.Ins.MeteorManager.DeadUnits.Count; i++) {
             MeteorUnit unit = Main.Ins.MeteorManager.DeadUnits[i];
             if (unit == this)
                 continue;
@@ -1963,9 +1796,8 @@ public partial class MeteorUnit : NetBehaviour
                 continue;
             if (!unit.Dead)
                 continue;
-            float d = Vector3.Distance(transform.position, Main.Ins.MeteorManager.DeadUnits[i].transform.position);
-            if (dis > d)
-            {
+            float d = Vector3.Distance(transform.position, unit.transform.position);
+            if (dis > d) {
                 dis = d;
                 index = i;
             }
@@ -1973,21 +1805,18 @@ public partial class MeteorUnit : NetBehaviour
         return index != -1;
     }
 
-    public void SelectRebornTarget()
-    {
+    public void SelectRebornTarget() {
         if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             return;
         //创建房间-盟主-死斗-无法复活队友
-        if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld)
-        {
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld) {
             if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU || Main.Ins.CombatData.GGameMode == GameMode.SIDOU)
                 return;
         }
         RebornTarget = null;
         float dis = CombatData.RebornRange;
         int index = -1;
-        for (int i = 0; i < Main.Ins.MeteorManager.DeadUnits.Count; i++)
-        {
+        for (int i = 0; i < Main.Ins.MeteorManager.DeadUnits.Count; i++) {
             MeteorUnit unit = Main.Ins.MeteorManager.DeadUnits[i];
             if (unit == this)
                 continue;
@@ -1995,74 +1824,69 @@ public partial class MeteorUnit : NetBehaviour
                 continue;
             if (!unit.Dead)
                 continue;
-            float d = Vector3.Distance(transform.position, Main.Ins.MeteorManager.DeadUnits[i].transform.position);
-            if (dis > d)
-            {
+            float d = Vector3.Distance(transform.position, unit.transform.position);
+            if (dis > d) {
                 dis = d;
                 index = i;
+                RebornTarget = unit;
             }
         }
-        if (index >= 0 && index < Main.Ins.MeteorManager.DeadUnits.Count)
-        {
-            RebornTarget = Main.Ins.MeteorManager.DeadUnits[index];
+        if (RebornTarget != null) {
             RebornEffect = Main.Ins.SFXLoader.PlayEffect("ReBorn.ef", RebornTarget.transform.position, true);
         }
     }
 
-    public void RebornFriend()
-    {
-        if (RebornTarget != null)
-        {
+    public void RebornFriend() {
+        if (RebornTarget != null) {
             RebornTarget.OnReborn();
             RebornTarget = null;
         }
-        if (RebornEffect != null)
-        {
+        if (RebornEffect != null) {
             GameObject.Destroy(RebornEffect.gameObject);
             RebornEffect = null;
         }
     }
 
     //被复活.
-    public void OnReborn(float max = 0.3f)
-    {
-        if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld)
-        {
-            if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
-            {
+    public void OnReborn(float max = 0.3f) {
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld) {
+            if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU) {
                 //16个点
                 transform.position = Main.Ins.CombatData.GLevelSpawn[Main.Ins.CombatData.SpawnIndex];
                 Main.Ins.CombatData.SpawnIndex++;
                 Main.Ins.CombatData.SpawnIndex %= 16;
-            }
-            else if (Main.Ins.CombatData.GGameMode == GameMode.ANSHA || Main.Ins.CombatData.GGameMode == GameMode.SIDOU)
-            {
+            } else if (Main.Ins.CombatData.GGameMode == GameMode.ANSHA || Main.Ins.CombatData.GGameMode == GameMode.SIDOU) {
                 //2个队伍8个点.
-                if (Camp == EUnitCamp.EUC_FRIEND)
-                {
+                if (Camp == EUnitCamp.EUC_FRIEND) {
                     transform.position = Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampASpawnIndex];
                     Main.Ins.CombatData.CampASpawnIndex++;
                     Main.Ins.CombatData.CampASpawnIndex %= 8;
-                }
-                else if (Camp == EUnitCamp.EUC_ENEMY)
-                {
+                } else if (Camp == EUnitCamp.EUC_ENEMY) {
                     transform.position = Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampBSpawnIndex];
                     Main.Ins.CombatData.CampBSpawnIndex++;
                     Main.Ins.CombatData.CampBSpawnIndex %= 8;
                 }
             }
-        }
-        else if (Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask)
-        {
+        } else if (Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask) {
             if (Attr.SpawnPoint < Main.Ins.CombatData.wayPoints.Count)
                 transform.position = Main.Ins.CombatData.wayPoints[Attr.SpawnPoint].pos;
             else
                 transform.position = Main.Ins.CombatData.wayPoints[0].pos;
         }
+        //取消黑白屏
+        if (Attr.IsPlayer) {
+            if (Main.Ins.MainCamera != null) {
+                Grayscale gray = Main.Ins.MainCamera.GetComponent<Grayscale>();
+                if (gray != null) {
+                    gray.enabled = false;
+                }
+            }
+        }
         Dead = false;
-        posMng.WaitPause(false);
-        posMng.OnReborn();
+        ActionMgr.OnReborn();
         EnableAI(true);
+        meteorController.LockInput(false);
+        meteorController.LockMove(false);
         Main.Ins.MeteorManager.UnitInfos.Add(this);
         Main.Ins.MeteorManager.DeadUnits.Remove(this);
         Attr.OnReborn(max);
@@ -2076,18 +1900,16 @@ public partial class MeteorUnit : NetBehaviour
         if (Attr.IsPlayer)
             if (FightState.Exist())
                 FightState.Instance.UpdatePlayerInfo();
-        pause = false;
+        U3D.InsertSystemMsg(name + "进入战场");
+        Pause = false;
     }
 
     //盟主模式下的自动复活.
-    public void RebornUpdate()
-    {
+    public void RebornUpdate() {
         RebornTick += FrameReplay.deltaTime;
-        if (RebornTick >= 5.0f)
-        {
+        if (RebornTick >= 5.0f) {
             OnReborn(1.0f);
-            if (Attr.IsPlayer)
-            {
+            if (Attr.IsPlayer) {
                 //if (FightWnd.Exist)
                 //{
                 //    FightWnd.Instance.UpdatePlayerInfo();
@@ -2100,74 +1922,70 @@ public partial class MeteorUnit : NetBehaviour
 
     //暗杀模式，是否是队长，队长是一方阵营进入战场的第一个角色.
     public bool IsLeader { get; set; }
-    public void OnDead(MeteorUnit killer = null)
-    {
-        if (!Dead)
-        {
+    public void OnDead(MeteorUnit killer = null) {
+        if (!Dead) {
             if (Attr.IsPlayer && Main.Ins.GameStateMgr.gameStatus.Undead)
                 return;
             Dead = true;
             //单机时.
             //盟主模式，玩家在几秒后会复活.
             //暗杀模式，需要队长去复活.
-            if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld && (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU))
-            {
+            if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld && (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)) {
                 RebornTick = 0;
                 WaitReborn = true;
             }
 
-            if (killer == null)
-            {
+            if (killer == null) {
                 GameOverlayDialogState.Instance.InsertSystemMsg(string.Format("{0}死亡", name));
-            }
-            else
-            {
+            } else {
                 GameOverlayDialogState.Instance.InsertSystemMsg(string.Format("{0}击败{1}", killer.name, name));
             }
-            posMng.ChangeAction(CommonAction.Dead);
-            posMng.WaitPause();//等待这个动作完毕后，暂停播放
-            posMng.OnDead();
+            ActionMgr.ChangeAction(CommonAction.Dead);
+            ActionMgr.OnDead();
             Attr.ReduceHp(Attr.hpCur);
             EnableAI(false);
             Main.Ins.BuffMng.RemoveUnit(this);
             Main.Ins.MeteorManager.OnUnitDead(this);
             Main.Ins.GameBattleEx.OnUnitDead(this, killer);
-            //if (FightWnd.Exist)
-            //{
-            //    if (Attr.IsPlayer)
-            //        FightWnd.Instance.UpdatePlayerInfo();
-            //}
+            if (Attr.IsPlayer) {
+                if (FightState.Exist()) {
+                    FightState.Instance.UpdatePlayerInfo();
+                }
+                if (Main.Ins.MainCamera != null) {
+                    Grayscale gray = Main.Ins.MainCamera.GetComponent<Grayscale>();
+                    if (gray == null) {
+                        gray = Main.Ins.MainCamera.gameObject.AddComponent<Grayscale>();
+                    }
+                    gray.enabled = true;
+                }
+            }
             if (Attr.IsPlayer && NGUICameraJoystick.instance)
                 NGUICameraJoystick.instance.ResetJoystick();
         }
     }
 
-    public void EnableAI(bool enable)
-    {
+    public void EnableAI(bool enable) {
         if (StateMachine != null) {
             StateMachine.Enable(enable);
         }
     }
 
     public void EnableUpdate(bool enable) {
-        pause = !enable;
+        Pause = !enable;
     }
 
-    public void AddAngry(int angry)
-    {
+    public void AddAngry(int angry) {
         int ang = AngryValue + angry;
         AngryValue = Mathf.Clamp(ang, 0, CombatData.ANGRYMAX);
     }
 
     //其他单位挂了.或者自己挂了。
-    public void OnUnitDead(MeteorUnit deadunit)
-    {
+    public void OnUnitDead(MeteorUnit deadunit) {
         if (deadunit == null)//自己挂了
         {
             SFXEffectPlay[] play = GetComponents<SFXEffectPlay>();
             for (int i = 0; i < play.Length; i++)
                 play[i].OnPlayAbort();
-            posMng.LinkEvent(()=> { charController.enabled = false; });
             return;
         }
         if (LockTarget == deadunit && LockTarget != null)
@@ -2180,8 +1998,7 @@ public partial class MeteorUnit : NetBehaviour
     //特殊招式时，关闭碰撞，让角色互相穿透,
     //设置角色间characterController不互相碰撞.
     public bool IgnorePhysical;
-    public void PhysicalIgnore(MeteorUnit unit, bool ignore)
-    {
+    public void PhysicalIgnore(MeteorUnit unit, bool ignore) {
         if (charController == null || unit.charController == null) {
             return;
         }
@@ -2191,49 +2008,55 @@ public partial class MeteorUnit : NetBehaviour
 
     Vector3 hitPoint;//最近一次碰撞的点.用这个点和法线来算一些轻功的东西
     Vector3 hitNormal;//碰撞面法线
-    public void OnControllerColliderHit(ControllerColliderHit hit)
-    {
+    public void OnControllerColliderHit(ControllerColliderHit hit) {
         //Debug.Log("hit:" + hit.gameObject.name);
-        if (hit.gameObject.transform.root.tag.Equals("meteorUnit"))
-        {
+        if (hit.gameObject.transform.root.tag.Equals("meteorUnit")) {
             MeteorUnit hitUnit = hit.gameObject.transform.root.GetComponent<MeteorUnit>();
             Vector3 vec = hitUnit.transform.position - transform.position;
             vec.y = 0;
             //在防御中.不受推挤.
-            if (hitUnit.posMng != null && hitUnit.posMng.onDefence)
+            if (hitUnit.ActionMgr != null && hitUnit.ActionMgr.onDefence)
                 return;
-            //推挤只是一个力，不直接改变当前速度
-            hitUnit.AddWorldVelocity(Vector3.Normalize(vec) * 20);
-        }
-        else if (hit.gameObject.transform.root.tag.Equals("SceneItemAgent"))
-        {
+            if (hitUnit.MoveOnGroundEx) {
+                hitUnit.AddWorldVelocity(Vector3.Normalize(vec) * 20);
+            }
+        } else if (hit.gameObject.transform.root.tag.Equals("SceneItemAgent")) {
             SceneItemAgent agent = hit.gameObject.GetComponentInParent<SceneItemAgent>();
-            if (agent != null && agent.HasDamage() && (!attackDelay.ContainsKey(agent)))
-            {
-                if (!Attr.Dead)
-                {
+            if (agent != null && agent.HasDamage() && (!attackDelay.ContainsKey(agent))) {
+                if (!Attr.Dead) {
                     OnDamage(null, agent.DamageValue());
                     attackDelay[agent] = 2.0f;
                 }
             }
-        }
-        else
-        {
+        } else {
             hitPoint = hit.point;
             hitNormal = hit.normal;
-            if (StateMachine != null)
-            {
+            if (StateMachine != null) {
                 StateMachine.CheckStatus();
             }
         }
     }
 
+    void IgnoreCollision(MeteorUnit unit, Collider box) {
+        //攻击盒与受击盒之间不要碰撞
+        if (unit == this || unit.SameCamp(this)) {
+            for (int i = 0; i < unit.HurtList.Count; i++) {
+                Physics.IgnoreCollision(box, unit.HurtList[i], true);
+            }
+        }
+    }
+
+    public void IgnoreOthers(Collider box) {
+        //for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++) {
+        //    MeteorUnit unit = Main.Ins.MeteorManager.UnitInfos[i];
+            IgnoreCollision(this, box);
+        //}
+    }
+
     //由目标的脊椎骨看向目标，若有场景阻碍则返回false，否则表示可穿过
     //该函数只能用来计算角色所处于的路点.
-    public bool PassThrough(Vector3 target)
-    {
-        if (Physics.Linecast(mSkeletonPivot, target, 1 << LayerMask.NameToLayer("Scene")))
-        {
+    public bool PassThrough(Vector3 target) {
+        if (Physics.Linecast(mSkeletonPivot, target, LayerManager.SceneMask)) {
             //GameObject l = new GameObject("line");
             //LineRenderer lr = l.AddComponent<LineRenderer>();
             //lr.numPositions = 2;
@@ -2244,114 +2067,109 @@ public partial class MeteorUnit : NetBehaviour
         return true;
     }
 
-    public void WeaponReturned(int poseIdx)
-    {
+    public void WeaponReturned(int poseIdx) {
         //219等待回收武器.
-        if (charLoader != null && posMng != null && posMng.mActiveAction != null)
-        {
-            if (Main.Ins.AppInfo.MeteorVersion.Equals("1.07"))
-            {
-                if (posMng.mActiveAction.Idx == (poseIdx + 1))
-                {
-                    charLoader.SetLoop(false);
+        //扔出武器后，就会等待收回武器219，但是如果还没有到这个动作武器就返回了。那么会让
+        if (characterLoader != null && ActionMgr != null && ActionMgr.mActiveAction != null) {
+            if (Main.Ins.AppInfo.MeteorVersion.Equals("1.07")) {
+                if (ActionMgr.mActiveAction.Idx == (poseIdx + 1)) {
+                    ActionMgr.SetLoop(false);
+                } else {
+                    ActionMgr.LinkEvent(poseIdx + 1, PoseEvt.WeaponIsReturned);
                 }
+            } else if (Main.Ins.AppInfo.MeteorVersion.Equals("9.07")) {
+                if (ActionMgr.mActiveAction.Idx == 219)
+                    ActionMgr.SetLoop(false);
                 else
-                {
-                    charLoader.LinkEvent(poseIdx + 1, PoseEvt.WeaponIsReturned);
-                }
-            }
-            else if (Main.Ins.AppInfo.MeteorVersion.Equals("9.07"))
-            {
-                if (posMng.mActiveAction.Idx == 219)
-                    charLoader.SetLoop(false);
-                else
-                    charLoader.LinkEvent(219, PoseEvt.WeaponIsReturned);
+                    ActionMgr.LinkEvent(219, PoseEvt.WeaponIsReturned);
             }
         }
     }
 
-    //public bool allowAttack { get; set; }
     public AttackDes CurrentDamage { get { return damage; } }
     AttackDes damage;
-    //每8帧一次伤害判定.(5 * 1.0f / 30.0f)
     const float refreshTick = 10f / 30.0f;
-    Dictionary<SceneItemAgent, float> Damaged2 = new Dictionary<SceneItemAgent, float>();
-    Dictionary<MeteorUnit, float> Damaged = new Dictionary<MeteorUnit, float>();
-    public void ChangeAttack(AttackDes attack)
-    {
-        //if (attack != null && attack.PoseIdx == 260)
-        //    Debug.LogError("260 attack start");
-        //if (attack == null && damage != null && damage.PoseIdx == 260)
-        //    Debug.LogError("260 attack end");
+    Dictionary<SceneItemAgent, float> HurtSceneItem = new Dictionary<SceneItemAgent, float>();
+    Dictionary<MeteorUnit, float> HurtUnit = new Dictionary<MeteorUnit, float>();
+    void ChangeLayer(BoxCollider co, bool detectAll) {
+        if (detectAll) {
+            if (co.gameObject.layer != LayerManager.DetectAll) {
+                co.gameObject.layer = LayerManager.DetectAll;
+                FightBox fb = co.gameObject.GetComponent<FightBox>();
+                if (fb == null) {
+                    fb = co.gameObject.AddComponent<FightBox>();
+                }
+                if (CurrentDamage == null)
+                    Debug.LogError("error");
+                fb.Init(this, CurrentDamage);
+                fb.enabled = true;
+            }
+        }
+        else {
+            if (co.gameObject.layer != LayerManager.Bone) {
+                co.gameObject.layer = LayerManager.Bone;
+                FightBox fb = co.gameObject.GetComponent<FightBox>();
+                if (fb != null) {
+                    fb.enabled = false;
+                    Destroy(fb);
+                }
+            }
+        }
+    }
+
+    public void ChangeAttack(AttackDes attack) {
         if (attack != null && attack.PoseIdx < 200)
             return;
         if (Main.Ins.GameBattleEx == null)
             return;
-        if (damage == attack && damage != null)
+        if (damage == attack && attack != null)
             return;
         damage = attack;
-        if (damage == null)
-        {
-            Damaged.Clear();
-            Main.Ins.GameBattleEx.ClearDamageCollision(this);
-            ChangeAttack(false);
-            Damaged2.Clear();
+        if (damage == null) {
+            HurtUnit.Clear();
+            weaponLoader.ChangeAttack(false);
+            for (int i = 0; i < HurtList.Count; i++) {
+                ChangeLayer(HurtList[i], false);
+            }
+            for (int i = 0; i < sfxList.Count; i++)
+                sfxList[i].ChangeAttack(false);
+            HurtSceneItem.Clear();
             return;
         }
 
-        if (Attr.IsPlayer && LockTarget == null && Main.Ins.GameBattleEx.autoTarget != null)
-        {
-            if (GetWeaponType() == (int)EquipWeaponType.Gun || GetWeaponType() == (int)EquipWeaponType.Dart || GetWeaponType() == (int)EquipWeaponType.Guillotines)
-            {
+        if (Attr.IsPlayer && LockTarget == null && Main.Ins.GameBattleEx.autoTarget != null) {
+            if (GetWeaponType() == (int)EquipWeaponType.Gun || GetWeaponType() == (int)EquipWeaponType.Dart || GetWeaponType() == (int)EquipWeaponType.Guillotines) {
                 //远程武器不能锁定
-            }
-            else
-            {
+            } else {
                 LockTarget = Main.Ins.GameBattleEx.autoTarget;
                 Main.Ins.GameBattleEx.ChangeLockedTarget(LockTarget);
             }
         }
 
         //遍历受击盒根据攻击定义，生成相应的攻击盒。
-        for (int i = 0; i < hitList.Count; i++)
-        {
-            if (attack.bones.Contains(hitList[i].name))
-            {
-                Main.Ins.GameBattleEx.AddDamageCollision(this, hitList[i]);
-            }
-        }
-        //如果包含武器和特效.
-        if (attack.bones.Contains("weapon"))
-        {
-            for (int i = 0; i < weaponLoader.weaponDamage.Count; i++)
-                Main.Ins.GameBattleEx.AddDamageCollision(this, weaponLoader.weaponDamage[i]);
+        //身体的部位作为攻击盒实际上效果很差--先去掉试试
+        for (int i = 0; i < HurtList.Count; i++) {
+            bool containsHurtBox = attack.bones.Contains(HurtList[i].name);
+            //把层次设置为既可受击又可攻击，同时加上攻击盒定义，且告知这个盒子是用来做
+            ChangeLayer(HurtList[i], containsHurtBox);
+            if (containsHurtBox)
+                HurtList[i].GetComponent<FightBox>().ChangeAttack(true);
+            //HurtList[i].ChangeAttack(true);
         }
 
-        if (attack.bones.Contains("effect"))
-        {
-            for (int i = 0; i < sfxList.Count; i++)
-            {
-                if (!sfxList[i].PlayDone)
-                    Main.Ins.GameBattleEx.AddDamageCollision(this, sfxList[i].damageBox);
-            }
-        }
+        //如果包含武器和特效.
+        bool containsWeapon = attack.bones.Contains("weapon");
+        weaponLoader.ChangeAttack(containsWeapon);
+
+        bool containsEffect = attack.bones.Contains("effect");
+        for (int i = 0; i < sfxList.Count; i++)
+            sfxList[i].ChangeAttack(containsEffect);
+        
 
         //枪械射击之类,1,枪，无轨迹，2，飞镖，自由落体轨迹 3，飞轮，贝塞尔曲线/B样条线轨迹.
         //这些武器的大招，一定是带effect攻击特效的.所以可以通过伤害里的骨骼列表判断是否属于
         if (attack.bones.Count == 0)
             Main.Ins.GameBattleEx.AddDamageCheck(this, attack);
-
-        ChangeAttack(true);
-    }
-
-    public void ChangeAttack(bool allow)
-    {
-        weaponLoader.ChangeAttack(allow);
-        //allowAttack = allow;
-        for (int i = 0; i < sfxList.Count; i++)
-            sfxList[i].ChangeAttack(allow);
-        if (!allow)
-            damage = null;
     }
 
     //public void OnCollisionEnter(Collision collision)
@@ -2370,27 +2188,31 @@ public partial class MeteorUnit : NetBehaviour
     //}
 
     //成功碰撞到敌人，没有检测防御状态。
-    public void Attack(MeteorUnit other)
-    {
+    public void Attack(MeteorUnit other) {
         canControlOnAir = false;
-        Damaged.Add(other, refreshTick);
+        HurtUnit.Add(other, refreshTick);
     }
 
     //成功碰撞到场景物件
-    public void Attack(SceneItemAgent other)
-    {
+    public void Attack(SceneItemAgent other) {
         canControlOnAir = false;
-        Damaged2.Add(other, refreshTick);
+        HurtSceneItem.Add(other, refreshTick);
     }
-    
-    public void OnAttack(MeteorUnit other, AttackDes des)
-    {
+
+    public void OnAttack(MeteorUnit other, AttackDes des) {
         canControlOnAir = false;
         OnDamage(other, des);
     }
+
+    ////测试摔倒
+    public void OnDebugDamage() {
+        SetGunReady(false);
+        ActionMgr.ChangeAction(114, 0.1f);
+        OnDamage(this, ActionManager.ActionList[0][200].Attack[0]);
+    }
+
     //成功被人攻击到，没有检测防御状态.
-    public void OnAttack(MeteorUnit other)
-    {
+    public void OnAttack(MeteorUnit other) {
         canControlOnAir = false;
         //Debug.LogError("unit:" + name + " was attacked by:" + other.name);
         OnDamage(other);
@@ -2399,35 +2221,22 @@ public partial class MeteorUnit : NetBehaviour
     //只负责一些机关，例如滚石，摆斧，撞到角色时的伤害处理
     Dictionary<SceneItemAgent, float> attackDelay = new Dictionary<SceneItemAgent, float>();
     Dictionary<SceneItemAgent, float> touchDelay = new Dictionary<SceneItemAgent, float>();//部分回血阵的回血间隔
-    public void OnTriggerEnter(Collider other)
-    {
+    public void OnTriggerEnter(Collider other) {
         if (Dead)
             return;
-        if (other.tag == "SceneItemAgent" || (other.transform.parent != null && other.transform.parent.tag == "SceneItemAgent"))
-        {
+        if (other.tag == "SceneItemAgent" || (other.transform.parent != null && other.transform.parent.tag == "SceneItemAgent")) {
             SceneItemAgent trigger = other.gameObject.GetComponentInParent<SceneItemAgent>();
             if (trigger == null)
                 return;
 
-            if (trigger != null)
-            {
+            if (trigger != null) {
                 //如果是一个攻击道具，陷阱或者机关之类的。
-                if (trigger.HasDamage())
-                {
-                    if (attackDelay.ContainsKey(trigger))
-                        return;
-                    if (!Attr.Dead)
-                    {
-                        OnDamage(null, trigger.DamageValue());
-                        attackDelay[trigger] = 2.0f;
-                    }
-                }
-                else
-                {
+                if (trigger.HasDamage()) {
+                    OnDamageByItem(trigger);
+                } else {
                     if (touchDelay.ContainsKey(trigger))
                         return;
-                    if (trigger.root != null)
-                    {
+                    if (trigger.root != null) {
                         trigger.OnPickUped(this);
                         touchDelay[trigger] = 2.0f;
                         if (TargetItem == trigger)
@@ -2435,15 +2244,12 @@ public partial class MeteorUnit : NetBehaviour
                     }
                 }
             }
-        }
-        else if (other.tag.Equals("PickupItemAgent") || (other.transform.parent != null && other.transform.parent.tag.Equals("PickupItemAgent")))
-        {
+        } else if (other.tag.Equals("PickupItemAgent") || (other.transform.parent != null && other.transform.parent.tag.Equals("PickupItemAgent"))) {
             PickupItemAgent trigger = other.gameObject.GetComponentInParent<PickupItemAgent>();
             if (trigger == null)
                 return;
 
-            if (trigger != null)
-            {
+            if (trigger != null) {
                 trigger.OnPickup(this);
                 if (TargetItem == trigger)
                     TargetItem = null;
@@ -2451,36 +2257,27 @@ public partial class MeteorUnit : NetBehaviour
         }
     }
 
-    public void OnTriggerStay(Collider other)
-    {
+    public void OnTriggerStay(Collider other) {
         if (Dead)
             return;
-        if (other.tag == "SceneItemAgent" || (other.transform.parent != null && other.transform.parent.tag == "SceneItemAgent"))
-        {
+        if (other.tag == "SceneItemAgent" || (other.transform.parent != null && other.transform.parent.tag == "SceneItemAgent")) {
             SceneItemAgent trigger = other.gameObject.GetComponentInParent<SceneItemAgent>();
             if (trigger == null)
                 return;
-            if (trigger != null)
-            {
-                if (trigger.HasDamage())
-                {
+            if (trigger != null) {
+                if (trigger.HasDamage()) {
                     //受到陷阱攻击应该有无敌间隔.
-                    if (!attackDelay.ContainsKey(trigger))
-                    {
-                        if (!Attr.Dead)
-                        {
+                    if (!attackDelay.ContainsKey(trigger)) {
+                        if (!Attr.Dead) {
                             OnDamage(null, trigger.DamageValue());
                             attackDelay[trigger] = 2.0f;
                         }
                     }
-                }
-                else
-                {
+                } else {
                     //持续血阵，状态
                     if (touchDelay.ContainsKey(trigger))
                         return;
-                    if (trigger.root != null)
-                    {
+                    if (trigger.root != null) {
                         trigger.OnPickUped(this);
                         touchDelay[trigger] = 2.0f;
                         if (TargetItem == trigger)
@@ -2488,15 +2285,12 @@ public partial class MeteorUnit : NetBehaviour
                     }
                 }
             }
-        }
-        else if (other.tag.Equals("PickupItemAgent") || (other.transform.parent != null && other.transform.parent.tag.Equals("PickupItemAgent")))
-        {
+        } else if (other.tag.Equals("PickupItemAgent") || (other.transform.parent != null && other.transform.parent.tag.Equals("PickupItemAgent"))) {
             PickupItemAgent trigger = other.gameObject.GetComponentInParent<PickupItemAgent>();
             if (trigger == null)
                 return;
 
-            if (trigger != null)
-            {
+            if (trigger != null) {
                 trigger.OnPickup(this);
                 if (TargetItem == trigger)
                     TargetItem = null;
@@ -2506,32 +2300,26 @@ public partial class MeteorUnit : NetBehaviour
     }
 
     List<SFXUnit> sfxList = new List<SFXUnit>();
-    public void AddAttackSFX(SFXUnit sfx)
-    {
+    public void AddAttackSFX(SFXUnit sfx) {
         sfxList.Add(sfx);
     }
 
-    public void OnSFXDestroy(SFXUnit sfx)
-    {
+    public void OnSFXDestroy(SFXUnit sfx) {
         sfxList.Remove(sfx);
-        if (Main.Ins.GameBattleEx != null)
-            Main.Ins.GameBattleEx.OnSFXDestroy(this, sfx.damageBox);
+        //if (Main.Ins.GameBattleEx != null)
+        //    Main.Ins.GameBattleEx.OnSFXDestroy(this, sfx.damageBox);
     }
 
-    //受击盒列表
-    public List<BoxCollider> hitList = new List<BoxCollider>();
-    public void AddHitBox(BoxCollider co)
-    {
-        hitList.Add(co);
-    }
+    //受击盒，不会发生改变的.
+    public List<BoxCollider> HurtList = new List<BoxCollider>();
+    //攻击盒.
+    public List<FightBox> HitList = new List<FightBox>();
 
-    public void ChangeWeaponTrail(DragDes drag)
-    {
+    public void ChangeWeaponTrail(DragDes drag) {
         weaponLoader.ChangeWeaponTrail(drag);
     }
 
-    int CalcDamage(MeteorUnit attacker, AttackDes des = null)
-    {
+    int CalcDamage(MeteorUnit attacker, AttackDes des = null) {
         //(((武器攻击力 + buff攻击力) x 招式攻击力） / 100) - （敌方武器防御力 + 敌方buff防御力） / 10
         //你的攻击力，和我的防御力之间的计算
         //attacker.damage.PoseIdx;
@@ -2553,8 +2341,7 @@ public partial class MeteorUnit : NetBehaviour
     }
 
     //计算其他人在我的哪一个方位，每个方位控制90度范围。
-    Direct CalcDirection(MeteorUnit other)
-    {
+    Direct CalcDirection(MeteorUnit other) {
         Vector3 otherVec = new Vector3(other.transform.position.x, 0, other.transform.position.z);
         Vector3 Vec = new Vector3(transform.position.x, 0, transform.position.z);
         Vector3 VecOffset = Vector3.Normalize(otherVec - Vec);
@@ -2565,20 +2352,17 @@ public partial class MeteorUnit : NetBehaviour
             angle = 1.0f;
         else if (angle < -1.0f)
             angle = -1.0f;
-        float degree =  Mathf.Acos(Mathf.Clamp(angle, -1.0f, 1.0f)) * Mathf.Rad2Deg;
+        float degree = Mathf.Acos(Mathf.Clamp(angle, -1.0f, 1.0f)) * Mathf.Rad2Deg;
         //Debug.LogError("角度:" + degree);
-        if (degree <= 45)
-        {
+        if (degree <= 45) {
             //Debug.LogError("正面");
             return Direct.Front;
         }
-        if (degree <= 135 && angleLeft > 0)
-        {
+        if (degree <= 135 && angleLeft > 0) {
             //Debug.LogError("左侧");
             return Direct.Left;
         }
-        if (degree <= 135 && angleLeft < 0)
-        {
+        if (degree <= 135 && angleLeft < 0) {
             //Debug.LogError("右侧");
             return Direct.Right;
         }
@@ -2586,13 +2370,12 @@ public partial class MeteorUnit : NetBehaviour
         return Direct.Back;
     }
 
-    public void OnBuffDamage(int buffDamage)
-    {
+    public void OnBuffDamage(int buffDamage) {
         if (NGUICameraJoystick.instance != null)
             NGUICameraJoystick.instance.ResetJoystick();//防止受到攻击时还可以移动视角
         SetGunReady(false);
         Attr.ReduceHp(buffDamage);
-        posMng.OnChangeAction(CommonAction.OnDrugHurt);
+        ActionMgr.OnChangeAction(CommonAction.OnDrugHurt);
     }
 
     /*
@@ -2615,8 +2398,7 @@ public partial class MeteorUnit : NetBehaviour
      */
 
     //飞镖或飞轮的，含受击定义,即使飞镖拥有者死了，仍调用.
-    void OnDamage(MeteorUnit attacker, AttackDes attackdes)
-    {
+    void OnDamage(MeteorUnit attacker, AttackDes attackdes) {
         if (Dead)
             return;
         if (NGUICameraJoystick.instance != null && Attr.IsPlayer)
@@ -2628,57 +2410,47 @@ public partial class MeteorUnit : NetBehaviour
             return;
         //任意受击，都会让角色退出持枪预备姿势
         SetGunReady(false);
-        if (attacker == null)
-        {
+        if (attacker == null) {
             //
-        }
-        else
-        {
+        } else {
             //到此处均无须判读阵营等。
             AttackDes dam = attackdes;
+            if (dam == null)
+                dam = attacker.CurrentDamage;
             Direct direction = CalcDirection(attacker);
             int directionAct = dam.TargetPose;
-            switch (direction)
-            {
+            switch (direction) {
                 case Direct.Front: directionAct = dam.TargetPoseFront; break;//这个是前后左右，武器防御受击是 上下左右，上下指角色面朝方向头顶和底部
                 case Direct.Back: directionAct = dam.TargetPoseBack; break;
                 case Direct.Left: directionAct = dam.TargetPoseLeft; break;
                 case Direct.Right: directionAct = dam.TargetPoseRight; break;
             }
-            if (attacker.Attr.IsPlayer && Main.Ins.GameStateMgr.gameStatus.EnableGodMode)
-            {
+            if (attacker.Attr.IsPlayer && Main.Ins.GameStateMgr.gameStatus.EnableGodMode) {
                 //一击必杀
                 string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
-                Main.Ins.SFXLoader.PlayEffect(attackAudio, charLoader);
+                Main.Ins.SFXLoader.PlayEffect(attackAudio, this);
                 if (StateMachine != null)
                     StateMachine.OnDamaged(attacker);
                 Attr.ReduceHp(Attr.HpMax);
                 if (Attr.Dead)
                     OnDead(attacker);
-            }
-            else
-            {
-                if (posMng.onDefence)
-                {
-                    if (dam._AttackType == 0)
-                    {
-                        if (charLoader != null)
-                            charLoader.LockTime(dam.DefenseValue);
+            } else {
+                if (ActionMgr.onDefence) {
+                    if (dam._AttackType == 0) {
                         //Move(-attacker.transform.forward * dam.DefenseMove);
                         //通过当前武器和方向，得到防御动作ID  40+(x-1)*4类似 匕首 = 5=> 40+(5-1)*4 = 56,防御住前方攻击 57 58 59就是其他方向的
                         int TargetPos = GetGuardPose(direction);
                         string attackAudio = string.Format("W{0:D2}GD{1:D3}.ef", attacker.GetWeaponType(), directionAct);
-                        Main.Ins.SFXLoader.PlayEffect(attackAudio, charLoader);
+                        Main.Ins.SFXLoader.PlayEffect(attackAudio, this);
                         //TargetPos = 40 + ((int)idx - 1) * 4 + direction;
                         //Debug.LogError("targetPos:" + TargetPos);
-                        posMng.OnChangeAction(TargetPos);
-                        charLoader.SetActionScale(dam.DefenseMove);
-                        //charLoader.SetActionRotation(mPos - attacker.mPos);
+                        ActionMgr.OnChangeAction(TargetPos);
+                        ActionMgr.SetActionScale(dam.DefenseMove);
+                        if (ActionMgr != null)
+                            ActionMgr.LockTime(dam.DefenseValue);
                         int realDamage = CalcDamage(attacker, attackdes);
                         AngryValue += realDamage / 30;//防御住伤害。则怒气增加
-                    }
-                    else if (dam._AttackType == 1)
-                    {
+                    } else if (dam._AttackType == 1) {
                         //这个招式伤害多少?
                         //dam.PoseIdx;算伤害
                         int realDamage = CalcDamage(attacker, attackdes);
@@ -2703,44 +2475,35 @@ public partial class MeteorUnit : NetBehaviour
                         //        lockTarget = attacker;
                         //}
 
-                        if (Attr != null)
-                            Attr.ReduceHp(realDamage);
-                        if (charLoader != null)
-                            charLoader.LockTime(dam.TargetValue);
+                        Attr.ReduceHp(realDamage);
+                        
 
                         string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
-                        Main.Ins.SFXLoader.PlayEffect(attackAudio, charLoader);
+                        Main.Ins.SFXLoader.PlayEffect(attackAudio, this);
                         AngryValue += (int)((realDamage * 10) / 73.0f);
                         if (StateMachine != null)
                             StateMachine.OnDamaged(attacker);
                         if (Attr.Dead)
                             OnDead(attacker);
-                        else
-                        {
+                        else {
                             //如果攻击者是主角，而自己又没有死，那么设置一下锁定目标为自己.(匕首后A接大，自动转向)
-                            if (attacker.Attr.IsPlayer)
-                            {
-                                if (Main.Ins.GameBattleEx.CanLockTarget(this))
-                                {
+                            if (attacker.Attr.IsPlayer) {
+                                if (Main.Ins.GameBattleEx.CanLockTarget(this)) {
                                     Main.Ins.GameBattleEx.ChangeLockedTarget(this);
                                     attacker.LockTarget = this;
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 //不是主角打就记录伤害，谁伤害高，就去追着谁打。
                             }
                             //播放相应特效-音效 0飞镖1
 
                             //被攻击后，防御相当与没有了.
-                            posMng.OnChangeAction(directionAct);
-                            charLoader.SetActionScale(dam.TargetMove);
-                            //charLoader.SetActionRotation(mPos - attacker.mPos);
+                            ActionMgr.OnChangeAction(directionAct);
+                            ActionMgr.LockTime(dam.TargetValue);
+                            ActionMgr.SetActionScale(dam.TargetMove);
                         }
                     }
-                }
-                else
-                {
+                } else {
                     int realDamage = CalcDamage(attacker, attackdes);
                     //Debug.LogError(Attr.Name + ":受到:" + attacker.Attr.name + " 的攻击 减少 " + realDamage + " 点气血" + ":f" + Time.frameCount);
                     Attr.ReduceHp(realDamage);
@@ -2765,40 +2528,33 @@ public partial class MeteorUnit : NetBehaviour
                     if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)//16受到此招式攻击会得到物品
                         GetItem(poseInfo.first[0].flag[1]);
 
-                    if (charLoader != null)
-                        charLoader.LockTime(dam.TargetValue);
+                    
                     AngryValue += (int)((realDamage * 10) / 73.0f);
                     string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
-                    Main.Ins.SFXLoader.PlayEffect(attackAudio, charLoader);
+                    Main.Ins.SFXLoader.PlayEffect(attackAudio, this);
                     if (StateMachine != null)
                         StateMachine.OnDamaged(attacker);
                     if (Attr.Dead)
                         OnDead(attacker);
-                    else
-                    {
+                    else {
                         //如果攻击者是主角，而自己又没有死，那么设置一下锁定目标为自己.(主角匕首后A打到我-接大，自动转向)
-                        if (attacker.Attr.IsPlayer)
-                        {
-                            if (Main.Ins.GameBattleEx.CanLockTarget(this))
-                            {
+                        if (attacker.Attr.IsPlayer) {
+                            if (Main.Ins.GameBattleEx.CanLockTarget(this)) {
                                 Main.Ins.GameBattleEx.ChangeLockedTarget(this);
                                 attacker.LockTarget = this;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             //不是主角打就记录伤害，谁伤害高，就去追着谁打。
                         }
-                        posMng.OnChangeAction(directionAct);
-                        charLoader.SetActionScale(dam.TargetMove);
-                        //charLoader.SetActionRotation(mPos - attacker.mPos);
+                        ActionMgr.OnChangeAction(directionAct);
+                        ActionMgr.LockTime(dam.TargetValue);
+                        ActionMgr.SetActionScale(dam.TargetMove);
                     }
                 }
             }
         }
 
-        if (FightState.Exist())
-        {
+        if (FightState.Exist()) {
             //先飘血。
             if (Attr.IsPlayer)
                 FightState.Instance.UpdatePlayerInfo();
@@ -2807,9 +2563,17 @@ public partial class MeteorUnit : NetBehaviour
         }
     }
 
+    public void OnDamageByItem(SceneItemAgent trigger) {
+        if (attackDelay.ContainsKey(trigger))
+            return;
+        if (!Attr.Dead) {
+            OnDamage(null, trigger.DamageValue());
+            attackDelay[trigger] = 2.0f;
+        }
+    }
+
     //除了，武器碰撞，特效碰撞，还可以是buff，机关
-    public void OnDamage(MeteorUnit attacker, int buffDamage = 0)
-    {
+    public void OnDamage(MeteorUnit attacker, int buffDamage = 0) {
         if (Dead)
             return;
 
@@ -2821,8 +2585,7 @@ public partial class MeteorUnit : NetBehaviour
         if (Attr.IsPlayer && Main.Ins.GameStateMgr.gameStatus.Undead)
             return;
         SetGunReady(false);
-        if (attacker == null)
-        {
+        if (attacker == null) {
             if (StateMachine != null)
                 StateMachine.OnDamaged(attacker);
             //环境伤害.
@@ -2830,94 +2593,74 @@ public partial class MeteorUnit : NetBehaviour
             if (Attr.Dead)
                 OnDead();
             else
-                posMng.OnChangeAction(CommonAction.OnDrugHurt);
-        }
-        else
-        {
+                ActionMgr.OnChangeAction(CommonAction.OnDrugHurt);
+        } else {
             //到此处均无须判读阵营等。
             AttackDes dam = attacker.damage;
             Direct direction = CalcDirection(attacker);
             int directionAct = dam.TargetPose;
-            switch (direction)
-            {
+            switch (direction) {
                 case Direct.Front: directionAct = dam.TargetPoseFront; break;//这个是前后左右，武器防御受击是 上下左右，上下指角色面朝方向头顶和底部
                 case Direct.Back: directionAct = dam.TargetPoseBack; break;
                 case Direct.Left: directionAct = dam.TargetPoseLeft; break;
                 case Direct.Right: directionAct = dam.TargetPoseRight; break;
             }
 
-            if (attacker.Attr.IsPlayer && Main.Ins.GameStateMgr.gameStatus.EnableGodMode)
-            {
+            if (attacker.Attr.IsPlayer && Main.Ins.GameStateMgr.gameStatus.EnableGodMode) {
                 //一击必杀
                 string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
-                Main.Ins.SFXLoader.PlayEffect(attackAudio, charLoader);
+                Main.Ins.SFXLoader.PlayEffect(attackAudio, this);
                 if (StateMachine != null)
                     StateMachine.OnDamaged(attacker);
                 Attr.ReduceHp(Attr.HpMax);
                 if (Attr.Dead)
                     OnDead(attacker);
-            }
-            else
-            {
-                if (posMng.onDefence)
-                {
-                    if (dam._AttackType == 0)
-                    {
-                        if (charLoader != null)
-                            charLoader.LockTime(dam.DefenseValue);
+            } else {
+                if (ActionMgr.onDefence) {
+                    if (dam._AttackType == 0) {
+                        ActionMgr.LockTime(dam.DefenseValue);
                         //Move(-attacker.transform.forward * dam.DefenseMove);
                         //通过当前武器和方向，得到防御动作ID  40+(x-1)*4类似 匕首 = 5=> 40+(5-1)*4 = 56,防御住前方攻击 57 58 59就是其他方向的
                         int TargetPos = GetGuardPose(direction);
                         string attackAudio = string.Format("W{0:D2}GD{1:D3}.ef", attacker.GetWeaponType(), directionAct);
-                        Main.Ins.SFXLoader.PlayEffect(attackAudio, charLoader);
-                        posMng.OnChangeAction(TargetPos);
-                        charLoader.SetActionScale(dam.DefenseMove);
-                        //charLoader.SetActionRotation(this.mPos - attacker.mPos);
+                        Main.Ins.SFXLoader.PlayEffect(attackAudio, this);
+                        ActionMgr.OnChangeAction(TargetPos);
+                        ActionMgr.SetActionScale(dam.DefenseMove);
                         int realDamage = CalcDamage(attacker);
                         AngryValue += (realDamage / 30);//防御住伤害。则怒气增加 200CC = 100 ANG
-                    }
-                    else if (dam._AttackType == 1)
-                    {
+                    } else if (dam._AttackType == 1) {
                         //这个招式伤害多少?
                         //dam.PoseIdx;算伤害
                         int realDamage = CalcDamage(attacker);
-                        
+
                         Option poseInfo = Main.Ins.MenuResLoader.GetPoseInfo(dam.PoseIdx);
                         if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)
                             GetItem(poseInfo.first[0].flag[1]);
                         //Debug.Log("受到:" + realDamage + " 点伤害");
                         Attr.ReduceHp(realDamage);
-                        if (charLoader != null)
-                            charLoader.LockTime(dam.TargetValue);
+                        ActionMgr.LockTime(dam.TargetValue);
                         string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
-                        Main.Ins.SFXLoader.PlayEffect(attackAudio, charLoader);
+                        Main.Ins.SFXLoader.PlayEffect(attackAudio, this);
                         AngryValue += (int)(realDamage * 10 / 73.0f);
                         if (StateMachine != null)
                             StateMachine.OnDamaged(attacker);
                         if (Attr.Dead)
                             OnDead(attacker);
-                        else
-                        {
+                        else {
                             //如果攻击者是主角，而自己又没有死，那么设置一下锁定目标为自己.(匕首后A接大，自动转向)
-                            if (attacker.Attr.IsPlayer)
-                            {
-                                if (Main.Ins.GameBattleEx.CanLockTarget(this))
-                                {
+                            if (attacker.Attr.IsPlayer) {
+                                if (Main.Ins.GameBattleEx.CanLockTarget(this)) {
                                     Main.Ins.GameBattleEx.ChangeLockedTarget(this);
                                     attacker.LockTarget = this;
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 //不是主角打就记录伤害，谁伤害高，就去追着谁打。
                             }
-                            posMng.OnChangeAction(directionAct);
-                            charLoader.SetActionScale(dam.TargetMove);
+                            ActionMgr.OnChangeAction(directionAct);
+                            ActionMgr.SetActionScale(dam.TargetMove);
                         }
                     }
-                }
-                else
-                {
+                } else {
                     int realDamage = CalcDamage(attacker);
                     //Debug.Log("受到:" + realDamage + " 点伤害" + " f:" + Time.frameCount);
                     Attr.ReduceHp(realDamage);
@@ -2926,37 +2669,30 @@ public partial class MeteorUnit : NetBehaviour
                     if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 16)//16受到此招式攻击会得到物品
                         GetItem(poseInfo.first[0].flag[1]);
 
-                    if (charLoader != null)
-                        charLoader.LockTime(dam.TargetValue);
+                    ActionMgr.LockTime(dam.TargetValue);
                     AngryValue += (int)((realDamage * 10) / 73.0f);
                     string attackAudio = string.Format("W{0:D2}BL{1:D3}.ef", attacker.GetWeaponType(), directionAct);
-                    Main.Ins.SFXLoader.PlayEffect(attackAudio, charLoader);
+                    Main.Ins.SFXLoader.PlayEffect(attackAudio, this);
                     if (StateMachine != null)
                         StateMachine.OnDamaged(attacker);
                     if (Attr.Dead)
                         OnDead(attacker);
-                    else
-                    {
+                    else {
                         //如果攻击者是主角，而自己又没有死，那么设置一下锁定目标为自己.(主角匕首后A打到我-接大，自动转向)
-                        if (attacker.Attr.IsPlayer)
-                        {
-                            if (Main.Ins.GameBattleEx.CanLockTarget(this))
-                            {
+                        if (attacker.Attr.IsPlayer) {
+                            if (Main.Ins.GameBattleEx.CanLockTarget(this)) {
                                 Main.Ins.GameBattleEx.ChangeLockedTarget(this);
                                 attacker.LockTarget = this;
                             }
+                        } else {
                         }
-                        else
-                        {
-                        }
-                        posMng.OnChangeAction(directionAct);
-                        charLoader.SetActionScale(dam.TargetMove);
+                        ActionMgr.OnChangeAction(directionAct);
+                        ActionMgr.SetActionScale(dam.TargetMove);
                     }
                 }
             }
         }
-        if (FightState.Exist())
-        {
+        if (FightState.Exist()) {
             //先飘血。
             if (Attr.IsPlayer)
                 FightState.Instance.UpdatePlayerInfo();
@@ -2965,152 +2701,144 @@ public partial class MeteorUnit : NetBehaviour
         }
     }
 
-    public void CrouchRush(int dir = 0)
-    {
-        switch (dir)
-        {
-            case 0:
-                posMng.ChangeAction(CommonAction.DCForw, 0.1f);
+    public void CrouchRush(RushDirection dir = RushDirection.Front) {
+        switch (dir) {
+            case RushDirection.Front:
+                ActionMgr.ChangeAction(CommonAction.DCForw, 0.1f);
                 break;
-            case 1:
-                posMng.ChangeAction(CommonAction.DCBack, 0.1f);
+            case RushDirection.Back:
+                ActionMgr.ChangeAction(CommonAction.DCBack, 0.1f);
                 break;
-            case 2:
-                posMng.ChangeAction(CommonAction.DCLeft, 0.1f);
+            case RushDirection.Left:
+                ActionMgr.ChangeAction(CommonAction.DCLeft, 0.1f);
                 break;
-            case 3:
-                posMng.ChangeAction(CommonAction.DCRight, 0.1f);
+            case RushDirection.Right:
+                ActionMgr.ChangeAction(CommonAction.DCRight, 0.1f);
                 break;
         }
     }
-    public void IdleRush(int dir = 0)
-    {
+    public void IdleRush(RushDirection dir = RushDirection.Front) {
         //根据DIR和武器决定动作
-        switch (dir)
-        {
-            case 0://前
-                switch (GetWeaponType())
-                {
+        switch (dir) {
+            case RushDirection.Front://前
+                switch (GetWeaponType()) {
                     case (int)EquipWeaponType.Sword:
                     case (int)EquipWeaponType.Gun://火枪
                     case (int)EquipWeaponType.Dart://飞镖
                     case (int)EquipWeaponType.Guillotines://飞轮
-                        CrouchRush(dir);
+                        CrouchRush(0);
                         break;
                     case (int)EquipWeaponType.Hammer://锤子
                     case (int)EquipWeaponType.Brahchthrust://双刺
-                        posMng.ChangeAction(CommonAction.DForw1, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DForw1, 0.1f);
                         break;
                     case (int)EquipWeaponType.Blade:
-                        posMng.ChangeAction(CommonAction.DForw2, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DForw2, 0.1f);
                         break;
                     case (int)EquipWeaponType.Knife:
                     case (int)EquipWeaponType.Lance:
-                    
-                        posMng.ChangeAction(CommonAction.DForw3, 0.1f);
+
+                        ActionMgr.ChangeAction(CommonAction.DForw3, 0.1f);
                         break;
                     case (int)EquipWeaponType.NinjaSword:
-                        posMng.ChangeAction(CommonAction.DForw4, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DForw4, 0.1f);
                         break;
                     case (int)EquipWeaponType.HeavenLance:
-                        posMng.ChangeAction(CommonAction.DForw5, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DForw5, 0.1f);
                         break;
                     case (int)EquipWeaponType.Gloves:
-                        posMng.ChangeAction(CommonAction.DForw6, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DForw6, 0.1f);
                         break;
                 }
-                
+
                 break;
-            case 1://后
-                switch (GetWeaponType())
-                {
+            case RushDirection.Back://后
+                switch (GetWeaponType()) {
                     case (int)EquipWeaponType.Sword:
                     case (int)EquipWeaponType.Gun://火枪
                     case (int)EquipWeaponType.Dart://飞镖
                     case (int)EquipWeaponType.Guillotines://飞轮
-                        CrouchRush(dir);
+                        CrouchRush(RushDirection.Back);
                         break;
                     case (int)EquipWeaponType.Hammer://锤子
                     case (int)EquipWeaponType.Brahchthrust://双刺
-                        posMng.ChangeAction(CommonAction.DBack1, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DBack1, 0.1f);
                         break;
                     case (int)EquipWeaponType.Blade:
-                        posMng.ChangeAction(CommonAction.DBack2, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DBack2, 0.1f);
                         break;
                     case (int)EquipWeaponType.Knife:
                     case (int)EquipWeaponType.Lance:
-                        posMng.ChangeAction(CommonAction.DBack3, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DBack3, 0.1f);
                         break;
                     case (int)EquipWeaponType.NinjaSword:
-                        posMng.ChangeAction(CommonAction.DBack4, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DBack4, 0.1f);
                         break;
                     case (int)EquipWeaponType.HeavenLance:
-                        posMng.ChangeAction(CommonAction.DBack5, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DBack5, 0.1f);
                         break;
                     case (int)EquipWeaponType.Gloves:
-                        posMng.ChangeAction(CommonAction.DBack6, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DBack6, 0.1f);
                         break;
                 }
                 break;
-            case 2://左
-                switch (GetWeaponType())
-                {
+            case RushDirection.Left://左
+                switch (GetWeaponType()) {
                     case (int)EquipWeaponType.Sword:
                     case (int)EquipWeaponType.Gun://火枪
                     case (int)EquipWeaponType.Dart://飞镖
                     case (int)EquipWeaponType.Guillotines://飞轮
-                        CrouchRush(dir);
+                        CrouchRush(RushDirection.Left);
                         break;
                     case (int)EquipWeaponType.Hammer://锤子
                     case (int)EquipWeaponType.Brahchthrust://双刺
-                        posMng.ChangeAction(CommonAction.DLeft1, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DLeft1, 0.1f);
                         break;
                     case (int)EquipWeaponType.Blade:
-                        posMng.ChangeAction(CommonAction.DLeft2, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DLeft2, 0.1f);
                         break;
                     case (int)EquipWeaponType.Knife:
                     case (int)EquipWeaponType.Lance:
-                        posMng.ChangeAction(CommonAction.DLeft3, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DLeft3, 0.1f);
                         break;
                     case (int)EquipWeaponType.NinjaSword:
-                        posMng.ChangeAction(CommonAction.DLeft4, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DLeft4, 0.1f);
                         break;
                     case (int)EquipWeaponType.HeavenLance:
-                        posMng.ChangeAction(CommonAction.DLeft5, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DLeft5, 0.1f);
                         break;
                     case (int)EquipWeaponType.Gloves:
-                        posMng.ChangeAction(CommonAction.DLeft6, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DLeft6, 0.1f);
                         break;
                 }
                 break;
-            case 3://右
-                switch (GetWeaponType())
-                {
+            case RushDirection.Right://右
+                switch (GetWeaponType()) {
                     case (int)EquipWeaponType.Sword:
                     case (int)EquipWeaponType.Gun://火枪
                     case (int)EquipWeaponType.Dart://飞镖
                     case (int)EquipWeaponType.Guillotines://飞轮
-                        CrouchRush(dir);
+                        CrouchRush(RushDirection.Right);
                         break;
                     case (int)EquipWeaponType.Hammer://锤子
                     case (int)EquipWeaponType.Brahchthrust://双刺
-                        posMng.ChangeAction(CommonAction.DRight1, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DRight1, 0.1f);
                         break;
                     case (int)EquipWeaponType.Blade:
-                        posMng.ChangeAction(CommonAction.DRight2, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DRight2, 0.1f);
                         break;
                     case (int)EquipWeaponType.Knife:
                     case (int)EquipWeaponType.Lance:
-                        posMng.ChangeAction(CommonAction.DRight3, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DRight3, 0.1f);
                         break;
                     case (int)EquipWeaponType.NinjaSword:
-                        posMng.ChangeAction(CommonAction.DRight4, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DRight4, 0.1f);
                         break;
                     case (int)EquipWeaponType.HeavenLance:
-                        posMng.ChangeAction(CommonAction.DRight5, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DRight5, 0.1f);
                         break;
                     case (int)EquipWeaponType.Gloves:
-                        posMng.ChangeAction(CommonAction.DRight6, 0.1f);
+                        ActionMgr.ChangeAction(CommonAction.DRight6, 0.1f);
                         break;
                 }
                 break;
@@ -3118,41 +2846,36 @@ public partial class MeteorUnit : NetBehaviour
     }
 
     public void OnCameraRotateEnd() {
-        posMng.Rotateing = false;
+        ActionMgr.Rotateing = false;
         rotateTick = 0;
-        if (posMng.mActiveAction.Idx == CommonAction.WalkLeft || posMng.mActiveAction.Idx == CommonAction.WalkRight) {
-            posMng.ChangeAction(CommonAction.Idle, 0.1f);
+        if (ActionMgr.mActiveAction.Idx == CommonAction.WalkLeft || ActionMgr.mActiveAction.Idx == CommonAction.WalkRight) {
+            ActionMgr.ChangeAction(CommonAction.Idle, 0.1f);
             return;
         }
-        
-        if (posMng.mActiveAction.Idx == CommonAction.CrouchLeft || posMng.mActiveAction.Idx == CommonAction.CrouchRight) {
-            posMng.ChangeAction(CommonAction.Crouch, 0.1f);
+
+        if (ActionMgr.mActiveAction.Idx == CommonAction.CrouchLeft || ActionMgr.mActiveAction.Idx == CommonAction.CrouchRight) {
+            ActionMgr.ChangeAction(CommonAction.Crouch, 0.1f);
             return;
         }
     }
 
     //当视角开始准备拉动前,
-    public void OnCameraRotateStart()
-    {
-        posMng.Rotateing = true;
+    public void OnCameraRotateStart() {
+        ActionMgr.Rotateing = true;
         rotateTick = 0;
     }
 
-    public void OnGameResult(int result)
-    {
-        if (posMng.mActiveAction.Idx < CommonAction.Crouch || posMng.mActiveAction.Idx == CommonAction.GunIdle)
-        {
-            posMng.ChangeAction(CommonAction.Taunt, 0.1f);
-            posMng.playResultAction = true;
+    public void OnGameResult(int result) {
+        if (ActionMgr.mActiveAction.Idx < CommonAction.Crouch || ActionMgr.mActiveAction.Idx == CommonAction.GunIdle) {
+            ActionMgr.ChangeAction(CommonAction.Taunt, 0.1f);
+            ActionMgr.playResultAction = true;
         }
     }
 
     /// BUFF处理
     //名字, 类型, 值, 持续, 间隔, 持续类型, 拾取后带特效.
-    public void AddBuf(Option ItemInfo, bool repeatAdd = false)
-    {
-        if (!Main.Ins.BuffMng.BufDict.ContainsKey(ItemInfo.Idx))
-        {
+    public void AddBuf(Option ItemInfo, bool repeatAdd = false) {
+        if (!Main.Ins.BuffMng.BufDict.ContainsKey(ItemInfo.Idx)) {
             Buff buf = new Buff();
             buf.refresh_type = ItemInfo.second[0].flag[4];
             buf.Id = ItemInfo.Idx;
@@ -3173,33 +2896,28 @@ public partial class MeteorUnit : NetBehaviour
     SFXEffectPlay flagEffect;
     int flagEffectIdx;
     Option FlagItem;
-    public void SetFlag(Option f, int effectIdx)
-    {
-        flag = f == null ? false:true;
+    public void SetFlag(Option f, int effectIdx) {
+        flag = f == null ? false : true;
         FlagItem = f;
         if (f == null)
             return;
-        if (flagEffect != null)
-        {
+        if (flagEffect != null) {
             flagEffect.OnPlayAbort();
             flagEffect = null;
         }
-        if (effectIdx != 0)
-        {
+        if (effectIdx != 0) {
             flagEffect = Main.Ins.SFXLoader.PlayEffect(effectIdx, gameObject, false);
             flagEffectIdx = effectIdx;
         }
     }
 
-    public void OnChangeWeaponType(int type)
-    {
+    public void OnChangeWeaponType(int type) {
         if (type > 4 || type < 0)
             return;
         //炼化主手武器，每一个种类的武器有60个
         int weaponType = GetWeaponType();
         int targetWeapon = 0;
-        switch (weaponType)
-        {
+        switch (weaponType) {
             case 0://剑
                 targetWeapon = 6 + type * 9;
                 break;
@@ -3240,37 +2958,30 @@ public partial class MeteorUnit : NetBehaviour
         ChangeWeaponCode(targetWeapon);
     }
 
-    public void DropWeapon()
-    {
+    public void DropWeapon() {
         Main.Ins.DropMng.DropWeapon(this);
     }
 
     //被某个招式打中后，加入BUFF或者物品效果
-    public void GetItem(int idx)
-    {
+    public void GetItem(int idx) {
         Option it = Main.Ins.MenuResLoader.GetItemInfo(idx);
-        GetItem(it);
+        if (it != null)
+            GetItem(it);
     }
 
     //角色得到任意物品的处理，包括buff,炼化,气血，怒气等
-    public void GetItem(Option ItemInfo)
-    {
+    public void GetItem(Option ItemInfo) {
         if (ItemInfo.first[2].flag[1] != 0)
             Main.Ins.SFXLoader.PlayEffect(ItemInfo.first[2].flag[1], gameObject, true);
         //考虑所有物品
-        if (ItemInfo.second.Length != 0)
-        {
-            if (ItemInfo.first != null && ItemInfo.first.Length > 4 && ItemInfo.first[4].flag[1] != 0)
-            {
+        if (ItemInfo.second.Length != 0) {
+            if (ItemInfo.first != null && ItemInfo.first.Length > 4 && ItemInfo.first[4].flag[1] != 0) {
                 AddBuf(ItemInfo);
                 //BUFF可以立即导致角色死亡
                 CheckUnitDead();
-            }
-            else
-            {
+            } else {
                 //一次性物品,燕羽，无法使用
-                switch (ItemInfo.second[0].flag[2])
-                {
+                switch (ItemInfo.second[0].flag[2]) {
                     case 1://最大血量??不可能，最大血量是状态，是BUFF
                     case 4://防御 BUFF
                     case 3://攻击 BUFF
@@ -3289,18 +3000,15 @@ public partial class MeteorUnit : NetBehaviour
                 }
             }
 
-            //if (Attr.IsPlayer)
-            //{
-            //    if (FightWnd.Exist)
-            //        FightWnd.Instance.UpdatePlayerInfo();
-            //}
-        }
-        else
+            if (Attr.IsPlayer) {
+                if (FightState.Exist())
+                    FightState.Instance.UpdatePlayerInfo();
+            }
+        } else
             OnChangeWeaponType(ItemInfo.first[3].flag[1]);
     }
 
-    void CheckUnitDead()
-    {
+    void CheckUnitDead() {
         if (Attr.Dead)
             OnDead();
     }
@@ -3308,12 +3016,10 @@ public partial class MeteorUnit : NetBehaviour
     //是否隐身
     public bool Stealth { get { return _Stealth; } }
     bool _Stealth;//隐身以后，装备/切换武器/都需要重新设置武器的透明度
-    public void ChangeHide(bool hide)
-    {
+    public void ChangeHide(bool hide) {
         _Stealth = hide;
         MeshRenderer[] mr = GetComponentsInChildren<MeshRenderer>();
-        for (int i = 0; i < mr.Length; i++)
-        {
+        for (int i = 0; i < mr.Length; i++) {
             if (!mr[i].enabled)
                 continue;
             for (int j = 0; j < mr[i].materials.Length; j++)
@@ -3321,8 +3027,7 @@ public partial class MeteorUnit : NetBehaviour
         }
 
         SkinnedMeshRenderer[] mrs = GetComponentsInChildren<SkinnedMeshRenderer>();
-        for (int i = 0; i < mrs.Length; i++)
-        {
+        for (int i = 0; i < mrs.Length; i++) {
             if (!mrs[i].enabled)
                 continue;
             for (int j = 0; j < mrs[i].materials.Length; j++)
@@ -3330,11 +3035,9 @@ public partial class MeteorUnit : NetBehaviour
         }
     }
 
-    public int GetSkillPose(int skill = 0)
-    {
+    public int GetSkillPose(int skill = 0) {
         int pose = skill;
-        switch (GetWeaponType())
-        {
+        switch (GetWeaponType()) {
             case 0:
                 pose = 368;
                 break;
@@ -3363,7 +3066,7 @@ public partial class MeteorUnit : NetBehaviour
                 pose = 244;
                 break;
             case 9:
-                ChangeWeaponPos(2);
+                ChangeWeaponPos(WeaponPos.PosB);
                 pose = 451;
                 break;
             case 10:
@@ -3386,42 +3089,33 @@ public partial class MeteorUnit : NetBehaviour
 
     //IEnumerator PlayWeaponPose(int KeyMap)
     //{
-        //List<VirtualInput> skill = VirtualInput.CalcPoseInput(KeyMap);
-        //for (int i = 0; i < skill.Count; i++)
-        //{
-        //    controller.Input.OnKeyDown(skill[i].key, true);
-        //    yield return 0;
-        //    controller.Input.OnKeyUp(skill[i].key);
-        //    yield return 0;
-        //}
-        //PlayWeaponPoseCorout = null;
+    //List<VirtualInput> skill = VirtualInput.CalcPoseInput(KeyMap);
+    //for (int i = 0; i < skill.Count; i++)
+    //{
+    //    controller.Input.OnKeyDown(skill[i].key, true);
+    //    yield return 0;
+    //    controller.Input.OnKeyUp(skill[i].key);
+    //    yield return 0;
+    //}
+    //PlayWeaponPoseCorout = null;
     //}
 
     //0大绝，其他的就是pose号,仅主角用.
-    public void PlaySkill(int skill = 0)
-    {
+    public void PlaySkill(int skill = 0) {
         //技能0为当前武器绝招
-        if (skill == 0)
-        {
-            if (AngryValue >= 100 || Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
-            {
+        if (skill == 0) {
+            if (AngryValue >= 100 || Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry) {
                 //得到武器的大绝pose号码。
                 AngryValue -= Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry ? 0 : 100;
                 int skillPose = Main.Ins.ActionInterrupt.GetSkillPose(this);
-                if (skillPose != 0)
-                {
-                    posMng.ChangeAction(skillPose);
+                if (skillPose != 0) {
+                    ActionMgr.ChangeAction(skillPose);
                 }
-            }
-            else if (Attr.IsPlayer)
+            } else if (Attr.IsPlayer)
                 U3D.InsertSystemMsg("怒气不足");
-        }
-        else if (skill == 1)
-        {
+        } else if (skill == 1) {
             //当前武器小技能1
-        }
-        else if (skill == 2)
-        {
+        } else if (skill == 2) {
             //当前武器小技能2
         }
     }

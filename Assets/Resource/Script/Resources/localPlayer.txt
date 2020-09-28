@@ -2,6 +2,6 @@
 Model = 18;
 Weapon = 7;
 Weapon2 = 5;
-HP = 999999;
+HP = 99999;
 function main()
 end

@@ -65,7 +65,7 @@ SubShader {
 			{
 				fixed4 col = tex2D(_MainTex, i.texcoord) * _Color;
 				fixed4 mas = tex2D(_MaskTex, i.texcoord);
-				clip(mas.a - 0.1);
+				//clip(mas.a - 0.1);
 				v2f o;
 				o.color.a = i.color.a / 255.0f;
 				o.color.g = i.color.g / 255.0f;
@@ -74,7 +74,7 @@ SubShader {
 				//if (o.color.a == 1)
 				//	col.rgb *= mas.rgb * o.color;
 				//else
-				col.rgb *= mas.rgb * o.color;
+				col.rgb *= o.color;
 				col.a = mas.a * _Alpha;
 				//UNITY_APPLY_FOG(i.fogCoord, col);
 				return col;

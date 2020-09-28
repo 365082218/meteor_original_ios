@@ -474,7 +474,7 @@ PlayerSettings:
   webGLUseWasm: 0
   webGLCompressionFormat: 1
   scriptingDefineSymbols:
-    1: BUILD_PC;RAVEN_COMPILED;STRIP_KEYBOARD
+    1: BUILD_PC;RAVEN_COMPILED
     4: 
     7: 
     13: RAVEN_COMPILED

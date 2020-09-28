@@ -1,4 +1,0 @@
-﻿  function main()
-  U3D.ShowNpcTalk(nil, "休息一会怎么样?", nil)
-  U3D.ShowNpcTalkMenu(false)
-  end

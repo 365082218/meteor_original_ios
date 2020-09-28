@@ -7,8 +7,12 @@ using UnityEngine.UI;
 
 public class SkcLoader
 {
-    static Dictionary<string, SkcFile> SkcFile = new Dictionary<string, global::SkcFile>();
-    static Dictionary<int, SkcFile> PluginSkcFile = new Dictionary<int, global::SkcFile>();
+    Dictionary<string, SkcFile> SkcFile = new Dictionary<string, global::SkcFile>();
+    Dictionary<int, SkcFile> GlobalSkcFile = new Dictionary<int, global::SkcFile>();
+    public void Clear() {
+        SkcFile.Clear();
+        GlobalSkcFile.Clear();
+    }
     public SkcFile Load(string file)
     {
         if (SkcFile.ContainsKey(file))
@@ -21,27 +25,32 @@ public class SkcLoader
         return f;
     }
 
-    public SkcFile LoadPluginModel(int modelIdx)
+    SkcFile LoadPluginModel(int modelIdx)
     {
-        if (PluginSkcFile.ContainsKey(modelIdx))
-            return PluginSkcFile[modelIdx];
+        if (GlobalSkcFile.ContainsKey(modelIdx))
+            return GlobalSkcFile[modelIdx];
         SkcFile f = new global::SkcFile();
         f.LoadModel(modelIdx);
         if (f.error)
             return null;
-        PluginSkcFile.Add(modelIdx, f);
+        GlobalSkcFile.Add(modelIdx, f);
         return f;
     }
 
     public SkcFile Load(int characterIdx)
     {
+        if (Main.Ins.CombatData.Chapter != null) {
+            Dictionary<int, string> models = Main.Ins.CombatData.GScript.GetModel();
+            if (models != null && models.ContainsKey(characterIdx)) {
+                string modelPath = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Skc, models[characterIdx]);
+                return Load(modelPath);
+            }
+        } 
+        //下载安装的模型或客户端自带的
         string BoneCnt = "";
-        if (Main.Ins.GameStateMgr != null)
-        {
-            if (Main.Ins.GameStateMgr.gameStatus != null)
-            {
-                switch (Main.Ins.GameStateMgr.gameStatus.Quality)
-                {
+        if (Main.Ins.GameStateMgr != null) {
+            if (Main.Ins.GameStateMgr.gameStatus != null) {
+                switch (Main.Ins.GameStateMgr.gameStatus.Quality) {
                     case 0:
                         BoneCnt = ""; break;
                     case 1:
@@ -49,7 +58,6 @@ public class SkcLoader
                     case 2:
                         BoneCnt = "_300"; break;
                 }
-
                 //如果选择 范旋-他300面的模型 骨骼权重最大是5，不好手动调整,用800面的代替
                 if (characterIdx == 16 && Main.Ins.GameStateMgr.gameStatus.Quality == 2)
                     BoneCnt = "_800";
@@ -108,7 +116,7 @@ public class SkcFile
             return;
         }
         string skc = "";
-        for (int i = 0; i < Target.resPath.Length; i++)
+        for (int i = 0; i < Target.resPath.Count; i++)
         {
             if (Target.resPath[i].ToLower().EndsWith(".skc"))
             {
@@ -125,13 +133,16 @@ public class SkcFile
     public void Load(string file)
     {
         TextAsset assets = Resources.Load<TextAsset>(file);
-        if (assets == null)
-        {
-            errorno = ParseError.Miss;
-            return;
-        }
-
-        Parse(assets.text);
+        string text = null;
+        if (assets == null) {
+            if (!System.IO.File.Exists(file)) {
+                errorno = ParseError.Miss;
+                return;
+            }
+            text = System.IO.File.ReadAllText(file);
+        } else
+            text = assets.text; 
+        Parse(text);
     }
 
     void Parse(string textSkc)
@@ -376,7 +387,7 @@ public class SkcFile
     {
         ModelItem Target = null;
         Target = DlcMng.GetPluginModel(roleIdx);
-        for (int i = 0; i < Target.resPath.Length; i++)
+        for (int i = 0; i < Target.resPath.Count; i++)
         {
             int idx = Target.resPath[i].LastIndexOf("/");
             string name = Target.resPath[i].Substring(idx + 1);
@@ -416,49 +427,14 @@ public class SkcFile
             for (int i = 0; i < materials.Length; i++)
             {
                 ret[i] = new Material(ShaderMng.Find("AlphaTexture"));
-                ret[i].SetTexture("_MainTex", SkcFile.GetTexrtureFromPlugin(roleIdx, materials[i].Texture));
-                ret[i].SetColor("_Color", materials[i].Diffuse);
-            }
+                ret[i].SetTexture("_MainTex", SkcFile.GetTexrtureFromPlugin(roleIdx, materials[i].Texture));            }
             return ret;
         }
         else
         {
             if (GamePool.Instance != null && GamePool.Instance.SkcMng != null)
                 return GamePool.Instance.SkcMng.GetPlayerMat(roleIdx, camp);
-            //使用预先设置好的材质球，降低DC和Batch
-            Material[] ret = new Material[materials.Length];
-            string strTexture = "";
-            string strIndex = "";
-            //if (camp == EUnitCamp.EUC_KILLALL)
-            //    strIndex = "01";
-            //if (camp == EUnitCamp.EUC_FRIEND)
-            strIndex = "01";//非联机模式,只有1皮肤
-                            //else
-                            //strIndex = "01";
-                            //else if (camp == EUnitCamp.EUC_ENEMY)
-                            //    strIndex = "03";
-
-            for (int i = 0; i < materials.Length; i++)
-            {
-                //if (materials[i].TwoSide)
-                //    ret[i] = new Material(Shader.Find("Shader Forge/DoubleSideTexture"));
-                //else
-                ret[i] = new Material(ShaderMng.Find("AlphaTexture"));
-                //根据阵营决定贴图序号
-                if (roleIdx > 19)
-                    ret[i].SetTexture("_MainTex", Resources.Load<Texture>(materials[i].Texture));
-                else
-                {
-                    string[] str = materials[i].Texture.Split('b');
-                    if (str.Length == 2)
-                        strTexture = str[0] + "b" + strIndex;
-                    else
-                        strTexture = materials[i].Texture;
-                    ret[i].SetTexture("_MainTex", Resources.Load<Texture>(strTexture));
-                }
-                ret[i].SetColor("_Color", materials[i].Diffuse);
-            }
-            return ret;
+            return null;
         }
     }
 }

@@ -14,7 +14,7 @@ Nikki Ma
 四是：电影的摄像机是定焦的，而不是变焦。所谓定焦，就是说拍近景和拍远景，只能依靠变化摄像机和人物的距离来完成。摄像机离你近了，取景范围就小，你的脸就大了。摄像机离你远了，取景范围加大，你全身就露出来了。所以，想像爸爸去哪儿一样，十几个机位一字排开，各自拍不同的景别是不可能的。相对于电影，电视台录节目一般采用变焦头，最大优点就是方便、快捷。但是定焦头拍出来，无论是色彩、画面质感都和定焦头没得比。电影屏幕大，要求高，一般都是定焦头啦。所以如果双机拍，拍全景的时候，前面肯定会有一个摄像机挡在那里拍近景。。。穿帮是肯定的。电影里面用双机的有钱剧组，一般都是同景别不同角度的拍摄，或者像前面说的，只能拍一次的镜头。。。
 第一次知乎回答哈，还请指正。
  */
-public class CameraFollow : NetBehaviour {
+public class CameraFollow:NetBehaviour {
     //public Transform[] m_Targets;//摄像机的各个视角的调试对象.
     public Transform CameraLookAt;//摄像机注视的目标
     public Transform CameraPosition;//摄像机经过缓动后的期望位置
@@ -31,7 +31,9 @@ public class CameraFollow : NetBehaviour {
     public float lastAngle;
     float angleMax = 75.0f;
     float angleMin = -75.0f;
-    protected new void Awake()
+
+    SceneItemAgent occlusionItem;//遮蔽住主角与相机间的物件
+    new void Awake()
     {
         base.Awake();
         CameraPosition = new GameObject("CameraPosition").transform;
@@ -39,13 +41,12 @@ public class CameraFollow : NetBehaviour {
         enabled = false;
     }
 
-    private void Start() {
-        
+    new void OnDestroy() {
+        base.OnDestroy();
     }
 
-    private new void OnDestroy()
-    {
-        base.OnDestroy();
+    private void Start() {
+        
     }
 
     bool DisableLockTarget;
@@ -108,23 +109,12 @@ public class CameraFollow : NetBehaviour {
         BodyHeight = 30;
         m_MinSize = 60;
         LookAtAngle = 10.0f;
+        SmoothDampYTime = 0.18f;
+        SmoothDampTime = 0.18f;
         m_Camera = GetComponent<Camera>();
         m_Camera.fieldOfView = m_MinSize;
         fRadis = Mathf.Sqrt(followDistance * followDistance + followHeight * followHeight);
         lastAngle = Mathf.Atan2(followHeight, followDistance) * Mathf.Rad2Deg;
-    }
-
-    public void ForceUpdate()
-    {
-        if (Target != null && !Main.Ins.CombatData.PauseAll)
-            CameraSmoothFollow();
-        else
-        {
-            if (FreeCamera)
-            {
-                OnAutoMove();
-            }
-        }
     }
 
     const float AutoSwitchTarget = 10.0f;//观察一个战斗团体10秒左右然后检查是否要切换观察位置.
@@ -268,15 +258,15 @@ public class CameraFollow : NetBehaviour {
     public void OnUnlockTarget()
     {
         animationTick = 0.0f;
-        animationPlay = true;
+        animationPlay = false;
         currentVelocityY = 0;
         currentVelocityY2 = 0;
         currentVelocity = Vector3.zero;
         LockTarget = null;
     }
 
-    public float SmoothDampTime = 0.15f;//平滑到稳定所需时间.
-    public float SmoothDampYTime = 0.1f;//垂直平滑到稳定所需时间
+    public float SmoothDampTime = 0.18f;//平滑到稳定所需时间.
+    public float SmoothDampYTime = 0.18f;//垂直平滑到稳定所需时间
     public float LookAtAngle = 0.0f;//朝目标俯视角度
     public float BodyHeight = 10.0f;//目标脊椎往上多少
 
@@ -340,7 +330,7 @@ public class CameraFollow : NetBehaviour {
             dis = 1000.0f;
             for (int i = 0; i < 2; i++)
             {
-                if (CameraCanLookTarget(newViewIndex[i], out wallHitPos))
+                if (Utility.CameraCanLookTarget(Main.Ins.LocalPlayer, newViewIndex[i], out wallHitPos))
                 {
                     float fdis = Vector3.Distance(newViewIndex[i], transform.position);
                     if (fdis < dis)
@@ -364,7 +354,7 @@ public class CameraFollow : NetBehaviour {
             //左侧右侧都被墙壁堵住，并且太近
             if (vecTarget == Vector3.zero)
             {
-                if (CameraCanLookTarget(newViewIndex[2], out wallHitPos))
+                if (Utility.CameraCanLookTarget(Main.Ins.LocalPlayer, newViewIndex[2], out wallHitPos))
                     vecTarget = newViewIndex[2];
                 else
                     vecTarget = wallHitPos;
@@ -403,11 +393,13 @@ public class CameraFollow : NetBehaviour {
                 }
             }
 
-            newPos.x = Target.transform.position.x;
+            //相机位置，未插值的
+            newPos.x = Target.position.x;
             newPos.y = Target.position.y + BodyHeight + followHeight;
-            newPos.z = Target.transform.position.z;
+            newPos.z = Target.position.z;
             newPos += Main.Ins.LocalPlayer.transform.forward * followDistance;
 
+            //相机观察的目标-未经过插值的
             vecTarget.x = Target.position.x;
             vecTarget.y = Target.position.y + BodyHeight;
             vecTarget.z = Target.position.z;
@@ -416,39 +408,56 @@ public class CameraFollow : NetBehaviour {
             RaycastHit wallHit;
             bool hitWall = false;
             if (Physics.Linecast(CameraLookAt.position, newPos, out wallHit,
-                1 << LayerMask.NameToLayer("Scene") |
-                (1 << LayerMask.NameToLayer("Default")) |
-                (1 << LayerMask.NameToLayer("Wall")) |
-                (1 << LayerMask.NameToLayer("Water"))))
+                LayerManager.AllSceneMask))
             {
-                if (!wallHit.collider.isTrigger)
-                {
-                    hitWall = true;
-                    //Debug.LogError("hitWall" + wallHit.transform.name);
-                    //摄像机与角色间有物件遮挡住角色，开始自动计算摄像机位置.
+                hitWall = true;
+                //摄像机与角色间有物件遮挡住角色，开始自动计算摄像机位置.
+                //场景道具挡住了角色和相机
+                SceneItemAgent item = wallHit.collider.gameObject.GetComponentInParent<SceneItemAgent>();
+                if (item != null) {
+                    //不需要移动相机的位置
+                    if (occlusionItem != null) {
+                        if (item != occlusionItem) {
+                            occlusionItem.RestoreAlpha();
+                            occlusionItem = item;
+                            occlusionItem.SetAlpha(0.3f);
+                        }
+                    } else {
+                        occlusionItem = item;
+                        item.SetAlpha(0.3f);
+                    }
+                }
+                else {
+                    float dis = Vector3.Distance(CameraLookAt.position, wallHit.point);
                     newPos = wallHit.point + Vector3.Normalize(CameraLookAt.position - wallHit.point) * 5;
+                }
+            }
+            else {
+                if (occlusionItem != null) {
+                    occlusionItem.RestoreAlpha();
+                    occlusionItem = null;
                 }
             }
 
             //没有撞墙
             if (!hitWall)
             {
-                newPos.x = Target.transform.position.x;
-                newPos.z = Target.transform.position.z;
-                float y = Mathf.SmoothDamp(CameraPosition.position.y, newPos.y, ref currentVelocityY, f_DampTime / 2);
+                newPos.x = Target.position.x;
+                newPos.z = Target.position.z;
+                float y = Mathf.SmoothDamp(CameraPosition.position.y, newPos.y, ref currentVelocityY, SmoothDampYTime / 2);
                 newPos.y = y;
                 newPos += Main.Ins.LocalPlayer.transform.forward * followDistance;
             }
             else
             {
-                float y = Mathf.SmoothDamp(CameraPosition.position.y, newPos.y, ref currentVelocityY, f_DampTime / 2);
+                float y = Mathf.SmoothDamp(CameraPosition.position.y, newPos.y, ref currentVelocityY, SmoothDampYTime / 2);
                 newPos.y = y;
             }
 
             CameraPosition.position = newPos;
 
             vecTarget.x = Target.position.x;
-            vecTarget.y = Mathf.SmoothDamp(CameraLookAt.position.y, Target.position.y + BodyHeight, ref currentVelocityY2, f_DampTime / 2);
+            vecTarget.y = Mathf.SmoothDamp(CameraLookAt.position.y, Target.position.y + BodyHeight, ref currentVelocityY2, SmoothDampYTime / 2);
             vecTarget.z = Target.position.z;
 
             CameraLookAt.position = vecTarget;
@@ -474,29 +483,8 @@ public class CameraFollow : NetBehaviour {
             else
             {
                 transform.position = CameraPosition.position;
-                transform.LookAt(CameraLookAt.position);
+                transform.LookAt(CameraLookAt.position, Vector3.up);
             }
         }
-    }
-
-    //由玩家Y轴25位置向摄像机期望点发射线，如果碰到墙壁返回false，否则true
-    bool CameraCanLookTarget(Vector3 pos, out Vector3 hit)
-    {
-        RaycastHit wallHit;
-        Vector3 targetPos = Main.Ins.LocalPlayer.transform.position + new Vector3(0, 25, 0);
-        if (Physics.Linecast(targetPos, pos, out wallHit,
-            1 << LayerMask.NameToLayer("Scene") |
-            (1 << LayerMask.NameToLayer("Default")) |
-            (1 << LayerMask.NameToLayer("Wall")) |
-            (1 << LayerMask.NameToLayer("Water"))))
-        {
-            if (!wallHit.collider.isTrigger)
-            {
-                hit = wallHit.point + Vector3.Normalize(targetPos - wallHit.point);
-                return false;
-            }
-        }
-        hit = pos;
-        return true;
     }
 }

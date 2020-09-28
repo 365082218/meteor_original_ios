@@ -22,11 +22,13 @@ public class RoleSelectDialog : Dialog
     }
 
     Image heroImg;
-    int heroIdx = 0;
+    int heroIdx = -1;
     void Init()
     {
         heroImg = Control("Image").GetComponent<Image>();
-        heroImg.material = ResMng.Load("Hero0") as Material;
+        heroImg.color = Color.black;
+        heroIdx = -1;
+        OnNextHero();
         Control("Next").GetComponent<Button>().onClick.AddListener(() =>
         {
             OnNextHero();
@@ -49,7 +51,7 @@ public class RoleSelectDialog : Dialog
         heroIdx += 1;
         if (heroIdx >= Main.Ins.DataMgr.GetModelDatas().Count)
             heroIdx = 0;
-        heroImg.material = ResMng.Load(string.Format("Hero{0}", heroIdx)) as Material;
+        LoadHeroTex();
     }
 
     void OnPrevHero()
@@ -57,7 +59,16 @@ public class RoleSelectDialog : Dialog
         heroIdx -= 1;
         if (heroIdx < 0)
             heroIdx = Main.Ins.DataMgr.GetModelDatas().Count - 1;
-        heroImg.material = ResMng.Load(string.Format("Hero{0}", heroIdx)) as Material;
+        LoadHeroTex();
+    }
+
+    void LoadHeroTex() {
+        Texture2D tex = Resources.Load<Texture2D>(string.Format("P00{0}", heroIdx)) as Texture2D;
+        if (tex != null) {
+            heroImg.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+            Utility.Expand(heroImg, tex.width, tex.height);
+            heroImg.color = Color.white;
+        }
     }
 
     void OnSelectHero()

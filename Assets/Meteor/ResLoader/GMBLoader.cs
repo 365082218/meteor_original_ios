@@ -9,10 +9,23 @@ public class GMBLoader
     Dictionary<string, GMBFile> GmbFile = new Dictionary<string, GMBFile>();
     public GMBFile Load(string file)
     {
+        string file_no_ext = file;
         file += ".gmb";
         if (GmbFile.ContainsKey(file))
             return GmbFile[file];
-        GMBFile gmb = new GMBFile();
+        GMBFile gmb = null;
+        if (Main.Ins.CombatData.Chapter != null) {
+            string path = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Gmc, file_no_ext);
+            if (!string.IsNullOrEmpty(path)) {
+                gmb = new GMBFile();
+                gmb = gmb.Load(path);
+                if (gmb != null) {
+                    GmbFile.Add(file, gmb);
+                    return gmb;
+                }
+            }
+        }
+        gmb = new GMBFile();
         GMBFile gmbOK = gmb.Load(file);
         if (gmbOK != null)
             GmbFile.Add(file, gmbOK);
@@ -30,9 +43,9 @@ public class GMBLoader
         return gmbOK;
     }
 
-    public void Refresh()
+    public void Clear()
     {
-        GmbFile = new Dictionary<string, GMBFile>();
+        GmbFile.Clear();
     }
 }
 

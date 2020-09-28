@@ -10,41 +10,42 @@ public class WayLoader
     {
         string key = file + ".wp";
         List<WayPoint> wp = new List<WayPoint>();
-        TextAsset asset = Resources.Load<TextAsset>(key);
-        if (asset != null)
-        {
-            MemoryStream ms = new MemoryStream(asset.bytes);
+        byte[] body = null;
+        //尝试先读DLC数据
+        if (Main.Ins != null) {
+            if (Main.Ins.CombatData.Chapter != null) {
+                body = Main.Ins.CombatData.Chapter.GetResBytes(FileExt.WayPoint, file);
+            }
+        }
+        TextAsset asset = null;
+        if (body == null)
+            asset = Resources.Load<TextAsset>(key);
+        if (asset != null) {
+            body = asset.bytes;
+        }
+        if (body != null) {
+            MemoryStream ms = new MemoryStream(body);
             StreamReader read = new StreamReader(ms);
             int wayCount = 0;
             WayPoint wpeach = null;
             int wayPointIdx = 0;
-            while (!read.EndOfStream)
-            {
+            while (!read.EndOfStream) {
                 string line = read.ReadLine();
                 string[] eachline = line.Split(new char[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
-                if (eachline[0] == "WayPoints")
-                {
+                if (eachline[0] == "WayPoints") {
                     wayCount = int.Parse(eachline[1]);
-                }
-                else if (eachline[0] == "Pos")
-                {
+                } else if (eachline[0] == "Pos") {
                     if (wpeach != null)
                         wp.Add(wpeach);
                     wpeach = new WayPoint();
                     wpeach.pos = new Vector3(float.Parse(eachline[1]), float.Parse(eachline[3]), float.Parse(eachline[2]));
                     wpeach.index = wayPointIdx;
                     wayPointIdx++;
-                }
-                else if (eachline[0] == "Size")
-                {
+                } else if (eachline[0] == "Size") {
                     wpeach.size = int.Parse(eachline[1]);
-                }
-                else if (eachline[0] == "Link")
-                {
+                } else if (eachline[0] == "Link") {
                     wpeach.link = new Dictionary<int, WayLength>();
-                }
-                else
-                {
+                } else {
                     WayLength wayl = new WayLength();
                     wayl.length = float.Parse(eachline[2]);
                     wayl.mode = int.Parse(eachline[1]);
@@ -53,10 +54,6 @@ public class WayLoader
             }
             if (!wp.Contains(wpeach) && wayCount != 0)
                 wp.Add(wpeach);
-        }
-        else
-        {
-            UnityEngine.Debug.LogError("can not load " + key);
         }
         return wp;
     }

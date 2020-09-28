@@ -17,6 +17,7 @@ public class SFXUnit :NetBehaviour
     MeshFilter mFilter;
     public MeteorUnit mOwner;
     public Collider damageBox;
+    public FightBox hitBox;
     public Transform PositionFollow;//同步移动
     public Transform RotateFollow;//同步旋转，若没有，则不用跟随旋转
     public string texture;
@@ -136,11 +137,6 @@ DRAG*/
         mRender = gameObject.GetComponent<MeshRenderer>();
         mFilter = gameObject.GetComponent<MeshFilter>();
         int meshIndex = -1;
-
-        if (effect.EffectType.Equals("DONUT"))
-        {
-            //Debug.LogError("find Donut Effect");
-        }
         //部分模型是要绕X旋转270的，这样他的缩放，和移动，都只能靠自己
         if (effect.EffectType.Equals("PLANE"))
         {
@@ -164,7 +160,7 @@ DRAG*/
             {
                 string[] des = effect.Tails[0].Split(new char[] { '\\' }, System.StringSplitOptions.RemoveEmptyEntries);
                 if (des.Length != 0)
-                    WsGlobal.ShowMeteorObject(des[des.Length - 1], transform);
+                    Utility.ShowMeteorObject(des[des.Length - 1], transform);
             }
             //这个时候,不要用自带的meshfilter了,让他自己处理显示问题,只要告诉他在哪个地方显示
             meshIndex = 100;
@@ -205,6 +201,8 @@ DRAG*/
                 mFilter.mesh = Main.Ins.SfxMeshGenerator.CreateSphere(source.SphereRadius);
             else if (meshIndex == 0)
                 mFilter.mesh = Main.Ins.SfxMeshGenerator.CreatePlane(source.origScale.x, source.origScale.y);
+            //else if (meshIndex == 1)
+            //    mFilter.mesh = Main.Ins.SfxMeshGenerator.CreateBox(source.origScale.x, source.origScale.y, source.origScale.z);
             else
                 mFilter.mesh = GamePool.Instance.MeshMng.Meshes[meshIndex];
         }
@@ -313,25 +311,38 @@ DRAG*/
         }
         if (effect.EffectName.StartsWith("Attack"))
         {
-            if (effect.EffectType.ToUpper() == "BOX")
-            {
+            if (effect.EffectType.ToUpper() == "BOX") {
                 BoxCollider bo = gameObject.AddComponent<BoxCollider>();
-                bo.center = Vector3.zero;
-                bo.size = Vector3.one;
+                //bo.center = Vector3.zero;
+                //bo.size = Vector3.one;
                 damageBox = bo;
+                damageBox.isTrigger = true;
             }
-            else
-            {
+            //} else if (effect.EffectType.ToUpper() == "PLANE") {
+            //    BoxCollider bo = gameObject.AddComponent<BoxCollider>();
+            //    //bo.center = Vector3.zero;
+            //    //bo.size = source.origScale;
+            //    damageBox = bo;
+            //} 
+            else {
                 //SphereCollider sph = gameObject.AddComponent<SphereCollider>();
                 //damageBox = sph;
                 //sph.radius = 1.0f;
                 //sph.center = Vector3.zero;
+                //Debug.LogError("Attack Effect Create MeshCollider");
                 MeshCollider co = gameObject.AddComponent<MeshCollider>();
                 co.convex = true;
                 co.isTrigger = true;
                 damageBox = co;
+                //Debug.LogError("attackBox not Box:" + name);
             }
+            hitBox = gameObject.AddComponent<FightBox>();
+            hitBox.Init(mOwner, null);
             damageBox.enabled = false;
+            if (U3D.showBox) {
+                BoundsGizmos.Instance.AddCollider(damageBox);
+                BoundsGizmos.Instance.AddTransform(transform);
+            }
         }
 
         if (preLoad)
@@ -365,9 +376,9 @@ DRAG*/
     // Update is called once per frame
     public override void NetUpdate()
     {
-        playedTime += FrameReplay.deltaTime;
         if (pause || PlayDone)
             return;
+        playedTime += FrameReplay.deltaTime;
         if (playedIndex < source.frames.Count)
         {
             if (playedTime < source.frames[0].startTime && mRender.enabled)
@@ -377,7 +388,6 @@ DRAG*/
 
             if (playedTime < source.frames[0].startTime)
                 return;
-            ChangeAttackCore();
             float timeRatio2 = (playedTime - source.frames[playedIndex - 1].startTime) / (source.frames[playedIndex].startTime - source.frames[playedIndex - 1].startTime);
 
             string vertexColor = "_TintColor";
@@ -619,23 +629,25 @@ DRAG*/
         mRender.material.SetColor(vertexColor, Color.Lerp(source.frames[playedIndex - 1].colorRGB, source.frames[playedIndex].colorRGB, timeRatio2));
     }
 
-    bool damageEnabled;
     //这个只碰撞瓶罐和建筑。与角色的碰撞由其他地方处理.
     public void ChangeAttack(bool open)
     {
         //播放完毕不允许再开开，否则特效重复攻击
         if (PlayDone && open)
             return;
-        damageEnabled = open;
-        
+        ChangeAttackCore(open);
     }
 
-    void ChangeAttackCore()
+    void ChangeAttackCore(bool open)
     {
-        if (damageBox != null && damageBox.enabled != damageEnabled)
+        if (damageBox != null)
         {
-            damageBox.enabled = damageEnabled;
-            damageBox.isTrigger = damageEnabled;
+            if (damageBox.enabled != open)
+                damageBox.enabled = open;
+        }
+
+        if (hitBox != null) {
+            hitBox.ChangeAttack(open);
         }
     }
 }

@@ -1,32 +1,32 @@
-string Name = "°®©[";
-int Model = 14;
-int Weapon = 47;
-int Weapon2 = 0;
-int Team = 0;
-int View = 10000;
-int Think = 10000;
-int Attack1 = 30;
-int Attack2 = 25;
-int Attack3 = 25;
-int Guard = 20;
-int Dodge = 0;
-int Jump = 1;
-int Look = 1000;
-int Burst = 30;
-int Aim = 100;
-int GetItem = 0;
-int Spawn = 5;
-int HP = 3000;
-	
+local class = {}
+function samurai()
+	class.Name = "çŸ³ç¾¤";
+	class.Model = 14;
+	class.Weapon = 47;
+	class.Weapon2 = 0;
+	class.Team = 0;
+	class.View = 1000;
+	class.Think = 1000;
+	class.Attack1 = 30;
+	class.Attack2 = 25;
+	class.Attack3 = 25;
+	class.Guard = 4;
+	class.Dodge = 0;
+	class.Jump = 1;
+	class.Look = 10;
+	class.Burst = 10;
+	class.Aim = 100;
+	class.GetItem = 0;
+	class.Spawn = 5;
+	class.HP = 3000;
+	class.g_self = -1;
+	return class;
+end
 
-int g_selfAddr;
-OnInit(int this)
-{
-	g_selfAddr = this;
-}
+function class:OnInit(a)
+	class.g_self = a;
+end
 
-OnStart()
-{
-	int c = GetSelf(g_selfAddr);
-	ChangeBehavior(c, "run");
-}
+function class:OnStart()
+	ChangeBehavior(class.g_self, "run");
+end

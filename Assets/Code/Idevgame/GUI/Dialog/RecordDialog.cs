@@ -41,7 +41,7 @@ public class RecordDialog : Dialog
     string recDir;
     void Init()
     {
-        recDir = string.Format("{0}/record/", Application.persistentDataPath);
+        recDir = string.Format("{0}/Record/", Application.persistentDataPath);
         Prefab = Resources.Load("UI/Dialogs/RecordItem") as GameObject;
         if (System.IO.Directory.Exists(recDir))
             RefreshAuto();
@@ -145,7 +145,11 @@ public class RecordDialog : Dialog
         recItems.Add(recordItem);
         GameObject recordButton = NodeHelper.Find("RecordName", recordItem);
         recordButton.GetComponent<Text>().text = rec.Name;
-        //NodeHelper.Find("CaptureScreen", recordItem).GetComponent<Image>().sprite = rec.Screen;
+        Texture2D tex = new Texture2D(rec.screenWidth, rec.screenHeight);
+        tex.LoadImage(rec.ScreenPng);
+        NodeHelper.Find("CaptureScreen", recordItem).GetComponent<Image>().sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+        NodeHelper.Find("CaptureScreen", recordItem).GetComponent<Image>().preserveAspect = true;
+        NodeHelper.Find("Duration", recordItem).GetComponent<Text>().text = string.Format("时长:" + Utility.GetDuration(rec.frameCount, rec.frameRate));
         recordButton.GetComponent<Button>().onClick.AddListener(() =>
         {
             recCurrent = recData.IndexOf(rec);
@@ -156,7 +160,7 @@ public class RecordDialog : Dialog
                 if (recData[i] == rec)
                     continue;
                 //recItems[i].GetComponent<Image>().color = new Color(1, 1, 1, 0);
-                NodeHelper.Find("RecordName", recItems[i]).GetComponent<Text>().color = Color.blue;
+                NodeHelper.Find("RecordName", recItems[i]).GetComponent<Text>().color = Color.white;
             }
         });
     }

@@ -30,7 +30,7 @@ public class ExplosionObject01 : MonoBehaviour {
         Vector3 targetPos = (position + 50 * Vector3.up) + ERadius * forward;
         Vector3 endPoint = targetPos - 20 * Vector3.up;
         RaycastHit hit;
-        if (Physics.Raycast(targetPos, Vector3.down, out hit, 1000, 1 << LayerMask.NameToLayer("Scene")))
+        if (Physics.Raycast(targetPos, Vector3.down, out hit, 1000, LayerManager.SceneMask))
             endPoint = hit.point + EGroundHeight * Vector3.up;
         float h = Mathf.Abs((endPoint.y + EGroundHeight) - (position.y + 50));
         float t = Mathf.Sqrt(2 * h / (Main.Ins.CombatData.gGravity / 10));

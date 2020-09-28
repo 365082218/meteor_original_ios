@@ -9,11 +9,23 @@ public class GMCLoader
     Dictionary<string, GMCFile> GMCFile = new Dictionary<string, global::GMCFile>();
     public GMCFile Load(string file)
     {
+        string file_no_ext = file;
         file += ".gmc";
         if (GMCFile.ContainsKey(file))
             return GMCFile[file];
-
-        GMCFile f = new GMCFile();
+        GMCFile f = null;
+        if (Main.Ins.CombatData.Chapter != null) {
+            string path = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Gmc, file_no_ext);
+            if (!string.IsNullOrEmpty(path)) {
+                f = new GMCFile();
+                f.Load(path);
+                if (f.errno != ParseError.None)
+                    return null;
+                GMCFile[file] = f;
+                return f;
+            }
+        }
+        f = new GMCFile();
         f.Load(file);
         if (f.errno != ParseError.None)
             return null;
@@ -21,9 +33,9 @@ public class GMCLoader
         return f;
     }
 
-    public void Refresh()
+    public void Clear()
     {
-        GMCFile = new Dictionary<string, global::GMCFile>();
+        GMCFile.Clear();
     }
 }
 
@@ -110,15 +122,19 @@ public class GMCFile
     public ParseError errno = ParseError.None;
     public void Load(string file)
     {
+        byte[] body = null;
         TextAsset asset = Resources.Load<TextAsset>(file);
-        if (asset == null)
-        {
+        if (asset == null) {
+            if (File.Exists(file)) {
+                body = File.ReadAllBytes(file);
+            }
+        } else
+            body = asset.bytes;
+        if (body == null) {
             errno = ParseError.Miss;
-            //Debug.LogError("file:" + file + " gmc file not found");
             return;
         }
-        //Debug.Log("parse file:" + file);
-        MemoryStream ms = new MemoryStream(asset.bytes);
+        MemoryStream ms = new MemoryStream(body);
         TextReader textReader = new System.IO.StreamReader(ms);
         string text = string.Empty;
         string[] array;

@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: 6
-  m_Shader: {fileID: 4800000, guid: 77a718fd25e3abf42879f42cdda2b96e, type: 3}
+  m_Shader: {fileID: 4800000, guid: f716b38aa8fa9eb4892f9632015e3e22, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_CustomRenderQueue: -1
@@ -35,6 +35,9 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - first:
+        name: _Alpha
+      second: 1
+    - first:
         name: _deformrange
       second: 1.5
     - first:
@@ -44,6 +47,9 @@ Material:
     - first:
         name: _Color
       second: {r: 1, g: 1, b: 1, a: 1}
+    - first:
+        name: _ColorKey
+      second: {r: 0.003921569, g: 0.003921569, b: 0.003921569, a: 1}
     - first:
         name: _deformref
       second: {r: 0, g: 0, b: 0, a: 0}

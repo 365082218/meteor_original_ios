@@ -75,13 +75,11 @@ public class ScriptMng
     public object DoScript(string script)
     {
         //查找模组中是否存在该NPC模板.
-        if (Main.Ins.GameStateMgr.gameStatus.pluginNpc != null)
+        if (Main.Ins.CombatData.Chapter != null)
         {
-            for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginNpc.Count; i++)
-            {
-                if (Main.Ins.GameStateMgr.gameStatus.pluginNpc[i].npcTemplate == script)
-                    return svr.dofile(Main.Ins.GameStateMgr.gameStatus.pluginNpc[i].filePath, script);
-            }
+            string filePath = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Txt, script);
+            if (!string.IsNullOrEmpty(filePath))
+                return svr.dofile(filePath, script);
         }
         return svr.dofile(script);
     }

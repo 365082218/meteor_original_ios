@@ -22,10 +22,11 @@ public class UIAdjust : MonoBehaviour {
     //Vector2 leftDown = UIHelper.ScreenPointToUIPoint(new Vector2(0, 0));
     //Vector2 leftUp = UIHelper.ScreenPointToUIPoint(new Vector2(0, Screen.height));
 
-    public void OnChangeTarget(int uiIndex, RectTransform rect)
+    public void OnChangeTarget(int uiIndex, GameButton active)
     {
+        RectTransform rect = active == null ? null : active.GetComponent<RectTransform>();
         if (Target != null)
-            Target.GetComponent<CanvasGroup>().alpha = 0.5f;
+            Target.GetComponent<CanvasGroup>().alpha = Main.Ins.GameStateMgr.gameStatus.UIAlpha;
         Target = rect;
         if (Target != null)
             Target.GetComponent<CanvasGroup>().alpha = 1.0f;
@@ -77,8 +78,10 @@ public class UIAdjust : MonoBehaviour {
                 else
                 {
                     //左下角是0，0右上方越来越大.
-                    Main.Ins.GameStateMgr.gameStatus.UIAnchor[UIIndex - 1].x = Target.anchoredPosition.x;
-                    Main.Ins.GameStateMgr.gameStatus.UIAnchor[UIIndex - 1].y = Target.anchoredPosition.y;
+                    MyVector2 vec = Main.Ins.GameStateMgr.gameStatus.UIAnchor[UIIndex - 1];
+                    vec.x = Target.anchoredPosition.x;
+                    vec.y = Target.anchoredPosition.y;
+                    Main.Ins.GameStateMgr.gameStatus.UIAnchor[UIIndex - 1] = vec;
                     Main.Ins.GameStateMgr.gameStatus.HasUIAnchor[UIIndex - 1] = true;
                 }
                 //posLabel.text = string.Format("{0} {1}", Target.anchoredPosition.x, Target.anchoredPosition.y);

@@ -133,6 +133,8 @@ public class NGUIJoystick : MonoBehaviour
     Vector2 fixAnchor = new Vector2(390, 340);
     public void SetAnchor(Vector2 anchor)
     {
+        float joyScale = Main.Ins.GameStateMgr.gameStatus.JoyScale;
+        transform.parent.GetComponent<RectTransform>().localScale = new Vector3(joyScale, joyScale, 1);
         fixAnchor = anchor;
         transform.parent.GetComponent<RectTransform>().anchoredPosition = anchor;
     }

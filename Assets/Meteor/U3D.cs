@@ -13,35 +13,38 @@ using System.Net;
 using System.ComponentModel;
 using Excel2Json;
 
-[CustomLuaClassAttribute]
+[CustomLuaClass]
 public class U3D : MonoBehaviour {
     public static U3D Instance = null;
     void Awake()
     {
         if (Instance == null)
             Instance = this;
-#if !STRIP_DBG_SETTING
-        InitDebugSetting();
-#endif
     }
 
-    public static List<string> Nicks;
-    public static string GetRandomName()
+    [DoNotToLua]
+    public static List<string> NicksBoys;
+    [DoNotToLua]
+    public static List<string> NicksGirls;
+    public static string GetRandomName(bool girls = true)
     {
-        if (Nicks != null && Nicks.Count != 0)
+        List<string> nl = girls ? NicksGirls : NicksBoys;
+        if (nl != null && nl.Count != 0)
         {
-            int index2 = UnityEngine.Random.Range(0, Nicks.Count);
-            string m = Nicks[index2];
-            Nicks.RemoveAt(index2);
+            int index2 = UnityEngine.Random.Range(0, nl.Count);
+            string m = nl[index2];
+            nl.RemoveAt(index2);
             return m;
         }
-        TextAsset name = Resources.Load<TextAsset>("Name");
+
+        string data_path = girls ? "NameGirls" : "NameBoys";
+        TextAsset name = Resources.Load<TextAsset>(data_path);
         string s = name.text.Replace("\r\n", ",");
         s = s.Replace(" ", ",");
-        Nicks = s.Split(new char[] { ','}, StringSplitOptions.RemoveEmptyEntries).ToList();
-        int index = UnityEngine.Random.Range(0, Nicks.Count);
-        string n = Nicks[index];
-        Nicks.RemoveAt(index);
+        nl = s.Split(new char[] { ','}, StringSplitOptions.RemoveEmptyEntries).ToList();
+        int index = UnityEngine.Random.Range(0, nl.Count);
+        string n = nl[index];
+        nl.RemoveAt(index);
         return n;
     }
 
@@ -130,30 +133,39 @@ public class U3D : MonoBehaviour {
         return weaponCode[i];
     }
 
-    //sort -x->+x标识当前武器得前/后多少个武器
-    public static int GetWeaponBySort(int weapon, int sort)
-    {
+    public static int GetWeaponBySort(int weapon, bool next) {
         List<ItemData> we = Main.Ins.DataMgr.GetItemDatas();
-        for (int i = 0; i < we.Count; i++)
-        {
-            if (we[i].MainType == 1)
-            {
-                //武器
-                if (we[i].Key == weapon)
-                {
-                    if (i + sort < we.Count)
-                    {
-                        if (we[i + sort].MainType == 1)
-                            return we[i + sort].Key;
-                        else
-                            return we[0].Key;
-                    }
-                    else
-                        return we[0].Key;
+        bool compare_begin = false;
+        int firstWeapon = -1;
+        int step = next ? 1 : -1;
+        int start = next ? 0 : we.Count - 1;
+        int end = next ? we.Count : 0;
+        for (int i = start; i != end && i >= 0 && i < we.Count;) {
+            if (firstWeapon == -1) {
+                if (we[i].MainType == (int)UnitType.Weapon) {
+                    firstWeapon = we[i].Key;
                 }
             }
+
+            if (compare_begin) {
+                if (we[i].MainType == (int)UnitType.Weapon) {
+                    return we[i].Key;
+                } else {
+                    i += next ? 1 : -1;
+                    continue;
+                }
+            }
+
+            if (we[i].Key == weapon) {
+                i += next ? 1 : -1;
+                compare_begin = true;
+                continue;
+            } else {
+                i += next ? 1 : -1;
+            }
         }
-        return 1;
+
+        return firstWeapon;
     }
 
     //通过EquipWeaponType,得到指定类型的武器.用于在
@@ -169,7 +181,7 @@ public class U3D : MonoBehaviour {
             List<ItemData> we = Main.Ins.DataMgr.GetItemDatas();
             for (int i = 0; i < we.Count; i++)
             {
-                if (we[i].MainType == 1)
+                if (we[i].MainType == (int)UnitType.Weapon)
                 {
                     if (we[i].SubType == (int)weaponIndex)
                     {
@@ -186,7 +198,8 @@ public class U3D : MonoBehaviour {
 
     //七星，旋风，怒火，峨眉，蛇吻，碧血剑，战戟,斩铁,流星,乾坤刀,指虎,忍刀
     static int[] weaponCode = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 47, 51, 55 };
-
+    //1,13,17,女性
+    //其他男性
     static Dictionary<int, List<int>> weaponDict = new Dictionary<int, List<int>>();
     public static void SpawnRobot(int idx, EUnitCamp camp, int weaponIndex = 0, int hpMax = 1000)
     {
@@ -206,7 +219,7 @@ public class U3D : MonoBehaviour {
             List<ItemData> we = Main.Ins.DataMgr.GetItemDatas();
             for (int i = 0; i < we.Count; i++)
             {
-                if (we[i].MainType == 1)
+                if (we[i].MainType == (int)UnitType.Weapon)
                 {
                     if (we[i].SubType == (int)weaponIndex)
                     {
@@ -224,41 +237,56 @@ public class U3D : MonoBehaviour {
         mon.Weapon2 = weaponList[(k + 1) % weaponList.Count];
         mon.IsPlayer = false;
 
-        mon.name = U3D.GetRandomName();
+        //得到角色的性别信息，避免男角色用女角色名字很古怪的样子
+        ModelItem model = DlcMng.GetPluginModel(idx);
+        bool girls = false;
+        if (model != null)
+            girls = model.useFemalePos;
+        else {
+            if (idx == 1 || idx == 3 || idx == 13)
+                girls = true;
+            else
+                girls = false;
+        }
+
+        mon.name = U3D.GetRandomName(girls);
         GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
         GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
         MeteorUnit unit = ins.GetComponent<MeteorUnit>();
         unit.Camp = camp;
+        mon.GetItem = 0;
+        mon.View = 1000;//视野给大一点
         unit.Init(idx, mon);
+        UnitTopState unitTopState = new UnitTopState(unit);
+        Main.Ins.EnterState(unitTopState);
         Main.Ins.MeteorManager.OnGenerateUnit(unit);
         unit.SetGround(false);
 
         if (camp == EUnitCamp.EUC_FRIEND)
         {
-            unit.transform.position = Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampASpawnIndex];
+            unit.SetPosition(Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampASpawnIndex]);
             Main.Ins.CombatData.CampASpawnIndex++;
             Main.Ins.CombatData.CampASpawnIndex %= 8;
         }
         else if (camp == EUnitCamp.EUC_ENEMY)
         {
-            unit.transform.position = Main.Ins.CombatData.GCampBSpawn[Main.Ins.CombatData.CampBSpawnIndex];
+            unit.SetPosition(Main.Ins.CombatData.GCampBSpawn[Main.Ins.CombatData.CampBSpawnIndex]);
             Main.Ins.CombatData.CampBSpawnIndex++;
             Main.Ins.CombatData.CampBSpawnIndex %= 8;
         }
         else
         {
             //16个点
-            unit.transform.position = Main.Ins.CombatData.GLevelSpawn[Main.Ins.CombatData.SpawnIndex];
+            unit.SetPosition(Main.Ins.CombatData.GLevelSpawn[Main.Ins.CombatData.SpawnIndex]);
             Main.Ins.CombatData.SpawnIndex++;
             Main.Ins.CombatData.SpawnIndex %= 16;
         }
         
         InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
         //找寻敌人攻击.因为这个并没有脚本模板
-        unit.StateMachine.ChangeState(unit.StateMachine.IdleState);
+        unit.StateMachine.ChangeState(unit.StateMachine.WaitState);
 
-        unit.Attr.GetItem = 0;
-        unit.Attr.View = 5000;//视野给大一点
+        
         if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
         {
             
@@ -283,10 +311,10 @@ public class U3D : MonoBehaviour {
     public static void ChangePlayerModel(int model)
     {
         Main.Ins.CombatData.PauseAll = true;
-        Main.Ins.LocalPlayer.controller.InputLocked = true;
+        Main.Ins.LocalPlayer.meteorController.InputLocked = true;
         Main.Ins.LocalPlayer.Init(model, Main.Ins.LocalPlayer.Attr, true);
         Main.Ins.CombatData.PauseAll = false;
-        Main.Ins.LocalPlayer.controller.InputLocked = false;
+        Main.Ins.LocalPlayer.meteorController.InputLocked = false;
         Main.Ins.GameStateMgr.gameStatus.UseModel = model;
     }
 
@@ -348,8 +376,13 @@ public class U3D : MonoBehaviour {
         Main.Ins.LocalPlayer = unit;
         unit.Camp = EUnitCamp.EUC_FRIEND;//流星阵营
         //单机剧本.用设置的主角，刷新替换掉，关卡里设定的.
-        if (Main.Ins.GameStateMgr.gameStatus.UseModel != -1 && Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask) {
-            mon.Model = Main.Ins.GameStateMgr.gameStatus.UseModel; 
+        if (Main.Ins.GameStateMgr.gameStatus.UseModel != -1 && Main.Ins.CombatData.GLevelMode <= LevelMode.CreateWorld) {
+            //先检查这个ID是否正常
+            ModelItem model = DlcMng.GetPluginModel(Main.Ins.GameStateMgr.gameStatus.UseModel);
+            if (model != null)
+                mon.Model = Main.Ins.GameStateMgr.gameStatus.UseModel;
+            else
+                Main.Ins.GameStateMgr.gameStatus.UseModel = -1;
         }
         unit.Init(mon.Model, mon);
         Main.Ins.MeteorManager.OnGenerateUnit(unit);
@@ -430,6 +463,8 @@ public class U3D : MonoBehaviour {
 
     public static int AddNPC(string script)
     {
+        if (string.IsNullOrEmpty(script))
+            return -1;
         MeteorUnit target = Main.Ins.SceneMng.Spawn(script);
         return target.InstanceId;
     }
@@ -473,6 +508,7 @@ public class U3D : MonoBehaviour {
     {
         U3D.LoadScene("Startup", () => {
             Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LevelDialogState, Main.Ins.CombatData.Chapter == null);
+            ClearLevelData();
         });
     }
     //返回到主目录
@@ -482,6 +518,7 @@ public class U3D : MonoBehaviour {
         Main.Ins.CombatData.wayPoints = null;
         U3D.LoadScene("Startup", () => {
             Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainMenuState);
+            ClearLevelData();
         });
     }
 
@@ -493,6 +530,7 @@ public class U3D : MonoBehaviour {
         Main.Ins.CombatData.wayPoints = null;
         U3D.LoadScene("Startup", () => {
             Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.StartupDialogState);
+            ClearLevelData();
         });
     }
 
@@ -569,30 +607,6 @@ public class U3D : MonoBehaviour {
             Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.WeaponDialogState);
     }
 
-#if !STRIP_DBG_SETTING
-    private GameObject DebugCanvas;
-    void InitDebugSetting()
-    {
-        DebugCanvas = GameObject.Instantiate(ResMng.LoadPrefab("DebugCanvas")) as GameObject;
-        DebugCanvas.transform.SetParent(transform);
-        DebugCanvas.transform.localScale = Vector3.one;
-        DebugCanvas.transform.rotation = Quaternion.identity;
-        DebugCanvas.transform.position = Vector3.zero;
-        DebugCanvas.SetActive(false);
-    }
-
-    public void ShowDbg()
-    {
-        DebugCanvas.SetActive(true);
-        WSDebug.Ins.OpenGUIDebug();
-    }
-
-    public void CloseDbg()
-    {
-        DebugCanvas.SetActive(false);
-    }
-#endif
-
     public static void OpenSystemWnd()
     {
         if (Main.Ins.CombatData.GLevelItem != null)
@@ -621,31 +635,41 @@ public class U3D : MonoBehaviour {
         helper.LoadScene(scene, OnFinished);
     }
 
-    //加载当前设置的关卡.在打开模组剧本时/联机时
+    //加载当前设置的关卡.在打开模组剧本时/联机
     public static void LoadLevelEx()
     {
+        ClearLevelData();
+
         Main.Ins.SoundManager.StopAll();
         Main.Ins.SoundManager.Enable(false);
-        ClearLevelData();
         Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LoadingDialogState);
-        //LoadingWnd.Instance.Open();
-        Resources.UnloadUnusedAssets();
-        GC.Collect();
         LevelHelper helper = Instance.gameObject.AddComponent<LevelHelper>();
         helper.Load();
         Log.Write("helper.load end");
     }
 
+    static bool CheckRecord(GameRecord rec) {
+        if (rec.frames == null)
+            return false;
+        if (rec.RecordVersion != Main.Ins.AppInfo.AppVersion())
+            return false;
+        return true;
+    }
+
     //播放路线
     public static void PlayRecord(GameRecord rec)
     {
-        Main.Ins.CombatData.GRecord = rec;
-        Main.Ins.CombatData.GLevelItem = Main.Ins.CombatData.GetLevel(rec.Chapter, rec.Id);
-        Main.Ins.CombatData.Chapter = DlcMng.GetPluginChapter(rec.Chapter);
-        Main.Ins.CombatData.GLevelMode = LevelMode.SinglePlayerTask;
-        Main.Ins.CombatData.GGameMode = GameMode.Normal;
-        Main.Ins.CombatData.wayPoints = CombatData.GetWayPoint(Main.Ins.CombatData.GLevelItem);
-        LoadLevelEx();
+        if (CheckRecord(rec)) {
+            Main.Ins.CombatData.GRecord = rec;
+            Main.Ins.CombatData.GLevelItem = Main.Ins.CombatData.GetLevel(rec.Chapter, rec.Id);
+            Main.Ins.CombatData.Chapter = DlcMng.GetPluginChapter(rec.Chapter);
+            Main.Ins.CombatData.GLevelMode = LevelMode.SinglePlayerTask;
+            Main.Ins.CombatData.GGameMode = GameMode.Normal;
+            Main.Ins.CombatData.wayPoints = CombatData.GetWayPoint(Main.Ins.CombatData.GLevelItem);
+            LoadLevelEx();
+        } else {
+            U3D.PopupTip("录像文件版本不兼容，无法播放");
+        }
     }
 
     //走参数指定关卡.非剧本&非回放
@@ -653,17 +677,17 @@ public class U3D : MonoBehaviour {
     {
         Main.Ins.CombatData.GRecord = null;
         Main.Ins.CombatData.Chapter = null;
+        ClearLevelData();
+        Resources.UnloadUnusedAssets();
+        GC.Collect();
+        Main.Ins.CombatData.GLevelItem = lev;
+        Main.Ins.CombatData.GLevelMode = levelmode;
+        Main.Ins.CombatData.GGameMode = gamemode;
         Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LoadingDialogState);
         //暂时不允许使用声音管理器，在切换场景时不允许播放
         Main.Ins.SoundManager.StopAll();
         Main.Ins.SoundManager.Enable(false);
-        ClearLevelData();
-        Main.Ins.CombatData.GLevelItem = lev;
-        Main.Ins.CombatData.GLevelMode = levelmode;
-        Main.Ins.CombatData.GGameMode = gamemode;
         Main.Ins.CombatData.wayPoints = CombatData.GetWayPoint(lev);
-        Resources.UnloadUnusedAssets();
-        GC.Collect();
         if (!string.IsNullOrEmpty(lev.sceneItems) && !Main.Ins.GameStateMgr.gameStatus.SkipVideo && levelmode == LevelMode.SinglePlayerTask && Main.Ins.CombatData.Chapter == null)
         {
             string num = lev.sceneItems.Substring(2);
@@ -672,7 +696,7 @@ public class U3D : MonoBehaviour {
             {
                 if (lev.Id >= 0 && lev.Id <= 9)
                 {
-                    string movie = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, "mmv/" + "b" + number + ".mv");
+                    string movie = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, "Mmv/" + "b" + number + ".mv");
                     U3D.PlayMovie(movie);
                 }
             }
@@ -683,11 +707,14 @@ public class U3D : MonoBehaviour {
 
     public static void ClearLevelData()
     {
-        Main.Ins.SFXLoader.Effect.Clear();
-        Main.Ins.DesLoader.Refresh();
-        Main.Ins.GMCLoader.Refresh();
-        Main.Ins.GMBLoader.Refresh();
-        Main.Ins.FMCLoader.Refresh();
+        Main.Ins.SFXLoader.Clear();
+        Main.Ins.DesLoader.Clear();
+        Main.Ins.GMCLoader.Clear();
+        Main.Ins.GMBLoader.Clear();
+        Main.Ins.FMCLoader.Clear();
+        Main.Ins.SkcLoader.Clear();
+        Main.Ins.BncLoader.Clear();
+        Main.Ins.FMCPoseLoader.Clear();
         //先清理BUF
         Main.Ins.BuffMng.Clear();
         Main.Ins.MeteorManager.Clear();
@@ -695,9 +722,8 @@ public class U3D : MonoBehaviour {
         Main.Ins.CombatData.CampASpawnIndex = 0;
         Main.Ins.CombatData.CampBSpawnIndex = 0;
         Main.Ins.CombatData.SpawnIndex = 0;
-#if !STRIP_DBG_SETTING
-        U3D.Instance.CloseDbg();
-#endif
+        Resources.UnloadUnusedAssets();
+        GC.Collect();
     }
 
     //对接原版脚本
@@ -867,6 +893,11 @@ public class U3D : MonoBehaviour {
             if (Main.Ins.MeteorManager.UnitInfos[i].InstanceId == characterId)
                 return (int)Main.Ins.MeteorManager.UnitInfos[i].Camp;
         }
+
+        for (int i = 0; i < Main.Ins.MeteorManager.DeadUnits.Count; i++) {
+            if (Main.Ins.MeteorManager.DeadUnits[i].InstanceId == characterId)
+                return (int)Main.Ins.MeteorManager.DeadUnits[i].Camp;
+        }
         return -1;
     }
 
@@ -1011,6 +1042,7 @@ public class U3D : MonoBehaviour {
             else if (act == "idle")
             {
                 //原地不动.
+                Main.Ins.GameBattleEx.PushActionIdle(id);
             }
             else if (act == "attacktarget")
             {
@@ -1027,11 +1059,16 @@ public class U3D : MonoBehaviour {
             }
             else if (act == "run")
             {
-                //不再实现，类似AI意义不大，四处跑，即寻找一个临近路点，跑过去.
+                Main.Ins.GameBattleEx.PushActionWait(id);
             }
             else if (act == "dodge")
             {
-                //不再实现，类似AI意义不大，寻找一个目标临近路点，跑过去.
+                MeteorUnit u = GetUnit(id);
+                if (value.Length == 2) {
+                    if (value[1].GetType() == typeof(int)) {
+                        Main.Ins.GameBattleEx.PushActionDodge(id, (int)value[1]);
+                    }
+                }
             }
         }
     }
@@ -1180,37 +1217,30 @@ public class U3D : MonoBehaviour {
         MeteorUnit unit = GetUnit(id);
         if (unit != null)
         {
-            if (pose == "pause" && fun != null && fun.Length == 1)
-            {
+            if (pose == "pause" && fun != null && fun.Length == 1) {
                 Main.Ins.GameBattleEx.PushActionPause(id, fun[0]);
             }
             //unit.PauseAI(fun[0]);
-            else if (pose == "faceto" && fun != null && fun.Length == 1)
-            {
+            else if (pose == "faceto" && fun != null && fun.Length == 1) {
                 MeteorUnit target = GetUnit(fun[0]);
                 if (target != null)
                     unit.FaceToTarget(target);
-            }
-            else if (pose == "guard" && fun != null && fun.Length == 1)
+            } else if (pose == "guard" && fun != null && fun.Length == 1)
                 Main.Ins.GameBattleEx.PushActionGuard(id, fun[0]);
             else if (pose == "aggress")
                 Main.Ins.GameBattleEx.PushActionAggress(id);
-            else if (pose == "attack")
-            {
+            else if (pose == "attack") {
                 //攻击。？？
-            }
-            else if (pose == "use")
-            {
+            } else if (pose == "use") {
                 unit.GetItem(fun[0]);
-            }
-            else if (pose == "skill")
-            {
+            } else if (pose == "skill") {
                 Main.Ins.GameBattleEx.PushActionSkill(id); //unit.PlaySkill();
-            }
-            else if (pose == "crouch")
+            } else if (pose == "crouch")
                 Main.Ins.GameBattleEx.PushActionCrouch(id, fun[0]);//1是指令状态，1代表应用状态， 0代表取消状态
             else if (pose == "block")
                 Main.Ins.GameBattleEx.PushActionBlock(id, fun[0]);//阻止输入/取消阻止输入.与硬直应该差不多.
+            else if (pose == "help")
+                Main.Ins.GameBattleEx.PushActionHelp(id, fun[0]);
         }
         return 0;
     }
@@ -1257,10 +1287,9 @@ public class U3D : MonoBehaviour {
     {
         MeteorUnit u = GetUnit(id);
         //停止动作的时候，状态为等待，一般遇见敌人时会调用此接口
-        if (u.StateMachine != null)
-            u.StateMachine.ChangeState(u.StateMachine.IdleState);
         if (u != null)
         {
+            u.AIPause(false);
             //先清除该角色的聊天动作，其他动画动作不处理。
             Main.Ins.GameBattleEx.StopAction(id);
         }
@@ -1368,7 +1397,9 @@ public class U3D : MonoBehaviour {
             Main.Ins.GameBattleEx.PushActionSay(id, param);//1=say 2=pause
     }
 
+    [DoNotToLua]
     static WebClient downloadMovie;
+    [DoNotToLua]
     public static List<string> WaitDownload = new List<string>();
     public static void PlayMovie(string movie)
     {
@@ -1383,7 +1414,7 @@ public class U3D : MonoBehaviour {
                     string download = WaitDownload[0];
                     int index = download.LastIndexOf("/");
                     string file = movie.Substring(index + 1);
-                    string local = Application.persistentDataPath + "/mmv/" + file;//start.mv
+                    string local = Application.persistentDataPath + "/Mmv/" + file;//start.mv
                     local = local.Replace(".mv", ".mp4");
                     Debug.Log("file:" + file);
                     downloadMovie.DownloadFileCompleted += (object sender, AsyncCompletedEventArgs e) => {
@@ -1400,14 +1431,19 @@ public class U3D : MonoBehaviour {
                     Debug.Log("downloadMovieQueue:" + download + " to" + local);
                 }
             }
-            Handheld.PlayFullScreenMovie(Main.Ins.GameStateMgr.gameStatus.LocalMovie[movie], Color.black, FullScreenMovieControlMode.CancelOnInput, FullScreenMovieScalingMode.AspectFit);
+            try {
+                Handheld.PlayFullScreenMovie(Main.Ins.GameStateMgr.gameStatus.LocalMovie[movie], Color.black, FullScreenMovieControlMode.CancelOnInput, FullScreenMovieScalingMode.AspectFit);
+            }
+            catch(Exception exp) {
+                Log.WriteError("PlayFullScreenMovie:" + exp.Message + exp.StackTrace);
+            }
         }
         else
         {
             if (Main.Ins.GameStateMgr.gameStatus.SkipVideo)
                 return;
-            if (!Directory.Exists(Application.persistentDataPath + "/mmv"))
-                Directory.CreateDirectory(Application.persistentDataPath + "/mmv");
+            if (!Directory.Exists(Application.persistentDataPath + "/Mmv"))
+                Directory.CreateDirectory(Application.persistentDataPath + "/Mmv");
             if (downloadMovie != null)
             {
                 //还在下载其他
@@ -1418,7 +1454,7 @@ public class U3D : MonoBehaviour {
             downloadMovie = new WebClient();
             int index = movie.LastIndexOf("/");
             string file = movie.Substring(index + 1);
-            string local = Application.persistentDataPath + "/mmv/" + file;
+            string local = Application.persistentDataPath + "/Mmv/" + file;
             local = local.Replace(".mv", ".mp4");
             Debug.Log("file:" + file);
             downloadMovie.DownloadFileCompleted += (object sender, AsyncCompletedEventArgs e) => {
@@ -1479,11 +1515,9 @@ public class U3D : MonoBehaviour {
     public static void MakeItem(int itemIdx)
     {
         ItemData it = Main.Ins.GameStateMgr.FindItemByIdx(itemIdx);
-        if (it.MainType == 1)//武器
+        if (it != null && it.MainType == (int)UnitType.Weapon) {
             Main.Ins.DropMng.DropWeapon2(it.UnitId);
-        else if (it.MainType == 2)//
-        {
-            //其他物品，暂时没有其他道具系统.
+            return;
         }
     }
 
@@ -1512,24 +1546,20 @@ public class U3D : MonoBehaviour {
         return false;
     }
 
-    public static int GetMaxLevel()
-    {
-        //内置关卡的最后一个关卡.
-        List<LevelData> level = Main.Ins.DataMgr.GetLevelDatas();
-        if (level == null)
-            return 0;
-        int max = 0;
-        foreach (var each in level)
-        {
-            if (each.Id > max)
-                max = each.Id;
-        }
-        return max;
-    }
-
     public static void UnlockLevel()
     {
-        Main.Ins.GameStateMgr.gameStatus.Level = Main.Ins.CombatData.LEVELMAX;
+        Main.Ins.GameStateMgr.gameStatus.Level = CombatData.LEVELMAX;
+        if (Main.Ins.GameStateMgr.gameStatus.pluginChapter != null) {
+            for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginChapter.Count; i++) {
+                Chapter chapter = Main.Ins.GameStateMgr.gameStatus.pluginChapter[i];
+                List<LevelData> all = chapter.LoadAll();
+                if (all != null && all.Count != 0)
+                    chapter.level = all[all.Count - 1].Id;
+            }
+        }
+        Main.Ins.GameStateMgr.SaveState();
+        Main.Ins.GameStateMgr.SyncDlcState();
+        Main.Ins.GameStateMgr.SaveDlc();
     }
 
     public static bool IsUnitDead(int instanceid)
@@ -1576,19 +1606,25 @@ public class U3D : MonoBehaviour {
 
     public static void OnPauseAI()
     {
+        //Debug.LogError("pause ai");
         for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
             Main.Ins.MeteorManager.UnitInfos[i].EnableAI(false);
-            Main.Ins.MeteorManager.UnitInfos[i].EnableUpdate(false);
+        }
+    }
+
+    public static void EnableUpdate(bool enable) {
+        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++) {
+            Main.Ins.MeteorManager.UnitInfos[i].EnableUpdate(enable);
         }
     }
 
     public static void OnResumeAI()
     {
+        //Debug.LogError("resume ai");
         for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
         {
             Main.Ins.MeteorManager.UnitInfos[i].EnableAI(true);
-            Main.Ins.MeteorManager.UnitInfos[i].EnableUpdate(true);
         }
     }
 
@@ -1616,11 +1652,12 @@ public class U3D : MonoBehaviour {
         return w;
     }
 
-    public static void DeletePlugins()
+    public static void DeletePlugins(int filter = 0)
     {
-        Main.Ins.GameStateMgr.gameStatus.pluginChapter.Clear();
-        Main.Ins.GameStateMgr.gameStatus.pluginModel.Clear();
-        Main.Ins.GameStateMgr.gameStatus.pluginNpc.Clear();
+        if (filter == 0)
+            Main.Ins.GameStateMgr.gameStatus.pluginChapter.Clear();
+        if (filter == 1)
+            Main.Ins.GameStateMgr.gameStatus.pluginModel.Clear();
         Main.Ins.CombatData.PluginUpdated = false;
         Main.Ins.GameStateMgr.SaveState();
     }
@@ -1640,5 +1677,54 @@ public class U3D : MonoBehaviour {
         Main.Ins.SFXLoader.PlayEffect("vipblue.ef", uPlayer.gameObject, false);
         if (uEnemy != null)
             Main.Ins.SFXLoader.PlayEffect("vipred.ef", uEnemy.gameObject, false);
+    }
+
+    //杀 UI上的编号1是主角，在游戏内的序号是0
+    public static void Kill(int uiIndex) {
+        int id = uiIndex - 1;
+        MeteorUnit unit = GetUnit(id);
+        if (unit != null) {
+            unit.OnDead();
+        }
+    }
+
+    //踢出
+    public static void Kick(int id) {
+
+    }
+
+    //永久剔除-这个房间记录对方的IP，不允许对方再加入.
+    public static void Skick(int id) {
+
+    }
+
+    [DoNotToLua]
+    public static bool showBox = false;
+    [DoNotToLua]
+    public static bool WatchAi = false;
+
+    public static void Box() {
+        showBox = !showBox;
+        if (Main.Ins.GameBattleEx == null) {
+            return;
+        }
+        if (showBox) {
+            if (Main.Ins.LocalPlayer != null)
+                Main.Ins.LocalPlayer.ShowAttackBox();
+        } else {
+            BoundsGizmos.Instance.Clear();
+        }
+    }
+
+    [DoNotToLua]
+    public static void CloseBox() {
+        showBox = false;
+        if (BoundsGizmos.Instance)
+            BoundsGizmos.Instance.Clear();
+    }
+
+    [DoNotToLua]
+    public static void CancelWatch() {
+        WatchAi = false;
     }
 }

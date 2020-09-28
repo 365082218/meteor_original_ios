@@ -1638,7 +1638,7 @@ Object D_IPItem01
   Custom:
   {
     model="IPItem01"
-    ticket=6
+    ticket=6,2
   }
 }
 Object D_BBox01

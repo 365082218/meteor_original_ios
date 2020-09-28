@@ -42,10 +42,14 @@ public class FlyWheel :NetBehaviour {
     WeaponTrail Trail;
     FlyStatus status = FlyStatus.FlySpline;
     //射程-无限-跟踪，不受时间限制
-    float tTotal = 3.0f;
-    float tTick = 0.0f;
-    float speed = 350.0f;
-    float returnspeed = 300.0f;
+    float totalTime = 3.0f;
+    float playedTime = 0.0f;
+    float speed;
+    float normal_speed = 150.0f;
+    float middle_speed = 300.0f;
+    float super_speed = 450.0f;
+    float max_speed = 550.0f;
+    float returnspeed = 550.0f;
     bool outofArea = false;
 
     protected new void Awake()
@@ -71,6 +75,9 @@ public class FlyWheel :NetBehaviour {
         Fly();
 	}
 
+    //力量感很差，仅仅运行轨迹是一条曲线还是不行的。要有冲击感，要做变速/匀加速按固定轨迹运动，才行
+    //因为贝塞尔通过时间计算曲线的某一位置，可以把时间参数模拟加快，做为变量
+    //但是怎么去控制
     //LineRenderer line;
     public void LoadAttack(InventoryItem weapon, MeteorUnit target, AttackDes attackdef, MeteorUnit Owner)
     {
@@ -78,6 +85,18 @@ public class FlyWheel :NetBehaviour {
         //line.startWidth = 1f;
         //line.endWidth = 1f;
         //line.numPositions = 200;
+        if (attackdef != null) {
+            if (attackdef.PoseIdx == 218) {
+                //轻力度
+                speed = (normal_speed + max_speed) / 2;
+            } else if (attackdef.PoseIdx == 220) {
+                //中等力度
+                speed = (middle_speed + max_speed)/2;
+            } else if (attackdef.PoseIdx == 222) {
+                //超级力度
+                speed = (super_speed + max_speed) / 2;
+            }
+        }
         owner = Owner;
         _attack = attackdef;
         auto_target = target;
@@ -94,7 +113,8 @@ public class FlyWheel :NetBehaviour {
         InitSpline();
         //List<Vector3> veclst = spline.GetEquiDistantPointsOnCurve(200);
         //line.SetPositions(veclst.ToArray());
-        tTotal = spline.GetLength() / speed;
+        totalTime = spline.GetLength() / speed;
+        //float a = (max_speed - speed) / totalTime;
         //Debug.LogError("tTotal Init:" + tTotal + " length:" + spline.GetLength() + " speed:" + speed);
         LoadWeapon();
         //增加拖尾
@@ -110,9 +130,12 @@ public class FlyWheel :NetBehaviour {
         MeshRenderer mr = gameObject.GetComponentInChildren<MeshRenderer>();
         if (mr != null)
         {
-            BoxCollider bc = mr.gameObject.AddComponent<BoxCollider>();
-            bc.isTrigger = true;
-            bc.size = new Vector3(10, 5, 10);
+            BoxCollider hitBox = mr.gameObject.AddComponent<BoxCollider>();
+            hitBox.isTrigger = true;
+            hitBox.size = new Vector3(10, 5, 10);
+            if (U3D.showBox) {
+                BoundsGizmos.Instance.AddCollider(hitBox);
+            }
         }
     }
 
@@ -122,7 +145,9 @@ public class FlyWheel :NetBehaviour {
     {
         if (auto_target != null)
         {
-            TargetPosCache = auto_target.transform.position + Vector3.up * 25.0f;
+            bool struggle = (auto_target.ActionMgr.mActiveAction.Idx == CommonAction.Struggle || auto_target.ActionMgr.mActiveAction.Idx == CommonAction.Struggle0);
+            struggle = struggle || auto_target.Crouching;
+            TargetPosCache = auto_target.transform.position + (struggle ? Vector3.up * 0 : Vector3.up * 25.0f);
             //计算一个坐标，终点，作为贝塞尔曲线的控制点.
             Vector3 vecforw = (new Vector3(auto_target.transform.position.x, 0, auto_target.transform.position.z) - new Vector3(owner.transform.position.x, 0, owner.transform.position.z)).normalized;
             //主角面向向量与（主角朝目标向量）的夹角的一半
@@ -158,7 +183,10 @@ public class FlyWheel :NetBehaviour {
         //出击时就确定反向的，不能刷新跟踪
         if (outofArea)
             return;
-        TargetPosCache = auto_target.transform.position + Vector3.up * 25.0f;
+        bool struggle = (auto_target.ActionMgr.mActiveAction.Idx == CommonAction.Struggle || auto_target.ActionMgr.mActiveAction.Idx == CommonAction.Struggle0);
+        struggle = struggle || auto_target.Crouching;
+
+        TargetPosCache = auto_target.transform.position + (struggle ? Vector3.up * 0 : Vector3.up * 25.0f);
         spline.SetControlPoint(2, TargetPosCache);
         //tTotal = tTick + spline.GetLength() / speed;
     }
@@ -169,7 +197,7 @@ public class FlyWheel :NetBehaviour {
         {
             //Debug.LogError("status == 0");
             //发射,随机自转
-            tTick += FrameReplay.deltaTime;
+            playedTime += FrameReplay.deltaTime;
             refreshDelay -= FrameReplay.deltaTime;
             if (refreshDelay <= 0.0f && !outofArea)
             {
@@ -177,7 +205,7 @@ public class FlyWheel :NetBehaviour {
                 refreshDelay = 0.1f;
             }
 
-            if (tTick > tTotal)
+            if (playedTime > totalTime)
             {
                 status = outofArea ? FlyStatus.FlyReturn : FlyStatus.FlyGoto;//如果还没有撞到敌人.则在接下来的时间里，直线追击敌人
                 //tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / returnspeed;
@@ -187,7 +215,7 @@ public class FlyWheel :NetBehaviour {
 
             transform.Rotate(vecRotate, Space.Self);
             //Debug.LogError("tTick:" + tTick + " tTotal:" + tTotal);
-            Vector3 v = spline.Eval(tTick / tTotal);
+            Vector3 v = spline.Eval(playedTime / totalTime);
             //Debug.LogError(v.ToString());
             transform.position = v;
         }
@@ -214,6 +242,11 @@ public class FlyWheel :NetBehaviour {
                 //Debug.LogError("WeaponReturned");
                 owner.WeaponReturned(_attack.PoseIdx);
                 owner.weaponLoader.ShowWeapon();
+                MeshRenderer mr = gameObject.GetComponentInChildren<MeshRenderer>();
+                if (mr != null) {
+                    BoxCollider bc = mr.gameObject.GetComponent<BoxCollider>();
+                    bc.enabled = false;
+                }
                 GameObject.Destroy(gameObject);
                 return;
             }
@@ -224,7 +257,7 @@ public class FlyWheel :NetBehaviour {
     public static void Init(Vector3 spawn, MeteorUnit autoTarget, InventoryItem weapon, AttackDes attackDef, MeteorUnit unit)
     {
         GameObject flyWheelObj = GameObject.Instantiate(Resources.Load("FlyWheel"), spawn, Quaternion.identity, null) as GameObject;
-        flyWheelObj.layer = LayerMask.NameToLayer("Flight");
+        flyWheelObj.layer = LayerManager.Flight;
         FlyWheel wheel = flyWheelObj.GetComponent<FlyWheel>();
         FlyWheel.Register(wheel);
         wheel.LoadAttack(weapon, autoTarget, attackDef, unit);
@@ -234,13 +267,13 @@ public class FlyWheel :NetBehaviour {
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.transform.root.gameObject.layer == LayerMask.NameToLayer("Scene"))
+        if (other.transform.root.gameObject.layer == LayerManager.Scene)
         {
             if (status == FlyStatus.FlySpline || status == FlyStatus.FlyGoto)
             {
                 status = FlyStatus.FlyReturn;
-                tTick = 0.0f;
-                tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / returnspeed;
+                playedTime = 0.0f;
+                totalTime = Vector3.Distance(transform.position, owner.WeaponR.position) / returnspeed;
                 spline.SetControlPoint(2, transform.position);
             }
         }
@@ -265,13 +298,13 @@ public class FlyWheel :NetBehaviour {
 
     public void OnTriggerEnter(Collider other)
     {
-        if (other.transform.root.gameObject.layer == LayerMask.NameToLayer("Scene"))
+        if (other.transform.root.gameObject.layer == LayerManager.Scene)
         {
             if (status == FlyStatus.FlySpline || status == FlyStatus.FlyGoto)
             {
                 status = FlyStatus.FlyReturn;
-                tTick = 0.0f;
-                tTotal = Vector3.Distance(transform.position, owner.WeaponR.position) / returnspeed;
+                playedTime = 0.0f;
+                totalTime = Vector3.Distance(transform.position, owner.WeaponR.position) / returnspeed;
                 spline.SetControlPoint(2, transform.position);
             }
         }
@@ -285,6 +318,11 @@ public class FlyWheel :NetBehaviour {
                 //Debug.LogError("WeaponReturned");
                 owner.WeaponReturned(_attack.PoseIdx);
                 owner.weaponLoader.ShowWeapon();
+                MeshRenderer mr = gameObject.GetComponentInChildren<MeshRenderer>();
+                if (mr != null) {
+                    BoxCollider bc = mr.gameObject.GetComponent<BoxCollider>();
+                    bc.enabled = false;
+                }
                 GameObject.Destroy(gameObject);
                 return;
             }
@@ -305,7 +343,7 @@ public class FlyWheel :NetBehaviour {
     public void LoadWeapon()
     {
         InventoryItem item = Weapon;
-        if (item.Info().MainType == (int)EquipType.Weapon)
+        if (item.Info().MainType == (int)UnitType.Weapon)
         {
             float scale = 1.0f;
             WeaponData weaponProperty = U3D.GetWeaponProperty(item.Info().UnitId);
@@ -333,7 +371,7 @@ public class FlyWheel :NetBehaviour {
                     if (R != null)
                         DestroyImmediate(R);
                     GameObject objWeapon = GameObject.Instantiate(weaponPrefab);
-                    objWeapon.layer = LayerMask.NameToLayer("Flight");
+                    objWeapon.layer = LayerManager.Flight;
                     R = objWeapon.transform;
                     //L = new GameObject().transform;
                     R.SetParent(WeaponRoot);
@@ -349,7 +387,7 @@ public class FlyWheel :NetBehaviour {
                     {
                         box.enabled = false;
                         //box.gameObject.tag = "Flight";
-                        box.gameObject.layer = LayerMask.NameToLayer("Flight");
+                        box.gameObject.layer = LayerManager.Flight;
                         //weaponDamage.Add(box);
                     }
                     else
@@ -372,7 +410,7 @@ public class FlyWheel :NetBehaviour {
         if (R != null)
             DestroyImmediate(R);
         R = new GameObject().transform;
-        R.gameObject.layer = LayerMask.NameToLayer("Flight");
+        R.gameObject.layer = LayerManager.Flight;
         R.SetParent(WeaponRoot);
         R.localRotation = Quaternion.identity;
         R.localPosition = Vector3.zero;
@@ -579,7 +617,7 @@ public class FlyWheel :NetBehaviour {
         if (R != null)
             DestroyImmediate(R);
         R = new GameObject().transform;
-        R.gameObject.layer = LayerMask.NameToLayer("Flight");
+        R.gameObject.layer = LayerManager.Flight;
         R.SetParent(WeaponRoot);
         R.localRotation = Quaternion.identity;
         R.localPosition = Vector3.zero;

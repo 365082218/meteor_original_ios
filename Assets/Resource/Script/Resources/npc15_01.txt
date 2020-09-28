@@ -13,7 +13,7 @@ function npc15_01()
 	class.Guard =	20;
 	class.Dodge =	30;
 	class.Jump = 20;
-	class.Look = 100;
+	class.Look = 10;
 	class.Burst = 50;
 	class.Aim = 90;
 	class.GetItem = 100;

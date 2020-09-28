@@ -279,12 +279,63 @@ public class SfxMeshGenerator
 
     public Mesh CreateBox(float width, float height, float depth)
     {
+        //Mesh mesh = new Mesh();
+        //float halfLong = depth / 2;
+        //float halfHeight = height / 2;
+        //float halfWidth = width / 2;
+        //Vector3[] pVector = new Vector3[24];
+        //int [] pTriangles = new int[pVector.Length];
+
+        ////forword
+        //pVector[0] = new Vector3(-halfLong, halfHeight, -halfWidth);
+        //pVector[1] = new Vector3(0.0f, halfHeight, 0.0f);
+        //pVector[2] = new Vector3(halfWidth, 0.0f, 0.0f);
+
+        //pVector[3] = new Vector3(halfWidth, 0.0f, 0.0f);
+        //pVector[4] = new Vector3(0.0f, halfHeight, 0.0f);
+        //pVector[5] = new Vector3(halfWidth, halfHeight, 0.0f);
+        ////back
+        //pVector[6] = new Vector3(0.0f, 0.0f, halfLong);
+        //pVector[7] = new Vector3(0.0f, halfHeight, halfLong);
+        //pVector[8] = new Vector3(halfWidth, 0.0f, halfLong);
+
+        //pVector[9] = new Vector3(halfWidth, 0.0f, halfLong);
+        //pVector[10] = new Vector3(0.0f, halfHeight, halfLong);
+        //pVector[11] = new Vector3(halfWidth, halfHeight, halfLong);
+        ////left
+        //pVector[12] = new Vector3(0.0f, 0.0f, 0.0f);
+        //pVector[13] = new Vector3(0.0f, 0.0f, 1.0f);
+        //pVector[14] = new Vector3(0.0f, 1.0f, 1.0f);
+
+        //pVector[15] = new Vector3(0.0f, 1.0f, 1.0f);
+        //pVector[16] = new Vector3(0.0f, 1.0f, 0.0f);
+        //pVector[17] = new Vector3(0.0f, 0.0f, 0.0f);
+        ////right
+        //pVector[18] = new Vector3(1.0f, 0.0f, 0.0f);
+        //pVector[19] = new Vector3(1.0f, 0.0f, 1.0f);
+        //pVector[20] = new Vector3(1.0f, 1.0f, 0.0f);
+
+        //pVector[21] = new Vector3(1.0f, 1.0f, 0.0f);
+        //pVector[22] = new Vector3(1.0f, 0.0f, 1.0f);
+        //pVector[23] = new Vector3(1.0f, 1.0f, 1.0f);
+
+        //for (int nIndex = 0; nIndex < pTriangles.length; ++nIndex){
+        //    pTriangles[nIndex] = nIndex;
+        //}
+        //pMesh.Clear();
+        //pMesh.vertices = pVector;//网格顶点
+        //pMesh.triangles = pTriangles;//三角形
+        //pMesh.RecalculateBounds();
+        //GameObject
+        //return mesh;
         return null;
     }
 
     public Mesh CreatePlane(float width, float height)
     {
         Mesh m = new Mesh();
+        width = width + 1;
+        height = height + 1;
         m.vertices = new Vector3[] {new Vector3(-width / 2, height / 2, 0), new Vector3(width/2, height/2, 0), new Vector3(width/2, -height/2, 0), new Vector3(-width/2, -height/2, 0)};
         m.triangles = new int[] { 0, 1, 2, 0, 2, 3 };
         m.normals = new Vector3[] { new Vector3(0, 0, -1), new Vector3(0, 0, -1), new Vector3(0, 0, -1) , new Vector3(0, 0, -1) };

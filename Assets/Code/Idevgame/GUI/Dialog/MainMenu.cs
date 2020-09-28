@@ -116,7 +116,7 @@ public class MainMenu : Dialog
         Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LevelDialogState, true);
     }
 
-    void OnDlcManager() {
+    public void OnDlcManager() {
         Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.DlcManagerDialogState);
     }
 
@@ -129,7 +129,7 @@ public class MainMenu : Dialog
     //教学关卡.
     void OnTeachingLevel()
     {
-        U3D.LoadLevel(Main.Ins.DataMgr.GetLevelData(30), LevelMode.Teach, GameMode.SIDOU);
+        U3D.LoadLevel(Main.Ins.DataMgr.GetLevelData(31), LevelMode.Teach, GameMode.SIDOU);
     }
 
     void OnCreateRoom()

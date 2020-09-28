@@ -52,6 +52,13 @@ public class WeaponLoader : MonoBehaviour {
     }
 
     public List<BoxCollider> weaponDamage = new List<BoxCollider>();
+    void InitHitBox() {
+        for (int i = 0; i < weaponDamage.Count; i++) {
+            FightBox fb = weaponDamage[i].gameObject.AddComponent<FightBox>();
+            fb.Init(owner, null);
+            //角色有刚体，可以由角色驱动.
+        }
+    }
     public int WeaponType()
     {
         return Weapon == null ? -1 : Weapon.Info().SubType;
@@ -143,13 +150,13 @@ public class WeaponLoader : MonoBehaviour {
 
     //后者决定是否真正切换到这个武器对应的POSE里，
     //乾坤刀部分姿态可切换，在切换未完成时
-    public void ChangeWeaponPos(int pose)
+    public void ChangeWeaponPos(WeaponPos pose)
     {
         InventoryItem curWeapon = Weapon;
         if (Weapon != null)
         {
             curWeapon = Weapon;
-            Weapon.WeaponPos = pose;
+            Weapon.WeaponPos = (int)pose;
             UnEquipWeapon();
             EquipWeapon(curWeapon);
         }
@@ -183,9 +190,9 @@ public class WeaponLoader : MonoBehaviour {
                 transform.localPosition = new Vector3(0, 9, 110);
         }
         if (RParent != null)
-            WsGlobal.SetObjectLayer(RParent.gameObject, LayerMask.NameToLayer("RenderModel"));
+            Utility.SetObjectLayer(RParent.gameObject, LayerManager.RenderModel);
         if (LParent != null)
-            WsGlobal.SetObjectLayer(LParent.gameObject, LayerMask.NameToLayer("RenderModel"));
+            Utility.SetObjectLayer(LParent.gameObject, LayerManager.RenderModel);
     }
 
     //把背包里的物品，装备到身上.
@@ -193,7 +200,7 @@ public class WeaponLoader : MonoBehaviour {
     {
         if (Weapon == null && item != null)
         {
-            if (item.Info().MainType == (int)EquipType.Weapon)
+            if (item.Info().MainType == (int)UnitType.Weapon)
             {
                 float scale = 1.0f;
                 WeaponData weaponProperty = U3D.GetWeaponProperty(item.Info().UnitId);
@@ -240,7 +247,7 @@ public class WeaponLoader : MonoBehaviour {
                         if (L != null)
                             DestroyImmediate(L);
                         GameObject objWeapon = GameObject.Instantiate(weaponPrefab);
-                        objWeapon.layer = ModelLayer ? LayerMask.NameToLayer("RenderModel") : LayerMask.NameToLayer("Weapon") ;
+                        objWeapon.layer = ModelLayer ? LayerManager.RenderModel : LayerManager.Weapon ;
                         L = objWeapon.transform;
                         //L = new GameObject().transform;
                         L.SetParent(LP);
@@ -272,7 +279,8 @@ public class WeaponLoader : MonoBehaviour {
                         if (box != null)
                         {
                             box.enabled = false;
-                            box.gameObject.layer = ModelLayer ? LayerMask.NameToLayer("RenderModel") : LayerMask.NameToLayer("Weapon");
+                            box.isTrigger = true;
+                            box.gameObject.layer = ModelLayer ? LayerManager.RenderModel : LayerManager.Weapon;
                             weaponDamage.Add(box);
                         }
                         else
@@ -283,6 +291,7 @@ public class WeaponLoader : MonoBehaviour {
                         {
                             wt.Init(owner);
                             trail.Add(wt);
+
                         }
                         else
                         {
@@ -302,7 +311,7 @@ public class WeaponLoader : MonoBehaviour {
                             GenerateWeaponModel(weaponR, fGmcR, fDesR, true, scale, weaponProperty.TextureR, ModelLayer);
                         else if (fGmcR == null && fDesR != null)
                         {
-                            GMBFile fGmbR = Main.Ins.GMBLoader.Load(weaponProperty.WeaponR);
+                            GMBFile fGmbR = Main.Ins.GMBLoader.Load(weaponR);
                             GenerateWeaponModel(weaponR, fGmbR, fDesR, true, scale, weaponProperty.TextureR, ModelLayer);
                         }
                     }
@@ -312,7 +321,7 @@ public class WeaponLoader : MonoBehaviour {
                         if (R != null)
                             DestroyImmediate(R);
                         GameObject objWeapon = GameObject.Instantiate(weaponPrefab);
-                        objWeapon.layer = ModelLayer ? LayerMask.NameToLayer("RenderModel") : LayerMask.NameToLayer("Weapon");
+                        objWeapon.layer = ModelLayer ? LayerManager.RenderModel : LayerManager.Weapon;
                         R = objWeapon.transform;
                         R.SetParent(RP);
                         R.localPosition = Vector3.zero;
@@ -333,7 +342,8 @@ public class WeaponLoader : MonoBehaviour {
                         if (box != null)
                         {
                             box.enabled = false;
-                            box.gameObject.layer = ModelLayer ? LayerMask.NameToLayer("RenderModel") : LayerMask.NameToLayer("Weapon");
+                            box.isTrigger = true;
+                            box.gameObject.layer = ModelLayer ? LayerManager.RenderModel : LayerManager.Weapon;
                             weaponDamage.Add(box);
                         }
                         else
@@ -362,24 +372,39 @@ public class WeaponLoader : MonoBehaviour {
             Debug.LogError("if you want equip you must call unequip first if the weapon exist");
         }
 
-        if (owner != null && owner.Stealth)
+        InitHitBox();
+        if (owner != null)
         {
             MeshRenderer[] mrl = LP.gameObject.GetComponentsInChildren<MeshRenderer>();
+            MeshRenderer[] mrr = RP.gameObject.GetComponentsInChildren<MeshRenderer>();
+            //if (owner.Attr.IsPlayer) {
+            //    for (int i = 0; i < mrl.Length; i++) {
+            //        for (int j = 0; j < mrl[i].materials.Length; j++) {
+            //            mrl[i].materials[j].shader = Shader.Find("MainPlayer");
+            //        }
+            //    }
+            //    for (int i = 0; i < mrr.Length; i++) {
+            //        for (int j = 0; j < mrr[i].materials.Length; j++) {
+            //            mrr[i].materials[j].shader = Shader.Find("MainPlayer");
+            //        }
+            //    }
+            //}
+            
             for (int i = 0; i < mrl.Length; i++)
             {
                 if (!mrl[i].enabled)
                     continue;
                 for (int j = 0; j < mrl[i].materials.Length; j++)
-                    mrl[i].materials[j].SetFloat("_Alpha", 0.2f);
+                    mrl[i].materials[j].SetFloat("_Alpha", owner.Stealth ? 0.2f : 1.0f);
             }
 
-            MeshRenderer[] mrr = RP.gameObject.GetComponentsInChildren<MeshRenderer>();
+            
             for (int i = 0; i < mrr.Length; i++)
             {
                 if (!mrr[i].enabled)
                     continue;
                 for (int j = 0; j < mrr[i].materials.Length; j++)
-                    mrr[i].materials[j].SetFloat("_Alpha", 0.2f);
+                    mrr[i].materials[j].SetFloat("_Alpha", owner.Stealth ? 0.2f : 1.0f);
             }
         }
     }
@@ -397,7 +422,7 @@ public class WeaponLoader : MonoBehaviour {
             if (R != null)
                 DestroyImmediate(R);
             R = new GameObject().transform;
-            R.gameObject.layer = ModelLayer ? LayerMask.NameToLayer("RenderModel") : LayerMask.NameToLayer("Weapon");
+            R.gameObject.layer = ModelLayer ? LayerManager.RenderModel : LayerManager.Weapon;
             R.SetParent(RP);
             R.localRotation = Quaternion.identity;
             R.localPosition = Vector3.zero;
@@ -411,7 +436,7 @@ public class WeaponLoader : MonoBehaviour {
                 DestroyImmediate(L);
             L = new GameObject().transform;
             L.SetParent(LP);
-            L.gameObject.layer = ModelLayer ? LayerMask.NameToLayer("RenderModel") : LayerMask.NameToLayer("Weapon");
+            L.gameObject.layer = ModelLayer ? LayerManager.RenderModel : LayerManager.Weapon;
             L.localRotation = Quaternion.identity;
             L.localPosition = Vector3.zero;
             L.name = matIden;
@@ -566,6 +591,7 @@ public class WeaponLoader : MonoBehaviour {
                             BoxCollider box = mr.gameObject.AddComponent<BoxCollider>();
                             objMesh.tag = "weapon";
                             box.enabled = false;
+                            box.isTrigger = true;
                             weaponDamage.Add(box);
                         }
                     }
@@ -574,6 +600,7 @@ public class WeaponLoader : MonoBehaviour {
                     {
                         BoxCollider box = mr.gameObject.AddComponent<BoxCollider>();
                         box.enabled = false;
+                        box.isTrigger = true;
                         weaponDamage.Add(box);
                     }
                 }
@@ -651,7 +678,7 @@ public class WeaponLoader : MonoBehaviour {
             if (R != null)
                 DestroyImmediate(R);
             R = new GameObject().transform;
-            R.gameObject.layer = ModelLayer ? LayerMask.NameToLayer("RenderModel") : LayerMask.NameToLayer("Weapon");
+            R.gameObject.layer = ModelLayer ? LayerManager.RenderModel : LayerManager.Weapon;
             R.SetParent(RP);
             R.localRotation = Quaternion.identity;
             R.localPosition = Vector3.zero;
@@ -820,6 +847,7 @@ public class WeaponLoader : MonoBehaviour {
                             BoxCollider box = mr.gameObject.AddComponent<BoxCollider>();
                             objMesh.tag = "weapon";
                             box.enabled = false;
+                            box.isTrigger = true;
                             weaponDamage.Add(box);
                         }
                     }
@@ -828,6 +856,7 @@ public class WeaponLoader : MonoBehaviour {
                     {
                         BoxCollider box = mr.gameObject.AddComponent<BoxCollider>();
                         box.enabled = false;
+                        box.isTrigger = true;
                         weaponDamage.Add(box);
                     }
                 }
@@ -898,8 +927,13 @@ public class WeaponLoader : MonoBehaviour {
         {
             if (weaponDamage[i] == null)
                 continue;
-            weaponDamage[i].isTrigger = open;
-            weaponDamage[i].enabled = open;
+            if (weaponDamage[i].enabled != open) {
+                weaponDamage[i].enabled = open;
+                FightBox fb = weaponDamage[i].GetComponent<FightBox>();
+                if (fb != null) {
+                    fb.ChangeAttack(open);
+                }
+            }
         }
     }
 

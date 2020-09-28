@@ -21,63 +21,67 @@ public class CombineChildren : MonoBehaviour {
     MeshCombineUtility.MeshInstance[] instance;
     MeshFilter mf;
     Hashtable materialToMesh = new Hashtable();
+    bool combine = false;
     void Start () {
-		filters = GetComponentsInChildren(typeof(MeshFilter));
-		Matrix4x4 myTransform = transform.worldToLocalMatrix;
+        Combine();
+	}
+
+    public void Combine() {
+        if (combine)
+            return;
+        combine = true;
+        filters = GetComponentsInChildren(typeof(MeshFilter));
+        Matrix4x4 myTransform = transform.worldToLocalMatrix;
 
         instance = new MeshCombineUtility.MeshInstance[filters.Length];
-		for (int i=0;i<filters.Length;i++) {
-			MeshFilter filter = (MeshFilter)filters[i];
-			Renderer curRenderer  = filters[i].GetComponent<Renderer>();
-			instance[i] = new MeshCombineUtility.MeshInstance ();
-			instance[i].mesh = filter.sharedMesh;
+        for (int i = 0; i < filters.Length; i++) {
+            MeshFilter filter = (MeshFilter)filters[i];
+            Renderer curRenderer = filters[i].GetComponent<Renderer>();
+            instance[i] = new MeshCombineUtility.MeshInstance();
+            instance[i].mesh = filter.sharedMesh;
             instance[i].childIdx = i;
-			if (curRenderer != null && curRenderer.enabled && instance[i].mesh != null) {
-				instance[i].transform = myTransform * filter.transform.localToWorldMatrix;
-				
-				Material[] materials = curRenderer.sharedMaterials;
-				for (int m=0;m<materials.Length;m++) {
-					instance[i].subMeshIndex = System.Math.Min(m, instance[i].mesh.subMeshCount - 1);
-	
-					ArrayList objects = (ArrayList)materialToMesh[materials[m]];
-					if (objects != null) {
-						objects.Add(instance[i]);
-					}
-					else
-					{
-						objects = new ArrayList ();
-						objects.Add(instance[i]);
-						materialToMesh.Add(materials[m], objects);
-					}
-				}
-				
-				curRenderer.enabled = false;
-			}
-		}
-	
-		foreach (DictionaryEntry de  in materialToMesh) {
-			ArrayList elements = (ArrayList)de.Value;
-			MeshCombineUtility.MeshInstance[] instances = (MeshCombineUtility.MeshInstance[])elements.ToArray(typeof(MeshCombineUtility.MeshInstance));
+            if (curRenderer != null && curRenderer.enabled && instance[i].mesh != null) {
+                instance[i].transform = myTransform * filter.transform.localToWorldMatrix;
 
-			// We have a maximum of one material, so just attach the mesh to our own game object
-			if (materialToMesh.Count == 1)
-			{
-				// Make sure we have a mesh filter & renderer
-				if (GetComponent(typeof(MeshFilter)) == null)
-					gameObject.AddComponent(typeof(MeshFilter));
-				if (!GetComponent("MeshRenderer"))
-					gameObject.AddComponent<MeshRenderer>();
-	
-				MeshFilter filter = (MeshFilter)GetComponent(typeof(MeshFilter));
-				filter.mesh = MeshCombineUtility.CombineFirst(instances, generateTriangleStrips, ref element);
-				GetComponent<Renderer>().material = (Material)de.Key;
-				GetComponent<Renderer>().enabled = true;
+                Material[] materials = curRenderer.sharedMaterials;
+                for (int m = 0; m < materials.Length; m++) {
+                    instance[i].subMeshIndex = System.Math.Min(m, instance[i].mesh.subMeshCount - 1);
+
+                    ArrayList objects = (ArrayList)materialToMesh[materials[m]];
+                    if (objects != null) {
+                        objects.Add(instance[i]);
+                    } else {
+                        objects = new ArrayList();
+                        objects.Add(instance[i]);
+                        materialToMesh.Add(materials[m], objects);
+                    }
+                }
+
+                curRenderer.enabled = false;
+            }
+        }
+
+        foreach (DictionaryEntry de in materialToMesh) {
+            ArrayList elements = (ArrayList)de.Value;
+            MeshCombineUtility.MeshInstance[] instances = (MeshCombineUtility.MeshInstance[])elements.ToArray(typeof(MeshCombineUtility.MeshInstance));
+
+            // We have a maximum of one material, so just attach the mesh to our own game object
+            if (materialToMesh.Count == 1) {
+                // Make sure we have a mesh filter & renderer
+                if (GetComponent(typeof(MeshFilter)) == null)
+                    gameObject.AddComponent(typeof(MeshFilter));
+                if (!GetComponent("MeshRenderer"))
+                    gameObject.AddComponent<MeshRenderer>();
+
+                MeshFilter filter = (MeshFilter)GetComponent(typeof(MeshFilter));
+                filter.mesh = MeshCombineUtility.CombineFirst(instances, generateTriangleStrips, ref element);
+                GetComponent<Renderer>().material = (Material)de.Key;
+                GetComponent<Renderer>().enabled = true;
                 mf = filter;
             }
-			// We have multiple materials to take care of, build one mesh / gameobject for each material
-			// and parent it to this object
-			else
-			{
+            // We have multiple materials to take care of, build one mesh / gameobject for each material
+            // and parent it to this object
+            else {
                 GameObject combinedMesh = new GameObject("Combined mesh");
                 combinedMesh.transform.parent = transform;
                 combinedMesh.transform.localScale = Vector3.one;
@@ -86,12 +90,11 @@ public class CombineChildren : MonoBehaviour {
                 combinedMesh.AddComponent(typeof(MeshFilter));
                 combinedMesh.AddComponent<MeshRenderer>();
                 combinedMesh.GetComponent<Renderer>().material = (Material)de.Key;
-				MeshFilter filter = (MeshFilter)combinedMesh.GetComponent(typeof(MeshFilter));
-				filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips);
-			}
-		}	
-	}
-
+                MeshFilter filter = (MeshFilter)combinedMesh.GetComponent(typeof(MeshFilter));
+                filter.mesh = MeshCombineUtility.Combine(instances, generateTriangleStrips);
+            }
+        }
+    }
     //fmc动画，只能合并单材质球的多个对象，不能合并一系列材质球的混合对象.
     public void UpdateMesh()
     {

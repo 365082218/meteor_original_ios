@@ -19,7 +19,7 @@ public class FixedPlatformCtrl :NetBehaviour {
         base.Awake();
         Main.Ins.GMBLoader.Load(model);
         int index = model.name.IndexOf(".");
-        WsGlobal.ShowMeteorObject(model.name.Substring(0, index), transform);
+        Utility.ShowMeteorObject(model.name.Substring(0, index), transform);
         if (fmcPlayer != null)
         {
             fmcPlayer.Init(ani);
@@ -56,7 +56,7 @@ public class FixedPlatformCtrl :NetBehaviour {
     {
         if (AllowShake)
         {
-            float y = curve.Evaluate(Time.time);
+            float y = curve.Evaluate(FrameReplay.Instance.time);
             transform.position = new Vector3(transform.position.x, initializeY + hScale * y, transform.position.z);
         }
     }
@@ -68,7 +68,7 @@ public class FixedPlatformCtrl :NetBehaviour {
         {
             //Debug.LogError("OnTrigger:" + Trigger);
             if (Main.Ins.GameBattleEx != null)
-                Main.Ins.GameBattleEx.OnSceneEvent(SceneEvent.EventEnter, u.InstanceId, gameObject);
+                Main.Ins.GameBattleEx.OnSceneEvent(SceneEvent.EventEnter, u.InstanceId);
             //任意角色进来，都会触发掉落动画，之后其他角色进来无法再触发.
             if (fmcPlayer != null)
                 this.enabled = false;

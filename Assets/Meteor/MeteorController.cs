@@ -20,9 +20,10 @@ public class MeteorInput
     public KeyState[] KeyStates = new KeyState[(int)EKeyList.KL_Max];
     public const float DoubleClickTime = 0.4f;
     public const float LongPressedTime = 0.2f;
-    public const float ShortPressTime = 0.08f;
+    public const float ShortPressTime = 0.04f;//按住的时间大于这个时间前就松开，视为按键抬起响应，触发轻键，类似小跳，当按住时间大于这个时间，若仍没松开，视为按键按下响应，触发重键行为，类似大跳
+    public const float SuperJumpTime = 0.35f;//按住跳跃持续0.35S还未松开
     MeteorUnit mOwner;
-    PoseStatus posMng;
+    ActionManager posMng;
     InputModule InputCore;
     MeteorController mController = null;
     public Vector2 mInputVector = Vector2.zero;
@@ -33,17 +34,6 @@ public class MeteorInput
         OffX = x;
         OffZ = z;
     }
-    //public List<InputRecord> Record = new List<InputRecord>();
-    //检查某个被激活的按键，是否处于激活未重置状态,这个状态下，是不允许再次激活按键的，需要先重置再激活，来触发连续按键
-    //轴往一个方向上拖动到 一定的范围(60-100像素区域内)，就会压住这个摇杆侧的按键，模拟街机摇杆
-    //摇杆控制接口
-    List<EKeyList> keyStateOnActive = new List<EKeyList>();
-    public bool IsKeyOnActive(EKeyList k)
-    {
-        if (keyStateOnActive.Contains(k))
-            return true;
-        return false;
-    }
     
     public bool OnInputMoving()
     {
@@ -52,20 +42,11 @@ public class MeteorInput
 
     public void OnAxisKeyPress(EKeyList k)
     {
-        if (!keyStateOnActive.Contains(k))
-        {
-            keyStateOnActive.Add(k);
-            OnKeyDownProxy(k, false);
-        }
-        else
-            OnKeyPressing(k);
-
+        OnKeyDownProxy(k);
     }
 
     public void OnAxisKeyRelease(EKeyList k)
     {
-        if (keyStateOnActive.Contains(k))
-            keyStateOnActive.Remove(k);
         OnKeyUpProxy(k);
     }
     
@@ -74,7 +55,7 @@ public class MeteorInput
     {
         mOwner = owner;
         mController = controller;
-        posMng = mOwner.posMng;
+        posMng = mOwner.ActionMgr;
         InputCore = new InputModule(owner);
         for (int i = 0; i < KeyStates.Length; i++)
             KeyStates[i] = new KeyState();
@@ -130,7 +111,7 @@ public class MeteorInput
         if (!Main.Ins.CombatData.PauseAll)
         {
             Vector2 vec = Vector2.zero;
-            if (!mOwner.controller.InputLocked)
+            if (!mOwner.meteorController.InputLocked)
             {
                 if (mOwner.Attr.IsPlayer)
                 {
@@ -141,7 +122,8 @@ public class MeteorInput
                             vec = new Vector2(Main.Ins.JoyStick.Delta.x, Main.Ins.JoyStick.Delta.y);
                         } else if (Main.Ins.JoyStick.ArrowPressed) {
                             vec = new Vector2(Main.Ins.JoyStick.Delta.x, Main.Ins.JoyStick.Delta.y);
-                        }
+                        } else
+                            vec = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
                     } else {
                         //使用触摸屏UI操作
                         if (NGUIJoystick.instance != null) {
@@ -150,6 +132,8 @@ public class MeteorInput
                                 vec = new Vector2(NGUIJoystick.instance.Delta.x, NGUIJoystick.instance.Delta.y);
                             else if (NGUIJoystick.instance.ArrowPressed)
                                 vec = new Vector2(NGUIJoystick.instance.Delta.x, NGUIJoystick.instance.Delta.y);
+                            else
+                                vec = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
                         }
                     }
                 }
@@ -159,7 +143,7 @@ public class MeteorInput
             else
                 vec = Vector2.zero;
 
-            mInputVector = vec;
+            mInputVector = mOwner.meteorController.MoveLocked ? Vector2.zero : vec;
             if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
                 Main.Ins.FrameSync.PushJoyDelta(mOwner.InstanceId, (int)(1000 * mInputVector.x), (int)(1000 * mInputVector.y));
             else
@@ -168,13 +152,13 @@ public class MeteorInput
             }
         }
 
-        if (!mOwner.controller.InputLocked)
+        if (!mOwner.meteorController.InputLocked)
         {
             InputCore.Update();
             //主角色，扫描硬件信息
             UpdateKeyStatus();
+            UpdateMoveInput();
         }
-        UpdateMoveInput();
     }
 
     //使用摇杆的时候不要读取硬件信息。
@@ -205,12 +189,13 @@ public class MeteorInput
                 {
                     float kValue = Input.GetAxisRaw(keyStatus.AxisName);
                     bool pressed = kValue > 0;
-                    if (pressed && keyStatus.Pressed == 0 && !keyStatus.IsAI)
-                        OnKeyDownProxy(keyStatus, false);
-                    else if (!pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
+                    if (pressed && keyStatus.Pressed == 0)
+                        OnKeyDownProxy(keyStatus);
+                    else if (!pressed && keyStatus.Pressed != 0)
                         OnKeyUpProxy(keyStatus);
-                    else if (pressed && keyStatus.Pressed != 0 && !keyStatus.IsAI)
+                    else if (pressed && keyStatus.Pressed != 0) {
                         OnKeyPressingProxy(keyStatus);
+                    }
                 }
 #endif
             }
@@ -243,7 +228,7 @@ public class MeteorInput
     //返回当前动作是否在可接受输入帧内,就是
     public bool AcceptInput()
     {
-        Pose p = PoseStatus.ActionList[mOwner.UnitId][posMng.mActiveAction.Idx];
+        Pose p = ActionManager.ActionList[mOwner.UnitId][posMng.mActiveAction.Idx];
         if (p == null)
             return false;
         //飞轮.
@@ -254,20 +239,33 @@ public class MeteorInput
         if (p.Idx >= CommonAction.DefenceHitStart && p.Idx <= CommonAction.DefenceHitEnd)
             return false;
 
+        //倒地挣扎，可以在硬直结束后响应按键
+        if (p.Idx >= CommonAction.Struggle0 && p.Idx <= CommonAction.Struggle)
+            return true;
+
         //受击动作中
         if (p.Idx >= CommonAction.HitStart && p.Idx <= CommonAction.HitEnd)
             return false;
-        //if (p.Idx == CommonAction.Idle || p.Idx == CommonAction.GunIdle)
-        //{
-        //    //最少要在Idle下1-2回合
-        //    if (mOwner.charLoader.LoopCount <= 1)
-        //        return false;
-        //}
+
+        if (p.Idx == CommonAction.Idle || p.Idx == CommonAction.GunIdle)
+            return true;
+
+        if (ActionManager.IsReadyAction(p.Idx))
+            return true;
+
+        if (ActionManager.IsJumpAction(p.Idx))
+            return true;
+
+        if (p.Idx == CommonAction.Run || p.Idx == CommonAction.RunOnDrug)
+            return true;
+
+        if (p.Idx >= CommonAction.DCForw && p.Idx <= CommonAction.DCBack)
+            return true;
 
         if (p.Next != null)
         {
             int inputEnd = p.Next.End;
-            int curIndex = mOwner.charLoader.GetCurrentFrameIndex();
+            int curIndex = mOwner.ActionMgr.GetCurrentFrameIndex();
             //边界条件会导致部分招式衔接过快
             if (p.Next.Start < curIndex && curIndex < inputEnd)
             {
@@ -290,18 +288,24 @@ public class MeteorInput
         }
 
         //切换武器，不接受连招输入.
-        //if (p.Idx == CommonAction.ChangeWeapon || p.Idx == CommonAction.AirChangeWeapon)
-        //    return false;
+        if (p.Idx == CommonAction.ChangeWeapon || p.Idx == CommonAction.AirChangeWeapon)
+            return false;
 
         return true;
     }
 
     public bool CheckPos(int KeyMap, int targetAct)
     {
+        //if (targetAct == 407) {
+        //    Debug.LogError("Checkpos0");
+        //}
         bool result = false;
         //首先要判断是否在可输入范围内,只是限定输入，切换动作在其他地方
         if (!AcceptInput())
             return false;
+        //if (targetAct == 407) {
+        //    Debug.LogError("Checkpos1");
+        //}
         int weapon = mOwner.GetWeaponType();
         switch (weapon)
         {
@@ -331,7 +335,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 31://下上上A 阎罗
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -350,7 +354,7 @@ public class MeteorInput
                             result = true;
                         break;
                     case 88://下下A 地面小绝 下扎
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -362,7 +366,7 @@ public class MeteorInput
                         }
                         break;
                     case 150://空中下下A
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -392,7 +396,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 71://大绝招
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -407,7 +411,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 155://旋风斩
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -419,7 +423,7 @@ public class MeteorInput
                         }
                         break;
                     case 156://雷电斩
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -442,7 +446,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 143://地面八方绝
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -457,7 +461,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 4://落樱雪
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -474,7 +478,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 144://空中八方绝
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -495,7 +499,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 7:
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else if (mOwner.AngryValue < 20)
                             result = false;
@@ -506,7 +510,7 @@ public class MeteorInput
                         }
                         break;
                     case 8://大绝
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -518,7 +522,7 @@ public class MeteorInput
                         }
                         break;
                     case 147://小绝
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -543,7 +547,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 12:
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -555,7 +559,7 @@ public class MeteorInput
                         }
                         break;
                     case 145:
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -567,7 +571,7 @@ public class MeteorInput
                         }
                         break;
                     case 146:
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -597,7 +601,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 21:
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -614,7 +618,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 148://左右上小绝
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -626,7 +630,7 @@ public class MeteorInput
                         }
                         break;
                     case 149://加速BUFF
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -655,7 +659,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 45://大招
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -671,7 +675,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 151://左右A剑气
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -683,7 +687,7 @@ public class MeteorInput
                         }
                         break;
                     case 152://右左A小绝旋转
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -712,7 +716,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 58://大招
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -728,7 +732,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 153://强攻 前前前A
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -740,7 +744,7 @@ public class MeteorInput
                         }
                         break;
                     case 154://左右下A 小绝招
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -768,7 +772,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 82://铜皮
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -783,7 +787,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 157://震荡波
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -795,7 +799,7 @@ public class MeteorInput
                         }
                         break;
                     case 158://大绝
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -851,7 +855,7 @@ public class MeteorInput
                         result = mOwner.GetWeaponSubType() == 2;
                         if (result)
                         {
-                            if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                            if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                                 result = true;
                             else
                             if (mOwner.AngryValue < 100)
@@ -871,7 +875,7 @@ public class MeteorInput
                         result = mOwner.GetWeaponSubType() == 1;
                         if (result)
                         {
-                            if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                            if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                                 result = true;
                             else
                             if (mOwner.AngryValue < 60)
@@ -887,7 +891,7 @@ public class MeteorInput
                         result = mOwner.GetWeaponSubType() == 0;
                         if (result)
                         {
-                            if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                            if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                                 result = true;
                             else
                             if (mOwner.AngryValue < 60)
@@ -904,7 +908,7 @@ public class MeteorInput
                 if (!result)
                 {
                     //再次尝试乾坤刀切换pose后速连
-                    int nextPose = ActionEvent.TryHandlerLastActionFrame(mOwner, mOwner.posMng.mActiveAction.Idx);
+                    int nextPose = ActionEvent.TryHandlerLastActionFrame(mOwner, mOwner.ActionMgr.mActiveAction.Idx);
                     result = TryHeavenLance(nextPose, KeyMap);
                     //if (nextPose == 2)
                     //{
@@ -915,7 +919,7 @@ public class MeteorInput
                 break;
             case (int)EquipWeaponType.Gloves://拳套
                 //可能是全套快速出招接其他招式.
-                int nextWeapon = ActionEvent.TryHandlerLastActionFrame(mOwner, mOwner.posMng.mActiveAction.Idx);//切换了武器后，新的武器POSE或者SUBTYPE
+                int nextWeapon = ActionEvent.TryHandlerLastActionFrame(mOwner, mOwner.ActionMgr.mActiveAction.Idx);//切换了武器后，新的武器POSE或者SUBTYPE
                 if (nextWeapon != weapon && nextWeapon != -1)
                     result = TryOtherWeapon(nextWeapon, KeyMap);
                 if (result)
@@ -934,7 +938,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 115:
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -952,7 +956,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 120://大绝
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -964,7 +968,7 @@ public class MeteorInput
                         }
                         break;
                     case 121://嗜血
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -989,7 +993,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 128://忍术-隐忍
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 50)
@@ -1010,7 +1014,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 136://天地同寿
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 50)
@@ -1028,7 +1032,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 141://忍爆弹-忍大招
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 50)
@@ -1040,7 +1044,7 @@ public class MeteorInput
                         }
                         break;
                     case 142://左右A 10气
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 10)
@@ -1054,6 +1058,9 @@ public class MeteorInput
                 }
                 break;
         }
+        //if (targetAct == 407) {
+        //    Debug.LogError("Checkpos2 " + result);
+        //}
         return result;
     }
 
@@ -1100,7 +1107,7 @@ public class MeteorInput
                 result = nextPose == 2;
                 if (result)
                 {
-                    if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                    if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                         result = true;
                     else
                     if (mOwner.AngryValue < 100)
@@ -1120,7 +1127,7 @@ public class MeteorInput
                 result = nextPose == 1;
                 if (result)
                 {
-                    if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                    if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                         result = true;
                     else
                     if (mOwner.AngryValue < 60)
@@ -1136,7 +1143,7 @@ public class MeteorInput
                 result = nextPose == 0;
                 if (result)
                 {
-                    if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                    if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                         result = true;
                     else
                     if (mOwner.AngryValue < 60)
@@ -1188,7 +1195,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 31://下上上A 阎罗
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -1207,7 +1214,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 88://下下A 地面小绝 下扎
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -1219,7 +1226,7 @@ public class MeteorInput
                         }
                         break;
                     case 150://空中下下A
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -1249,7 +1256,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 71://大绝招
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -1264,7 +1271,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 155://旋风斩
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -1276,7 +1283,7 @@ public class MeteorInput
                         }
                         break;
                     case 156://雷电斩
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -1299,7 +1306,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 143://地面八方绝
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -1314,7 +1321,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 4://落樱雪
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -1331,7 +1338,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 144://空中八方绝
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -1353,7 +1360,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 8://大绝
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -1365,7 +1372,7 @@ public class MeteorInput
                         }
                         break;
                     case 147://小绝
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -1393,7 +1400,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 12:
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -1405,7 +1412,7 @@ public class MeteorInput
                         }
                         break;
                     case 145:
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -1417,7 +1424,7 @@ public class MeteorInput
                         }
                         break;
                     case 146:
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -1447,7 +1454,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 21:
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -1464,7 +1471,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 148://左右上小绝
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -1476,7 +1483,7 @@ public class MeteorInput
                         }
                         break;
                     case 149://加速BUFF
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -1505,7 +1512,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 45://大招
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -1521,7 +1528,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 151://左右A剑气
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -1533,7 +1540,7 @@ public class MeteorInput
                         }
                         break;
                     case 152://右左A小绝旋转
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -1562,7 +1569,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 58://大招
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -1578,7 +1585,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 153://强攻 前前前A
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -1590,7 +1597,7 @@ public class MeteorInput
                         }
                         break;
                     case 154://左右下A 小绝招
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -1618,7 +1625,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 82://铜皮
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -1633,7 +1640,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 157://震荡波
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 60)
@@ -1645,7 +1652,7 @@ public class MeteorInput
                         }
                         break;
                     case 158://大绝
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 100)
@@ -1701,7 +1708,7 @@ public class MeteorInput
                         result = mOwner.GetWeaponSubType() == 2;
                         if (result)
                         {
-                            if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                            if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                                 result = true;
                             else
                             if (mOwner.AngryValue < 100)
@@ -1721,7 +1728,7 @@ public class MeteorInput
                         result = mOwner.GetWeaponSubType() == 1;
                         if (result)
                         {
-                            if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                            if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                                 result = true;
                             else
                             if (mOwner.AngryValue < 60)
@@ -1737,7 +1744,7 @@ public class MeteorInput
                         result = mOwner.GetWeaponSubType() == 0;
                         if (result)
                         {
-                            if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                            if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                                 result = true;
                             else
                             if (mOwner.AngryValue < 60)
@@ -1763,7 +1770,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 128://忍术-隐忍
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 50)
@@ -1784,7 +1791,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 136://天地同寿
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 50)
@@ -1802,7 +1809,7 @@ public class MeteorInput
                         result = true;
                         break;
                     case 141://忍爆弹-忍大招
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 50)
@@ -1814,7 +1821,7 @@ public class MeteorInput
                         }
                         break;
                     case 142://左右A 10气
-                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+                        if (Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry && mOwner.Attr.IsPlayer)
                             result = true;
                         else
                         if (mOwner.AngryValue < 10)
@@ -1847,76 +1854,67 @@ public class MeteorInput
         InputCore.Reset();
     }
 
-    public void OnKeyDownProxy(EKeyList key, bool isAI)
-    {
-        OnKeyDownProxy(KeyStates[(int)key], isAI);
-    }
-
-    public void OnKeyDown(EKeyList key, bool isAI = false)
-    {
-        OnKeyDown(KeyStates[(int)key], isAI);
-    }
-
-    public void OnKeyPressing(EKeyList key)
-    {
+    public void OnKeyPressing(EKeyList key) {
         if (Main.Ins.CombatData.Replay) {
             OnKeyPressing(KeyStates[(int)key]);
         } else {
-            Main.Ins.FrameSync.PushKeyUp(mOwner.InstanceId, KeyStates[(int)key].Key);
             if (Main.Ins.CombatData.GLevelMode != LevelMode.MultiplyPlayer)
                 OnKeyPressing(KeyStates[(int)key]);
         }
     }
 
     Dictionary<EKeyList, int> genFreq = new Dictionary<EKeyList, int>();
-    public void OnKeyPressing(KeyState keyStatus)
-    {
-        if (genFreq.ContainsKey(keyStatus.Key))
-        {
+    public void OnKeyPressing(KeyState keyStatus) {
+        if (genFreq.ContainsKey(keyStatus.Key)) {
             genFreq[keyStatus.Key]--;
-            if (genFreq[keyStatus.Key] == 0)
-            {
+            if (genFreq[keyStatus.Key] == 0) {
                 InputCore.OnKeyPressing(keyStatus);
-                genFreq[keyStatus.Key] = Main.Ins.AppInfo.LinkDelay() + 1;
+                genFreq[keyStatus.Key] = 1;
             }
-        }
-        else
-            genFreq.Add(keyStatus.Key, Main.Ins.AppInfo.LinkDelay() + 1);
+        } else
+            genFreq.Add(keyStatus.Key, 1);
     }
 
-#if (UNITY_EDITOR || UNITY_STANDALONE_WIN) && !STRIP_KEYBOARD
-    public void OnKeyPressingProxy(EKeyList key)
-    {
-        if (mOwner.controller.InputLocked)
+
+    public void OnKeyPressingProxy(EKeyList key) {
+        if (mOwner.meteorController.InputLocked)
             return;
         OnKeyPressingProxy(KeyStates[(int)key]);
     }
 
 
-    public void OnKeyPressingProxy(KeyState keyStatus)
-    {
+    public void OnKeyPressingProxy(KeyState keyStatus) {
         if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
             Main.Ins.FrameSync.PushKeyEvent(protocol.MeteorMsg.Command.KeyLast, mOwner.InstanceId, keyStatus.Key);
         else
             OnKeyPressing(keyStatus.Key);
     }
-#endif
 
-    public void OnKeyUpProxy(EKeyList key)
+    public void OnKeyDownProxy(EKeyList key, bool system = false)
     {
-        if (mOwner.controller.InputLocked && !KeyStates[(int)key].IsAI)
-            return;
-        OnKeyUpProxy(KeyStates[(int)key]);
+        OnKeyDownProxy(KeyStates[(int)key], system);
     }
 
-    public void OnKeyUp(EKeyList key)
+    public void OnKeyDown(EKeyList key)
     {
-        if (mOwner.controller.InputLocked && !KeyStates[(int)key].IsAI)
+        OnKeyDown(KeyStates[(int)key]);
+    }
+
+    public void OnKeyUpProxy(EKeyList key, bool system = false)
+    {
+        if (mOwner.meteorController.InputLocked && !system)
+            return;
+        OnKeyUpProxy(KeyStates[(int)key], system);
+    }
+
+    public void OnKeyUp(EKeyList key, bool system = false)
+    {
+        if (mOwner.meteorController.InputLocked && !system)
             return;
         OnKeyUp(KeyStates[(int)key]);
     }
 
-    public void OnKeyDown(KeyState keyStatus, bool isAI)
+    public void OnKeyDown(KeyState keyStatus)
     {
         if (InputCore.OnKeyDown(keyStatus))
             InputCore.Reset();
@@ -1926,43 +1924,47 @@ public class MeteorInput
     {
         keyStatus.Pressed = 0;
         keyStatus.ReleasedTime = 0.0f;
-        keyStatus.IsAI = false;
+        if (keyStatus.Key == EKeyList.KL_Jump) {
+            mOwner.UpdateNinjaState(NinjaState.WaitPress);
+        }
     }
 
-    public void OnKeyUpProxy(KeyState keyStatus)
+    public void OnKeyUpProxy(KeyState keyStatus, bool system = false)
     {
         keyStatus.Pressed = 0;
         keyStatus.ReleasedTime = 0.0f;
-        keyStatus.IsAI = false;
+        if (genFreq.ContainsKey(keyStatus.Key))
+            genFreq.Remove(keyStatus.Key);
+        InputCore.RemovePressing(keyStatus.Key);
         if (Main.Ins.CombatData.Replay) {
             OnKeyUp(keyStatus.Key);
         } else {
             Main.Ins.FrameSync.PushKeyUp(mOwner.InstanceId, keyStatus.Key);
             if (Main.Ins.CombatData.GLevelMode != LevelMode.MultiplyPlayer)
-                OnKeyUp(keyStatus.Key);
+                OnKeyUp(keyStatus.Key, system);
         }
     }
 
-    public void OnKeyDownProxy(KeyState keyStatus, bool isAI)
+    public void OnKeyDownProxy(KeyState keyStatus, bool system = false)
     {
-        if (mOwner.controller.InputLocked && !isAI)
+        if (mOwner.meteorController.InputLocked && !system)
             return;
-        //任意的按下一个按键，
-        EKeyList[] keys = genFreq.Keys.ToArray();
-        for (int i = 0; i < keys.Length; i++)
-            genFreq[keys[i]] = Main.Ins.AppInfo.LinkDelay() + 1;
         keyStatus.Pressed = keyStatus.PressedTime < DoubleClickTime ? 2 : 1;
         keyStatus.PressedTime = 0.0f;
-        keyStatus.IsAI = isAI;
-
+        if (!genFreq.ContainsKey(keyStatus.Key))
+            genFreq.Add(keyStatus.Key, 1);
+        if (keyStatus.Key == EKeyList.KL_Jump) {
+            mOwner.UpdateNinjaState(NinjaState.Ready);
+        }
         //是否记录按键
         //录像模式下不记录按键
         if (Main.Ins.CombatData.Replay) {
-            OnKeyDown(keyStatus.Key, isAI);
+            OnKeyDown(keyStatus.Key);
         } else {
-            Main.Ins.FrameSync.PushKeyDown(mOwner.InstanceId, keyStatus.Key);
             if (Main.Ins.CombatData.GLevelMode != LevelMode.MultiplyPlayer)
-                OnKeyDown(keyStatus.Key, isAI);
+                OnKeyDown(keyStatus.Key);
+            else
+                Main.Ins.FrameSync.PushKeyDown(mOwner.InstanceId, keyStatus.Key);
         }
     }
 
@@ -1980,42 +1982,28 @@ public class MeteorInput
         if (mOwner.Climbing)
         {
             direction.Normalize();
-            Vector2 runTrans = direction * (mOwner.MoveSpeed / 1000.0f);
-            float y = runTrans.y;
+            float y = direction.y;
+            //其他方向的移动，只要在爬行过程都给，
+            if (mOwner.ActionMgr.mActiveAction.Idx == CommonAction.ClimbUp)
+                mOwner.SetWorldVelocityExcludeY(-mOwner.ClimbingSpeed * mOwner.transform.forward * FrameReplay.deltaTime);
+            else if (mOwner.ActionMgr.mActiveAction.Idx == CommonAction.ClimbRight)
+                mOwner.SetWorldVelocityExcludeY(-mOwner.ClimbingSpeed * FrameReplay.deltaTime * mOwner.transform.right - mOwner.ClimbingSpeed * mOwner.transform.forward * FrameReplay.deltaTime);
+            else if (mOwner.ActionMgr.mActiveAction.Idx == CommonAction.ClimbLeft)
+                mOwner.SetWorldVelocityExcludeY(mOwner.ClimbingSpeed * mOwner.transform.right * FrameReplay.deltaTime - mOwner.ClimbingSpeed * mOwner.transform.forward * FrameReplay.deltaTime);
+
+            //能向上爬行的阶段
             if (y > 0 && mOwner.ClimbingTime < CombatData.ClimbLimit)
             {
-                if (mOwner.posMng.mActiveAction.Idx == CommonAction.ClimbUp)
-                    mOwner.SetWorldVelocityExcludeY(- 200 * y * mOwner.transform.forward);
-                else if (mOwner.posMng.mActiveAction.Idx == CommonAction.ClimbRight)
-                    mOwner.SetWorldVelocityExcludeY(-100 * y * mOwner.transform.right - 200 * y * mOwner.transform.forward);
-                else if (mOwner.posMng.mActiveAction.Idx == CommonAction.ClimbLeft)
-                    mOwner.SetWorldVelocityExcludeY(100 * y * mOwner.transform.right - 200 * y * mOwner.transform.forward);
-                float climbScale = (CombatData.ClimbLimit - mOwner.ClimbingTime) / (CombatData.ClimbLimit);
-                mOwner.AddYVelocity(y * 50 * climbScale);
-            }
-        }
-        else if (mOwner.IsOnGround())
-        {
-            if (posMng.CanMove)
-            {
-                direction.Normalize();
-                //跑的速度 1000 = 145M/S 按原来游戏计算
-                Vector2 runTrans = direction * mOwner.MoveSpeed * (mOwner.Crouching ? 0.25f : 1.0f);//蹲下是跑步的4/1,中毒是一半速度
-                float x = runTrans.x * (mOwner.Crouching ? 0.085f : 0.045f), y = runTrans.y * (mOwner.Crouching ? 0.085f : (runTrans.y >= 0 ? 0.135f: 0.045f));//前走速度145 后走速度36,左右走速度是36 模型Z轴与角色面朝相反
-                mOwner.SetVelocity(y, x);
-            }
-            else
-            {
-                //无法移动
+                mOwner.AddYVelocity((mOwner.ClimbingSpeedY - Mathf.Lerp(0, mOwner.ClimbingSpeedY, mOwner.ClimbingTime / CombatData.ClimbLimit)) * FrameReplay.deltaTime);
             }
         }
         else if (!mOwner.IsOnGround())
         {
-            if (mOwner.posMng.mActiveAction.Idx == CommonAction.Jump && mOwner.ImpluseVec.x == 0.0f && mOwner.ImpluseVec.z == 0.0f)
+            if (mOwner.ActionMgr.mActiveAction.Idx == CommonAction.Jump && mOwner.ImpluseVec.x == 0.0f && mOwner.ImpluseVec.z == 0.0f)
             {
                 //CanAdjust表示，在跳跃开始后，还未被任何状态打断为不可微调状态
                 //只要单次起跳过程一旦碰到墙壁-则切换为不可微调
-                if (mOwner.posMng.CanAdjust && !mOwner.OnTouchWall && !mOwner.OnTopGround && !mOwner.MoveOnGroundEx && !mOwner.OnGround)
+                if (mOwner.ActionMgr.CanAdjust && !mOwner.OnTouchWall && !mOwner.OnTopGround && !mOwner.MoveOnGroundEx && !mOwner.OnGround)
                 {
                     direction.Normalize();
                     Vector2 runTrans = direction * mOwner.MoveSpeed;
@@ -2024,6 +2012,17 @@ public class MeteorInput
                     //Debug.LogError("垂直跳跃中轻微滑动摇杆");
                 }
             }
+            else {
+                if (mOwner.ClimbJumping) {
+                    //Debug.Log("空中无法设置移动距离");
+                }
+            }
+        } else if (mOwner.IsOnGround()) {
+            direction.Normalize();
+            //跑的速度 1000 = 145M/S 按原来游戏计算
+            Vector2 runTrans = direction * mOwner.MoveSpeed * (mOwner.Crouching ? 0.25f : 1.0f);//蹲下是跑步的4/1,中毒是一半速度
+            float x = runTrans.x * (mOwner.Crouching ? 0.085f : 0.045f), y = runTrans.y * (mOwner.Crouching ? 0.085f : (runTrans.y >= 0 ? 0.135f : 0.045f));//前走速度145 后走速度36,左右走速度是36 模型Z轴与角色面朝相反
+            mOwner.SetVelocity(y, x);
         }
 
     }
@@ -2044,7 +2043,7 @@ public class MeteorInput
                 ret = (pressed == 2 && pressedTime == 0);
                 break;
             case EInputType.EIT_Press:
-                ret = (pressed != 0 && (pressedTime < LongPressedTime && pressedTime + FrameReplay.deltaTime >= LongPressedTime));
+                ret = (pressed != 0 && pressedTime >= LongPressedTime);
                 break;
             case EInputType.EIT_Release:
                 ret = (pressed == 0 && releasedTime == 0);
@@ -2059,7 +2058,10 @@ public class MeteorInput
                 ret = (pressed == 0 && releasedTime == 0 && pressedTime < ShortPressTime);
                 break;
             case EInputType.EIT_FullPress://大跳
-                ret = (pressed != 0 && pressedTime <= ShortPressTime && pressedTime + FrameReplay.deltaTime >= ShortPressTime);
+                ret = (pressed != 0 && pressedTime <= ShortPressTime && pressedTime + FrameReplay.deltaTime > ShortPressTime);//后面条件限制只触发一帧
+                break;
+            case EInputType.EIT_PressingEnough://忍者超级跳，按键蓄力足够久时间
+                ret = (pressed != 0) && pressedTime >= SuperJumpTime;
                 break;
         }
         return ret;
@@ -2075,16 +2077,18 @@ public class MeteorInput
 public class MeteorController {
     public MeteorInput Input;
     MeteorUnit mOwner;
-    PoseStatus posMng;
+    ActionManager posMng;
     bool mInputLocked = false;
     public bool InputLocked { get { return mInputLocked; } set { mInputLocked = value; } }
+    bool mMoveLocked = false;
+    public bool MoveLocked { get { return mMoveLocked; } set { mMoveLocked = value; } }
     public MeteorUnit Owner { get { return mOwner; } }
     public void Init(MeteorUnit Target)
     {
         mOwner = Target;
         if (mOwner != null)
         {
-            posMng = mOwner.posMng;
+            posMng = mOwner.ActionMgr;
             Input = new MeteorInput(mOwner, this);
             if (Owner.Attr.IsPlayer)
                 Main.Ins.CombatData.GMeteorInput = Input;
@@ -2130,7 +2134,7 @@ public class MeteorController {
             return;
         }
         //硬直中不允许其他姿势的控制.
-        if (Owner.charLoader.IsInStraight())
+        if (Owner.ActionMgr.IsInStraight())
             return;
         //在一定动作时才可响应的动作.
         if (Main.Ins.GameBattleEx != null && !Main.Ins.GameBattleEx.BattleFinished() && !Main.Ins.CombatData.PauseAll)
@@ -2142,39 +2146,10 @@ public class MeteorController {
         }
     }
 
-    //float mAdjustTime = 3.0f;
-    //float mAdjustLeftTime = 0.0f;
-    //float preY = float.MaxValue;
-    //int HitY = 1;
-    //int curHity = 0;
-    //Transform trans;
-    //bool isAttackMove;
-    //Vector3 attackPos = Vector3.zero;
-    //Vector3 attackOffset = Vector3.zero;
-
-    //void UpdateFollowBone()
-    //{
-    //    if (Owner.posMng.FollowBone != null)
-    //    {
-    //        Transform tran = Owner.posMng.FollowBone;
-    //        if (isAttackMove == false)
-    //        {
-    //            attackPos = tran.position;
-    //        }
-    //        else
-    //        {
-    //            CameraLookAtOffset = (attackPos - tran.position) * Owner.posMng.FollowBoneScale + Vector3.up;
-    //            attackOffset = (attackPos - tran.position) * Owner.posMng.FollowBoneScale;
-    //        }
-    //        isAttackMove = true;
-    //    }
-    //    else
-    //    {
-    //        CameraLookAtOffset = Vector3.Lerp(CameraLookAtOffset, Vector3.up, Time.deltaTime * 5);
-    //        attackOffset = Vector3.Lerp(attackOffset, Vector3.zero, Time.deltaTime * 5);
-    //        isAttackMove = false;
-    //    }
-    //}
+    //不允许响应方向键
+    public void LockMove(bool locked) {
+        MoveLocked = locked;
+    }
 
     public void LockInput(bool param)
     {

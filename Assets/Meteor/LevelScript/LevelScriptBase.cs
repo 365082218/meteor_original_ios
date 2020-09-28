@@ -3,37 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Idevgame.Util;
 using System.Linq;
-/*
-// 站在原地四處看
-ChangeBehavior(g_self, "wait");
-
-// 站在原地不動
-ChangeBehavior(g_self, "idle");
-
-// 到處亂跑
-ChangeBehavior(g_self, "run");
-
-// 在1、3、5...巡邏點移動
-ChangeBehavior(g_self, "patrol", 1, 3, 5);
-
-// 跟在玩家身邊
-ChangeBehavior(g_self, "follow", "player");
-
-// 跟在同隊VIP身邊
-ChangeBehavior(g_self, "follow", "vip");
-
-// 跟在敵隊VIP身邊
-ChangeBehavior(g_self, "follow", "enemyvip");
-
-// 跟在拿標物的人身邊
-ChangeBehavior(g_self, "follow", "flag");
-
-// 跟在xxx身邊
-ChangeBehavior(g_self, "follow", "xxx");
-
-*/
+//存储了所有稳定关卡的脚本
 public class ScriptBase
 {
+    public ScriptBase() {
+
+    }
     //非经典关卡时，从主角脚本读取.
     public static int Weapon0 = -1;
     public static int Weapon1 = -1;
@@ -199,7 +174,7 @@ public class ScriptBase
     {
         MeteorUnit u = U3D.GetUnit(c);
         if (u != null)
-            return u.posMng.CanSkill;
+            return u.ActionMgr.CanSkill;
         return false;
     }
     public static float PlayerDistance(int player1, int player2)
@@ -373,7 +348,7 @@ public class ScriptBase
 
     public static void Output(string i, int a, int b)
     {
-        Debug.Log(i +  " index:" + a + " value:" + b);
+        //Debug.Log(i +  " index:" + a + " value:" + b);
     }
 
     public static void Output(string s, int id, string e, int evt)
@@ -392,12 +367,12 @@ public class ScriptBase
     }
     public static void Output(string s, int i = 0)
     {
-        Debug.Log(s + " index" + i);
+        //Debug.Log(s + " index" + i);
     }
 
-    public static void AddNPC(string npc)
+    public static int AddNPC(string npc)
     {
-        U3D.AddNPC(npc);
+        return U3D.AddNPC(npc);
     }
     public static int GetChar(string tag)
     {
@@ -1135,6 +1110,10 @@ public class ScriptBase
 
 
 public class LevelScriptBase:ScriptBase {
+    public LevelScriptBase() {
+
+    }
+    public virtual Dictionary<int, string> GetModel() { return new Dictionary<int, string>(); }//返回模型定义ID-文件名
     public virtual int GetRoundTime() { return 60000; }
     public virtual int GetPlayerSpawn() { return 0; }
     public virtual int GetPlayerSpawnDir() { return 0; }
@@ -1142,13 +1121,14 @@ public class LevelScriptBase:ScriptBase {
     public virtual int GetPlayerWeapon2() { return 0; }
     public virtual int GetPlayerMaxHp() { return 2500; }
     public virtual int GetPlayerModel() { return 0; }
-    public virtual string GetPlayerName() { return "孟星魂"; }
-    public virtual string GetDesName() { return ""; }
-    public virtual bool OnPlayerSpawn(MeteorUnit unit) { return false; }//角色生成后调整
+    public virtual string GetPlayerName() { return StringUtils.DefaultPlayer; }
     public virtual void Scene_OnCharacterEvent(int id, int evt) { }
-    public virtual void OnLoad(){}//当关卡被加载最初时，可在此修改游戏类型，让一些与关卡类型相关的地图元素显示出来， ticket=xx
+    public virtual void OnSceneEvent(int character, SceneEvent evt) { }
     public virtual GameResult OnUnitDead(MeteorUnit deadUnit)
     {
+        if ((int)GameMode.Rob == Main.Ins.CombatData.GLevelItem.LevelType) {
+            return GameResult.None;
+        }
         if (U3D.AllEnemyDead())
             return GameResult.Win;
         return GameResult.None;
@@ -1355,9 +1335,8 @@ public class LevelScript_sn01:LevelScriptBase
         if (c2 >= 0)
         {
             ChangeBehavior(c, "follow", c2);
-            //冗余语句
-            //SetTarget(0, "char", c2);
-            //ChangeBehavior(c, "attacktarget", 0);
+            SetTarget(0, "char", c2);
+            ChangeBehavior(c, "attacktarget", 0);
             return 1;
         }
 
@@ -1674,26 +1653,6 @@ public class LevelScript_sn02: LevelScriptBase
 
         SetSceneItem("D_sn02st03", "pose", 1, 1);
         SetSceneItem("D_sn02st03", "frame", 120);
-
-        //
-    }
-
-    public override void OnStart()
-    {
-        AddNPC("npc02_01");
-        base.OnStart();
-    }
-
-    int tag1 = 0;
-    public override int OnUpdate()
-    {
-        if (tag1 == 0)
-        {
-            int c1 = GetChar("皇陵使");
-            ChangeBehavior(c1, "patrol", 1, 2, 3);
-            tag1 = 1;
-        }
-        return 0;
     }
 }
 
@@ -1814,7 +1773,7 @@ public class LevelScript_sn03 : LevelScriptBase
             c = GetChar("土匪﹒铁胡子");
             if (c >= 0 && GetEnemy(c) == player)
             {
-                ChangeBehavior(c, "patrol", 59, 92, 83);
+                ChangeBehavior(c, "patrol", 92);
                 Perform(c, "guard", 5);
                 Perform(c, "say", "你是谁，该不会是想要来抢我的宝物吧！门都没有，只有死路一条！");
                 Perform(c, "faceto", player);
@@ -2603,7 +2562,7 @@ public class LevelScript_sn04: LevelScriptBase
                 PlayerPerform("say", "（﹒﹒﹒﹒﹒﹒）");
                 PlayerPerform("say", "（看样子，现在只有直接破坏这道关卡硬闯了！");
                 PlayerPerform("pause", 2);
-                PlayerPerform("say", "（幸好高老大的计画周详，单闯一个关卡就为我安排了几个方法！）");
+                PlayerPerform("say", "（幸好高老大的计划周详，单闯一个关卡就为我安排了几个方法！）");
                 PlayerPerform("pause", 2);
                 PlayerPerform("say", "（现在无法单靠信物安全通关了，看样子只好另寻它法！）");
                 PlayerPerform("pause", 1);
@@ -2854,7 +2813,7 @@ public class LevelScript_sn04: LevelScriptBase
 
     public override void Scene_OnInit()
     {
-        int i = 0;
+        //int i = 0;
 
         InitBoxes(g_iNumBoxes);
         InitBBoxes(g_iNumBBoxes);
@@ -2960,7 +2919,8 @@ public class LevelScript_sn04: LevelScriptBase
         {
             return 0;
         }
-
+        if (g_iBPdoorState == 5 || g_iBPdoorHP < 0)
+            return 0;
         int state;
 
         g_iBPdoorHP = g_iBPdoorHP - damage;
@@ -3005,6 +2965,8 @@ public class LevelScript_sn04: LevelScriptBase
             SetSceneItem(id, "pose", 8, 0);
             
         }
+
+        
 
         state = GetSceneItem(id, "state");
         if (state == 3)
@@ -4500,7 +4462,7 @@ public class LevelScript_sn10: LevelScriptBase
 
                 PlayerPerform("block", 0);
                 PlayerPerform("pause", 10);
-                PlayerPerform("say", "（难道﹒﹒这一切的计画﹒﹒﹒）");
+                PlayerPerform("say", "（难道﹒﹒这一切的计划﹒﹒﹒）");
                 PlayerPerform("pause", 4);
                 PlayerPerform("say", "﹒﹒﹒﹒﹒");
                 PlayerPerform("pause", 7);
@@ -6026,7 +5988,6 @@ public class LevelScript_sn14 : LevelScriptBase
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
     public override int GetPlayerMaxHp() { return PlayerHP; }
-
     public override void OnStart()
     {
 	    AddNPC("npc14_01");
@@ -6371,7 +6332,7 @@ public class LevelScript_sn15 : LevelScriptBase
     {
         int c2 = GetChar("萧安");
         int c3 = -1;
-        int c4 = -1;
+        //int c4 = -1;
         int player;
         if (c >= 0 && c2 >= 0)
         {
@@ -7477,10 +7438,6 @@ public class LevelScript_sn22 : LevelScriptBase
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
-    public override void OnLoad()
-    {
-        Main.Ins.CombatData.GGameMode = GameMode.SIDOU;
-    }
     int DeathMatch = 1;
     int TeamDeathMatch = 5;
     int GameMod;
@@ -7489,10 +7446,10 @@ public class LevelScript_sn22 : LevelScriptBase
     public int EventExit = 201;//离开门
     public int EventDeath = 202;//死亡事件
 
-    int[] g_CharacterArena = new int[17];
-    int[] g_ArenaCharacters = new int[16];
-    int[] g_TeamAArenaCharacters = new int[16];
-    int[] g_TeamBArenaCharacters = new int[16];
+    protected int[] g_CharacterArena = new int[100];//每个角色所在的区域编号,最多200号角色
+    protected int[] g_ArenaCharacters = new int[16];//区域拥有的角色数量
+    protected int[] g_TeamAArenaCharacters = new int[16];//区域0-15，所含A队人数
+    protected int[] g_TeamBArenaCharacters = new int[16];//区域0-15，所含B队人数
 
     public override void Scene_OnInit()
     {
@@ -7504,9 +7461,12 @@ public class LevelScript_sn22 : LevelScriptBase
         GameMod = GameCallBack("mod", 0);
         int i;
         string itemname = "";
+        for (i = 0; i < 100; i++) {
+            g_CharacterArena[i] = -1;
+        }
+
         for (i = 0; i < 16; i = i + 1)
         {
-            g_CharacterArena[i] = -1;
             g_ArenaCharacters[i] = 0;
             g_TeamAArenaCharacters[i] = 0;
             g_TeamBArenaCharacters[i] = 0;
@@ -7544,7 +7504,6 @@ public class LevelScript_sn22 : LevelScriptBase
 
     public override void Scene_OnCharacterEvent(int id, int evt)
     {
-        int i;
         int arena;
         int team;
         Output("Character:", id, "event:", evt);
@@ -7556,7 +7515,7 @@ public class LevelScript_sn22 : LevelScriptBase
                 arena = g_CharacterArena[id];
                 if (arena != -1)
                 {
-                    g_ArenaCharacters[arena] = g_ArenaCharacters[arena] - 1;
+                    g_ArenaCharacters[arena] = g_ArenaCharacters[arena] - 1;//区域人数减少1人
                 }
                 g_CharacterArena[id] = -1;
             }
@@ -7580,7 +7539,7 @@ public class LevelScript_sn22 : LevelScriptBase
         }
     }
 
-    void TransferToArena(int characterid, int tpid)
+    public virtual void TransferToArena(int characterid, int tpid)
     {
         string arenaname = "";
         int arena = tpid / 2;
@@ -7595,11 +7554,10 @@ public class LevelScript_sn22 : LevelScriptBase
         }
     }
 
-    void TransferFromArena(int characterid, int tpid)
+    public virtual void TransferFromArena(int characterid, int tpid)
     {
         string arenaname = "";
         int arena = tpid / 2;
-
         if (g_ArenaCharacters[arena] == 1 && g_CharacterArena[characterid] == arena)
         {
             g_ArenaCharacters[arena] = g_ArenaCharacters[arena] - 1;
@@ -7610,7 +7568,7 @@ public class LevelScript_sn22 : LevelScriptBase
         }
     }
 
-    void TeamATransferToArena(int characterid, int arena)
+    public virtual void TeamATransferToArena(int characterid, int arena)
     {
         string arenaname = "";
         int team;
@@ -7627,7 +7585,7 @@ public class LevelScript_sn22 : LevelScriptBase
         }
     }
 
-    void TeamATransferFromArena(int characterid, int arena)
+    public virtual void TeamATransferFromArena(int characterid, int arena)
     {
         string arenaname = "";
         int team;
@@ -7644,7 +7602,7 @@ public class LevelScript_sn22 : LevelScriptBase
         }
     }
 
-    void TeamBTransferToArena(int characterid, int arena)
+    public virtual void TeamBTransferToArena(int characterid, int arena)
     {
         string arenaname = "";
         int team;
@@ -7659,7 +7617,7 @@ public class LevelScript_sn22 : LevelScriptBase
         }
     }
 
-    void TeamBTransferFromArena(int characterid, int arena)
+    public virtual void TeamBTransferFromArena(int characterid, int arena)
     {
         string arenaname = "";
         int team;
@@ -8059,737 +8017,6 @@ public class LevelScript_sn22 : LevelScriptBase
     }
 }
 
-////23韩棠-大决战-废弃了.
-//public class LevelScript_sn23 : LevelScriptBase
-//{
-//    int RoundTime = 30;
-//    int PlayerSpawn = 0;
-//    int PlayerSpawnDir = 84;
-//    int PlayerWeapon = 5;
-//    int PlayerWeapon2 = 0;
-//    int PlayerModel = 10;
-//    int PlayerHP = 8000;
-//    string PlayerName = "韩棠";
-//    public override int GetRoundTime() { return RoundTime; }
-//    public override int GetPlayerSpawn() { return PlayerSpawn; }
-//    public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
-//    public override int GetPlayerWeapon() { return PlayerWeapon; }
-//    public override int GetPlayerWeapon2() { return PlayerWeapon2; }
-//    public override int GetPlayerModel() { return PlayerModel; }
-//    public override string GetPlayerName() { return PlayerName; }
-//    public override int GetPlayerMaxHp() { return PlayerHP; }
-//    public override void OnStart()
-//    {
-//        AddNPC("npc23_01");//屠大鹏
-//        AddNPC("npc23_02");//罗金鹏  
-//        AddNPC("npc23_03");//萧银鹏
-//        AddNPC("npc23_04");//原怒鹏
-//        base.OnStart();
-//    }
-
-//    int trg0 = 0;//一起说话
-//    int trg1 = 0;//1号说话
-//    int trg2 = 0;//2号说话
-//    int trg3 = 0;//3号说话
-//    int trg4 = 0;//4号说话
-//    int time1 = 0;
-//    int time2 = 0;
-//    int timeSkill = 0;
-//    int skillgroup = 7;
-//    string[] skillCount = new string[] { "一", "二", "三", "四", "五", "六", "七" };
-//    public override int OnUpdate()
-//    {
-//        int player = GetChar("player");
-//        if (player < 0)
-//        {
-//            return 0;
-//        }
-
-//        int c1;
-//        int c2;
-//        int c3;
-//        int c4;
-//        if (trg0 == 0)
-//        {
-//            c1 = GetChar("屠城");
-//            c2 = GetChar("罗江");
-//            c3 = GetChar("萧安");
-//            c4 = GetChar("原冲");
-//            if (c1 >= 0 && c2 >= 0 && c3 >= 0 && c4 >= 0)
-//            {
-//                Perform(c1, "faceto", player);
-//                Perform(c2, "faceto", player);
-//                Perform(c3, "faceto", player);
-//                Perform(c4, "faceto", player);
-
-//                ChangeBehavior(c1, "kill", player);
-//                ChangeBehavior(c2, "kill", player);
-//                ChangeBehavior(c3, "kill", player);
-//                ChangeBehavior(c4, "kill", player);
-
-//                Perform(c1, "say", "所以你只管放心死吧孙玉伯一定很快就会到十八层地狱去陪你。");
-//                Perform(c1, "pause", 4);
-//                Perform(c1, "say", "根若已烂了这棵树很快就会烂光的。");
-//                Perform(c1, "pause", 4);
-//                Perform(c1, "say", "孙玉伯一向认为他的属下都对他极忠诚，但现在连他最信任的人也出卖了他这就好像一棵树的根已经烂了。");
-//                Perform(c1, "pause", 4);
-//                Perform(c1, "say", "这人当然是很得孙玉伯的信任，所以才会知道你们的关系……");
-//                Perform(c1, "pause", 4);
-//                Perform(c1, "say", "你一定会奇怪我们怎么知道你和孙玉伯的关系？这当然是有人告诉我们的只可惜你这一辈子也猜不出这个人是谁。");
-//                Perform(c1, "pause", 4);
-//                Perform(c1, "say", "因为你是孙玉伯的死党，‘十二飞鹏帮’现在己和孙玉伯势不两立。");
-//                Perform(c1, "pause", 4);
-//                Perform(c1, "say", "你知不知道我们为什么要杀你？");
-//                Perform(c1, "pause", 4);
-//                Perform(c1, "say", "韩棠你该觉得骄傲才是，杀孙剑的时候，我们连手都没有动，但杀你我们却动用了全力。");
-//                Perform(c1, "pause", 4);
-//                Perform(c1, "block", 0);
-//                Perform(c1, "say", "屠城屠大鹏");
-//                Perform(c1, "pause", 5);
-//                Perform(c1, "aggress");
-//                Perform(c1, "say", "你怎么知道那五人全是幌子，我才是真正来杀你的？");
-//                Perform(c1, "pause", 2);
-//                Perform(c1, "guard", 6);
-//                Perform(c1, "block", 1);
-
-//                //主角对白
-//                PlayerPerform("block", 0);
-//                PlayerPerform("pause", 4);
-//                PlayerPerform("say", "你们都是‘十二飞鹏帮’的人?");
-//                PlayerPerform("pause", 4);
-//                PlayerPerform("faceto", c1);
-//                PlayerPerform("guard", 6);
-//                PlayerPerform("block", 1);
-//                //罗江
-//                Perform(c2, "block", 0);
-//                Perform(c2, "say", "罗江罗金鹏。");
-//                Perform(c2, "pause", 6);
-//                Perform(c2, "guard", 10);
-//                Perform(c2, "block", 1);
-
-//                //萧安
-//                Perform(c3, "block", 0);
-//                Perform(c3, "say", "萧安萧银鹏。");
-//                Perform(c3, "pause", 7);
-//                Perform(c3, "guard", 10);
-//                Perform(c3, "block", 1);
-
-//                //原冲
-//                Perform(c4, "block", 0);
-//                Perform(c4, "say", "原冲原怒鹏。");
-//                Perform(c4, "pause", 8);
-//                Perform(c4, "guard", 10);
-//                Perform(c4, "block", 1);
-
-//                trg0 = 1;
-//            }
-//        }
-
-//        //蝴蝶阵营获胜
-//        if (trg1 == 0)
-//        {
-//            if (GetHP(player) <= 0)
-//            {
-//                c1 = GetChar("屠城");
-//                Perform(c1, "say", "出卖你的人是律香川，他不但出卖你还出卖了孙玉伯");
-//                Perform(c1, "pause", 2);
-//                Perform(c1, "say", "我知道你死不暝目，死后一定变为厉鬼．但你的鬼魂却不该来找我们，你应该去找那出卖你的人。");
-//                Perform(c1, "pause", 2);
-
-//                c3 = GetChar("萧安");
-//                Perform(c3, "say", "走，快走——");
-//                Perform(c3, "pause", 6);
-//                trg1 = 1;
-//                time1 = GetGameTime() + 8;
-//            }
-//        }
-
-//        if (trg1 == 1 && GetGameTime() > time1)
-//        {
-//            GameOver(-1);
-//        }
-
-//        //流星阵营，特殊事件触发
-//        if (trg2 == 0)
-//        {
-//            if (GetHP(player) > 0 && GetHP(player) <= (GetMaxHP(player) / 4))
-//            {
-//                PlayerPerform("say", "....");
-//                PlayerPerform("pause", 3);
-//                PlayerPerform("say", "好久没有这种感觉了！");
-//                trg2 = 1;
-//                time2 = GetGameTime() + 5;
-//            }
-//        }
-
-//        if (trg2 == 1 && GetGameTime() > time2)
-//        {
-//            if (GetHP(player) > 0)
-//            {
-//                PlayerPerform("use", 36);
-//                PlayerPerform("use", 20);
-//                PlayerPerform("use", 3);
-//                PlayerPerform("use", 4);
-//                PlayerPerform("use", 5);
-//                PlayerPerform("use", 8);
-//                PlayerPerform("use", 19);
-//                PlayerPerform("use", 34);
-//                PlayerPerform("use", 40);
-//                PlayerPerform("use", 41);
-//                PlayerPerform("use", 15);
-//                PlayerPerform("use", 15);
-//                PlayerPerform("use", 15);
-//            }
-//            trg2 = 2;
-//        }
-
-//        //一起技能释放硬切换
-//        if (trg3 == 0 && skillgroup > 0 && GetGameTime() > timeSkill)
-//        {
-//            c1 = GetChar("屠城");
-//            c2 = GetChar("罗江");
-//            c3 = GetChar("萧安");
-//            c4 = GetChar("原冲");
-//            if (c1 >= 0 && c2 >= 0 && c3 >= 0 && c4 >= 0)
-//            {
-//                //4人都离角色100码以内
-//                float maxDistance = 300.0f;
-//                if (PlayerDistance(c1, 0) <= maxDistance && PlayerDistance(c2, 0) <= maxDistance && PlayerDistance(c3, 0) <= maxDistance && PlayerDistance(c4, 0) <= maxDistance)
-//                {
-//                    //任意一个人得到满怒气，则全体满怒气.一起开大.
-//                    if (GetAngry(c1) == 100 || GetAngry(c2) == 100 || GetAngry(c3) == 100 || GetAngry(c4) == 100)
-//                    {
-//                        int maxCount = 0;
-//                        if (GetHP(c1) > 0)
-//                        {
-//                            Perform(c1, "faceto", 0);
-//                            Perform(c1, "use", 34);//嗜血+攻
-//                            Perform(c1, "use", 8);//怒气MAX
-//                            maxCount++;
-//                        }
-
-//                        if (GetHP(c2) > 0)
-//                        {
-//                            Perform(c2, "faceto", 0);
-//                            Perform(c2, "use", 34);//嗜血+攻
-//                            Perform(c2, "use", 8);//怒气MAX
-//                            maxCount++;
-//                        }
-
-//                        if (GetHP(c3) > 0)
-//                        {
-//                            Perform(c3, "faceto", 0);
-//                            Perform(c3, "use", 34);//嗜血+攻
-//                            Perform(c3, "use", 8);//怒气MAX
-//                            maxCount++;
-//                        }
-
-//                        if (GetHP(c4) > 0)
-//                        {
-//                            Perform(c4, "faceto", 0);
-//                            Perform(c4, "use", 34);//嗜血+攻
-//                            Perform(c4, "use", 8);//怒气MAX
-//                            maxCount++;
-//                        }
-
-//                        int talked = 0;
-//                        int delay = 1;
-//                        if (GetHP(c1) > 0 &&  CanUseSkill(c1))
-//                        {
-//                            Perform(c1, "skill");
-//                            Perform(c1, "pause", 1);
-//                            talked = 1;
-//                            if (skillgroup == 20)
-//                                Perform(c1, "say", "没人能在我们合力之下坚持那么久");
-//                            else
-//                                Perform(c1, "say", "接招，合力一击");
-//                            delay += 1;
-//                        }
-
-//                        if (GetHP(c2) > 0 && CanUseSkill(c2))
-//                        {
-//                            Perform(c2, "skill");
-//                            if (talked == 0)
-//                            {
-//                                if (skillgroup == 20)
-//                                    Perform(c2, "say", "没人能在我们合力之下坚持那么久");
-//                                else
-//                                    Perform(c2, "say", "合力一击");
-//                                talked = 1;
-//                            }
-//                            Perform(c2, "pause", delay);
-//                            delay += 1;
-//                        }
-
-//                        if (GetHP(c3) > 0 && CanUseSkill(c3))
-//                        {
-//                            Perform(c3, "skill");
-//                            if (talked == 0)
-//                            {
-//                                if (skillgroup == 20)
-//                                    Perform(c3, "say", "没人能在我们合力之下坚持那么久");
-//                                else
-//                                    Perform(c3, "say", "合力一击");
-//                                talked = 1;
-//                            }
-//                            Perform(c3, "pause", delay);
-//                            delay += 1;
-//                        }
-
-//                        if (GetHP(c4) > 0 && CanUseSkill(c4))
-//                        {
-//                            Perform(c4, "skill");
-//                            if (talked == 0)
-//                            {
-//                                if (skillgroup == 20)
-//                                    Perform(c4, "say", "没人能在我们合力之下坚持那么久");
-//                                else
-//                                    Perform(c4, "say", "合力一击");
-//                                talked = 1;
-//                            }
-//                            Perform(c4, "pause", delay);
-//                        }
-//                        skillgroup -= 1;
-//                        timeSkill = GetGameTime() + 45;//45秒触发间隔
-//                    }
-//                }
-//            }
-//        }
-//        return 0;
-//    }
-
-//    public override void Scene_OnInit()
-//    {
-//        InitBoxes(g_iNumBoxes);
-//        InitBBoxes(g_iNumBBoxes);
-//        InitChairs(g_iNumChairs);
-//        InitDeskes(g_iNumDeskes);
-//        InitJugs(g_iNumJugs);
-//    }
-//}
-
-////往生幻境.
-//public class LevelScript_sn25 : LevelScriptBase
-//{
-//    public override int GetRoundTime() { return RoundTime; }
-//    public override int GetPlayerSpawn() { return PlayerSpawn; }
-//    public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
-//    public override int GetPlayerWeapon() { return PlayerWeapon; }
-//    public override int GetPlayerWeapon2() { return PlayerWeapon2; }
-//    public override int GetPlayerMaxHp() { return PlayerHP; }
-//    int RoundTime = 20;
-//    int PlayerSpawn = 0;
-//    int PlayerSpawnDir = 200;
-//    int PlayerWeapon = 24;
-//    int PlayerWeapon2 = 14;
-//    int PlayerHP = 2000;
-
-//    int g_counter = 0;
-//    int trg0 = 0;
-//    int trg1 = 0;
-//    int trg2 = 0;
-//    int trg3 = 0;
-//    int trg4 = 0;
-//    int trg5 = 0;
-//    int timer0 = 0;
-//    int survivor = -1;
-//    Dictionary<int, FixedPlatformCtrl> Platform = new Dictionary<int, FixedPlatformCtrl>();
-//    const float fallTime = 3.0f;
-//    public override void OnStart()
-//    {
-//        AddNPC("npc25_0");
-//        AddNPC("npc25_1");
-//        AddNPC("npc25_2");
-//        AddNPC("npc25_3");
-//        AddNPC("npc25_4");
-//        base.OnStart();
-//    }
-
-//    public override int OnUpdate()
-//    {
-        
-//        return 1;
-//    }
-
-//    int g_bBridge01Alive;
-//    int g_bBridge02Alive;
-//    int g_iBridge01HP;
-//    int g_iBridge02HP;
-
-//    public override void Scene_OnLoad()
-//    {
-
-//    }
-
-//    public override void Scene_OnInit()
-//    {
-
-//    }
-
-//    public override int Scene_OnIdle()
-//    {
-//        List<int> removed = new List<int>();
-//        foreach (var each in Platform)
-//        {
-//            if (each.Value == null)
-//                continue;
-//            if (each.Value.GetComponent<FMCPlayer>().state == 3)
-//            {
-//                GameObject.Destroy(each.Value.gameObject);
-//                removed.Add(each.Key);
-//            }
-//        }
-
-//        for (int i = 0; i < removed.Count; i++)
-//            Platform.Remove(i);
-//        return 1;
-//    }
-
-//    void Scene_OnEvent(GameObject trigger, int unit, int evt)
-//    {
-//        FixedPlatformCtrl tri = trigger.GetComponent<FixedPlatformCtrl>();
-//        FMCPlayer p = tri.GetComponent<FMCPlayer>();
-//        if (p.state == 1)
-//        {
-//            p.ChangePose(1, 0);
-//            if (!Platform.ContainsKey(tri.Trigger))
-//                Platform.Add(tri.Trigger, tri);
-//        }
-//    }
-//}
-
-////寻路测试
-//public class LevelScript_sn26 : LevelScriptBase
-//{
-//    public override int GetRoundTime() { return RoundTime; }
-//    public override int GetPlayerSpawn() { return PlayerSpawn; }
-//    public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
-//    public override int GetPlayerWeapon() { return PlayerWeapon; }
-//    public override int GetPlayerWeapon2() { return PlayerWeapon2; }
-//    public override int GetPlayerMaxHp() { return PlayerHP; }
-
-//    int RoundTime = 10;
-//    int PlayerSpawn = 34;
-//    int PlayerSpawnDir = 0;
-//    int PlayerWeapon = 6;
-//    int PlayerWeapon2 = 0;
-//    int PlayerHP = 1000;
-
-//    int trg0 = 0;
-//    int trg1 = 0;
-//    public override string GetDesName()
-//    {
-//        return "sn14";
-//    }
-
-//    public override void OnStart()
-//    {
-//        Main.Ins.ScriptMng.CallFunc("LevelScript_sn26");
-//        base.OnStart();
-//    }
-
-//    public override int OnUpdate()
-//    {
-//        int player = GetChar("player");
-//        if (player < 0)
-//        {
-//            return 0;
-//        }
-
-//        int c;
-
-//        if (trg0 == 0)
-//        {
-//            c = GetChar("大刀哨兵");
-//            if (c >= 0)
-//            {
-//                Perform(c, "say", "好呗，开始寻路﹒﹒");
-//                ChangeBehavior(c, "patrol", 0);
-//            }
-//            trg0 = 1;
-//        }
-
-//        if (trg1 == 0)
-//        {
-//            c = GetChar("大刀哨兵");
-//            if (c >= 0 && GetEnemy(c) == player)
-//            {
-//                StopPerform(c);
-//                Perform(c, "say", "好大的胆子竟敢乱闯禁地，没酒喝，火气正大，先拿你来开刀！");
-//                trg1 = 1;
-//            }
-//        }
-//        if (trg1 == 1)
-//        {
-//            c = GetChar("大刀哨兵");
-//            if (c >= 0 && GetEnemy(c) != player)
-//            {
-//                Perform(c, "say", "跑到那儿去了！八成是跌入岩浆中了，哈哈哈哈！");
-//                trg1 = 2;
-//            }
-//        }
-//        if (trg1 == 2)
-//        {
-//            c = GetChar("大刀哨兵");
-//            if (c >= 0 && GetEnemy(c) == player)
-//            {
-//                Perform(c, "say", "好小子，被我发现了吧！这下子你跑不掉了！");
-//                trg1 = 3;
-//            }
-//        }
-//        if (trg1 == 3)
-//        {
-//            c = GetChar("大刀哨兵");
-//            if (c >= 0 && GetEnemy(c) != player)
-//            {
-//                Perform(c, "aggress");
-//                Perform(c, "say", "哼，又躲起来了！缩头鸟龟一只！");
-//                trg1 = 4;
-//            }
-//        }
-
-//        return 1;
-//    }
-
-//    public override void Scene_OnLoad()
-//    {
-
-//    }
-
-//    public override void Scene_OnInit()
-//    {
-
-
-//    }
-//}
-
-//所有的新关卡，不读取,通用模板，无剧情，仅用来测试
-public class LevelScript_sn1000 : LevelScriptBase
-{
-    public override int GetRoundTime() {  return 100; }
-    public override int GetPlayerSpawn() { return 0; }
-    public override int GetPlayerSpawnDir() { return 0; }
-    public override int GetPlayerWeapon() { return _GetPlayerWeapon(); }
-    public override int GetPlayerWeapon2() { return _GetPlayerWeapon2(); }
-    public override int GetPlayerMaxHp() { return _GetPlayerMaxHp(); }
-    public override int GetPlayerModel() { return _GetPlayerModel(); }
-    public override string GetPlayerName() { return _GetPlayerName(); }
-    public override string GetDesName() { return ""; }
-
-    public override void OnStart()
-    {
-        base.OnStart();
-    }
-}
-
-//威震八方-教学关卡
-public class LevelScript_sn31 : LevelScript_sn22
-{
-    int RoundTime = 60;
-    int PlayerSpawn = 14;
-    int PlayerSpawnDir = 90;
-    int PlayerWeapon = 6;
-    int PlayerWeapon2 = 0;
-    int PlayerHP = 3000;
-    //"flat_roofR65" 巽 xun
-    //"flat_roofR65" 坎 kan
-    //"flat_roofR69" 艮 gen
-    //"flat_roofR69" 坤 kun
-    //"flat_roofR71" 兑 dui
-    //"flat_roofR72" 乾 qian
-    //"flat_roofR73" 离 li
-    //"flat_roofR74" 震 zhen
-    public override int GetRoundTime() { return RoundTime; }
-    public override int GetPlayerSpawn() { return PlayerSpawn; }
-    public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
-    public override int GetPlayerWeapon() { return PlayerWeapon; }
-    public override int GetPlayerWeapon2() { return PlayerWeapon2; }
-    public override int GetPlayerMaxHp() { return PlayerHP; }
-    public override bool OnPlayerSpawn(MeteorUnit unit)
-    {
-        Vector3 vec = Main.Ins.CombatData.GLevelSpawn[14];
-        vec.x += 350;
-        vec.x += 65;
-        vec.y = unit.transform.position.y;
-        U3D.MovePlayer("player", vec);
-        U3D.RotatePlayer("player", 90);
-        return true;
-    }
-
-    bool allocNpc = false;
-    public override void Scene_OnCharacterEvent(int id, int evt)
-    {
-        base.Scene_OnCharacterEvent(id, evt);
-        if (!allocNpc)
-        {
-            MeteorUnit unit = U3D.GetUnit(id);
-            //if ()
-        }
-    }
-
-    public override void OnStart()
-    {
-        for (int i = 1; i < 9; i++)
-        {
-            string s = string.Format("npc31_0{0}", i);
-            AddNPC(s);
-        }
-        AddNPC("npc31_13");
-        Vector3 vec = Main.Ins.CombatData.GLevelSpawn[14];
-        vec.x += 375;
-        U3D.MovePlayer("高寄萍", vec);
-        U3D.RotatePlayer("高寄萍", -90);
-
-        GameObject roof = GameObject.Find("flat_roofR72");
-        vec = roof.transform.position;
-        vec.y += 50;
-        U3D.MovePlayer("叶翔", vec);//乾-教官-叶翔-剑
-        roof = GameObject.Find("flat_roofR70");
-        vec = roof.transform.position;
-        vec.y += 50;
-        U3D.MovePlayer("石群", vec);//坤-教官-刀
-        roof = GameObject.Find("flat_roofR65");
-        vec = roof.transform.position;
-        vec.y += 50;
-        U3D.MovePlayer("金枪李", vec);//乾-教官-长枪
-        roof = GameObject.Find("flat_roofR66");
-        vec = roof.transform.position;
-        vec.y += 50;
-        U3D.MovePlayer("小何", vec);//乾-教官-匕首
-        roof = GameObject.Find("flat_roofR69");
-        vec = roof.transform.position;
-        vec.y += 50;
-        U3D.MovePlayer("冷燕", vec);//双刺
-        roof = GameObject.Find("flat_roofR71");
-        vec = roof.transform.position;
-        vec.y += 50;
-        U3D.MovePlayer("孙玉伯", vec);//坤-教官-孙玉伯-锤
-        roof = GameObject.Find("flat_roofR73");
-        vec = roof.transform.position;
-        vec.y += 50;
-        U3D.MovePlayer("孙剑", vec);//指虎
-        roof = GameObject.Find("flat_roofR74");
-        vec = roof.transform.position;
-        vec.y += 50;
-        U3D.MovePlayer("无名", vec);//忍刀
-        base.OnStart();
-    }
-
-    int trg0 = 0;
-    int t0 = 0;
-    /*
-    乾 qián    gièng、khiân khèn    kin4 Càn 건（geon）	けん（ken）
-    坤 kūn kuǒng、khun khûn    kwan1 Khôn    곤（gon）	こん（kon）
-    震 zhèn    cīng、chìn chṳ́n   zan3 Chấn    진（jin）	しん（shin）
-    巽 xùn sóng、sùn sun seon3 Tốn 손（son）	そん（son）
-    坎 kǎn kāng、khá khám    ham2 Khảm    감（gam）	かん（kan）
-    离 lí  liê、lî lì  lei4 Ly  이（i）	り（ri）
-    艮 gèn góng、kùn ken gan3 Cấn 간（gan）	ごん（gon）
-    兑 duì dō̤i、toē tui deoi3 Đoài    태（tae）	だ（da）
-    */
-    public override int OnUpdate()
-    {
-        int player = GetChar("player");
-        if (player < 0)
-        {
-            return 0;
-        }
-
-        int c;
-
-        if (trg0 == 0)
-        {
-            c = GetChar("高寄萍");
-            if (c >= 0)
-            {
-                if (U3D.Distance(player, c) <= 65)
-                {
-                    Perform(c, "say", "如果受伤了可以来我这里恢复,找一把喜欢的武器开始练习吧");
-                    Perform(c, "pause", 4);
-                    Perform(c, "say", "具体招式可查看出招表");
-                    Perform(c, "pause", 4);
-                    Perform(c, "say", "或者下上A，空中下上A，下上上A(绝招)");
-                    Perform(c, "pause", 4);
-                    Perform(c, "say", "只有基本的攻击和技能，一般是方向键+攻击");
-                    Perform(c, "pause", 4);
-                    Perform(c, "say", "关于[火枪],[飞镖],[飞轮]");
-                    Perform(c, "pause", 4);
-                    Perform(c, "say", "可以通过卦位外的传送门,进入到该武器的教学");
-                    Perform(c, "pause", 4);
-                    Perform(c, "say", "当你不清楚什么武器招式如何释放的时候");
-                    Perform(c, "pause", 4);
-                    Perform(c, "say", "里面的人会训练你各种武器相关的招式");
-                    Perform(c, "pause", 4);
-                    Perform(c, "say", "[重锤],[拳套],[忍刀],[双刺]");
-                    Perform(c, "pause", 4);
-                    Perform(c, "say", "分别代表了 [长剑],[大刀],[长枪],[匕首]");
-                    Perform(c, "pause", 4);
-                    Perform(c, "say", "星,这里有8个卦位！=.=");
-                    Perform(c, "pause", 4);
-                    Perform(c, "faceto", player);
-                    trg0 = 1;
-                    PlayerPerform("block", 0);
-                    PlayerPerform("pause", 20);
-                    PlayerPerform("block", 1);
-                    t0 = GetGameTime();
-                }
-            }
-        }
-
-        if (trg0 == 1)
-        {
-            c = GetChar("高寄萍");
-            if (c >= 0)
-            {
-                if (GetGameTime() - t0 > 30 && GetHP(player) < (GetMaxHP(player) / 2) && U3D.Distance(player, c) <= 65)
-                {
-                    Perform(c, "say", "星,怎么受了这么重的伤！");
-                    Perform(c, "faceto", player);
-                    PlayerPerform("use", 15);
-                    t0 = GetGameTime();
-                }
-            }
-
-            //如果所有人全部都打败
-            if (U3D.AllEnemyDead())
-            {
-                trg0 = 2;
-                GameOver(1);
-            }
-        }
-
-        //当玩家离开各个卦位时，停止AI
-
-        return 0;
-    }
-}
-
-//秦皇陵
-public class LevelScript_sn02_1:LevelScript_sn02
-{
-    public override void OnLoad()
-    {
-        //Global.Instance.GGameMode = GameMode.Rob;
-    }
-
-    public override void OnStart()
-    {
-        base.OnStart();
-    }
-
-    int tag1 = 0;
-    public override int OnUpdate()
-    {
-        if (tag1 == 0)
-        {
-            int c1 = GetChar("皇陵使");
-            ChangeBehavior(c1, "patrol", 1, 2, 3);
-            tag1 = 1;
-        }
-        return 0;
-    }
-}
-
 //星梦台
 public class LevelScript_sn24 : LevelScriptBase
 {
@@ -8804,12 +8031,6 @@ public class LevelScript_sn24 : LevelScriptBase
     public override int GetPlayerSpawnDir() { return PlayerSpawnDir; }
     public override int GetPlayerWeapon() { return PlayerWeapon; }
     public override int GetPlayerWeapon2() { return PlayerWeapon2; }
-
-    public override void OnLoad()
-    {
-        //Global.Instance.GGameMode = GameMode.Rob;
-    }
-
     public override void OnStart()
     {
         base.OnStart();

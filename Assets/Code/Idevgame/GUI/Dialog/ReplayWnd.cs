@@ -35,6 +35,7 @@ public class ReplayUiConroller : Dialog
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
         Init();
+        BaseDialogState.UICamera.clearFlags = CameraClearFlags.Depth;
     }
 
     void Init()

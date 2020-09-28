@@ -10,15 +10,15 @@ function npc31_06()
 	class.Attack1 = 35;
 	class.Attack2 = 45;
 	class.Attack3 = 10;
-	class.Guard = 5;
-	class.Dodge = 5;
-	class.Jump = 5;
-	class.Look = 60;
+	class.Guard = 3;
+	class.Dodge = 3;
+	class.Jump = 3;
+	class.Look = 10;
 	class.Burst = 1;
 	class.Aim = 50;
 	class.GetItem = 0;
 	class.Spawn = 15;
-	class.HP = 2000;
+	class.HP = 800;
 	
 	class.g_selfAddr = 0;
 	class.g_self = 0;

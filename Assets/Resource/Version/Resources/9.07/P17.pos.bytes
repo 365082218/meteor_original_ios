@@ -91,7 +91,7 @@ Pose 9
   source     0
   Start      7592
   End        7640
-  LoopStart  7542
+  LoopStart  7592
   LoopEnd    7640
   EffectType 0
   EffectID   0
@@ -7541,7 +7541,7 @@ Pose 295     #¤M»´¥k´§
   Attack
   {
     bone = "weapon",
-           "bau R Forearm","bau R Hand",
+           "bau R Forearm","bau R Hand"
     Start       5760
     End         5763
     AttackType  0

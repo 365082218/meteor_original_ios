@@ -1,7 +1,0 @@
-﻿
-
-    function main()
-  --NPC1005采购员，能自购一些物品.
-	 U3D.ShowNpcTalk("采购员", "要购买材料吗?", nil)
-	 U3D.ShowNpcTalkMenu(false)
-  end

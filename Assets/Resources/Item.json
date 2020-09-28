@@ -282,7 +282,7 @@
     },
     "246": {
       "Idx": 246,
-      "Name": "匕-焰莲",
+      "Name": "焰莲",
       "MainType": 1,
       "SubType": 1,
       "UnitId": 246,
@@ -292,7 +292,7 @@
     },
     "247": {
       "Idx": 247,
-      "Name": "匕-钝齿",
+      "Name": "钝齿",
       "MainType": 1,
       "SubType": 1,
       "UnitId": 247,
@@ -302,7 +302,7 @@
     },
     "248": {
       "Idx": 248,
-      "Name": "匕-寒铁",
+      "Name": "寒铁",
       "MainType": 1,
       "SubType": 1,
       "UnitId": 248,
@@ -312,7 +312,7 @@
     },
     "249": {
       "Idx": 249,
-      "Name": "匕首-锋芒",
+      "Name": "锋芒",
       "MainType": 1,
       "SubType": 1,
       "UnitId": 249,
@@ -322,7 +322,7 @@
     },
     "250": {
       "Idx": 250,
-      "Name": "匕首-锋刃",
+      "Name": "锋刃",
       "MainType": 1,
       "SubType": 1,
       "UnitId": 250,
@@ -332,7 +332,7 @@
     },
     "251": {
       "Idx": 251,
-      "Name": "匕首-黑铁",
+      "Name": "黑铁",
       "MainType": 1,
       "SubType": 1,
       "UnitId": 251,
@@ -342,7 +342,7 @@
     },
     "252": {
       "Idx": 252,
-      "Name": "匕首-金钥匙",
+      "Name": "金钥匙",
       "MainType": 1,
       "SubType": 1,
       "UnitId": 252,
@@ -352,7 +352,7 @@
     },
     "253": {
       "Idx": 253,
-      "Name": "匕首-冷月",
+      "Name": "冷月",
       "MainType": 1,
       "SubType": 1,
       "UnitId": 253,
@@ -1132,7 +1132,7 @@
     },
     "401": {
       "Idx": 401,
-      "Name": "铁戈-枪类最初级武器",
+      "Name": "铁戈",
       "MainType": 1,
       "SubType": 7,
       "UnitId": 401,
@@ -1422,7 +1422,7 @@
     },
     "486": {
       "Idx": 486,
-      "Name": "锤子-雷神",
+      "Name": "雷神",
       "MainType": 1,
       "SubType": 4,
       "UnitId": 486,
@@ -1432,7 +1432,7 @@
     },
     "487": {
       "Idx": 487,
-      "Name": "锤子-巨影",
+      "Name": "巨影",
       "MainType": 1,
       "SubType": 4,
       "UnitId": 487,
@@ -1442,7 +1442,7 @@
     },
     "488": {
       "Idx": 488,
-      "Name": "锤子-金刚",
+      "Name": "金刚",
       "MainType": 1,
       "SubType": 4,
       "UnitId": 488,
@@ -1666,9 +1666,9 @@
       "MainType": 1,
       "SubType": 11,
       "UnitId": 665,
-      "Damage": 120,
-      "Def": 7,
-      "Speed": 10
+      "Damage": 200,
+      "Def": 50,
+      "Speed": 100
     }
   }
 }

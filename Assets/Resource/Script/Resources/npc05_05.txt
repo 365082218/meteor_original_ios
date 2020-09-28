@@ -13,8 +13,8 @@ function npc05_05()
 	class.Guard =	40;
 	class.Dodge =	20;
 	class.Jump = 20;
-	class.Look = 80;
-	class.Burst = 30;
+	class.Look = 10;
+	class.Burst = 10;
 	class.Aim = 80;
 	class.GetItem = 10;
 	class.Spawn = 40;

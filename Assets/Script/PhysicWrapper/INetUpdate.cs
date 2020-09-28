@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 public class NetBehaviour:MonoBehaviour {
     protected void Awake()
     {
@@ -10,10 +9,8 @@ public class NetBehaviour:MonoBehaviour {
 
     protected void OnDestroy()
     {
-        ////Debug.Log(this);
         FrameReplay.Instance.UnRegisterObject(this);
     }
-
 
     public virtual void NetUpdate()
     {

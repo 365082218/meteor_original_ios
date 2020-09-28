@@ -3,27 +3,23 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerState
-{
+public class PlayerState {
     public int x;
     public int y;
 }
 
 //存储客户端操作序列.
-public class FrameSync
-{
+public class FrameSync {
     public List<GameFrames> Frames { get { return frames; } }
     List<GameFrames> frames = new List<GameFrames>();
     //玩家要同步的状态，只有发生改变时，才提交对应事件
     Dictionary<int, PlayerState> player = new Dictionary<int, PlayerState>();
 
-    public void OnDisconnected()
-    {
+    public void OnDisconnected() {
         Reset();
     }
 
-    public void Reset()
-    {
+    public void Reset() {
         frames.Clear();
     }
 
@@ -37,19 +33,15 @@ public class FrameSync
         frames.Add(frame);
     }
 
-    public void SyncTurn()
-    {
-        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
-        {
+    public void SyncTurn() {
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer) {
             ////联机时客户端并没有操作,可以不向服务器发送之间的帧指令。但是服务器会生成默认的空操作
             //if (FrameReplay.Instance.LogicTurnIndex >= frames.Count)
             //    return;
             //GameFrames t = frames[FrameReplay.Instance.LogicTurnIndex];
             ////同步一个关键帧（一段渲染帧的指令到服务器）
             //UdpClientProxy.Exec((int)MeteorMsg.MsgType.SyncCommand, t);
-        }
-        else
-        {
+        } else {
             //如果是单机下，所有更新者都没有操作.生成默认的空操作，填充进来
             //if (FrameReplay.Instance.LogicTurnIndex >= frames.Count)
             //{
@@ -60,18 +52,15 @@ public class FrameSync
         }
     }
 
-    public void PushKeyUp(int playerId, EKeyList key)
-    {
+    public void PushKeyUp(int playerId, EKeyList key) {
         PushKeyEvent(MeteorMsg.Command.KeyUp, playerId, key);
     }
 
-    public void PushKeyDown(int playerId, EKeyList key)
-    {
+    public void PushKeyDown(int playerId, EKeyList key) {
         PushKeyEvent(MeteorMsg.Command.KeyDown, playerId, key);
     }
 
-    public void PushKeyEvent(MeteorMsg.Command command, int playerId, EKeyList key)
-    {
+    public void PushKeyEvent(MeteorMsg.Command command, int playerId, EKeyList key) {
         //GameFrames t = GetFrame(FrameReplay.Instance.NextTurn);
         //for (int i = 0; i < t.commands.Count; i++)
         //{
@@ -96,8 +85,7 @@ public class FrameSync
     }
 
     //角色的移动，当状态发生改变时，修改
-    public void PushJoyDelta(int playerId, int x, int y)
-    {
+    public void PushJoyDelta(int playerId, int x, int y) {
         //GameFrames t = GetFrame(FrameReplay.Instance.NextTurn);
         //FrameCommand cmd = new FrameCommand();
         //cmd.command = MeteorMsg.Command.JoyStickMove;
@@ -113,8 +101,7 @@ public class FrameSync
     }
 
     //在当前帧推入指令-鼠标相对上次的偏移，会导致角色绕Y轴旋转
-    public void PushMouseDelta(int playerId, int x, int y)
-    {
+    public void PushMouseDelta(int playerId, int x, int y) {
         //GameFrames t = GetFrame(FrameReplay.Instance.NextTurn);
         //FrameCommand cmd = new FrameCommand();
         //cmd.command = MeteorMsg.Command.MouseMove;
@@ -139,13 +126,12 @@ public class FrameReplay : MonoBehaviour {
     public bool Started;
     public bool bSync;//开始同步历史帧
     //返回下一帧,单机插入指令，都需要在下一帧插入
-    public int NextTurn
-    {
-        get
-        {
+    public int NextTurn {
+        get {
             return LogicTurnIndex + 1;
         }
     }
+    Action Logic;
     public int LogicFrameIndex = 0;
     public int LogicTurnIndex = 0;
     const int TurnFrameMax = 8;
@@ -153,41 +139,43 @@ public class FrameReplay : MonoBehaviour {
     public float time;
     public static float deltaTime = FrameReplay.delta;
     const float delta = 20.0f / 1000.0f;
-    public int LogicFrameLength = 20;
+    public int LogicFrameLength;
     GameFrames currentFrame;//当前的Turn
     public List<FrameCommand> actions;
     //全部网络更新对象
     List<NetBehaviour> NetObjects = new List<NetBehaviour>();
-    public void RegisterObject(NetBehaviour netObject)
-    {
+    public void RegisterObject(NetBehaviour netObject) {
         NetObjects.Add(netObject);
     }
 
-    public void UnRegisterObject(NetBehaviour netObject)
-    {
+    public void UnRegisterObject(NetBehaviour netObject) {
         NetObjects.Remove(netObject);
     }
 
-    public void OnSyncCommands()
-    {
+    public void OnSyncCommands() {
         bSync = true;
         LogicFrameLength = 5;
     }
 
     bool playRecord = false;
     //当场景以及物件全部加载完成，重新开局时
-    public void OnBattleStart()
-    {
-        //for (int i = 0; i < NetObjects.Count; i++) {
-        //    Debug.Log(NetObjects[i]);
-        //}
+    public void OnBattleStart() {
+        globalTime = 0;
+        globalFrame = 0;
         currentFrame = null;
+        LogicFrameLength = 20;//FPS=50
         Started = true;
         LogicTurnIndex = 0;
         LogicFrameIndex = 0;
         playRecord = false;
         firstFrame = true;
         actions.Clear();
+        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+            Logic = NetLogic;
+        else if (Main.Ins.CombatData.GRecord != null)
+            Logic = ReplayLogic;
+        else
+            Logic = LocalLogic;
         Main.Ins.FrameSync.Reset();
         Main.Ins.CombatData.GameFinished = false;
         if (Main.Ins.JoyStick.isActiveAndEnabled) {
@@ -197,25 +185,24 @@ public class FrameReplay : MonoBehaviour {
             Main.Ins.FrameSync.OnReceiveCommands(Main.Ins.CombatData.GRecord.frames);
     }
 
-    private void Awake()
-    {
+    private void Awake() {
         Instance = this;
         TcpClientProxy.Init();
         UdpClientProxy.Init();
         actions = new List<FrameCommand>();
     }
 
-    public void OnBattleFinished()
-    {
+    public void OnBattleFinished() {
         Started = false;
         AccumilatedTime = 0;
         LogicFrameIndex = 0;
         LogicTurnIndex = 0;
         Main.Ins.FrameSync.Reset();
+        U3D.CloseBox();
+        U3D.CancelWatch();
     }
 
-    public void OnDisconnected()
-    {
+    public void OnDisconnected() {
         Main.Ins.FrameSync.OnDisconnected();
         //如果重新开始,那么所有指令需要全部清除
         Started = false;
@@ -227,25 +214,47 @@ public class FrameReplay : MonoBehaviour {
 
     //called once per unity frame
     bool firstFrame = true;
-    public void Update()
-    {
+    public void Update() {
         ProtoHandler.Update();
-        if (!Started)
-        {
+        if (!Started) {
             //if (OnUpdates != null)
             //    OnUpdates();
             return;
         }
+        if (Logic != null) {
+            Logic.Invoke();
+        }
+    }
 
+    //联机用这种-但是不平滑
+    public void NetLogic() {
         AccumilatedTime = AccumilatedTime + Convert.ToInt32((Time.deltaTime * 1000));
         while (AccumilatedTime > LogicFrameLength) {
-            FrameReplay.deltaTime = delta;
             UdpClientProxy.Update();
             LogicFrame();
             AccumilatedTime = AccumilatedTime - LogicFrameLength;
-            time += (LogicFrameLength / 1000.0f);
+            time += deltaTime;
         }
+    }
 
+    //单机-直接在每一个渲染帧里
+    public float globalTime;
+    public int globalFrame;
+    public void LocalLogic() {
+        deltaTime = Time.deltaTime;
+        time = Time.time;
+        globalTime += Time.deltaTime;
+        globalFrame += 1;
+        NetUpdate();
+        NetLateUpdate();
+        if (firstFrame) {
+            Main.Ins.DialogStateManager.ChangeState(null);//关闭loading条
+            firstFrame = false;
+        }
+    }
+
+    //录像
+    public void ReplayLogic() {
         if (Main.Ins.CombatData.Replay) {
             if (LogicTurnIndex == Main.Ins.CombatData.GRecord.frames.Count) {
                 OnBattleFinished();
@@ -254,20 +263,16 @@ public class FrameReplay : MonoBehaviour {
         }
     }
 
-    public void NetUpdate()
-    {
-        if (NetObjects.Count != 0)
-        {
+    public void NetUpdate() {
+        if (NetObjects.Count != 0) {
             for (int i = 0; i < NetObjects.Count; i++)
                 if (NetObjects[i] != null)
                     NetObjects[i].NetUpdate();
         }
     }
 
-    public void NetLateUpdate()
-    {
-        if (NetObjects.Count != 0)
-        {
+    public void NetLateUpdate() {
+        if (NetObjects.Count != 0) {
             for (int i = 0; i < NetObjects.Count; i++)
                 if (NetObjects[i] != null)
                     NetObjects[i].NetLateUpdate();
@@ -278,22 +283,18 @@ public class FrameReplay : MonoBehaviour {
     public event OnUpdate OnUpdates;//在战斗还未开始时
     //取得对应逻辑帧的数据
     List<FrameCommand> cacheActions = new List<FrameCommand>();
-    List<FrameCommand> GetAction(List<FrameCommand> acts, int logicF)
-    {
+    List<FrameCommand> GetAction(List<FrameCommand> acts, int logicF) {
         cacheActions.Clear();
-        for (int i = 0; i < acts.Count; i++)
-        {
+        for (int i = 0; i < acts.Count; i++) {
             if (acts[i].LogicFrame == logicF)
                 cacheActions.Add(acts[i]);
         }
         return cacheActions;
     }
 
-    private void LogicFrame()
-    {
+    private void LogicFrame() {
         //得到当前逻辑帧数据，对普通事件数据，调用对应的事件函数，对按键，在更新每个对象使，应用到每个对象上.
-        if (currentFrame == null)
-        {
+        if (currentFrame == null) {
             //等待从服务器收到接下来一帧的信息.
             currentFrame = GetNextTurn(LogicTurnIndex);
             if (currentFrame == null) {
@@ -301,10 +302,8 @@ public class FrameReplay : MonoBehaviour {
                 //如果是联机或者回放-那么拿不到后面的操作指令是无法继续播放的
                 if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer || Main.Ins.CombatData.Replay)
                     return;
-            } 
-        }
-        else
-        {
+            }
+        } else {
 
         }
 
@@ -331,13 +330,13 @@ public class FrameReplay : MonoBehaviour {
         NetUpdate();
         NetLateUpdate();
         LogicFrameIndex++;
-        if (LogicFrameIndex % TurnFrameMax == 0)
-        {
+        if (LogicFrameIndex % TurnFrameMax == 0) {
             Main.Ins.FrameSync.SyncTurn();
             LogicTurnIndex++;
             currentFrame = null;
             LogicFrameIndex = 0;
         }
+
         if (firstFrame) {
             Main.Ins.DialogStateManager.ChangeState(null);//关闭loading条
             firstFrame = false;

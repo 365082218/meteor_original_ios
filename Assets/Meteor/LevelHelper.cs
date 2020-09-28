@@ -39,6 +39,7 @@ public class LevelHelper : MonoBehaviour
 
     IEnumerator LoadLevelAsync()
     {
+        Main.Ins.CombatData.RandSeed = DateTime.Now.ToFileTime();
         int displayProgress = 0;
         int toProgress = 0;
         yield return 0;
@@ -117,7 +118,6 @@ public class LevelHelper : MonoBehaviour
         }
 
         Main.Ins.CombatData.GScript = script;
-        script.OnLoad();
         //加载场景配置数据
         Main.Ins.SceneMng.OnEnterLevel();
         GameObject battleRoot = new GameObject("GameBattle");
@@ -135,27 +135,8 @@ public class LevelHelper : MonoBehaviour
     }
 
     public static void OnLoadFinishedSingle(int level) {
-        Main.Ins.GameStateMgr.LoadState();
-        Main.Ins.DataMgr.LoadAllData();
-
-        Main.Ins.SFXLoader.InitSync();
-        //在读取character.act后再初始化输入模块。
-        Main.Ins.ActionInterrupt = new ActionInterrupt();
-        Main.Ins.ActionInterrupt.Init();
-        Main.Ins.MenuResLoader.Init();
-
-        for (int i = 0; i < 20; i++) {
-            AmbLoader.Ins.LoadCharacterAmb(i);
-        }
-
-        AmbLoader.Ins.LoadCharacterAmb();
-        AmbLoader.Ins.LoadCharacterAmbEx();
-
-        PoseStatus.Clear();
         Application.targetFrameRate = Main.Ins.GameStateMgr.gameStatus.TargetFrame;
-
         Main.Ins.DlcMng.Init();
-
         LevelData lev = Main.Ins.DataMgr.GetLevelData(level);
         LevelScriptBase script = GetLevelScript(lev.LevelScript);
         if (script == null) {
@@ -168,7 +149,6 @@ public class LevelHelper : MonoBehaviour
         Main.Ins.CombatData.GGameMode = GameMode.Normal;
         Main.Ins.CombatData.GScript = script;
         Main.Ins.CombatData.wayPoints = CombatData.GetWayPoint(Main.Ins.CombatData.GLevelItem);
-        script.OnLoad();
         //加载场景配置数据
         Main.Ins.SceneMng.OnEnterLevel();
 

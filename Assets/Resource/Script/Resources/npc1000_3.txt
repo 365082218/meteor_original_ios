@@ -5,7 +5,7 @@ function npc1000_3()
 	class.Weapon = 8;
 	class.Weapon2 = 0;
 	class.Team = 2;
-	class.View = 400;
+	class.View = 500;
 	class.Think = 50;
 	class.Attack1 = 30;
 	class.Attack2 = 30;
@@ -13,7 +13,7 @@ function npc1000_3()
 	class.Guard = 5;
 	class.Dodge = 5;
 	class.Jump = 5;
-	class.Look = 60;
+	class.Look = 10;
 	class.Burst = 1;
 	class.Aim = 50;
 	class.GetItem = 0;

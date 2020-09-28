@@ -44,10 +44,7 @@ public class PathPameter
     }
 
     public int state;//查询处于什么阶段，-1，无效，0，查询中，1，有结果
-    public int type;//查找路线使用的参数，0，使用2个位置，1，使用起始点和结束路点序号
     public StateMachine stateMachine;//使用者 AI/系统
-    public Vector3 start;//寻路起始点
-    public Vector3 end;//结束点
     public int startIndex;
     public int endIndex;
     public List<WayPoint> ways = new List<WayPoint>();//寻路结果路径
@@ -66,9 +63,17 @@ public class PathHelper:Singleton<PathHelper>
     List<PathPameter> pathQueue = new List<PathPameter>();
     public void CalcPath(StateMachine machine, Vector3 start, Vector3 end)
     {
-        machine.Path.start = start;
-        machine.Path.end = end;
         machine.Path.state = 0;
+        Vector3 vecTarget = end;
+        RaycastHit hit;
+        if (!Physics.SphereCast(start, 10.0f, (vecTarget - start).normalized, out hit, Vector3.Distance(vecTarget, start), LayerManager.AllSceneMask)) {
+            machine.Path.state = 1;
+            machine.Path.ways.Clear();
+            return;
+        }
+
+        machine.Path.startIndex = Main.Ins.PathMng.GetWayIndex(start);
+        machine.Path.endIndex = Main.Ins.PathMng.GetWayIndex(end);
         lock (pathQueue)
         {
             pathQueue.Add(machine.Path);
@@ -77,9 +82,17 @@ public class PathHelper:Singleton<PathHelper>
     }
 
     public void CalcPath(StateMachine machine, Vector3 start, int end) {
-        machine.Path.type = 1;
         machine.Path.state = 0;
-        machine.Path.start = start;
+        //如果直线上可以到达，那么直接走过去，避免在空白地面上来回跑
+        Vector3 vecTarget = Main.Ins.CombatData.wayPoints[end].pos;
+        RaycastHit hit;
+        if (!Physics.SphereCast(start, 10.0f, (vecTarget - start).normalized, out hit, Vector3.Distance(vecTarget, start), LayerManager.AllSceneMask)) {
+            machine.Path.state = 1;
+            machine.Path.ways.Clear();
+            return;
+        }
+
+        machine.Path.startIndex = Main.Ins.PathMng.GetWayIndex(start);
         machine.Path.endIndex = end;
         lock (pathQueue) {
             pathQueue.Add(machine.Path);
@@ -87,27 +100,10 @@ public class PathHelper:Singleton<PathHelper>
         }
     }
 
-
-    //取消某个请求
-    public void CancelCalc(StateMachine machine)
-    {
-
-    }
-
-    //只有在开启寻路的场景，即有寻路点的，才创建这些.
-    public void OnBattleStart()
-    {
-        //int count = Main.Ins.CombatData.wayPoints.Count;
-        //nodeContainer = new PathNode[count];
-        //for (int i = 0; i < count; i++)
-        //    nodeContainer[i] = new PathNode();
-        this.quit = false;
-        this.StartCalc();
-    }
-
     System.Threading.Thread CalcThread;
     public void StartCalc()
     {
+        this.quit = false;
         if (CalcThread != null)
         {
             CalcThread.Abort();
@@ -148,19 +144,8 @@ public class PathHelper:Singleton<PathHelper>
 
                     PathPameter pameter = pathQueue[0];
                     pathQueue.RemoveAt(0);
-                    switch (pameter.type) {
-                        case 0:
-                            Main.Ins.PathMng.FindPath(pameter.context, pameter.start, pameter.end, pameter.ways);
-                            break;
-                        case 1:
-                            Main.Ins.PathMng.FindPath(pameter.context, pameter.start, pameter.endIndex, pameter.ways);
-                            break;
-                    }
+                    Main.Ins.PathMng.FindPath(pameter.context, pameter.startIndex, pameter.endIndex, pameter.ways);
                     pameter.state = 1;
-                    LocalMsg msg = new LocalMsg();
-                    msg.Message = (int)LocalMsgType.PathCalcFinished;
-                    msg.context = pameter;
-                    ProtoHandler.PostMessage(msg);
                 }
             }
         }
@@ -189,19 +174,19 @@ public enum WalkType
 public class PathMng
 {
     //通过起始坐标，结束坐标，得到一条通路.
-    public void FindPath(PathContext context, Vector3 source, Vector3 target, List<WayPoint> waypoint)
-    {
-        int startPathIndex = GetWayIndex(source);
-        int endPathIndex = GetWayIndex(target);
-        if (startPathIndex == -1 || endPathIndex == -1)
-        {
-            Debug.LogError("无法得到正确线路");
-            return;
-        }
-        context.looked.Clear();
-        waypoint.Clear();
-        FindPathCore(context, startPathIndex, endPathIndex, waypoint);
-    }
+    //public void FindPath(PathContext context, Vector3 source, Vector3 target, List<WayPoint> waypoint)
+    //{
+    //    int startPathIndex = GetWayIndex(source);
+    //    int endPathIndex = GetWayIndex(target);
+    //    if (startPathIndex == -1 || endPathIndex == -1)
+    //    {
+    //        Debug.LogError("无法得到正确线路");
+    //        return;
+    //    }
+    //    context.looked.Clear();
+    //    waypoint.Clear();
+    //    FindPathCore(context, startPathIndex, endPathIndex, waypoint);
+    //}
 
     public WalkType GetWalkMethod(int start, int end)
     {
@@ -215,16 +200,16 @@ public class PathMng
         return WalkType.Normal;
     }
 
-    public void FindPath(PathContext context, Vector3 start, int end, List<WayPoint> waypoint) {
-        int startPathIndex = GetWayIndex(start);
-        if (startPathIndex == -1 || end == -1) {
-            Debug.LogError("无法得到正确线路");
-            return;
-        }
-        context.looked.Clear();
-        waypoint.Clear();
-        FindPathCore(context, startPathIndex, end, waypoint);
-    }
+    //public void FindPath(PathContext context, Vector3 start, int end, List<WayPoint> waypoint) {
+    //    int startPathIndex = GetWayIndex(start);
+    //    if (startPathIndex == -1 || end == -1) {
+    //        Debug.LogError("无法得到正确线路");
+    //        return;
+    //    }
+    //    context.looked.Clear();
+    //    waypoint.Clear();
+    //    FindPathCore(context, startPathIndex, end, waypoint);
+    //}
 
     //通过起始路点，结束路点，得到一条通路
     public void FindPath(PathContext context, int start, int end, List<WayPoint> wp)
@@ -261,7 +246,7 @@ public class PathMng
         {
             scan += each.Value.Count;
         }
-        Debug.LogError("层信息:" + context.PathInfo.Count + " 总结点:" + scan);
+        //Debug.LogError("层信息:" + context.PathInfo.Count + " 总结点:" + scan);
         //计算最短路径.
         int target = end;
         bool find = false;
@@ -363,6 +348,21 @@ public class PathMng
         }
     }
 
+    //得到某个点的相邻路点-视为躲避路点.随机
+    public int GetDodgeWayPoint(Vector3 vec) {
+        int start = GetWayIndex(vec);
+        if (Main.Ins.CombatData.wayPoints.Count > start && start >= 0) {
+            if (Main.Ins.CombatData.wayPoints[start].link != null) {
+                List<int> ret = Main.Ins.CombatData.wayPoints[start].link.Keys.ToList();
+                int k = Random.Range(0, ret.Count);
+                if (ret.Count != 0)
+                    return Main.Ins.CombatData.wayPoints[ret[k]].index;
+            }
+        }
+        //要么是一个单向路点，无法找到相邻节点，要么是所处位置已经混乱.
+        return -1;
+    }
+
     //得到当前位置所处路点临近的路点其中之一
     public Vector3 GetNearestWayPoint(Vector3 vec)
     {
@@ -380,22 +380,35 @@ public class PathMng
         return Vector3.zero;
     }
 
+    //一定要在主线程调用
     public int GetWayIndex(Vector3 now)
     {
         int ret = -1;
         float min = float.MaxValue;
-        for (int i = 0; i < Main.Ins.CombatData.wayPoints.Count; i++)
-        {
-            WayPoint way = Main.Ins.CombatData.wayPoints[i];
-            Vector3 vecTarget = way.pos;
-            Vector3 vecSource = now;
-            float dis = Vector3.SqrMagnitude(vecTarget - vecSource);
-            if (dis < min)
-            {
-                min = dis;
-                ret = i;
+        float radis = 250;
+        for (int i = 1; i <= 10; i++) {
+            float r = i * radis;
+            if (Physics.CheckSphere(now, r, LayerManager.WayPointMask)) {
+                Collider[] waypoints = Physics.OverlapSphere(now, r, LayerManager.WayPointMask);
+                for (int j = 0; j < waypoints.Length; j++) {
+                    Vector3 vecTarget = waypoints[j].transform.position;
+                    Vector3 vecSource = now;
+                    RaycastHit hit;
+                    if (Physics.SphereCast(vecSource, 10.0f, (vecTarget - vecSource).normalized, out hit, Vector3.Distance(vecTarget, vecSource), LayerManager.AllSceneMask))
+                        continue;
+                    //检查射线之间是否有阻隔，若有，则忽略掉这个.
+                    float dis = Vector3.SqrMagnitude(vecTarget - vecSource);
+                    if (dis < min) {
+                        min = dis;
+                        ret = j;
+                    }
+                }
+                if (ret != -1) {
+                    WayPoints wp = waypoints[ret].gameObject.GetComponent<WayPoints>();
+                    return wp.WayIndex;
+                }
             }
         }
-        return ret;
+        return -1;
     }
 }

@@ -21,12 +21,13 @@ public class WeaponSelectDialog : Dialog
         Init();
     }
     Image weaponImg;
-    int weaponIdx = 0;
-
+    int weaponIdx = -1;
     void Init()
     {
         weaponImg = Control("Image").GetComponent<Image>();
-        weaponImg.material = ResMng.Load("Weapon_0") as Material;
+        weaponImg.color = Color.black;
+        weaponIdx = -1;
+        OnNextWeapon();
         Control("Next").GetComponent<Button>().onClick.AddListener(() =>
         {
             OnNextWeapon();
@@ -49,7 +50,16 @@ public class WeaponSelectDialog : Dialog
         weaponIdx += 1;
         if (weaponIdx >= 12)
             weaponIdx = 0;
-        weaponImg.material = ResMng.Load(string.Format("Weapon_{0}", weaponIdx)) as Material;
+        LoadWeaponTex();
+    }
+
+    void LoadWeaponTex() {
+        Texture2D tex = Resources.Load<Texture2D>(string.Format("wp00{0}", weaponIdx));
+        if (tex != null) {
+            weaponImg.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+            Utility.Expand(weaponImg, tex.width, tex.height);
+            weaponImg.color = Color.white;
+        }
     }
 
     void OnPrevWeapon()
@@ -57,7 +67,7 @@ public class WeaponSelectDialog : Dialog
         weaponIdx -= 1;
         if (weaponIdx < 0)
             weaponIdx = 11;
-        weaponImg.material = ResMng.Load(string.Format("Weapon_{0}", weaponIdx)) as Material;
+        LoadWeaponTex();
     }
 
     void OnSelectWeapon()

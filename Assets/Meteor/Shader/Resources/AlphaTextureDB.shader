@@ -103,7 +103,7 @@ SubShader {
 				//half3 diffuse = calDiffuse(i.vertex, i.worldNormal);                           //7  
 				//fragColor.rgb += col.rgb * diffuse;//8
 				fragColor.rgb = col.rgb;
-				fragColor.a = _Alpha;
+				fragColor.a = _Alpha * col.a;
 				return fragColor;
 				//col.a = _Alpha;
 				//return col;

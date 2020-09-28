@@ -12,9 +12,9 @@ function npc03_02()
 	class.Attack3 = 20;
 	class.Guard =	20;
 	class.Dodge =	80;
-	class.Jump = 50;
-	class.Look = 60;
-	class.Burst = 50;
+	class.Jump = 10;
+	class.Look = 5;
+	class.Burst = 5;
 	class.Aim = 90;
 	class.GetItem = 100;
 	class.Spawn = 82;

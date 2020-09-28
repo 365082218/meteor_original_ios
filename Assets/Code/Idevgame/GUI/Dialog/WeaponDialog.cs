@@ -70,7 +70,7 @@ public class WeaponDialog : Dialog
         int offset = 0;
         for (int i = 0; i < we.Count; i++)
         {
-            if (we[i].MainType == 1)
+            if (we[i].MainType == (int)UnitType.Weapon)
             {
                 if (we[i].SubType == (int)weaponSubType)
                 {
@@ -90,14 +90,16 @@ public class WeaponDialog : Dialog
             GridWeapon[idx].SetActive(true);
             UIFunCtrl ctrl = GridWeapon[idx].GetComponent<UIFunCtrl>();
             ctrl.SetEvent(ShowWeapon, it.Key);
-            ctrl.SetText(it.Name);
+            WeaponData weaponProperty = U3D.GetWeaponProperty(it.UnitId);
+            ctrl.SetText(weaponProperty.Name);
         }
         else
         {
             GameObject weapon = GameObject.Instantiate(Resources.Load("GridItemBtn")) as GameObject;
             UIFunCtrl obj = weapon.AddComponent<UIFunCtrl>();
             obj.SetEvent(ShowWeapon, it.Key);
-            obj.SetText(it.Name);
+            WeaponData weaponProperty = U3D.GetWeaponProperty(it.UnitId);
+            obj.SetText(weaponProperty.Name);
             obj.transform.SetParent(WeaponRoot.transform);
             obj.gameObject.layer = WeaponRoot.layer;
             obj.transform.localScale = Vector3.one;
@@ -112,7 +114,7 @@ public class WeaponDialog : Dialog
         List<ItemData> we = Main.Ins.DataMgr.GetItemDatas();
         for (int i = 0; i < we.Count; i++)
         {
-            if (we[i].MainType == 1)
+            if (we[i].MainType == (int)UnitType.Weapon)
             {
                 if (we[i].SubType == (int)weaponSubType)
                 {

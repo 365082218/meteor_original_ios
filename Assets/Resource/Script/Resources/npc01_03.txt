@@ -13,7 +13,7 @@ function npc01_03()
 	class.Guard =	30;
 	class.Dodge =	30;
 	class.Jump = 10;
-	class.Look = 80;
+	class.Look = 5;
 	class.Burst = 5;
 	class.Aim = 70;
 	class.GetItem = 8;
