@@ -9,7 +9,7 @@ using Excel2Json;
 public class EscDialogState : CommonDialogState<EscDialog>
 {
     public override string DialogName { get { return "EscWnd"; } }
-    public EscDialogState(MainDialogStateManager dialgState):base(dialgState)
+    public EscDialogState(MainDialogMgr dialgState):base(dialgState)
     {
 
     }
@@ -28,17 +28,19 @@ public class EscDialog : Dialog
 
     public override void OnDialogStateExit() {
         base.OnDialogStateExit();
-        Main.Ins.GameStateMgr.SaveState();
+        GameStateMgr.Ins.SaveState();
         Main.Ins.GameBattleEx.Resume();
     }
 
     void Init()
     {
         Control("Continue").GetComponent<Button>().onClick.AddListener(OnClickClose);
-        Control("BGMSlider").GetComponent<Slider>().value = Main.Ins.GameStateMgr.gameStatus.MusicVolume;
-        Control("EffectSlider").GetComponent<Slider>().value = Main.Ins.GameStateMgr.gameStatus.SoundVolume;
-        Control("HSliderBar").GetComponent<Slider>().value = Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.x;
-        Control("VSliderBar").GetComponent<Slider>().value = Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.y;
+        Control("BGMSlider").GetComponent<Slider>().value = GameStateMgr.Ins.gameStatus.MusicVolume;
+        Control("EffectSlider").GetComponent<Slider>().value = GameStateMgr.Ins.gameStatus.SoundVolume;
+        Control("HSliderBar").GetComponent<Slider>().value = GameStateMgr.Ins.gameStatus.AxisSensitivity.x;
+        Control("VSliderBar").GetComponent<Slider>().value = GameStateMgr.Ins.gameStatus.AxisSensitivity.y;
+        Control("HValue").GetComponent<Text>().text = string.Format("{0:f1}", GameStateMgr.Ins.gameStatus.AxisSensitivity.x);
+        Control("VValue").GetComponent<Text>().text = string.Format("{0:f1}", GameStateMgr.Ins.gameStatus.AxisSensitivity.y);
         Control("BGMSlider").GetComponent<Slider>().onValueChanged.AddListener(OnMusicVolumeChange);
         Control("EffectSlider").GetComponent<Slider>().onValueChanged.AddListener(OnEffectVolumeChange);
         Control("HSliderBar").GetComponent<Slider>().onValueChanged.AddListener(OnXSensitivityChange);
@@ -48,8 +50,8 @@ public class EscDialog : Dialog
         Control("ResetPosition").GetComponent<Button>().onClick.AddListener(OnResetPosition);
         Control("SetPosition").GetComponent<Button>().onClick.AddListener(OnSetJoyPosition);
 
-        Control("Snow").GetComponent<Button>().onClick.AddListener(OnSnow);
-        Control("DoScript").GetComponent<Button>().onClick.AddListener(() => { U3D.DoScript(); });
+        Control("Snow").GetComponent<Button>().onClick.AddListener(()=> { U3D.Snow(); });
+        Control("DoScript").GetComponent<Button>().onClick.AddListener(() => { U3D.DoScript(); OnClickClose(); });
 
         Control("ChangeModel").GetComponent<Button>().onClick.AddListener(() => { Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.ModelSelectDialogState); });
 
@@ -64,16 +66,16 @@ public class EscDialog : Dialog
 
         Control("Mission").GetComponent<Text>().text = GetMission();
         Control("LevelDesc").GetComponent<Text>().text = GetLevelDesc();
+        Control("MissionTab").gameObject.SetActive(CombatData.Ins.GLevelMode == LevelMode.SinglePlayerTask);
         //把一些模式禁用，例如作弊之类的.
-        if (Main.Ins.GameStateMgr.gameStatus.CheatEnable)
+        if (GameStateMgr.Ins.gameStatus.CheatEnable)
         {
 
         }
         else
         {
-            Control("ChangeModel").SetActive(false);
-            Control("Snow").SetActive(false);
-           
+            Control("ChangeModel").gameObject.SetActive(CombatData.Ins.GLevelMode == LevelMode.MultiplyPlayer);
+            Control("Snow").SetActive(CombatData.Ins.GLevelMode == LevelMode.MultiplyPlayer);
         }
     }
 
@@ -91,12 +93,12 @@ public class EscDialog : Dialog
         }
         MeteorUnit watchTarget = Main.Ins.CameraFree.Watched;
         List<MeteorUnit> allow = new List<MeteorUnit>();
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++) {
-            if (Main.Ins.MeteorManager.UnitInfos[i].Dead)
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++) {
+            if (MeteorManager.Ins.UnitInfos[i].Dead)
                 continue;
-            if (Main.Ins.MeteorManager.UnitInfos[i] == Main.Ins.LocalPlayer)
+            if (MeteorManager.Ins.UnitInfos[i] == Main.Ins.LocalPlayer)
                 continue;
-            allow.Add(Main.Ins.MeteorManager.UnitInfos[i]);
+            allow.Add(MeteorManager.Ins.UnitInfos[i]);
         }
 
         int j = allow.IndexOf(watchTarget);
@@ -115,12 +117,12 @@ public class EscDialog : Dialog
         }
         MeteorUnit watchTarget = Main.Ins.CameraFree.Watched;
         List<MeteorUnit> allow = new List<MeteorUnit>();
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++) {
-            if (Main.Ins.MeteorManager.UnitInfos[i].Dead)
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++) {
+            if (MeteorManager.Ins.UnitInfos[i].Dead)
                 continue;
-            if (Main.Ins.MeteorManager.UnitInfos[i] == Main.Ins.LocalPlayer)
+            if (MeteorManager.Ins.UnitInfos[i] == Main.Ins.LocalPlayer)
                 continue;
-            allow.Add(Main.Ins.MeteorManager.UnitInfos[i]);
+            allow.Add(MeteorManager.Ins.UnitInfos[i]);
         }
 
         int j = allow.IndexOf(watchTarget);
@@ -141,13 +143,13 @@ public class EscDialog : Dialog
             {
                 //找到第一个未死亡的角色
                 MeteorUnit watchTarget = null;
-                for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+                for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
                 {
-                    if (Main.Ins.MeteorManager.UnitInfos[i].Dead)
+                    if (MeteorManager.Ins.UnitInfos[i].Dead)
                         continue;
-                    if (Main.Ins.MeteorManager.UnitInfos[i] == Main.Ins.LocalPlayer)
+                    if (MeteorManager.Ins.UnitInfos[i] == Main.Ins.LocalPlayer)
                         continue;
-                    watchTarget = Main.Ins.MeteorManager.UnitInfos[i];
+                    watchTarget = MeteorManager.Ins.UnitInfos[i];
                     break;
                 }
 
@@ -164,11 +166,6 @@ public class EscDialog : Dialog
         }
     }
 
-    void OnSnow()
-    {
-        if (Main.Ins.CombatData.GScript != null)
-            Main.Ins.CombatData.GScript.Snow();
-    }
 
     void OnSetJoyPosition()
     {
@@ -179,38 +176,38 @@ public class EscDialog : Dialog
     void OnResetPosition()
     {
         //如果在PVP里，是不能这样的。PVP没有寻路，且使用的路点是场景des文件里的user01-user16等
-        if (Main.Ins.LocalPlayer != null && !Main.Ins.LocalPlayer.Dead && Main.Ins.CombatData.GLevelItem != null)
-            Main.Ins.LocalPlayer.transform.position = Main.Ins.CombatData.wayPoints[0].pos;
+        if (Main.Ins.LocalPlayer != null && !Main.Ins.LocalPlayer.Dead && CombatData.Ins.GLevelItem != null)
+            Main.Ins.LocalPlayer.transform.position = CombatData.Ins.wayPoints[0].pos;
     }
 
     void OnClickClose()
     {
-        Main.Ins.GameStateMgr.SaveState();
-        Main.Ins.GameBattleEx.Resume();
         OnBackPress();
     }
 
     void OnMusicVolumeChange(float vo)
     {
-        Main.Ins.SoundManager.SetMusicVolume(vo);
+        SoundManager.Ins.SetMusicVolume(vo);
         if (Main.Ins != null)
-            Main.Ins.GameStateMgr.gameStatus.MusicVolume = vo;
+            GameStateMgr.Ins.gameStatus.MusicVolume = vo;
     }
 
     void OnXSensitivityChange(float v)
     {
-        Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.x = v;
+        GameStateMgr.Ins.gameStatus.AxisSensitivity.x = v;
+        Control("HValue").GetComponent<Text>().text = string.Format("{0:f1}", v);
     }
 
     void OnYSensitivityChange(float v)
     {
-        Main.Ins.GameStateMgr.gameStatus.AxisSensitivity.y = v;
+        GameStateMgr.Ins.gameStatus.AxisSensitivity.y = v;
+        Control("VValue").GetComponent<Text>().text = string.Format("{0:f1}", v);
     }
 
     void OnEffectVolumeChange(float vo)
     {
-        Main.Ins.SoundManager.SetSoundVolume(vo);
-        Main.Ins.GameStateMgr.gameStatus.SoundVolume = vo;
+        SoundManager.Ins.SetSoundVolume(vo);
+        GameStateMgr.Ins.gameStatus.SoundVolume = vo;
     }
 
     void OnClickQuit()
@@ -220,15 +217,15 @@ public class EscDialog : Dialog
 
     //取得关卡的目标描述
     string GetMission() {
-        if (Main.Ins.CombatData.GLevelItem != null) {
-            return Main.Ins.CombatData.GLevelItem.Mission;
+        if (CombatData.Ins.GLevelItem != null) {
+            return CombatData.Ins.GLevelItem.Mission;
         }
         return "";
     }
 
     string GetLevelDesc() {
-        if (Main.Ins.CombatData.GLevelItem != null) {
-            return Main.Ins.CombatData.GLevelItem.Desc;
+        if (CombatData.Ins.GLevelItem != null) {
+            return CombatData.Ins.GLevelItem.Desc;
         }
         return "";
     }

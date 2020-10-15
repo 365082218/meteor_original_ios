@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Idevgame.Util;
 using System.Linq;
+
 //存储了所有稳定关卡的脚本
 public class ScriptBase
 {
@@ -18,12 +19,12 @@ public class ScriptBase
 
     public static void InitPlayerVariable()
     {
-        Main.Ins.ScriptMng.CallScript("localPlayer");
-        Model = (int)(double)Main.Ins.ScriptMng.GetVariable("Model");
-        _PlayerName = (string)Main.Ins.ScriptMng.GetVariable("Name");
-        Weapon0 = (int)(double)Main.Ins.ScriptMng.GetVariable("Weapon");
-        Weapon1 = (int)(double)Main.Ins.ScriptMng.GetVariable("Weapon2");
-        MaxHP = (int)(double)Main.Ins.ScriptMng.GetVariable("HP");
+        ScriptMng.Ins.CallScript("localPlayer");
+        Model = (int)(double)ScriptMng.Ins.GetVariable("Model");
+        _PlayerName = (string)ScriptMng.Ins.GetVariable("Name");
+        Weapon0 = (int)(double)ScriptMng.Ins.GetVariable("Weapon");
+        Weapon1 = (int)(double)ScriptMng.Ins.GetVariable("Weapon2");
+        MaxHP = (int)(double)ScriptMng.Ins.GetVariable("HP");
     }
 
     public static int _GetPlayerWeapon() { InitPlayerVariable(); return Weapon0; }
@@ -35,7 +36,7 @@ public class ScriptBase
     public static int GameCallBack(string key, int Value)
     {
         if (key == "mod")
-            return (int)Main.Ins.CombatData.GGameMode;
+            return (int)CombatData.Ins.GGameMode;
         if (key == "end")
             GameOver(Value);
         return Value;
@@ -43,22 +44,22 @@ public class ScriptBase
 
     public void CleanSceneParticle()
     {
-        if (SnowEffect != null)
+        if (SnowParticle != null)
         {
-            GameObject.Destroy(SnowEffect);
-            SnowParticle = null;
+            SnowParticle.Pause();
         }
     }
 
-    static GameObject SnowEffect;
-    static ParticleSystem SnowParticle;
-    static ParticleSystem.ForceOverLifetimeModule SnowForce;
-    static ParticleSystem.EmissionModule SnowEmission;
-    static ParticleSystem.MainModule SnowMain;
+    GameObject SnowEffect;
+    ParticleSystem SnowParticle;
+    ParticleSystem.ForceOverLifetimeModule SnowForce;
+    ParticleSystem.EmissionModule SnowEmission;
+    ParticleSystem.MainModule SnowMain;
+
     public void Snow()
     {
         SetScene("snow", 1);//雪粒子
-        SetScene("snowdensity", 1000);//粒子密度
+        SetScene("snowdensity", 2000);//粒子密度
         SetScene("winddir", 50, 0, 0);//风方向
         SetScene("snowspeed", 20, 100);//雪速度
         SetScene("snowsize", 5, 5);//粒子尺寸
@@ -81,6 +82,8 @@ public class ScriptBase
                         SnowEmission = SnowParticle.emission;
                         SnowParticle.Play();
                     }
+                } else {
+                    SnowParticle.Play();
                 }
             }
             else
@@ -101,7 +104,7 @@ public class ScriptBase
 
     public void SetScene(string fun, int a, int b, int c)
     {
-        if (Main.Ins.GameStateMgr.gameStatus.DisableParticle)
+        if (GameStateMgr.Ins.gameStatus.DisableParticle)
             return;
         //SetScene("winddir", 50, 0, 0);
         if (fun == "winddir")
@@ -120,7 +123,7 @@ public class ScriptBase
 
     public void SetScene(string fun, int a, int b)
     {
-        if (Main.Ins.GameStateMgr.gameStatus.DisableParticle)
+        if (GameStateMgr.Ins.gameStatus.DisableParticle)
             return;
         //SetScene("snowspeed", 20, 100);
         //SetScene("snowsize", 5, 5);
@@ -174,7 +177,7 @@ public class ScriptBase
     {
         MeteorUnit u = U3D.GetUnit(c);
         if (u != null)
-            return u.ActionMgr.CanSkill;
+            return u.ActionMgr.CanDefence;
         return false;
     }
     public static float PlayerDistance(int player1, int player2)
@@ -196,8 +199,8 @@ public class ScriptBase
         return 0;
     }
 
-    static Dictionary<int, List<int>> randomSeries = new Dictionary<int, List<int>>();
-    static Dictionary<int, Vector3> targetDict = new Dictionary<int, Vector3>();
+    static SortedDictionary<int, List<int>> randomSeries = new SortedDictionary<int, List<int>>();
+    static SortedDictionary<int, Vector3> targetDict = new SortedDictionary<int, Vector3>();
 
     public static void Clear()
     {
@@ -215,18 +218,18 @@ public class ScriptBase
     public static void SetTarget(int idx, string style, int param)
     {
         Vector3 vec = Vector3.zero;
-        List<WayPoint> wayPoint = Main.Ins.CombatData.wayPoints;
+        List<WayPoint> wayPoint = CombatData.Ins.wayPoints;
         if (style == "waypoint")
         {
-            if (Main.Ins.CombatData.GLevelItem != null && wayPoint.Count > param)
+            if (CombatData.Ins.GLevelItem != null && wayPoint.Count > param)
                 vec = wayPoint[param].pos;
         }
         else if (style == "char")
         {
-            for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
-                if (Main.Ins.MeteorManager.UnitInfos[i].InstanceId == param)
+            for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
+                if (MeteorManager.Ins.UnitInfos[i].InstanceId == param)
                 {
-                    vec = Main.Ins.MeteorManager.UnitInfos[i].transform.position;
+                    vec = MeteorManager.Ins.UnitInfos[i].transform.position;
                     break;
                 }
         }
@@ -251,7 +254,7 @@ public class ScriptBase
             l.Add(i);
         while (l.Count != 0)
         {
-            int rIndex = Random.Range(0, l.Count - 1);
+            int rIndex = Utility.Range(0, l.Count - 1);
             int r = l[rIndex];
             l.RemoveAt(rIndex);
             ret.Add(r);
@@ -1026,7 +1029,7 @@ public class ScriptBase
     }
     public static int rand(int min, int max)
     {
-        return Random.Range(min, max);
+        return Utility.Range(min, max);
     }
     static int RJugOnAttack(int id, int index, int damage)
     {
@@ -1113,7 +1116,7 @@ public class LevelScriptBase:ScriptBase {
     public LevelScriptBase() {
 
     }
-    public virtual Dictionary<int, string> GetModel() { return new Dictionary<int, string>(); }//返回模型定义ID-文件名
+    public virtual SortedDictionary<int, string> GetModel() { return new SortedDictionary<int, string>(); }//返回模型定义ID-文件名
     public virtual int GetRoundTime() { return 60000; }
     public virtual int GetPlayerSpawn() { return 0; }
     public virtual int GetPlayerSpawnDir() { return 0; }
@@ -1126,7 +1129,7 @@ public class LevelScriptBase:ScriptBase {
     public virtual void OnSceneEvent(int character, SceneEvent evt) { }
     public virtual GameResult OnUnitDead(MeteorUnit deadUnit)
     {
-        if ((int)GameMode.Rob == Main.Ins.CombatData.GLevelItem.LevelType) {
+        if ((int)GameMode.Rob == CombatData.Ins.GLevelItem.LevelType) {
             return GameResult.None;
         }
         if (U3D.AllEnemyDead())
@@ -1137,10 +1140,10 @@ public class LevelScriptBase:ScriptBase {
     //额外呼叫怪物脚本
     public virtual void OnStart()
     {
-        if (Main.Ins.CombatData.GLevelItem != null && (!string.IsNullOrEmpty(Main.Ins.CombatData.GLevelItem.StartScript)))
+        if (CombatData.Ins.GLevelItem != null && (!string.IsNullOrEmpty(CombatData.Ins.GLevelItem.StartScript)))
         {
             if (Main.Ins.ScriptMng != null)
-                Main.Ins.ScriptMng.CallFunc(Main.Ins.CombatData.GLevelItem.StartScript);
+                ScriptMng.Ins.CallFunc(CombatData.Ins.GLevelItem.StartScript);
         }
     }
 
@@ -1744,7 +1747,7 @@ public class LevelScript_sn03 : LevelScriptBase
                 SetTarget(1, "char", player);
                 if (Distance(0, 1) < 400)
                 {
-                    Debug.LogError("distance < 400");
+                    //Debug.LogError("distance < 400");
                     ChangeBehavior(c, "follow", "flag");
                     Perform(c, "say", "哈哈哈哈，压成肉酱了吧！！");
                     SetTarget(0, "waypoint", 83);   // stone position
@@ -2782,7 +2785,7 @@ public class LevelScript_sn04: LevelScriptBase
     public override void Scene_OnLoad()
     {
         SetScene("snow", 1);//雪粒子
-        SetScene("snowdensity", 200);//粒子密度
+        SetScene("snowdensity", 2000);//粒子密度
         SetScene("winddir", 50, 0, 0);//风方向
         SetScene("snowspeed", 20, 100);//雪速度
         SetScene("snowsize", 5, 5);//粒子尺寸
@@ -4445,7 +4448,7 @@ public class LevelScript_sn10: LevelScriptBase
                 Perform(c, "pause", 2);
                 Perform(c, "say", "你不愿听命於我那只有死路一条！");
                 Perform(c, "pause", 7);
-                Perform(c, "say", "你们这些杀手，说穿了只是会听话的狗而已！");
+                Perform(c, "say", "你们这些杀手，说穿了只是任人摆布的棋子！");
                 Perform(c, "pause", 5);
                 Perform(c, "say", "呵！你不知道的事情可多着！");
                 Perform(c, "pause", 5);
@@ -4627,7 +4630,7 @@ public class LevelScript_sn10: LevelScriptBase
             c = GetChar("屠城");
             SetTarget(0, "char", c);
             SetTarget(1, "char", player);
-            if (c >= 0 && GetHP(c) < GetMaxHP(c) / 5 && GetHP(player) < GetMaxHP(player) / 6 && Distance(0, 1) < 150)
+            if (c >= 0 && GetHP(c) < GetMaxHP(c) / 5 && GetHP(player) < GetMaxHP(player) / 3 && Distance(0, 1) < 150)
             {
                 Perform(c, "use", 15);
                 Perform(c, "use", 15);
@@ -4676,7 +4679,7 @@ public class LevelScript_sn10: LevelScriptBase
                 Perform(c, "pause", 5);
                 Perform(c, "say", "这下子我可是找对人了！");
                 Perform(c, "pause", 2);
-                Perform(c, "say", "功夫自然是在你之下﹒不但如此，他连范璇也杀不了～");
+                Perform(c, "say", "功夫自然是在你之下﹒不过，她只要配合好我的行动就足够了～");
                 Perform(c, "pause", 2);
                 Perform(c, "say", "那个女娃儿无法治的了你！");
                 Perform(c, "pause", 5);
@@ -7579,7 +7582,7 @@ public class LevelScript_sn22 : LevelScriptBase
             g_CharacterArena[characterid] = arena;
             MakeString(ref arenaname, "D_tpAD", arena + 1);
             Misc("transfer", characterid, arenaname);
-            if (Main.Ins.CombatData.GLevelMode == LevelMode.Teach)
+            if (CombatData.Ins.GLevelMode == LevelMode.Teach)
                 U3D.OnResumeAI();
             Output("transfer", characterid, "to", arena);
         }
@@ -7596,7 +7599,7 @@ public class LevelScript_sn22 : LevelScriptBase
             g_CharacterArena[characterid] = -1;
             MakeString(ref arenaname, "D_tpAD", arena + 9);
             Misc("transfer", characterid, arenaname);
-            if (Main.Ins.CombatData.GLevelMode == LevelMode.Teach)
+            if (CombatData.Ins.GLevelMode == LevelMode.Teach)
                 U3D.OnPauseAI();
             Output("transfer", characterid, "from", arena);
         }

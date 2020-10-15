@@ -15,7 +15,7 @@ public class WayMng : MonoBehaviour {
             WayPoint wp = new WayPoint();
             wp.pos = points[i].transform.position;
             wp.size = 10;
-            wp.link = new Dictionary<int, WayLength>();
+            wp.link = new SortedDictionary<int, WayLength>();
             wp.index = int.Parse(points[i].name);
             for (int j = 0; j < points[i].Link.Length; j++)
             {

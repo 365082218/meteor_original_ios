@@ -6,7 +6,7 @@ using Excel2Json;
 public class MainMenuState:CommonDialogState<MainMenu>
 {
     public override string DialogName { get { return "MainMenu"; } }
-    public MainMenuState(MainDialogStateManager dialogMgr):base(dialogMgr)
+    public MainMenuState(MainDialogMgr dialogMgr):base(dialogMgr)
     {
 
     }
@@ -46,19 +46,19 @@ public class MainMenu : Dialog
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
-        Main.Ins.CombatData.Chapter = null;
+        CombatData.Ins.Chapter = null;
         //进入主界面，创建全局
-        Main.Ins.EnterState(Main.Ins.GameOverlay);
+        GameOverlayDialogState.State.Open();
         Init();
         Main.Ins.listener.enabled = true;
-        menu.volume = Main.Ins.GameStateMgr.gameStatus.MusicVolume;
+        menu.volume = GameStateMgr.Ins.gameStatus.MusicVolume;
         //每次进入主界面，触发一次更新APP信息的操作，如果
         Main.Ins.UpdateAppInfo();
     }
 
     void Init()
     {
-        Version.text = string.Format("游戏:{0}_内核:{1}", Main.Ins.AppInfo.AppVersion(), Main.Ins.AppInfo.MeteorVersion);
+        Version.text = string.Format("游戏:{0}_流星:{1}", Main.Ins.AppInfo.AppVersion(), Main.Ins.AppInfo.MeteorVersion);
         SinglePlayerMode.onClick.AddListener(() =>
         {
             subMenuOpen = !subMenuOpen;
@@ -102,12 +102,12 @@ public class MainMenu : Dialog
         {
             OnEnterQueue();
         });
-        if (Main.Ins.GameStateMgr.gameStatus.CheatEnable)
-        {
-            UploadLog.gameObject.SetActive(true);
-        }
+        //if (GameStateMgr.Ins.gameStatus.CheatEnable)
+        //{
+        //    UploadLog.gameObject.SetActive(true);
+        //}
         UploadLog.onClick.AddListener(() => { FtpLog.UploadStart(); });
-        TcpClientProxy.Exit();
+        TcpClientProxy.Ins.Exit();
     }
 
     void OnSinglePlayer()
@@ -129,7 +129,7 @@ public class MainMenu : Dialog
     //教学关卡.
     void OnTeachingLevel()
     {
-        U3D.LoadLevel(Main.Ins.DataMgr.GetLevelData(31), LevelMode.Teach, GameMode.SIDOU);
+        U3D.LoadLevel(DataMgr.Ins.GetLevelData(31), LevelMode.Teach, GameMode.SIDOU);
     }
 
     void OnCreateRoom()
@@ -150,7 +150,8 @@ public class MainMenu : Dialog
 
     void OnReplay()
     {
-        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.RecordDialogState);
+        U3D.PopupTip("录像入口已被屏蔽");
+        //Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.RecordDialogState);
     }
 
     void OnEnterQueue()

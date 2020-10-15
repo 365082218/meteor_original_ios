@@ -15,10 +15,28 @@ public interface LoadingUI
 
 public class LevelHelper : MonoBehaviour
 {
+    public static LevelHelper Ins;
+    public Coroutine loadLevel;
+    public void Stop() {
+        if (loadLevel != null) {
+            StopCoroutine(loadLevel);
+            loadLevel = null;
+            Destroy(this);
+        }
+    }
+
+    private void Awake() {
+        Ins = this;
+    }
+
+    private void OnDestroy() {
+        Ins = null;
+    }
+
     AsyncOperation mAsync;
     public void LoadScene(string scene, Action OnFinished)
     {
-        StartCoroutine(LoadSceneAsync(scene, OnFinished));
+        loadLevel = StartCoroutine(LoadSceneAsync(scene, OnFinished));
     }
 
     IEnumerator LoadSceneAsync(string s, Action OnFinished)
@@ -34,17 +52,20 @@ public class LevelHelper : MonoBehaviour
 
     public void Load()
     {
-        StartCoroutine(LoadLevelAsync());
+        loadLevel = StartCoroutine(LoadLevelAsync());
     }
 
     IEnumerator LoadLevelAsync()
     {
-        Main.Ins.CombatData.RandSeed = DateTime.Now.ToFileTime();
+        //if (CombatData.Ins.Replay)
+        //    CombatData.Ins.RandSeed = CombatData.Ins.GRecord.RandomSeed;
+        //else
+            CombatData.Ins.RandSeed = DateTime.Now.ToFileTime();
+        CombatData.Ins.Random = new System.Random((int)CombatData.Ins.RandSeed);
         int displayProgress = 0;
         int toProgress = 0;
         yield return 0;
-        LevelData lev = Main.Ins.CombatData.GLevelItem;
-        ResMng.LoadScene(lev.Scene);
+        LevelData lev = CombatData.Ins.GLevelItem;
         mAsync = SceneManager.LoadSceneAsync(lev.Scene);
         mAsync.allowSceneActivation = false;
         while (mAsync.progress < 0.9f)
@@ -71,6 +92,7 @@ public class LevelHelper : MonoBehaviour
         while (!mAsync.isDone)
             yield return 0;
         OnLoadFinishedEx(lev);
+        loadLevel = null;
         Destroy(this);
     }
 
@@ -81,9 +103,9 @@ public class LevelHelper : MonoBehaviour
         if (type == null)
         {
             //尝试在chapter的dll里加载
-            if (Main.Ins.CombatData.Chapter != null && System.IO.File.Exists(Main.Ins.CombatData.Chapter.Dll))
+            if (CombatData.Ins.Chapter != null && System.IO.File.Exists(CombatData.Ins.Chapter.Dll))
             {
-                Assembly ass = Assembly.Load(System.IO.File.ReadAllBytes(Main.Ins.CombatData.Chapter.Dll));           
+                Assembly ass = Assembly.Load(System.IO.File.ReadAllBytes(CombatData.Ins.Chapter.Dll));           
                 Type[] t = ass.GetTypes();
                 for (int i = 0; i < t.Length; i++)
                 {
@@ -101,7 +123,7 @@ public class LevelHelper : MonoBehaviour
                 return null;
             }
         }
-        Main.Ins.CombatData.GScriptType = type;
+        CombatData.Ins.GScriptType = type;
         return System.Activator.CreateInstance(type) as LevelScriptBase;
     }
 
@@ -109,7 +131,7 @@ public class LevelHelper : MonoBehaviour
     //如果是单机，就使用帧播放
     void OnLoadFinishedEx(LevelData lev)
     {
-        Main.Ins.SoundManager.Enable(true);
+        SoundManager.Ins.Enable(true);
         LevelScriptBase script = GetLevelScript(lev.LevelScript);
         if (script == null)
         {
@@ -117,47 +139,48 @@ public class LevelHelper : MonoBehaviour
             return;
         }
 
-        Main.Ins.CombatData.GScript = script;
+        CombatData.Ins.GScript = script;
         //加载场景配置数据
-        Main.Ins.SceneMng.OnEnterLevel();
+        SceneMng.Ins.OnEnterLevel();
         GameObject battleRoot = new GameObject("GameBattle");
         Main.Ins.GameBattleEx = battleRoot.AddComponent<GameBattleEx>();
         //等脚本设置好物件的状态后，根据状态决定是否生成受击盒，攻击盒等.
         Main.Ins.GameBattleEx.Init(script);
-        FrameReplay.Instance.OnBattleStart();
-        //寻路
-        PathHelper.Ins.StartCalc();
+        FrameReplay.Ins.OnBattleStart();
+        //寻路-单机时有效
+        if (CombatData.Ins.GLevelMode <= LevelMode.CreateWorld)
+            PathHelper.Ins.StartCalc();
         //如果是录制模式-完毕后不要打开战斗UI
-        if (Main.Ins.CombatData.Replay)
-            Main.Ins.EnterState(Main.Ins.ReplayState);
-        else
-            Main.Ins.EnterState(Main.Ins.FightState);
+        //if (CombatData.Ins.Replay)
+        //    Main.Ins.EnterState(Main.Ins.ReplayState);
+        //else
+        FightState.State.Open();
     }
 
     public static void OnLoadFinishedSingle(int level) {
-        Application.targetFrameRate = Main.Ins.GameStateMgr.gameStatus.TargetFrame;
-        Main.Ins.DlcMng.Init();
-        LevelData lev = Main.Ins.DataMgr.GetLevelData(level);
+        Application.targetFrameRate = GameStateMgr.Ins.gameStatus.TargetFrame;
+        DlcMng.Ins.Init();
+        LevelData lev = DataMgr.Ins.GetLevelData(level);
         LevelScriptBase script = GetLevelScript(lev.LevelScript);
         if (script == null) {
             UnityEngine.Debug.LogError(string.Format("level script is null levId:{0}, levScript:{1}", lev.Id, lev.LevelScript));
             return;
         }
 
-        Main.Ins.CombatData.GLevelItem = lev;
-        Main.Ins.CombatData.GLevelMode = LevelMode.SinglePlayerTask;
-        Main.Ins.CombatData.GGameMode = GameMode.Normal;
-        Main.Ins.CombatData.GScript = script;
-        Main.Ins.CombatData.wayPoints = CombatData.GetWayPoint(Main.Ins.CombatData.GLevelItem);
+        CombatData.Ins.GLevelItem = lev;
+        CombatData.Ins.GLevelMode = LevelMode.SinglePlayerTask;
+        CombatData.Ins.GGameMode = GameMode.Normal;
+        CombatData.Ins.GScript = script;
+        CombatData.Ins.wayPoints = CombatData.GetWayPoint(CombatData.Ins.GLevelItem);
         //加载场景配置数据
-        Main.Ins.SceneMng.OnEnterLevel();
+        SceneMng.Ins.OnEnterLevel();
 
         GameObject battleRoot = new GameObject("GameBattle");
         Main.Ins.GameBattleEx = battleRoot.AddComponent<GameBattleEx>();
         //等脚本设置好物件的状态后，根据状态决定是否生成受击盒，攻击盒等.
         Main.Ins.GameBattleEx.Init(script);
-        FrameReplay.Instance.OnBattleStart();
+        FrameReplay.Ins.OnBattleStart();
         PathHelper.Ins.StartCalc();
-        Main.Ins.EnterState(Main.Ins.FightState);
+        FightState.State.Open();
     }
 }

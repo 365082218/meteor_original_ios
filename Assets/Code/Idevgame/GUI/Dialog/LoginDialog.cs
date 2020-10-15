@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class LoginDialogState : CommonDialogState<LoginDialog>
 {
     public override string DialogName { get { return "LoginDialog"; } }
-    public LoginDialogState(MainDialogStateManager stateMgr) : base(stateMgr)
+    public LoginDialogState(MainDialogMgr stateMgr) : base(stateMgr)
     {
 
     }
@@ -36,21 +36,21 @@ public class LoginDialog : Dialog
 
         AutoLogin = Control("AutoLogin").GetComponent<Toggle>();
         RememberPassword = Control("RemPsw").GetComponent<Toggle>();
-        if (Main.Ins.GameStateMgr.gameStatus.AutoLogin)
-            Main.Ins.GameStateMgr.gameStatus.RememberPassword = true;
-        AutoLogin.isOn = Main.Ins.GameStateMgr.gameStatus.AutoLogin;
-        RememberPassword.isOn = Main.Ins.GameStateMgr.gameStatus.RememberPassword;
+        if (GameStateMgr.Ins.gameStatus.AutoLogin)
+            GameStateMgr.Ins.gameStatus.RememberPassword = true;
+        AutoLogin.isOn = GameStateMgr.Ins.gameStatus.AutoLogin;
+        RememberPassword.isOn = GameStateMgr.Ins.gameStatus.RememberPassword;
 
-        AutoLogin.onValueChanged.AddListener((bool on) => { Main.Ins.GameStateMgr.gameStatus.AutoLogin = on; });
-        RememberPassword.onValueChanged.AddListener((bool on) => { Main.Ins.GameStateMgr.gameStatus.RememberPassword = on; });
+        AutoLogin.onValueChanged.AddListener((bool on) => { GameStateMgr.Ins.gameStatus.AutoLogin = on; });
+        RememberPassword.onValueChanged.AddListener((bool on) => { GameStateMgr.Ins.gameStatus.RememberPassword = on; });
 
 
-        if (!string.IsNullOrEmpty(Main.Ins.GameStateMgr.gameStatus.Account) && Main.Ins.GameStateMgr.gameStatus.AutoLogin)
-            Account.text = Main.Ins.GameStateMgr.gameStatus.Account;
-        if (!string.IsNullOrEmpty(Main.Ins.GameStateMgr.gameStatus.Password) && Main.Ins.GameStateMgr.gameStatus.RememberPassword)
-            Password.text = Main.Ins.GameStateMgr.gameStatus.Password;
+        if (!string.IsNullOrEmpty(GameStateMgr.Ins.gameStatus.Account) && GameStateMgr.Ins.gameStatus.AutoLogin)
+            Account.text = GameStateMgr.Ins.gameStatus.Account;
+        if (!string.IsNullOrEmpty(GameStateMgr.Ins.gameStatus.Password) && GameStateMgr.Ins.gameStatus.RememberPassword)
+            Password.text = GameStateMgr.Ins.gameStatus.Password;
 
-        if (Main.Ins.GameStateMgr.gameStatus.AutoLogin)
+        if (GameStateMgr.Ins.gameStatus.AutoLogin)
             AutoConnect();
     }
 

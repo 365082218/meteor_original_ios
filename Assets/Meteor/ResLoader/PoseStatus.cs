@@ -7,10 +7,12 @@ using System.Diagnostics;
 using Excel2Json;
 using Idevgame.Util;
 using System.IO;
+using protocol;
+
 //管理角色的动画帧，用自己的方式实现动画
 [Serializable]
 public class ActionManager {
-    public static Dictionary<int, List<Pose>> ActionList = new Dictionary<int, List<Pose>>();
+    public static SortedDictionary<int, List<Pose>> ActionList = new SortedDictionary<int, List<Pose>>();
     //加载全部，在游戏过程中尽量不要发生IO
     public static void LoadAll() {
         for (int i = 0; i < 20; i++) {
@@ -29,6 +31,11 @@ public class ActionManager {
                 //}
             }
         }
+    }
+
+    public void SetAction(int action) {
+        if (action != -1 && mActiveAction != null && action != mActiveAction.Idx)
+            ChangeAction(action, 0.01f);
     }
 
     public static bool ActionExist(int unit, int action) {
@@ -57,6 +64,7 @@ public class ActionManager {
     MeteorUnit mOwner;
     public Vector3 moveDelta;//上一帧的位移
     int UnitId;
+    public bool AirAttacked { get; set; }//是否在空中发出招式.落地/切换到待机/准备时重置
     public int mActiveActionIdx;
     public bool CanControl;
     public bool CanRotateY {
@@ -64,10 +72,14 @@ public class ActionManager {
             //如果被锁定
             if (mOwner.IsDebugUnit())
                 return false;
+            //如果空中发出过攻击招式
+            if (!mOwner.IsOnGround() && AirAttacked) {
+                return false;
+            }
             if (mOwner.meteorController.InputLocked)
                 return false;
             //如果有锁定目标，不许转向(在有锁系统下)
-            if (mOwner.LockTarget != null && Main.Ins.GameStateMgr.gameStatus.AutoLock)
+            if (mOwner.LockTarget != null && GameStateMgr.Ins.gameStatus.AutoLock)
                 return false;
             //攻击动作播放时不许摇杆控制角色转向
             if (IsAttackPose())
@@ -128,11 +140,6 @@ public class ActionManager {
             return true;
         }
     }
-    public bool CanSkill {
-        get {
-            return CanDefence;
-        }
-    }
     public bool Rotateing = false;
     public bool onDefence {
         get {
@@ -159,7 +166,7 @@ public class ActionManager {
             return false;
         }
     }
-    public float ClimbFallTick { get; set; }
+    public float ClimbFallTick { get; set; }//毫秒
     
     public bool CanAdjust { get; set; }
     public bool CheckClimb { get; set; }//检查轻功开始，在按住上键和跳跃后，上键一旦松开就不再检查轻工
@@ -185,14 +192,14 @@ public class ActionManager {
         playResultAction = false;
         ClimbFallTick = 0.0f;
         Characterloader = owner.characterLoader;
-        UnitId = mOwner == null ? 0 : mOwner.UnitId;
+        UnitId = mOwner == null ? 0 : mOwner.ModelId;
         if (!ActionList.ContainsKey(UnitId)) {
             //int TargetIdx = UnitId >= 20 ? 0 : UnitId;
             //最先从安装的资料片里找-正在用的
-            if (Main.Ins.CombatData.Chapter != null) {
-                Dictionary<int, string> models = Main.Ins.CombatData.GScript.GetModel();
+            if (CombatData.Ins.Chapter != null) {
+                SortedDictionary<int, string> models = CombatData.Ins.GScript.GetModel();
                 if (models != null && models.ContainsKey(UnitId)) {
-                    string path = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Pos, models[UnitId]);
+                    string path = CombatData.Ins.Chapter.GetResPath(FileExt.Pos, models[UnitId]);
                     if (!string.IsNullOrEmpty(path)) {
                         if (File.Exists(path)) {
                             ActionList.Add(UnitId, new List<Pose>());
@@ -230,13 +237,13 @@ public class ActionManager {
     }
 
     public void StopAction() {
-        ChangeActionCore(null);
+        ChangeActionCore(null, 0);
     }
 
-    public Dictionary<int, int> LinkInput = new Dictionary<int, int>();
-    public Dictionary<int, int> QueuedAction = new Dictionary<int, int>();
+    public SortedDictionary<int, int> LinkInput = new SortedDictionary<int, int>();
+    public SortedDictionary<int, int> QueuedAction = new SortedDictionary<int, int>();
     public static bool IgnoreActionMove(int idx) {
-        ActionData act = Main.Ins.DataMgr.GetActionData(idx);
+        ActionData act = DataMgr.Ins.GetActionData(idx);
         if (act == null)
             return false;
         //if (idx == 152)
@@ -247,21 +254,21 @@ public class ActionManager {
     }
 
     public static bool IgnoreVelocityXZ(int idx) {
-        ActionData act = Main.Ins.DataMgr.GetActionData(idx);
+        ActionData act = DataMgr.Ins.GetActionData(idx);
         if (act == null)
             return false;
         return act.IgnoreXZVelocity == 1;
     }
 
     public static bool IgnorePhysical(int idx) {
-        ActionData act = Main.Ins.DataMgr.GetActionData(idx);
+        ActionData act = DataMgr.Ins.GetActionData(idx);
         if (act == null)
             return false;
         return act.IgnoreCollision == 1;
     }
 
     public static bool IgnoreGravity(int idx) {
-        ActionData act = Main.Ins.DataMgr.GetActionData(idx);
+        ActionData act = DataMgr.Ins.GetActionData(idx);
         //if (idx == 151)
         //    return true;
         //if (idx == 100)
@@ -323,7 +330,7 @@ public class ActionManager {
                             //Debug.LogError("直接切换动作：" + idx + " NextPose:" + mActiveAction.Next.Time);
                             ChangeAction(idx, mActiveAction.Next.Time);
                         } else
-                            ChangeAction(idx);
+                            ChangeAction(idx, 0);
                         return;
                     } else if (curIndex < act.Start) {
                         LinkInput[mActiveAction.Idx] = idx;
@@ -350,7 +357,7 @@ public class ActionManager {
                 if (mActiveAction.Next != null)
                     ChangeAction(idx, mActiveAction.Next.Time);
                 else
-                    ChangeAction(idx);
+                    ChangeAction(idx, 0);
             }
         }
     }
@@ -371,7 +378,7 @@ public class ActionManager {
 
         if (QueuedAction.ContainsKey(mActiveAction.Idx)) {
             int idx = mActiveAction.Idx;
-            ChangeAction(QueuedAction[idx]);
+            ChangeAction(QueuedAction[idx], 0);
             QueuedAction.Remove(idx);
             return;
         }
@@ -384,7 +391,7 @@ public class ActionManager {
                 if (mOwner.IsOnGround()) {
                     //213=>213
                     if (mActiveAction.Idx == CommonAction.GunIdle) {
-                        ChangeAction(CommonAction.GunIdle);
+                        ChangeAction(CommonAction.GunIdle, 0);
                     } else {
                         if (LinkInput.ContainsKey(mActiveAction.Idx)) {
                             //拿着火枪在空中踢人.
@@ -451,7 +458,7 @@ public class ActionManager {
                         if (onDefence) {
                             mOwner.Defence();
                         } else
-                        if (mOwner.LockTarget != null && Main.Ins.GameStateMgr.gameStatus.AutoLock) {
+                        if (mOwner.LockTarget != null && GameStateMgr.Ins.gameStatus.AutoLock) {
                             int ReadyAction = 0;
                             switch ((EquipWeaponType)mOwner.GetWeaponType()) {
                                 case EquipWeaponType.Knife: ReadyAction = CommonAction.KnifeReady; break;
@@ -517,87 +524,87 @@ public class ActionManager {
         return s;
     }
     //使用Pose生成AnimationClip,可转换动画模式为此，就不用自己做动画混合那块了.
-    Dictionary<int, AnimationClip> ClipMap = new Dictionary<int, AnimationClip>();
-    Animation Bake;
-    public void BakePose(int pose) {
-        if (ClipMap.ContainsKey(pose)) {
-            return;
-        }
-        Pose po = ActionList[UnitId][pose];
-        AnimationClip clip = new AnimationClip();
-        clip.name = pose.ToString();
-        clip.frameRate = Pose.FPS;
-        clip.legacy = true;
+    //SortedDictionary<int, AnimationClip> ClipMap = new SortedDictionary<int, AnimationClip>();
+    //Animation Bake;
+    //public void BakePose(int pose) {
+    //    if (ClipMap.ContainsKey(pose)) {
+    //        return;
+    //    }
+    //    Pose po = ActionList[UnitId][pose];
+    //    AnimationClip clip = new AnimationClip();
+    //    clip.name = pose.ToString();
+    //    clip.frameRate = Pose.FPS;
+    //    clip.legacy = true;
 
-        for (int i = 0; i < Characterloader.dummy.Count; i++) {
-            //每一帧,每个骨骼的状态变化
-            AnimationCurve curveRotX = new AnimationCurve();
-            AnimationCurve curveRotY = new AnimationCurve();
-            AnimationCurve curveRotZ = new AnimationCurve();
-            AnimationCurve curveRotW = new AnimationCurve();
-            Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curveRotX, i, BakeInto.BakeLocalDummyRotationX);
-            Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curveRotY, i, BakeInto.BakeLocalDummyRotationY);
-            Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curveRotZ, i, BakeInto.BakeLocalDummyRotationZ);
-            Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curveRotW, i, BakeInto.BakeLocalDummyRotationW);
-            string strHierarchy = GetHierarchyPath(Characterloader.mOwner.gameObject.transform, Characterloader.dummy[i]);
-            clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.x", curveRotX);
-            clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.y", curveRotY);
-            clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.z", curveRotZ);
-            clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.w", curveRotW);
-            if (i == 0) {
-                AnimationCurve curvePosX = new AnimationCurve();
-                AnimationCurve curvePosY = new AnimationCurve();
-                AnimationCurve curvePosZ = new AnimationCurve();
-                //读取帧数据，得到关键帧，设置到曲线上
-                Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curvePosX, i, BakeInto.BakeLocalDummyPosX);
-                Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curvePosY, i, BakeInto.BakeLocalDummyPosY);
-                Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curvePosZ, i, BakeInto.BakeLocalDummyPosZ);
-                clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.x", curvePosX);
-                clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.y", curvePosY);
-                clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.z", curvePosZ);
-            }
-        }
-        for (int i = 0; i < Characterloader.bo.Count; i++) {
-            //每一帧,每个骨骼的状态变化
-            AnimationCurve curveRotX = new AnimationCurve();
-            AnimationCurve curveRotY = new AnimationCurve();
-            AnimationCurve curveRotZ = new AnimationCurve();
-            AnimationCurve curveRotW = new AnimationCurve();
-            Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curveRotX, i, BakeInto.BakeLocalRotationX);
-            Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curveRotY, i, BakeInto.BakeLocalRotationY);
-            Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curveRotZ, i, BakeInto.BakeLocalRotationZ);
-            Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curveRotW, i, BakeInto.BakeLocalRotationW);
-            string strHierarchy = GetHierarchyPath(Characterloader.mOwner.gameObject.transform, Characterloader.bo[i]);
-            clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.x", curveRotX);
-            clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.y", curveRotY);
-            clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.z", curveRotZ);
-            clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.w", curveRotW);
-            //每个骨骼
-            //第一个骨骼有位置的
-            if (i == 0) {
-                AnimationCurve curvePosX = new AnimationCurve();
-                AnimationCurve curvePosY = new AnimationCurve();
-                AnimationCurve curvePosZ = new AnimationCurve();
-                //读取帧数据，得到关键帧，设置到曲线上
-                Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curvePosX, i, BakeInto.BakeLocalPosX);
-                Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curvePosY, i, BakeInto.BakeLocalPosY);
-                Main.Ins.AmbLoader.BakeIntoCurve(UnitId, po, curvePosZ, i, BakeInto.BakeLocalPosZ);
-                clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.x", curvePosX);
-                clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.y", curvePosY);
-                clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.z", curvePosZ);
-            }
-        }
+    //    for (int i = 0; i < Characterloader.dummy.Count; i++) {
+    //        //每一帧,每个骨骼的状态变化
+    //        AnimationCurve curveRotX = new AnimationCurve();
+    //        AnimationCurve curveRotY = new AnimationCurve();
+    //        AnimationCurve curveRotZ = new AnimationCurve();
+    //        AnimationCurve curveRotW = new AnimationCurve();
+    //        AmbLoader.Ins.BakeIntoCurve(UnitId, po, curveRotX, i, BakeInto.BakeLocalDummyRotationX);
+    //        AmbLoader.Ins.BakeIntoCurve(UnitId, po, curveRotY, i, BakeInto.BakeLocalDummyRotationY);
+    //        AmbLoader.Ins.BakeIntoCurve(UnitId, po, curveRotZ, i, BakeInto.BakeLocalDummyRotationZ);
+    //        AmbLoader.Ins.BakeIntoCurve(UnitId, po, curveRotW, i, BakeInto.BakeLocalDummyRotationW);
+    //        string strHierarchy = GetHierarchyPath(Characterloader.mOwner.gameObject.transform, Characterloader.dummy[i]);
+    //        clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.x", curveRotX);
+    //        clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.y", curveRotY);
+    //        clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.z", curveRotZ);
+    //        clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.w", curveRotW);
+    //        if (i == 0) {
+    //            AnimationCurve curvePosX = new AnimationCurve();
+    //            AnimationCurve curvePosY = new AnimationCurve();
+    //            AnimationCurve curvePosZ = new AnimationCurve();
+    //            //读取帧数据，得到关键帧，设置到曲线上
+    //            AmbLoader.Ins.BakeIntoCurve(UnitId, po, curvePosX, i, BakeInto.BakeLocalDummyPosX);
+    //            AmbLoader.Ins.BakeIntoCurve(UnitId, po, curvePosY, i, BakeInto.BakeLocalDummyPosY);
+    //            AmbLoader.Ins.BakeIntoCurve(UnitId, po, curvePosZ, i, BakeInto.BakeLocalDummyPosZ);
+    //            clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.x", curvePosX);
+    //            clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.y", curvePosY);
+    //            clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.z", curvePosZ);
+    //        }
+    //    }
+    //    for (int i = 0; i < Characterloader.bo.Count; i++) {
+    //        //每一帧,每个骨骼的状态变化
+    //        AnimationCurve curveRotX = new AnimationCurve();
+    //        AnimationCurve curveRotY = new AnimationCurve();
+    //        AnimationCurve curveRotZ = new AnimationCurve();
+    //        AnimationCurve curveRotW = new AnimationCurve();
+    //        AmbLoader.Ins.BakeIntoCurve(UnitId, po, curveRotX, i, BakeInto.BakeLocalRotationX);
+    //        AmbLoader.Ins.BakeIntoCurve(UnitId, po, curveRotY, i, BakeInto.BakeLocalRotationY);
+    //        AmbLoader.Ins.BakeIntoCurve(UnitId, po, curveRotZ, i, BakeInto.BakeLocalRotationZ);
+    //        AmbLoader.Ins.BakeIntoCurve(UnitId, po, curveRotW, i, BakeInto.BakeLocalRotationW);
+    //        string strHierarchy = GetHierarchyPath(Characterloader.mOwner.gameObject.transform, Characterloader.bo[i]);
+    //        clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.x", curveRotX);
+    //        clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.y", curveRotY);
+    //        clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.z", curveRotZ);
+    //        clip.SetCurve(strHierarchy, typeof(Transform), "localRotation.w", curveRotW);
+    //        //每个骨骼
+    //        //第一个骨骼有位置的
+    //        if (i == 0) {
+    //            AnimationCurve curvePosX = new AnimationCurve();
+    //            AnimationCurve curvePosY = new AnimationCurve();
+    //            AnimationCurve curvePosZ = new AnimationCurve();
+    //            //读取帧数据，得到关键帧，设置到曲线上
+    //            AmbLoader.Ins.BakeIntoCurve(UnitId, po, curvePosX, i, BakeInto.BakeLocalPosX);
+    //            AmbLoader.Ins.BakeIntoCurve(UnitId, po, curvePosY, i, BakeInto.BakeLocalPosY);
+    //            AmbLoader.Ins.BakeIntoCurve(UnitId, po, curvePosZ, i, BakeInto.BakeLocalPosZ);
+    //            clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.x", curvePosX);
+    //            clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.y", curvePosY);
+    //            clip.SetCurve(strHierarchy, typeof(Transform), "localPosition.z", curvePosZ);
+    //        }
+    //    }
 
-        ClipMap.Add(pose, clip);
-        if (Bake == null) {
-            Bake = mOwner.GetComponent<Animation>();
-            if (Bake == null) {
-                Bake = mOwner.gameObject.AddComponent<Animation>();
-            }
-        }
-        Bake.AddClip(clip, clip.name);
-        Bake.clip = clip;
-    }
+    //    ClipMap.Add(pose, clip);
+    //    if (Bake == null) {
+    //        Bake = mOwner.GetComponent<Animation>();
+    //        if (Bake == null) {
+    //            Bake = mOwner.gameObject.AddComponent<Animation>();
+    //        }
+    //    }
+    //    Bake.AddClip(clip, clip.name);
+    //    Bake.clip = clip;
+    //}
 
     //根据动作号开始动画.
     CharacterLoader Characterloader;
@@ -624,34 +631,23 @@ public class ActionManager {
             Log.WriteError("can not change to action:" + idx);
             return;
         }
+        //
         CanAdjust = false;
-        if (Main.Ins.CombatData.GameFinished && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle)) {
+        if (CombatData.Ins.GameFinished && !playResultAction && (idx == CommonAction.Idle || idx == CommonAction.GunIdle)) {
             playResultAction = true;
+            mOwner.meteorController.LockMove(true);
             if (mOwner.Camp == EUnitCamp.EUC_ENEMY && Main.Ins.GameBattleEx.BattleLose()) {
                 ChangeAction(CommonAction.Taunt, 0.1f);
                 return;
             } else if (mOwner.Camp == EUnitCamp.EUC_FRIEND && Main.Ins.GameBattleEx.BattleWin()) {
                 ChangeAction(CommonAction.Taunt, 0.1f);
                 return;
+            } else if (Main.Ins.GameBattleEx.BattleTimeup()) {
+                ChangeAction(CommonAction.Taunt, 0.1f);
+                return;
             }
         }
 
-        //if (idx == 0 && mActiveAction != null && mActiveAction.Idx == 152) {
-        //    UnityEngine.Debug.LogError("climbing change to idle");
-        //}
-        mOwner.IgnoreGravitys(ActionManager.IgnoreGravity(idx));//设置招式重力
-        bool ignorePhy = IgnorePhysical(idx);
-        if (ignorePhy != mOwner.IgnorePhysical)
-            Main.Ins.MeteorManager.PhysicalIgnore(mOwner, ignorePhy);//设置招式是否忽略角色障碍
-
-        //看是否是大绝的起始招式/结束招式，大绝起始和结束招式之间的招式，不许响应输入切换招式.大绝不可取消.
-        if (IsSkillStartPose(idx) && !mOwner.IsPlaySkill)
-            mOwner.IsPlaySkill = true;
-        else if ((IsSkillEndPose(idx) || onhurt) && mOwner.IsPlaySkill)
-            mOwner.IsPlaySkill = false;
-
-        //设置招式是否冻结世界轴XZ上得速度.
-        mOwner.ResetWorldVelocity(IgnoreVelocityXZ(idx));
         if (Characterloader != null) {
             int weapon = mOwner.GetWeaponType();
             if (idx == CommonAction.Defence) {
@@ -693,19 +689,33 @@ public class ActionManager {
                         mOwner.SetGunReady(true);
                     if (mOwner.Attr.IsPlayer) {
                         if (mOwner.GunReady) {
-                            Main.Ins.EnterState(Main.Ins.GunShootDialogState);
+                            GunShootDialogState.State.Open();
                         } else {
-                            Main.Ins.ExitState(Main.Ins.GunShootDialogState);
+                            GunShootDialogState.State.Close();
                         }
                     }
                 } else {
                     if (mOwner.Attr.IsPlayer) {
-                        Main.Ins.ExitState(Main.Ins.GunShootDialogState);
+                        GunShootDialogState.State.Close();
                     }
                 }
             } else if (mOwner.Attr.IsPlayer) {
-                Main.Ins.ExitState(Main.Ins.GunShootDialogState);
+                GunShootDialogState.State.Close();
             }
+
+            mOwner.IgnoreGravitys(ActionManager.IgnoreGravity(idx));//设置招式重力
+            bool ignorePhy = IgnorePhysical(idx);
+            if (ignorePhy != mOwner.IgnorePhysical)
+                MeteorManager.Ins.PhysicalIgnore(mOwner, ignorePhy);//设置招式是否忽略角色障碍
+
+            //看是否是大绝的起始招式/结束招式，大绝起始和结束招式之间的招式，不许响应输入切换招式.大绝不可取消.
+            if (IsSkillStartPose(idx) && !mOwner.IsPlaySkill)
+                mOwner.IsPlaySkill = true;
+            else if ((IsSkillEndPose(idx) || onhurt) && mOwner.IsPlaySkill)
+                mOwner.IsPlaySkill = false;
+
+            //设置招式是否冻结世界轴XZ上得速度.
+            mOwner.ResetWorldVelocity(IgnoreVelocityXZ(idx));
 
             //除了受击，防御，其他动作在有锁定目标下，都要转向锁定目标.
             if (mOwner.LockTarget != null && !onDefence && !onhurt) {
@@ -718,7 +728,7 @@ public class ActionManager {
                         mOwner.GetWeaponType() != (int)EquipWeaponType.Dart) {
                         mOwner.FaceToTarget(mOwner.LockTarget);
                     }
-                } else if (mOwner.StateMachine == null && Main.Ins.GameStateMgr.gameStatus.AutoLock && idx != CommonAction.Idle) {
+                } else if (mOwner.StateMachine == null && GameStateMgr.Ins.gameStatus.AutoLock && idx != CommonAction.Idle) {
                     //主角.
                     if (mOwner.GetWeaponType() != (int)EquipWeaponType.Guillotines &&
                         mOwner.GetWeaponType() != (int)EquipWeaponType.Gun &&
@@ -730,6 +740,10 @@ public class ActionManager {
             if (mActiveAction != null && mActiveAction.Idx == idx)
                 time = 0.0f;
 
+            if (ActionList[UnitId].Count < idx) {
+                UnityEngine.Debug.LogError("change action error animation count:" + ActionList[UnitId].Count + " unit:" + UnitId + " change action:" + idx);
+                return;
+            }
             ChangeActionCore(ActionList[UnitId][idx], time);
             mActiveActionIdx = mActiveAction.Idx;
             LinkInput.Clear();
@@ -781,8 +795,8 @@ public class ActionManager {
                     return;
                 }
             }
-            if (curIndex >= mActiveAction.LoopEnd) {
-                if (curIndex >= mActiveAction.LoopStart) {
+            if (playedTimeFadeIn >= mActiveAction.KeyFrames[mActiveAction.LoopEnd - mActiveAction.Start]) {
+                if (playedTimeFadeIn >= mActiveAction.KeyFrames[mActiveAction.LoopStart - mActiveAction.Start]) {
                     bool actionchanged = PlayPosEvent();
                     if (actionchanged)
                         return;
@@ -795,16 +809,16 @@ public class ActionManager {
                 playedTimeFadeIn = mActiveAction.KeyFrames[mActiveAction.LoopStart - mActiveAction.Start];
             }
         } else {
-            if (curIndex >= mActiveAction.End) {
+            if (playedTimeFadeIn >= mActiveAction.KeyFrames[mActiveAction.End -  mActiveAction.Start]) {
                 OnActionFinished();
                 return;
             }
 
-            if (TheFirstFrame <= curIndex && TheFirstFrame != -1) {
+            if (0 <= playedTimeFadeIn && TheFirstFrame != -1) {
                 ActionEvent.HandlerFirstActionFrame(mOwner, mActiveAction.Idx);
                 TheFirstFrame = -1;
             }
-            if (TheLastFrame <= curIndex && TheLastFrame != -1) {
+            if (TheLastFrame != -1 && mActiveAction.KeyFrames[TheLastFrame - mActiveAction.Start] <= playedTimeFadeIn) {
                 ActionEvent.HandlerFinalActionFrame(mOwner, mActiveAction.Idx);
                 TheLastFrame = -1;
             }
@@ -812,9 +826,9 @@ public class ActionManager {
         //Debug.Log("PlayKeyFrame:" + Time.frameCount);
         //BoneStatus status = null;
         //if (mActiveAction.SourceIdx == 0)
-        //    status = Main.Ins.AmbLoader.CharCommon[curIndex];
+        //    status = AmbLoader.Ins.CharCommon[curIndex];
         //else if (mActiveAction.SourceIdx == 1)
-        //    status = Main.Ins.AmbLoader.PlayerAnimation[mOwner.UnitId][curIndex];
+        //    status = AmbLoader.Ins.PlayerAnimation[mOwner.UnitId][curIndex];
 
         ////Debug.LogError("play keyframe " + " idx:" + curIndex);
         //if (Characterloader.bo.Count != 0) {
@@ -890,28 +904,34 @@ public class ActionManager {
                     }
                 }
                 curIndex = PoseState.EvaluatePoseClamp(playedTimeFadeInWrapped, mActiveAction, ref activeStatus, UnitId, runCycle);
-                ApplyPose(activeStatus, true);
+                try {
+                    ApplyPose(activeStatus, true);
+                }
+                catch {
+                    UnityEngine.Debug.LogError("error");
+                }
                 PlayNextKeyFrame();
             } else {
                 ChangeWeaponTrail();
                 BoneStatus status = null;
-                if (mActiveAction.SourceIdx == 0 && Main.Ins.AmbLoader.CharCommon.Count > blendStart && blendStart >= 0)
-                    status = Main.Ins.AmbLoader.CharCommon[blendStart];
-                else if (mActiveAction.SourceIdx == 1 && Main.Ins.AmbLoader.PlayerAnimation.ContainsKey(mOwner.UnitId) && Main.Ins.AmbLoader.PlayerAnimation[mOwner.UnitId].Count > blendStart && blendStart >= 0)
-                    status = Main.Ins.AmbLoader.PlayerAnimation[mOwner.UnitId][blendStart];
+                if (mActiveAction.SourceIdx == 0 && AmbLoader.Ins.CharCommon.Count > blendStart && blendStart >= 0)
+                    status = AmbLoader.Ins.CharCommon[blendStart];
+                else if (mActiveAction.SourceIdx == 1 && AmbLoader.Ins.PlayerAnimation.ContainsKey(mOwner.ModelId) && AmbLoader.Ins.PlayerAnimation[mOwner.ModelId].Count > blendStart && blendStart >= 0)
+                    status = AmbLoader.Ins.PlayerAnimation[mOwner.ModelId][blendStart];
 
                 if (blendingTime < blendTime && blendTime != 0.0f) {
                     //取得目标动作的左右关键帧
                     blendingTime += FrameReplay.deltaTime;
-                    Characterloader.bo[0].localRotation = Quaternion.Slerp(lastFrameStatus.BoneQuat[0], status.BoneQuat[0], blendingTime / blendTime);
-                    Characterloader.bo[0].localPosition = Vector3.Lerp(lastFrameStatus.BonePos, status.BonePos, blendingTime / blendTime);
+                    float ratio = (blendingTime / blendTime);
+                    Characterloader.bo[0].localRotation = Quaternion.Slerp(lastFrameStatus.BoneQuat[0], status.BoneQuat[0], ratio);
+                    Characterloader.bo[0].localPosition = Vector3.Lerp(lastFrameStatus.BonePos, status.BonePos, ratio);
                     for (int i = 1; i < Characterloader.bo.Count; i++) {
-                        Characterloader.bo[i].localRotation = Quaternion.Slerp(lastFrameStatus.BoneQuat[i], status.BoneQuat[i], blendingTime / blendTime);
+                        Characterloader.bo[i].localRotation = Quaternion.Slerp(lastFrameStatus.BoneQuat[i], status.BoneQuat[i], ratio);
                     }
                     lastDBasePos = status.DummyPos[0];
                     for (int i = 1; i < Characterloader.dummy.Count; i++) {
-                        Characterloader.dummy[i].localRotation = Quaternion.Slerp(lastFrameStatus.DummyQuat[i], status.DummyQuat[i], blendingTime / blendTime);
-                        Characterloader.dummy[i].localPosition = Vector3.Lerp(lastFrameStatus.DummyPos[i], status.DummyPos[i], blendingTime / blendTime);
+                        Characterloader.dummy[i].localRotation = Quaternion.Slerp(lastFrameStatus.DummyQuat[i], status.DummyQuat[i], ratio);
+                        Characterloader.dummy[i].localPosition = Vector3.Lerp(lastFrameStatus.DummyPos[i], status.DummyPos[i], ratio);
                     }
                     
                     //weight_fadein += FrameReplay.deltaTime * weight_fadein_delta;
@@ -970,10 +990,15 @@ public class ActionManager {
         if (useloop && loop) {
             start = pose.LoopCache.Key;
             end = pose.LoopCache.Value;
+
             if (t > end) {
                 float left = t - end;
-                float times = left / (end - start);
-                return start + left - Mathf.FloorToInt(times) * (end - start);
+                if (start == end) {
+                    return start;
+                } else {
+                    int times = Mathf.FloorToInt(left / (end - start));
+                    return start + left - times * (end - start);
+                }
             }
             else {
                 return t;
@@ -1019,7 +1044,9 @@ public class ActionManager {
         bool IgnoreActionMoves = IgnoreActionMove(mActiveAction.Idx);
         if (lastPosIdx == mActiveAction.Idx && rootMotion) {
             Vector3 targetPos = status.DummyPos[0];
-            Vector3 vec = Characterloader.Target.rotation * (targetPos - lastDBasePos) * moveScale;
+            Vector3 diff = targetPos - lastDBasePos;
+            diff = diff * moveScale;
+            Vector3 vec = Characterloader.Target.rotation * diff;
             //如果忽略位移，或者在动作的循环帧中，即第一次从循环头开始播放后，不再计算位移.
             if (IgnoreActionMoves) {
                 vec.x = 0;
@@ -1044,6 +1071,7 @@ public class ActionManager {
     Vector3 lastDBasePos = Vector3.zero;//上一帧的d_base骨骼坐标.没应用到骨骼上，只是记录下来
 
     //设置动作位移的根骨骼移动比例,比如完整动作，会让角色Y轴移动10，那么比例为2时，这个动作就会让角色移动20，而帧数不变
+    [SerializeField]
     float moveScale = 1.0f;
     public void SetActionScale(float scale) {
         moveScale = scale;
@@ -1067,13 +1095,8 @@ public class ActionManager {
     public bool PlayPosEvent() {
         //有硬直时间存在，但是还没开始消耗硬直时间时，先消耗硬直时间
         if (IsInStraight()) {
-            //能否开始计算硬直?如果角色在空中播放循环落地动作,这个硬直是无法开始计算的，只有落地后，才能开始计算硬直
-            if (!mOwner.IsOnGround())
-                return false;
-            //已经开始计算硬直时间的流逝
             if (LockCurrentFrame)
                 return false;
-
             LockCurrentFrame = true;//开始计算硬直流逝，一直到硬直时间结束.
             return false;
         } else {
@@ -1092,7 +1115,7 @@ public class ActionManager {
                 loop = false;
                 return false;
             } else if ((mActiveAction.Idx >= CommonAction.Idle && mActiveAction.Idx <= 21) || (mActiveAction.Idx >= CommonAction.WalkForward && mActiveAction.Idx <= CommonAction.RunOnDrug)) {
-                if (Main.Ins.CombatData.GameFinished && !playResultAction)
+                if (CombatData.Ins.GameFinished && !playResultAction)
                     loop = false;
                 return false;
             }
@@ -1140,7 +1163,7 @@ public class ActionManager {
         //if (po.Idx != 325)
         timePlayed = GetTimePlayed(curIndex);
         if (!string.IsNullOrEmpty(mActiveAction.EffectID) && !string.Equals(mActiveAction.EffectID, "0")) {
-            Characterloader.sfxEffect = Main.Ins.SFXLoader.PlayEffect(string.Format("{0}.ef", mActiveAction.EffectID), mOwner, timePlayed);
+            Characterloader.sfxEffect = SFXLoader.Ins.PlayEffect(string.Format("{0}.ef", mActiveAction.EffectID), mOwner, timePlayed);
 
             //表明特效是由动作触发的,不在该动作中关闭特效的攻击盒时,特效攻击盒仍存在
             //这种一般是特效出来后，在角色受到攻击前打开了特效的攻击盒，但角色受到攻击打断了动作，会立刻关闭攻击特效的攻击属性，这种应该是不对的.
@@ -1153,7 +1176,7 @@ public class ActionManager {
     float blendingTime = 0;
     public int curIndex = 0;//帧编号
     int blendStart = 0;//接到哪一帧
-    public void SetCurrentFrameIndex(int v) { curIndex = v; }
+    public void SetTime(float t) { playedTimeFadeIn = t; }
     public int GetCurrentFrameIndex() { return curIndex; }
 
     //僵直清空/飞轮回收，等一些情况时，取消循环,立即切换到动作结束
@@ -1195,6 +1218,8 @@ public class ActionManager {
     public void ChangeActionCore(Pose pos, float BlendTime = 0.0f) {
         //UnityEngine.Debug.Log("change action:" + pos.Idx);
         //一些招式，需要把尾部事件执行完才能切换武器.
+        //if (pos.Idx == mActiveActionIdx && pos.Idx == 0)
+        //    UnityEngine.Debug.LogError("error");
         LockCurrentFrame = false;
         if (TheLastFrame != -1 && mActiveAction != null) {
             ActionEvent.HandlerFinalActionFrame(mOwner, mActiveAction.Idx);
@@ -1251,9 +1276,9 @@ public class ActionManager {
         Characterloader.sfxEffect = null;
         //下一个动作的第一帧所有虚拟物体，因为2个动作的d_base骨骼不能跨动作算位置移动，就是把d_base归位，同一个动作的d_base的移动，才能计算角色移动.
         if (mActiveAction.SourceIdx == 0)
-            lastDBasePos = Main.Ins.AmbLoader.CharCommon[curIndex].DummyPos[0];
+            lastDBasePos = AmbLoader.Ins.CharCommon[curIndex].DummyPos[0];
         else if (mActiveAction.SourceIdx == 1)
-            lastDBasePos = Main.Ins.AmbLoader.PlayerAnimation[mOwner.UnitId][curIndex].DummyPos[0];
+            lastDBasePos = AmbLoader.Ins.PlayerAnimation[mOwner.ModelId][curIndex].DummyPos[0];
 
         blendTime = 0.0f;
         //blendTime = BlendTime;
@@ -1285,7 +1310,7 @@ public class ActionManager {
         }
 
         if (lastPosIdx != 0) {
-            Option poseInfo = Main.Ins.MenuResLoader.GetPoseInfo(lastPosIdx);
+            Option poseInfo = MenuResLoader.Ins.GetPoseInfo(lastPosIdx);
             if (poseInfo.first.Length != 0 && poseInfo.first[0].flag[0] == 18 && lastPosIdx != 468)//18为，使用招式后获取物品ID 468-469都会调用微尘，hack掉468pose的
                 mOwner.GetItem(poseInfo.first[0].flag[1]);//忍刀小绝，同归于尽，会获得微尘物品，会即刻死亡
         }
@@ -1303,16 +1328,14 @@ public class ActionManager {
         }
 
         if (pos.Idx == CommonAction.Struggle || pos.Idx == CommonAction.Struggle0) {
-            if (PoseStraight <= 0.0) {
-                LockTime(0.2f);//硬直0.3f
+            if (PoseStraight <= 0.32f) {
+                LockTime(0.32f);
             }
         }
     }
 
-    float playedTimeFadeOut;//当前正在播放的
-    float playedTimeFadeOutWrapped;
-    float playedTimeFadeIn;//要过渡到的目的动画播放
-    float playedTimeFadeInWrapped;
+    public float playedTimeFadeIn;//要过渡到的目的动画播放
+    public float playedTimeFadeInWrapped;
     void TryPlayEffect() {
         if (!effectPlayed) {
             try {
@@ -1366,7 +1389,7 @@ public class ActionManager {
                         if (mActiveAction.Next != null)
                             ChangeAction(LinkInput[targetIdx], mActiveAction.Next.Time);
                         else
-                            ChangeAction(LinkInput[targetIdx]);
+                            ChangeAction(LinkInput[targetIdx], 0);
                         LinkInput.Clear();
                         return true;
                     }
@@ -1393,7 +1416,7 @@ public class ActionManager {
         int leftNex = 0;
         string[] pos = text.Split(new char[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
         for (int i = 0; i < pos.Length; i++) {
-            string line = pos[i];
+            string line = pos[i].Replace("\t", "");
             string[] lineObject = line.Split(new char[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
             if (lineObject.Length == 0) {
                 //if (i == 7574)
@@ -1454,9 +1477,9 @@ public class ActionManager {
             } else if (lineObject[0] == "source" || lineObject[0] == "Source") {
                 current.SourceIdx = int.Parse(lineObject[1]);
             } else if (lineObject[0] == "Start" || lineObject[0] == "start") {
-                //if (pose295) {
-                //    UnityEngine.Debug.LogError("295");
-                //}
+                //UnityEngine.Debug.Log(lineObject[1]);
+                //if (lineObject[1].StartsWith("0"))
+                //    lineObject[i] = lineObject[1].Substring(1);
                 if (nex != null) {
                     nex.Start = int.Parse(lineObject[1]);
                 } else
@@ -1474,6 +1497,8 @@ public class ActionManager {
                 //if (pose295) {
                 //    UnityEngine.Debug.LogError("295");
                 //}
+                //if (lineObject[1].StartsWith("0"))
+                //    lineObject[i] = lineObject[1].Substring(1);
                 if (nex != null) {
                     nex.End = int.Parse(lineObject[1]);
                 } else
@@ -1591,12 +1616,14 @@ public class ActionManager {
             }
         }
 
-        if (id >= 20) {
-            //额外的模型检查一下动画数据，有些动画片段切割有问题.
-            for (int i = 0; i < ActionList[id].Count; i++) {
-                ActionList[id][i].Check(id);
-            }
-        }
+        //if (id >= 20) {
+        //    //额外的模型检查一下动画数据，有些动画片段切割有问题.
+        //    for (int i = 0; i < ActionList[id].Count; i++) {
+        //        ActionList[id][i].Check(id);
+        //    }
+        //}
+        if (ActionList[id].Count < 573)
+            UnityEngine.Debug.LogError("action parse error");
         for (int i = 0; i < ActionList[id].Count; i++) {
             ActionList[id][i].Bake();
         }
@@ -1620,13 +1647,13 @@ public class Pose {
     public DragDes Drag;
     public NextPose Next;
     //检查每个动作的开始帧和结束帧，是否都有对应的数据
-    public void Check(int unitid) {
-        BoneStatus bstart = Main.Ins.AmbLoader.GetBoneStatus(SourceIdx, unitid, Start);
-        BoneStatus bend = Main.Ins.AmbLoader.GetBoneStatus(SourceIdx, unitid, End);
-        if (bstart == null || bend == null) {
-            UnityEngine.Debug.LogError("pos:" + Idx + " on unit:" + unitid + " contains error");
-        }
-    }
+    //public void Check(int unitid) {
+    //    BoneStatus bstart = AmbLoader.Ins.GetBoneStatus(SourceIdx, unitid, Start);
+    //    BoneStatus bend = AmbLoader.Ins.GetBoneStatus(SourceIdx, unitid, End);
+    //    if (bstart == null || bend == null) {
+    //        UnityEngine.Debug.LogError("pos:" + Idx + " on unit:" + unitid + " contains error");
+    //    }
+    //}
     public void Bake() {
         float speedScale = 1.0f;
         int Prev = Start;
@@ -1703,12 +1730,16 @@ public class PoseState {
             } else {
                 p = (time - clip.KeyFrames[lhs - clip.Start]) / (clip.KeyFrames[lhs - clip.Start] - clip.KeyFrames[rhs - clip.Start]);
             }
-            BoneStatus prevPose = Main.Ins.AmbLoader.GetBoneStatus(clip.SourceIdx, playerId, lhs);
-            BoneStatus nextPose = Main.Ins.AmbLoader.GetBoneStatus(clip.SourceIdx, playerId, rhs);
+            BoneStatus prevPose = AmbLoader.Ins.GetBoneStatus(clip.SourceIdx, playerId, lhs);
+            BoneStatus nextPose = AmbLoader.Ins.GetBoneStatus(clip.SourceIdx, playerId, rhs);
+            if (prevPose == null || nextPose == null) {
+                //UnityEngine.Debug.LogError("动作:" + clip.Idx + " 左侧帧:" + lhs + " 右侧帧:" + rhs + " 找不到对应的关键帧数据，动画缺失，返回");
+                return lhs;
+            }
             Utility.HermiteInterpolatePose(prevPose, nextPose, ref pose, p);
         }
         else {
-            BoneStatus nextPose = Main.Ins.AmbLoader.GetBoneStatus(clip.SourceIdx, playerId, rhs);
+            BoneStatus nextPose = AmbLoader.Ins.GetBoneStatus(clip.SourceIdx, playerId, rhs);
             nextPose.Clone(ref pose);
         }
 

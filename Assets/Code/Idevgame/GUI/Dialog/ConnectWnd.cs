@@ -4,7 +4,7 @@ using Idevgame.GameState.DialogState;
 using DG.Tweening;
 public class ConnectDialogState : CommonDialogState<ConnectWnd>
 {
-    public ConnectDialogState(MainDialogStateManager stateMgr) :base(stateMgr)
+    public ConnectDialogState(MainDialogMgr stateMgr) :base(stateMgr)
     {
 
     }
@@ -21,9 +21,6 @@ public class ConnectWnd:Dialog
 }
 
 public class ConnectServerDialogState :PersistDialog<ConnectServerWnd> {
-    public ConnectServerDialogState() {
-
-    }
     public override string DialogName { get { return "ConnectServer"; } }
 }
 

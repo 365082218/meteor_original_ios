@@ -4,6 +4,7 @@ using ProtoBuf;
 using SLua;
 using Excel2Json;
 
+
 [ProtoContract]
 public class MonsterEx
 {
@@ -68,33 +69,29 @@ public class MonsterEx
 
     public LuaTable sState;
 
-    public MonsterEx(int HPMAX = 2000)
+    public MonsterEx(int HPMAX = 2000, bool player = false)
     {
-        IsPlayer = false;
-        //ScriptMng.ins.DoScript(Script);
-        //NpcTemplate = Script;
-        //Model = (int)(double)ScriptMng.ins.GetVariable("Model");
-        //name = (string)ScriptMng.ins.GetVariable("Name");
-        //Weapon = (int)(double)ScriptMng.ins.GetVariable("Weapon");
-        //Weapon2 = (int)(double)ScriptMng.ins.GetVariable("Weapon2");
-        CombatChance = CombatData.CombatBase + (Random.Range(1, 101) / 100.0f) * CombatData.CombatChance;
+        IsPlayer = player;
+        if (!player) {
+            
+            Think = Utility.Range(45, 100);
+            CombatChance = CombatData.CombatChancePerThink * Think / 10.0f;
+            //默认属性即为机器人属性.
+            Attack1 = Utility.Range(45, 55);
+            Attack2 = Utility.Range(55, 65);
+            Attack3 = Utility.Range(65, 75);
+            Guard = Utility.Range(0, 2);
+            GetItem = Utility.Range(0, 2);
+            Burst = Utility.Range(0, 2);
+            Look = 0;
+            Jump = 0;
+            Dodge = 0;
+        }
         Team = 2;
         View = 600;
-        Think = Random.Range(45, 100);
-        //默认属性即为机器人属性.
-        Attack1 = Random.Range(20, 35);
-        Attack2 = Random.Range(30, 45);
-        Attack3 = Random.Range(40, 55);
-        Guard = Random.Range(5, 12);
-        GetItem = Random.Range(1, 5);
         Aim = 80;
-        Burst = Random.Range(1, 8);
-        Look = Random.Range(1, 8);
-        Jump = Random.Range(1, 8);
         HpMax = HPMAX;
-        //SpawnPoint = 1;
-        Speed = 1000;
-        //ActionSpeed = 1;
+        Speed = 950;
         hpCur = HpMax;
         AngryValue = 0;
     }
@@ -113,6 +110,7 @@ public class MonsterEx
         //主角属性无法更改
         if (IsPlayer)
             return;
+        
         if (sState == null)
             return;
         Attack1 = (int)(double)sState["Attack1"];
@@ -126,13 +124,15 @@ public class MonsterEx
         Aim = (int)(double)sState["Aim"];
         GetItem = (int)(double)sState["GetItem"];
         View = (int)(double)sState["View"];
+        Dodge = (int)(double)sState["Dodge"];
+        CombatChance = CombatData.CombatChancePerThink * Think / 10.0f;
     }
 
     //unit id , 名称, 所在队伍中的下标.
     public bool InitMonster(string Script)
     {
         IsPlayer = false;
-        sState = Main.Ins.ScriptMng.DoScript(Script) as LuaTable;
+        sState = ScriptMng.Ins.DoScript(Script) as LuaTable;
         NpcTemplate = Script;
         Model = (int)(double)sState["Model"];
         name = (string)sState["Name"];
@@ -143,7 +143,7 @@ public class MonsterEx
         Think = (int)(double)sState["Think"];
         HpMax = (int)(double)sState["HP"];
         SpawnPoint = (int)(double)sState["Spawn"];
-        Speed = 1000;
+        Speed = 950;
         Guard = (int)(double)sState["Guard"];
         Jump = (int)(double)sState["Jump"];
         Look = (int)(double)sState["Look"];
@@ -153,7 +153,8 @@ public class MonsterEx
         Attack1 = (int)(double)sState["Attack1"];
         Attack2 = (int)(double)sState["Attack2"];
         Attack3 = (int)(double)sState["Attack3"];
-        CombatChance = CombatData.CombatBase + (Random.Range(1, 101) / 100.0f) * CombatData.CombatChance;
+        Dodge = (int)(double)sState["Dodge"];
+        CombatChance = CombatData.CombatChancePerThink * Think / 10.0f;
         hpCur = HpMax;
         mpCur = MpMax;
         return true;
@@ -189,7 +190,7 @@ public class MonsterEx
     //仅修改移动速度,非动作速度
     public void MultiplySpeed(float per)
     {
-        Speed = (int)((float)Speed * per);
+        Speed = (int)(Speed * per);
     }
 
     //public void AddSpeed(int speed)
@@ -200,7 +201,7 @@ public class MonsterEx
 
     public void AddDefence(int def)
     {
-        Debug.Log("add buff def:" + def);
+        //Debug.Log("add buff def:" + def);
         BuffDef += def;
     }
 
@@ -209,10 +210,10 @@ public class MonsterEx
         BuffDamage += damage;   
     }
 
-    public void OnReborn(float max = 0.3f)
+    public void OnReborn(float max)
     {
         IsDead = false;
-        hpCur = Mathf.FloorToInt(HpMax * max);
+        hpCur = (int)(HpMax * max);
     }
 
     public void AddHP(int hp)
@@ -260,7 +261,7 @@ public class MonsterEx
     {
         Team = 1;
         IsPlayer = true;
-        Speed = 1000;
+        Speed = 800;
         if (script == null)
         {
             name = StringUtils.DefaultPlayer;
@@ -282,13 +283,13 @@ public class MonsterEx
             HpMax = hpCur = (int)(double)script.GetPlayerMaxHp();
             if (HpMax == 0)
                 hpCur = HpMax = 1000;
-            if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld)
+            if (CombatData.Ins.GLevelMode == LevelMode.CreateWorld)
             {
-                HpMax = hpCur = 10 * Main.Ins.CombatData.PlayerLife;
-                Weapon = U3D.GetWeaponByType(Main.Ins.CombatData.MainWeapon);
-                Weapon2 = U3D.GetWeaponByType(Main.Ins.CombatData.SubWeapon);
-                Model = Main.Ins.CombatData.PlayerModel;
-                name = Main.Ins.DataMgr.GetModelDatas()[Model].Name;
+                HpMax = hpCur = 10 * CombatData.Ins.PlayerLife;
+                Weapon = U3D.GetWeaponByType(CombatData.Ins.MainWeapon);
+                Weapon2 = U3D.GetWeaponByType(CombatData.Ins.SubWeapon);
+                Model = CombatData.Ins.PlayerModel;
+                name = DataMgr.Ins.GetModelDatas()[Model].Name;
             }
         } 
         View = 500;

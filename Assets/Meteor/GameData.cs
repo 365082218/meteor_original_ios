@@ -1,10 +1,11 @@
-﻿
-using ProtoBuf;
+﻿using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using Excel2Json;
+
+using protocol;
 
 [ProtoBuf.ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
 public class UpdateFile
@@ -67,6 +68,7 @@ public class RoomSetting
     public bool DisallowSpecialWeapon;//创建房间时禁用远程武器
     public int Version;//联机时-版本号
     public int Pattern;//普通/录制/播放录像
+    public GameRecord record;//选择的录像
     public RoomSetting()
     {
         LevelTemplate = 22;
@@ -79,15 +81,9 @@ public class RoomSetting
         Mode = (int)GameMode.MENGZHU;
         DisallowSpecialWeapon = true;
         Version = Main.Ins.AppInfo.MeteorVersion.Equals("9.07") ? (int)protocol.RoomInfo.MeteorVersion.V907 : (int)protocol.RoomInfo.MeteorVersion.V107;
-        Pattern = 1;
+        Pattern = (int)RoomInfo.RoomPattern._Normal;
+        record = null;
     }
-}
-
-
-//整个游戏只有一份的开关状态.
-//游戏关卡附带的数据存档，和角色状态等，存到其他地方
-public enum StateVersion {
-    kDefault = 1,//
 }
 
 //DLC记录备份，主设置要在删除重建后再读取这边的数据
@@ -100,17 +96,13 @@ public class DlcState {
 //游戏设置
 [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
 public class GameState {
-    public int version;//存档版本=1,后续每次修改存档格式，就提升.
-    public int saveSlot;
     public float MusicVolume;//设置背景音乐
     public float SoundVolume;//设置声音
-    public string ClientId;//IOS GAMECENTER账号。
     public int Quality;//0默认最高,1中_800面,2低_300面
     public int Level;//当前最远通过的关卡
     public int ChapterTemplate;//创建单机适默认剧本
     public string NickName;
     public bool EnableDebugSFX;//战斗UI调试特效是否显示
-    public bool EnableDebugStatus;//角色头顶的信息条显示 动作 帧 状态 属性 等信息
     public bool EnableWeaponChoose;//战斗UI控制面板是否显示按钮
     public bool EnableDebugRobot;//调试角色按钮。
     public bool _EnableInfiniteAngry;
@@ -126,6 +118,11 @@ public class GameState {
     public List<ModelItem> pluginModel = new List<ModelItem>();//已安装的新模型
     public List<Chapter> pluginChapter = new List<Chapter>();//已安装的新章节-资料片
     public void RegisterModel(ModelItem item) {
+        if (item == null)
+            return;
+        ModelItem m = FindModel(item.ModelId);
+        if (m != null)
+            return;
         if (pluginModel == null)
             pluginModel = new List<ModelItem>();
         pluginModel.Add(item);
@@ -134,21 +131,64 @@ public class GameState {
     public void UnRegisterModel(ModelItem item) {
         if (pluginModel == null)
             return;
-        pluginModel.Remove(item);
+        ModelItem m = FindModel(item.ModelId);
+        if (m != null)
+            pluginModel.Remove(m);
+    }
+
+    ModelItem FindModel(int model) {
+        for (int i = 0; i < pluginModel.Count; i++) {
+            if (pluginModel[i].ModelId == model) {
+                return pluginModel[i];
+            }
+        }
+        return null;
+    }
+
+    Chapter FindChapter(int chapter) {
+        for (int i = 0; i < pluginChapter.Count; i++) {
+            if (pluginChapter[i].ChapterId == chapter) {
+                return pluginChapter[i];
+            }
+        }
+        return null;
     }
 
     public void RegisterDlc(Chapter dlc) {
+        if (dlc == null)
+            return;
+        Chapter c = FindChapter(dlc.ChapterId);
+        if (c != null)
+            return;
         if (pluginChapter == null)
             pluginChapter = new List<Chapter>();
         pluginChapter.Add(dlc);
-        Main.Ins.CombatData.ClearLevel();//需要刷新
+        CombatData.Ins.ClearLevel();//需要刷新
     }
 
     public void UnRegisterDlc(Chapter dlc) {
         if (pluginChapter == null)
             return;
-        pluginChapter.Remove(dlc);
-        Main.Ins.CombatData.ClearLevel();
+        Chapter c = FindChapter(dlc.ChapterId);
+        if (c != null)
+            pluginChapter.Remove(c);
+        CombatData.Ins.ClearLevel();
+    }
+
+    public bool IsModelInstalled(int item, ref ModelItem m) {
+        if (pluginModel == null)
+            return false;
+        for (int i = 0; i < pluginModel.Count; i++) {
+            if (pluginModel[i].ModelId == item) {
+                //找到了指定的模型插件，判定模型的资源是否存在
+                pluginModel[i].Check();
+                bool ret = pluginModel[i].Installed;
+                if (ret)
+                    m = pluginModel[i];
+                return ret;
+            }
+        }
+        return false;
     }
 
     public bool IsModelInstalled(ModelItem item) {
@@ -181,12 +221,12 @@ public class GameState {
 
     public bool EnableInfiniteAngry {
         get {
-            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+            if (U3D.IsMultiplyPlayer())
                 return false;
             return _EnableInfiniteAngry;
         }
         set {
-            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer) {
+            if (U3D.IsMultiplyPlayer()) {
                 return;
             }
             _EnableInfiniteAngry = value;
@@ -199,12 +239,12 @@ public class GameState {
     bool _EnableGodMode;
     public bool EnableGodMode {
         get {
-            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+            if (U3D.IsMultiplyPlayer())
                 return false;
             return _EnableGodMode;
         }
         set {
-            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer) {
+            if (U3D.IsMultiplyPlayer()) {
                 return;
             }
             _EnableGodMode = value;
@@ -214,12 +254,12 @@ public class GameState {
     bool _Undead = false;
     public bool Undead {
         get {
-            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+            if (U3D.IsMultiplyPlayer())
                 return false;
             return _Undead;
         }
         set {
-            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer) {
+            if (U3D.IsMultiplyPlayer()) {
                 return;
             }
             _Undead = value;
@@ -229,12 +269,12 @@ public class GameState {
     bool _CheatEnable;
     public bool CheatEnable {
         get {
-            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+            if (U3D.IsMultiplyPlayer())
                 return false;
             return _CheatEnable;
         }
         set {
-            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer) {
+            if (U3D.IsMultiplyPlayer()) {
                 return;
             }
             _CheatEnable = value;
@@ -249,7 +289,6 @@ public class GameState {
     public int TargetFrame;//60-30
     public bool ShowBlood;//显示敌方血量.
     public bool ShowFPS;//显示fps
-    public bool ShowSysMenu2;//显示左侧复活和战况
     public bool ShowWayPoint;//显示路点
     public bool AutoLock;//无锁定
     public bool DisableParticle;//无粒子特效
@@ -275,10 +314,9 @@ public class GameState {
 }
 
 //存档数据 类似于设置.
-public class GameStateMgr
+public class GameStateMgr:Singleton<GameStateMgr>
 {
     public GameState gameStatus;
-    public DlcState dlcStatus;
     public InventoryItem MakeEquip(int unitIdx)
     {
         ItemData info = FindItemByIdx(unitIdx);
@@ -292,7 +330,7 @@ public class GameStateMgr
 
     public ItemData FindItemByIdx(int itemid)
     {
-        ItemData ItemProperty = Main.Ins.DataMgr.GetItemData(itemid);
+        ItemData ItemProperty = DataMgr.Ins.GetItemData(itemid);
         //缺失读取外部加载的部分
         //if (ItemProperty == null)
         //    ItemProperty = Main.Instance..GetItem(itemid);
@@ -307,55 +345,8 @@ public class GameStateMgr
         get
         {
             if (string.IsNullOrEmpty(state_path_))
-                state_path_ = string.Format("{0}/game_state.dat", Application.persistentDataPath);
+                state_path_ = string.Format("{0}/{1}/game_state.dat", Application.persistentDataPath, AppInfo.Ins.AppVersion());
             return state_path_;
-        }
-    }
-
-    string dlc_state_path_;
-    public string dlc_state_path {
-        get {
-            if (string.IsNullOrEmpty(dlc_state_path_))
-                dlc_state_path_ = string.Format("{0}/dlc_state.dat", Application.persistentDataPath);
-            return dlc_state_path_;
-        }
-    }
-
-    public void SyncGameState() {
-        dlcStatus.pluginModel = gameStatus.pluginModel;
-        dlcStatus.pluginChapter = gameStatus.pluginChapter;
-    }
-
-    //从DLC读取数据
-    public void SyncDlcState() {
-        gameStatus.pluginModel = dlcStatus.pluginModel;
-        gameStatus.pluginChapter = dlcStatus.pluginChapter;
-    }
-
-    public void LoadDlcState() {
-        FileStream save = null;
-        try {
-            save = File.Open(dlc_state_path, FileMode.Open, FileAccess.Read);
-        } catch (System.Exception exp) {
-            Debug.Log(exp.Message + "|" + exp.StackTrace);
-        }
-        if (save != null) {
-            if (save.Length != 0) {
-                try {
-                    dlcStatus = Serializer.Deserialize<DlcState>(save);
-                } catch {
-                    dlcStatus = null;
-                }
-            }
-            save.Close();
-            save = null;
-        }
-        if (dlcStatus == null) {
-            dlcStatus = new DlcState();
-            dlcStatus.pluginChapter = gameStatus.pluginChapter;
-            dlcStatus.pluginModel = gameStatus.pluginModel;
-        } else {
-            //读取到了本地的.
         }
     }
 
@@ -383,23 +374,18 @@ public class GameStateMgr
             //未指定流星版本.
             if (gameStatus != null && gameStatus.MeteorVersion == null)
                 gameStatus = null;
-            //存档与游戏版本不一致.
-            if (gameStatus != null && gameStatus.version != (int)StateVersion.kDefault)
-                gameStatus = null;
             save.Close();
             save = null;
         }
         if (gameStatus == null)
         {
             gameStatus = new GameState();
-            gameStatus.version = (int)StateVersion.kDefault;
             gameStatus.Level = 1;
-            gameStatus.saveSlot = 0;//默认使用0号存档.
-            gameStatus.MusicVolume = 50;
-            gameStatus.SoundVolume = 50;
+            gameStatus.MusicVolume = 0.5f;
+            gameStatus.SoundVolume = 0.5f;
             gameStatus.NickName = "昱泉杀手";
             gameStatus.JoyAnchor = new MyVector2(390,340);
-            gameStatus.AxisSensitivity = new MyVector2(0.5f, 0.5f);
+            gameStatus.AxisSensitivity = new MyVector2(1, 1);
             gameStatus.MeteorVersion = "9.07";
 #if UNITY_STANDALONE_WIN
             gameStatus.TargetFrame = 120;//PC上120帧
@@ -435,11 +421,11 @@ public class GameStateMgr
             }
             //按钮缩放
             for (int i = 0; i < maxNum; i++) {
-                gameStatus.UIScale.Add(1.0f);
+                gameStatus.UIScale.Add(1);
             }
             //方向盘缩放
-            gameStatus.JoyScale = 1.0f;
-            gameStatus.UIAlpha = 1.0f;
+            gameStatus.JoyScale = 1;
+            gameStatus.UIAlpha = 1;
 
             //手柄默认按键配置
             gameStatus.KeyMapping.Add(EKeyList.KL_KeyW, KeyCode.JoystickButton4);
@@ -471,24 +457,6 @@ public class GameStateMgr
         Main.Ins.AppInfo.MeteorVersion = gameStatus.MeteorVersion;
     }
 
-    public void SaveDlc() {
-        FileStream save = null;
-        try {
-            save = File.Open(dlc_state_path, FileMode.OpenOrCreate, FileAccess.Write);
-            save.SetLength(0);
-            Serializer.Serialize(save, dlcStatus);
-            save.Flush();
-            save.Close();
-            save.Dispose();
-            save = null;
-        } catch (System.Exception exp) {
-            Debug.Log("save failed:" + exp.Message + "|" + exp.StackTrace);
-            if (save != null) {
-                save.Close();
-            }
-        }
-    }
-
     public void SaveState()
     {
         FileStream save = null;
@@ -517,14 +485,13 @@ public class GameStateMgr
             File.Delete(state_path);
         gameStatus = null;
         LoadState(false);
-        SyncDlcState();
     }
     
     //通过配置表得到武器ItemId;//若一个模型被2个武器引用，则返回前者
     public int GetWeaponCode(string model)
     {
         int unitId = -1;
-        List<WeaponData> wItems = Main.Ins.DataMgr.GetWeaponDatas();
+        List<WeaponData> wItems = DataMgr.Ins.GetWeaponDatas();
         for (int i = 0; i < wItems.Count; i++)
         {
             if (wItems[i].WeaponR == model)
@@ -547,7 +514,7 @@ public class GameStateMgr
         //    }
         //}
 
-        List<ItemData> items = Main.Ins.DataMgr.GetItemDatas();
+        List<ItemData> items = DataMgr.Ins.GetItemDatas();
         for (int i = 0; i < items.Count; i++)
         {
             if (items[i].UnitId == unitId && items[i].MainType == (int)UnitType.Weapon)
@@ -557,135 +524,19 @@ public class GameStateMgr
     }
 }
 
-//处理版本更新相关
-public class UpdateHelper
-{
-    public UpdateVersion updateVersion;
-    public void LoadCache()
-    {
-        FileStream save = null;
-        try
-        {
-            save = File.Open(Application.persistentDataPath + "/" + "game_cache.dat", FileMode.Open, FileAccess.Read, FileShare.Read);
-        }
-        catch
-        {
-
-        }
-        if (save != null)
-        {
-            updateVersion = Serializer.Deserialize<UpdateVersion>(save);
-            save.Close();
-            save = null;
-        }
-    }
-
-    public void SaveCache()
-    {
-        if (updateVersion != null)
-        {
-            FileStream save = null;
-            try
-            {
-                save = File.Open(Application.persistentDataPath + "/" + "game_cache.dat", FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
-            }
-            catch
-            {
-
-            }
-            if (save != null)
-            {
-                save.SetLength(0);
-                Serializer.Serialize(save, updateVersion);
-                save.Close();
-                save = null;
-            }
-        }
-    }
-
-    //应用一个版本
-    public void ApplyVersion(VersionItem ver)
-    {
-        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.UpdateDialogState);
-        UpdateDialogState.Instance.SetNotice(ver.strVersionMax,
-            () =>
-            {
-                UpdateDialogState.Instance.DisableAcceptBtn();
-                //如果之前有更新进度
-                if (updateVersion != null)
-                {
-                    if (updateVersion.Version == ver.strVersion && updateVersion.VersionMax == ver.strVersionMax)
-                    {
-                        //不管更新包大小是否超过剩余磁盘空间
-                        //long freeSpace = AppInfo.GetFreeSpace();
-                        //if (updateVersion.File.Totalbytes - updateVersion.File.Loadbytes > freeSpace)
-                        //{
-
-                        //}
-                        //弹一个界面，让玩家决定是否继续更新
-                        if (updateVersion.File.Totalbytes != 0)
-                            UpdateDialogState.Instance.UpdateProgress((float)updateVersion.File.Loadbytes / (float)updateVersion.File.Totalbytes, "0");
-                        Main.Ins.StartDownLoad(updateVersion);
-                    }
-                    else
-                    {
-                        //说明自从上次升级一半，服务端又升级了，丢弃掉之前升级的内容
-                        CleanVersion();
-                        DownLoadVersion(ver);
-                    }
-                }
-                else
-                {
-                    DownLoadVersion(ver);
-                }
-            }
-            ,
-        () =>
-        {
-            //直接进入游戏
-            Main.Ins.GameStart();
-        });
-    }
-
-    public void DownLoadVersion(VersionItem ver)
-    {
-        updateVersion = new UpdateVersion();
-        updateVersion.Version = ver.strVersion;
-        updateVersion.VersionMax = ver.strVersionMax;
-        updateVersion.File = new UpdateFile();
-        updateVersion.File.bHashChecked = false;
-        updateVersion.File.Loadbytes = 0;
-        updateVersion.File.strFile = ver.zip.fileName;
-        if (File.Exists(ResMng.GetUpdateTmpPath() + "/" + ver.zip.fileName))
-            File.Delete(ResMng.GetUpdateTmpPath() + "/" + ver.zip.fileName);
-        updateVersion.File.strLocalPath = ResMng.GetUpdateTmpPath() + "/" + ver.zip.fileName;
-        updateVersion.File.Totalbytes = ver.zip.size;
-        updateVersion.File.strMd5 = ver.zip.Md5;
-        Main.Ins.StartDownLoad(updateVersion);
-    }
-
-    public void CleanVersion()
-    {
-        if (updateVersion != null && updateVersion.File != null)
-        {
-            if (File.Exists(updateVersion.File.strLocalPath))
-                File.Delete(updateVersion.File.strLocalPath);
-            updateVersion = null;
-        }
-    }
-}
-
-public class CombatData
+//单位，毫秒，毫米
+//用大数字替代浮点数
+public class CombatData:Singleton<CombatData>
 {
     public ServerInfo Server;//当前选择的服务器.
     public List<ServerInfo> Servers = new List<ServerInfo>();
-    public float gGravity = 1000;//重力加速度
-    public float gOnGroundCheck = 100;//如果在地面，也给一个向地面的移动测试（每1帧重置，如果离地则继续叠加），避免上下坡时没有向下移动导致的抖动
-    public const float AngularVelocity = 360.0f;
-    public const float RebornChance = 3.0f;
-    public const float RebornDelay = 15.0f;//复活队友的CD间隔
-    public const float RebornRange = 90;//复活队友的距离最大限制
-    public const float RefreshFollowPathDelay = 5.0f;//如果跟随一个动态的目标，那么每5秒刷新一次位置
+    public int gGravity = 1000;//重力加速度
+    public int gOnGroundCheck = 100;//如果在地面，也给一个向地面的移动测试（每1帧重置，如果离地则继续叠加），避免上下坡时没有向下移动导致的抖动
+    public static float AngularVelocity = 360.0f;
+    public static float RebornChance = 3.0f;
+    public static float RebornDelay = 15.0f;//复活队友的CD间隔
+    public static float RebornRange = 90;//复活队友的距离最大限制
+    public static float RefreshFollowPath = 15.0f;//如果跟随一个动态的目标，那么每15秒刷新一次目标所在位置
     public bool useShadowInterpolate = true;//是否使用影子跟随插值
     public bool PluginUpdated = false;//是否已成功更新过资料片配置文件
     public bool GameFinished = false;
@@ -695,9 +546,9 @@ public class CombatData
     public int SubWeapon;
     public int PlayerLife;
     public int PlayerModel;
-    public int SpecialWeaponProbability = 98;//100-98=2几率切换到远程武器，每次Think都有2%几率
-    public const float JumpLimit = 70.0f;//跳跃高度上限.
-    public float AimDegree = 30.0f;//夹角超过30度，需要重新瞄准
+    public int NormalWeaponProbability = 75;//100-98=2几率切换到远程武器，每次Think都有2%几率
+    public static float JumpLimit = 70.0f;//跳跃高度上限.
+    public static float AimDegree = 30.0f;//夹角超过30度，需要重新瞄准
     public MeteorInput GMeteorInput = null;
     public LevelData GLevelItem = null;//普通关卡
     public LevelMode GLevelMode;//建立房间时选择的类型，从主界面进，都是Normal
@@ -714,6 +565,8 @@ public class CombatData
     public bool Replay { get { return GRecord != null; } }
     public Type GScriptType;
     public long RandSeed;
+    public System.Random Random;
+    public static float DamageDetectDelay = 0.33f;//伤害检测间隔，持续时间长的攻击盒，可以伤害更多次敌人
     bool mPauseAll;
     public Vector3 BodyHeight = new Vector3(0, 28, 0);
     public Chapter Chapter;
@@ -722,35 +575,35 @@ public class CombatData
         get { return mPauseAll; }
         set { mPauseAll = value; }
     }
-    public const float Jump2Velocity = 100;//蹬腿反弹速度-正后方
-    public const float JumpVelocityForward = 180.0f;//向前跳跃速度
-    public const float JumpVelocityOther = 100.0f;//其他方向上的速度
+    public static int Jump2Velocity = 100;//蹬腿反弹速度-正后方
+    public static int JumpVelocityForward = 180;//向前跳跃速度
+    public static int JumpVelocityOther = 100;//其他方向上的速度
 
     //public const float gGravity = 980.0f;//971.4f;//向上0.55秒，向下0.45秒
-    public const float groundFriction = 3000.0f;//地面摩擦力，在地面不是瞬间停止下来的。
-    public const float yLimitMin = -500f;//最大向下速度
-    public const float yLimitMax = 500;//最大向上速度
-    public const float yClimbLimitMax = 180.0f;
-    public const float yClimbEndLimit = -30.0f;//爬墙时,Y速度低于此速度时，速度为负，开始计时，时间到就从墙壁落下
-    public const float ClimbFallLimit = 0.3f;//爬墙速度向下持续0.8f认为到达要掉下的临界条件
-    public const float ClimbLimit = 2.0f;//爬墙提供向上的力持续时长，表现为在墙壁上停留的时间
-    public const float JumpTimeLimit = 0.15f;//最少要跳跃这么久之后才能攀爬
+    public static float groundFriction = 3000.0f;//地面摩擦力，在地面不是瞬间停止下来的。
+    public static int SpeedMax = 500;//最大速度
+    public static int ClimbLimitMax = 180;//最大爬墙速度
+    public static float yClimbEndLimit = -30.0f;//爬墙时,Y速度低于此速度时，速度为负，开始计时，时间到就从墙壁落下
+    public static float ClimbFallLimit = 0.5f;//爬墙速度向下持续0.3f认为到达要掉下的临界条件
+    public static float ClimbLimit = 2.0f;//爬墙提供向上的力持续时长，表现为在墙壁上停留的时间
+    public static float JumpTimeLimit = 0.15f;//最少要跳跃这么久之后才能攀爬
     public const int LEVELSTART = 1;//初始关卡ID
     public const int LEVELMAX = 9;//最大关卡9炼铁狱
     public const int ANGRYMAX = 100;
     public const int ANGRYBURST = 60;
-    public const float StopDistance = 1225;//最小约35码
-    public const float AttackRange = 6400;//换近战武器
-    public const float PlayerEnter = 3600;//隐身衣状态下，能发现对方的距离
-    public const float PlayerLeave = 6400;//隐身衣状态下，视野丢失所需距离
-    public const float FollowDistanceEnd = 10000;//距离小于100结束跟随
-    public const float FollowDistanceStart = 14400;//距离超过120开始跟随
+    public static float StopDistance = 1225;//最小约35码
+    public static float StopMove = 0.15f;//与路点接近要停止时的测试比例
+    public static float AttackRange = 6400;//换近战武器
+    public static float PlayerEnter = 3600;//隐身衣状态下，能发现对方的距离
+    public static float PlayerLeave = 6400;//隐身衣状态下，视野丢失所需距离
+    public static float FollowDistanceEnd = 10000;//距离小于100结束跟随
+    public static float FollowDistanceStart = 14400;//距离超过120开始跟随
     public const int BreakChance = 1;//3%爆气几率
-    public const int CombatChance = 4;//叠加连招几率
-    public const int CombatBase = 1;//最少1%连招几率
-    public const float DistanceSkipAngle = 3600;//距离足够近时，不论角度如何都应有感知
+    public const int CombatChancePerThink = 3;//THINK越大，连击概率越大
+    public static float DistanceSkipAngle = 3600;//距离足够近时，不论角度如何都应有感知
+    public static float WallForce = 1000;//贴紧墙壁受到的推开速度 
     public int MaxModel = 20;//内置角色模型20个
-
+    public const int DefConvertAngry = 20;//2点伤害的防御=1怒气
     public void OnServiceChanged(int i, ServerInfo Info)
     {
         if (Servers == null)
@@ -783,15 +636,15 @@ public class CombatData
             return AllLevel.ToArray();
         if (AllLevel == null)
             AllLevel = new List<LevelData>();
-        List<LevelData> baseLevel = Main.Ins.DataMgr.GetLevelDatas();
+        List<LevelData> baseLevel = DataMgr.Ins.GetLevelDatas();
         for (int i = 0; i < baseLevel.Count; i++)
         {
             AllLevel.Add(baseLevel[i]);
         }
 
-        for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginChapter.Count; i++)
+        for (int i = 0; i < GameStateMgr.Ins.gameStatus.pluginChapter.Count; i++)
         {
-            baseLevel = Main.Ins.DlcMng.GetDlcLevel(Main.Ins.GameStateMgr.gameStatus.pluginChapter[i].ChapterId);
+            baseLevel = DlcMng.Ins.GetDlcLevel(GameStateMgr.Ins.gameStatus.pluginChapter[i].ChapterId);
             for (int j = 0; j < baseLevel.Count; j++)
             {
                 AllLevel.Add(baseLevel[j]);
@@ -800,23 +653,16 @@ public class CombatData
         return AllLevel.ToArray();
     }
 
-    public LevelData GetGlobalLevel(int mix)
-    {
-        int c = (mix / 1000) * 1000;
-        int l = mix % 1000;
-        return GetLevel(c, l);
-    }
-
     public LevelData GetLevel(int chapterId, int id)
     {
         if (chapterId == 0)
         {
-            LevelData lev = Main.Ins.DataMgr.GetLevelData(id);
+            LevelData lev = DataMgr.Ins.GetLevelData(id);
             if (lev != null)
                 return lev;
         }
 
-        List<LevelData> l = Main.Ins.DlcMng.GetDlcLevel(chapterId);
+        List<LevelData> l = DlcMng.Ins.GetDlcLevel(chapterId);
         for (int i = 0; i < l.Count; i++)
         {
             if (l[i].Id == id)
@@ -828,11 +674,11 @@ public class CombatData
 
     public string GetCharacterName(int id)
     {
-        if (id >= Main.Ins.CombatData.MaxModel)
+        if (id >= CombatData.Ins.MaxModel)
         {
             return DlcMng.GetPluginModel(id).Name;
         }
-        return Main.Ins.DataMgr.GetModelData(id).Name;
+        return DataMgr.Ins.GetModelData(id).Name;
     }
 
     public static List<WayPoint> GetWayPoint(LevelData level)
@@ -858,7 +704,7 @@ public class WayPoint
     public int index;//-1表示仅为一个地点，并不在路点列表中
     public Vector3 pos;
     public int size;
-    public Dictionary<int, WayLength> link;
+    public SortedDictionary<int, WayLength> link;
 }
 
 public enum GameResult

@@ -21,6 +21,7 @@ public class Dialog:UIBehaviour
     public BaseDialogState State { get { return OwnerState; } }
     private BaseDialogState OwnerState;
     protected GameObject WndObject { get { return gameObject; } }
+
     public GameObject Control(string child)
     {
         return Control(child, gameObject);
@@ -53,7 +54,7 @@ public class Dialog:UIBehaviour
         OnClose();
     }
 
-    public virtual void OnRefresh(int message, object param)
+    public virtual void OnRefresh(int message, object param = null)
     {
 
     }
@@ -67,7 +68,7 @@ public class Dialog:UIBehaviour
     {
         if (Persist != null)
         {
-            Main.Ins.ExitState(Persist);
+            Persist.Close();
             Persist = null;
         }
         if (OwnerState != null && OwnerState.DialogStateManager != null)
@@ -78,7 +79,7 @@ public class Dialog:UIBehaviour
     {
         if (Persist != null)
         {
-            Main.Ins.ExitState(Persist);
+            Persist.Close();
             Persist = null;
         }
         if (OwnerState != null && OwnerState.DialogStateManager != null)

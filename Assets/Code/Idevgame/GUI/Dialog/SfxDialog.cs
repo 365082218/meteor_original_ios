@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class SfxDialogState : CommonDialogState<SfxDialog>
 {
     public override string DialogName { get { return "SfxDialog"; } }
-    public SfxDialogState(MainDialogStateManager stateMgr):base(stateMgr)
+    public SfxDialogState(MainDialogMgr stateMgr):base(stateMgr)
     {
 
     }
@@ -33,7 +33,7 @@ public class SfxDialog : Dialog
     int pageMax = 0;
     void Init()
     {
-        pageMax = (Main.Ins.SFXLoader.Eff.Length / PageCount) + ((Main.Ins.SFXLoader.Eff.Length % PageCount) != 0 ? 1 : 0);
+        pageMax = (SFXLoader.Ins.Eff.Length / PageCount) + ((SFXLoader.Ins.Eff.Length % PageCount) != 0 ? 1 : 0);
         SfxRoot = Control("Page");
         Control("Close").GetComponent<Button>().onClick.AddListener(OnBackPress);
         Control("PagePrev").GetComponent<Button>().onClick.AddListener(PrevPage);
@@ -75,7 +75,7 @@ public class SfxDialog : Dialog
                 SFXList[j].SetActive(false);
         }
 
-        for (int i = (page - 1) * PageCount; i < Mathf.Min((page) * PageCount, Main.Ins.SFXLoader.TotalSfx); i++)
+        for (int i = (page - 1) * PageCount; i < Mathf.Min((page) * PageCount, SFXLoader.Ins.TotalSfx); i++)
         {
             AddSFX(i, (page - 1) * PageCount);
             yield return 0;
@@ -92,13 +92,13 @@ public class SfxDialog : Dialog
             SFXList[j].GetComponent<Button>().onClick.RemoveAllListeners();
             SFXList[j].GetComponent<RectTransform>().sizeDelta = Vector2.zero;
             SFXList[j].GetComponent<Button>().onClick.AddListener(() => { PlaySfx(Idx); });
-            SFXList[j].GetComponentInChildren<Text>().text = Main.Ins.SFXLoader.Eff[Idx];
+            SFXList[j].GetComponentInChildren<Text>().text = SFXLoader.Ins.Eff[Idx];
         }
         else
         {
             GameObject obj = GameObject.Instantiate(Resources.Load("GridItemBtn")) as GameObject;
             obj.GetComponent<Button>().onClick.AddListener(() => { PlaySfx(Idx); });
-            obj.GetComponentInChildren<Text>().text = Main.Ins.SFXLoader.Eff[Idx];
+            obj.GetComponentInChildren<Text>().text = SFXLoader.Ins.Eff[Idx];
             obj.transform.SetParent(SfxRoot.transform);
             obj.gameObject.layer = SfxRoot.layer;
             obj.transform.localScale = Vector3.one;
@@ -110,6 +110,6 @@ public class SfxDialog : Dialog
 
     void PlaySfx(int idx)
     {
-        Main.Ins.SFXLoader.PlayEffect(idx, Main.Ins.LocalPlayer.gameObject, true);
+        SFXLoader.Ins.PlayEffect(idx, Main.Ins.LocalPlayer.gameObject, true);
     }
 }

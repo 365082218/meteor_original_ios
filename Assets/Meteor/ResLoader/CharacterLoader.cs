@@ -6,11 +6,6 @@ using ProtoBuf;
 using System.Linq;
 using System;
 
-public class AABBVector
-{
-    public Vector3 min;
-    public Vector3 max;
-}
 
 public enum PoseEvt
 {
@@ -44,8 +39,8 @@ public class CharacterLoader
         Skin.transform.localRotation = Quaternion.identity;
         Skin.transform.localScale = Vector3.one;
         Skin.transform.localPosition = Vector3.zero;
-        SkcFile skc = Main.Ins.SkcLoader.Load(id);
-        BncFile bnc = Main.Ins.BncLoader.Load(id);
+        SkcFile skc = SkcLoader.Ins.Load(id);
+        BncFile bnc = BncLoader.Ins.Load(id);
         Skin.name = skc.Skin;
         render = Skin.AddComponent<SkinnedMeshRenderer>();
         render.localBounds = skc.mesh.bounds;
@@ -69,7 +64,7 @@ public class CharacterLoader
         render.rootBone = rootBone;
         RootPos = rootBone.localPosition;
         RootQuat = rootBone.localRotation;
-        Main.Ins.AmbLoader.LoadCharacterAmb(id);
+        AmbLoader.Ins.LoadCharacterAmb(id);
         //GenerateBounds(skc.mesh, bo);
         LoadBoxDef(id);
     }
@@ -77,154 +72,6 @@ public class CharacterLoader
     public ActionManager posMng;
     MeteorUnit Owner;
     public MeteorUnit mOwner { get { return Owner; } }
-
-    void GenerateBounds(Mesh me, List<Transform> bo)
-    {
-        GameObject meshTrace = new GameObject("Trace");
-        string[] bonesBatch = new string[] { "bau_L_Hand", "bau_R_Hand" };//子节点作为AABB盒合并的
-        string[] bonesIgnore = new string[] { "bad_Pelvis", "bau_Neck", "bau_L_Clavicle", "bau_R_Clavicle" };//忽略的
-        List<Transform> tr = new List<Transform>();
-        List<Transform> ig = new List<Transform>();
-        for (int i = 0; i < bonesBatch.Length; i++)
-            tr.Add(NodeHelper.Control(bonesBatch[i], bo[0].gameObject).transform);
-        for (int i = 0; i < bonesIgnore.Length; i++)
-            ig.Add(NodeHelper.Control(bonesIgnore[i], bo[0].gameObject).transform);
-
-        meshTrace.transform.position = Vector3.zero;
-        meshTrace.transform.rotation = Quaternion.identity;
-        //MeshFilter meTrace = meshTrace.AddComponent<MeshFilter>();
-        //Mesh me2 = new Mesh();
-        //List<Vector3> vert = new List<Vector3>();
-        //List<int> triangle = new List<int>();
-        Dictionary<Transform, AABBVector> bounds = new Dictionary<Transform, AABBVector>();
-        for (int i = 0; i < me.vertexCount; i++)
-        {
-            float weightMax = 0.0f;
-            int boneIdx = -1;
-            if (weightMax < me.boneWeights[i].weight0)
-            {
-                weightMax = me.boneWeights[i].weight0;
-                boneIdx = me.boneWeights[i].boneIndex0;
-            }
-            if (weightMax < me.boneWeights[i].weight1)
-            {
-                weightMax = me.boneWeights[i].weight1;
-                boneIdx = me.boneWeights[i].boneIndex1;
-            }
-            if (weightMax < me.boneWeights[i].weight2)
-            {
-                weightMax = me.boneWeights[i].weight2;
-                boneIdx = me.boneWeights[i].boneIndex2;
-            }
-            if (weightMax < me.boneWeights[i].weight3)
-            {
-                weightMax = me.boneWeights[i].weight3;
-                boneIdx = me.boneWeights[i].boneIndex3;
-            }
-            if (bounds.ContainsKey(bo[boneIdx]))
-            {
-                AABBVector b = bounds[bo[boneIdx]];
-                Vector3 p = bo[boneIdx].worldToLocalMatrix * me.vertices[i];
-                if (b.min.x > p.x)
-                    b.min.x = p.x;
-                if (b.min.y > p.y)
-                    b.min.y = p.y;
-                if (b.min.z > p.z)
-                    b.min.z = p.z;
-
-                if (b.max.x < p.x)
-                    b.max.x = p.x;
-                if (b.max.y < p.y)
-                    b.max.y = p.y;
-                if (b.max.z < p.z)
-                    b.max.z = p.z;
-                //vert.Add(me.vertices[i]);
-            }
-            else
-            {
-                //如果忽略了该骨骼，就不要执行下面的
-                if (ig.Contains(bo[boneIdx]))
-                    continue;
-                //如果被父级合并，则用父级骨骼
-                bool batched = false;
-                for (int j = 0; j < tr.Count; j++)
-                {
-                    GameObject obj = NodeHelper.Control(bo[boneIdx].name, tr[j].gameObject);
-                    if (obj != null)
-                    {
-                        if (bounds.ContainsKey(tr[j]))
-                        {
-                            AABBVector b = bounds[tr[j]];
-                            Vector3 p = tr[j].worldToLocalMatrix * me.vertices[i];
-                            if (b.min.x > p.x)
-                                b.min.x = p.x;
-                            if (b.min.y > p.y)
-                                b.min.y = p.y;
-                            if (b.min.z > p.z)
-                                b.min.z = p.z;
-
-                            if (b.max.x < p.x)
-                                b.max.x = p.x;
-                            if (b.max.y < p.y)
-                                b.max.y = p.y;
-                            if (b.max.z < p.z)
-                                b.max.z = p.z;
-                        }
-                        else
-                        {
-                            AABBVector b = new AABBVector();
-                            Vector3 p = tr[j].worldToLocalMatrix * me.vertices[i];
-                            b.min.x = p.x;
-                            b.min.y = p.y;
-                            b.min.z = p.z;
-                            b.max.x = p.x;
-                            b.max.y = p.y;
-                            b.max.z = p.z;
-                            bounds.Add(tr[j], b);
-                            //vert.Add(me.vertices[i]);
-                        }
-                        batched = true;
-                        break;
-                    }
-                }
-
-                if (batched)
-                    continue;
-                else
-                {
-                    AABBVector b = new AABBVector();
-                    Vector3 p = bo[boneIdx].worldToLocalMatrix * me.vertices[i];
-                    b.min.x = p.x;
-                    b.min.y = p.y;
-                    b.min.z = p.z;
-                    b.max.x = p.x;
-                    b.max.y = p.y;
-                    b.max.z = p.z;
-                    bounds.Add(bo[boneIdx], b);
-                    //vert.Add(me.vertices[i]);
-                }
-            }
-        }
-        //for (int i = 0; i < me.triangles.Length; i++)
-        //    triangle.Add(me.triangles[i]);
-
-        //me2.vertices = vert.ToArray();
-        //me2.triangles = triangle.ToArray();
-        //meTrace.mesh = me2;
-        //meTrace.gameObject.AddComponent<MeshRenderer>();
-        foreach (var each in bounds)
-        {
-            BoxCollider b = each.Key.gameObject.AddComponent<BoxCollider>();
-            b.center = Vector3.zero;
-            b.size = each.Value.max - each.Value.min;
-            b.enabled = true;
-            b.isTrigger = true;
-            //int idx = WsGlobal.AddDebugLine(each.Value.max, each.Value.min, Color.red);
-            //BoxCollider box = WsGlobal.DebugLine[idx].AddComponent<BoxCollider>();
-            //box.center = Vector3.zero;
-            //box.size = each.Value.max - each.Value.min;
-        }
-    }
 
     //使用同一个攻击定义盒
     void LoadBoxDef(int idx)
@@ -346,7 +193,7 @@ public enum BakeInto {
     BakeLocalRotationW,
 }
 
-public class AmbLoader
+public class AmbLoader:Singleton<AmbLoader>
 {
     public AmbLoader()
     {
@@ -527,21 +374,21 @@ public class AmbLoader
         PlayerAnimation.Clear();
     }
     //所有角色公用的招式.
-    public Dictionary<int, BoneStatus> CharCommon = new Dictionary<int, BoneStatus>();//source 0
+    public SortedDictionary<int, BoneStatus> CharCommon = new SortedDictionary<int, BoneStatus>();//source 0
     //角色ID-角色动画帧编号-骨骼状态.
-    public Dictionary<int, Dictionary<int, BoneStatus>> PlayerAnimation = new Dictionary<int, Dictionary<int, BoneStatus>>();//source 1
+    public SortedDictionary<int, SortedDictionary<int, BoneStatus>> PlayerAnimation = new SortedDictionary<int, SortedDictionary<int, BoneStatus>>();//source 1
     //加载个人自身的动作
     public void LoadCharacterAmb(int idx)
     {
         if (PlayerAnimation.ContainsKey(idx))
             return;
         
-        if (Main.Ins.CombatData.Chapter != null) {
-            Dictionary<int, string> models = Main.Ins.CombatData.GScript.GetModel();
+        if (CombatData.Ins.Chapter != null) {
+            SortedDictionary<int, string> models = CombatData.Ins.GScript.GetModel();
             if (models != null && models.ContainsKey(idx)) {
-                string path = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Amb, models[idx]);
+                string path = CombatData.Ins.Chapter.GetResPath(FileExt.Amb, models[idx]);
                 if (!string.IsNullOrEmpty(path)) {
-                    Dictionary<int, BoneStatus> pluginAmb = LoadAmbSync(path);
+                    SortedDictionary<int, BoneStatus> pluginAmb = LoadAmbSync(path);
                     PlayerAnimation.Add(idx, pluginAmb);
                     return;
                 }
@@ -557,7 +404,7 @@ public class AmbLoader
                 {
                     if (m.resPath[i].ToLower().EndsWith(".amb"))
                     {
-                        Dictionary<int, BoneStatus> pluginAmb = LoadAmbSync(m.resPath[i]);
+                        SortedDictionary<int, BoneStatus> pluginAmb = LoadAmbSync(m.resPath[i]);
                         PlayerAnimation.Add(idx, pluginAmb);
                         return;
                     }
@@ -575,7 +422,7 @@ public class AmbLoader
         //11和9文件重复了.
         if (idx == 11 || idx == 9)
             idx = 9;
-        Dictionary<int, BoneStatus> ret = LoadAmbSync("p" + idx + ".amb");
+        SortedDictionary<int, BoneStatus> ret = LoadAmbSync("p" + idx + ".amb");
         if (!PlayerAnimation.ContainsKey(idx))
             PlayerAnimation.Add(idx, ret);
 
@@ -594,7 +441,7 @@ public class AmbLoader
             CharCommon = LoadAmbSync("characteramb");
     }
 
-    public Dictionary<int, BoneStatus> Parse(byte[] memory)
+    public SortedDictionary<int, BoneStatus> Parse(byte[] memory)
     {
         MemoryStream ms = new MemoryStream(memory);
         BinaryReader binRead = new BinaryReader(ms);
@@ -606,7 +453,7 @@ public class AmbLoader
         Pose.FPS = binRead.ReadInt32();
         Pose.FCS = 1.0f / Pose.FPS;
         //Debug.Log("Fps:" + Pose.FPS);
-        Dictionary<int, BoneStatus> innerValue = new Dictionary<int, BoneStatus>();
+        SortedDictionary<int, BoneStatus> innerValue = new SortedDictionary<int, BoneStatus>();
         for (int i = 0; i < frames; i++)
         {
             BoneStatus status = new BoneStatus();
@@ -652,7 +499,7 @@ public class AmbLoader
     //人物自身动作，0帧为TPose
     //招式通用动作，从1帧开始，没有0帧
     //一帧内返回.
-    private Dictionary<int, BoneStatus> LoadAmbSync(string file)
+    private SortedDictionary<int, BoneStatus> LoadAmbSync(string file)
     {
         //long s1 = System.DateTime.Now.Ticks;
         byte[] body = null;

@@ -5,10 +5,10 @@ using System;
 using System.IO;
 using UnityEngine.UI;
 
-public class SkcLoader
+public class SkcLoader:Singleton<SkcLoader>
 {
-    Dictionary<string, SkcFile> SkcFile = new Dictionary<string, global::SkcFile>();
-    Dictionary<int, SkcFile> GlobalSkcFile = new Dictionary<int, global::SkcFile>();
+    SortedDictionary<string, SkcFile> SkcFile = new SortedDictionary<string, global::SkcFile>();
+    SortedDictionary<int, SkcFile> GlobalSkcFile = new SortedDictionary<int, global::SkcFile>();
     public void Clear() {
         SkcFile.Clear();
         GlobalSkcFile.Clear();
@@ -39,18 +39,18 @@ public class SkcLoader
 
     public SkcFile Load(int characterIdx)
     {
-        if (Main.Ins.CombatData.Chapter != null) {
-            Dictionary<int, string> models = Main.Ins.CombatData.GScript.GetModel();
+        if (CombatData.Ins.Chapter != null) {
+            SortedDictionary<int, string> models = CombatData.Ins.GScript.GetModel();
             if (models != null && models.ContainsKey(characterIdx)) {
-                string modelPath = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Skc, models[characterIdx]);
+                string modelPath = CombatData.Ins.Chapter.GetResPath(FileExt.Skc, models[characterIdx]);
                 return Load(modelPath);
             }
         } 
         //下载安装的模型或客户端自带的
         string BoneCnt = "";
         if (Main.Ins.GameStateMgr != null) {
-            if (Main.Ins.GameStateMgr.gameStatus != null) {
-                switch (Main.Ins.GameStateMgr.gameStatus.Quality) {
+            if (GameStateMgr.Ins.gameStatus != null) {
+                switch (GameStateMgr.Ins.gameStatus.Quality) {
                     case 0:
                         BoneCnt = ""; break;
                     case 1:
@@ -59,12 +59,12 @@ public class SkcLoader
                         BoneCnt = "_300"; break;
                 }
                 //如果选择 范旋-他300面的模型 骨骼权重最大是5，不好手动调整,用800面的代替
-                if (characterIdx == 16 && Main.Ins.GameStateMgr.gameStatus.Quality == 2)
+                if (characterIdx == 16 && GameStateMgr.Ins.gameStatus.Quality == 2)
                     BoneCnt = "_800";
             }
         }
 
-        if (characterIdx >= Main.Ins.CombatData.MaxModel)
+        if (characterIdx >= CombatData.Ins.MaxModel)
             return LoadPluginModel(characterIdx);
 
         return Load(string.Format("p{0}{1}.skc", characterIdx, BoneCnt));
@@ -325,7 +325,7 @@ public class SkcFile
             else if (lineobj[0] == "Triangles:")
             {
                 int triNum = int.Parse(lineobj[1]);
-                Dictionary<int, Dictionary<int, int[]>> indic = new Dictionary<int, Dictionary<int, int[]>>();
+                SortedDictionary<int, SortedDictionary<int, int[]>> indic = new SortedDictionary<int, SortedDictionary<int, int[]>>();
                 for (int s = i + 1; s < i + 1 + triNum; s++)
                 {
                     string line2 = line[s];
@@ -347,7 +347,7 @@ public class SkcFile
                             indic[matIdx2].Add(s - i - 1, ind);
                         else
                         {
-                            Dictionary<int, int[]> va = new Dictionary<int, int[]>();
+                            SortedDictionary<int, int[]> va = new SortedDictionary<int, int[]>();
                             va.Add(s - i - 1, ind);
                             indic.Add(matIdx2, va);
                         }
@@ -421,7 +421,7 @@ public class SkcFile
     //0-19内的材质是3个，20-27的是单个
     public Material[] Material(int roleIdx, EUnitCamp camp)
     {
-        if (roleIdx >= Main.Ins.CombatData.MaxModel)
+        if (roleIdx >= CombatData.Ins.MaxModel)
         {
             Material[] ret = new Material[materials.Length];
             for (int i = 0; i < materials.Length; i++)

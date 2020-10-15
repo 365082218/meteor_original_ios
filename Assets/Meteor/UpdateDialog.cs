@@ -7,7 +7,7 @@ using Idevgame.GameState.DialogState;
 public class UpdateDialogState:CommonDialogState<UpdateDialog>
 {
     public override string DialogName { get { return "UpdateNotice"; } }
-    public UpdateDialogState(MainDialogStateManager stateMgr):base(stateMgr)
+    public UpdateDialogState(MainDialogMgr stateMgr):base(stateMgr)
     {
 
     }

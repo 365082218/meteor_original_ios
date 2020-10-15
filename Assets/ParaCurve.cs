@@ -1,18 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 
 //抛物线函数实现，只要提供一个垂直方向加速度，终止位置，其余的每一帧都由此抛物线实现
-public class ParaCurve : MonoBehaviour {
+public class ParaCurve : NetBehaviour {
 
     // Use this for initialization
     Vector3 targetPosition;
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    private new void Awake() {
+        base.Awake();
+    }
+
+    private new void OnDestroy() {
+        base.OnDestroy();
+    }
+
+    // Update is called once per frame
+    public override void NetUpdate () {
         velocity.y += g * FrameReplay.deltaTime;
         float s = velocity.y * FrameReplay.deltaTime;
         if (transform.position.y > targetPosition.y)
@@ -46,26 +51,9 @@ public class ParaCurve : MonoBehaviour {
     {
         oncom = oncomplete;
         targetPosition = targetPos;
-        //last = duration;
-        //float h = targetPosition.y - transform.position.y;
         Vector3 forw = (targetPosition - transform.position);
-        //forw.y = 0;
-        //forw = Vector3.Normalize(forw);
         g = (2 * forw.y) / (duration * duration);
         velocity.x = forw.x / duration;
         velocity.z = forw.z / duration;
-        //if (targetPos.y < transform.position.y)
-        //{
-
-        //}
-        //GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        //obj.name = "source";
-        //obj.transform.position = transform.position;
-        //obj.transform.localScale = Vector3.one;
-
-        //GameObject target = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        //target.name = "target";
-        //target.transform.position = targetPos;
-        //target.transform.localScale = Vector3.one;
     }
 }

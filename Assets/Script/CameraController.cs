@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 
-//手动控制相机的位置
+//手动控制相机的位置-录像播放时，如果使用自由相机，则可以用此控制相机的XZ坐标
 public class CameraController : MonoBehaviour {
     public SphereCollider JoyCollider;
     public Transform target;//整个摇杆
@@ -18,30 +19,25 @@ public class CameraController : MonoBehaviour {
     Vector2 leftDown = UIHelper.ScreenPointToUIPoint(new Vector2(0, 0));
     Vector2 leftUp = UIHelper.ScreenPointToUIPoint(new Vector2(0, Screen.height));
     bool show = false;
-    private void Awake()
-    {
+    private void Awake() {
         Ins = this;
         UIHelper.InitCanvas(GameObject.Find("Canvas").GetComponent<Canvas>());
     }
 
-    private void OnDestroy()
-    {
+    private void OnDestroy() {
         Ins = null;
     }
     // Use this for initialization
-    void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-        if (!mJoyPressed)
-        {
-            if (show)
-            {
-                time -= FrameReplay.deltaTime;
-                if (time < 0)
-                {
+    void Start() {
+
+    }
+
+    // Update is called once per frame
+    void Update() {
+        if (!mJoyPressed) {
+            if (show) {
+                time -= Time.deltaTime;
+                if (time < 0) {
                     time = 3;
                     show = false;
                     target.gameObject.SetActive(false);
@@ -52,64 +48,51 @@ public class CameraController : MonoBehaviour {
 
     //点击了碰撞盒后,在手指处出现UI，后续移动，只改变摇杆球
     public bool mJoyPressed = false;
-    public void OnMouseDown()
-    {
-        if (enabled && gameObject.activeSelf && target != null)
-        {
+    public void OnMouseDown() {
+        if (enabled && gameObject.activeSelf && target != null) {
             mJoyPressed = true;
-            if (mJoyPressed)
-            {
+            if (mJoyPressed) {
                 target.gameObject.SetActive(true);
                 show = true;
                 Debug.Log("OnMouseDown");
                 Vector2 curPos = Input.mousePosition;
                 mClickPos = UIHelper.ScreenPointToUIPoint(curPos);
                 mFingerDownPos = curPos;
-                if (mClickPos.x < 0)
-                {
+                if (mClickPos.x < 0) {
                     float PosX;
                     float PosY;
                     PosX = leftDown.x + 237 * 1.3f / 2;
-                    if (mClickPos.x < PosX)
-                    {
+                    if (mClickPos.x < PosX) {
                         mClickPos.x = PosX;
                     }
 
                     PosY = leftUp.y - 237 * 1.3f / 2;
-                    if (mClickPos.y > PosY)
-                    {
+                    if (mClickPos.y > PosY) {
                         mClickPos.y = PosY;
                     }
 
                     PosY = leftDown.y + 237 * 1.3f / 2;
-                    if (mClickPos.y < PosY)
-                    {
+                    if (mClickPos.y < PosY) {
                         mClickPos.y = PosY;
                     }
 
                     joystick.localPosition = new Vector3(mClickPos.x, mClickPos.y, target.parent.localPosition.z);
                 }
-            }
-            else
-            {
+            } else {
                 ResetJoystick();
             }
         }
     }
 
-    private void OnMouseUp()
-    {
+    private void OnMouseUp() {
         mJoyPressed = false;
     }
 
-    private void OnMouseDrag()
-    {
+    private void OnMouseDrag() {
         Debug.Log("OnMouseDrag");
-        if (enabled && gameObject.activeSelf && target != null)
-        {
+        if (enabled && gameObject.activeSelf && target != null) {
             Vector2 touchPos = (Vector2)Input.mousePosition - mFingerDownPos;
-            if (touchPos.sqrMagnitude > direction * direction)
-            {
+            if (touchPos.sqrMagnitude > direction * direction) {
                 touchPos.Normalize();
                 touchPos *= direction;
             }
@@ -121,14 +104,12 @@ public class CameraController : MonoBehaviour {
         }
     }
 
-    public void SetAnchor(Vector2 anchor)
-    {
+    public void SetAnchor(Vector2 anchor) {
         fixAnchor = anchor;
         transform.parent.GetComponent<RectTransform>().anchoredPosition = anchor;
     }
 
-    public void ResetJoystick()
-    {
+    public void ResetJoystick() {
         joystick.localPosition = Vector3.zero;
         target.gameObject.SetActive(false);
         mDelta = Vector2.zero;

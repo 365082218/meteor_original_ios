@@ -10,7 +10,7 @@ Material:
   m_Shader: {fileID: 4800000, guid: 035d06320bf7f3a4796d5f6f2dd893ff, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 3100
   stringTagMap: {}
   m_SavedProperties:
     serializedVersion: 2
@@ -24,7 +24,7 @@ Material:
     - first:
         name: _MainTex
       second:
-        m_Texture: {fileID: 2800000, guid: 16379ecb5a165f04096e325893a4f4af, type: 3}
+        m_Texture: {fileID: 2800000, guid: 1c83a55651f9ae2438716fc3a589f39a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats: []

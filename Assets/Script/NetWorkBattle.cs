@@ -7,148 +7,84 @@ using UnityEngine.SceneManagement;
 using Excel2Json;
 
 //只能缓存一下房间战斗相关的数据,与联机战斗/房间相关的这里处理.
-public class NetWorkBattle
+public class NetWorkBattle:Singleton<NetWorkBattle>
 {
     private float mLogicTempTime = 0;
     //在房间的玩家.
-    Dictionary<int, MeteorUnit> player = new Dictionary<int, MeteorUnit>();
+    SortedDictionary<int, MeteorUnit> player = new SortedDictionary<int, MeteorUnit>();
     public int RoomId = -1;//房间在服务器的编号
     public int LevelId = -1;//房间场景关卡编号
     public int PlayerId = -1;//主角在服务器的角色编号.
     public int heroIdx;//选择的模型编号.
     public int camp;//选择的阵营编号
     public int weaponIdx;
+    public int KcpPort;//KCP服务器端口
     string RoomName;
     int FrameIndex;
     int ServerFrameIndex;
     public int GameTime;//剩余总时间.
 
-    void Start () {
-        RoomId = -1;
-        RoomName = "";
-        TurnStarted = false;//在进入战场后，对客户端来说才需要
-    }
-
-    public MeteorUnit GetNetPlayer(int id)
-    {
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
-        {
-            if (Main.Ins.MeteorManager.UnitInfos[i].InstanceId == id)
-                return Main.Ins.MeteorManager.UnitInfos[i];
+    public void SyncPlayer(FrameCommand fmd) {
+        //不同步自己的信息，因为客户端是最新数据，服务器的是旧数据
+        if (fmd.playerId == PlayerId)
+            return;
+        //同步角色的位置，旋转，动作，速度，武器，气血，模型，怒气，buff
+        if (fmd.command == MeteorMsg.Command.ServerSync) {
+            MeteorUnit unit = U3D.GetUnit((int)fmd.playerId);
+            if (unit != null) {
+                unit.synced = true;
+                System.IO.MemoryStream ms = new System.IO.MemoryStream(fmd.Data);
+                PlayerSync sync = ProtoBuf.Serializer.Deserialize<PlayerSync>(ms);
+                unit.ShadowPosition = new Vector3(sync.position.x / 1000.0f, sync.position.y / 1000.0f, sync.position.z / 1000.0f);
+                unit.ShadowRotation = new Quaternion(sync.rotation.x / 1000.0f, sync.rotation.y / 1000.0f, sync.rotation.z / 1000.0f, sync.rotation.w / 1000.0f);
+                unit.ActionMgr.SetAction(sync.action);
+                unit.angle = sync.ang;
+                unit.Attr.hpCur = (int)sync.hp;
+                if (unit.ModelId != sync.model)
+                    U3D.ChangePlayerModel(unit, (int)sync.model);
+                unit.SyncWeapon((int)sync.weapon, (int)sync.weapon1);
+                List<int> buffs = new List<int>();
+                foreach (var each in BuffMng.Ins.BufDict) {
+                    if (each.Value.Units.ContainsKey(unit)) {
+                        buffs.Add(each.Key);
+                    }
+                }
+                //把我不该有的buff删除
+                for (int i = 0; i < buffs.Count; i++) {
+                    if (!sync.buff.Contains((uint)buffs[i])){
+                        BuffMng.Ins.BufDict[buffs[i]].ClearBuff(unit);
+                    }
+                }
+                //把我没有的buff加上
+                for (int i = 0; i < sync.buff.Count; i++) {
+                    if (!buffs.Contains((int)sync.buff[i])) {
+                        Option opt = MenuResLoader.Ins.GetItemInfo((int)sync.buff[i]);
+                        if (opt != null && opt.IsItem())
+                            unit.AddBuf(opt);
+                    }
+                }
+            }
         }
-        return null;
     }
-
-    public string GetNetPlayerName(int id)
-    {
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
-        {
-            if (Main.Ins.MeteorManager.UnitInfos[i].InstanceId == id)
-                return Main.Ins.MeteorManager.UnitInfos[i].name;
-        }
-        return "不明身份者";
-    }
-    uint frameIndex = 0;
-    uint turn = 0;
-    uint tick = 0;
-    public int TurnFrame = 5;
-    public bool TurnStarted = false;
-    public bool waitReborn = false;
-    public bool waitSend = true;
-    //void Update () {
-        //if (bSync && RoomId != -1 && TurnStarted && MeteorManager.Instance.LocalPlayer != null && !waitReborn)
-        //{
-        //    if (waitSend)
-        //    {
-        //        mLogicTempTime += Time.deltaTime;
-        //        if (mLogicTempTime > 0.02f)
-        //        {
-        //            for (int i = 0; i < mFastForwardSpeed; i++)
-        //            {
-        //                GameTurn();
-        //                mLogicTempTime = 0;
-        //            }
-        //        }
-
-        //        frameIndex++;
-        //        tick++;
-        //        if (frameIndex % TurnFrame == 0)
-        //        {
-        //            turn++;
-        //            waitSend = false;
-        //            SyncInput();
-        //            //SyncAttribute(frame.Players[0]);
-        //            //Common.SyncFrame(frame);
-
-        //            if (MeteorManager.Instance.LocalPlayer.Dead)
-        //            {
-        //                //Debug.LogError("waitreborn hp:" + frame.Players[0].hp);
-
-        //                waitReborn = true;
-        //            }
-        //        }
-
-
-        //        //36=3秒个turn内没收到服务器回复的同步信息，算作断开连接.
-        //        if (tick >= 360)
-        //        {
-        //            bSync = false;
-        //            ReconnectWnd.Instance.Open();
-        //            if (GameBattleEx.Instance != null)
-        //                GameBattleEx.Instance.NetPause();
-        //        }
-                
-        //    }
-        //    if (Global.useShadowInterpolate)
-        //        SyncInterpolate();
-        //}
-	//}
-
-    //public void SyncInterpolate()
-    //{
-    //    if (NetWorkBattle.Ins.TurnStarted && MeteorManager.Instance.LocalPlayer != null)
-    //    {
-    //        //在战场更新中,更新其他角色信息，自己的只上传.
-    //        //Debug.Log("SyncInterpolate:" + Time.frameCount);
-    //        for (int i = 0; i < MeteorManager.Instance.UnitInfos.Count; i++)
-    //        {
-    //            MeteorUnit unit = MeteorManager.Instance.UnitInfos[i];
-    //            if (unit != null && unit != MeteorManager.Instance.LocalPlayer)
-    //            {
-    //                //玩家同步所有属性
-    //                if (unit.ShadowSynced)
-    //                    continue;
-    //                //float next = Mathf.Clamp01(unit.ShadowDelta + 0.5f);
-    //                //Debug.Log("同步角色位置:" + Time.frameCount);
-    //                unit.ShadowDelta += 5 * Time.deltaTime;
-    //                unit.transform.position = Vector3.Lerp(unit.transform.position, unit.ShadowPosition, unit.ShadowDelta);
-    //                unit.transform.rotation = Quaternion.Slerp(unit.transform.rotation, unit.ShadowRotation, unit.ShadowDelta);
-    //                if (unit.ShadowDelta >= 1.0f)
-    //                    unit.ShadowSynced = true;
-    //            }
-    //        }
-    //    }
-    //}
 
     //断开连接时.
     public void OnDisconnect()
     {
         if (RoomId != -1)
         {
-            UdpClientProxy.Disconnect();
+            KcpClient.Ins.Disconnect();
             //在联机战斗场景中.
             Main.Ins.GameBattleEx.Pause();
-            Main.Ins.SoundManager.StopAll();
+            SoundManager.Ins.StopAll();
             RoomId = -1;
             RoomName = "";
-            FrameReplay.Instance.OnDisconnected();
+            FrameReplay.Ins.OnDisconnected();
             FrameIndex = ServerFrameIndex = 0;
             U3D.InsertSystemMsg("与服务器断开链接.");
             if (!MainMenuState.Exist)
                 U3D.GoBack();
         }
         RoomId = -1;
-        waitReborn = false;
         RoomName = "";
     }
 
@@ -156,30 +92,29 @@ public class NetWorkBattle
     public void EnterLevel()
     {
         //加载地图场景-开始和服务器同步历史帧信息.
-        //LoadNetLevel();
-        UdpClientProxy.EnterLevel(heroIdx, weaponIdx, camp);
+        TcpClientProxy.Ins.EnterLevel(heroIdx, weaponIdx, camp);
     }
 
     //进入房间，还未进入战场，选阵营/人/武器界面
-    public void OnEnterRoomSuccessed(int roomId, int levelid, int playerid)
+    public void OnEnterRoomSuccessed(int roomId, int levelid, int playerid, int kcpPort)
     {
         RoomId = roomId;
         LevelId = levelid;
         PlayerId = playerid;
+        KcpPort = kcpPort;
         camp = (int)EUnitCamp.EUC_KILLALL;
     }
 
     public void Load()
     {
-        LevelData lev = Main.Ins.CombatData.GetGlobalLevel(LevelId);
-        Main.Ins.CombatData.Chapter = Main.Ins.DlcMng.FindChapter((LevelId / 1000) * 1000);
-        Main.Ins.CombatData.GLevelItem = lev;
-        Main.Ins.CombatData.GLevelMode = LevelMode.MultiplyPlayer;
-        RoomInfo r = Main.Ins.RoomMng.GetRoom((int)RoomId);
-        Main.Ins.RoomMng.Current = r;
-        Main.Ins.CombatData.GGameMode = (GameMode)r.rule;
-        Main.Ins.CombatData.wayPoints = null;
-        //LoadingWnd.Instance.Open();
+        LevelData lev = CombatData.Ins.GetLevel(0, LevelId);
+        CombatData.Ins.Chapter = null;
+        CombatData.Ins.GLevelItem = lev;
+        CombatData.Ins.GLevelMode = LevelMode.MultiplyPlayer;
+        RoomInfo r = RoomMng.Ins.GetRoom((int)RoomId);
+        RoomMng.Ins.Current = r;
+        CombatData.Ins.GGameMode = (GameMode)r.rule;
+        CombatData.Ins.wayPoints = null;
         U3D.LoadLevelEx();
     }
 }

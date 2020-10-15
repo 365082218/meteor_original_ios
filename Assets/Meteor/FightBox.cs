@@ -19,6 +19,7 @@ public class FightBox : NetBehaviour {
     public MeteorUnit Target { get { return Owner; } }
     public AttackDes Attack { get { return AttackDef; } }
     MeteorUnit Owner;
+    SFXUnit Attacker;
     AttackDes AttackDef;
     static bool Initialize = false;
     public Collider Collider { get { return box; } }
@@ -32,15 +33,22 @@ public class FightBox : NetBehaviour {
     }
 
     public bool detectCollsion;
+    Rigidbody rig;
     public Vector3 center;
     Vector3 half;
     //Vector3 boxCenter;
     //Vector3 boxSize;
     public void ChangeAttack(bool check) {
         detectCollsion = check;
+        if (!detectCollsion) {
+            if (rig != null) {
+                GameObject.Destroy(rig);
+                rig = null;
+            }
+        }
     }
 
-    public void Update() {
+    public override void NetUpdate() {
         if (detectCollsion) {
             bool processed = false;
             if (box is BoxCollider) {
@@ -49,10 +57,19 @@ public class FightBox : NetBehaviour {
                 half = Vector3.Scale(b.size, b.transform.localScale) / 2;
                 processed = true;
             } else if (box is MeshCollider) {
-                MeshCollider m = box as MeshCollider;
-                center = box.transform.TransformPoint(m.sharedMesh.bounds.center);
-                half = Vector3.Scale(m.sharedMesh.bounds.size, m.transform.localScale) / 2;
-                processed = true;
+                //MeshCollider m = box as MeshCollider;
+                //center = box.transform.TransformPoint(m.sharedMesh.bounds.center);
+                //half = Vector3.Scale(m.sharedMesh.bounds.size, m.transform.localScale) / 2;
+                processed = false;
+                //这种面片的情况，不要用近似obb盒，否则不准确，还是用系统带的触发器
+                if (rig == null) {
+                    rig = box.gameObject.GetComponent<Rigidbody>();
+                    if (rig == null)
+                        rig = box.gameObject.AddComponent<Rigidbody>();
+                    rig.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+                    rig.useGravity = false;
+                    rig.isKinematic = true;
+                }
             }
 
             if (processed) {
@@ -65,28 +82,27 @@ public class FightBox : NetBehaviour {
                             continue;
                     }
                     DetectDamage(colliders[i]);
-                    //Debug.LogError("collision detection:" + colliders[i].name);
                 }
             }
         }    
     }
 
-    void OnDrawGizmos() {
+    //void OnDrawGizmos() {
         
-        //Check that it is being run in Play Mode, so it doesn't try to draw this in Editor mode
-        if (detectCollsion) {
-            var cacheMatrix = Gizmos.matrix;
-            //Gizmos.color = Color.red;
-            //Gizmos.matrix = transform.localToWorldMatrix;
-            //Gizmos.DrawWireCube(boxCenter, boxSize);
-            Gizmos.color = Color.blue;
-            Matrix4x4 m = new Matrix4x4();
-            m.SetTRS(transform.position, box.transform.rotation, Vector3.one);
-            Gizmos.matrix = m;
-            Gizmos.DrawWireCube(transform.InverseTransformPoint(center), half);
-            Gizmos.matrix = cacheMatrix;
-        }
-    }
+    //    //Check that it is being run in Play Mode, so it doesn't try to draw this in Editor mode
+    //    if (detectCollsion) {
+    //        var cacheMatrix = Gizmos.matrix;
+    //        //Gizmos.color = Color.red;
+    //        //Gizmos.matrix = transform.localToWorldMatrix;
+    //        //Gizmos.DrawWireCube(boxCenter, boxSize);
+    //        Gizmos.color = Color.blue;
+    //        Matrix4x4 m = new Matrix4x4();
+    //        m.SetTRS(transform.position, box.transform.rotation, Vector3.one);
+    //        Gizmos.matrix = m;
+    //        Gizmos.DrawWireCube(transform.InverseTransformPoint(center), half * 2);
+    //        Gizmos.matrix = cacheMatrix;
+    //    }
+    //}
 
     public new void OnDestroy() {
         base.OnDestroy();
@@ -94,6 +110,20 @@ public class FightBox : NetBehaviour {
             if (Owner.HitList.Contains(this)) {
                 Owner.HitList.Remove(this);
             }
+        }
+        if (Attacker != null) {
+            if (Attacker.mOwner.HitList.Contains(this))
+                Attacker.mOwner.HitList.Remove(this);
+        }
+    }
+
+    public void Init(SFXUnit SfxAttack, AttackDes attDef) {
+        AttackDef = attDef;
+        Attacker = SfxAttack;
+        if (Attacker.mOwner != null) {
+            Attacker.mOwner.IgnoreOthers(box);
+            if (!Attacker.mOwner.HitList.Contains(this))
+                Attacker.mOwner.HitList.Add(this);
         }
     }
 
@@ -109,9 +139,32 @@ public class FightBox : NetBehaviour {
 
     void DetectDamage(Collider other) {
         if (Owner == null) {
+            if (Attacker == null)
+                return;
+            //角色发射出的特效攻击盒
+            SceneItemAgent target = other.gameObject.GetComponentInParent<SceneItemAgent>();
+            if (target != null) {
+                if (Attacker.ExistDamage(target))
+                    return;
+                Attacker.Attack(target);
+                target.OnDamage(Attacker.mOwner, AttackDef);
+            } else {
+                MeteorUnit unit = other.gameObject.GetComponentInParent<MeteorUnit>();
+                if (unit != null) {
+                    if (Attacker.mOwner == unit)
+                        return;
+                    if (Attacker.mOwner.SameCamp(unit))
+                        return;
+                    if (Attacker.ExistDamage(unit))
+                        return;
+                    //Debug.LogError("name:" + name + " hit other:" + other.name);
+                    Attacker.Attack(unit);
+                    unit.OnAttack(Attacker.mOwner, AttackDef == null ? Attacker.mOwner.CurrentDamage : AttackDef);
+                }
+            }
             return;
         }
-
+        //角色身体上的攻击盒/武器上的攻击盒
         SceneItemAgent agent = other.gameObject.GetComponentInParent<SceneItemAgent>();
         if (agent != null) {
             if (Owner.ExistDamage(agent))
@@ -134,11 +187,17 @@ public class FightBox : NetBehaviour {
         }
     }
 
-    //private void OnTriggerEnter(Collider other) {
-    //    DetectDamage(other);
-    //}
+    private void OnTriggerEnter(Collider other) {
+        if (detectCollsion) {
+            //Debug.LogError("enter");
+            DetectDamage(other);
+        }
+    }
 
-    //private void OnTriggerStay(Collider other) {
-    //    DetectDamage(other);
-    //}
+    private void OnTriggerStay(Collider other) {
+        if (detectCollsion) {
+            //Debug.LogError("stay");
+            DetectDamage(other);
+        }
+    }
 }

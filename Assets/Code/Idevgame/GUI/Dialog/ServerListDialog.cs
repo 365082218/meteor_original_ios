@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class ServerListDialogState : CommonDialogState<ServerListDialog>
 {
     public override string DialogName { get { return "ServerListDialog"; } }
-    public ServerListDialogState(MainDialogStateManager stateMgr) : base(stateMgr)
+    public ServerListDialogState(MainDialogMgr stateMgr) : base(stateMgr)
     {
 
     }
@@ -28,7 +28,7 @@ public class ServerListDialog : Dialog
         {
             case ADD:
                 ServerInfo info = param as ServerInfo;
-                GameObject prefab = ResMng.LoadPrefab("UI/Dialogs/SelectListItem") as GameObject;
+                GameObject prefab = Resources.Load("UI/Dialogs/SelectListItem") as GameObject;
                 InsertServerItem(info, prefab);
                 break;
         }
@@ -38,15 +38,15 @@ public class ServerListDialog : Dialog
     void Init()
     {
         ServerListRoot = Control("ServerListRoot");
-        GameObject prefab = ResMng.LoadPrefab("UI/Dialogs/SelectListItem") as GameObject;
+        GameObject prefab = Resources.Load("UI/Dialogs/SelectListItem") as GameObject;
         for (int i = 0; i < serverList.Count; i++)
         {
             GameObject.Destroy(serverList[i]);
         }
         serverList.Clear();
-        for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.ServerList.Count; i++)
+        for (int i = 0; i < GameStateMgr.Ins.gameStatus.ServerList.Count; i++)
         {
-            InsertServerItem(Main.Ins.GameStateMgr.gameStatus.ServerList[i], prefab);
+            InsertServerItem(GameStateMgr.Ins.gameStatus.ServerList[i], prefab);
         }
         GameObject defaultServer = Control("SelectListItem");
         Text text = Control("Text", defaultServer).GetComponent<Text>();
@@ -55,27 +55,29 @@ public class ServerListDialog : Dialog
             //不能删除默认
             if (selectServer != null)
             {
-                int selectServerId = Main.Ins.GameStateMgr.gameStatus.ServerList.IndexOf(selectServer);
+                int selectServerId = GameStateMgr.Ins.gameStatus.ServerList.IndexOf(selectServer);
                 if (selectServerId != -1)
                 {
                     GameObject.Destroy(serverList[selectServerId]);
                     serverList.RemoveAt(selectServerId);
-                    Main.Ins.CombatData.OnServiceChanged(-1, Main.Ins.GameStateMgr.gameStatus.ServerList[selectServerId]);
-                    Main.Ins.GameStateMgr.gameStatus.ServerList.RemoveAt(selectServerId);
+                    CombatData.Ins.OnServiceChanged(-1, GameStateMgr.Ins.gameStatus.ServerList[selectServerId]);
+                    GameStateMgr.Ins.gameStatus.ServerList.RemoveAt(selectServerId);
                 }
                 if (selectServerId >= serverList.Count)
                     selectServerId = 0;
-                selectServer = Main.Ins.GameStateMgr.gameStatus.ServerList[selectServerId];
+                if (selectServerId < GameStateMgr.Ins.gameStatus.ServerList.Count) {
+                    selectServer = GameStateMgr.Ins.gameStatus.ServerList[selectServerId];
+                }
                 selectedBtn = null;
             }
         });
-        Control("Close").GetComponent<Button>().onClick.AddListener(() => { OnPreviousPress(); });
+        Control("Close").GetComponent<Button>().onClick.AddListener(() => { Close(); });
         Control("AddHost").GetComponent<Button>().onClick.AddListener(() =>
         {
             Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.HostEditDialogState);
         });
 
-        text.text = Main.Ins.CombatData.Server.ServerName + string.Format(":{0}", Main.Ins.CombatData.Server.ServerPort);
+        text.text = CombatData.Ins.Server.ServerName + string.Format(":{0}", CombatData.Ins.Server.ServerPort);
     }
 
     List<GameObject> serverList = new List<GameObject>();
@@ -105,5 +107,10 @@ public class ServerListDialog : Dialog
         btn.image.color = new Color(144.0f / 255.0f, 104.0f / 255.0f, 104.0f / 255.0f, 104.0f / 255.0f);
         selectedBtn = btn;
         selectServer = svr;
+    }
+
+    void Close() {
+        GameStateMgr.Ins.SaveState();
+        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainLobbyDialogState);
     }
 }

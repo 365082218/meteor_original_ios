@@ -8,10 +8,6 @@ using UnityEngine.UI;
 public class PlayerDialogState : PersistDialog<PlayerDialog>
 {
     public override string DialogName { get { return "PlayerDialog"; } }
-    public PlayerDialogState()
-    {
-
-    }
     protected override float GetZ() { return 200; }
     protected override bool Use3DCanvas()
     {
@@ -65,8 +61,8 @@ public class PlayerDialog : Dialog
 
     void OnClickItem(UIItemSlot slot)
     {
-        Main.Ins.ExitState(Main.Ins.ItemInfoDialogState);
-        Main.Ins.EnterState(Main.Ins.ItemInfoDialogState);
+        //Main.Ins.ExitState(Main.Ins.ItemInfoDialogState);
+        //Main.Ins.EnterState(Main.Ins.ItemInfoDialogState);
         ItemInfoDialogState.Instance.AssignItem(slot.GetItemInfo());
     }
 

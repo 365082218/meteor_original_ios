@@ -1,18 +1,6 @@
 function main()
 end
 
-function load()
-end
-
-function save()
-U3D.SaveClean()
---U3D.SaveState("answer", answer)
---U3D.SaveState("getreward", getreward)
---U3D.SaveState("npcId", npcId)
---U3D.SaveState("chufu_npc_talk", chufu_npc_talk)
-U3D.SaveDone()
-end
-
 function SetSceneItem(a, b, c, d)
 	U3D.SetSceneItem(a, b, c, d)
 end

@@ -7,6 +7,7 @@ using System.Xml;
 using System.Collections.Generic;
 using Idevgame.Util;
 
+
 public class BuildLevelBytes
 {
     [ProtoContract]
@@ -15,13 +16,13 @@ public class BuildLevelBytes
         [ProtoMember(1)]
         public string name;
         [ProtoMember(2)]
-        public MyVector pos = new Vector3(0, 0, 0);
+        public MyVector pos = new MyVector(0, 0, 0);
         [ProtoMember(3)]
-        public MyQuaternion quat = new Quaternion(0, 0, 0, 0);
+        public MyQuaternion quat = new MyQuaternion(0, 0, 0, 0);
         [ProtoMember(4)]
         public bool useTextAnimation; //是否使用uv动画
         [ProtoMember(5)]
-        public MyVector2 textAnimation = new Vector2(0, 0);//uv参数
+        public MyVector2 textAnimation = new MyVector2(0, 0);//uv参数
         [ProtoMember(6)]
         public List<string> custom = new List<string>();
         public void ReadObjAttr(StreamReader asset)

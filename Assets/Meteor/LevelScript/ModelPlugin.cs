@@ -21,6 +21,7 @@ public enum FileExt {
     Gmc,//模型.gmc
     Gmb,//模型.gmb
     Sfx,//新特效.ef
+    MP3,//新音乐
 }
 
 //外接DLC剧本，对应plugins.json里的dlc其中的一个dll，一个dll又包含数10个关卡.
@@ -92,7 +93,7 @@ public class Chapter
     public string GetResPath(FileExt type, string iden) {
         if (Res != null) {
             for (int i = 0; i < Res.Count; i++) {
-                if (Res[i].Name == iden && Res[i].Type == type)
+                if (Res[i].Name.ToLower() == iden.ToLower() && Res[i].Type == type)
                     return Res[i].Path;
             }
         }
@@ -209,7 +210,8 @@ public class ModelItem
     public List<string> resCrc = new List<string>();//资源的MD5.
     public void Check()
     {
-        if (resCrc == null || resPath == null) {
+        Installed = true;
+        if (resCrc == null || resPath == null || resPath.Count == 0 || resCrc.Count == 0) {
             Installed = false;
             return;
         }

@@ -72,7 +72,7 @@ public static class FtpLog
         msg.Message = (int)LocalMsgType.SendFTPLogComplete;
         msg.Result = 1;
         msg.Param = fileCount;
-        ProtoHandler.PostMessage(msg);
+        TcpProtoHandler.Ins.PostMessage(msg);
         uploadThread = null;
     }
 

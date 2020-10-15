@@ -2,32 +2,74 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class MeteorManager {
+public class MeteorManager:Singleton<MeteorManager> {
     public MeteorManager(){}
     //public PetController Pet;
     public List<MeteorUnit> UnitInfos = new List<MeteorUnit>();
     public List<MeteorUnit> DeadUnits = new List<MeteorUnit>();
     public List<MeteorUnit> DeadUnitsClone = new List<MeteorUnit>();//备用的
     public SortedDictionary<int, string> LeavedUnits = new SortedDictionary<int, string>();//离场的NPC,设置禁用，取消激活游戏对象，但是可以查询
+    Dictionary<string, SceneItemAgent> SceneNameHash = new Dictionary<string, SceneItemAgent>();
     public List<SceneItemAgent> SceneItems = new List<SceneItemAgent>();
-    public List<GameObject> Coins = new List<GameObject>();
-    public List<GameObject> DropThing = new List<GameObject>();
+    public List<PickupItemAgent> PickupItems = new List<PickupItemAgent>();
+    //public List<GameObject> Coins = new List<GameObject>();
+    //public List<GameObject> DropThing = new List<GameObject>();
     int UnitInstanceIdx;
     int SceneItemInstanceIdx;
-    public void DestroyCoin(GameObject obj)
-    {
-        Coins.Remove(obj);
+    int PickupItemInstanceIdx;
+
+    //开始新一轮游戏前，重置场景内全体角色状态
+    public void Reset() {
+        for (int i = 0; i < UnitInfos.Count; i++) {
+            if (UnitInfos[i] != null) {
+                if (UnitInfos[i] == Main.Ins.LocalPlayer)
+                    continue;
+                GameObject.Destroy(UnitInfos[i].gameObject);
+            }
+        }
+        UnitInfos.Clear();
+        for (int i = 0; i < DeadUnits.Count; i++) {
+            if (DeadUnits[i] != null) {
+                if (DeadUnits[i] == Main.Ins.LocalPlayer)
+                    continue;
+                GameObject.Destroy(DeadUnits[i].gameObject);
+            }
+        }
+        DeadUnits.Clear();
+        LeavedUnits.Clear();
+        //删除动态物件
+        DestroyItems();
     }
 
-    public void AddCoin(GameObject coin)
-    {
-        Coins.Add(coin);
+    public void DestroyItems() {
+        //动态物件删除
+        for (int i = 0; i < SceneItems.Count; i++) {
+            GameObject.Destroy(SceneItems[i].gameObject);
+        }
+
+        for (int i = 0; i < PickupItems.Count; i++) {
+            GameObject.Destroy(PickupItems[i].gameObject);
+        }
+        SceneItems.Clear();
+        PickupItems.Clear();
+        SceneNameHash.Clear();
+        //pickup物件删除
     }
 
-    public void AddDropThing(GameObject obj)
-    {
-        DropThing.Add(obj);
-    }
+    //public void DestroyCoin(GameObject obj)
+    //{
+    //    Coins.Remove(obj);
+    //}
+
+    //public void AddCoin(GameObject coin)
+    //{
+    //    Coins.Add(coin);
+    //}
+
+    //public void AddDropThing(GameObject obj)
+    //{
+    //    DropThing.Add(obj);
+    //}
 
     public void OnGenerateUnit(MeteorUnit unit, int playerId = 0)
     {
@@ -39,7 +81,7 @@ public class MeteorManager {
         ////让角色间无法穿透，待某个角色使出特殊技能时，关掉碰撞。
         //for (int i = 0; i < UnitInfos.Count; i++)
         //    UnitInfos[i].PhysicalIgnore(unit, false);
-        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+        if (CombatData.Ins.GLevelMode == LevelMode.MultiplyPlayer)
             unit.InstanceId = playerId;
         else
         {
@@ -61,10 +103,25 @@ public class MeteorManager {
         return true;
     }
 
+    public void OnDestroyPickupItem(PickupItemAgent item) {
+        if (!PickupItems.Contains(item))
+            return;
+        PickupItems.Remove(item);
+    }
+
+    public void OnGeneratePickupItem(PickupItemAgent item) {
+        if (PickupItems.Contains(item))
+            return;
+        PickupItems.Add(item);
+        item.InstanceId = PickupItemInstanceIdx++;
+    }
+
     public void OnDestroySceneItem(SceneItemAgent item)
     {
         if (!SceneItems.Contains(item))
             return;
+        if (SceneNameHash.ContainsKey(item.name))
+            SceneNameHash.Remove(item.name);
         SceneItems.Remove(item);
     }
 
@@ -72,6 +129,8 @@ public class MeteorManager {
     {
         if (SceneItems.Contains(item))
             return;
+        if (!SceneNameHash.ContainsKey(item.name))
+            SceneNameHash.Add(item.name, item);
         SceneItems.Add(item);
         item.InstanceId = SceneItemInstanceIdx++;
     }
@@ -93,7 +152,7 @@ public class MeteorManager {
     //某个角色从场景删除
     public void OnRemoveUnit(MeteorUnit unit)
     {
-        Main.Ins.MeteorManager.PhysicalIgnore(unit, true);
+        MeteorManager.Ins.PhysicalIgnore(unit, true);
         for (int i = 0; i < UnitInfos.Count; i++)
             UnitInfos[i].OnUnitDead(unit);
 
@@ -102,13 +161,13 @@ public class MeteorManager {
         if (DeadUnits.Contains(unit))
             DeadUnits.Remove(unit);
         LeavedUnits.Add(unit.InstanceId, unit.name);
-        Main.Ins.BuffMng.RemoveUnit(unit);
+        BuffMng.Ins.RemoveUnit(unit);
         GameObject.Destroy(unit.gameObject);
     }
 
     public void OnUnitDead(MeteorUnit unit)
     {
-        Main.Ins.MeteorManager.PhysicalIgnore(unit, true);
+        MeteorManager.Ins.PhysicalIgnore(unit, true);
         unit.OnUnitDead(null);
         UnitInfos.Remove(unit);
         DeadUnits.Add(unit);
@@ -139,5 +198,13 @@ public class MeteorManager {
         Main.Ins.LocalPlayer = null;
         UnitInstanceIdx = 0;
         SceneItemInstanceIdx = 0;
+        SceneNameHash.Clear();
+        PickupItems.Clear();
+    }
+
+    public SceneItemAgent FindSceneItem(string name) {
+        if (SceneNameHash.ContainsKey(name))
+            return SceneNameHash[name];
+        return U3D.GetSceneItem(name);
     }
 }

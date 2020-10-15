@@ -1,13 +1,15 @@
-﻿using Idevgame.GameState.DialogState;
+﻿using Assets.Code.Idevgame.Common.Util;
+using Idevgame.GameState.DialogState;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class BattleResultDialogState : CommonDialogState<BattleResultDialog>
 {
     public override string DialogName { get { return "BattleResultDialog"; } }
-    public BattleResultDialogState(MainDialogStateManager stateMgr) : base(stateMgr)
+    public BattleResultDialogState(MainDialogMgr stateMgr) : base(stateMgr)
     {
 
     }
@@ -19,6 +21,9 @@ public class BattleResultDialog : Dialog
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
         Init();
+        if (ScriptInputDialogState.Exist()) {
+            ScriptInputDialogState.State.Close();
+        }
     }
 
     GameObject BattleResultAll;
@@ -30,16 +35,16 @@ public class BattleResultDialog : Dialog
     {
         if (result == 1)
         {
-            for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+            for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
             {
-                if (Main.Ins.MeteorManager.UnitInfos[i].StateMachine != null)
-                    Main.Ins.MeteorManager.UnitInfos[i].StateMachine.Stop();
-                Main.Ins.MeteorManager.UnitInfos[i].meteorController.Input.ResetVector();
-                Main.Ins.MeteorManager.UnitInfos[i].OnGameResult(result);
+                if (MeteorManager.Ins.UnitInfos[i].StateMachine != null)
+                    MeteorManager.Ins.UnitInfos[i].StateMachine.Stop();
+                MeteorManager.Ins.UnitInfos[i].meteorController.Input.ResetVector();
+                MeteorManager.Ins.UnitInfos[i].OnGameResult(result);
             }
         }
 
-        if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
+        if (CombatData.Ins.GGameMode == GameMode.MENGZHU)
         {
             U3D.InsertSystemMsg("回合结束");
         }
@@ -73,33 +78,48 @@ public class BattleResultDialog : Dialog
             BattleResult.SetActive(true);
             BattleTitle.SetActive(true);
         }
-        Control("Close").SetActive(true);
+        Control("Close").SetActive(CombatData.Ins.GLevelMode != LevelMode.MultiplyPlayer);
+        if (CombatData.Ins.GLevelMode == LevelMode.MultiplyPlayer) {
+            Timer t = Timer.once(3.0f, ReEnterLevel);
+        }
         Control("Close").GetComponent<Button>().onClick.AddListener(() =>
         {
-            Main.Ins.GameStateMgr.SaveState();
+            GameStateMgr.Ins.SaveState();
             Main.Ins.GameBattleEx.Pause();
             Main.Ins.StopAllCoroutines();
-            Main.Ins.SoundManager.StopAll();
+            SoundManager.Ins.StopAll();
             OnBackPress();
-            Main.Ins.ExitState(Main.Ins.FightState);
+            if (FightState.Exist())
+                FightState.State.Close();
             if (GameOverlayDialogState.Exist())
                 GameOverlayDialogState.Instance.ClearSystemMsg();
             //离开副本
-            if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
-                UdpClientProxy.LeaveLevel();
-            else
-            {
-                FrameReplay.Instance.OnDisconnected();
+            if (U3D.IsMultiplyPlayer()) {
+
+            } else {
+                FrameReplay.Ins.OnDisconnected();
                 Main.Ins.PlayEndMovie(result == 1);
             }
         });
-        Control("SaveRecord").SetActive(true);
-        Control("SaveRecord").GetComponent<Button>().onClick.AddListener(() => {
-            DialogUtils.Ins.OpenWait("正在保存录像，请稍后");
-            //单独开一个线程去保存录像信息.
-            RecordMgr.Ins.WriteFile();
-            Control("SaveRecord").SetActive(false);//隐藏掉该按钮
-        });
+        //Control("SaveRecord").SetActive(false);
+        //Control("SaveRecord").GetComponent<Button>().onClick.AddListener(() => {
+        //    Main.Ins.EnterState(Main.Ins.WaitDialogState, "正在保存录像，请稍后");
+        //    //单独开一个线程去保存录像信息.
+        //    RecordMgr.Ins.WriteFile();
+        //    Control("SaveRecord").SetActive(false);//隐藏掉该按钮
+        //});
+    }
+
+    //联机出了结算之后，3S内展示 A=>阵营选择 B=》角色选择
+    private void ReEnterLevel() {
+        MeteorManager.Ins.Reset();
+        SceneMng.Ins.Reset();
+        FrameReplay.Ins.OnBattleFinished();
+        //等一定时间，返回到角色选择/阵营选择界面，开始下一轮的游戏.
+        if (CombatData.Ins.GGameMode == GameMode.MENGZHU)
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.RoleSelectDialogState);
+        else
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.CampSelectDialogState);
     }
 
     public void Init()
@@ -111,8 +131,8 @@ public class BattleResultDialog : Dialog
         Control("Close").SetActive(false);
         Control("SaveRecord").SetActive(false);
         BattleResultAll = NodeHelper.Find("AllResult", WndObject);
-        bool active = Main.Ins.CombatData.GGameMode != GameMode.MENGZHU;
-        bool active2 = Main.Ins.CombatData.GGameMode == GameMode.MENGZHU;
+        bool active = CombatData.Ins.GGameMode != GameMode.MENGZHU;
+        bool active2 = CombatData.Ins.GGameMode == GameMode.MENGZHU;
         Control("CampImage", WndObject).SetActive(active);
         Control("Title", WndObject).SetActive(active);
         Control("Result", WndObject).SetActive(active);
@@ -122,27 +142,31 @@ public class BattleResultDialog : Dialog
         Control("CampImageAll", WndObject).SetActive(active2);
         Control("TitleAll", WndObject).SetActive(active2);
         Control("ResultAll", WndObject).SetActive(active2);
-
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        GameBattleEx battle = Main.Ins.GameBattleEx;
+        List<MeteorUnit> Units = MeteorManager.Ins.UnitInfos;
+        for (int i = 0; i < Units.Count; i++)
         {
-            if (Main.Ins.GameBattleEx.BattleResult.ContainsKey(Main.Ins.MeteorManager.UnitInfos[i].InstanceId))
+            MeteorUnit unit = Units[i];
+            if (unit == null)
+                continue;
+            if (battle.BattleResult.ContainsKey(unit.InstanceId))
             {
-                InsertPlayerResult(Main.Ins.MeteorManager.UnitInfos[i].InstanceId, Main.Ins.GameBattleEx.BattleResult[Main.Ins.MeteorManager.UnitInfos[i].InstanceId]);
-                Main.Ins.GameBattleEx.BattleResult.Remove(Main.Ins.MeteorManager.UnitInfos[i].InstanceId);
+                InsertPlayerResult(unit.InstanceId, battle.BattleResult[unit.InstanceId]);
+                battle.BattleResult.Remove(unit.InstanceId);
             }
             else
-                InsertPlayerResult(Main.Ins.MeteorManager.UnitInfos[i].InstanceId, Main.Ins.MeteorManager.UnitInfos[i].InstanceId, 0, 0, Main.Ins.MeteorManager.UnitInfos[i].Camp);
+                InsertPlayerResult(unit.InstanceId, unit.InstanceId, 0, 0, unit.Camp);
         }
 
-        foreach (var each in Main.Ins.GameBattleEx.BattleResult)
+        foreach (var each in battle.BattleResult)
             InsertPlayerResult(each.Key, each.Value);
-        Main.Ins.GameBattleEx.BattleResult.Clear();
+        battle.BattleResult.Clear();
     }
 
     void InsertPlayerResult(int instanceId, int id, int killed, int dead, EUnitCamp camp)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
-        if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
+        if (CombatData.Ins.GGameMode == GameMode.MENGZHU)
         {
             obj.transform.SetParent(BattleResultAll.transform);
         }
@@ -156,7 +180,7 @@ public class BattleResultDialog : Dialog
 
         Text Idx = Control("Idx", obj).GetComponent<Text>();
         Text Name = Control("Name", obj).GetComponent<Text>();
-        if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
+        if (CombatData.Ins.GGameMode == GameMode.MENGZHU)
         {
 
         }
@@ -169,7 +193,8 @@ public class BattleResultDialog : Dialog
         Text Killed = Control("Killed", obj).GetComponent<Text>();
         Text Dead = Control("Dead", obj).GetComponent<Text>();
         Idx.text = (id + 1).ToString();
-        Name.text = U3D.GetUnit(instanceId).name;
+        MeteorUnit unit = U3D.GetUnit(instanceId);
+        Name.text = unit == null ? "[无名氏]" : unit.name;
         //Camp.text = result.camp == 1 ""
         Killed.text = killed.ToString();
         Dead.text = dead.ToString();
@@ -194,10 +219,10 @@ public class BattleResultDialog : Dialog
         }
     }
 
-    void InsertPlayerResult(int instanceId, BattleResultItem result)
+    void InsertPlayerResult(int instanceId, ResultItem result)
     {
         GameObject obj = GameObject.Instantiate(Resources.Load<GameObject>("ResultItem"));
-        if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
+        if (CombatData.Ins.GGameMode == GameMode.MENGZHU)
         {
             obj.transform.SetParent(BattleResultAll.transform);
         }
@@ -213,8 +238,9 @@ public class BattleResultDialog : Dialog
         Text Killed = Control("Killed", obj).GetComponent<Text>();
         Text Dead = Control("Dead", obj).GetComponent<Text>();
         Idx.text = (result.id + 1).ToString();
-        Name.text = U3D.GetUnit(instanceId).name;
-        if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
+        MeteorUnit unit = U3D.GetUnit(instanceId); 
+        Name.text = unit == null ? "[无名氏]": unit.name;
+        if (CombatData.Ins.GGameMode == GameMode.MENGZHU)
         {
 
         }
@@ -235,6 +261,12 @@ public class BattleResultDialog : Dialog
                 Killed.color = Color.red;
                 Dead.color = Color.red;
             }
+        } else {
+            //得不到信息了。说明该NPC被移除掉了
+            Idx.color = Color.red;
+            Name.color = Color.red;
+            Killed.color = Color.red;
+            Dead.color = Color.red;
         }
     }
 }

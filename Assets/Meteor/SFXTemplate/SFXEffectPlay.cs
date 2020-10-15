@@ -2,12 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 
+
 public class SFXEffectPlay :NetBehaviour
 {
     //声音统一由自己处理，其余子特效没一个对应一个SFXUnit处理
-
+    static GameObject SfxUnit;
     List<SFXUnit> played = new List<SFXUnit>();
     MeteorUnit owner;
+    public MeteorUnit Attacher { get { return owner; } }
     public string file;
     bool _audioUpdate = false;
     bool audioUpdate
@@ -39,6 +41,9 @@ public class SFXEffectPlay :NetBehaviour
     {
         base.Awake();
         owner = GetComponent<MeteorUnit>();
+        if (SfxUnit == null) {
+            SfxUnit = Resources.Load<GameObject>("SFXUnit");
+        }
     }
 
     protected new void OnDestroy()
@@ -92,7 +97,7 @@ public class SFXEffectPlay :NetBehaviour
         if (audioUpdate)
             audioUpdate = false;
         foreach (var each in EffectIns)
-            Main.Ins.SoundManager.StopEffect(each.Value);
+            SoundManager.Ins.StopEffect(each.Value);
         EffectIns.Clear();
         Destroy(this);
     }
@@ -140,7 +145,7 @@ public class SFXEffectPlay :NetBehaviour
         var effectList = effectFile.effectList;
         playedTime = 0.0f;
         //必须看一下信息，才知道创建什么大小的预设，主要是网格可能大小不一样
-        Dictionary<int, SFXUnit> dic = new Dictionary<int, SFXUnit>();
+        SortedDictionary<int, SFXUnit> dic = new SortedDictionary<int, SFXUnit>();
         for (int i = 0; i < effectList.Count; i++)
         {
             GameObject objSfx = null;
@@ -149,54 +154,54 @@ public class SFXEffectPlay :NetBehaviour
                 audioList.Add(effectList[i]);
             else if (effectList[i].EffectType == "BILLBOARD")
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType == "BOX")
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType == "PLANE")
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType == "DONUT")
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType == "MODEL")
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType == "SPHERE")
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType == "PARTICLE")
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType == "CYLINDER")
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
             }
             else if (effectList[i].EffectType == "DRAG")
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
 
                 //sfx.Init(effectList[i], this, i);
@@ -242,7 +247,7 @@ public class SFXEffectPlay :NetBehaviour
         var effectList = effectFile.effectList;
         playedTime = timePlayed;
         //必须看一下信息，才知道创建什么大小的预设，主要是网格可能大小不一样
-        Dictionary<int, SFXUnit> dic = new Dictionary<int, SFXUnit>();
+        SortedDictionary<int, SFXUnit> dic = new SortedDictionary<int, SFXUnit>();
         for (int i = 0; i < effectList.Count; i++)
         {
             GameObject objSfx = null;
@@ -251,54 +256,54 @@ public class SFXEffectPlay :NetBehaviour
                 audioList.Add(effectList[i]);
             else if (effectList[i].EffectType.Equals("BILLBOARD"))
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType.Equals("BOX"))
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType.Equals("PLANE"))
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType.Equals("DONUT"))
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType.Equals("MODEL"))
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType.Equals("SPHERE"))
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType.Equals("PARTICLE"))
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
                 //sfx.Init(effectList[i], this, i);
             }
             else if (effectList[i].EffectType.Equals("CYLINDER"))
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
             }
             else if (effectList[i].EffectType.Equals("DRAG"))
             {
-                objSfx = EffectPoolManager.Instance.Spawn("SFXUnit") as GameObject;
+                objSfx = Instantiate(SfxUnit);
                 sfx = objSfx.GetComponent<SFXUnit>();
             }
             else
@@ -337,7 +342,7 @@ public class SFXEffectPlay :NetBehaviour
     //-2已播放还未完成
     //-3已播放超过最大帧
     //大于0，播放返回的实例id,后面时间到了用来调用去停止循环声音
-    Dictionary<int, int> EffectIns = new Dictionary<int, int>();
+    SortedDictionary<int, int> EffectIns = new SortedDictionary<int, int>();
     void PlayAudioEffect()
     {
         //AUDIO是第一帧放，第二帧删
@@ -357,12 +362,12 @@ public class SFXEffectPlay :NetBehaviour
                 //有个问题是绑定到对象上一起运动还是只是在那里初始化不跟随移动.
                 bool use3DAudio = loop;
                 //use3DAudio = true;
-                int idx = Main.Ins.SoundManager.Play3DSound(each.Tails[0], transform.position, each.audioLoop != 0, use3DAudio);
+                int idx = SoundManager.Ins.Play3DSound(each.Tails[0], transform.position, each.audioLoop != 0, use3DAudio);
                 EffectIns[i] = idx;
             }
             else if (each.frames[1].startTime < playedTime)
             {
-                Main.Ins.SoundManager.StopEffect(EffectIns[i]);
+                SoundManager.Ins.StopEffect(EffectIns[i]);
                 EffectIns[i] = -3;
             }
 

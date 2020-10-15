@@ -5,14 +5,11 @@ using System;
 using UnityEngine.UI;
 using Idevgame.GameState;
 using Idevgame.GameState.DialogState;
+using DG.Tweening;
 
 public class FightState : PersistDialog<FightUiConroller>
 {
     public override string DialogName { get { return "FightWnd"; } }
-    public FightState() : base()
-    {
-
-    }
 }
 
 public class FightUiConroller : Dialog
@@ -36,14 +33,25 @@ public class FightUiConroller : Dialog
     Image hpBar;
     Image angryBar;
     Text hpLabel;
+    Text Position;
+    bool showSkill = false;
+    public void ShowSkillBar() {
+        Control("SkillHotArea").SetActive(false);
+        Tweener t = Control("ActionFloat").GetComponent<RectTransform>().DOAnchorPosY(75, 1.0f);
+        t.OnComplete(OnSkillBarExpand);
+    }
 
-    //角色面板，暂时取消
-    void OnPlayerInfo()
-    {
-        if (PlayerDialogState.Exist())
-            Main.Ins.ExitState(Main.Ins.PlayerDialogState);
-        else
-            Main.Ins.EnterState(Main.Ins.PlayerDialogState);
+    void OnSkillBarExpand() {
+        showSkill = true;
+    }
+
+    public void HideSkillBar() {
+        Tweener t = Control("ActionFloat").GetComponent<RectTransform>().DOAnchorPosY(-100, 1.0f);
+        t.OnComplete(OnSkillBarHide);
+    }
+
+    void OnSkillBarHide() {
+        Control("SkillHotArea").SetActive(true);
     }
 
     public void HideCameraBtn()
@@ -54,22 +62,18 @@ public class FightUiConroller : Dialog
 
     public void EnableJoyStick()
     {
-        if (NGUIJoystick.instance != null)
-            NGUIJoystick.instance.JoyCollider.enabled = true;
+        if (NGUIJoystick.Ins != null)
+            NGUIJoystick.Ins.JoyCollider.enabled = true;
     }
 
     public void DisableJoyStick()
     {
-        if (NGUIJoystick.instance != null)
-            NGUIJoystick.instance.JoyCollider.enabled = false;
+        if (NGUIJoystick.Ins != null)
+            NGUIJoystick.Ins.JoyCollider.enabled = false;
     }
 
     //显示所有人属性
     public void ShowPlayerInfo() {
-
-    }
-
-    public void ShowPlayerPosition() {
 
     }
 
@@ -89,18 +93,16 @@ public class FightUiConroller : Dialog
     Text TargetName;
     void Init()
     {
+        Position = Control("Position").GetComponent<Text>();
         clickPanel = Control("ClickPanel");
         LevelTalkRoot = Control("LevelTalk", WndObject).transform;
         ctrl = LevelTalkRoot.GetComponent<AutoMsgCtrl>();
         ctrl.SetConfig(2.0f, 1.5f);
         //联机不需要剧情对白面板，而使用房间聊天面板单独代替.
-        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
-        {
+        if (U3D.IsMultiplyPlayer()) {
             GameObject.Destroy(Control("BattleInfo").gameObject);
-        }
-        else
-        {
-            Control("BattleInfo").GetComponent<RectTransform>().anchoredPosition = new Vector2(Main.Ins.GameStateMgr.gameStatus.ShowSysMenu2 ? 145 : -20, -175);
+        } else {
+            Control("BattleInfo").GetComponent<RectTransform>().anchoredPosition = new Vector2(145, -175);
         }
         NodeHelper.Find("Attack", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnAttackPress);
         NodeHelper.Find("Attack", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnAttackRelease);
@@ -113,7 +115,7 @@ public class FightUiConroller : Dialog
         NodeHelper.Find("BreakOut", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnBreakOut);
         NodeHelper.Find("WeaponSelect", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenWeaponWnd(); });
         NodeHelper.Find("SceneName", WndObject).GetComponent<Button>().onClick.AddListener(() => { OpenMiniMap(); });
-        NodeHelper.Find("SceneName", WndObject).GetComponentInChildren<Text>().text = Main.Ins.CombatData.GLevelItem.Name;
+        NodeHelper.Find("SceneName", WndObject).GetComponentInChildren<Text>().text = CombatData.Ins.GLevelItem.Name;
         NodeHelper.Find("System", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSystemWnd(); });
         NodeHelper.Find("Crouch", WndObject).GetComponent<GameButton>().OnPress.AddListener(OnCrouchPress);
         NodeHelper.Find("Crouch", WndObject).GetComponent<GameButton>().OnRelease.AddListener(OnCrouchRelease);
@@ -130,24 +132,21 @@ public class FightUiConroller : Dialog
         NodeHelper.Find("Status", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnStatusPress);
         NodeHelper.Find("Status", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnStatusRelease);
         NodeHelper.Find("Chat", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnChatClick);
-        NodeHelper.Find("SysMenu2", WndObject).SetActive(
-            (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld && Main.Ins.GameStateMgr.gameStatus.ShowSysMenu2) ||
-            (Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask && Main.Ins.GameStateMgr.gameStatus.ShowSysMenu2) ||
-            (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer));
+        Control("SkillHotArea").GetComponent<Button>().onClick.AddListener(ShowSkillBar);
         NodeHelper.Find("Reborn", WndObject).GetComponentInChildren<Button>().onClick.AddListener(OnRebornClick);
-
+        NodeHelper.Find("SysMenu2", WndObject).SetActive(true);
         //单机-金华城-只有这一关能复活冷燕
-        if (Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask && Main.Ins.CombatData.GLevelItem.Id == 4)
+        if (CombatData.Ins.GLevelMode == LevelMode.SinglePlayerTask && CombatData.Ins.GLevelItem.Id == 4)
             NodeHelper.Find("Reborn", WndObject).SetActive(true);
         else
         {
             //创建关卡，非暗杀，都不允许复活
-            if (Main.Ins.CombatData.GGameMode != GameMode.ANSHA)
+            if (CombatData.Ins.GGameMode != GameMode.ANSHA)
                 NodeHelper.Find("Reborn", WndObject).SetActive(false);
         }
 
         //联机屏蔽按键-多人游戏
-        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+        if (U3D.IsMultiplyPlayer())
         {
             //联机还无法复活队友.
             NodeHelper.Find("Reborn", WndObject).SetActive(false);
@@ -171,18 +170,54 @@ public class FightUiConroller : Dialog
         UpdateUIButton();
         CanvasGroup[] c = WndObject.GetComponentsInChildren<CanvasGroup>();
         for (int i = 0; i < c.Length; i++)
-            c[i].alpha = Main.Ins.GameStateMgr.gameStatus.UIAlpha;
+            c[i].alpha = GameStateMgr.Ins.gameStatus.UIAlpha;
 #if (UNITY_EDITOR || UNITY_STANDALONE_WIN) && !STRIP_KEYBOARD
         Control("ClickPanel").SetActive(false);
         Control("JoyArrow").SetActive(false);
 #endif
         //使用手柄时，不再显示右下侧按键和方向盘.
-        if (Main.Ins.GameStateMgr.gameStatus.UseJoyDevice) {
+        if (GameStateMgr.Ins.gameStatus.UseJoyDevice) {
             Control("ClickPanel").SetActive(false);
             Control("JoyArrow").SetActive(false);
         }
 
         OnBattleStart();
+        Control("Menu2HotArea", WndObject).GetComponent<Button>().onClick.AddListener(ShowSysMenu2);
+        Control("Menu2HotArea", WndObject).SetActive(false);
+        Control("HideBtn", WndObject).GetComponent<Button>().onClick.AddListener(SysMenu2Hide);
+    }
+
+    bool showPosition = false;
+    public void ShowPosition() {
+        showPosition = !showPosition;
+        Position.gameObject.SetActive(showPosition);
+    }
+
+    bool system2Hide = false;
+    void SysMenu2Hide() {
+        if (system2Hide)
+            return;
+        GameObject sysMenu2 = NodeHelper.Find("SysMenu2", WndObject);
+        Tweener t = sysMenu2.GetComponent<RectTransform>().DOAnchorPos(new Vector2(-180, 0), 0.5f);
+        t.OnComplete(OnSysMenu2Hide);
+    }
+
+    void ShowSysMenu2() {
+        if (!system2Hide)
+            return;
+        GameObject sysMenu2 = NodeHelper.Find("SysMenu2", WndObject);
+        Tweener t = sysMenu2.GetComponent<RectTransform>().DOAnchorPos(new Vector2(0, 0), 0.5f);
+        t.OnComplete(OnSysMenu2Show);
+    }
+
+    void OnSysMenu2Show() {
+        system2Hide = false;
+        Control("Menu2HotArea", WndObject).SetActive(false);
+    }
+
+    void OnSysMenu2Hide() {
+        system2Hide = true;
+        Control("Menu2HotArea", WndObject).SetActive(true);
     }
 
     public override void OnRefresh(int message, object param)
@@ -194,41 +229,39 @@ public class FightUiConroller : Dialog
     void OnChatClick()
     {
         if (!ChatDialogState.Exist())
-            Main.Ins.EnterState(Main.Ins.ChatDialogState);
+            ChatDialogState.State.Open();
         else
-            Main.Ins.ExitState(Main.Ins.ChatDialogState);
+            ChatDialogState.State.Close();
     }
 
     void OnStatusPress()
     {
         if (!BattleStatusDialogState.Exist())
-            Main.Ins.EnterState(Main.Ins.BattleStatusDialogState);
+            BattleStatusDialogState.State.Open();
     }
 
     void OnStatusRelease()
     {
         if (BattleStatusDialogState.Exist())
-        {
-            Main.Ins.ExitState(Main.Ins.BattleStatusDialogState);
-        }
+            BattleStatusDialogState.State.Close();
     }
 
     public void OnRebornClick()
     {
-        if (Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask)
+        if (CombatData.Ins.GLevelMode == LevelMode.SinglePlayerTask)
         {
             if (Main.Ins.LocalPlayer.Dead)
                 return;
 
-            if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-                Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Help);
+            if (CombatData.Ins.GMeteorInput == null || CombatData.Ins.PauseAll) return;
+                CombatData.Ins.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Help);
         }
-        else if (Main.Ins.CombatData.GLevelMode == LevelMode.CreateWorld)
+        else if (CombatData.Ins.GLevelMode == LevelMode.CreateWorld)
         {
-            if (Main.Ins.CombatData.GGameMode == GameMode.ANSHA)
+            if (CombatData.Ins.GGameMode == GameMode.ANSHA)
             {
-                if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-                    Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Help);
+                if (CombatData.Ins.GMeteorInput == null || CombatData.Ins.PauseAll) return;
+                    CombatData.Ins.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Help);
             }
         }
     }
@@ -280,18 +313,18 @@ public class FightUiConroller : Dialog
     public GameObject clickPanel;
     public void UpdateUIButton()
     {
-        NodeHelper.Find("WeaponSelect", gameObject).SetActive(Main.Ins.GameStateMgr.gameStatus.EnableWeaponChoose);
-        NodeHelper.Find("SfxMenu", gameObject).SetActive(Main.Ins.GameStateMgr.gameStatus.EnableDebugSFX);
-        NodeHelper.Find("Robot", gameObject).SetActive(Main.Ins.GameStateMgr.gameStatus.EnableDebugRobot);
+        NodeHelper.Find("WeaponSelect", gameObject).SetActive(GameStateMgr.Ins.gameStatus.EnableWeaponChoose);
+        NodeHelper.Find("SfxMenu", gameObject).SetActive(GameStateMgr.Ins.gameStatus.EnableDebugSFX);
+        NodeHelper.Find("Robot", gameObject).SetActive(GameStateMgr.Ins.gameStatus.EnableDebugRobot);
         NodeHelper.Find("MiniMap", gameObject).SetActive(true);
 
-        if (NGUIJoystick.instance != null)
+        if (NGUIJoystick.Ins != null)
         {
-            NGUIJoystick.instance.OnDisabled();
+            NGUIJoystick.Ins.OnDisabled();
         }
 
-        if (NGUIJoystick.instance != null)
-            NGUIJoystick.instance.SetAnchor(Main.Ins.GameStateMgr.gameStatus.JoyAnchor);
+        if (NGUIJoystick.Ins != null)
+            NGUIJoystick.Ins.SetAnchor(GameStateMgr.Ins.gameStatus.JoyAnchor);
         int j = 0;
         for (int i = 0; i < clickPanel.transform.childCount; i++)
         {
@@ -299,9 +332,9 @@ public class FightUiConroller : Dialog
             if (tri.name == "Direction")
                 continue;
             RectTransform r = tri.GetComponent<RectTransform>();
-            if (Main.Ins.GameStateMgr.gameStatus.HasUIAnchor[j])
-                r.anchoredPosition = Main.Ins.GameStateMgr.gameStatus.UIAnchor[j];
-            float scale = Main.Ins.GameStateMgr.gameStatus.UIScale[j];
+            if (GameStateMgr.Ins.gameStatus.HasUIAnchor[j])
+                r.anchoredPosition = GameStateMgr.Ins.gameStatus.UIAnchor[j];
+            float scale = GameStateMgr.Ins.gameStatus.UIScale[j];
             r.localScale = new Vector3(scale, scale, 1);
             j++;
         }
@@ -309,8 +342,8 @@ public class FightUiConroller : Dialog
 
     public void OnAttackPress()
     {
-        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Attack);//也可看作普攻
+        if (CombatData.Ins.GMeteorInput == null || CombatData.Ins.PauseAll) return;
+        CombatData.Ins.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Attack);//也可看作普攻
     }
 
     public void OnChangeLock(bool locked)
@@ -320,7 +353,7 @@ public class FightUiConroller : Dialog
 
     public void OnClickChangeLock()
     {
-        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
+        if (CombatData.Ins.GMeteorInput == null || CombatData.Ins.PauseAll) return;
         //远程武器禁止切换锁定状态
         int weaponEquiped = Main.Ins.LocalPlayer.GetWeaponType();
         if (weaponEquiped == (int)EquipWeaponType.Gun || weaponEquiped == (int)EquipWeaponType.Dart || weaponEquiped == (int)EquipWeaponType.Guillotines)
@@ -337,8 +370,8 @@ public class FightUiConroller : Dialog
         if (Main.Ins.LocalPlayer.Dead)
             return;
 
-        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_DropWeapon);
+        if (CombatData.Ins.GMeteorInput == null || CombatData.Ins.PauseAll) return;
+        CombatData.Ins.GMeteorInput.OnKeyDownProxy(EKeyList.KL_DropWeapon);
     }
 
     public void OnCrouchPress()
@@ -346,14 +379,14 @@ public class FightUiConroller : Dialog
         if (Main.Ins.LocalPlayer.Dead)
             return;
 
-        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Crouch);
+        if (CombatData.Ins.GMeteorInput == null || CombatData.Ins.PauseAll) return;
+        CombatData.Ins.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Crouch);
     }
 
     public void OnCrouchRelease()
     {
-        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-        Main.Ins.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Crouch);
+        if (CombatData.Ins.GMeteorInput == null || CombatData.Ins.PauseAll) return;
+        CombatData.Ins.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Crouch);
     }
 
     public void OnChangeWeaponPress()
@@ -361,8 +394,8 @@ public class FightUiConroller : Dialog
         if (Main.Ins.LocalPlayer.Dead)
             return;
 
-        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_ChangeWeapon);
+        if (CombatData.Ins.GMeteorInput == null || CombatData.Ins.PauseAll) return;
+        CombatData.Ins.GMeteorInput.OnKeyDownProxy(EKeyList.KL_ChangeWeapon);
     }
 
     public void OnChangeWeaponRelease()
@@ -370,22 +403,22 @@ public class FightUiConroller : Dialog
         if (Main.Ins.LocalPlayer.Dead)
             return;
 
-        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-        Main.Ins.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_ChangeWeapon);
+        if (CombatData.Ins.GMeteorInput == null || CombatData.Ins.PauseAll) return;
+        CombatData.Ins.GMeteorInput.OnKeyUpProxy(EKeyList.KL_ChangeWeapon);
     }
 
     public void OnAttackRelease()
     {
-        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-        Main.Ins.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Attack);
+        if (CombatData.Ins.GMeteorInput == null || CombatData.Ins.PauseAll) return;
+        CombatData.Ins.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Attack);
     }
 
     public void OnDefencePress()
     {
         if (Main.Ins.LocalPlayer.Dead)
             return;
-        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Defence);//不要被键盘状态同步，否则按下马上就抬起，那么防御姿势就消失了
+        if (CombatData.Ins.GMeteorInput == null || CombatData.Ins.PauseAll) return;
+        CombatData.Ins.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Defence);//不要被键盘状态同步，否则按下马上就抬起，那么防御姿势就消失了
 
     }
 
@@ -393,8 +426,8 @@ public class FightUiConroller : Dialog
     {
         if (Main.Ins.LocalPlayer.Dead)
             return;
-        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-        Main.Ins.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Defence);
+        if (CombatData.Ins.GMeteorInput == null || CombatData.Ins.PauseAll) return;
+        CombatData.Ins.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Defence);
     }
 
     public void OnJumpPress()
@@ -402,25 +435,25 @@ public class FightUiConroller : Dialog
         //if (!MeteorManager.Instance.LocalPlayer.posMng.CanJump)
         //    return;
 
-        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-        Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Jump);//
+        if (CombatData.Ins.GMeteorInput == null || CombatData.Ins.PauseAll) return;
+        CombatData.Ins.GMeteorInput.OnKeyDownProxy(EKeyList.KL_Jump);//
     }
 
     public void OnJumpRelease()
     {
-        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll) return;
-        Main.Ins.CombatData.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Jump);
+        if (CombatData.Ins.GMeteorInput == null || CombatData.Ins.PauseAll) return;
+        CombatData.Ins.GMeteorInput.OnKeyUpProxy(EKeyList.KL_Jump);
     }
 
     //按爆气.
     public void OnBreakOut()
     {
         //Debug.Log("OnBreakOut");
-        if (Main.Ins.CombatData.GMeteorInput == null || Main.Ins.CombatData.PauseAll)
+        if (CombatData.Ins.GMeteorInput == null || CombatData.Ins.PauseAll)
             return;
-        if (Main.Ins.LocalPlayer.AngryValue >= 60 || Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry)
+        if (Main.Ins.LocalPlayer.AngryValue >= 60 || GameStateMgr.Ins.gameStatus.EnableInfiniteAngry)
         {
-            Main.Ins.CombatData.GMeteorInput.OnKeyDownProxy(EKeyList.KL_BreakOut);
+            CombatData.Ins.GMeteorInput.OnKeyDownProxy(EKeyList.KL_BreakOut);
             //Debug.Log("OnKeyDown");
         }
     }
@@ -449,8 +482,10 @@ public class FightUiConroller : Dialog
     public void OnBattleStart()
     {
         //Debug.Log("OnBattleStart");
-        currentHP = nextHp = Main.Ins.LocalPlayer.Attr.hpCur;
-        hpBar.fillAmount = currentHP / (float)Main.Ins.LocalPlayer.Attr.HpMax;
+        if (Main.Ins.LocalPlayer != null) {
+            currentHP = nextHp = Main.Ins.LocalPlayer.Attr.hpCur;
+            hpBar.fillAmount = currentHP / (float)Main.Ins.LocalPlayer.Attr.HpMax;
+        }
     }
 
     public void OnBattleEnd()
@@ -459,11 +494,10 @@ public class FightUiConroller : Dialog
         NodeHelper.Find("Chat", WndObject).SetActive(false);
     }
 
-    Dictionary<Buff, GameObject> enemyBuffList = new Dictionary<Buff, GameObject>();
     MeteorUnit CurrentMonster;
     public void UpdateMonsterInfo(MeteorUnit mon)
     {
-        if (!Main.Ins.GameStateMgr.gameStatus.ShowBlood)
+        if (!GameStateMgr.Ins.gameStatus.ShowBlood)
             return;
 
         if (!TargetBlood.activeInHierarchy)
@@ -490,6 +524,12 @@ public class FightUiConroller : Dialog
 
     public void Update()
     {
+        if (showPosition) {
+            if (Main.Ins.LocalPlayer != null) {
+                Transform trans = Main.Ins.LocalPlayer.transform;
+                Position.text = string.Format("Position:{0} {1} {2}", Mathf.FloorToInt(trans.position.x), Mathf.FloorToInt(trans.position.y), Mathf.FloorToInt(trans.position.z));
+            }
+        }
         if (currentHP != nextHp)
         {
             currentHP = Mathf.MoveTowards(currentHP, nextHp, 1000f * FrameReplay.deltaTime);
@@ -505,7 +545,7 @@ public class FightUiConroller : Dialog
         if (CheckHideTarget)
         {
             TargetInfoLast -= FrameReplay.deltaTime;
-            if (TargetInfoLast <= 0.0f)
+            if (TargetInfoLast <= 0)
                 HideTargetInfo();
         }
     }

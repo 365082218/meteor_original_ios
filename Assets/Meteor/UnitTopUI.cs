@@ -30,7 +30,7 @@ public class UnitTopUI : Dialog {
 	
 	// Update is called once per frame
 	void LateUpdate () {
-        if (Main.Ins.CombatData.PauseAll)
+        if (CombatData.Ins.PauseAll)
             return;
         if (owner == null)
             return;

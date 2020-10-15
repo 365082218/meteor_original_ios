@@ -200,7 +200,7 @@
       "Name": "洛阳城<夜>",
       "LevelType": 5,
       "LevelScript": "sn19",
-      "BgmName": "S4",
+      "BgmName": "Ending",
       "StartScript": "",
       "sceneItems": "sn19",
       "BgTexture": ""
@@ -274,7 +274,7 @@
     "31": {
       "Id": 31,
       "Scene": "Meteor_22",
-      "Name": "威震八方",
+      "Name": "入门教学",
       "LevelType": 5,
       "LevelScript": "sn31",
       "BgmName": "S5",
@@ -288,10 +288,23 @@
       "Name": "星梦台",
       "LevelType": 5,
       "LevelScript": "sn24",
-      "BgmName": "S5",
+      "BgmName": "Ending",
       "StartScript": "",
       "sceneItems": "sn24",
       "BgTexture": ""
+    }, 
+    "34": {
+      "Id": 34,
+      "Scene": "Meteor_23",
+      "Name": "大决战",
+      "LevelType": 5,
+      "LevelScript": "sn23",
+      "BgmName": "S11",
+      "StartScript": "",
+      "sceneItems": "",
+      "BgTexture": "",
+      "Pass": 1,
+      "Param": ""
     }
   }
 }

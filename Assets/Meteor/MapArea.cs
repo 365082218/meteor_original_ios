@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
+
 public enum MapAreaType
 {
     Die,
@@ -91,7 +92,7 @@ public class MapArea : MonoBehaviour {
                 unit = other.gameObject.transform.root.GetComponent<MeteorUnit>();
                 if (unit == null)
                     return;
-                if (unit.Attr.IsPlayer && unit.GetFlag && Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask)
+                if (unit.Attr.IsPlayer && unit.GetFlag && CombatData.Ins.GLevelMode == LevelMode.SinglePlayerTask)
                     Main.Ins.GameBattleEx.GameOver(1);
                 break;
             case MapAreaType.SafeBox:
@@ -99,7 +100,7 @@ public class MapArea : MonoBehaviour {
                 unit = other.gameObject.transform.root.GetComponent<MeteorUnit>();
                 if (unit == null)
                     return;
-                if (unit.Attr.IsPlayer && Main.Ins.CombatData.GLevelMode == LevelMode.SinglePlayerTask)
+                if (unit.Attr.IsPlayer && CombatData.Ins.GLevelMode == LevelMode.SinglePlayerTask)
                     Main.Ins.GameBattleEx.GameOver(1);
                 break;
         }

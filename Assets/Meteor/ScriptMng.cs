@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 
 //解决slua脚本如何与内部通信的问题,每个脚本都是一个txt文件.
-public class ScriptMng
+public class ScriptMng:Singleton<ScriptMng>
 {
 	LuaSvr svr;
     LuaFunction save;
@@ -75,9 +75,9 @@ public class ScriptMng
     public object DoScript(string script)
     {
         //查找模组中是否存在该NPC模板.
-        if (Main.Ins.CombatData.Chapter != null)
+        if (CombatData.Ins.Chapter != null)
         {
-            string filePath = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Txt, script);
+            string filePath = CombatData.Ins.Chapter.GetResPath(FileExt.Txt, script);
             if (!string.IsNullOrEmpty(filePath))
                 return svr.dofile(filePath, script);
         }

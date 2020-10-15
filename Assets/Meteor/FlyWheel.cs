@@ -2,6 +2,7 @@
 using Excel2Json;
 using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 
 public enum FlyStatus
@@ -227,7 +228,7 @@ public class FlyWheel :NetBehaviour {
             //WsGlobal.AddDebugLine(transform.position, transform.position + dir, Color.red, "dir");
             if (dir.magnitude <= speed * FrameReplay.deltaTime)//下一帧能够超过目标.
                 status = FlyStatus.FlyReturn;
-            transform.position = transform.position + dir.normalized * speed * FrameReplay.deltaTime;
+            transform.position = (transform.position + dir.normalized * speed * FrameReplay.deltaTime);
         }
         else if (status == FlyStatus.FlyReturn)
         {
@@ -235,8 +236,6 @@ public class FlyWheel :NetBehaviour {
             //回收-直线回转-穿墙
             transform.Rotate(vecRotate, Space.Self);
             Vector3 dir = owner.WeaponR.position - transform.position;
-            //Debug.LogError("dir.magnitude:" + dir.sqrMagnitude + " speed*time.deltatime:" + speed * Time.deltaTime);
-            //WsGlobal.AddDebugLine(transform.position, transform.position + dir, Color.red, "dir");
             if (dir.magnitude <= speed * FrameReplay.deltaTime)//速度太大的时候，可能会2边跑，而且距离都大于5，这样要看夹角是否改变了方向.
             {
                 //Debug.LogError("WeaponReturned");
@@ -250,7 +249,7 @@ public class FlyWheel :NetBehaviour {
                 GameObject.Destroy(gameObject);
                 return;
             }
-            transform.position = transform.position + dir.normalized * speed * FrameReplay.deltaTime;
+            transform.position = (transform.position + dir.normalized * speed * FrameReplay.deltaTime);
         }
     }
 
@@ -355,14 +354,14 @@ public class FlyWheel :NetBehaviour {
                 GameObject weaponPrefab = Resources.Load<GameObject>(weaponR);
                 if (weaponPrefab == null)
                 {
-                    GMCFile fGmcL = Main.Ins.GMCLoader.Load(weaponR);
-                    DesFile fDesL = Main.Ins.DesLoader.Load(weaponR);
+                    GMCFile fGmcL = GMCLoader.Ins.Load(weaponR);
+                    DesFile fDesL = DesLoader.Ins.Load(weaponR);
 
                     if (fGmcL != null && fDesL != null)
                         GenerateWeaponModel(weaponR, fGmcL, fDesL, scale, weaponProperty.TextureL);
                     else if (fGmcL == null && fDesL != null)
                     {
-                        GMBFile fGmbL = Main.Ins.GMBLoader.Load(weaponR);
+                        GMBFile fGmbL = GMBLoader.Ins.Load(weaponR);
                         GenerateWeaponModel(weaponR, fGmbL, fDesL, scale, weaponProperty.TextureL);
                     }
                 }
@@ -421,7 +420,7 @@ public class FlyWheel :NetBehaviour {
         //武器挂点必须在缩放正确后才能到指定的位置
         WR.localScale = Vector3.one;
         Material[] mat = new Material[fModel.TexturesCount];
-        Dictionary<int, string> iflMaterials = new Dictionary<int, string>();
+        SortedDictionary<int, string> iflMaterials = new SortedDictionary<int, string>();
         for (int x = 0; x < fModel.TexturesCount; x++)
         {
             mat[x] = null;
@@ -486,7 +485,7 @@ public class FlyWheel :NetBehaviour {
                     realObject = true;
                     Mesh w = new Mesh();
                     //前者子网格编号，后者 索引缓冲区
-                    Dictionary<int, List<int>> tr = new Dictionary<int, List<int>>();
+                    SortedDictionary<int, List<int>> tr = new SortedDictionary<int, List<int>>();
                     List<Vector3> ve = new List<Vector3>();
                     List<Vector2> uv = new List<Vector2>();
                     List<Vector3> nor = new List<Vector3>();
@@ -628,7 +627,7 @@ public class FlyWheel :NetBehaviour {
         //武器挂点必须在缩放正确后才能到指定的位置
         WR.localScale = Vector3.one;
         Material[] mat = new Material[fModel.TexturesCount];
-        Dictionary<int, string> iflMaterials = new Dictionary<int, string>();
+        SortedDictionary<int, string> iflMaterials = new SortedDictionary<int, string>();
         for (int x = 0; x < fModel.TexturesCount; x++)
         {
             mat[x] = null;
@@ -692,7 +691,7 @@ public class FlyWheel :NetBehaviour {
                     realObject = true;
                     Mesh w = new Mesh();
                     //前者子网格编号，后者 索引缓冲区
-                    Dictionary<int, List<int>> tr = new Dictionary<int, List<int>>();
+                    SortedDictionary<int, List<int>> tr = new SortedDictionary<int, List<int>>();
                     List<Vector3> ve = new List<Vector3>();
                     List<Vector2> uv = new List<Vector2>();
                     List<Vector3> nor = new List<Vector3>();

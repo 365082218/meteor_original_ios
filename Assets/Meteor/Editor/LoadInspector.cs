@@ -4,13 +4,10 @@ using UnityEditor;
 using System.Net;
 
 //[CustomEditor(typeof(SFXUnit))]
-//public class SFXUnitInspector : Editor
-//{
-//    public override void OnInspectorGUI()
-//    {
+//public class SFXUnitInspector : Editor {
+//    public override void OnInspectorGUI() {
 //        base.OnInspectorGUI();
-//        if (GUILayout.Button("DumpParticle"))
-//        {
+//        if (GUILayout.Button("DumpParticle")) {
 //            var obj = (SFXUnit)target;
 //            string file = EditorUtility.SaveFilePanel("DumpParticle", "", "Particle", "bytes");
 //            if (!string.IsNullOrEmpty(file))
@@ -20,11 +17,25 @@ using System.Net;
 //}
 
 [CustomEditor(typeof(AudioButton))]
-public class AudioButtonInspector:Editor
+public class AudioButtonInspector : Editor {
+    public override void OnInspectorGUI() {
+        base.OnInspectorGUI();
+    }
+}
+
+[CustomEditor(typeof(GameBattleEx))]
+public class GameBattleExInspector : Editor
 {
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
+        var obj = (GameBattleEx)target;
+        if (GUILayout.Button("ShowWayPoint")) {
+            obj.ShowWayPoint(true);
+        }
+        if (GUILayout.Button("HideWayPoint")) {
+            obj.ShowWayPoint(false);
+        }
     }
 }
 
@@ -74,10 +85,9 @@ public class LoadInspector : Editor
     {
         base.OnInspectorGUI();
         Loader myTarget = (Loader)target;
-        //if (GUILayout.Button("AddSceneObj"))
-        //{
-        //    myTarget.LoadSceneObjs(myTarget.LevelId);
-        //}
+        if (GUILayout.Button("CreateSpwanPoint")) {
+            myTarget.CreateSpawnPoint();
+        }
         if (GUILayout.Button("AddSceneObjsFromDes"))
         {
             myTarget.LoadSceneObjsFromDes(myTarget.defFile);
@@ -222,8 +232,8 @@ public class MeteorUnitInspector : Editor
     public string way = "";
     public GameObject vecTarget;
     string action = "action";
-    float step = 0.05f;
-    float FadeIn = 0.1f;
+    //float step = 0.05f;
+    //float FadeIn = 0.1f;
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
@@ -232,13 +242,13 @@ public class MeteorUnitInspector : Editor
         action = GUILayout.TextField(action);
         if (GUILayout.Button("GetWayIndex"))
         {
-            wayIndex = Main.Ins.PathMng.GetWayIndex(myTarget.mSkeletonPivot);
+            wayIndex = PathMng.Ins.GetWayIndex(myTarget.mSkeletonPivot);
             way = wayIndex.ToString();
         }
 
         if (GUILayout.Button("GetWayIndex2"))
         {
-            wayIndex = Main.Ins.PathMng.GetWayIndex(myTarget.mSkeletonPivot);
+            wayIndex = PathMng.Ins.GetWayIndex(myTarget.mSkeletonPivot);
             way = wayIndex.ToString();
         }
 
@@ -251,10 +261,15 @@ public class MeteorUnitInspector : Editor
             myTarget.StateMachine.ChangeState(myTarget.StateMachine.FaceToState, vecTarget.transform.position);
         }
 
-        if (GUILayout.Button("BakeAnimation")) {
+        if (GUILayout.Button("ChangeAction")) {
             int act = int.Parse(action);
-            myTarget.ActionMgr.BakePose(act);
+            myTarget.ActionMgr.ChangeAction(act, 0.1f);
         }
+
+        //if (GUILayout.Button("BakeAnimation")) {
+        //    int act = int.Parse(action);
+        //    myTarget.ActionMgr.BakePose(act);
+        //}
 
         if (GUILayout.Button("StopAllAction")) {
             
@@ -271,6 +286,21 @@ public class MeteorUnitInspector : Editor
             //FrameReplay.deltaTime = Time.deltaTime;
             //FrameReplay.Instance.time += Time.deltaTime;
             
+        }
+    }
+}
+
+[CustomEditor(typeof(FrameReplay))]
+public class FrameReplayInspector : Editor {
+    string trackerid = "trackid";
+    public override void OnInspectorGUI() {
+        base.OnInspectorGUI();
+        FrameReplay frameReplay = (FrameReplay)target;
+        trackerid = GUILayout.TextField(trackerid);
+        if (GUILayout.Button("SetTrackerId")) {
+            int track = 0;
+            if (int.TryParse(trackerid, out track))
+                FrameSnapShot.Ins.NewTracker(track);
         }
     }
 }

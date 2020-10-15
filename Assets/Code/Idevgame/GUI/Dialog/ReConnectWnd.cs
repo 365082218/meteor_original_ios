@@ -2,12 +2,8 @@
 using System.Collections;
 using Idevgame.GameState.DialogState;
 
-public class ReconnectDialogState: CommonDialogState<ReConnectWnd>
+public class ReconnectDialogState: PersistDialog<ReConnectWnd>
 {
-    public ReconnectDialogState(MainDialogStateManager stateMgr) :base(stateMgr)
-    {
-
-    }
     public override string DialogName { get { return "ReConnectWnd"; } }
 }
 

@@ -3,13 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+
 using UnityEngine;
 
 public class PathContext
 {
     public PathContext()
     {
-        int count = Main.Ins.CombatData.wayPoints.Count;
+        int count = CombatData.Ins.wayPoints.Count;
         Container = new PathNode[count];
         for (int i = 0; i < count; i++)
             Container[i] = new PathNode();
@@ -64,16 +65,23 @@ public class PathHelper:Singleton<PathHelper>
     public void CalcPath(StateMachine machine, Vector3 start, Vector3 end)
     {
         machine.Path.state = 0;
-        Vector3 vecTarget = end;
-        RaycastHit hit;
-        if (!Physics.SphereCast(start, 10.0f, (vecTarget - start).normalized, out hit, Vector3.Distance(vecTarget, start), LayerManager.AllSceneMask)) {
+        machine.Path.startIndex = PathMng.Ins.GetWayIndex(start);
+        machine.Path.endIndex = PathMng.Ins.GetWayIndex(end);
+        //找不到路点
+        if (machine.Path.startIndex == -1 || machine.Path.endIndex == -1) {
             machine.Path.state = 1;
             machine.Path.ways.Clear();
             return;
         }
 
-        machine.Path.startIndex = Main.Ins.PathMng.GetWayIndex(start);
-        machine.Path.endIndex = Main.Ins.PathMng.GetWayIndex(end);
+        //路点本身相连
+        if (CombatData.Ins.wayPoints[machine.Path.startIndex].link.ContainsKey(machine.Path.endIndex)) {
+            machine.Path.state = 1;
+            machine.Path.ways.Clear();
+            return;
+        }
+
+        //路点间接相连
         lock (pathQueue)
         {
             pathQueue.Add(machine.Path);
@@ -83,17 +91,24 @@ public class PathHelper:Singleton<PathHelper>
 
     public void CalcPath(StateMachine machine, Vector3 start, int end) {
         machine.Path.state = 0;
-        //如果直线上可以到达，那么直接走过去，避免在空白地面上来回跑
-        Vector3 vecTarget = Main.Ins.CombatData.wayPoints[end].pos;
-        RaycastHit hit;
-        if (!Physics.SphereCast(start, 10.0f, (vecTarget - start).normalized, out hit, Vector3.Distance(vecTarget, start), LayerManager.AllSceneMask)) {
+        machine.Path.startIndex = PathMng.Ins.GetWayIndex(start);
+        machine.Path.endIndex = end;
+
+        //找不到路点
+        if (machine.Path.startIndex == -1 || machine.Path.endIndex == -1) {
             machine.Path.state = 1;
             machine.Path.ways.Clear();
             return;
         }
 
-        machine.Path.startIndex = Main.Ins.PathMng.GetWayIndex(start);
-        machine.Path.endIndex = end;
+        //路点本身相连
+        if (CombatData.Ins.wayPoints[machine.Path.startIndex].link.ContainsKey(machine.Path.endIndex)) {
+            machine.Path.state = 1;
+            machine.Path.ways.Clear();
+            return;
+        }
+
+        //路点间接相连
         lock (pathQueue) {
             pathQueue.Add(machine.Path);
             waitEvent.Set();
@@ -144,7 +159,7 @@ public class PathHelper:Singleton<PathHelper>
 
                     PathPameter pameter = pathQueue[0];
                     pathQueue.RemoveAt(0);
-                    Main.Ins.PathMng.FindPath(pameter.context, pameter.startIndex, pameter.endIndex, pameter.ways);
+                    PathMng.Ins.FindPath(pameter.context, pameter.startIndex, pameter.endIndex, pameter.ways);
                     pameter.state = 1;
                 }
             }
@@ -171,7 +186,7 @@ public enum WalkType
     Jump = 1,
 }
 
-public class PathMng
+public class PathMng:Singleton<PathMng>
 {
     //通过起始坐标，结束坐标，得到一条通路.
     //public void FindPath(PathContext context, Vector3 source, Vector3 target, List<WayPoint> waypoint)
@@ -190,11 +205,11 @@ public class PathMng
 
     public WalkType GetWalkMethod(int start, int end)
     {
-        if (Main.Ins.CombatData.wayPoints.Count > start && Main.Ins.CombatData.wayPoints.Count > end)
+        if (CombatData.Ins.wayPoints.Count > start && CombatData.Ins.wayPoints.Count > end)
         {
-            if (Main.Ins.CombatData.wayPoints[start].link.ContainsKey(end))
+            if (CombatData.Ins.wayPoints[start].link.ContainsKey(end))
             {
-                return (WalkType)Main.Ins.CombatData.wayPoints[start].link[end].mode;
+                return (WalkType)CombatData.Ins.wayPoints[start].link[end].mode;
             }
         }
         return WalkType.Normal;
@@ -259,18 +274,18 @@ public class PathMng
                     find = true;
                     //Debug.LogError("找到目标点:" + end);
                     if (wp.Count == 0)
-                        wp.Add(Main.Ins.CombatData.wayPoints[target]);
+                        wp.Add(CombatData.Ins.wayPoints[target]);
                     else
-                        wp.Insert(0, Main.Ins.CombatData.wayPoints[target]);
+                        wp.Insert(0, CombatData.Ins.wayPoints[target]);
                     PathNode p = each.Value[i];
                     while (p.parent != start)
                     {
                         target = p.parent;
                         p = context.Container[target];
                         if (wp.Count == 0)
-                            wp.Add(Main.Ins.CombatData.wayPoints[target]);
+                            wp.Add(CombatData.Ins.wayPoints[target]);
                         else
-                            wp.Insert(0, Main.Ins.CombatData.wayPoints[target]);
+                            wp.Insert(0, CombatData.Ins.wayPoints[target]);
                         if (wp.Count >= 100)
                         {
                             Debug.LogError("寻路链路超过100！！！");
@@ -286,13 +301,13 @@ public class PathMng
 
         if (!find)
         {
-            Debug.LogError(string.Format("孤立的寻路点:{0},没有点可以走向目标", target));
+            Debug.LogError(string.Format("孤立的寻路点:从{0}到{1},没有路径通向目标", start, target));
             if (wp.Count == 0)
-                wp.Add(Main.Ins.CombatData.wayPoints[target]);
+                wp.Add(CombatData.Ins.wayPoints[target]);
             else
-                wp.Insert(0, Main.Ins.CombatData.wayPoints[target]);
+                wp.Insert(0, CombatData.Ins.wayPoints[target]);
         }
-        wp.Insert(0, Main.Ins.CombatData.wayPoints[start]);
+        wp.Insert(0, CombatData.Ins.wayPoints[start]);
     }
 
     //查看之前层级是否已统计过该节点信息
@@ -331,7 +346,7 @@ public class PathMng
     //收集从起点到终点经过的所有层级路点,一旦遇见最近层级的终点就结束，用于计算最短路径.
     void CollectPathLayer(PathContext context, int start, int end, int layer = 1)
     {
-        Dictionary<int, WayLength> ways = Main.Ins.CombatData.wayPoints[start].link;
+        SortedDictionary<int, WayLength> ways = CombatData.Ins.wayPoints[start].link;
         foreach (var each in ways)
         {
             if (!PathLayerExist(context, each.Key))
@@ -351,12 +366,12 @@ public class PathMng
     //得到某个点的相邻路点-视为躲避路点.随机
     public int GetDodgeWayPoint(Vector3 vec) {
         int start = GetWayIndex(vec);
-        if (Main.Ins.CombatData.wayPoints.Count > start && start >= 0) {
-            if (Main.Ins.CombatData.wayPoints[start].link != null) {
-                List<int> ret = Main.Ins.CombatData.wayPoints[start].link.Keys.ToList();
-                int k = Random.Range(0, ret.Count);
+        if (CombatData.Ins.wayPoints.Count > start && start >= 0) {
+            if (CombatData.Ins.wayPoints[start].link != null) {
+                List<int> ret = CombatData.Ins.wayPoints[start].link.Keys.ToList();
+                int k = Utility.Range(0, ret.Count);
                 if (ret.Count != 0)
-                    return Main.Ins.CombatData.wayPoints[ret[k]].index;
+                    return CombatData.Ins.wayPoints[ret[k]].index;
             }
         }
         //要么是一个单向路点，无法找到相邻节点，要么是所处位置已经混乱.
@@ -367,14 +382,14 @@ public class PathMng
     public Vector3 GetNearestWayPoint(Vector3 vec)
     {
         int start = GetWayIndex(vec);
-        if (Main.Ins.CombatData.wayPoints.Count > start && start >= 0)
+        if (CombatData.Ins.wayPoints.Count > start && start >= 0)
         {
-            if (Main.Ins.CombatData.wayPoints[start].link != null)
+            if (CombatData.Ins.wayPoints[start].link != null)
             {
-                List<int> ret = Main.Ins.CombatData.wayPoints[start].link.Keys.ToList();
-                int k = Random.Range(0, ret.Count);
+                List<int> ret = CombatData.Ins.wayPoints[start].link.Keys.ToList();
+                int k = Utility.Range(0, ret.Count);
                 if (ret.Count != 0)
-                    return Main.Ins.CombatData.wayPoints[ret[k]].pos;
+                    return CombatData.Ins.wayPoints[ret[k]].pos;
             }
         }
         return Vector3.zero;
@@ -384,17 +399,19 @@ public class PathMng
     public int GetWayIndex(Vector3 now)
     {
         int ret = -1;
-        float min = float.MaxValue;
+        float min = int.MaxValue;
         float radis = 250;
         for (int i = 1; i <= 10; i++) {
             float r = i * radis;
-            if (Physics.CheckSphere(now, r, LayerManager.WayPointMask)) {
-                Collider[] waypoints = Physics.OverlapSphere(now, r, LayerManager.WayPointMask);
+            Vector3 v = now;
+            if (Physics.CheckSphere(v, r, LayerManager.WayPointMask)) {
+                Collider[] waypoints = Physics.OverlapSphere(v, r, LayerManager.WayPointMask);
                 for (int j = 0; j < waypoints.Length; j++) {
                     Vector3 vecTarget = waypoints[j].transform.position;
                     Vector3 vecSource = now;
                     RaycastHit hit;
-                    if (Physics.SphereCast(vecSource, 10.0f, (vecTarget - vecSource).normalized, out hit, Vector3.Distance(vecTarget, vecSource), LayerManager.AllSceneMask))
+                    float d = 10;
+                    if (Physics.SphereCast(v, d, (vecTarget - vecSource).normalized, out hit, Vector3.Distance(vecTarget, vecSource), LayerManager.AllSceneMask))
                         continue;
                     //检查射线之间是否有阻隔，若有，则忽略掉这个.
                     float dis = Vector3.SqrMagnitude(vecTarget - vecSource);

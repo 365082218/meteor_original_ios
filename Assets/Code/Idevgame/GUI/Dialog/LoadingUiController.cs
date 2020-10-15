@@ -8,7 +8,7 @@ using Idevgame.GameState.DialogState;
 public class LoadingDialogState:CommonDialogState<LoadingUiController>
 {
     public override string DialogName { get { return "LoadingWnd"; } }
-    public LoadingDialogState(MainDialogStateManager dialog):base(dialog)
+    public LoadingDialogState(MainDialogMgr dialog):base(dialog)
     {
 
     }
@@ -28,18 +28,18 @@ public class LoadingUiController : Dialog
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
         Texture2D loadingTexture = null;
-        if (Main.Ins.CombatData.Chapter == null)
+        if (CombatData.Ins.Chapter == null)
         {
-            if (Main.Ins.CombatData.GLevelItem != null && !string.IsNullOrEmpty(Main.Ins.CombatData.GLevelItem.BgTexture))
-                loadingTexture = GameObject.Instantiate(Resources.Load<Texture2D>(Main.Ins.CombatData.GLevelItem.BgTexture));
+            if (CombatData.Ins.GLevelItem != null && !string.IsNullOrEmpty(CombatData.Ins.GLevelItem.BgTexture))
+                loadingTexture = GameObject.Instantiate(Resources.Load<Texture2D>(CombatData.Ins.GLevelItem.BgTexture));
         }
         else
         {
-            for (int i = 0; i < Main.Ins.CombatData.Chapter.resPath.Count; i++)
+            for (int i = 0; i < CombatData.Ins.Chapter.resPath.Count; i++)
             {
-                if (Main.Ins.CombatData.Chapter.resPath[i].EndsWith(Main.Ins.CombatData.GLevelItem.BgTexture + ".jpg"))
+                if (CombatData.Ins.Chapter.resPath[i].EndsWith(CombatData.Ins.GLevelItem.BgTexture + ".jpg"))
                 {
-                    byte[] array = System.IO.File.ReadAllBytes(Main.Ins.CombatData.Chapter.resPath[i]);
+                    byte[] array = System.IO.File.ReadAllBytes(CombatData.Ins.Chapter.resPath[i]);
                     Texture2D tex = new Texture2D(0, 0);
                     tex.LoadImage(array);
                     loadingTexture = tex;

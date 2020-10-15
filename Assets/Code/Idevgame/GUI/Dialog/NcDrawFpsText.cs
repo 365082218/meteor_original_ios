@@ -30,7 +30,7 @@ public class NcDrawFpsText : MonoBehaviour
 	{
 		timeleft -= Time.deltaTime;
 		accum += Time.timeScale/Time.deltaTime;
-		++frames;
+        ++frames;
 	    
 		// Interval ended - update GUI text and start new interval
 		if (timeleft <= 0.0)

@@ -156,11 +156,11 @@ public class CommonAction
     public const int Fall = 118;//受击从空中落下-硬直内
 }
 
-public class ActionInterrupt
+public class ActionInterrupt:Singleton<ActionInterrupt>
 {
     public ActionNode Root;
-    public Dictionary<int, ActionNode> Whole = new Dictionary<int, ActionNode>();
-    public Dictionary<int, List<int>> Lines = new Dictionary<int, List<int>>();//存储行 与 Pose的关系
+    public SortedDictionary<int, ActionNode> Whole = new SortedDictionary<int, ActionNode>();
+    public SortedDictionary<int, List<int>> Lines = new SortedDictionary<int, List<int>>();//存储行 与 Pose的关系
     public void Clear() {
         Root = null;
         Whole.Clear();
@@ -401,9 +401,6 @@ public class ActionInterrupt
 
     public void Init()
     {
-        if (Root != null)
-            return;
-
         TextAsset act = Resources.Load<TextAsset>(string.Format("{0}/characteract", Main.Ins.AppInfo.MeteorVersion));
         MemoryStream ms = new MemoryStream(act.bytes);
         StreamReader text = new StreamReader(ms);
@@ -626,7 +623,7 @@ public class ActionInterrupt
 
     public ActionNode GetActions(int actionIdx)
     {
-        Dictionary<int, ActionNode>.Enumerator ienum = Whole.GetEnumerator();
+        SortedDictionary<int, ActionNode>.Enumerator ienum = Whole.GetEnumerator();
         while (ienum.MoveNext())
         {
             if (ienum.Current.Key == actionIdx)

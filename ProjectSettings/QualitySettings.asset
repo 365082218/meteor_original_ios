@@ -114,7 +114,7 @@ QualitySettings:
     name: Most
     pixelLightCount: 0
     shadows: 2
-    shadowResolution: 3
+    shadowResolution: 1
     shadowProjection: 0
     shadowCascades: 4
     shadowDistance: 20
@@ -136,6 +136,4 @@ QualitySettings:
     asyncUploadTimeSlice: 2
     asyncUploadBufferSize: 4
     excludedTargetPlatforms: []
-  m_PerPlatformDefaultQuality:
-    Android: 0
-    Standalone: 0
+  m_PerPlatformDefaultQuality: {}

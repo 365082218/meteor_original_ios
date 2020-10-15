@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine.Events;
 
+using protocol;
+
 public class JoyKeyState {
     public KeyCode key;
     public bool PointDown;
@@ -22,8 +24,8 @@ public class JoyKeyState {
 /// <summary>
 /// 测试游戏手柄键值
 /// </summary>
-public class PlayerJoyStick : NetBehaviour {
-    public Dictionary<EKeyList, JoyKeyState> keyMapping = new Dictionary<EKeyList, JoyKeyState>();//虚拟键映射关系.
+public class PlayerJoyStick : MonoBehaviour {
+    public SortedDictionary<EKeyList, JoyKeyState> keyMapping = new SortedDictionary<EKeyList, JoyKeyState>();//虚拟键映射关系.
     public JoyKeyState wKey;
     public JoyKeyState sKey;
     public JoyKeyState aKey;
@@ -41,10 +43,9 @@ public class PlayerJoyStick : NetBehaviour {
     public JoyKeyState crouch;
     public JoyKeyState unlock;
     public JoyKeyState help;
-    public float CameraAxisX { get { if (CameraAxisXL.PointDown) return -1; if (CameraAxisXR.PointDown) return 1; return 0; } }
-    public float CameraAxisY { get { if (CameraAxisYD.PointDown) return -1; if (CameraAxisYU.PointDown) return 1; return 0; } }
-    private new void Awake() {
-        base.Awake();
+    public int CameraAxisX { get { if (CameraAxisXL.PointDown) return -1; if (CameraAxisXR.PointDown) return 1; return 0; } }
+    public int CameraAxisY { get { if (CameraAxisYD.PointDown) return -1; if (CameraAxisYU.PointDown) return 1; return 0; } }
+    private void Awake() {
         wKey = new JoyKeyState(KeyCode.JoystickButton4);
         sKey = new JoyKeyState(KeyCode.JoystickButton6);
         aKey = new JoyKeyState(KeyCode.JoystickButton7);
@@ -82,7 +83,7 @@ public class PlayerJoyStick : NetBehaviour {
     }
 
     void Sync() {
-        foreach (var each in Main.Ins.GameStateMgr.gameStatus.KeyMapping) {
+        foreach (var each in GameStateMgr.Ins.gameStatus.KeyMapping) {
             RegisterInternal(each.Key, each.Value);
         }
     }
@@ -122,20 +123,20 @@ public class PlayerJoyStick : NetBehaviour {
 
     public void OnBattleStart() {
         ResetAll();
-        wKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyW); });
-        sKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyS); });
-        aKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyA); });
-        dKey.OnPress.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyD); });
+        wKey.OnPress.AddListener(() => { CombatData.Ins.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyW); });
+        sKey.OnPress.AddListener(() => { CombatData.Ins.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyS); });
+        aKey.OnPress.AddListener(() => { CombatData.Ins.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyA); });
+        dKey.OnPress.AddListener(() => { CombatData.Ins.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyD); });
 
-        wKey.OnPressing.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnKeyPressingProxy(EKeyList.KL_KeyW); });
-        sKey.OnPressing.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnKeyPressingProxy(EKeyList.KL_KeyS); });
-        aKey.OnPressing.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnKeyPressingProxy(EKeyList.KL_KeyA); });
-        dKey.OnPressing.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnKeyPressingProxy(EKeyList.KL_KeyD); });
+        wKey.OnPressing.AddListener(() => { CombatData.Ins.GMeteorInput.OnKeyPressingProxy(EKeyList.KL_KeyW); });
+        sKey.OnPressing.AddListener(() => { CombatData.Ins.GMeteorInput.OnKeyPressingProxy(EKeyList.KL_KeyS); });
+        aKey.OnPressing.AddListener(() => { CombatData.Ins.GMeteorInput.OnKeyPressingProxy(EKeyList.KL_KeyA); });
+        dKey.OnPressing.AddListener(() => { CombatData.Ins.GMeteorInput.OnKeyPressingProxy(EKeyList.KL_KeyD); });
 
-        wKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW); });
-        sKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS); });
-        aKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA); });
-        dKey.OnRelease.AddListener(() => { Main.Ins.CombatData.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD); });
+        wKey.OnRelease.AddListener(() => { CombatData.Ins.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW); });
+        sKey.OnRelease.AddListener(() => { CombatData.Ins.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS); });
+        aKey.OnRelease.AddListener(() => { CombatData.Ins.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA); });
+        dKey.OnRelease.AddListener(() => { CombatData.Ins.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyD); });
 
         attack.OnPress.AddListener(() => { if (FightState.Exist()) FightState.Instance.OnAttackPress(); });
         attack.OnRelease.AddListener(()=> { if (FightState.Exist()) FightState.Instance.OnAttackRelease(); });
@@ -159,12 +160,6 @@ public class PlayerJoyStick : NetBehaviour {
         help.OnPress.AddListener(() => { if (FightState.Exist()) FightState.Instance.OnRebornClick(); });
     }
 
-    private void Start() {
-        //先创建每个键
-
-
-    }
-
     void RegisterInternal(EKeyList ek, KeyCode k) {
         if (keyMapping.ContainsKey(ek)) {
             keyMapping[ek].key = k;
@@ -174,18 +169,18 @@ public class PlayerJoyStick : NetBehaviour {
     }
 
     public void Register(EKeyList ek, KeyCode k) {
-        Main.Ins.GameStateMgr.gameStatus.UseJoyDevice = true;
+        GameStateMgr.Ins.gameStatus.UseJoyDevice = true;
         List<EKeyList> Keys = new List<EKeyList>();
-        foreach (var each in Main.Ins.GameStateMgr.gameStatus.KeyMapping) {
+        foreach (var each in GameStateMgr.Ins.gameStatus.KeyMapping) {
             Keys.Add(each.Key);
         }
         for (int i = 0; i < Keys.Count; i++) {
-            if (Main.Ins.GameStateMgr.gameStatus.KeyMapping[Keys[i]] == k) {
-                Main.Ins.GameStateMgr.gameStatus.KeyMapping[Keys[i]] = KeyCode.None;
+            if (GameStateMgr.Ins.gameStatus.KeyMapping[Keys[i]] == k) {
+                GameStateMgr.Ins.gameStatus.KeyMapping[Keys[i]] = KeyCode.None;
             }
         }
 
-        Main.Ins.GameStateMgr.gameStatus.KeyMapping[ek] = k;
+        GameStateMgr.Ins.gameStatus.KeyMapping[ek] = k;
         if (!enabled) {
             enabled = true;//触发onenable
         } else {
@@ -197,7 +192,7 @@ public class PlayerJoyStick : NetBehaviour {
     public bool mJoyPressed;//左侧摇杆是否推/拉
     public bool ArrowPressed { get { return wKey.PointDown || sKey.PointDown || aKey.PointDown || dKey.PointDown; } }
     Vector2 mDelta = Vector2.zero;
-    public Vector2 Delta {
+    public MyVector2 Delta {
         get {
             if (mJoyPressed) {
 
@@ -211,25 +206,63 @@ public class PlayerJoyStick : NetBehaviour {
                 else if (dKey.PointDown)
                     mDelta = Vector2.right;
             }
-            return Time.timeScale * mDelta.normalized;
+            return mDelta;
         }
     }
 
     private string currentButton;//当前按下的按键
     private string currentAxis;//当前移动的轴向
     private float axisInput;//当前轴向的值
+    MeteorController controller;
+    MeteorUnit localPlayer;
+    public void Update() {
+        //if (Main.Ins.GameBattleEx != null && Main.Ins.GameBattleEx.BattleFinished())
+        //    return;
+        //if (CombatData.Ins.Replay && FrameReplay.Instance.Started) {
 
-    public override void NetUpdate() {
-        //getAxis();
-        if (Main.Ins.GameBattleEx != null && Main.Ins.GameBattleEx.BattleFinished())
-            return;
-        if (Main.Ins.LocalPlayer != null) {
-            if (Main.Ins.LocalPlayer.meteorController.InputLocked)
-                return;
-        }
-        getButtons();
+        //} else {
+        //    if (Main.Ins.LocalPlayer != null) {
+        //        if (Main.Ins.LocalPlayer.meteorController.InputLocked)
+        //            return;
+        //    }
+        //    getButtons();
+        //}
     }
 
+    public void ProcessKey(KeyState keyState) {
+        Pressed.Clear();
+        Released.Clear();
+        Pressing.Clear();
+        if (keyMapping.ContainsKey(keyState.Key)) {
+            JoyKeyState js = keyMapping[keyState.Key];
+            bool old = js.PointDown;
+            js.PointDown = Input.GetKey(js.key);
+            if (old && !js.PointDown)
+                Released.Add(js);
+            if (!old && js.PointDown)
+                Pressed.Add(js);
+            if (old && js.PointDown)
+                Pressing.Add(js);
+            //先按下
+            for (int i = 0; i < Pressed.Count; i++) {
+                if (Pressed[i].OnPress != null) {
+                    Pressed[i].OnPress.Invoke();
+                }
+            }
+            //再蓄力
+            for (int i = 0; i < Pressing.Count; i++) {
+                if (Pressing[i].OnPressing != null) {
+                    Pressing[i].OnPressing.Invoke();
+                }
+            }
+            //再弹起
+            for (int i = 0; i < Released.Count; i++) {
+                if (Released[i].OnRelease != null) {
+                    Released[i].OnRelease.Invoke();
+                }
+            }
+        }
+    }
     /// <summary>
     /// Get Button data of the joysick
     /// </summary>
@@ -246,22 +279,13 @@ public class PlayerJoyStick : NetBehaviour {
             each.Value.PointDown = Input.GetKey(each.Value.key);
             if (old && !each.Value.PointDown) {
                 Released.Add(each.Value);
-                //if (each.Value.OnRelease != null) {
-                //    each.Value.OnRelease.Invoke();
-                //}
             }
             if (!old && each.Value.PointDown) {
                 Pressed.Add(each.Value);
-                //if (each.Value.OnPress != null) {
-                //    each.Value.OnPress.Invoke();
-                //}
             }
 
             if (old && each.Value.PointDown) {
                 Pressing.Add(each.Value);
-                //if (each.Value.OnPressing != null) {
-                //    each.Value.OnPressing.Invoke();
-                //}
             }
         }
 
@@ -269,21 +293,18 @@ public class PlayerJoyStick : NetBehaviour {
         for (int i = 0; i < Pressed.Count; i++) {
             if (Pressed[i].OnPress != null) {
                 Pressed[i].OnPress.Invoke();
-                //Debug.Log("OnPress");
             }
         }
         //再蓄力
         for (int i = 0; i < Pressing.Count; i++) {
             if (Pressing[i].OnPressing != null) {
                 Pressing[i].OnPressing.Invoke();
-                //Debug.Log("OnPressing");
             }
         }
         //再弹起
         for (int i = 0; i < Released.Count; i++) {
             if (Released[i].OnRelease != null) {
                 Released[i].OnRelease.Invoke();
-                //Debug.Log("OnRelease");
             }
         }
     }

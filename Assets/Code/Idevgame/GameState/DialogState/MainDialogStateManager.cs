@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Idevgame.StateManagement;
 using Idevgame.StateManagement.DialogStateManagement;
-using Idevgame.Util;
+using UnityEngine;
 
 namespace Idevgame.GameState.DialogState {
     public class BaseDialogStateManager : DialogStateManager<BaseDialogState, DialogAction>
@@ -109,7 +108,7 @@ namespace Idevgame.GameState.DialogState {
         }
     }
 
-    public class MainDialogStateManager:BaseDialogStateManager  {
+    public class MainDialogMgr:BaseDialogStateManager  {
 
         public ConnectDialogState ConnectDialogState;
         //主界面
@@ -120,7 +119,6 @@ namespace Idevgame.GameState.DialogState {
         public LoadingDialogState LoadingDialogState;
         //主角模型切换面板
         public ModelSelectDialogState ModelSelectDialogState;
-        public ScriptInputDialogState ScriptInputDialogState;
         public UIAdjustDialogState UIAdjustDialogState;
         public EscConfirmDialogState EscConfirmDialogState;
         public StartupDialogState StartupDialogState;
@@ -131,19 +129,22 @@ namespace Idevgame.GameState.DialogState {
         public MainLobbyDialogState MainLobbyDialogState;
         public SettingDialogState SettingDialogState;
         public UpdateDialogState UpdateDialogState;
-        public RoomOptionDialogState RoomOptionDialogState;
+        public CreateRoomDialogState RoomOptionDialogState;
         public ServerListDialogState ServerListDialogState;
         public RecordDialogState RecordDialogState;
         public HostEditDialogState HostEditDialogState;
         public LoginDialogState LoginDialogState;
         public WeaponDialogState WeaponDialogState;
         public RoleSelectDialogState RoleSelectDialogState;
+        public CampSelectDialogState CampSelectDialogState;
         public WeaponSelectDialogState WeaponSelectDialogState;
         public MatchDialogState MatchDialogState;
         public BattleResultDialogState BattleResultDialogState;
         public SfxDialogState SfxDialogState;
         public RobotDialogState RobotDialogState;
-        public MainDialogStateManager() {
+
+        public virtual void Init()
+        {
             ConnectDialogState = new ConnectDialogState(this);
             EscDialogState = new EscDialogState(this);
             LoadingDialogState = new LoadingDialogState(this);
@@ -151,7 +152,6 @@ namespace Idevgame.GameState.DialogState {
             MainMenuState = new MainMenuState(this);
             EscConfirmDialogState = new EscConfirmDialogState(this);
             UIAdjustDialogState = new UIAdjustDialogState(this);
-            ScriptInputDialogState = new ScriptInputDialogState(this);
             StartupDialogState = new StartupDialogState(this);
             LevelDialogState = new LevelDialogState(this);
             UpdateDialogState = new UpdateDialogState(this);
@@ -159,23 +159,20 @@ namespace Idevgame.GameState.DialogState {
             DlcManagerDialogState = new DlcManagerDialogState(this);
             WorldTemplateDialogState = new WorldTemplateDialogState(this);
             MainLobbyDialogState = new MainLobbyDialogState(this);
-            RoomOptionDialogState = new RoomOptionDialogState(this);
+            RoomOptionDialogState = new CreateRoomDialogState(this);
             ServerListDialogState = new ServerListDialogState(this);
             RecordDialogState = new RecordDialogState(this);
             HostEditDialogState = new HostEditDialogState(this);
             SettingDialogState = new SettingDialogState(this);
             LoginDialogState = new LoginDialogState(this);
             WeaponSelectDialogState = new WeaponSelectDialogState(this);
+            CampSelectDialogState = new CampSelectDialogState(this);
             MatchDialogState = new MatchDialogState(this);
             BattleResultDialogState = new BattleResultDialogState(this);
             SfxDialogState = new SfxDialogState(this);
             RobotDialogState = new RobotDialogState(this);
+            RoleSelectDialogState = new RoleSelectDialogState(this);
             WeaponDialogState = new WeaponDialogState(this);
-        }
-
-        public virtual void Init()
-        {
-
         }
     }
 
@@ -185,13 +182,9 @@ namespace Idevgame.GameState.DialogState {
     public class MainPopupStateManager : BaseDialogStateManager
     {
         public NoticeDialogState NoticeDialogState;
-        public MainPopupStateManager()
-        {
-            NoticeDialogState = new NoticeDialogState(this);
-        }
-
         public void Init()
         {
+            NoticeDialogState = new NoticeDialogState(this);
             AutoPopup(NoticeDialogState);
         }
 
@@ -271,9 +264,104 @@ namespace Idevgame.GameState.DialogState {
             return opened;
         }
 
-        protected override void HandleFireAction(DialogAction gameAction, Object data)
+        protected override void HandleFireAction(DialogAction gameAction, object data)
         {
             base.HandleFireAction(gameAction, data);
+        }
+    }
+
+    //管理2级窗口，可多次叠加
+    public class PersistDialogMgr:Singleton<PersistDialogMgr> {
+        public void Init() {
+            ActiveState = new List<PersistState>();
+            ReconnectDialogState = new ReconnectDialogState();
+            GameOverlay = new GameOverlayDialogState();
+            FightState = new FightState();
+            ReplayState = new ReplayState();
+            NickNameDialogState = new NickNameDialogState();
+            BattleStatusDialogState = new BattleStatusDialogState();
+            ConnectServerState = new ConnectServerDialogState();
+            PlayerDialogState = new PlayerDialogState();
+            ChatDialogState = new ChatDialogState();
+            PsdEditDialogState = new PsdEditDialogState();
+            RoomChatDialogState = new RoomChatDialogState();
+            LoadingEx = new LoadingEXDialogState();
+            ItemInfoDialogState = new ItemInfoDialogState();
+            GunShootDialogState = new GunShootDialogState();
+            TipDialogState = new TipDialogState();
+            WaitDialogState = new WaitDialogState();
+            RecordSelectState = new RecordSelectState();
+            ScriptInputDialogState = new ScriptInputDialogState();
+        }
+
+        List<PersistState> ActiveState;
+        Dictionary<MonoBehaviour, PersistState> StateHash = new Dictionary<MonoBehaviour, PersistState>();
+        public ReconnectDialogState ReconnectDialogState;
+        public FightState FightState;//战斗界面叠加
+        public GameOverlayDialogState GameOverlay;//进入主界面叠加
+        public ReplayState ReplayState;//回放控制界面叠加.
+        public NickNameDialogState NickNameDialogState;//昵称界面.
+        public BattleStatusDialogState BattleStatusDialogState;//当局战斗信息界面
+        public ConnectServerDialogState ConnectServerState;//与指定服务器进行连接.
+        public PlayerDialogState PlayerDialogState;
+        public ChatDialogState ChatDialogState;
+        public ScriptInputDialogState ScriptInputDialogState;
+        public PsdEditDialogState PsdEditDialogState;
+        public RoomChatDialogState RoomChatDialogState;
+        public LoadingEXDialogState LoadingEx;
+        public ItemInfoDialogState ItemInfoDialogState;
+        public GunShootDialogState GunShootDialogState;
+        public TipDialogState TipDialogState;
+        public WaitDialogState WaitDialogState;
+        public RecordSelectState RecordSelectState;
+
+        public void EnterState(PersistState state, object data = null) {
+            if (ActiveState.Contains(state))
+                return;
+            state.OnStateEnter(data);
+            ActiveState.Add(state);
+            if (state.Owner != null)
+                StateHash.Add(state.Owner, state);
+        }
+
+        public void ExitStateByOwner(UnityEngine.MonoBehaviour Owner) {
+            if (StateHash.ContainsKey(Owner)) {
+                PersistState state = StateHash[Owner];
+                ExitState(state);
+            }
+        }
+
+        public void ExitAllState() {
+            List<PersistState> actives = new List<PersistState>();
+            actives.AddRange(ActiveState);
+            for (int i = 0; i < actives.Count; i++) {
+                ExitState(actives[i]);
+            }
+        }
+
+        public void ExitState(PersistState state) {
+            if (!ActiveState.Contains(state))
+                return;
+            if (state.Owner != null)
+                StateHash.Remove(state.Owner);
+            state.OnStateExit();
+            ActiveState.Remove(state);
+        }
+
+        public bool StateActive(PersistState state) {
+            return ActiveState.Contains(state);
+        }
+
+        public void Update() {
+            for (int i = 0; i < ActiveState.Count; i++) {
+                ActiveState[i].OnUpdate();
+            }
+        }
+
+        public void OnLateUpdate() {
+            for (int i = 0; i < ActiveState.Count; i++) {
+                ActiveState[i].OnLateUpdate();
+            }
         }
     }
 }

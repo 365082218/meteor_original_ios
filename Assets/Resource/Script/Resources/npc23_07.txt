@@ -1,0 +1,35 @@
+local class = {}
+function npc23_07()
+	class.Name = "石群";
+	class.Model = 14;
+	class.Weapon = 492;
+	class.Weapon2 = 0;
+	class.Team = 1;
+	class.View = 650;
+	class.Think = 150;
+	class.Attack1 = 35;
+	class.Attack2 = 45;
+	class.Attack3 = 55;
+	class.Guard = 5;
+	class.Dodge = 5;
+	class.Jump = 5;
+	class.Look = 10;
+	class.Burst = 1;
+	class.Aim = 50;
+	class.GetItem = 0;
+	class.Spawn = 1;
+	class.HP = 5000;
+	
+	class.g_selfAddr = 0;
+	class.g_self = 0;
+	return class;
+end
+
+function class:OnInit(a)
+	class.g_selfAddr = a;
+end
+
+function class:OnStart()
+	class.g_self = GetSelf(class.g_selfAddr);
+	ChangeBehavior(class.g_self, "follow", "player");
+end

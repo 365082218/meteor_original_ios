@@ -13,7 +13,7 @@ using Excel2Json;
 public class SettingDialogState:CommonDialogState<SettingDialog>
 {
     public override string DialogName { get { return "SettingDialog"; } }
-    public SettingDialogState(MainDialogStateManager stateMgr):base(stateMgr)
+    public SettingDialogState(MainDialogMgr stateMgr):base(stateMgr)
     {
     }
 }
@@ -33,112 +33,109 @@ public class SettingDialog : Dialog {
     {
         Control("Return").GetComponent<Button>().onClick.AddListener(() =>
         {
-            Main.Ins.GameStateMgr.SaveState();
+            GameStateMgr.Ins.SaveState();
             Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainMenuState);
         });
 
         Control("DeleteState").GetComponent<Button>().onClick.AddListener(() =>
         {
-            Main.Ins.GameStateMgr.ResetState();
+            GameStateMgr.Ins.ResetState();
             Init();
         });
 
-        Control("ChangeLog").GetComponent<Text>().text = ResMng.LoadTextAsset("ChangeLog").text;
+        Control("ChangeLog").GetComponent<Text>().text = Resources.Load<TextAsset>("ChangeLog").text;
+        Control("AuthorText").GetComponent<Text>().text = Resources.Load<TextAsset>("Author").text;
         Text cheat = Control("CheatCodeList").GetComponent<Text>();
-        cheat.text = ResMng.LoadTextAsset("CheatCodeList").text;
+        cheat.text = Resources.Load<TextAsset>("CheatCodeList").text;
         cheat.fontSize = 33;
         Control("AppVerText").GetComponent<Text>().text = Main.Ins.AppInfo.AppVersion();
         Control("MeteorVerText").GetComponent<Text>().text = Main.Ins.AppInfo.MeteorVersion;
         Control("DoScript").GetComponent<Button>().onClick.AddListener(()=> { U3D.DoScript(); });
-        Control("Nick").GetComponentInChildren<Text>().text = Main.Ins.GameStateMgr.gameStatus.NickName;
+        Control("Nick").GetComponentInChildren<Text>().text = GameStateMgr.Ins.gameStatus.NickName;
         Control("Nick").GetComponent<Button>().onClick.AddListener(
             () =>
             {
-                Main.Ins.EnterState(Main.Ins.NickNameDialogState);
+                NickNameDialogState.State.Open();
             }
         );
         highPerfor = Control("HighPerformance").GetComponent<Toggle>();
-        highPerfor.isOn = Main.Ins.GameStateMgr.gameStatus.TargetFrame == 60;
+        highPerfor.isOn = GameStateMgr.Ins.gameStatus.TargetFrame == 60;
         highPerfor.onValueChanged.AddListener(OnChangePerformance);
 
         lowPerfor = Control("LowPerformance").GetComponent<Toggle>();
-        lowPerfor.isOn = Main.Ins.GameStateMgr.gameStatus.TargetFrame == 30;
+        lowPerfor.isOn = GameStateMgr.Ins.gameStatus.TargetFrame == 30;
         lowPerfor.onValueChanged.AddListener(OnChangePerformance);
 
         superHighPerfor = Control("SuperHighPerformance").GetComponent<Toggle>();
-        superHighPerfor.isOn = Main.Ins.GameStateMgr.gameStatus.TargetFrame == 120;
+        superHighPerfor.isOn = GameStateMgr.Ins.gameStatus.TargetFrame == 120;
         superHighPerfor.onValueChanged.AddListener(OnChangePerformance);
 
         Toggle High = Control("High").GetComponent<Toggle>();
         Toggle Medium = Control("Medium").GetComponent<Toggle>();
         Toggle Low = Control("Low").GetComponent<Toggle>();
-        High.isOn = Main.Ins.GameStateMgr.gameStatus.Quality == 0;
-        Medium.isOn = Main.Ins.GameStateMgr.gameStatus.Quality == 1;
-        Low.isOn = Main.Ins.GameStateMgr.gameStatus.Quality == 2;
-        High.onValueChanged.AddListener((bool selected) => { if (selected) Main.Ins.GameStateMgr.gameStatus.Quality = 0; });
-        Medium.onValueChanged.AddListener((bool selected) => { if (selected) Main.Ins.GameStateMgr.gameStatus.Quality = 1; });
-        Low.onValueChanged.AddListener((bool selected) => { if (selected) Main.Ins.GameStateMgr.gameStatus.Quality = 2; });
+        High.isOn = GameStateMgr.Ins.gameStatus.Quality == 0;
+        Medium.isOn = GameStateMgr.Ins.gameStatus.Quality == 1;
+        Low.isOn = GameStateMgr.Ins.gameStatus.Quality == 2;
+        High.onValueChanged.AddListener((bool selected) => { if (selected) GameStateMgr.Ins.gameStatus.Quality = 0; });
+        Medium.onValueChanged.AddListener((bool selected) => { if (selected) GameStateMgr.Ins.gameStatus.Quality = 1; });
+        Low.onValueChanged.AddListener((bool selected) => { if (selected) GameStateMgr.Ins.gameStatus.Quality = 2; });
         Toggle ShowTargetBlood = Control("ShowTargetBlood").GetComponent<Toggle>();
-        ShowTargetBlood.isOn = Main.Ins.GameStateMgr.gameStatus.ShowBlood;
-        ShowTargetBlood.onValueChanged.AddListener((bool selected) => { Main.Ins.GameStateMgr.gameStatus.ShowBlood = selected; });
+        ShowTargetBlood.isOn = GameStateMgr.Ins.gameStatus.ShowBlood;
+        ShowTargetBlood.onValueChanged.AddListener((bool selected) => { GameStateMgr.Ins.gameStatus.ShowBlood = selected; });
         Toggle ShowFPS = Control("ShowFPS").GetComponent<Toggle>();
-        ShowFPS.isOn = Main.Ins.GameStateMgr.gameStatus.ShowFPS;
-        ShowFPS.onValueChanged.AddListener((bool selected) => { Main.Ins.GameStateMgr.gameStatus.ShowFPS = selected; Main.Ins.ShowFps(selected); });
-
-        Toggle ShowSysMenu2 = Control("ShowSysMenu2").GetComponent<Toggle>();
-        ShowSysMenu2.isOn = Main.Ins.GameStateMgr.gameStatus.ShowSysMenu2;
-        ShowSysMenu2.onValueChanged.AddListener((bool selected) => { Main.Ins.GameStateMgr.gameStatus.ShowSysMenu2 = selected; });
+        ShowFPS.isOn = GameStateMgr.Ins.gameStatus.ShowFPS;
+        ShowFPS.onValueChanged.AddListener((bool selected) => { GameStateMgr.Ins.gameStatus.ShowFPS = selected; Main.Ins.ShowFps(selected); });
 
         if (Main.Ins != null)
         {
-            Control("BGMSlider").GetComponent<Slider>().value = Main.Ins.GameStateMgr.gameStatus.MusicVolume;
-            Control("EffectSlider").GetComponent<Slider>().value = Main.Ins.GameStateMgr.gameStatus.SoundVolume;
+            Control("BGMSlider").GetComponent<Slider>().value = GameStateMgr.Ins.gameStatus.MusicVolume;
+            Control("EffectSlider").GetComponent<Slider>().value = GameStateMgr.Ins.gameStatus.SoundVolume;
         }
         Control("BGMSlider").GetComponent<Slider>().onValueChanged.AddListener(OnMusicVolumeChange);
         Control("EffectSlider").GetComponent<Slider>().onValueChanged.AddListener(OnEffectVolumeChange);
         Control("SetJoyPosition").GetComponent<Button>().onClick.AddListener(OnSetUIPosition);
 
         Toggle EnableJoy = Control("EnableJoy").GetComponent<Toggle>();
-        EnableJoy.isOn = Main.Ins.GameStateMgr.gameStatus.UseJoyDevice;
-        EnableJoy.onValueChanged.AddListener((bool selected) => { Main.Ins.GameStateMgr.gameStatus.UseJoyDevice = selected; Main.Ins.JoyStick.enabled = selected; });
+        EnableJoy.isOn = GameStateMgr.Ins.gameStatus.UseJoyDevice;
+        EnableJoy.onValueChanged.AddListener((bool selected) => { GameStateMgr.Ins.gameStatus.UseJoyDevice = selected; Main.Ins.JoyStick.enabled = selected; });
 
         //显示战斗界面的调试按钮
         Toggle toggleDebug = Control("EnableSFX").GetComponent<Toggle>();
-        toggleDebug.isOn = Main.Ins.GameStateMgr.gameStatus.EnableDebugSFX;
+        toggleDebug.isOn = GameStateMgr.Ins.gameStatus.EnableDebugSFX;
         toggleDebug.onValueChanged.AddListener(OnEnableDebugSFX);
         //显示战斗界面的调试按钮
         Toggle toggleRobot = Control("EnableRobot").GetComponent<Toggle>();
-        toggleRobot.isOn = Main.Ins.GameStateMgr.gameStatus.EnableDebugRobot;
+        toggleRobot.isOn = GameStateMgr.Ins.gameStatus.EnableDebugRobot;
         toggleRobot.onValueChanged.AddListener(OnEnableDebugRobot);
 
         //显示武器挑选按钮
         Toggle toggleEnableFunc = Control("EnableWeaponChoose").GetComponent<Toggle>();
-        toggleEnableFunc.isOn = Main.Ins.GameStateMgr.gameStatus.EnableWeaponChoose;
+        toggleEnableFunc.isOn = GameStateMgr.Ins.gameStatus.EnableWeaponChoose;
         toggleEnableFunc.onValueChanged.AddListener(OnEnableWeaponChoose);
         //无限气
         Toggle toggleEnableInfiniteAngry = Control("EnableInfiniteAngry").GetComponent<Toggle>();
-        toggleEnableInfiniteAngry.isOn = Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry;
+        toggleEnableInfiniteAngry.isOn = GameStateMgr.Ins.gameStatus.EnableInfiniteAngry;
         toggleEnableInfiniteAngry.onValueChanged.AddListener(OnEnableInfiniteAngry);
 
         //无锁定
         Toggle toggleDisableLock = Control("CameraLock").GetComponent<Toggle>();
-        toggleDisableLock.isOn = Main.Ins.GameStateMgr.gameStatus.AutoLock;
+        toggleDisableLock.isOn = GameStateMgr.Ins.gameStatus.AutoLock;
         toggleDisableLock.onValueChanged.AddListener(OnDisableLock);
 
         Toggle toggleEnableGodMode = Control("EnableGodMode").GetComponent<Toggle>();
-        toggleEnableGodMode.isOn = Main.Ins.GameStateMgr.gameStatus.EnableGodMode;
+        toggleEnableGodMode.isOn = GameStateMgr.Ins.gameStatus.EnableGodMode;
         toggleEnableGodMode.onValueChanged.AddListener(OnEnableGodMode);
 
         Toggle toggleHidePlayer = Control("HidePlayer").GetComponent<Toggle>();
-        toggleHidePlayer.isOn = Main.Ins.GameStateMgr.gameStatus.HidePlayer;
+        toggleHidePlayer.isOn = GameStateMgr.Ins.gameStatus.HidePlayer;
         toggleHidePlayer.onValueChanged.AddListener(OnHidePlayer);
         
         Toggle toggleEnableUndead = Control("EnableUnDead").GetComponent<Toggle>();
-        toggleEnableUndead.isOn = Main.Ins.GameStateMgr.gameStatus.Undead;
+        toggleEnableUndead.isOn = GameStateMgr.Ins.gameStatus.Undead;
         toggleEnableUndead.onValueChanged.AddListener(OnEnableUndead);
 
         Toggle toggleShowWayPoint = Control("ShowWayPoint").GetComponent<Toggle>();
-        toggleShowWayPoint.isOn = Main.Ins.GameStateMgr.gameStatus.ShowWayPoint;
+        toggleShowWayPoint.isOn = GameStateMgr.Ins.gameStatus.ShowWayPoint;
         toggleShowWayPoint.onValueChanged.AddListener(OnShowWayPoint);
         Control("ChangeV107").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("1.07"); });
         Control("ChangeV907").GetComponent<Button>().onClick.AddListener(() => { OnChangeVer("9.07"); });
@@ -146,12 +143,12 @@ public class SettingDialog : Dialog {
 
         //粒子特效
         Toggle toggleDisableParticle = Control("Particle").GetComponent<Toggle>();
-        toggleDisableParticle.isOn = Main.Ins.GameStateMgr.gameStatus.DisableParticle;
+        toggleDisableParticle.isOn = GameStateMgr.Ins.gameStatus.DisableParticle;
         toggleDisableParticle.onValueChanged.AddListener(OnDisableParticle);
         OnDisableParticle(toggleDisableParticle.isOn);
 
         Toggle toggleSkipVideo = Control("SkipVideo").GetComponent<Toggle>();
-        toggleSkipVideo.isOn = Main.Ins.GameStateMgr.gameStatus.SkipVideo;
+        toggleSkipVideo.isOn = GameStateMgr.Ins.gameStatus.SkipVideo;
         toggleSkipVideo.onValueChanged.AddListener(OnSkipVideo);
 
         GameObject debugTab = Control("DebugTab", WndObject);
@@ -178,7 +175,7 @@ public class SettingDialog : Dialog {
         }
 
         //把一些模式禁用，例如作弊之类的.
-        if (Main.Ins.GameStateMgr.gameStatus.CheatEnable) {
+        if (GameStateMgr.Ins.gameStatus.CheatEnable) {
             debugToggle.gameObject.SetActive(true);
             cheatToggle.gameObject.SetActive(true);
         } else {
@@ -379,19 +376,18 @@ public class SettingDialog : Dialog {
 
     void OnSkipVideo(bool skip)
     {
-        Main.Ins.GameStateMgr.gameStatus.SkipVideo = skip;
+        GameStateMgr.Ins.gameStatus.SkipVideo = skip;
     }
 
     void OnDisableParticle(bool disable)
     {
-        Main.Ins.GameStateMgr.gameStatus.DisableParticle = disable;
+        GameStateMgr.Ins.gameStatus.DisableParticle = disable;
         if (disable)
         {
-            if (Main.Ins.CombatData.GScript != null)
+            if (CombatData.Ins.GScript != null)
             {
-                Main.Ins.CombatData.GScript.CleanSceneParticle();
+                CombatData.Ins.GScript.CleanSceneParticle();
             }
-
         }
     }
 
@@ -403,8 +399,8 @@ public class SettingDialog : Dialog {
             return;
         }
         Main.Ins.AppInfo.MeteorVersion = ver;
-        Main.Ins.GameStateMgr.gameStatus.MeteorVersion = Main.Ins.AppInfo.MeteorVersion;
-        Main.Ins.GameStateMgr.SaveState();
+        GameStateMgr.Ins.gameStatus.MeteorVersion = Main.Ins.AppInfo.MeteorVersion;
+        GameStateMgr.Ins.SaveState();
         if (GameOverlayDialogState.Exist())
             GameOverlayDialogState.Instance.ClearSystemMsg();
         OnBackPress();
@@ -414,12 +410,12 @@ public class SettingDialog : Dialog {
     //允许在战斗UI选择武器.
     void OnEnableWeaponChoose(bool on)
     {
-        Main.Ins.GameStateMgr.gameStatus.EnableWeaponChoose = on;
+        GameStateMgr.Ins.gameStatus.EnableWeaponChoose = on;
     }
 
     void OnDisableLock(bool on)
     {
-        Main.Ins.GameStateMgr.gameStatus.AutoLock = on;
+        GameStateMgr.Ins.gameStatus.AutoLock = on;
         if (Main.Ins.CameraFollow != null)
         {
             if (on)
@@ -455,63 +451,63 @@ public class SettingDialog : Dialog {
 
     void OnEnableUndead(bool on)
     {
-        Main.Ins.GameStateMgr.gameStatus.Undead = on;
+        GameStateMgr.Ins.gameStatus.Undead = on;
     }
 
     void OnEnableGodMode(bool on)
     {
-        Main.Ins.GameStateMgr.gameStatus.EnableGodMode = on;
+        GameStateMgr.Ins.gameStatus.EnableGodMode = on;
     }
 
     void OnHidePlayer(bool hide) {
-        Main.Ins.GameStateMgr.gameStatus.HidePlayer = hide;
+        GameStateMgr.Ins.gameStatus.HidePlayer = hide;
     }
 
     void OnEnableInfiniteAngry(bool on)
     {
-        Main.Ins.GameStateMgr.gameStatus.EnableInfiniteAngry = on;
+        GameStateMgr.Ins.gameStatus.EnableInfiniteAngry = on;
     }
 
     void OnEnableDebugRobot(bool on)
     {
-        Main.Ins.GameStateMgr.gameStatus.EnableDebugRobot = on;
+        GameStateMgr.Ins.gameStatus.EnableDebugRobot = on;
     }
 
     void OnEnableDebugSFX(bool on)
     {
-        Main.Ins.GameStateMgr.gameStatus.EnableDebugSFX = on;
+        GameStateMgr.Ins.gameStatus.EnableDebugSFX = on;
     }
 
     void OnChangePerformance(bool on)
     {
         if (on) {
             if (lowPerfor.isOn)
-                Main.Ins.GameStateMgr.gameStatus.TargetFrame = 30;
+                GameStateMgr.Ins.gameStatus.TargetFrame = 30;
             if (highPerfor.isOn)
-                Main.Ins.GameStateMgr.gameStatus.TargetFrame = 60;
+                GameStateMgr.Ins.gameStatus.TargetFrame = 60;
             if (superHighPerfor.isOn)
-                Main.Ins.GameStateMgr.gameStatus.TargetFrame = 120;
+                GameStateMgr.Ins.gameStatus.TargetFrame = 120;
         }
-        Application.targetFrameRate = Main.Ins.GameStateMgr.gameStatus.TargetFrame;
+        Application.targetFrameRate = GameStateMgr.Ins.gameStatus.TargetFrame;
     }
 
     void OnShowWayPoint(bool on)
     {
-        Main.Ins.GameStateMgr.gameStatus.ShowWayPoint = on;
+        GameStateMgr.Ins.gameStatus.ShowWayPoint = on;
     }
 
 
     void OnMusicVolumeChange(float vo)
     {
-        Main.Ins.SoundManager.SetMusicVolume(vo);
+        SoundManager.Ins.SetMusicVolume(vo);
         if (Main.Ins != null)
-            Main.Ins.GameStateMgr.gameStatus.MusicVolume = vo;
+            GameStateMgr.Ins.gameStatus.MusicVolume = vo;
     }
 
     void OnEffectVolumeChange(float vo)
     {
-        Main.Ins.SoundManager.SetSoundVolume(vo);
-        Main.Ins.GameStateMgr.gameStatus.SoundVolume = vo;
+        SoundManager.Ins.SetSoundVolume(vo);
+        GameStateMgr.Ins.gameStatus.SoundVolume = vo;
     }
 
     void OnTabShow(bool show)
@@ -525,7 +521,7 @@ public class SettingDialog : Dialog {
     {
         if (message == 0)
         {
-            Control("Nick").GetComponentInChildren<Text>().text = Main.Ins.GameStateMgr.gameStatus.NickName;
+            Control("Nick").GetComponentInChildren<Text>().text = GameStateMgr.Ins.gameStatus.NickName;
         }
     }
 
@@ -539,7 +535,7 @@ public class SettingDialog : Dialog {
 
     void LoadDebugLevel() {
         GameObject prefab = Control("Level_debug");
-        List<LevelData> levels = Main.Ins.DataMgr.GetDebugLevelDatas();
+        List<LevelData> levels = DataMgr.Ins.GetDebugLevelDatas();
         for (int i = 1; i < levels.Count; i++) {
             LevelData lev = levels[i];
             GameObject btn = GameObject.Instantiate(prefab, prefab.transform.parent);

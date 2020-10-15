@@ -1,10 +1,12 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
-public class NGUICameraJoystick : MonoBehaviour
+
+
+public class NGUICameraJoystick : NetBehaviour
 {
     static NGUICameraJoystick mInstance = null;
-    public static NGUICameraJoystick instance { get { return mInstance; } }
+    public static NGUICameraJoystick Ins { get { return mInstance; } }
 
     static bool mPressed = false;
     static public bool Pressed { get { return mPressed; } }
@@ -14,20 +16,22 @@ public class NGUICameraJoystick : MonoBehaviour
     int mLastFingerId = -2;
     BoxCollider[] touchBoxes;
     //public Quaternion lastMeteorUnit = Quaternion.identity;
-    void Awake()
+    private new void Awake()
     {
+        base.Awake();
         mInstance = this;
         touchBoxes = GetComponents<BoxCollider>();
         ResetJoystick();
     }
     public Vector2 deltaLast = Vector2.zero;
-    void OnDestroy()
+    private new void OnDestroy()
     {
+        base.OnDestroy();
         ResetJoystick();
         mInstance = null;
     }
 
-	void Update() 
+    public override void NetUpdate()
 	{
         if (isPress)
         {
@@ -52,7 +56,7 @@ public class NGUICameraJoystick : MonoBehaviour
     {
         //if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
         //    return;
-        if (Main.Ins.CombatData.PauseAll)
+        if (CombatData.Ins.PauseAll)
             return;
         if (enabled && gameObject.activeSelf)
         {

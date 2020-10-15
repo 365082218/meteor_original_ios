@@ -9,7 +9,7 @@ using Idevgame.GameState;
 public class EscConfirmDialogState:CommonDialogState<EscConfirmWnd>
 {
     public override string DialogName{get{return "EscConfirmWnd";}}
-    public EscConfirmDialogState(MainDialogStateManager stateMgr):base(stateMgr)
+    public EscConfirmDialogState(MainDialogMgr stateMgr):base(stateMgr)
     {
 
     }
@@ -30,7 +30,6 @@ public class EscConfirmDialogState:CommonDialogState<EscConfirmWnd>
 //退出二次确认框
 public class EscConfirmWnd : Dialog
 {
-    [SerializeField]
     Button Leave;
     Button Continue;
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data)
@@ -49,21 +48,21 @@ public class EscConfirmWnd : Dialog
 
     void OnLeave()
     {
-        Main.Ins.GameStateMgr.SaveState();
+        GameStateMgr.Ins.SaveState();
         Main.Ins.GameBattleEx.Pause();
         Main.Ins.StopAllCoroutines();
-        Main.Ins.SoundManager.StopAll();
+        SoundManager.Ins.StopAll();
         PathHelper.Ins.StopCalc();
         OnBackPress();
-        Main.Ins.ExitState(Main.Ins.FightState);
+        FightState.State.Close();
         if (GameOverlayDialogState.Exist())
             GameOverlayDialogState.Instance.ClearSystemMsg();
         //离开副本
-        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
-            UdpClientProxy.LeaveLevel();
+        if (U3D.IsMultiplyPlayer())
+            TcpClientProxy.Ins.LeaveLevel();
         else
         {
-            FrameReplay.Instance.OnDisconnected();
+            FrameReplay.Ins.OnDisconnected();
             U3D.GoBack();
         }
     }

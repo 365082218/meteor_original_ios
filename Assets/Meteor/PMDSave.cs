@@ -367,7 +367,7 @@ public class PMDSave : MonoBehaviour {
             List<Vector2> uv = new List<Vector2>();
             List<Vector3> normal = new List<Vector3>();
             List<Color> co = new List<Color>();
-            Dictionary<int, int[]> subMeshIndices = new Dictionary<int, int[]>();
+            SortedDictionary<int, int[]> subMeshIndices = new SortedDictionary<int, int[]>();
             //统计顶点.
             for (int i = 0; i < mfs.Length; i++)
             {
@@ -908,7 +908,7 @@ public class PMDSave : MonoBehaviour {
 
     void WriteBone(Transform[] bones, Transform root, int index)
     {
-        Dictionary<string, string> kvBoneConvert = new Dictionary<string, string>();
+        SortedDictionary<string, string> kvBoneConvert = new SortedDictionary<string, string>();
         kvBoneConvert.Add("b", "センター");
         kvBoneConvert.Add("bad_Pelvis", "下半身先");
         kvBoneConvert.Add("bau_Spine", "下半身");

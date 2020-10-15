@@ -5,14 +5,12 @@ using System;
 using UnityEngine.UI;
 using Idevgame.GameState;
 using Idevgame.GameState.DialogState;
+using DG.Tweening;
+
 
 public class ReplayState : PersistDialog<ReplayUiConroller>
 {
     public override string DialogName { get { return "ReplayWnd"; } }
-    public ReplayState() : base()
-    {
-
-    }
 }
 
 public class ReplayUiConroller : Dialog
@@ -30,7 +28,8 @@ public class ReplayUiConroller : Dialog
     Image TargetHp;
     Text TargetHPLabel;
     Text TargetName;
-
+    Image Fill;
+    Text ProgressText;
     public override void OnDialogStateEnter(PersistState ownerState, BaseDialogState previousDialog, object data)
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
@@ -40,20 +39,29 @@ public class ReplayUiConroller : Dialog
 
     void Init()
     {
+        Fill = Control("Fill", WndObject).GetComponent<Image>();
+        ProgressText = Control("ProgressText", WndObject).GetComponent<Text>();
         clickPanel = Control("ClickPanel");
         LevelTalkRoot = Control("LevelTalk", WndObject).transform;
         ctrl = LevelTalkRoot.GetComponent<AutoMsgCtrl>();
         ctrl.SetConfig(2.0f, 1.5f);
-        Control("BattleInfo").GetComponent<RectTransform>().anchoredPosition = new Vector2(Main.Ins.GameStateMgr.gameStatus.ShowSysMenu2 ? 145 : -20, -175);
+        Control("FreeCamera", WndObject).GetComponent<Button>().onClick.AddListener(UseFreeCamera);
+        Control("FollowCamera", WndObject).GetComponent<Button>().onClick.AddListener(UseFollowCamera);
+        Control("PrevTarget", WndObject).GetComponent<Button>().onClick.AddListener(OnPrevTarget);
+        Control("NextTarget", WndObject).GetComponent<Button>().onClick.AddListener(OnNextTarget);
+        Control("BattleInfo").GetComponent<RectTransform>().anchoredPosition = new Vector2(145, -175);
         NodeHelper.Find("SceneName", WndObject).GetComponent<Button>().onClick.AddListener(() => { OpenMiniMap(); });
-        NodeHelper.Find("SceneName", WndObject).GetComponentInChildren<Text>().text = Main.Ins.CombatData.GLevelItem.Name;
-        NodeHelper.Find("System", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { U3D.OpenSystemWnd(); });
+        NodeHelper.Find("SceneName", WndObject).GetComponentInChildren<Text>().text = CombatData.Ins.GLevelItem.Name;
+        NodeHelper.Find("System", WndObject).GetComponentInChildren<Button>().onClick.AddListener(() => { Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.EscConfirmDialogState); });
         timeLabel = NodeHelper.Find("GameTime", WndObject).GetComponent<Text>();
         hpBar = Control("HPBar", WndObject).gameObject.GetComponent<Image>();
         angryBar = Control("AngryBar", WndObject).gameObject.GetComponent<Image>();
         hpLabel = Control("HPLabel", WndObject).gameObject.GetComponent<Text>();
         NodeHelper.Find("Status", WndObject).GetComponentInChildren<GameButton>().OnPress.AddListener(OnStatusPress);
         NodeHelper.Find("Status", WndObject).GetComponentInChildren<GameButton>().OnRelease.AddListener(OnStatusRelease);
+        Control("HideBtn", WndObject).GetComponent<Button>().onClick.AddListener(SysMenu2Hide);
+        Control("Menu2HotArea", WndObject).GetComponent<Button>().onClick.AddListener(ShowSysMenu2);
+        Control("Menu2HotArea", WndObject).SetActive(false);
         NodeHelper.Find("SysMenu2", WndObject).SetActive(true);
         if (Main.Ins.LocalPlayer != null)
         {
@@ -65,22 +73,65 @@ public class ReplayUiConroller : Dialog
         TargetHp = Control("HPBar", TargetBlood).GetComponent<Image>();
         TargetHPLabel = Control("TargetHPLabel", TargetBlood).GetComponent<Text>();
         TargetName = Control("TargetName", TargetBlood).GetComponent<Text>();
-        UpdateUIButton();
+        NodeHelper.Find("MiniMap", gameObject).SetActive(true);
         CanvasGroup[] c = WndObject.GetComponentsInChildren<CanvasGroup>();
         for (int i = 0; i < c.Length; i++)
-            c[i].alpha = Main.Ins.GameStateMgr.gameStatus.UIAlpha;
+            c[i].alpha = GameStateMgr.Ins.gameStatus.UIAlpha;
+    }
+
+    void UseFreeCamera() {
+
+    }
+
+    void UseFollowCamera() {
+
+    }
+
+    void OnPrevTarget() {
+
+    }
+
+    void OnNextTarget() {
+
+    }
+
+    bool system2Hide = false;
+    void SysMenu2Hide() {
+        if (system2Hide)
+            return;
+        GameObject sysMenu2 = NodeHelper.Find("SysMenu2", WndObject);
+        Tweener t = sysMenu2.GetComponent<RectTransform>().DOAnchorPos(new Vector2(-180, 0), 0.5f);
+        t.OnComplete(OnSysMenu2Hide);
+    }
+
+    void ShowSysMenu2() {
+        if (!system2Hide)
+            return;
+        GameObject sysMenu2 = NodeHelper.Find("SysMenu2", WndObject);
+        Tweener t = sysMenu2.GetComponent<RectTransform>().DOAnchorPos(new Vector2(0, 0), 0.5f);
+        t.OnComplete(OnSysMenu2Show);
+    }
+
+    void OnSysMenu2Show() {
+        system2Hide = false;
+        Control("Menu2HotArea", WndObject).SetActive(false);
+    }
+
+    void OnSysMenu2Hide() {
+        system2Hide = true;
+        Control("Menu2HotArea", WndObject).SetActive(true);
     }
 
     void OnStatusPress()
     {
-        if (!BattleStatusDialogState.Exist())
-            Main.Ins.EnterState(Main.Ins.BattleStatusDialogState);
+        //if (!BattleStatusDialogState.Exist())
+        //    Main.Ins.EnterState(Main.Ins.BattleStatusDialogState);
     }
 
     void OnStatusRelease()
     {
-        if (BattleStatusDialogState.Exist())
-            Main.Ins.ExitState(Main.Ins.BattleStatusDialogState);
+        //if (BattleStatusDialogState.Exist())
+        //    Main.Ins.ExitState(Main.Ins.BattleStatusDialogState);
     }
 
     bool openMiniMap = false;
@@ -90,17 +141,12 @@ public class ReplayUiConroller : Dialog
         NodeHelper.Find("MiniMapFrame", WndObject).SetActive(openMiniMap);
     }
     public GameObject clickPanel;
-    public void UpdateUIButton()
-    {
-        NodeHelper.Find("MiniMap", gameObject).SetActive(true);
-
-        if (CameraController.Ins != null)
-            CameraController.Ins.SetAnchor(Main.Ins.GameStateMgr.gameStatus.JoyAnchor);
-    }
 
     public void UpdateTime(string label)
     {
         timeLabel.text = label;
+        //Fill.fillAmount = (float)(FrameReplay.Instance.LogicFrames) / CombatData.Ins.GRecord.frameCount;
+        ProgressText.text = string.Format("{0}%", Mathf.FloorToInt(Fill.fillAmount * 100));
     }
 
     public void InsertFightMessage(string text)
@@ -117,14 +163,14 @@ public class ReplayUiConroller : Dialog
 
     public void OnBattleEnd()
     {
-        NodeHelper.Find("Status", WndObject).SetActive(false);
-        NodeHelper.Find("Chat", WndObject).SetActive(false);
+        U3D.InsertSystemMsg("录像播放完成");
+        Main.Ins.GameBattleEx.UpdateTime();
     }
 
     MeteorUnit CurrentMonster;
     public void UpdateMonsterInfo(MeteorUnit mon)
     {
-        if (!Main.Ins.GameStateMgr.gameStatus.ShowBlood)
+        if (!GameStateMgr.Ins.gameStatus.ShowBlood)
             return;
 
         if (!TargetBlood.activeInHierarchy)
@@ -135,12 +181,12 @@ public class ReplayUiConroller : Dialog
             nextTargetHp = mon.Attr.hpCur;
             TargetHPLabel.text = ((int)(mon.Attr.hpCur / 10.0f)).ToString() + "/" + ((int)(mon.Attr.TotalHp / 10.0f)).ToString();
             CheckHideTarget = true;
-            TargetInfoLast = 5.0f;
+            TargetInfoLast = 0.5f;
             return;
         }
 
         CheckHideTarget = true;
-        TargetInfoLast = 5.0f;
+        TargetInfoLast = 0.5f;
         TargetHp.fillAmount = (float)mon.Attr.hpCur / (float)mon.Attr.TotalHp;
         TargetHPLabel.text = ((int)(mon.Attr.hpCur / 10.0f)).ToString() + "/" + ((int)(mon.Attr.TotalHp / 10.0f)).ToString();
         currentTargetHp = mon.Attr.hpCur;
@@ -153,20 +199,20 @@ public class ReplayUiConroller : Dialog
     {
         if (currentHP != nextHp)
         {
-            currentHP = Mathf.MoveTowards(currentHP, nextHp, 1000f * FrameReplay.deltaTime);
+            currentHP = Mathf.FloorToInt(Mathf.MoveTowards(currentHP, nextHp, FrameReplay.deltaTime));
             hpBar.fillAmount = currentHP / (float)Main.Ins.LocalPlayer.Attr.TotalHp;
         }
 
         if (currentTargetHp != nextTargetHp)
         {
-            currentTargetHp = Mathf.MoveTowards(currentTargetHp, nextTargetHp, 1000f * FrameReplay.deltaTime);
-            TargetHp.fillAmount = currentTargetHp / CurrentMonster.Attr.TotalHp;
+            currentTargetHp = Mathf.FloorToInt(Mathf.MoveTowards(currentTargetHp, nextTargetHp, FrameReplay.deltaTime));
+            TargetHp.fillAmount = currentTargetHp / (float)CurrentMonster.Attr.TotalHp;
         }
 
         if (CheckHideTarget)
         {
             TargetInfoLast -= FrameReplay.deltaTime;
-            if (TargetInfoLast <= 0.0f)
+            if (TargetInfoLast <= 0)
                 HideTargetInfo();
         }
     }
@@ -176,11 +222,11 @@ public class ReplayUiConroller : Dialog
         TargetBlood.SetActive(false);
         CheckHideTarget = false;
         CurrentMonster = null;
-        TargetInfoLast = 5.0f;
+        TargetInfoLast = 0.5f;
     }
 
     bool CheckHideTarget = false;
-    float TargetInfoLast = 10;
+    float TargetInfoLast = 0.5f;
     float nextTargetHp = 0;
     float currentTargetHp = 0;
     float nextHp = 0;
@@ -198,6 +244,6 @@ public class ReplayUiConroller : Dialog
     public void UpdateAngryBar()
     {
         if (Main.Ins.LocalPlayer != null && !Main.Ins.LocalPlayer.Dead)
-            angryBar.fillAmount = (float)Main.Ins.LocalPlayer.AngryValue / (float)CombatData.ANGRYMAX;
+            angryBar.fillAmount = Main.Ins.LocalPlayer.AngryValue / CombatData.ANGRYMAX;
     }
 }

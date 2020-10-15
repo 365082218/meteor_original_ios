@@ -28,21 +28,21 @@ namespace Assets.Scripts.Utils.GizmosHelper {
             public Vector3 Position;
             public Color Color;
         }
-        private static readonly Dictionary<string, Point> Points = new Dictionary<string, Point>();
+        private static readonly SortedDictionary<string, Point> Points = new SortedDictionary<string, Point>();
 
         private class Ray {
             public Vector3 Position;
             public Vector3 Direction;
             public Color Color;
         }
-        private static readonly Dictionary<string, Ray> Rays = new Dictionary<string, Ray>();
+        private static readonly SortedDictionary<string, Ray> Rays = new SortedDictionary<string, Ray>();
 
         private class Line {
             public Vector3 StartPos;
             public Vector3 EndPos;
             public Color Color;
         }
-        private static readonly Dictionary<string, Line> Lines = new Dictionary<string, Line>();
+        private static readonly SortedDictionary<string, Line> Lines = new SortedDictionary<string, Line>();
 
         private class Circle {
             public Vector3 Position;
@@ -50,7 +50,7 @@ namespace Assets.Scripts.Utils.GizmosHelper {
             public float Radius;
             public Color Color;
         }
-        private static readonly Dictionary<string, Circle> Circles = new Dictionary<string, Circle>();
+        private static readonly SortedDictionary<string, Circle> Circles = new SortedDictionary<string, Circle>();
 
         private class Cube {
             public Vector3 Position;
@@ -61,7 +61,7 @@ namespace Assets.Scripts.Utils.GizmosHelper {
             public Vector3 Scale;
             public Color Color;
         }
-        private static readonly Dictionary<string, Cube> Cubes = new Dictionary<string, Cube>();
+        private static readonly SortedDictionary<string, Cube> Cubes = new SortedDictionary<string, Cube>();
 
         private class Sphere {
             public Vector3 Position;
@@ -70,7 +70,7 @@ namespace Assets.Scripts.Utils.GizmosHelper {
             public float Radius;
             public Color Color;
         }
-        private static readonly Dictionary<string, Sphere> Spheres = new Dictionary<string, Sphere>();
+        private static readonly SortedDictionary<string, Sphere> Spheres = new SortedDictionary<string, Sphere>();
 
         private class Capsule {
             public Vector3 Position;
@@ -81,7 +81,7 @@ namespace Assets.Scripts.Utils.GizmosHelper {
             public CapsuleDirection Direction;
             public Color Color;
         }
-        private static readonly Dictionary<string, Capsule> Capsules = new Dictionary<string, Capsule>();
+        private static readonly SortedDictionary<string, Capsule> Capsules = new SortedDictionary<string, Capsule>();
         #endregion private members
 
         #region public members
@@ -107,20 +107,20 @@ namespace Assets.Scripts.Utils.GizmosHelper {
             }
         }
 
-        void OnDrawGizmos() {
-            if (!Enable)
-                return;
+        //void OnDrawGizmos() {
+        //    if (!Enable)
+        //        return;
 
-            Color oldColor = Gizmos.color;
-            DrawPoints();
-            DrawRays();
-            DrawLines();
-            DrawCircles();
-            DrawCubes();
-            DrawSpheres();
-            DrawCapsules();
-            Gizmos.color = oldColor;
-        }
+        //    Color oldColor = Gizmos.color;
+        //    DrawPoints();
+        //    DrawRays();
+        //    DrawLines();
+        //    DrawCircles();
+        //    DrawCubes();
+        //    DrawSpheres();
+        //    DrawCapsules();
+        //    Gizmos.color = oldColor;
+        //}
 
         #endregion mono
 

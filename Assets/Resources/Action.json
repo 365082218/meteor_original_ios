@@ -1200,6 +1200,14 @@
       "IgnoreCollision": 0,
       "IgnoreXZVelocity": 0
     },
+    "470": {
+      "Idx": 470,
+      "Name": "忍刀后前前A冲击",
+      "IgnoreMove": 0,
+      "IgnoreGravity": 0,
+      "IgnoreCollision": 1,
+      "IgnoreXZVelocity": 0
+    },
     "471": {
       "Idx": 471,
       "Name": "忍刀下上A",
@@ -1262,7 +1270,7 @@
       "IgnoreMove": 0,
       "IgnoreGravity": 0,
       "IgnoreCollision": 0,
-      "IgnoreXZVelocity": 0
+      "IgnoreXZVelocity": 1
     },
     "527": {
       "Idx": 527,
@@ -1270,7 +1278,7 @@
       "IgnoreMove": 0,
       "IgnoreGravity": 0,
       "IgnoreCollision": 0,
-      "IgnoreXZVelocity": 0
+      "IgnoreXZVelocity": 1
     },
     "528": {
       "Idx": 528,
@@ -1278,7 +1286,7 @@
       "IgnoreMove": 0,
       "IgnoreGravity": 0,
       "IgnoreCollision": 0,
-      "IgnoreXZVelocity": 0
+      "IgnoreXZVelocity": 1
     },
     "529": {
       "Idx": 529,
@@ -1286,7 +1294,7 @@
       "IgnoreMove": 0,
       "IgnoreGravity": 0,
       "IgnoreCollision": 0,
-      "IgnoreXZVelocity": 0
+      "IgnoreXZVelocity": 1
     },
     "530": {
       "Idx": 530,
@@ -1294,7 +1302,7 @@
       "IgnoreMove": 0,
       "IgnoreGravity": 1,
       "IgnoreCollision": 1,
-      "IgnoreXZVelocity": 0
+      "IgnoreXZVelocity": 1
     },
     "531": {
       "Idx": 531,
@@ -1302,7 +1310,7 @@
       "IgnoreMove": 0,
       "IgnoreGravity": 1,
       "IgnoreCollision": 1,
-      "IgnoreXZVelocity": 0
+      "IgnoreXZVelocity": 1
     },
     "532": {
       "Idx": 532,
@@ -1310,7 +1318,7 @@
       "IgnoreMove": 0,
       "IgnoreGravity": 1,
       "IgnoreCollision": 1,
-      "IgnoreXZVelocity": 0
+      "IgnoreXZVelocity": 1
     },
     "533": {
       "Idx": 533,
@@ -1318,7 +1326,7 @@
       "IgnoreMove": 0,
       "IgnoreGravity": 1,
       "IgnoreCollision": 1,
-      "IgnoreXZVelocity": 0
+      "IgnoreXZVelocity": 1
     },
     "535": {
       "Idx": 535,

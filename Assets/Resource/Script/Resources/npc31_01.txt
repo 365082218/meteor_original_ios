@@ -18,7 +18,7 @@ function npc31_01()
 	class.Aim = 50;
 	class.GetItem = 0;
 	class.Spawn = 15;
-	class.HP = 800;
+	class.HP = 1450;
 	
 	class.g_selfAddr = 0;
 	class.g_self = 0;

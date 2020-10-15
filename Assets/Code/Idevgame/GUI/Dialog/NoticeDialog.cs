@@ -10,14 +10,20 @@ public class NoticeDialogState : CommonDialogState<NoticeDialog>
     public override string DialogName { get { return "NoticeDialog"; } }
     public NoticeDialogState(BaseDialogStateManager stateMgr) : base(stateMgr)
     {
+        read = UserPref.Ins.GetInt("AsRead", 0);
+    }
 
+    public override void OnEnter(BaseDialogState previousState, object data) {
+        base.OnEnter(previousState, data);
+        UserPref.Ins.SetInt("AsRead", 1);
+        read = 1;
     }
 
     //如果拉取到游戏公告了，且未显示，则显示
-    bool read = false;
+    int read = 0;
     public override bool CanOpen()
     {
-        if (read)
+        if (read == 1)
             return false;
         if (Main.Ins.GameNotice.HaveNotice())
             return true;

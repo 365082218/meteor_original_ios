@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+
 // an Editor method to create a cone primitive (so far no end caps)
 // the top center is placed at (0/0/0)
 // the bottom center is placed at (0/0/length)
@@ -9,7 +10,7 @@ using System.Collections;
 // note the resulting mesh will be created as an asset in Assets/Editor
 // Author: Wolfram Kresse
 
-public class SfxMeshGenerator
+public class SfxMeshGenerator:Singleton<SfxMeshGenerator>
 {
     public int numVertices = 12;
     public float radiusTop = 0f;
@@ -57,17 +58,17 @@ public class SfxMeshGenerator
                 float angleHalfSin = Mathf.Sin(angleHalf);
                 float angleHalfCos = Mathf.Cos(angleHalf);
 
-                vertices[i] = new Vector3(radiusTop * angleCos, radiusTop * angleSin, 0);
-                vertices[i + numVertices] = new Vector3(radiusBottom * angleCos, radiusBottom * angleSin, length);
+                vertices[i] = new Vector3((radiusTop * angleCos), (radiusTop * angleSin), 0);
+                vertices[i + numVertices] = new Vector3((radiusBottom * angleCos), (radiusBottom * angleSin), length);
 
                 if (radiusTop == 0)
-                    normals[i] = new Vector3(angleHalfCos * slopeCos, angleHalfSin * slopeCos, -slopeSin);
+                    normals[i] = new Vector3((angleHalfCos * slopeCos), (angleHalfSin * slopeCos), -1 * slopeSin);
                 else
-                    normals[i] = new Vector3(angleCos * slopeCos, angleSin * slopeCos, -slopeSin);
+                    normals[i] = new Vector3((angleCos * slopeCos), (angleSin * slopeCos), -1 * slopeSin);
                 if (radiusBottom == 0)
-                    normals[i + numVertices] = new Vector3(angleHalfCos * slopeCos, angleHalfSin * slopeCos, -slopeSin);
+                    normals[i + numVertices] = new Vector3((angleHalfCos * slopeCos), (angleHalfSin * slopeCos), -1 * slopeSin);
                 else
-                    normals[i + numVertices] = new Vector3(angleCos * slopeCos, angleSin * slopeCos, -slopeSin);
+                    normals[i + numVertices] = new Vector3((angleCos * slopeCos), (angleSin * slopeCos), -1 * slopeSin);
 
                 uvs[i] = new Vector2(1.0f * i / numVertices, 1);
                 uvs[i + numVertices] = new Vector2(1.0f * i / numVertices, 0);
@@ -250,27 +251,24 @@ public class SfxMeshGenerator
         for (int i = 0; i < vertices.Length; i++)
         {
             Vector3 v;
-            v.x = r * Mathf.Cos(vertices[i].x / width * 2 * Mathf.PI) * Mathf.Cos(vertices[i].y / height * Mathf.PI - Mathf.PI / 2);
-            v.y = r * Mathf.Sin(vertices[i].x / width * 2 * Mathf.PI) * Mathf.Cos(vertices[i].y / height * Mathf.PI - Mathf.PI / 2);
-            v.z = r * Mathf.Sin(vertices[i].y / height * Mathf.PI - Mathf.PI / 2);
+            v.x = (r * Mathf.Cos(vertices[i].x / width * 2 * Mathf.PI) * Mathf.Cos(vertices[i].y / height * Mathf.PI - Mathf.PI / 2));
+            v.y = (r * Mathf.Sin(vertices[i].x / width * 2 * Mathf.PI) * Mathf.Cos(vertices[i].y / height * Mathf.PI - Mathf.PI / 2));
+            v.z = (r * Mathf.Sin(vertices[i].y / height * Mathf.PI - Mathf.PI / 2));
             //v = vertices[i];  
             vertices[i] = v;
             normals[i] = new Vector3(0, 1, 0);
         }
+
         if (true)
         {
             Vector3[] vec = new Vector3[vertices.Length];
             for (int j = 0; j < vertices.Length; j++)
             {
                 vec[j] = new Quaternion(0.7170f, 0, 0, -0.7170f) * vertices[j];//绕x转270
-                //vec[j] = new Quaternion(0, -0.7170f, 0, -0.7170f) * vertices[j];//绕y转270
-                //vec[j] = new Vector3(vertices[j].x, vertices[j].z, vertices[j].y);
             }
             mesh.vertices = vec;
         }
-        //else
-        //    mesh.vertices = vertices;
-        //mesh.vertices = vertices;
+
         mesh.normals = normals;
         mesh.uv = uv;
         mesh.triangles = triangles;
@@ -336,7 +334,7 @@ public class SfxMeshGenerator
         Mesh m = new Mesh();
         width = width + 1;
         height = height + 1;
-        m.vertices = new Vector3[] {new Vector3(-width / 2, height / 2, 0), new Vector3(width/2, height/2, 0), new Vector3(width/2, -height/2, 0), new Vector3(-width/2, -height/2, 0)};
+        m.vertices = new Vector3[] {new Vector3(-(width / 2), (height / 2), 0), new Vector3((width/2), (height/2), 0), new Vector3((width/2), -(height/2), 0), new Vector3(-(width/2), -(height/2), 0)};
         m.triangles = new int[] { 0, 1, 2, 0, 2, 3 };
         m.normals = new Vector3[] { new Vector3(0, 0, -1), new Vector3(0, 0, -1), new Vector3(0, 0, -1) , new Vector3(0, 0, -1) };
         m.uv = new Vector2[] { new Vector2(0,1), new Vector2(1, 1), new Vector2(1, 0), new Vector2(0, 0)};

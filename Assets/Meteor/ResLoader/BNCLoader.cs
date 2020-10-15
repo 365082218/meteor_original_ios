@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-public class BncLoader
+public class BncLoader:Singleton<BncLoader>
 {
-    Dictionary<string, BncFile> BncFile = new Dictionary<string, BncFile>();
-    Dictionary<int, BncFile> GlobalBncFile = new Dictionary<int, BncFile>();
+    SortedDictionary<string, BncFile> BncFile = new SortedDictionary<string, BncFile>();
+    SortedDictionary<int, BncFile> GlobalBncFile = new SortedDictionary<int, BncFile>();
     public void Clear() {
         BncFile.Clear();
         GlobalBncFile.Clear();
@@ -37,10 +37,10 @@ public class BncLoader
 
     public BncFile Load(int characterIdx)
     {
-        if (Main.Ins.CombatData.Chapter != null) {
-            Dictionary<int, string> models = Main.Ins.CombatData.GScript.GetModel();
+        if (CombatData.Ins.Chapter != null) {
+            SortedDictionary<int, string> models = CombatData.Ins.GScript.GetModel();
             if (models != null && models.ContainsKey(characterIdx)) {
-                string path = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Bnc, models[characterIdx]);
+                string path = CombatData.Ins.Chapter.GetResPath(FileExt.Bnc, models[characterIdx]);
                 if (!string.IsNullOrEmpty(path)) {
                     return Load(path);
                 }

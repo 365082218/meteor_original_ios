@@ -6,10 +6,23 @@ using System;
 using Idevgame.Util;
 using UnityEngine;
 using UnityEngine.UI;
+using Assets.Code.Idevgame.Common.Util;
+
 namespace Idevgame.GameState.DialogState {
     public abstract class PersistState
     {
+        protected PersistState() {
+            stateMgr = PersistDialogMgr.Ins;
+        }
+        protected PersistDialogMgr stateMgr;
         public MonoBehaviour Owner;
+        public void Open(object data = null) {
+            stateMgr.EnterState(this, data);
+        }
+        public void Close() {
+            stateMgr.ExitState(this);
+        }
+
         public virtual void OnStateEnter(object data = null)
         {
             
@@ -43,14 +56,32 @@ namespace Idevgame.GameState.DialogState {
         {
 
         }
+
+        public void WaitExit(float exit) {
+            if (timerClose != null) {
+                timerClose.Stop();
+                timerClose = null;
+            }
+            timerClose = Timer.once(exit, TimeHandler);
+        }
+
+        void TimeHandler() {
+            Close();
+            timerClose = null;
+        }
+        Timer timerClose;
     }
 
     //persistDialog-自带画布，持久化，加载场景不删除这些对象.需要手动控制.
     public abstract class PersistDialog<T> : PersistState where T :Dialog
     {
+        public PersistDialog():base(){
+            State = this;
+        }
         protected GameObject Dialog;
         protected GameObject mRootUI;
         public static bool Exist() { return DialogController != null; }
+        public static PersistState State;
         public static T Instance
         {
             get { return DialogController; }

@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 
+
 //流星特效加载-声音模拟OK
 /*
  * 11字节版本号
@@ -154,13 +155,13 @@ public class SfxFile {
                 headlen += 4;
                 headlen += haveBone;
                 reader.BaseStream.Seek(5, SeekOrigin.Current);
-                sfx.Active = reader.ReadInt32();
+                sfx.DoubleSide = reader.ReadInt32();
                 sfx.Hidden = reader.ReadInt32();
                 sfx.uSpeed = reader.ReadSingle();
                 sfx.vSpeed = reader.ReadSingle();
                 sfx.BlendType = reader.ReadInt32();
-                sfx.Unknown2 = reader.ReadInt32();
-                sfx.Unknown3 = reader.ReadInt32();
+                sfx.BlendType2 = reader.ReadInt32();
+                sfx.BlendType3 = reader.ReadInt32();
                 sfx.FrameCnt = reader.ReadInt32();
                 for (int y = 0; y < sfx.FrameCnt; y++) {
                     EffectFrame frame = new EffectFrame();
@@ -212,40 +213,50 @@ public class SfxFile {
                     //sfx.TailLength = 100 + endRegionCnt;
                     //粒子细节=96+endRegionCnt
                     sfx.version = endRegionCnt == 0 ? 0 : 1;
-                    int particleBytes = 96 + endRegionCnt;
-                    if (particleBytes == 96)
+                    sfx.ParticleBytes = 96 + endRegionCnt;
+                    if (sfx.ParticleBytes == 96)
                         sfx.version = 0;
-                    else if (particleBytes == 124)
+                    else if (sfx.ParticleBytes == 124) {
                         sfx.version = 1;
-                    else if (particleBytes == 112)
+                        sfx.EnableParticleRotate = reader.ReadInt32();
+                        sfx.Skew = reader.ReadInt32();
+                        sfx.HRotateSpeed = reader.ReadSingle();
+                        sfx.VRotateSpeed = reader.ReadSingle();
+                        sfx.RotateAxis.x = reader.ReadSingle();
+                        sfx.RotateAxis.y = reader.ReadSingle();
+                        sfx.RotateAxis.z = reader.ReadSingle();
+
+                    } else if (sfx.ParticleBytes == 112) {
                         sfx.version = 2;
-                    reader.ReadBytes(particleBytes);
-                    //前面的28字节不知道干啥的。
-                    reader.BaseStream.Seek(-96, SeekOrigin.Current);
+                        sfx.FirstUnk112_0 = reader.ReadInt32();
+                        sfx.FirstUnk112_1 = reader.ReadInt32();
+                        sfx.FirstUnk112_2 = reader.ReadInt32();
+                        sfx.FirstUnk112_3 = reader.ReadInt32();
+                    }
                     sfx.MaxParticles = reader.ReadInt32();
                     sfx.startSizeMin = reader.ReadSingle();
                     sfx.startSizeMax = reader.ReadSingle();
                     sfx.unknwon2 = reader.ReadSingle();//1
                     sfx.unknown3 = reader.ReadSingle();//5
-                    sfx.unknown0 = reader.ReadSingle();//30?可能是重力系数.其大于0时，粒子往下朝，其小于=0时，粒子向上
+                    sfx.gravity = reader.ReadSingle();//30?可能是重力系数.其大于0时，粒子往下朝，其小于=0时，粒子向上
                     sfx.StartLifetime = reader.ReadSingle();//粒子生命周期
-                    sfx.unknown1 = reader.ReadSingle();//1
-                    sfx.startSpeedMin = reader.ReadSingle();//50 - startSpeed
-                    sfx.startSpeedMax = reader.ReadSingle();//80 - startSpeed2
-                    sfx.unknown4 = reader.ReadSingle();//0.1f
-                    sfx.unknown5 = reader.ReadSingle();//0.1f;
-                    sfx.unknown6 = reader.ReadSingle();//-1.0f;
-                    sfx.unknown7 = reader.ReadSingle();//-1.0f;
-                    sfx.unknown8 = reader.ReadSingle();//-1.0f;
-                    sfx.unknown9 = reader.ReadSingle();//+1.0f;
-                    sfx.unknown10 = reader.ReadSingle();//+1.0f;
-                    sfx.unknown11 = reader.ReadSingle();//+1.0f;
-                    sfx.unknown12 = reader.ReadInt32();//0
-                    sfx.unknown13 = reader.ReadInt32();//1
-                    sfx.unknown14 = reader.ReadInt32();//1
-                    sfx.unknown15 = reader.ReadSingle();//0.5f
-                    sfx.multiplyAlpha = reader.ReadInt32();//1
-                    sfx.alpha = reader.ReadSingle();//0.3
+                    sfx.StartLifetime2 = reader.ReadSingle();//1
+                    sfx.emitWidth = reader.ReadSingle();//50 - startSpeed
+                    sfx.emitLong = reader.ReadSingle();//80 - startSpeed2
+                    sfx.linear0 = reader.ReadSingle();//0.1f
+                    sfx.linear1 = reader.ReadSingle();//0.1f;
+                    sfx.EmitStartAxis.x = reader.ReadSingle();//-1.0f;
+                    sfx.EmitStartAxis.y = reader.ReadSingle();//-1.0f;
+                    sfx.EmitStartAxis.z = reader.ReadSingle();//-1.0f;
+                    sfx.EmitEndAxis.x = reader.ReadSingle();//+1.0f;
+                    sfx.EmitEndAxis.y = reader.ReadSingle();//+1.0f;
+                    sfx.EmitEndAxis.z = reader.ReadSingle();//+1.0f;
+                    sfx.particleNotLoop = reader.ReadInt32();//0
+                    sfx.Speed = reader.ReadInt32();//1
+                    sfx.FadeIn = reader.ReadInt32();//1
+                    sfx.FadeInAlpha = reader.ReadSingle();//0.5f
+                    sfx.FadeOut = reader.ReadInt32();//1
+                    sfx.FadeOutAlpha = reader.ReadSingle();//0.3
                     int regionCnt = reader.ReadInt32();
                     string sBone = readNextString(reader, regionCnt);
                     sfx.Tails[0] = sBone;
@@ -292,7 +303,7 @@ public class SfxFile {
         return effectContainer;
     }
 
-    public SFXEffectPlay Play(MonoBehaviour behaviour, float timePlayed = 0.0f) {
+    public SFXEffectPlay Play(MonoBehaviour behaviour, float timePlayed) {
         if (effectList.Count == 0)
             return null;
         SFXEffectPlay effectContainer = behaviour.gameObject.AddComponent<SFXEffectPlay>();
@@ -300,7 +311,7 @@ public class SfxFile {
         return effectContainer;
     }
 }
-[System.Serializable]
+
 public class EffectFrame {
     public float startTime;
     public Vector3 pos;
@@ -316,7 +327,7 @@ public class EffectFrame {
         TailFlags = new float[13];
     }
 }
-[System.Serializable]
+
 public class SfxEffect {
     public int localSpace;//相当于是否设置其为父级。
     public string EffectType;
@@ -324,13 +335,14 @@ public class SfxEffect {
     public string Bone0;
     public string Bone1;
     public string Texture;
-    public int Active;
+    public int DoubleSide;
     public int Hidden;//是否隐藏
     public float uSpeed;
     public float vSpeed;
-    public int Unknown2;
+    
     public int BlendType;
-    public int Unknown3;
+    public int BlendType2;
+    public int BlendType3;
     public int FrameCnt;
     public int audioLoop;
     public float SphereRadius;
@@ -342,39 +354,50 @@ public class SfxEffect {
     public int version;//96字节版=0 124字节版=1 112字节=2
     //public byte[] particle;
     public string[] Tails = new string[3];
+    public int ParticleBytes;//96/112/124
+    //112字节比96字节多出来的，16字节未知
+    public int FirstUnk112_0;
+    public int FirstUnk112_1;
+    public int FirstUnk112_2;
+    public int FirstUnk112_3;
+    public int EnableParticleRotate;//粒子旋转
+    public int Skew;//粒子斜切
+    public float HRotateSpeed;//水平
+    public float VRotateSpeed;//垂直
+    public Vector3 RotateAxis;//翻滚轴
     public int MaxParticles;
     public float startSizeMin;
     public float startSizeMax;
-    public float startSpeedMin;
-    public float startSpeedMax;
-    public float unknown0;//30?
+    public float emitWidth;
+    public float emitLong;
+    public float gravity;//引力回流?
     public float StartLifetime;//粒子生命周期
-    public float unknown1;//1
+    public float StartLifetime2;//1
     public float unknwon2;//50
     public float unknown3;//80
-    public float unknown4;//0.1f
-    public float unknown5;//0.1f;
-    public float unknown6;//-1.0f;
+    public float linear0;//0.1f
+    public float linear1;//0.1f;
+    public Vector3 EmitStartAxis;//-1.0f;
     public float unknown7;//-1.0f;
     public float unknown8;//-1.0f;
-    public float unknown9;//+1.0f;
+    public Vector3 EmitEndAxis;//+1.0f;
     public float unknown10;//+1.0f;
     public float unknown11;//+1.0f;
-    public int unknown12;//0
-    public int unknown13;//1
-    public int unknown14;//1
-    public float unknown15;//0.5f
-    public int multiplyAlpha;//1是否叠加透明度
-    public float alpha;//0.3透明度
+    public int particleNotLoop;//0
+    public int Speed;//1
+    public int FadeIn;//1
+    public float FadeInAlpha;//0.5f
+    public int FadeOut;//1是否叠加透明度
+    public float FadeOutAlpha;//0.3透明度
 }
 
-public class SFXLoader {
+public class SFXLoader:Singleton<SFXLoader> {
     //清理掉外置的
     public void Clear() {
         PluginEffect.Clear();
     }
-    Dictionary<string, SfxFile> Effect = new Dictionary<string, SfxFile>();
-    Dictionary<string, SfxFile> PluginEffect = new Dictionary<string, SfxFile>();
+    SortedDictionary<string, SfxFile> Effect = new SortedDictionary<string, SfxFile>();
+    SortedDictionary<string, SfxFile> PluginEffect = new SortedDictionary<string, SfxFile>();
     bool initList = false;
     List<string> key;
     int effIndex = 0;
@@ -418,12 +441,12 @@ public class SFXLoader {
         return null;
     }
 
-    public SFXEffectPlay PlayEffect(int id, MonoBehaviour target, float timePlayed = 0.0f) {
+    public SFXEffectPlay PlayEffect(int id, MonoBehaviour target, float timePlayed) {
         return PlayEffect(Eff[id], target, timePlayed);
     }
     //target描述，此特效的主调者
     //timePlayed用于同步动作和特效。快速出招时，特效要加一个已经播放时间，否则特效跟不上动作的播放步骤
-    public SFXEffectPlay PlayEffect(string file, MonoBehaviour target, float timePlayed = 0.0f) {
+    public SFXEffectPlay PlayEffect(string file, MonoBehaviour target, float timePlayed) {
         //Debug.Log("timePlayed:" + timePlayed);
         if (!Effect.ContainsKey(file)) {
             SfxFile f = LoadSfx(file);
@@ -440,7 +463,7 @@ public class SFXLoader {
 
     SfxFile LoadSfx(string file) {
         SfxFile f = new SfxFile();
-        if (Main.Ins.CombatData.Chapter != null) {
+        if (CombatData.Ins.Chapter != null) {
             if (PluginEffect.ContainsKey(file))
                 return PluginEffect[file];
             //去掉标识符后的拓展名
@@ -449,7 +472,7 @@ public class SFXLoader {
             if (dot != -1) {
                 name = file.Substring(0, dot);
             }
-            string path = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Sfx, name);
+            string path = CombatData.Ins.Chapter.GetResPath(FileExt.Sfx, name);
             if (!string.IsNullOrEmpty(path)) {
                 try {
                     f.ParseFile(path);

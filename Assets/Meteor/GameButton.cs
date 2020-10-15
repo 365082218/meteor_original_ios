@@ -18,7 +18,6 @@ public class GameButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     PolygonCollider2D polygonCollider;
     private bool isPointDown = false;
     private float lastInvokeTime;
-    public bool repeatScan = false;
     // Use this for initialization
     Image Img;
     Color hilight;
@@ -41,21 +40,7 @@ public class GameButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     // Update is called once per frame
     void Update()
     {
-        if (isPointDown && repeatScan)
-        {
-            if (OnPress != null)
-            {
-                if (ChangeColor)
-                    Img.color = hilight;
-                OnPress.Invoke();
-            }
-        }
-        else
-        {
-            if (ChangeColor)
-                Img.color = normal;
-        }
-             
+
     }
 
     public void OnPointerDown(PointerEventData eventData)

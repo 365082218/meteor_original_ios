@@ -38,7 +38,7 @@ public class TipDialog : ModalDialog {
                 OnUninstall();
                 return;
             }
-            Main.Ins.ExitState(Main.Ins.TipDialogState);
+            TipDialogState.State.Open();
             return;
         }
 
@@ -47,21 +47,23 @@ public class TipDialog : ModalDialog {
                 OnUninstall();
                 return;
             }
-            Main.Ins.ExitState(Main.Ins.TipDialogState);
+            TipDialogState.State.Close();
             return;
         }
     }
 
     void OnUninstall() {
         if (model != null) {
-            Title.text = string.Format(StringUtils.ModelName, model.Name);
+            Title.text = string.Format(StringUtils.ModelName, model.ModelId, model.Name);
             Tips.text = string.Format(StringUtils.UninstallModel, model.Name);
+            Utility.LoadPreview(Preview, model.Preview);
             ClearModel();
             return;
         }
         if (chapter != null) {
-            Title.text = string.Format(StringUtils.DlcName, chapter.Name);
+            Title.text = string.Format(StringUtils.DlcName, chapter.ChapterId, chapter.Name);
             Tips.text = string.Format(StringUtils.UninstallChapter, chapter.Name);
+            Utility.LoadPreview(Preview, chapter.Preview);
             ClearChapter();
             return;
             
@@ -110,7 +112,7 @@ public class TipDialog : ModalDialog {
         }
         yield return 0;
         chapter.Installed = false;
-        Main.Ins.GameStateMgr.gameStatus.UnRegisterDlc(chapter);
+        GameStateMgr.Ins.gameStatus.UnRegisterDlc(chapter);
         Save();
         Exit();
     }
@@ -121,6 +123,8 @@ public class TipDialog : ModalDialog {
                 if (System.IO.File.Exists(model.resPath[j])) {
                     System.IO.File.Delete(model.resPath[j]);
                 }
+                process += 1;
+                SetProgress(process / (float)totals);
                 yield return 0;
             }
         }
@@ -128,7 +132,7 @@ public class TipDialog : ModalDialog {
             System.IO.File.Delete(model.LocalPath);
         yield return 0;
         model.Installed = false;
-        Main.Ins.GameStateMgr.gameStatus.UnRegisterModel(model);
+        GameStateMgr.Ins.gameStatus.UnRegisterModel(model);
         Save();
         Exit();
     }
@@ -138,12 +142,10 @@ public class TipDialog : ModalDialog {
     }
 
     void Save() {
-        Main.Ins.GameStateMgr.SaveState();
-        Main.Ins.GameStateMgr.SyncGameState();
-        Main.Ins.GameStateMgr.SaveDlc();
+        GameStateMgr.Ins.SaveState();
     }
 
     void Exit() {
-        Main.Ins.ExitState(Main.Ins.TipDialogState);
+        TipDialogState.State.WaitExit(1.0f);
     }
 }

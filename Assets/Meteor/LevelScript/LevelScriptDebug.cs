@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using Idevgame.Util;
 using System.Linq;
+
 //存储了测试关卡的脚本
 //23韩棠-大决战
 public class LevelScript_sn23 : LevelScriptBase {
     int RoundTime = 30;
     int PlayerSpawn = 0;
     int PlayerSpawnDir = 84;
-    int PlayerWeapon = 5;
-    int PlayerWeapon2 = 0;
-    int PlayerModel = 10;
-    int PlayerHP = 8000;
+    int PlayerWeapon = 57;
+    int PlayerWeapon2 = 5;
+    int PlayerModel = 0;
+    int PlayerHP = 4500;
     string PlayerName = StringUtils.DefaultPlayer;
     public override int GetRoundTime() { return RoundTime; }
     public override int GetPlayerSpawn() { return PlayerSpawn; }
@@ -31,103 +32,118 @@ public class LevelScript_sn23 : LevelScriptBase {
         base.OnStart();
     }
 
-    int trg0 = 0;//一起说话
-    int trg1 = 0;//1号说话
-    int trg2 = 0;//2号说话
-    int trg3 = 0;//3号说话
-    int trg4 = 0;//4号说话
+    int trg0 = 0;
+    int trg1 = 0;
+    int trg2 = 0;
+    int trg3 = 0;
+    int trg4 = 0;
+    int trg5 = 0;
+    int trg6 = 0;//叶翔
+    int trg7 = 0;//石群
     int time1 = 0;
     int time2 = 0;
+    int time3 = 0;
     int timeSkill = 0;
     int skillgroup = 7;
-    string[] skillCount = new string[] { "一", "二", "三", "四", "五", "六", "七" };
     public override int OnUpdate() {
         int player = GetChar("player");
         if (player < 0) {
             return 0;
         }
 
+        int c0;
         int c1;
         int c2;
         int c3;
         int c4;
+        int c5;
+
         if (trg0 == 0) {
             c1 = GetChar("屠城");
             c2 = GetChar("罗江");
             c3 = GetChar("萧安");
             c4 = GetChar("原冲");
-            if (c1 >= 0 && c2 >= 0 && c3 >= 0 && c4 >= 0) {
+            c5 = GetChar("韩棠");
+            if (c1 >= 0 && c2 >= 0 && c3 >= 0 && c4 >= 0 && c5 >= 0) {
                 Perform(c1, "faceto", player);
                 Perform(c2, "faceto", player);
                 Perform(c3, "faceto", player);
                 Perform(c4, "faceto", player);
 
-                ChangeBehavior(c1, "kill", player);
+                ChangeBehavior(c1, "kill", c5);
                 ChangeBehavior(c2, "kill", player);
-                ChangeBehavior(c3, "kill", player);
+                ChangeBehavior(c3, "kill", c5);
                 ChangeBehavior(c4, "kill", player);
 
-                Perform(c1, "say", "所以你只管放心死吧孙玉伯一定很快就会到十八层地狱去陪你。");
-                Perform(c1, "pause", 4);
+                Perform(c1, "say", "所以你只管放心死吧孙玉伯一定很快就会到地狱去陪你。");
+                Perform(c1, "pause", 3);
                 Perform(c1, "say", "根若已烂了这棵树很快就会烂光的。");
-                Perform(c1, "pause", 4);
+                Perform(c1, "pause", 3);
                 Perform(c1, "say", "孙玉伯一向认为他的属下都对他极忠诚，但现在连他最信任的人也出卖了他这就好像一棵树的根已经烂了。");
-                Perform(c1, "pause", 4);
+                Perform(c1, "pause", 3);
                 Perform(c1, "say", "这人当然是很得孙玉伯的信任，所以才会知道你们的关系……");
-                Perform(c1, "pause", 4);
+                Perform(c1, "pause", 3);
                 Perform(c1, "say", "你一定会奇怪我们怎么知道你和孙玉伯的关系？这当然是有人告诉我们的只可惜你这一辈子也猜不出这个人是谁。");
-                Perform(c1, "pause", 4);
+                Perform(c1, "pause", 3);
                 Perform(c1, "say", "因为你是孙玉伯的死党，‘十二飞鹏帮’现在己和孙玉伯势不两立。");
-                Perform(c1, "pause", 4);
+                Perform(c1, "pause", 3);
                 Perform(c1, "say", "你知不知道我们为什么要杀你？");
-                Perform(c1, "pause", 4);
+                Perform(c1, "pause", 3);
                 Perform(c1, "say", "韩棠你该觉得骄傲才是，杀孙剑的时候，我们连手都没有动，但杀你我们却动用了全力。");
-                Perform(c1, "pause", 4);
+                Perform(c1, "pause", 3);
                 Perform(c1, "block", 0);
                 Perform(c1, "say", "屠城屠大鹏");
-                Perform(c1, "pause", 5);
+                Perform(c1, "pause", 4);
                 Perform(c1, "aggress");
                 Perform(c1, "say", "你怎么知道那五人全是幌子，我才是真正来杀你的？");
-                Perform(c1, "pause", 2);
+                Perform(c1, "pause", 1);
                 Perform(c1, "guard", 6);
                 Perform(c1, "block", 1);
 
-                //主角对白
-                PlayerPerform("block", 0);
-                PlayerPerform("pause", 4);
-                PlayerPerform("say", "你们都是‘十二飞鹏帮’的人?");
-                PlayerPerform("pause", 4);
-                PlayerPerform("faceto", c1);
-                PlayerPerform("guard", 6);
-                PlayerPerform("block", 1);
+                //韩棠对白
+                Perform(c5, "block", 0);
+                Perform(c5, "pause", 3);
+                Perform(c5, "say", "你们都是‘十二飞鹏帮’的人?");
+                Perform(c5, "pause", 3);
+                Perform(c5, "faceto", c1);
+                Perform(c5, "guard", 6);
+                Perform(c5, "block", 1);
                 //罗江
                 Perform(c2, "block", 0);
                 Perform(c2, "say", "罗江罗金鹏。");
-                Perform(c2, "pause", 6);
+                Perform(c2, "pause", 5);
                 Perform(c2, "guard", 10);
                 Perform(c2, "block", 1);
 
                 //萧安
                 Perform(c3, "block", 0);
                 Perform(c3, "say", "萧安萧银鹏。");
-                Perform(c3, "pause", 7);
+                Perform(c3, "pause", 6);
                 Perform(c3, "guard", 10);
                 Perform(c3, "block", 1);
 
                 //原冲
                 Perform(c4, "block", 0);
                 Perform(c4, "say", "原冲原怒鹏。");
-                Perform(c4, "pause", 8);
+                Perform(c4, "pause", 7);
                 Perform(c4, "guard", 10);
                 Perform(c4, "block", 1);
 
+                //主角
+                PlayerPerform("block", 0);
+                PlayerPerform("pause", 10);
+                PlayerPerform("say", "...");
+                PlayerPerform("faceto", c1);
+                PlayerPerform("guard", 10);
+                PlayerPerform("block", 1);
                 trg0 = 1;
             }
         }
 
         //蝴蝶阵营获胜
         if (trg1 == 0) {
-            if (GetHP(player) <= 0) {
+            c5 = GetChar("韩棠");
+            if (GetHP(c5) <= 0) {
                 c1 = GetChar("屠城");
                 Perform(c1, "say", "出卖你的人是律香川，他不但出卖你还出卖了孙玉伯");
                 Perform(c1, "pause", 2);
@@ -148,10 +164,10 @@ public class LevelScript_sn23 : LevelScriptBase {
 
         //流星阵营，特殊事件触发
         if (trg2 == 0) {
-            if (GetHP(player) > 0 && GetHP(player) <= (GetMaxHP(player) / 4)) {
+            if (GetHP(player) > 0 && GetHP(player) <= (GetMaxHP(player) / 3)) {
                 PlayerPerform("say", "....");
                 PlayerPerform("pause", 3);
-                PlayerPerform("say", "好久没有这种感觉了！");
+                PlayerPerform("say", "算你们厉害，不过我也有兄弟！");
                 trg2 = 1;
                 time2 = GetGameTime() + 5;
             }
@@ -159,21 +175,74 @@ public class LevelScript_sn23 : LevelScriptBase {
 
         if (trg2 == 1 && GetGameTime() > time2) {
             if (GetHP(player) > 0) {
-                PlayerPerform("use", 36);
-                PlayerPerform("use", 20);
-                PlayerPerform("use", 3);
-                PlayerPerform("use", 4);
-                PlayerPerform("use", 5);
-                PlayerPerform("use", 8);
-                PlayerPerform("use", 19);
-                PlayerPerform("use", 34);
-                PlayerPerform("use", 40);
-                PlayerPerform("use", 41);
-                PlayerPerform("use", 15);
-                PlayerPerform("use", 15);
-                PlayerPerform("use", 15);
+                AddNPC("npc23_06");
+                AddNPC("npc23_07");
             }
             trg2 = 2;
+        }
+
+        if (trg5 == 0) {
+            c5 = GetChar("韩棠");
+            if (GetHP(c5) > 0 && GetHP(c5) <= (GetMaxHP(c5) / 3)) {
+                Perform(c5, "say", "....");
+                Perform(c5, "pause", 3);
+                Perform(c5, "say", "好久没有这种感觉了！");
+                trg5 = 1;
+                time3 = GetGameTime() + 5;
+            }
+        }
+
+        if (trg5 == 1 && GetGameTime() > time3) {
+            c5 = GetChar("韩棠");
+            if (GetHP(c5) > 0) {
+                Perform(c5, "use", 36);
+                Perform(c5, "use", 20);
+                Perform(c5, "use", 3);
+                Perform(c5, "use", 4);
+                Perform(c5, "use", 5);
+                Perform(c5, "use", 8);
+                Perform(c5, "use", 19);
+                Perform(c5, "use", 34);
+                Perform(c5, "use", 40);
+                Perform(c5, "use", 41);
+                Perform(c5, "use", 15);
+                Perform(c5, "use", 15);
+                Perform(c5, "use", 15);
+            }
+            trg5 = 2;
+        }
+
+        //生成了援军后，援军对白.
+        if (trg2 == 2) {
+            c4 = GetChar("叶翔");
+            c5 = GetChar("石群");
+            c1 = GetChar("罗江");
+            c0 = GetChar("屠城");
+            if (GetHP(c1) > 0)
+                ChangeBehavior(c4, "kill", c1);
+            else if (GetHP(c0) > 0)
+                ChangeBehavior(c4, "kill", c0);
+            Perform(c4, "say", "上吧");
+            Perform(c4, "pause", 10);
+            Perform(c4, "say", "十二飞鹏帮少有的高手竟然都在，可够热闹");
+            Perform(c4, "pause", 2);
+
+            c3 = GetChar("萧安");
+            c2 = GetChar("原冲");
+            if (GetHP(c3) > 0) {
+                ChangeBehavior(c5, "kill", c3);
+                Perform(c5, "say", "我缠住萧安,你去解决另几个高手吧！");
+            } else if (GetHP(c2) > 0) {
+                ChangeBehavior(c5, "kill", c2);
+                Perform(c5, "say", "我缠住原冲,你去解决剩下那几个高手吧！");
+            } else {
+                ChangeBehavior(c5, "follow", player);
+                Perform(c5, "say", "我去看看星魂");
+            }
+            Perform(c5, "pause", 3);
+            Perform(c5, "say", "这次的马蜂窝可捅的不小啊，回去好歹也该请我喝个痛快！");
+            Perform(c5, "pause", 5);
+            trg2 = 3;
         }
 
         //一起技能释放硬切换
@@ -183,7 +252,7 @@ public class LevelScript_sn23 : LevelScriptBase {
             c3 = GetChar("萧安");
             c4 = GetChar("原冲");
             if (c1 >= 0 && c2 >= 0 && c3 >= 0 && c4 >= 0) {
-                //4人都离角色100码以内
+                //4人都离角色300码以内
                 float maxDistance = 300.0f;
                 if (PlayerDistance(c1, 0) <= maxDistance && PlayerDistance(c2, 0) <= maxDistance && PlayerDistance(c3, 0) <= maxDistance && PlayerDistance(c4, 0) <= maxDistance) {
                     //任意一个人得到满怒气，则全体满怒气.一起开大.
@@ -223,20 +292,14 @@ public class LevelScript_sn23 : LevelScriptBase {
                             Perform(c1, "skill");
                             Perform(c1, "pause", 1);
                             talked = 1;
-                            if (skillgroup == 20)
-                                Perform(c1, "say", "没人能在我们合力之下坚持那么久");
-                            else
-                                Perform(c1, "say", "接招，合力一击");
+                            Perform(c1, "say", "看招");
                             delay += 1;
                         }
 
                         if (GetHP(c2) > 0 && CanUseSkill(c2)) {
                             Perform(c2, "skill");
                             if (talked == 0) {
-                                if (skillgroup == 20)
-                                    Perform(c2, "say", "没人能在我们合力之下坚持那么久");
-                                else
-                                    Perform(c2, "say", "合力一击");
+                                Perform(c2, "say", "这下可激怒我了");
                                 talked = 1;
                             }
                             Perform(c2, "pause", delay);
@@ -246,10 +309,7 @@ public class LevelScript_sn23 : LevelScriptBase {
                         if (GetHP(c3) > 0 && CanUseSkill(c3)) {
                             Perform(c3, "skill");
                             if (talked == 0) {
-                                if (skillgroup == 20)
-                                    Perform(c3, "say", "没人能在我们合力之下坚持那么久");
-                                else
-                                    Perform(c3, "say", "合力一击");
+                                Perform(c3, "say", "去死吧");
                                 talked = 1;
                             }
                             Perform(c3, "pause", delay);
@@ -259,10 +319,7 @@ public class LevelScript_sn23 : LevelScriptBase {
                         if (GetHP(c4) > 0 && CanUseSkill(c4)) {
                             Perform(c4, "skill");
                             if (talked == 0) {
-                                if (skillgroup == 20)
-                                    Perform(c4, "say", "没人能在我们合力之下坚持那么久");
-                                else
-                                    Perform(c4, "say", "合力一击");
+                                Perform(c4, "say", "这次一定要分出个胜负");
                                 talked = 1;
                             }
                             Perform(c4, "pause", delay);
@@ -335,14 +392,14 @@ public class LevelScript_sn31 : LevelScript_sn22
             AddNPC(s);
         }
         AddNPC("npc31_13");
-        Vector3 vec = Main.Ins.CombatData.GLevelSpawn[14];
+        Vector3 vec = CombatData.Ins.GLevelSpawn[14];
         vec.x += 375;
         U3D.MovePlayer("高寄萍", vec);
         U3D.RotatePlayer("高寄萍", -90);
         int player = U3D.GetChar("player");
         MeteorUnit uplayer = U3D.GetUnit(player);
         if (uplayer != null) {
-            vec = Main.Ins.CombatData.GLevelSpawn[14];
+            vec = CombatData.Ins.GLevelSpawn[14];
             vec.x += 415;
             vec.y = uplayer.transform.position.y;
             U3D.MovePlayer("player", vec);
@@ -513,3 +570,17 @@ public class LevelScript_sn02_1:LevelScript_sn02
     }
 }
 
+//单人录像测试
+public class LevelScript_sn02_2:LevelScript_sn02 {
+    public override void OnStart() {
+        base.OnStart();
+    }
+
+    public override int OnUpdate() {
+        return 0;
+    }
+
+    public override GameResult OnUnitDead(MeteorUnit deadUnit) {
+        return GameResult.None;
+    }
+}

@@ -1,16 +1,7 @@
 ﻿<Properties StartupItem="meteor_original_android.Plugins.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Meteor\AI\MeteorAI.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Meteor\FightBox.cs">
     <Files>
-      <File FileName="Assets\PluginsWrapper\IosWrapper.cs" Line="1" Column="1" />
-      <File FileName="Assets\AppInfo.cs" Line="1" Column="1" />
-      <File FileName="Assets\Meteor\ClientProxy.cs" Line="1" Column="1" />
-      <File FileName="Assets\ProtoHandler.cs" Line="1" Column="1" />
-      <File FileName="Assets\Meteor\MeteorUnit.cs" Line="1" Column="1" />
-      <File FileName="Assets\Meteor\U3D.cs" Line="1" Column="1" />
-      <File FileName="Assets\Meteor\LevelScript\LevelScriptBase.cs" Line="1" Column="1" />
-      <File FileName="Assets\Meteor\SFXTemplate\SFXUnit.cs" Line="1" Column="1" />
-      <File FileName="Assets\DoubleSideMeshCollider.cs" Line="1" Column="1" />
       <File FileName="Assets\Meteor\PathMng.cs" Line="1" Column="1" />
       <File FileName="Assets\Meteor\ResLoader\SFXLoader.cs" Line="1" Column="1" />
       <File FileName="Assets\Script\NetWorkBattle.cs" Line="1" Column="1" />
@@ -27,12 +18,17 @@
       <File FileName="Assets\AutoMsgCtrl.cs" Line="1" Column="1" />
       <File FileName="Assets\Meteor\ResLoader\CharacterLoader.cs" Line="1" Column="1" />
       <File FileName="Assets\Test\AnimationCurveTest.cs" Line="1" Column="1" />
-      <File FileName="Assets\Meteor\AI\MeteorAI.cs" Line="1" Column="1" />
       <File FileName="Assets\Resource\Table\Resources\NameGirls.txt" Line="1" Column="1" />
       <File FileName="Assets\Code\Idevgame\3DUtil\BoundsGizmos.cs" Line="1" Column="1" />
       <File FileName="Assets\Meteor\Shader\Resources\AlphaTexture.shader" Line="1" Column="1" />
       <File FileName="Assets\Meteor\FightBox.cs" Line="1" Column="1" />
       <File FileName="Assets\Script\SceneItemAgent.cs" Line="1" Column="1" />
+      <File FileName="Assets\Resource\Table\Resources\ChangeLog.txt" Line="1" Column="1" />
+      <File FileName="Assets\Code\Idevgame\GUI\Dialog\NcDrawFpsText.cs" Line="1" Column="1" />
+      <File FileName="Assets\Code\Idevgame\GUI\Dialog\IdevButton.cs" Line="1" Column="1" />
+      <File FileName="Assets\Code\Idevgame\GUI\Dialog\EscDialog.cs" Line="1" Column="1" />
+      <File FileName="Assets\Meteor\DlcManagerWnd.cs" Line="1" Column="1" />
+      <File FileName="Assets\Meteor\LevelScript\DlcMng.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

@@ -1,7 +1,7 @@
 local class = {}
 function guard()
-	string Name	= "孙玉伯";
-	class.Model =	18;
+	class.Name = "孙玉伯";
+	class.Model = 18;
 	class.Weapon = 35;
 	class.Weapon2 = 34;
 	class.Team = 0;

@@ -29,7 +29,7 @@ Shader "Lightbeam/Lightbeam" {
 			struct v2f 
 			{
 			    float4 pos : SV_POSITION;
-			    float4 uv : TEXCOORD0;
+			    //float4 uv : TEXCOORD0;
 			    float4 falloffUVs : TEXCOORD1;
 			    float4 screenPos : TEXCOORD2;
 			};

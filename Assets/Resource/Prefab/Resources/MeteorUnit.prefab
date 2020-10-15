@@ -53,49 +53,49 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   UnitId: 1
   InstanceId: 0
-  ShadowPosition: {x: 0, y: 0, z: 0}
-  ShadowRotation: {x: 0, y: 0, z: 0, w: 0}
-  ShadowDelta: 0
-  ShadowSynced: 0
-  ShadowUpdate: 0
   WeaponL: {fileID: 0}
   WeaponR: {fileID: 0}
   ROOTNull: {fileID: 0}
   RootdBase: {fileID: 0}
   HeadBone: {fileID: 0}
+  D_top: {fileID: 0}
   Camp: 1
-  posMng:
+  ActionMgr:
+    moveDelta: {x: 0, y: 0, z: 0}
     mActiveActionIdx: 0
-    CanMove: 0
     CanControl: 0
     CanChangeWeapon: 0
     Rotateing: 0
     JumpTick: 0.2
     playResultAction: 0
+    FPS: 0.033333335
+    PoseStraight: 0
+    blendTime: 0.3
+    curIndex: 0
   weaponLoader: {fileID: 0}
-  checkSphere: {fileID: 0}
+  rotateTick: 0
   distance: 0
   angle: 0
   RebornTick: 0
   WaitReborn: 0
+  Pause: 0
   ClimbingTime: 0
   Dead: 0
   OnTopGround: 0
   OnGround: 0
   MoveOnGroundEx: 0
   OnTouchWall: 0
+  blobShadow: {fileID: 0}
+  DeadZone: 0.25
   TargetItem: {fileID: 0}
   LockTarget: {fileID: 0}
   KillTarget: {fileID: 0}
   FollowTarget: {fileID: 0}
-  xRotateDelta: 0
-  yRotateDelta: 0
+  mouse: {x: 0, y: 0}
+  joy: {x: 0, y: 0}
   IgnoreGravity: 0
   ImpluseVec: {x: 0, y: 0, z: 0}
   charController: {fileID: 0}
-  groundTick: -1
   IgnorePhysical: 0
-  ItemInRange: []
-  EnemyInRange: []
-  FriendInRange: []
-  hitList: []
+  HurtList: []
+  HitList: []

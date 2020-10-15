@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Idevgame.Util;
-public class SoundManager
+
+
+public class SoundManager:Singleton<SoundManager>
 {
     bool enable = true;
     class AudioClipInfo
@@ -28,7 +30,7 @@ public class SoundManager
     bool FadeLinear = true;
     float FadeDistance = 300;//2D音效超过300不播放了.
     List<AudioClipInfo> mRuntimeClips = new List<AudioClipInfo>();
-    Dictionary<string, int> mSoundIndexMap = new Dictionary<string, int>();
+    SortedDictionary<string, int> mSoundIndexMap = new SortedDictionary<string, int>();
     AudioSource mAudioSource;
     AudioSource mAudioMusic;
     float AduioVolume = 0;
@@ -119,8 +121,8 @@ public class SoundManager
     {
         if (Main.Ins != null)
         {
-            SetMusicVolume(Main.Ins.GameStateMgr.gameStatus.MusicVolume);
-            SetSoundVolume(Main.Ins.GameStateMgr.gameStatus.SoundVolume);
+            SetMusicVolume(GameStateMgr.Ins.gameStatus.MusicVolume);
+            SetSoundVolume(GameStateMgr.Ins.gameStatus.SoundVolume);
         }
     }
 
@@ -232,7 +234,7 @@ public class SoundManager
         return -2;
     }
     int nEffectIndex = 1;
-    Dictionary<int, AudioSource> LoopAudio = new Dictionary<int, AudioSource>();
+    SortedDictionary<int, AudioSource> LoopAudio = new SortedDictionary<int, AudioSource>();
     public void StopEffect(int clipInsIdx)
     {
         if (!enable)
@@ -276,6 +278,14 @@ public class SoundManager
         }
     }
 	
+    public void PlayMusic(AudioClip clip) {
+        if (clip != null && CurrentMusicSource != null) {
+            CurrentMusicSource.loop = true;
+            CurrentMusicSource.clip = clip;
+            CurrentMusicSource.Play();
+        }
+    }
+
     public void PlayMusic(string clipname)
     {
         if (!enable)
@@ -357,8 +367,16 @@ public class SoundManager
         }
         else
         {
-            SetMusicVolume(Main.Ins.GameStateMgr.gameStatus.MusicVolume);
-            SetSoundVolume(Main.Ins.GameStateMgr.gameStatus.SoundVolume);
+            SetMusicVolume(GameStateMgr.Ins.gameStatus.MusicVolume);
+            SetSoundVolume(GameStateMgr.Ins.gameStatus.SoundVolume);
+        }
+    }
+
+    public void MuteMusic(bool mute) {
+        if (mute) {
+            SetMusicVolume(0);
+        } else {
+            SetMusicVolume(GameStateMgr.Ins.gameStatus.MusicVolume);
         }
     }
 }

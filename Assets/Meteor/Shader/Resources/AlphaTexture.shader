@@ -42,11 +42,8 @@ SubShader {
 			};
 
 			struct v2f {
-				float4 vertex : SV_POSITION;
+				float4 pos : SV_POSITION;
 				half2 texcoord : TEXCOORD0;
-				float3 worldNormal : TEXCOORD1;
-				float3 lightDir : TEXCOORD2;
-				float3 viewDir : TEXCOORD3;
 				LIGHTING_COORDS(4, 5)                //1  
 				UNITY_FOG_COORDS(1)
 			};
@@ -60,7 +57,7 @@ SubShader {
 			v2f vert(appdata_t v)
 			{
 				v2f o;
-				o.vertex = UnityObjectToClipPos(v.vertex);
+				o.pos = UnityObjectToClipPos(v.vertex);
 				o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
 				TRANSFER_VERTEX_TO_FRAGMENT(o);
 				return o;

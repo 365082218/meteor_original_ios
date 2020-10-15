@@ -3,9 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-public class FMCLoader
+
+public class FMCLoader:Singleton<FMCLoader>
 {
-    Dictionary<string, FMCFile> FmcFile = new Dictionary<string, FMCFile>();
+    SortedDictionary<string, FMCFile> FmcFile = new SortedDictionary<string, FMCFile>();
     public FMCFile Load(string file)
     {
         string file_no_ext = file;
@@ -13,8 +14,8 @@ public class FMCLoader
         FMCFile fi = null;
         if (FmcFile.ContainsKey(file))
             return FmcFile[file];
-        if (Main.Ins.CombatData.Chapter != null) {
-            string path = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Fmc, file_no_ext);
+        if (CombatData.Ins.Chapter != null) {
+            string path = CombatData.Ins.Chapter.GetResPath(FileExt.Fmc, file_no_ext);
             if (!string.IsNullOrEmpty(path)) {
                 fi = new FMCFile();
                 fi = fi.LoadFile(path);
@@ -51,8 +52,8 @@ public class FMCLoader
 public class FMCFrame
 {
     public int frameIdx;
-    public Dictionary<int, Vector3> pos = new Dictionary<int, Vector3>();//每个物件的坐标
-    public Dictionary<int, Quaternion> quat = new Dictionary<int, Quaternion>();//每个物件的旋转
+    public SortedDictionary<int, Vector3> pos = new SortedDictionary<int, Vector3>();//每个物件的坐标
+    public SortedDictionary<int, Quaternion> quat = new SortedDictionary<int, Quaternion>();//每个物件的旋转
 }
 
 public class FMCFile
@@ -61,7 +62,7 @@ public class FMCFile
     public int Frames;
     public int ScemeObjCount;
     public int DummyObjCount;
-    public Dictionary<int, FMCFrame> frame = new Dictionary<int, FMCFrame>();
+    public SortedDictionary<int, FMCFrame> frame = new SortedDictionary<int, FMCFrame>();
 
     public FMCFile LoadFile(byte [] body)
     {

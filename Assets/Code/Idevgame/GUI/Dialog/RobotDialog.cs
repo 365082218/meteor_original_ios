@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class RobotDialogState : CommonDialogState<RobotDialog>
 {
     public override string DialogName { get { return "RobotDialog"; } }
-    public RobotDialogState(MainDialogStateManager stateMgr) : base(stateMgr)
+    public RobotDialogState(MainDialogMgr stateMgr) : base(stateMgr)
     {
 
     }
@@ -93,13 +93,13 @@ public class RobotDialog : Dialog
         {
             RobotList[Idx].GetComponent<Button>().onClick.RemoveAllListeners();
             RobotList[Idx].GetComponent<Button>().onClick.AddListener(() => { SpawnRobot(Idx, (EUnitCamp)campIdx); });
-            RobotList[Idx].GetComponentInChildren<Text>().text = string.Format("{0}", Main.Ins.CombatData.GetCharacterName(Idx));
+            RobotList[Idx].GetComponentInChildren<Text>().text = string.Format("{0}", CombatData.Ins.GetCharacterName(Idx));
         }
         else
         {
             GameObject obj = GameObject.Instantiate(Resources.Load("GridItemBtn")) as GameObject;
             obj.GetComponent<Button>().onClick.AddListener(() => { SpawnRobot(Idx, (EUnitCamp)campIdx); });
-            obj.GetComponentInChildren<Text>().text = string.Format("{0}", Main.Ins.CombatData.GetCharacterName(Idx));
+            obj.GetComponentInChildren<Text>().text = string.Format("{0}", CombatData.Ins.GetCharacterName(Idx));
             obj.transform.SetParent(RobotRoot.transform);
             obj.gameObject.layer = RobotRoot.layer;
             obj.transform.localScale = Vector3.one;

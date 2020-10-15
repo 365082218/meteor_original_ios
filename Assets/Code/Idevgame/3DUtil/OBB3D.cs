@@ -143,17 +143,17 @@ public class OBB3D {
     }
 
     public Color gizmosColor = Color.white;
-    public void OnDrawGizmos() {
-        if (transform == null)
-            return;
-        var cacheMatrix = Gizmos.matrix;
-        var cacheColor = Gizmos.color;
+    //public void OnDrawGizmos() {
+    //    if (transform == null)
+    //        return;
+    //    var cacheMatrix = Gizmos.matrix;
+    //    var cacheColor = Gizmos.color;
 
-        Gizmos.matrix = transform.localToWorldMatrix;
+    //    Gizmos.matrix = transform.localToWorldMatrix;
 
-        Gizmos.color = gizmosColor;
-        Gizmos.DrawWireCube(center, size);
-        Gizmos.matrix = cacheMatrix;
-        Gizmos.color = cacheColor;
-    }
+    //    Gizmos.color = gizmosColor;
+    //    Gizmos.DrawWireCube(center, size);
+    //    Gizmos.matrix = cacheMatrix;
+    //    Gizmos.color = cacheColor;
+    //}
 }

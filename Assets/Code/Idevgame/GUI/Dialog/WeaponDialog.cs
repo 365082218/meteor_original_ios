@@ -1,4 +1,5 @@
-﻿using Excel2Json;
+﻿using Assets.Code.Idevgame.Common.Util;
+using Excel2Json;
 using Idevgame.GameState.DialogState;
 using Idevgame.Util;
 using System.Collections;
@@ -9,7 +10,7 @@ using UnityEngine.UI;
 public class WeaponDialogState : CommonDialogState<WeaponDialog>
 {
     public override string DialogName { get { return "WeaponDialog"; } }
-    public WeaponDialogState(MainDialogStateManager stateMgr) : base(stateMgr)
+    public WeaponDialogState(MainDialogMgr stateMgr) : base(stateMgr)
     {
 
     }
@@ -46,7 +47,7 @@ public class WeaponDialog : Dialog
         weaponSubType = EquipWeaponType.Sword;
         if (CameraForWeapon == null)
         {
-            CameraForWeapon = GameObject.Instantiate(ResMng.LoadPrefab("CameraForWeapon")) as GameObject;
+            CameraForWeapon = GameObject.Instantiate(Resources.Load("CameraForWeapon")) as GameObject;
             CameraForWeapon.Identity(null);
             WeaponModelParent = Control("WeaponParent", CameraForWeapon);
             wload = WeaponModelParent.GetComponent<WeaponLoader>();
@@ -66,7 +67,7 @@ public class WeaponDialog : Dialog
 
     IEnumerator AddWeapon()
     {
-        List<ItemData> we = Main.Ins.DataMgr.GetItemDatas();
+        List<ItemData> we = DataMgr.Ins.GetItemDatas();
         int offset = 0;
         for (int i = 0; i < we.Count; i++)
         {
@@ -111,7 +112,7 @@ public class WeaponDialog : Dialog
 
     void ShowWeapon()
     {
-        List<ItemData> we = Main.Ins.DataMgr.GetItemDatas();
+        List<ItemData> we = DataMgr.Ins.GetItemDatas();
         for (int i = 0; i < we.Count; i++)
         {
             if (we[i].MainType == (int)UnitType.Weapon)

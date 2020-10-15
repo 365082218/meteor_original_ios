@@ -100,17 +100,12 @@ public class WeaponTrail : MonoBehaviour
         subTrans.Add(control);
     }
 
-	void Start()
-	{
-
-	}
-
 	void OnDisable()
 	{
 		Destroy(_trailObject);
 	}
 
-	void Update()
+	public void Update()
 	{
         if (_transforms == null)
             return;
@@ -121,7 +116,7 @@ public class WeaponTrail : MonoBehaviour
 		
 		if (_emit && _emitTime != 0)
 		{
-			_emitTime -= FrameReplay.deltaTime;
+			_emitTime -= Time.deltaTime;
 			if (_emitTime == 0) _emitTime = -1;
 			if (_emitTime < 0) _emit = false;
 		}

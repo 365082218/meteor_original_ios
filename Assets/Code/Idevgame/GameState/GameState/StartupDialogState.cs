@@ -8,7 +8,7 @@ using Idevgame.GameState.DialogState;
 public class StartupDialogState:CommonDialogState<StartupUiController> {
     StartupUiController controller;
     public override string DialogName { get { return "StartupWnd"; }}
-    public StartupDialogState(MainDialogStateManager stateManager) : base(stateManager) {
+    public StartupDialogState(MainDialogMgr stateManager) : base(stateManager) {
 
     }
 

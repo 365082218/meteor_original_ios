@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using I18N.CJK;
-public class GMBLoader
+public class GMBLoader:Singleton<GMBLoader>
 {
-    Dictionary<string, GMBFile> GmbFile = new Dictionary<string, GMBFile>();
+    SortedDictionary<string, GMBFile> GmbFile = new SortedDictionary<string, GMBFile>();
     public GMBFile Load(string file)
     {
         string file_no_ext = file;
@@ -14,8 +14,8 @@ public class GMBLoader
         if (GmbFile.ContainsKey(file))
             return GmbFile[file];
         GMBFile gmb = null;
-        if (Main.Ins.CombatData.Chapter != null) {
-            string path = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Gmc, file_no_ext);
+        if (CombatData.Ins.Chapter != null) {
+            string path = CombatData.Ins.Chapter.GetResPath(FileExt.Gmc, file_no_ext);
             if (!string.IsNullOrEmpty(path)) {
                 gmb = new GMBFile();
                 gmb = gmb.Load(path);

@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class IFLLoader :MonoBehaviour {
+
+public class IFLLoader :NetBehaviour {
     public TextAsset IFLFile;
     public int matIndex;
     public string fileNameReadOnly;
@@ -15,16 +16,20 @@ public class IFLLoader :MonoBehaviour {
     public bool useSharedMaterial = false;//真则使用材质球的共享材质，使用同一材质球的均会被修改. 否则使用自身的新增材质
     // Use this for initialization
     //影响了共用材质的贴图，这样MAX里读IFL文件的贴图序列就可以正常使用了.IFL存储了一系列图片名
-    private void Awake()
+    private new void Awake()
     {
+        base.Awake();
         mesh = GetComponent<MeshRenderer>();
         if (mesh == null)
             mesh = GetComponentInChildren<MeshRenderer>();
+        if (mesh != null) {
+            mesh.sharedMaterial.renderQueue = 3100;
+        }
     }
 
-    protected void OnDestroy()
+    protected new void OnDestroy()
     {
-
+        base.OnDestroy();
     }
 
     void Start () {
@@ -35,7 +40,7 @@ public class IFLLoader :MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	public void Update() {
+	public override void NetUpdate() {
         run += FrameReplay.deltaTime;
         if (PlayAnimation)
             Play();

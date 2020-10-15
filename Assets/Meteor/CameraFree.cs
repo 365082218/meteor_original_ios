@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+
 //自由相机，当主角挂掉以后，在场景内随机找1个目标，优先找正在打斗的其中一个.
 public class CameraFree : NetBehaviour {
     [HideInInspector]
@@ -30,8 +31,8 @@ public class CameraFree : NetBehaviour {
     /// <summary>
     /// 当跟随目标发生俯仰或旋转
     /// </summary>
-    float yRotate = 0.0f;
-    float xRotate = 0.0f;
+    float yRotate = 0;
+    float xRotate = 0;
     public void OnTargetRotate(float xDelta, float yDelta) {
         yRotate = yDelta;
         xRotate = xDelta;
@@ -54,7 +55,7 @@ public class CameraFree : NetBehaviour {
         LookAtAngle = 10.0f;
         m_Camera = GetComponent<Camera>();
         m_Camera.fieldOfView = m_MinSize;
-        fRadis = Mathf.Sqrt(followDistance * followDistance + followHeight * followHeight);
+        fRadis = Mathf.Sqrt((followDistance * followDistance + followHeight * followHeight));
         lastAngle = Mathf.Atan2(followHeight, followDistance) * Mathf.Rad2Deg;
 
         if (target != null)
@@ -70,7 +71,7 @@ public class CameraFree : NetBehaviour {
     public bool Smooth = true;
     public void ForceUpdate()
     {
-        if (Target != null && !Main.Ins.CombatData.PauseAll)
+        if (Target != null && !CombatData.Ins.PauseAll)
             CameraSmoothFollow(Smooth);
     }
 
@@ -86,7 +87,7 @@ public class CameraFree : NetBehaviour {
                 RefreshTarget();
             }
         }
-        if (UnitTarget != null && !Main.Ins.CombatData.PauseAll)
+        if (UnitTarget != null && !CombatData.Ins.PauseAll)
         {
             CameraSmoothFollow(Smooth);
         }
@@ -101,15 +102,15 @@ public class CameraFree : NetBehaviour {
     public void RefreshTarget()
     {
         MeteorUnit watchTarget = null;
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
         {
-            if (Main.Ins.MeteorManager.UnitInfos[i].Dead)
+            if (MeteorManager.Ins.UnitInfos[i].Dead)
                 continue;
             if (watchTarget == null)
-                watchTarget = Main.Ins.MeteorManager.UnitInfos[i];
-            if (Main.Ins.MeteorManager.UnitInfos[i].LockTarget != null)
+                watchTarget = MeteorManager.Ins.UnitInfos[i];
+            if (MeteorManager.Ins.UnitInfos[i].LockTarget != null)
             {
-                watchTarget = Main.Ins.MeteorManager.UnitInfos[i];
+                watchTarget = MeteorManager.Ins.UnitInfos[i];
                 break;
             }
         }
@@ -171,7 +172,7 @@ public class CameraFree : NetBehaviour {
             LockTarget = UnitTarget.LockTarget.transform;
             //有锁定目标
             //开启摄像机锁定系统
-            CameraLookAt.position = (Target.position + LockTarget.position) / 2 + new Vector3(0, 25, 0);
+            CameraLookAt.position = ((Target.position + LockTarget.position) / 2 + new Vector3(0, 25, 0));
             CameraRadis = Vector3.Distance(Target.position, LockTarget.position) / 2 + 60;
             float dis = Vector3.Distance(new Vector3(Target.position.x, 0, Target.position.z), new Vector3(LockTarget.position.x, 0, LockTarget.position.z));
             Vector3 vecDiff = Target.position - LockTarget.position;
@@ -230,7 +231,9 @@ public class CameraFree : NetBehaviour {
 
             newPos = vecTarget;
             //整个视角都是缓动的
-            transform.position = Vector3.SmoothDamp(transform.position, newPos, ref currentVelocity, SmoothDampTime);
+            Vector3 velocity = currentVelocity;
+            transform.position = Vector3.SmoothDamp(transform.position, newPos, ref velocity, SmoothDampTime);
+            currentVelocity = velocity;
             //摄像机朝向观察目标,平滑的旋转视角
             Quaternion to = Quaternion.LookRotation(CameraLookAt.position - transform.position, Vector3.up);
             transform.rotation = Quaternion.Lerp(transform.rotation, to, SmoothDampTime);
@@ -243,15 +246,15 @@ public class CameraFree : NetBehaviour {
                 lastAngle -= xRotate;//鼠标往上，是仰视，往下是俯视
                 if (lastAngle >= angleMax) {
                     lastAngle = angleMax;
-                    followDistance = Mathf.Abs(fRadis * Mathf.Cos(lastAngle * Mathf.Deg2Rad));
-                    followHeight = Mathf.Abs(fRadis * Mathf.Sin(lastAngle * Mathf.Deg2Rad));
+                    followDistance = Mathf.Abs((fRadis * Mathf.Cos(lastAngle * Mathf.Deg2Rad)));
+                    followHeight = Mathf.Abs((fRadis * Mathf.Sin(lastAngle * Mathf.Deg2Rad)));
                 } else if (lastAngle <= angleMin) {
                     lastAngle = angleMin;
-                    followDistance = Mathf.Abs(fRadis * Mathf.Cos(lastAngle * Mathf.Deg2Rad));
-                    followHeight = -Mathf.Abs(fRadis * Mathf.Sin(lastAngle * Mathf.Deg2Rad));
+                    followDistance = Mathf.Abs((fRadis * Mathf.Cos(lastAngle * Mathf.Deg2Rad)));
+                    followHeight = -Mathf.Abs((fRadis * Mathf.Sin(lastAngle * Mathf.Deg2Rad)));
                 } else {
-                    followDistance = Mathf.Abs(fRadis * Mathf.Cos(lastAngle * Mathf.Deg2Rad));
-                    followHeight = lastAngle == 0.0f ? 0 : (lastAngle / Mathf.Abs(lastAngle)) * Mathf.Abs(fRadis * Mathf.Sin(lastAngle * Mathf.Deg2Rad));
+                    followDistance = Mathf.Abs((fRadis * Mathf.Cos(lastAngle * Mathf.Deg2Rad)));
+                    followHeight = lastAngle == 0.0f ? 0 : (lastAngle / Mathf.Abs(lastAngle)) * Mathf.Abs((fRadis * Mathf.Sin(lastAngle * Mathf.Deg2Rad)));
                 }
             }
 
@@ -329,7 +332,9 @@ public class CameraFree : NetBehaviour {
                 {
                     //当锁定目标丢失，或者死亡时.从双人视角转换为单人视角的摄像机过渡动画.
                     animationTick += FrameReplay.deltaTime;
-                    transform.position = Vector3.SmoothDamp(transform.position, newPos, ref currentVelocity, SmoothDampTime, f_speedMax);
+                    Vector3 velocity = currentVelocity;
+                    transform.position = Vector3.SmoothDamp(transform.position, newPos, ref velocity, SmoothDampTime, f_speedMax);
+                    currentVelocity = velocity;
                     Quaternion to = Quaternion.LookRotation(CameraLookAt.position - transform.position, Vector3.up);
                     transform.rotation = Quaternion.Lerp(transform.rotation, to, SmoothDampTime);
                     return;

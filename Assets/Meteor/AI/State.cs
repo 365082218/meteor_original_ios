@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 namespace Idevgame.Meteor.AI {
     public class IdleState : State {
@@ -9,7 +10,7 @@ namespace Idevgame.Meteor.AI {
 
         public override void OnEnter(State previous, object data) {
             base.OnEnter(previous, data);
-            Machine.ExitTime = Random.Range(60, 90);
+            Machine.ExitTime = Utility.Range(60, 90);
             Machine.Time = 0;
         }
 
@@ -102,7 +103,7 @@ namespace Idevgame.Meteor.AI {
             base.OnEnter(previous, data);
             DodgeTarget = data as MeteorUnit;
             Machine.Time = 0;
-            Machine.ExitTime = Random.Range(5, 10);
+            Machine.ExitTime = Utility.Range(5, 10);
             subState = EAISubStatus.Dodge;
             NavType = NavType.NavFindPosition;
             navPathStatus = NavPathStatus.NavPathNone;
@@ -136,9 +137,9 @@ namespace Idevgame.Meteor.AI {
                 ChangeState(Machine.WaitState);
             } else {
                 positionStart = DodgeTarget.mSkeletonPivot;
-                positionEndIndex = Main.Ins.PathMng.GetDodgeWayPoint(positionStart);
+                positionEndIndex = PathMng.Ins.GetDodgeWayPoint(positionStart);
                 if (positionEndIndex > 0) {
-                    positionEnd = Main.Ins.CombatData.wayPoints[positionEndIndex].pos;
+                    positionEnd = CombatData.Ins.wayPoints[positionEndIndex].pos;
                     navPathStatus = NavPathStatus.NavPathNew;
                     subState = EAISubStatus.None;
                 } else {
@@ -155,7 +156,7 @@ namespace Idevgame.Meteor.AI {
                     NextFramePos = TargetPos - Player.mSkeletonPivot;
                     NextFramePos.y = 0;
                     if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
-                        NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                        NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * CombatData.StopMove;
                         float s = Utility.GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(TargetPos - NextFramePos));
                         if (s < 0) {
                             navPathStatus = NavPathStatus.NavPathFinished;
@@ -169,7 +170,7 @@ namespace Idevgame.Meteor.AI {
                         NextFramePos = TargetPos - Player.mSkeletonPivot;
                         NextFramePos.y = 0;
                         if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
-                            NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                            NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * CombatData.StopMove;
                             float s = Utility.GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(TargetPos - NextFramePos));
                             if (s < 0) {
                                 navPathStatus = NavPathStatus.NavPathToTarget;
@@ -184,7 +185,7 @@ namespace Idevgame.Meteor.AI {
                         NextFramePos.y = 0;
                         //不是最后一个路点
                         if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
-                            NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                            NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * CombatData.StopMove;
                             float s = Utility.GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(TargetPos - NextFramePos));
                             if (s < 0) {
                                 curIndex += 1;
@@ -196,7 +197,7 @@ namespace Idevgame.Meteor.AI {
                     }
 
                     if (curIndex > 0 && curIndex < Machine.Path.ways.Count) {
-                        if (Main.Ins.PathMng.GetWalkMethod(Machine.Path.ways[curIndex - 1].index, Machine.Path.ways[targetIndex - 1].index) == WalkType.Jump) {
+                        if (PathMng.Ins.GetWalkMethod(Machine.Path.ways[curIndex - 1].index, Machine.Path.ways[targetIndex - 1].index) == WalkType.Jump) {
                             if (Player.IsOnGround()) {
                                 Player.FaceToTarget(Machine.Path.ways[curIndex].pos);
                                 Stop();
@@ -213,7 +214,7 @@ namespace Idevgame.Meteor.AI {
                 NextFramePos = TargetPos - Player.mSkeletonPivot;
                 NextFramePos.y = 0;
                 if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
-                    NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                    NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * CombatData.StopMove;
                     float s = Utility.GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(TargetPos - NextFramePos));
                     if (s < 0) {
                         navPathStatus = NavPathStatus.NavPathFinished;
@@ -248,7 +249,7 @@ namespace Idevgame.Meteor.AI {
             positionEnd = KillTarget.mSkeletonPivot;//向锁定目标寻路
             NavType = NavType.NavFindUnit;
             positionStart = Player.mSkeletonPivot;
-            positionEndIndex = Main.Ins.PathMng.GetWayIndex(positionEnd);
+            positionEndIndex = PathMng.Ins.GetWayIndex(positionEnd);
             navPathStatus = NavPathStatus.NavPathNew;
         }
 
@@ -257,20 +258,22 @@ namespace Idevgame.Meteor.AI {
         }
 
         public override void Think() {
+            if (NavCheck())
+                return;
             bool needRefresh = false;
             if (KillTarget == null || KillTarget.Dead) {
                 ChangeState(Machine.WaitState);
                 return;
             }
 
-            if (Vector3.SqrMagnitude(KillTarget.mSkeletonPivot - Player.mSkeletonPivot) <= CombatData.AttackRange) {
+            if (Vector3.SqrMagnitude((KillTarget.mSkeletonPivot - Player.mSkeletonPivot)) <= CombatData.AttackRange) {
                 Player.SetLockedTarget(KillTarget);
                 ChangeState(Machine.FightState);
                 return;
             }
 
             positionEnd = KillTarget.mSkeletonPivot;
-            int index = Main.Ins.PathMng.GetWayIndex(positionEnd);
+            int index = PathMng.Ins.GetWayIndex(positionEnd);
             if (index != positionEndIndex) {
                 needRefresh = true;
                 positionEndIndex = index;
@@ -289,7 +292,7 @@ namespace Idevgame.Meteor.AI {
                 ChangeState(Machine.WaitState);
                 return;
             }
-            if (Vector3.SqrMagnitude(KillTarget.mSkeletonPivot - Player.mSkeletonPivot) <= CombatData.AttackRange) {
+            if (Vector3.SqrMagnitude((KillTarget.mSkeletonPivot - Player.mSkeletonPivot)) <= CombatData.AttackRange) {
                 Player.SetLockedTarget(KillTarget);
                 ChangeState(Machine.FightState);
                 return;
@@ -352,6 +355,7 @@ namespace Idevgame.Meteor.AI {
         public override void OnEnter(State previous, object data) {
             base.OnEnter(previous, data);
             //Debug.LogError(Player.name + ":enter patrol state");
+            reverse = false;
             curPatrolIndex = -1;
             targetPatrolIndex = -1;
             curIndex = -1;
@@ -377,7 +381,7 @@ namespace Idevgame.Meteor.AI {
         }
 
         int GetPatrolIndex() {
-            int k = Main.Ins.PathMng.GetWayIndex(Player.mSkeletonPivot);
+            int k = PathMng.Ins.GetWayIndex(Player.mSkeletonPivot);
             if (k == -1)
                 return -1;
             for (int i = 0; i < patrolPath.Count; i++) {
@@ -391,7 +395,7 @@ namespace Idevgame.Meteor.AI {
             float dis = 25000000.0f;
             int ret = -1;
             for (int i = 0; i < patrolPath.Count; i++) {
-                float d = Vector3.SqrMagnitude(patrolPath[i].pos - Player.mSkeletonPivot);
+                float d = Vector3.SqrMagnitude((patrolPath[i].pos - Player.mSkeletonPivot));
                 if (d < dis) {
                     dis = d;
                     ret = i;
@@ -451,10 +455,13 @@ namespace Idevgame.Meteor.AI {
         //如果当前的巡逻点和下一个巡逻点之间是直连的，那么直接进入GotoPatrolPoint
         //否则进入GotoWayPoint
         void CheckNextPatrolPoint() {
-            if (curPatrolIndex > 0 && targetPatrolIndex < patrolPath.Count) {
+            if (curPatrolIndex >= 0 && targetPatrolIndex < patrolPath.Count) {
                 if (patrolPath[curPatrolIndex].link.ContainsKey(patrolPath[targetPatrolIndex].index)) {
                     subState = EAISubStatus.GotoPatrolPoint;
                 } else {
+                    if (curPatrolIndex == 8 && targetPatrolIndex == 8) {
+                        Debug.LogError("搜索152-18");
+                    }
                     positionStart = patrolPath[curPatrolIndex].pos;
                     positionEnd = patrolPath[targetPatrolIndex].pos;
                     subState = EAISubStatus.None;
@@ -496,13 +503,13 @@ namespace Idevgame.Meteor.AI {
             patrolPath.Clear();
             for (int i = 0; i < path.Count; i++) {
                 //后传五爪峰有巡逻路点设置问题.
-                if (path[i] < Main.Ins.CombatData.wayPoints.Count && path[i] >= 0) {
+                if (path[i] < CombatData.Ins.wayPoints.Count && path[i] >= 0) {
                     if (patrolPath.Count > 0) {//多个相同的路点，放到相邻，最好不要这样
                         if (patrolPath[patrolPath.Count - 1].index == path[i])
                             continue;
                     }
                     patrolData.Add(path[i]);
-                    patrolPath.Add(Main.Ins.CombatData.wayPoints[path[i]]);
+                    patrolPath.Add(CombatData.Ins.wayPoints[path[i]]);
                 }
             }
         }
@@ -528,7 +535,7 @@ namespace Idevgame.Meteor.AI {
                 frozening = false;
                 rotateFrozen = rotateDelay;
                 rotateTick = 0.0f;
-                rotateRound = Random.Range(1, 3);
+                rotateRound = Utility.Range(1, 3);
                 return;
             }
             if (Player.ActionMgr.Rotateing) {
@@ -538,7 +545,7 @@ namespace Idevgame.Meteor.AI {
                     yOffset = Mathf.Lerp(0, rotateAngle, rotateTick / rotateDuration);
                 else
                     yOffset = -Mathf.Lerp(0, rotateAngle, rotateTick / rotateDuration);
-                Player.SetOrientation(yOffset - rotateOffset);
+                Player.SetOrientation((yOffset - rotateOffset));
                 rotateOffset = yOffset;
                 if (rotateTick >= rotateDuration) {
                     frozening = true;
@@ -556,15 +563,19 @@ namespace Idevgame.Meteor.AI {
                             frozening = false;//开始下次旋转
                         } else {
                             if (patrolData.Count > 1) {
-                                subState = EAISubStatus.RotateToPatrolPoint;
+                                //检查2个巡逻点间能否到达
+                                subState = EAISubStatus.PatrolNextPoint;
                                 return;
+                            }
+                            else {
+                                ChangeState(Machine.WaitState);
                             }
                         }
                     }
                 } else {
                     //既没转圈,又没进入CD,那么开始转圈
-                    rotateAngle = Random.Range(75, 180);
-                    rightRotate = Random.Range(-50, 50) >= 0;
+                    rotateAngle = Utility.Range(75, 180);
+                    rightRotate = Utility.Range(-50, 50) >= 0;
                     rotateOffset = 0.0f;
                     rotateTick = 0.0f;
                     rotateDuration = rotateAngle / CombatData.AngularVelocity;
@@ -589,7 +600,7 @@ namespace Idevgame.Meteor.AI {
             NextFramePos.y = 0;
             if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
                 NextFramePos.y = 0;
-                NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * CombatData.StopMove;
                 float s = Utility.GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(patrolPath[targetPatrolIndex].pos - NextFramePos));
                 if (s < 0) {
                     Stop();
@@ -603,32 +614,13 @@ namespace Idevgame.Meteor.AI {
                     //多个巡逻点,到达这个巡逻点后,切换为巡视中.四周看.
                     subState = EAISubStatus.PatrolInPlace;
                     rotateRound = -1;
-                    if (reverse) {
-                        if (targetPatrolIndex == 0) {
-                            targetPatrolIndex += 1;
-                            reverse = false;
-                            return;
-                        } else {
-                            targetPatrolIndex -= 1;
-                            return;
-                        }
-                    } else {
-                        if (targetPatrolIndex == patrolPath.Count - 1) {
-                            reverse = true;
-                            targetPatrolIndex -= 1;
-                        } else {
-                            targetPatrolIndex += 1;
-                        }
-                    }
-                    if (targetPatrolIndex < 0 || targetPatrolIndex >= patrolPath.Count) {
-                        Debug.LogError("下个巡逻点计算错误,越界");
-                    }
+                    StepPatrolPoint();
                     return;
                 }
             }
 
-            if (curPatrolIndex > 0 && targetPatrolIndex < patrolPath.Count) {
-                if (Main.Ins.PathMng.GetWalkMethod(patrolPath[curPatrolIndex].index, patrolPath[targetPatrolIndex].index) == WalkType.Jump) {
+            if (curPatrolIndex >= 0 && targetPatrolIndex < patrolPath.Count) {
+                if (PathMng.Ins.GetWalkMethod(patrolPath[curPatrolIndex].index, patrolPath[targetPatrolIndex].index) == WalkType.Jump) {
                     if (Player.IsOnGround()) {
                         Player.FaceToTarget(patrolPath[targetPatrolIndex].pos);
                         Stop();
@@ -644,19 +636,51 @@ namespace Idevgame.Meteor.AI {
             }
         }
 
+        void StepPatrolPoint() {
+            if (reverse) {
+                if (targetPatrolIndex == 0) {
+                    targetPatrolIndex += 1;
+                    reverse = false;
+                    return;
+                } else {
+                    targetPatrolIndex -= 1;
+                    return;
+                }
+            } else {
+                if (targetPatrolIndex == patrolPath.Count - 1) {
+                    reverse = true;
+                    targetPatrolIndex -= 1;
+                } else {
+                    targetPatrolIndex += 1;
+                }
+            }
+            if (targetPatrolIndex < 0 || targetPatrolIndex >= patrolPath.Count) {
+                Debug.LogError("下个巡逻点计算错误,越界");
+            }
+        }
         void GotoWayPoint() {
             NextFramePos = Machine.Path.ways[targetIndex].pos - Player.mSkeletonPivot;
             NextFramePos.y = 0;
-            if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
+            if (NextFramePos.sqrMagnitude <= CombatData.StopDistance) {
                 NextFramePos.y = 0;
-                NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * CombatData.StopMove;
                 float s = Utility.GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(Machine.Path.ways[targetIndex].pos - NextFramePos));
                 if (s < 0) {
                     Stop();
                     curIndex = targetIndex;
                     targetIndex += 1;
                     if (targetIndex >= Machine.Path.ways.Count) {
-                        subState = EAISubStatus.PatrolNextPoint;
+                        curPatrolIndex = targetPatrolIndex;
+                        //仅一个巡逻点,切换状态.
+                        if (patrolPath.Count == 1) {
+                            subState = EAISubStatus.PatrolInPlace;
+                            rotateRound = -1;
+                            return;
+                        }
+                        //多个巡逻点,到达这个巡逻点后,切换为巡视中.四周看.
+                        subState = EAISubStatus.PatrolInPlace;
+                        rotateRound = -1;
+                        StepPatrolPoint();
                     } else {
                         subState = EAISubStatus.RotateToWayPoint;
                     }
@@ -665,7 +689,7 @@ namespace Idevgame.Meteor.AI {
             }
 
             if (curIndex > 0 && targetIndex < Machine.Path.ways.Count) {
-                if (Main.Ins.PathMng.GetWalkMethod(Machine.Path.ways[curIndex].index, Machine.Path.ways[targetIndex].index) == WalkType.Jump) {
+                if (PathMng.Ins.GetWalkMethod(Machine.Path.ways[curIndex].index, Machine.Path.ways[targetIndex].index) == WalkType.Jump) {
                     if (Player.IsOnGround()) {
                         Player.FaceToTarget(Machine.Path.ways[targetIndex].pos);
                         Stop();
@@ -691,7 +715,7 @@ namespace Idevgame.Meteor.AI {
             base.OnEnter(previous, data);
             Reset();
             Machine.Time = 0.0f;
-            Machine.ExitTime = Random.Range(3, 6);
+            Machine.ExitTime = Utility.Range(2, 4.5f);
         }
 
         public override void OnExit(State next) {
@@ -722,7 +746,7 @@ namespace Idevgame.Meteor.AI {
             rotateTick = 0;
             frozening = false;
             rotateFrozen = rotateDelay;
-            rotateRound = Random.Range(1, 4);
+            rotateRound = Utility.Range(1, 4);
         }
         //到达某个巡逻点后.四周查看,
         //退出时,如果仅一个巡逻点,状态不变,如果多个巡逻点,切换到
@@ -743,7 +767,7 @@ namespace Idevgame.Meteor.AI {
                     yOffset = Mathf.Lerp(0, rotateAngle, rotateTick / rotateDuration);
                 else
                     yOffset = -Mathf.Lerp(0, rotateAngle, rotateTick / rotateDuration);
-                Player.SetOrientation(yOffset - rotateOffset);
+                Player.SetOrientation((yOffset - rotateOffset));
                 rotateOffset = yOffset;
                 if (rotateTick >= rotateDuration) {
                     frozening = true;
@@ -765,8 +789,8 @@ namespace Idevgame.Meteor.AI {
                     }
                 } else {
                     //既没转圈,又没进入CD,那么开始转圈
-                    rotateAngle = Random.Range(75, 180);
-                    rightRotate = Random.Range(-50, 50) >= 0;
+                    rotateAngle = Utility.Range(75, 180);
+                    rightRotate = Utility.Range(-50, 50) >= 0;
                     rotateOffset = 0.0f;
                     rotateTick = 0.0f;
                     rotateDuration = rotateAngle / CombatData.AngularVelocity;
@@ -790,7 +814,7 @@ namespace Idevgame.Meteor.AI {
                 positionEnd = Player.TargetItem.transform.position;
                 NavType = NavType.NavFindPosition;
                 positionStart = Player.mSkeletonPivot;
-                positionEndIndex = Main.Ins.PathMng.GetWayIndex(positionEnd);
+                positionEndIndex = PathMng.Ins.GetWayIndex(positionEnd);
                 navPathStatus = NavPathStatus.NavPathNew;
             }
             else {
@@ -815,6 +839,8 @@ namespace Idevgame.Meteor.AI {
         }
 
         public override void Think() {
+            if (NavCheck())
+                return;
             switch (subState) {
                 case EAISubStatus.GetItemGotoItem:
                     NavThink();
@@ -834,7 +860,7 @@ namespace Idevgame.Meteor.AI {
                     NextFramePos = TargetPos - Player.mSkeletonPivot;
                     NextFramePos.y = 0;
                     if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
-                        NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                        NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * CombatData.StopMove;
                         float s = Utility.GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(TargetPos - NextFramePos));
                         if (s < 0) {
                             navPathStatus = NavPathStatus.NavPathFinished;
@@ -848,7 +874,7 @@ namespace Idevgame.Meteor.AI {
                         NextFramePos = TargetPos - Player.mSkeletonPivot;
                         NextFramePos.y = 0;
                         if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
-                            NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                            NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * CombatData.StopMove;
                             float s = Utility.GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(TargetPos - NextFramePos));
                             if (s < 0) {
                                 navPathStatus = NavPathStatus.NavPathToTarget;
@@ -863,7 +889,7 @@ namespace Idevgame.Meteor.AI {
                         NextFramePos.y = 0;
                         //不是最后一个路点
                         if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
-                            NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                            NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * CombatData.StopMove;
                             float s = Utility.GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(TargetPos - NextFramePos));
                             if (s < 0) {
                                 curIndex += 1;
@@ -875,7 +901,7 @@ namespace Idevgame.Meteor.AI {
                     }
 
                     if (curIndex > 0 && curIndex < Machine.Path.ways.Count) {
-                        if (Main.Ins.PathMng.GetWalkMethod(Machine.Path.ways[curIndex - 1].index, Machine.Path.ways[targetIndex - 1].index) == WalkType.Jump) {
+                        if (PathMng.Ins.GetWalkMethod(Machine.Path.ways[curIndex - 1].index, Machine.Path.ways[targetIndex - 1].index) == WalkType.Jump) {
                             if (Player.IsOnGround()) {
                                 Player.FaceToTarget(Machine.Path.ways[curIndex].pos);
                                 Stop();
@@ -892,7 +918,7 @@ namespace Idevgame.Meteor.AI {
                 NextFramePos = TargetPos - Player.mSkeletonPivot;
                 NextFramePos.y = 0;
                 if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
-                    NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                    NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * CombatData.StopMove;
                     float s = Utility.GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(TargetPos - NextFramePos));
                     if (s < 0) {
                         navPathStatus = NavPathStatus.NavPathFinished;
@@ -941,14 +967,21 @@ namespace Idevgame.Meteor.AI {
         public override void OnExit(State next) {
             base.OnExit(next);
             Player.ActionMgr.Rotateing = false;
-            if (Player.ActionMgr.mActiveAction.Idx == CommonAction.WalkRight || Player.ActionMgr.mActiveAction.Idx == CommonAction.WalkLeft)
+            if (Player.ActionMgr.mActiveAction.Idx == CommonAction.WalkRight || 
+                Player.ActionMgr.mActiveAction.Idx == CommonAction.WalkLeft || 
+                Player.ActionMgr.mActiveAction.Idx == CommonAction.CrouchLeft ||
+                Player.ActionMgr.mActiveAction.Idx == CommonAction.CrouchRight)
                 Player.ActionMgr.ChangeAction(0, 0.1f);
         }
 
         public override void Update() {
             time += FrameReplay.deltaTime;
             if (time < duration) {
-                RotateToTarget(faceto, time, duration, angle, ref offset0, ref offset1, rightRotate);
+                float offset00 = offset0;
+                float offset01 = offset1;
+                RotateToTarget(faceto, time, duration, angle, ref offset00, ref offset01, rightRotate);
+                offset0 = offset00;
+                offset1 = offset01;
             } else {
                 Machine.ChangeState(Machine.WaitState);
                 return;
@@ -975,10 +1008,10 @@ namespace Idevgame.Meteor.AI {
                 NavType = NavType.NavFindUnit;
             }
             positionStart = Player.mSkeletonPivot;
-            positionStartIndex = Main.Ins.PathMng.GetWayIndex(positionStart);
-            positionEndIndex = Main.Ins.PathMng.GetWayIndex(positionEnd);
+            positionStartIndex = PathMng.Ins.GetWayIndex(positionStart);
+            positionEndIndex = PathMng.Ins.GetWayIndex(positionEnd);
             //如果该地图没有设置路点，那么直接移动过去.
-            if ((positionEndIndex == -1 || positionStartIndex == -1) && Main.Ins.CombatData.wayPoints.Count != 0)
+            if ((positionEndIndex == -1 || positionStartIndex == -1) && CombatData.Ins.wayPoints.Count != 0)
                 navPathStatus = NavPathStatus.NavPathInvalid;
             else
                 navPathStatus = NavPathStatus.NavPathNew;
@@ -998,13 +1031,13 @@ namespace Idevgame.Meteor.AI {
                     return;
                 }
 
-                if (Vector3.SqrMagnitude(LockTarget.mSkeletonPivot - Player.mSkeletonPivot) <= CombatData.AttackRange) {
+                if (Vector3.SqrMagnitude((LockTarget.mSkeletonPivot - Player.mSkeletonPivot)) <= CombatData.AttackRange) {
                     ChangeState(Machine.WaitState);
                     return;
                 }
 
                 positionEnd = LockTarget.transform.position;
-                int index = Main.Ins.PathMng.GetWayIndex(positionEnd);
+                int index = PathMng.Ins.GetWayIndex(positionEnd);
                 if (index != positionEndIndex) {
                     needRefresh = true;
                     positionEndIndex = index;
@@ -1023,7 +1056,7 @@ namespace Idevgame.Meteor.AI {
                     ChangeState(Machine.WaitState);
                     return;
                 }
-                if (Vector3.SqrMagnitude(LockTarget.mSkeletonPivot - Player.mSkeletonPivot) <= CombatData.AttackRange) {
+                if (Vector3.SqrMagnitude((LockTarget.mSkeletonPivot - Player.mSkeletonPivot)) <= CombatData.AttackRange) {
                     ChangeState(Machine.WaitState);
                     return;
                 }
@@ -1049,14 +1082,15 @@ namespace Idevgame.Meteor.AI {
 
         }
 
-
+        float refreshTick;
         public override void OnEnter(State previous, object data) {
             base.OnEnter(previous, data);
             positionEnd = FollowTarget.mSkeletonPivot;//向锁定目标寻路
             NavType = NavType.NavFindUnit;
             positionStart = Player.mSkeletonPivot;
-            positionEndIndex = Main.Ins.PathMng.GetWayIndex(positionEnd);
+            positionEndIndex = PathMng.Ins.GetWayIndex(positionEnd);
             navPathStatus = NavPathStatus.NavPathNew;
+            refreshTick = CombatData.RefreshFollowPath;//每15S清理一次跟随角色的坐标所在路点
         }
 
         public override void OnExit(State next) {
@@ -1065,29 +1099,18 @@ namespace Idevgame.Meteor.AI {
         }
 
         public override void Think() {
-            bool needRefresh = false;
-            if (FollowTarget == null || FollowTarget.Dead) {
-                ChangeState(Machine.WaitState);
+            if (NavCheck())
                 return;
+            if (refreshTick < 0) {
+                positionEnd = FollowTarget.mSkeletonPivot;
+                int index = PathMng.Ins.GetWayIndex(positionEnd);
+                if (index != positionEndIndex) {
+                    positionStart = Player.mSkeletonPivot;
+                    navPathStatus = NavPathStatus.NavPathNew;
+                    positionEndIndex = index;
+                }
+                refreshTick = CombatData.RefreshFollowPath;
             }
-
-            if (Vector3.SqrMagnitude(FollowTarget.mSkeletonPivot - Player.mSkeletonPivot) <= CombatData.FollowDistanceEnd) {
-                ChangeState(Machine.WaitState);
-                return;
-            }
-
-            positionEnd = FollowTarget.mSkeletonPivot;
-            int index = Main.Ins.PathMng.GetWayIndex(positionEnd);
-            if (index != positionEndIndex) {
-                needRefresh = true;
-                positionEndIndex = index;
-            }
-
-            if (needRefresh) {
-                positionStart = Player.mSkeletonPivot;
-                navPathStatus = NavPathStatus.NavPathNew;
-            }
-
             NavThink();
         }
 
@@ -1096,7 +1119,9 @@ namespace Idevgame.Meteor.AI {
                 ChangeState(Machine.WaitState);
                 return;
             }
-            if (Vector3.SqrMagnitude(FollowTarget.mSkeletonPivot - Player.mSkeletonPivot) <= CombatData.FollowDistanceEnd) {
+
+            refreshTick -= FrameReplay.deltaTime;
+            if (Vector3.SqrMagnitude((FollowTarget.mSkeletonPivot - Player.mSkeletonPivot)) <= CombatData.FollowDistanceEnd) {
                 ChangeState(Machine.WaitState);
                 return;
             }
@@ -1107,7 +1132,7 @@ namespace Idevgame.Meteor.AI {
         protected override void NavUpdate() {
             if (navPathStatus == NavPathStatus.NavPathOrient) {
                 //如果方向不对，先切换到转向状态
-                //if (GetAngleBetween(TargetPos) >= Main.Ins.CombatData.AimDegree) {
+                //if (GetAngleBetween(TargetPos) >= CombatData.Ins.AimDegree) {
                 //    navPathStatus = NavPathStatus.NavPathIterator;
                 //    Machine.ChangeState(Machine.FaceToState, TargetPos);
                 //    return;
@@ -1130,11 +1155,10 @@ namespace Idevgame.Meteor.AI {
                         NextFramePos = TargetPos - Player.mSkeletonPivot;
                         NextFramePos.y = 0;
                         if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
-                            NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                            NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * CombatData.StopMove;
                             float s = Utility.GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(TargetPos - NextFramePos));
                             if (s < 0) {
                                 navPathStatus = NavPathStatus.NavPathToTarget;
-                                UnityEngine.Debug.LogError("路点寻路完毕");
                                 TargetPos = positionEnd;
                                 Stop();
                                 return;
@@ -1145,7 +1169,7 @@ namespace Idevgame.Meteor.AI {
                         NextFramePos.y = 0;
                         //不是最后一个路点
                         if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
-                            NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                            NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * CombatData.StopMove;
                             float s = Utility.GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(TargetPos - NextFramePos));
                             if (s < 0) {
                                 curIndex += 1;
@@ -1157,11 +1181,10 @@ namespace Idevgame.Meteor.AI {
                         }
                     }
                     if (curIndex > 0 && curIndex < Machine.Path.ways.Count) {
-                        if (Main.Ins.PathMng.GetWalkMethod(Machine.Path.ways[curIndex - 1].index, Machine.Path.ways[targetIndex - 1].index) == WalkType.Jump) {
+                        if (PathMng.Ins.GetWalkMethod(Machine.Path.ways[curIndex - 1].index, Machine.Path.ways[targetIndex - 1].index) == WalkType.Jump) {
                             if (Player.IsOnGround()) {
                                 Player.FaceToTarget(Machine.Path.ways[curIndex].pos);
                                 Stop();
-                                UnityEngine.Debug.LogError("Jump");
                                 Jump(Machine.Path.ways[curIndex].pos);
                                 return;
                             }
@@ -1176,7 +1199,6 @@ namespace Idevgame.Meteor.AI {
                 NextFramePos.y = 0;
                 if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.FollowDistanceEnd) {
                     navPathStatus = NavPathStatus.NavPathFinished;
-                    UnityEngine.Debug.LogError("寻路完毕");
                     Stop();
                     OnNavFinished();
                     return;
@@ -1243,6 +1265,8 @@ namespace Idevgame.Meteor.AI {
         //没有跟随目标，判断是否有巡逻设定，有切换到巡逻
         //没有巡逻设定.原地待机，等待敌人经过.
         public override void Think() {
+            if (NavCheck())
+                return;
             if (Machine.LostTarget()) {
                 //丢失目标后，等动作切换到待机或者准备，再切换到待机姿势.
                 if ((Player.ActionMgr.mActiveAction.Idx == CommonAction.Idle ||
@@ -1265,7 +1289,7 @@ namespace Idevgame.Meteor.AI {
                 if (Player.meteorController.Input.AcceptInput()) {
                     //取得当前招式可以连接哪些招式-对应的每一招的输入是什么.
                     //处于攻击动作中.连招几率，
-                    int weight = Random.Range(0, 100);
+                    int weight = Utility.Range(0, 100);
                     if (weight < Player.Attr.CombatChance) {
                         Machine.UpdateActionTriggers(true, false);
                         Machine.UpdateActionIndex();
@@ -1277,7 +1301,7 @@ namespace Idevgame.Meteor.AI {
                 //爆气几率.
                 if (!Machine.HasInput()) {
                     if (Player.CanBreakout()) {
-                        int breakOut = Random.Range(0, 100);
+                        int breakOut = Utility.Range(0, 100);
                         //20时，就为20几率，0-19 共20
                         if (breakOut < CombatData.BreakChance)
                             Machine.ReceiveInput(new VirtualInput(EKeyList.KL_BreakOut));
@@ -1289,12 +1313,13 @@ namespace Idevgame.Meteor.AI {
                         return;
                     //没有出招，可以救人先救人.
                     if (Player.IsLeader && Machine.CanChangeToRevive()) {
-                        int chance = Random.Range(0, 100);
+                        int chance = Utility.Range(0, 100);
                         if (chance < CombatData.RebornChance) {
                             ChangeState(Machine.ReviveState);
                             return;
                         }
                     }
+                    //如果是远程武器，在射线照不到目标的时候，应该靠近
                     Machine.UpdateActionTriggers(true, true);
                     Machine.UpdateActionIndex();
                     Machine.DoAction();
@@ -1316,10 +1341,12 @@ namespace Idevgame.Meteor.AI {
                     Player.ChangeWeapon();
                     return true;
                 }
-                if (Utility.GetAngleBetween(Player, LockTarget.mSkeletonPivot) > Main.Ins.CombatData.AimDegree) {
-                    ChangeState(Machine.FaceToState, Player.LockTarget.transform.position);
+                if (Utility.GetAngleBetween(Player, LockTarget.mSkeletonPivot) > CombatData.AimDegree) {
+                    ChangeState(Machine.FaceToState);
                     return true;
                 }
+
+
             } else {
                 //距离太远
                 float d = Util.MathUtility.DistanceSqr(Player.mSkeletonPivot, LockTarget.mSkeletonPivot);
@@ -1328,8 +1355,8 @@ namespace Idevgame.Meteor.AI {
                     //距离较远，需要靠近.
                     if (Player.Attr.Weapon2 != 0 && U3D.IsSpecialWeapon(Player.Attr.Weapon2)) {
                         //如果拥有远程武器，切换武器 ???这样会导致敌方很多角色都使用远程武器，不好的体验.
-                        int r = Random.Range(1, 100);
-                        if (r > Main.Ins.CombatData.SpecialWeaponProbability)
+                        int r = Utility.Range(1, 100);
+                        if (r > CombatData.Ins.NormalWeaponProbability)
                             Player.ChangeWeapon();
                         else {
                             ChangeState(Machine.FindState);
@@ -1397,7 +1424,7 @@ namespace Idevgame.Meteor.AI {
             positionEnd = AttackTarget;
             NavType = NavType.NavFindPosition;
             positionStart = Player.mSkeletonPivot;
-            positionEndIndex = Main.Ins.PathMng.GetWayIndex(positionEnd);
+            positionEndIndex = PathMng.Ins.GetWayIndex(positionEnd);
             navPathStatus = NavPathStatus.NavPathNew;
         }
 
@@ -1439,7 +1466,7 @@ namespace Idevgame.Meteor.AI {
                     NextFramePos = TargetPos - Player.mSkeletonPivot;
                     NextFramePos.y = 0;
                     if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
-                        NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                        NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * CombatData.StopMove;
                         float s = Utility.GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(TargetPos - NextFramePos));
                         if (s < 0) {
                             navPathStatus = NavPathStatus.NavPathFinished;
@@ -1453,7 +1480,7 @@ namespace Idevgame.Meteor.AI {
                         NextFramePos = TargetPos - Player.mSkeletonPivot;
                         NextFramePos.y = 0;
                         if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
-                            NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                            NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * CombatData.StopMove;
                             float s = Utility.GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(TargetPos - NextFramePos));
                             if (s < 0) {
                                 navPathStatus = NavPathStatus.NavPathToTarget;
@@ -1468,7 +1495,7 @@ namespace Idevgame.Meteor.AI {
                         NextFramePos.y = 0;
                         //不是最后一个路点
                         if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
-                            NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                            NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * CombatData.StopMove;
                             float s = Utility.GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(TargetPos - NextFramePos));
                             if (s < 0) {
                                 curIndex += 1;
@@ -1480,7 +1507,7 @@ namespace Idevgame.Meteor.AI {
                     }
 
                     if (curIndex > 0 && curIndex < Machine.Path.ways.Count) {
-                        if (Main.Ins.PathMng.GetWalkMethod(Machine.Path.ways[curIndex - 1].index, Machine.Path.ways[targetIndex - 1].index) == WalkType.Jump) {
+                        if (PathMng.Ins.GetWalkMethod(Machine.Path.ways[curIndex - 1].index, Machine.Path.ways[targetIndex - 1].index) == WalkType.Jump) {
                             if (Player.IsOnGround()) {
                                 Player.FaceToTarget(Machine.Path.ways[curIndex].pos);
                                 Stop();
@@ -1497,7 +1524,7 @@ namespace Idevgame.Meteor.AI {
                 NextFramePos = TargetPos - Player.mSkeletonPivot;
                 NextFramePos.y = 0;
                 if (Vector3.SqrMagnitude(NextFramePos) <= CombatData.StopDistance) {
-                    NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * 0.15f;
+                    NextFramePos = Player.mSkeletonPivot + NextFramePos.normalized * Player.MoveSpeed * FrameReplay.deltaTime * CombatData.StopMove;
                     float s = Utility.GetAngleBetween(Vector3.Normalize(NextFramePos - Player.mSkeletonPivot), Vector3.Normalize(TargetPos - NextFramePos));
                     if (s < 0) {
                         navPathStatus = NavPathStatus.NavPathFinished;

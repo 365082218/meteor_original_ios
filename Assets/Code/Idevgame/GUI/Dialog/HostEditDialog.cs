@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class HostEditDialogState : CommonDialogState<HostEditDialog>
 {
     public override string DialogName { get { return "HostEditDialog"; } }
-    public HostEditDialogState(MainDialogStateManager stateMgr) : base(stateMgr)
+    public HostEditDialogState(MainDialogMgr stateMgr) : base(stateMgr)
     {
 
     }
@@ -81,10 +81,10 @@ public class HostEditDialog : Dialog
                 info.ServerPort = port;
                 info.ServerName = string.IsNullOrEmpty(serverName.text) ? serverHost.text : serverName.text;
                 info.ServerHost = serverHost.text;
-                Main.Ins.GameStateMgr.gameStatus.ServerList.Add(info);
+                GameStateMgr.Ins.gameStatus.ServerList.Add(info);
                 if (ServerListDialogState.Exist)
                     ServerListDialogState.Instance.OnRefresh(ServerListDialog.ADD, info);
-                Main.Ins.CombatData.OnServiceChanged(1, info);
+                CombatData.Ins.OnServiceChanged(1, info);
                 Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.ServerListDialogState);
             }
             else if (!string.IsNullOrEmpty(serverIP.text))
@@ -94,10 +94,10 @@ public class HostEditDialog : Dialog
                 info.ServerPort = port;
                 info.ServerName = string.IsNullOrEmpty(serverName.text) ? serverHost.text : serverName.text;
                 info.ServerIP = serverIP.text;
-                Main.Ins.GameStateMgr.gameStatus.ServerList.Add(info);
+                GameStateMgr.Ins.gameStatus.ServerList.Add(info);
                 if (ServerListDialogState.Exist)
                     ServerListDialogState.Instance.OnRefresh(ServerListDialog.ADD, info);
-                Main.Ins.CombatData.OnServiceChanged(1, info);
+                CombatData.Ins.OnServiceChanged(1, info);
                 Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.ServerListDialogState);
             }
         });

@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Excel2Json;
+using protocol;
+
 //using DG.Tweening;
 //damage为物件是否可以伤害玩家角色,需要des文件里带伤害值
 //damagevalue为物件是否可以被玩家伤害,并且每次伤害值是多少.
@@ -64,7 +66,7 @@ public class SceneItemAgent :NetBehaviour {
     //场景初始化调用，或者爆出物品，待物品落地时调用
     public void OnStart(LevelScriptBase script = null)
     {
-        initializeY = transform.position.y;
+        initializeY = transform.position.y + 2;
         //自转+高度转
         if (!property.names.ContainsKey("machine") && !billBoard)
         {
@@ -84,20 +86,20 @@ public class SceneItemAgent :NetBehaviour {
         {
             MethodOnAttack = script.GetType().GetMethod(gameObject.name + "_OnAttack");
             MethodOnIdle = script.GetType().GetMethod(gameObject.name + "_OnIdle");
-            OnTouch = Main.Ins.CombatData.GScriptType.GetMethod(name + "_OnTouch", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            OnTouch = CombatData.Ins.GScriptType.GetMethod(name + "_OnTouch", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             if (OnTouch == null)
             {
-                System.Type typeParent = Main.Ins.CombatData.GScriptType.BaseType;
+                System.Type typeParent = CombatData.Ins.GScriptType.BaseType;
                 while (typeParent != null && OnTouch == null)
                 {
                     OnTouch = typeParent.GetMethod(name + "_OnTouch", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     typeParent = typeParent.BaseType;
                 }
             }
-            OnPickUp = Main.Ins.CombatData.GScriptType.GetMethod(name + "_OnPickUp", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            OnPickUp = CombatData.Ins.GScriptType.GetMethod(name + "_OnPickUp", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             if (OnPickUp == null)
             {
-                System.Type typeParent = Main.Ins.CombatData.GScriptType.BaseType;
+                System.Type typeParent = CombatData.Ins.GScriptType.BaseType;
                 while (typeParent != null && OnPickUp == null)
                 {
                     OnPickUp = typeParent.GetMethod(name + "_OnPickUp", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -113,8 +115,8 @@ public class SceneItemAgent :NetBehaviour {
     //float yHeight = 5.0f;
     void yMove()
     {
-        float y = curve.Evaluate(FrameReplay.Instance.time);
-        transform.position = new Vector3(transform.position.x, initializeY + 2 + 5 * y, transform.position.z);
+        float y = curve.Evaluate(FrameReplay.Ins.time);
+        transform.position = new Vector3(transform.position.x, (initializeY + 5 * y), transform.position.z);
         transform.Rotate(new Vector3(0, 90 * FrameReplay.deltaTime, 0));
     }
 
@@ -124,11 +126,13 @@ public class SceneItemAgent :NetBehaviour {
         root = transform;
         root.tag = "SceneItemAgent";
         Refresh = false;
+        MeteorManager.Ins.OnGenerateSceneItem(this);
     }
 
     protected new void OnDestroy()
     {
         base.OnDestroy();
+        MeteorManager.Ins.OnDestroySceneItem(this);
     }
 
     float refresh_tick;
@@ -137,7 +141,7 @@ public class SceneItemAgent :NetBehaviour {
     public override void NetUpdate()
     {
         if (MethodOnIdle != null)
-            MethodOnIdle.Invoke(Main.Ins.CombatData.GScript, new object[] { InstanceId });
+            MethodOnIdle.Invoke(CombatData.Ins.GScript, new object[] { InstanceId });
         else if (OnIdle != null)
             OnIdle.Invoke(InstanceId, Index);
 
@@ -146,9 +150,16 @@ public class SceneItemAgent :NetBehaviour {
 
         if (ItemInfo != null && (ItemInfo.IsItem() || ItemInfo.IsWeapon()) && Refresh) {
             refresh_tick -= FrameReplay.deltaTime;
-            if (refresh_tick <= 0.0f) {
+            if (refresh_tick <= 0) {
                 OnRefresh();
             }
+        }
+    }
+
+    public void OnNetPickuped(MeteorUnit unit) {
+        if (unit != null) {
+            OnPickUped(unit);
+            UnityEngine.Debug.Log("item:" + name + " pick up by:" + unit.name);
         }
     }
 
@@ -165,30 +176,30 @@ public class SceneItemAgent :NetBehaviour {
                 if (unit.Attr.Weapon != 0 && unit.Attr.Weapon2 != 0)
                     return;
                 //相同武器，不能捡
-                ItemData ib0 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
+                ItemData ib0 = GameStateMgr.Ins.FindItemByIdx(unit.Attr.Weapon);
                 WeaponData wb0 = U3D.GetWeaponProperty(ib0.UnitId);
                 if (wb0 != null && wb0.WeaponR == ItemInfo.model)
                     return;
 
                 if (unit.Attr.Weapon2 != 0)
                 {
-                    ItemData ib1 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
+                    ItemData ib1 = GameStateMgr.Ins.FindItemByIdx(unit.Attr.Weapon2);
                     WeaponData wb1 = U3D.GetWeaponProperty(ib1.UnitId);
                     if (wb1 != null && wb1.WeaponR == ItemInfo.model)
                         return;
                 }
 
                 //同类武器不能捡
-                int weaponPickup = Main.Ins.GameStateMgr.GetWeaponCode(ItemInfo.model);
-                ItemData wb = Main.Ins.GameStateMgr.FindItemByIdx(weaponPickup);
+                int weaponPickup = GameStateMgr.Ins.GetWeaponCode(ItemInfo.model);
+                ItemData wb = GameStateMgr.Ins.FindItemByIdx(weaponPickup);
                 if (wb == null)
                     return;
 
-                ItemData wbl = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
+                ItemData wbl = GameStateMgr.Ins.FindItemByIdx(unit.Attr.Weapon);
                 if (wbl == null)
                     return;
 
-                ItemData wbr = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
+                ItemData wbr = GameStateMgr.Ins.FindItemByIdx(unit.Attr.Weapon2);
                 if (wb.SubType == wbl.SubType)
                     return;
 
@@ -196,7 +207,7 @@ public class SceneItemAgent :NetBehaviour {
                     return;
                 //可以捡取
                 unit.Attr.Weapon2 = weaponPickup;
-                Main.Ins.SFXLoader.PlayEffect(672, unit.gameObject, true);
+                SFXLoader.Ins.PlayEffect(672, unit.gameObject, true);
                 refresh_tick = ItemInfo.first[1].flag[1];
                 if (asDrop)
                     GameObject.Destroy(gameObject);
@@ -223,13 +234,13 @@ public class SceneItemAgent :NetBehaviour {
                 GameObject.Destroy(root.gameObject);
                 root = null;
                 if (ItemInfo.first[1].flag[1] != 0)
-                    Main.Ins.SFXLoader.PlayEffect(ItemInfo.first[1].flag[1], unit.gameObject, true);
+                    SFXLoader.Ins.PlayEffect(ItemInfo.first[1].flag[1], unit.gameObject, true);
                 U3D.InsertSystemMsg(unit.name + " 夺得镖物");
                 unit.SetFlag(ItemInfo, ItemInfo.first[2].flag[1]);
             }
 
             if (OnPickUp != null)
-                OnPickUp.Invoke(Main.Ins.CombatData.GScript, null);
+                OnPickUp.Invoke(CombatData.Ins.GScript, null);
         }
         else if (ItemInfoEx != null)
         {
@@ -243,30 +254,30 @@ public class SceneItemAgent :NetBehaviour {
                 if (unit.Attr.Weapon != 0 && unit.Attr.Weapon2 != 0)
                     return;
                 //相同武器，不能捡
-                ItemData ib0 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
+                ItemData ib0 = GameStateMgr.Ins.FindItemByIdx(unit.Attr.Weapon);
                 WeaponData wb0 = U3D.GetWeaponProperty(ib0.UnitId);
                 if (wb0 != null && wb0.WeaponR == weaponModel)
                     return;
 
                 if (unit.Attr.Weapon2 != 0)
                 {
-                    ItemData ib1 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
+                    ItemData ib1 = GameStateMgr.Ins.FindItemByIdx(unit.Attr.Weapon2);
                     WeaponData wb1 = U3D.GetWeaponProperty(ib1.UnitId);
                     if (wb1 != null && wb1.WeaponR == weaponModel)
                         return;
                 }
 
                 //同类武器不能捡
-                int weaponPickup = Main.Ins.GameStateMgr.GetWeaponCode(weaponModel);
-                ItemData wb = Main.Ins.GameStateMgr.FindItemByIdx(weaponPickup);
+                int weaponPickup = GameStateMgr.Ins.GetWeaponCode(weaponModel);
+                ItemData wb = GameStateMgr.Ins.FindItemByIdx(weaponPickup);
                 if (wb == null)
                     return;
 
-                ItemData wbl = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
+                ItemData wbl = GameStateMgr.Ins.FindItemByIdx(unit.Attr.Weapon);
                 if (wbl == null)
                     return;
 
-                ItemData wbr = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
+                ItemData wbr = GameStateMgr.Ins.FindItemByIdx(unit.Attr.Weapon2);
                 if (wb.SubType == wbl.SubType)
                     return;
 
@@ -274,7 +285,7 @@ public class SceneItemAgent :NetBehaviour {
                     return;
                 //可以捡取
                 unit.Attr.Weapon2 = weaponPickup;
-                Main.Ins.SFXLoader.PlayEffect(672, unit.gameObject, true);
+                SFXLoader.Ins.PlayEffect(672, unit.gameObject, true);
                 
                 if (asDrop)
                     GameObject.Destroy(gameObject);
@@ -283,9 +294,16 @@ public class SceneItemAgent :NetBehaviour {
         else
         {
             if (OnTouch != null)
-                OnTouch.Invoke(Main.Ins.CombatData.GScript, new object[] { 0, unit.InstanceId });
+                OnTouch.Invoke(CombatData.Ins.GScript, new object[] { 0, unit.InstanceId });
             else if (OnPickUp != null)
-                OnPickUp.Invoke(Main.Ins.CombatData.GScript, null);
+                OnPickUp.Invoke(CombatData.Ins.GScript, null);
+        }
+        if (unit.Attr.IsPlayer && CombatData.Ins.GLevelMode == LevelMode.MultiplyPlayer) {
+            GetItemMsg msg = new GetItemMsg();
+            msg.instance = (uint)InstanceId;
+            msg.playerId = (uint)unit.InstanceId;
+            msg.type = (int)GetItemType.SceneItem;
+            FrameSyncServer.Ins.NetEvent(protocol.MeteorMsg.Command.GetItem, msg);
         }
     }
 
@@ -376,26 +394,26 @@ public class SceneItemAgent :NetBehaviour {
             //查看此物体属于什么，A：武器 B：道具 C：镖物
             if (ItemInfo == null)
             {
-                for (int i = 0; i < Main.Ins.MenuResLoader.Info.Count; i++)
+                for (int i = 0; i < MenuResLoader.Ins.Info.Count; i++)
                 {
-                    if (Main.Ins.MenuResLoader.Info[i].model != "0" && 0 == string.Compare(Main.Ins.MenuResLoader.Info[i].model, s, true))
+                    if (MenuResLoader.Ins.Info[i].model != "0" && 0 == string.Compare(MenuResLoader.Ins.Info[i].model, s, true))
                     {
-                        ApplyPrev(Main.Ins.MenuResLoader.Info[i]);
+                        ApplyPrev(MenuResLoader.Ins.Info[i]);
                         break;
                     }
                     string rh = s.ToUpper();
-                    string rh2 = Main.Ins.MenuResLoader.Info[i].model.ToUpper();
+                    string rh2 = MenuResLoader.Ins.Info[i].model.ToUpper();
                     if (rh2.StartsWith(rh))
                     {
-                        s = Main.Ins.MenuResLoader.Info[i].model;
-                        ApplyPrev(Main.Ins.MenuResLoader.Info[i]);
+                        s = MenuResLoader.Ins.Info[i].model;
+                        ApplyPrev(MenuResLoader.Ins.Info[i]);
                         break;
                     }
                 }
                 //不是一个Meteor.res里的物件
                 if (ItemInfo == null)
                 {
-                    List<ItemData> its = Main.Ins.DataMgr.GetItemDatas();
+                    List<ItemData> its = DataMgr.Ins.GetItemDatas();
                     for (int i = 0; i < its.Count; i++)
                     {
                         if (its[i].MainType == (int)UnitType.Weapon)
@@ -417,13 +435,13 @@ public class SceneItemAgent :NetBehaviour {
             root.gameObject.layer = gameObject.layer;
             //箱子椅子桌子酒坛都不允许为场景物品.
             Utility.ShowMeteorObject(s, root);
-            DesFile fIns = Main.Ins.DesLoader.Load(s);
+            DesFile fIns = DesLoader.Ins.Load(s);
             //把子物件的属性刷到一起.
             for (int i = 0; i < fIns.SceneItems.Count; i++)
                 LoadCustom(fIns.SceneItems[i].name, fIns.SceneItems[i].custom);
 
             //雪人不能合并材质，不然没法动画
-            if (Main.Ins.CombatData.GLevelItem.Scene != "Meteor_21")
+            if (CombatData.Ins.GLevelItem.Scene != "Meteor_21")
             {
                 if (name.StartsWith("D_Item") || name.StartsWith("D_RJug") || name.StartsWith("D_itRJug") || name.StartsWith("D_BBox") ||
                     name.StartsWith("D_BBBox") || name.StartsWith("D_Box"))
@@ -441,7 +459,7 @@ public class SceneItemAgent :NetBehaviour {
                 }
             }
 
-            FMCFile f = Main.Ins.FMCLoader.Load(s);
+            FMCFile f = FMCLoader.Ins.Load(s);
             if (f != null)
             {
                 player = GetComponent<FMCPlayer>();
@@ -463,110 +481,82 @@ public class SceneItemAgent :NetBehaviour {
 
     public void LoadCustom(string na, List<string> custom_feature)
     {
-        for (int i = 0; i < custom_feature.Count; i++)
-        {
-            string[] kv = custom_feature[i].Split(new char[] { '=' }, System.StringSplitOptions.RemoveEmptyEntries);
-            if (kv.Length == 2)
-            {
-                string k = kv[0].Trim(new char[] { ' ' });
-                string v = kv[1].Trim(new char[] { ' ' });
-                if (k == "name")
-                {
-                    string[] varray = v.Split(new char[] { '\"' }, System.StringSplitOptions.RemoveEmptyEntries);
-                    string value = varray[0].Trim(new char[] { ' ' });
-                    if (value.StartsWith("damage"))
-                    {
-                        value = value.Substring(6);
-                        property.names["damage"] = int.Parse(value);
-                    }
-                }
-                else if (k == "model")
-                {
-
-                }
-                else if (k == "ticket")
-                {
-
-                }
-                else if (k == "visible")
-                {
-                    GameObject obj = NodeHelper.Find(na, root.gameObject);
-                    MeshRenderer mr = obj.GetComponent<MeshRenderer>();
-                    if (mr == null) {
-                        mr = obj.GetComponentInChildren<MeshRenderer>();
-                    }
-                    if (mr != null)
-                        mr.enabled = (int.Parse(v) == 1);
-                }
-                else if (k == "collision")
-                {
-                    //是否包含碰撞检测.1:阻碍角色，2:Trigger
-                    GameObject obj = NodeHelper.Find(na, root.gameObject);
-                    Collider[] co = obj.GetComponentsInChildren<Collider>(true);
-                    int vv = int.Parse(v);
-                    for (int q = 0; q < co.Length; q++)
-                    {
-                        MeshCollider c = co[q] as MeshCollider;
-                        if (c != null)
-                        {
-                            bool enable = c.enabled;
-                            c.convex = vv == 1;
-                            c.enabled = !enable;//重置碰撞体和角色碰撞的bug
-                            c.enabled = enable;
+        if (custom_feature != null) {
+            for (int i = 0; i < custom_feature.Count; i++) {
+                string[] kv = custom_feature[i].Split(new char[] { '=' }, System.StringSplitOptions.RemoveEmptyEntries);
+                if (kv.Length == 2) {
+                    string k = kv[0].Trim(new char[] { ' ' });
+                    string v = kv[1].Trim(new char[] { ' ' });
+                    if (k == "name") {
+                        string[] varray = v.Split(new char[] { '\"' }, System.StringSplitOptions.RemoveEmptyEntries);
+                        string value = varray[0].Trim(new char[] { ' ' });
+                        if (value.StartsWith("damage")) {
+                            value = value.Substring(6);
+                            property.names["damage"] = int.Parse(value);
                         }
-                        co[q].isTrigger = vv == 0;
-                        if (property.attribute.ContainsKey("blockplayer") && property.attribute["blockplayer"] == 0)
-                        {
-                            co[q].isTrigger = vv == 1;
+                    } else if (k == "model") {
+
+                    } else if (k == "ticket") {
+
+                    } else if (k == "visible") {
+                        GameObject obj = NodeHelper.Find(na, root.gameObject);
+                        MeshRenderer mr = obj.GetComponent<MeshRenderer>();
+                        if (mr == null) {
+                            mr = obj.GetComponentInChildren<MeshRenderer>();
                         }
-                        //co[q].enabled = vv == 1;
-                    }
-                    property.attribute["collision"] = vv;
-                }
-                else if (k == "blockplayer")
-                {
-                    //不要阻碍角色-Trigger为1
-                    GameObject obj = NodeHelper.Find(na, root.gameObject);
-                    if (v == "no")
-                    {
+                        if (mr != null)
+                            mr.enabled = (int.Parse(v) == 1);
+                    } else if (k == "collision") {
+                        //是否包含碰撞检测.1:阻碍角色，2:Trigger
+                        GameObject obj = NodeHelper.Find(na, root.gameObject);
                         Collider[] co = obj.GetComponentsInChildren<Collider>(true);
-                        for (int c = 0; c < co.Length; c++)
-                        {
-                            MeshCollider m = co[c] as MeshCollider;
-                            if (m != null)
-                            {
-                                if (!na.StartsWith("Plane"))
-                                {
-                                    m.convex = true;
-                                    m.isTrigger = true;
+                        int vv = int.Parse(v);
+                        for (int q = 0; q < co.Length; q++) {
+                            MeshCollider c = co[q] as MeshCollider;
+                            if (c != null) {
+                                bool enable = c.enabled;
+                                c.convex = vv == 1;
+                                c.enabled = !enable;//重置碰撞体和角色碰撞的bug
+                                c.enabled = enable;
+                            }
+                            co[q].isTrigger = vv == 0;
+                            if (property.attribute.ContainsKey("blockplayer") && property.attribute["blockplayer"] == 0) {
+                                co[q].isTrigger = vv == 1;
+                            }
+                            //co[q].enabled = vv == 1;
+                        }
+                        property.attribute["collision"] = vv;
+                    } else if (k == "blockplayer") {
+                        //不要阻碍角色-Trigger为1
+                        GameObject obj = NodeHelper.Find(na, root.gameObject);
+                        if (v == "no") {
+                            Collider[] co = obj.GetComponentsInChildren<Collider>(true);
+                            for (int c = 0; c < co.Length; c++) {
+                                MeshCollider m = co[c] as MeshCollider;
+                                if (m != null) {
+                                    if (!na.StartsWith("Plane")) {
+                                        m.convex = true;
+                                        m.isTrigger = true;
+                                        co[c].enabled = true;
+                                    } else
+                                        Destroy(m);
+                                } else {
+                                    co[c].isTrigger = true;
                                     co[c].enabled = true;
                                 }
-                                else
-                                    Destroy(m);
                             }
-                            else
-                            {
-                                co[c].isTrigger = true;
-                                co[c].enabled = true;
-                            }
+                            property.attribute["blockplayer"] = 0;
                         }
-                        property.attribute["blockplayer"] = 0;
-                    }
-                }
-                else if (k == "billboard")
-                {
-                    LookAtCamara cam = GetComponent<LookAtCamara>();
-                    if (cam == null)
-                        gameObject.AddComponent<LookAtCamara>();
-                    billBoard = true;
-                }
-                else if (k == "effect")
-                {
+                    } else if (k == "billboard") {
+                        LookAtCamara cam = GetComponent<LookAtCamara>();
+                        if (cam == null)
+                            gameObject.AddComponent<LookAtCamara>();
+                        billBoard = true;
+                    } else if (k == "effect") {
 
-                }
-                else
-                {
-                    //Debug.LogError(na + " can not alysis:" + custom_feature[i]);
+                    } else {
+                        //Debug.LogError(na + " can not alysis:" + custom_feature[i]);
+                    }
                 }
             }
         }
@@ -659,12 +649,10 @@ public class SceneItemAgent :NetBehaviour {
                 }
                 if (OnIdle != null && value == 0)
                 {
-                    Main.Ins.MeteorManager.OnDestroySceneItem(this);
                     GameObject.Destroy(gameObject);
                 }
                 else if (MethodOnIdle != null && value == 0)
                 {
-                    Main.Ins.MeteorManager.OnDestroySceneItem(this);
                     GameObject.Destroy(gameObject);
                 }
 
@@ -810,8 +798,8 @@ public class SceneItemAgent :NetBehaviour {
                 //可击碎的石头-击碎后可攻击角色
             } else if (name.StartsWith("D_tp")){
                 
-            } else
-                Debug.LogError("not processed:" + name);
+            } /*else*/
+                //Debug.LogError("not processed:" + name);
         }
     }
 
@@ -933,14 +921,18 @@ public class SceneItemAgent :NetBehaviour {
         //(((武器攻击力 + buff攻击力) x 招式攻击力） / 100) - （敌方武器防御力 + 敌方buff防御力） / 10
         //你的攻击力，和我的防御力之间的计算
         //attacker.damage.PoseIdx;
-        if (Main.Ins.GameStateMgr.gameStatus.EnableGodMode)
+        if (GameStateMgr.Ins.gameStatus.EnableGodMode)
             return 100000;
         int DefTmp = 0;
         AttackDes atk = attacker.CurrentDamage;
         if (atk == null)
             atk = attack;
+        if (atk == null) {
+            Debug.LogError("CalcDamage can not find attackdes");
+            return 1;
+        }
         int WeaponDamage = attacker.CalcDamage();
-        int PoseDamage = Main.Ins.MenuResLoader.FindOpt(atk.PoseIdx, 3).second[0].flag[6];
+        int PoseDamage = MenuResLoader.Ins.FindOpt(atk.PoseIdx, 3).second[0].flag[6];
         int BuffDamage = attacker.Attr.CalcBuffDamage();
         int realDamage = Mathf.FloorToInt((((WeaponDamage + BuffDamage) * PoseDamage) / 100.0f - (DefTmp)));
         return realDamage;
@@ -951,7 +943,7 @@ public class SceneItemAgent :NetBehaviour {
         int realDamage = CalcDamage(attacker, attck);
         //非铁箱子， 木箱子，酒坛， 桌子 椅子的受击处理
         if (MethodOnAttack != null)
-            MethodOnAttack.Invoke(Main.Ins.CombatData.GScript, new object[] { InstanceId, attacker.InstanceId, realDamage });
+            MethodOnAttack.Invoke(CombatData.Ins.GScript, new object[] { InstanceId, attacker.InstanceId, realDamage });
         else if (OnAttackCallBack != null)
         {
             OnAttackCallBack.Invoke(InstanceId, Index, realDamage);
@@ -1041,18 +1033,18 @@ public class SceneItemAgent :NetBehaviour {
         //如果某人拾取了flag，不要再刷新镖物
         if (!U3D.GetFlag())
         {
-            for (int i = 0; i < Main.Ins.MeteorManager.SceneItems.Count; i++)
+            for (int i = 0; i < MeteorManager.Ins.SceneItems.Count; i++)
             {
-                if (Main.Ins.MeteorManager.SceneItems[i] != this
-                    && Main.Ins.MeteorManager.SceneItems[i].ItemInfo != null
-                    && Main.Ins.MeteorManager.SceneItems[i].ItemInfo.IsFlag())
+                if (MeteorManager.Ins.SceneItems[i] != this
+                    && MeteorManager.Ins.SceneItems[i].ItemInfo != null
+                    && MeteorManager.Ins.SceneItems[i].ItemInfo.IsFlag())
                 {
-                    Main.Ins.MeteorManager.SceneItems[i].OnRefresh();
+                    MeteorManager.Ins.SceneItems[i].OnRefresh();
                     break;
                 }
             }
         }
-        Main.Ins.MeteorManager.OnDestroySceneItem(this);
+        MeteorManager.Ins.OnDestroySceneItem(this);
         GameObject.Destroy(gameObject);
     }
 

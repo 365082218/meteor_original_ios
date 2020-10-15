@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+
 //仿原smoothfollow脚本，第三人称跟随相机，总在人物背后跟随着角色
 /*
 Nikki Ma
@@ -63,8 +64,8 @@ public class CameraFollow:NetBehaviour {
     /// <summary>
     /// 当跟随目标发生俯仰或旋转
     /// </summary>
-    float yRotate = 0.0f;
-    float xRotate = 0.0f;
+    float yRotate = 0;
+    float xRotate = 0;
     public void OnTargetRotate(float xDelta, float yDelta)
     {
         yRotate = yDelta;
@@ -91,7 +92,7 @@ public class CameraFollow:NetBehaviour {
         if (Target != null)
         {
             CameraLookAt.position = new Vector3(Target.position.x, Target.position.y + BodyHeight, Target.position.z);
-            CameraPosition.position = new Vector3(0, followHeight, 0) + CameraLookAt.position + followDistance * (Target.forward);
+            CameraPosition.position = (new Vector3(0, followHeight, 0) + CameraLookAt.position + followDistance * (Target.forward));
             transform.position = CameraPosition.position;
             Vector3 vdiff = CameraLookAt.position - transform.position;
             transform.rotation = Quaternion.LookRotation(new Vector3(vdiff.x, 0, vdiff.z), Vector3.up);
@@ -101,7 +102,7 @@ public class CameraFollow:NetBehaviour {
 
     public void Init()
     {
-        DisableLockTarget = !Main.Ins.GameStateMgr.gameStatus.AutoLock;
+        DisableLockTarget = !GameStateMgr.Ins.gameStatus.AutoLock;
         animationPlay = false;
         animationTick = 0.0f;
         followHeight = 6;
@@ -117,7 +118,7 @@ public class CameraFollow:NetBehaviour {
         lastAngle = Mathf.Atan2(followHeight, followDistance) * Mathf.Rad2Deg;
     }
 
-    const float AutoSwitchTarget = 10.0f;//观察一个战斗团体10秒左右然后检查是否要切换观察位置.
+    static float AutoSwitchTarget = 10.0f;//观察一个战斗团体10秒左右然后检查是否要切换观察位置.
     float lastWatchTick;
     bool freeCamera;
     public bool FreeCamera
@@ -140,7 +141,7 @@ public class CameraFollow:NetBehaviour {
             return;
         }
         //Debug.LogError("lockupdate:" + Time.frameCount);
-        if (Main.Ins.LocalPlayer != null && !Main.Ins.CombatData.PauseAll)
+        if (Main.Ins.LocalPlayer != null && !CombatData.Ins.PauseAll)
         {
             CameraSmoothFollow();
         }
@@ -230,17 +231,17 @@ public class CameraFollow:NetBehaviour {
     void ChangeAutoTarget()
     {
         OnLockTarget();
-        if (Main.Ins.MeteorManager.UnitInfos.Count == 0)
+        if (MeteorManager.Ins.UnitInfos.Count == 0)
             return;
         int j = -1;
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
         {
-            if (!Main.Ins.MeteorManager.UnitInfos[i].Dead)
+            if (!MeteorManager.Ins.UnitInfos[i].Dead)
                 break;
             j = i;
         }
-        if (j >= 0 && j < Main.Ins.MeteorManager.UnitInfos.Count)
-            AutoTarget = Main.Ins.MeteorManager.UnitInfos[j];
+        if (j >= 0 && j < MeteorManager.Ins.UnitInfos.Count)
+            AutoTarget = MeteorManager.Ins.UnitInfos[j];
     }
 
     //为真则下一帧摄像机要切换视角模式.
@@ -271,17 +272,14 @@ public class CameraFollow:NetBehaviour {
     public float BodyHeight = 10.0f;//目标脊椎往上多少
 
     Vector3 currentVelocity = Vector3.zero;
-    float currentVelocityY;
-    float currentVelocityY2;
+    float currentVelocityY = 0;
+    float currentVelocityY2 = 0;
 
     public Vector3[] newViewIndex = new Vector3[3];
     int ViewIndex = 0;
     //只允许改摄像机的矩阵，不允许修改其他场景对象的矩阵
     protected void CameraSmoothFollow(bool smooth = true)
     {
-        //y = ax + b;
-        //a = 10 y = 75;
-        //a = 140 y = 60;
         float CameraRadis = 0.0f;
         float angleY = 0;//此角度由目标与玩家间的距离的来计算，距离越近越大
         Vector3 newPos = Vector3.zero;
@@ -313,12 +311,12 @@ public class CameraFollow:NetBehaviour {
             //半径最低65，最高
             angleY = -0.5f * dis + 95;
             float yHeight = Mathf.Tan(LookAtAngle * Mathf.Deg2Rad) * CameraRadis;
-            newViewIndex[0] = CameraLookAt.position + Quaternion.AngleAxis(-angleY, Vector3.up) * vecForward * CameraRadis;
+            newViewIndex[0] = (CameraLookAt.position + Quaternion.AngleAxis(-angleY, Vector3.up) * vecForward * CameraRadis);
             newViewIndex[0].y += yHeight;
 
-            newViewIndex[1] = CameraLookAt.position + Quaternion.AngleAxis(angleY, Vector3.up) * vecForward * CameraRadis;
+            newViewIndex[1] = (CameraLookAt.position + Quaternion.AngleAxis(angleY, Vector3.up) * vecForward * CameraRadis);
             newViewIndex[1].y += yHeight;
-            newViewIndex[2] = CameraLookAt.position + Quaternion.AngleAxis(-angleY, Target.right) * vecForward * CameraRadis;//顶部最后考虑
+            newViewIndex[2] = (CameraLookAt.position + Quaternion.AngleAxis(-angleY, Target.right) * vecForward * CameraRadis);//顶部最后考虑
 
             //vecTarget[0] = newViewIndex[ViewIndex];
             //vecTarget[1] = newViewIndex[(ViewIndex + 1) % 3];
@@ -413,7 +411,10 @@ public class CameraFollow:NetBehaviour {
                 hitWall = true;
                 //摄像机与角色间有物件遮挡住角色，开始自动计算摄像机位置.
                 //场景道具挡住了角色和相机
-                SceneItemAgent item = wallHit.collider.gameObject.GetComponentInParent<SceneItemAgent>();
+                Transform trans_parent = wallHit.collider.gameObject.transform.parent;
+                bool parent = trans_parent != null;
+                bool sceneItem = parent ? trans_parent.CompareTag("SceneItemAgent"):false;
+                SceneItemAgent item = sceneItem ? wallHit.collider.gameObject.GetComponentInParent<SceneItemAgent>():null;
                 if (item != null) {
                     //不需要移动相机的位置
                     if (occlusionItem != null) {
@@ -428,7 +429,6 @@ public class CameraFollow:NetBehaviour {
                     }
                 }
                 else {
-                    float dis = Vector3.Distance(CameraLookAt.position, wallHit.point);
                     newPos = wallHit.point + Vector3.Normalize(CameraLookAt.position - wallHit.point) * 5;
                 }
             }
@@ -438,7 +438,6 @@ public class CameraFollow:NetBehaviour {
                     occlusionItem = null;
                 }
             }
-
             //没有撞墙
             if (!hitWall)
             {
@@ -459,9 +458,7 @@ public class CameraFollow:NetBehaviour {
             vecTarget.x = Target.position.x;
             vecTarget.y = Mathf.SmoothDamp(CameraLookAt.position.y, Target.position.y + BodyHeight, ref currentVelocityY2, SmoothDampYTime / 2);
             vecTarget.z = Target.position.z;
-
             CameraLookAt.position = vecTarget;
-
             //由电影视角，切换到单人视角之间的动画.
             if (animationPlay)
             {

@@ -13,45 +13,58 @@ public class MiniMapCtrl : MonoBehaviour {
 	void Start () {
 		
 	}
-    Dictionary<int, GameObject> Notify = new Dictionary<int, GameObject>();
-	// Update is called once per frame
-	void Update () {
-	    for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+    SortedDictionary<int, GameObject> Notify = new SortedDictionary<int, GameObject>();
+    List<int> leaved = new List<int>();
+    // Update is called once per frame
+    void Update () {
+	    for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
         {
-            if (!Notify.ContainsKey(Main.Ins.MeteorManager.UnitInfos[i].InstanceId))
+            if (!Notify.ContainsKey(MeteorManager.Ins.UnitInfos[i].InstanceId))
             {
                 GameObject obj = null;
-                if (Main.Ins.LocalPlayer == Main.Ins.MeteorManager.UnitInfos[i])
+                if (Main.Ins.LocalPlayer == MeteorManager.Ins.UnitInfos[i])
                     obj = GameObject.Instantiate(PlayerPrefab);
-                else if (Main.Ins.MeteorManager.UnitInfos[i].Camp == EUnitCamp.EUC_FRIEND)
+                else if (MeteorManager.Ins.UnitInfos[i].Camp == EUnitCamp.EUC_FRIEND)
                     obj = GameObject.Instantiate(FriendPrefab);
-                else if (Main.Ins.MeteorManager.UnitInfos[i].Camp == EUnitCamp.EUC_ENEMY)
+                else if (MeteorManager.Ins.UnitInfos[i].Camp == EUnitCamp.EUC_ENEMY)
                     obj = GameObject.Instantiate(EnemyPrefab);
                 else
                     obj = GameObject.Instantiate(FlagPrefab);
-                Notify.Add(Main.Ins.MeteorManager.UnitInfos[i].InstanceId, obj);
+                Notify.Add(MeteorManager.Ins.UnitInfos[i].InstanceId, obj);
                 obj.transform.SetParent(Map.transform);
                 obj.transform.localScale = Vector3.one;
-                obj.transform.localRotation = Quaternion.Euler(0, 0, -Main.Ins.MeteorManager.UnitInfos[i].transform.eulerAngles.y);
+                obj.transform.localRotation = Quaternion.Euler(0, 0, -MeteorManager.Ins.UnitInfos[i].transform.eulerAngles.y);
 
-                Vector2 vec = ConvertToMainPlayer(Main.Ins.MeteorManager.UnitInfos[i].transform.position);
+                Vector2 vec = ConvertToMainPlayer(MeteorManager.Ins.UnitInfos[i].transform.position);
                 obj.transform.localPosition = new Vector3(vec.x, vec.y, 0);
                 //主角放最上面,依次是伙伴,最后是敌人
-                if (Main.Ins.LocalPlayer == Main.Ins.MeteorManager.UnitInfos[i])
+                if (Main.Ins.LocalPlayer == MeteorManager.Ins.UnitInfos[i])
                     obj.transform.SetAsLastSibling();
-                else if (Main.Ins.MeteorManager.UnitInfos[i].Camp == EUnitCamp.EUC_ENEMY)
+                else if (MeteorManager.Ins.UnitInfos[i].Camp == EUnitCamp.EUC_ENEMY)
                     obj.transform.SetAsFirstSibling();
-                obj.name = Main.Ins.MeteorManager.UnitInfos[i].name;
+                obj.name = MeteorManager.Ins.UnitInfos[i].name;
                 obj.SetActive(true);
             }
             else
             {
-                Notify[Main.Ins.MeteorManager.UnitInfos[i].InstanceId].transform.localRotation = Quaternion.Euler(0, 0, -Main.Ins.MeteorManager.UnitInfos[i].transform.eulerAngles.y); //MeteorManager.Instance.UnitInfos[i].transform.rotation.y;
-                Vector2 vec = ConvertToMainPlayer(Main.Ins.MeteorManager.UnitInfos[i].transform.position);
-                Notify[Main.Ins.MeteorManager.UnitInfos[i].InstanceId].transform.localPosition = new Vector3(vec.x, vec.y, 0);
+                Notify[MeteorManager.Ins.UnitInfos[i].InstanceId].transform.localRotation = Quaternion.Euler(0, 0, -MeteorManager.Ins.UnitInfos[i].transform.eulerAngles.y); //MeteorManager.Instance.UnitInfos[i].transform.rotation.y;
+                Vector2 vec = ConvertToMainPlayer(MeteorManager.Ins.UnitInfos[i].transform.position);
+                Notify[MeteorManager.Ins.UnitInfos[i].InstanceId].transform.localPosition = new Vector3(vec.x, vec.y, 0);
             }
-        }	
-	}
+        }
+        //检查一下有没有已经离开的
+        if (MeteorManager.Ins.LeavedUnits.Count != 0) {
+            leaved.Clear();
+            foreach (var each in MeteorManager.Ins.LeavedUnits) {
+                leaved.Add(each.Key);
+            }
+        }
+        for (int i = 0; i < leaved.Count; i++) {
+            if (Notify.ContainsKey(leaved[i])) {
+                Notify.Remove(leaved[i]);
+            }
+        }
+    }
 
     Vector2 ConvertToMainPlayer(Vector3 vec)
     {

@@ -282,8 +282,8 @@ shader 1
 
     public void LoadDesMap(string despath)
     {
-        DesFile des = Main.Ins.DesLoader.Load(despath);
-        GMBFile gmb = Main.Ins.GMBLoader.Load(despath);
+        DesFile des = DesLoader.Ins.Load(despath);
+        GMBFile gmb = GMBLoader.Ins.Load(despath);
         if (des == null || gmb == null)
             return;
         bool generateFile = true;
@@ -346,7 +346,7 @@ shader 1
                         //realObject = true;
                         Mesh w = new Mesh();
                         //前者子网格编号，后者 索引缓冲区
-                        Dictionary<int, List<int>> tr = new Dictionary<int, List<int>>();
+                        SortedDictionary<int, List<int>> tr = new SortedDictionary<int, List<int>>();
                         List<Vector3> ve = new List<Vector3>();
                         List<Vector2> uv = new List<Vector2>();
                         List<Vector3> nor = new List<Vector3>();
@@ -490,9 +490,9 @@ shader 1
 
     public void LoadMap(int level)
     {
-        LevelData lev = Main.Ins.DataMgr.GetLevelData(level);
-        DesFile des = Main.Ins.DesLoader.Load(lev.sceneItems);
-        GMBFile gmb = Main.Ins.GMBLoader.Load(lev.sceneItems);
+        LevelData lev = DataMgr.Ins.GetLevelData(level);
+        DesFile des = DesLoader.Ins.Load(lev.sceneItems);
+        GMBFile gmb = GMBLoader.Ins.Load(lev.sceneItems);
         if (lev == null || des == null || gmb == null)
         {
             Debug.LogError("can not find");
@@ -558,7 +558,7 @@ shader 1
                         realObject = true;
                         Mesh w = new Mesh();
                         //前者子网格编号，后者 索引缓冲区
-                        Dictionary<int, List<int>> tr = new Dictionary<int, List<int>>();
+                        SortedDictionary<int, List<int>> tr = new SortedDictionary<int, List<int>>();
                         List<Vector3> ve = new List<Vector3>();
                         List<Vector2> uv = new List<Vector2>();
                         List<Vector3> nor = new List<Vector3>();

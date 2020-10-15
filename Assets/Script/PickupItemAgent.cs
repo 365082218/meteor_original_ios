@@ -1,4 +1,5 @@
 ﻿using Excel2Json;
+using protocol;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,11 +9,13 @@ public class PickupItemAgent : NetBehaviour {
     protected new void Awake()
     {
         base.Awake();
+        MeteorManager.Ins.OnGeneratePickupItem(this);
     }
-
+    public int InstanceId;
     protected new void OnDestroy()
     {
         base.OnDestroy();
+        MeteorManager.Ins.OnDestroyPickupItem(this);
     }
 
     public override void NetUpdate()
@@ -39,7 +42,7 @@ public class PickupItemAgent : NetBehaviour {
     {
         model = des;
         List<WeaponData> allWeapons = new List<WeaponData>();
-        List<WeaponData> weapons = Main.Ins.DataMgr.GetWeaponDatas();
+        List<WeaponData> weapons = DataMgr.Ins.GetWeaponDatas();
         //WeaponDatas.WeaponDatas[] weapons2 = PluginWeaponMng.Instance.GetAllItem();
         for (int i = 0; i < weapons.Count; i++)
         {
@@ -84,7 +87,7 @@ public class PickupItemAgent : NetBehaviour {
             collider[i].isTrigger = true;
         }
 
-        initializeY = transform.position.y;
+        initializeY = Mathf.FloorToInt(transform.position.y);
         if (curve == null)
         {
             Keyframe[] ks = new Keyframe[2];
@@ -142,8 +145,8 @@ public class PickupItemAgent : NetBehaviour {
     }
 
     bool up = true;
-    float yHeight = 5.0f;
-    float initializeY = 0.0f;
+    int yHeight = 5;
+    int initializeY = 0;
     void yMove()
     {
         if (up)
@@ -155,11 +158,19 @@ public class PickupItemAgent : NetBehaviour {
         else
         {
             transform.position = new Vector3(transform.position.x, transform.position.y - 5 * FrameReplay.deltaTime, transform.position.z);
-            if (transform.position.y <= initializeY - yHeight)
+            if (Mathf.FloorToInt(transform.position.y) <= initializeY - yHeight)
                 up = true;
         }
         transform.Rotate(new Vector3(0, 90 * FrameReplay.deltaTime, 0));
     }
+
+    public void OnNetPickup(MeteorUnit unit) {
+        if (unit != null) {
+            OnPickup(unit);
+            UnityEngine.Debug.Log("item:" + name + " pick up by:" + unit.name);
+        }
+    }
+
 
     public void OnPickup(MeteorUnit unit)
     {
@@ -169,30 +180,30 @@ public class PickupItemAgent : NetBehaviour {
             if (unit.Attr.Weapon != 0 && unit.Attr.Weapon2 != 0)
                 return;
             //相同武器，不能捡
-            ItemData ib0 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
+            ItemData ib0 = GameStateMgr.Ins.FindItemByIdx(unit.Attr.Weapon);
             WeaponData wb0 = U3D.GetWeaponProperty(ib0.UnitId);
             if (wb0 != null && wb0.WeaponR == model)
                 return;
 
             if (unit.Attr.Weapon2 != 0)
             {
-                ItemData ib1 = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
+                ItemData ib1 = GameStateMgr.Ins.FindItemByIdx(unit.Attr.Weapon2);
                 WeaponData wb1 = U3D.GetWeaponProperty(ib1.UnitId);
                 if (wb1 != null && wb1.WeaponR == model)
                     return;
             }
 
             //同类武器不能捡
-            int weaponPickup = Main.Ins.GameStateMgr.GetWeaponCode(model);
-            ItemData wb = Main.Ins.GameStateMgr.FindItemByIdx(weaponPickup);
+            int weaponPickup = GameStateMgr.Ins.GetWeaponCode(model);
+            ItemData wb = GameStateMgr.Ins.FindItemByIdx(weaponPickup);
             if (wb == null)
                 return;
 
-            ItemData wbl = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon);
+            ItemData wbl = GameStateMgr.Ins.FindItemByIdx(unit.Attr.Weapon);
             if (wbl == null)
                 return;
 
-            ItemData wbr = Main.Ins.GameStateMgr.FindItemByIdx(unit.Attr.Weapon2);
+            ItemData wbr = GameStateMgr.Ins.FindItemByIdx(unit.Attr.Weapon2);
             if (wb.SubType == wbl.SubType)
                 return;
 
@@ -200,7 +211,14 @@ public class PickupItemAgent : NetBehaviour {
                 return;
             //可以捡取
             unit.Attr.Weapon2 = weaponPickup;
-            Main.Ins.SFXLoader.PlayEffect(672, unit.gameObject, true);
+            SFXLoader.Ins.PlayEffect(672, unit.gameObject, true);
+            if (unit.Attr.IsPlayer && CombatData.Ins.GLevelMode == LevelMode.MultiplyPlayer) {
+                GetItemMsg msg = new GetItemMsg();
+                msg.instance = (uint)InstanceId;
+                msg.playerId = (uint)unit.InstanceId;
+                msg.type = (int)GetItemType.PickupItem;
+                FrameSyncServer.Ins.NetEvent(protocol.MeteorMsg.Command.GetItem, msg);
+            }
             Destroy(gameObject);
         }
     }

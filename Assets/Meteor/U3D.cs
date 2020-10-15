@@ -12,14 +12,16 @@ using System.Linq;
 using System.Net;
 using System.ComponentModel;
 using Excel2Json;
+using Idevgame.Util;
+using Idevgame.GameState.DialogState;
 
 [CustomLuaClass]
 public class U3D : MonoBehaviour {
-    public static U3D Instance = null;
+    public static U3D Ins = null;
     void Awake()
     {
-        if (Instance == null)
-            Instance = this;
+        if (Ins == null)
+            Ins = this;
     }
 
     [DoNotToLua]
@@ -31,7 +33,7 @@ public class U3D : MonoBehaviour {
         List<string> nl = girls ? NicksGirls : NicksBoys;
         if (nl != null && nl.Count != 0)
         {
-            int index2 = UnityEngine.Random.Range(0, nl.Count);
+            int index2 = Utility.Range(0, nl.Count);
             string m = nl[index2];
             nl.RemoveAt(index2);
             return m;
@@ -42,7 +44,7 @@ public class U3D : MonoBehaviour {
         string s = name.text.Replace("\r\n", ",");
         s = s.Replace(" ", ",");
         nl = s.Split(new char[] { ','}, StringSplitOptions.RemoveEmptyEntries).ToList();
-        int index = UnityEngine.Random.Range(0, nl.Count);
+        int index = Utility.Range(0, nl.Count);
         string n = nl[index];
         nl.RemoveAt(index);
         return n;
@@ -69,7 +71,7 @@ public class U3D : MonoBehaviour {
     //取得某个种类的随机一把武器.
     public static int GetRandomWeaponType()
     {
-        int i = UnityEngine.Random.Range((int)EquipWeaponType.Sword, 1 + (int)EquipWeaponType.NinjaSword);
+        int i = Utility.Range((int)EquipWeaponType.Sword, 1 + (int)EquipWeaponType.NinjaSword);
         return i;
     }
 
@@ -84,26 +86,26 @@ public class U3D : MonoBehaviour {
         s.Remove(2);
         s.Remove(3);
         s.Remove(6);
-        int k = UnityEngine.Random.Range(0, s.Count);
+        int k = Utility.Range(0, s.Count);
         return s[k];
     }
 
     public static List<int> GetUnitList()
     {
         List<int> all = new List<int>();
-        for (int i = 0; i < Main.Ins.CombatData.MaxModel; i++)
+        for (int i = 0; i < CombatData.Ins.MaxModel; i++)
         {
             all.Add(i);
         }
 
-        if (Main.Ins.GameStateMgr.gameStatus != null)
+        if (GameStateMgr.Ins.gameStatus != null)
         {
-            for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginModel.Count; i++)
+            for (int i = 0; i < GameStateMgr.Ins.gameStatus.pluginModel.Count; i++)
             {
-                Main.Ins.GameStateMgr.gameStatus.pluginModel[i].Check();
-                if (!Main.Ins.GameStateMgr.gameStatus.pluginModel[i].Installed)
+                GameStateMgr.Ins.gameStatus.pluginModel[i].Check();
+                if (!GameStateMgr.Ins.gameStatus.pluginModel[i].Installed)
                     continue;
-                all.Add(Main.Ins.GameStateMgr.gameStatus.pluginModel[i].ModelId);
+                all.Add(GameStateMgr.Ins.gameStatus.pluginModel[i].ModelId);
             }
         }
         return all;
@@ -113,7 +115,7 @@ public class U3D : MonoBehaviour {
     public static int GetRandomUnitIdx()
     {
         List<int> all = GetUnitList();
-        return all[UnityEngine.Random.Range(0, all.Count)];
+        return all[Utility.Range(0, all.Count)];
     }
 
     public static EUnitCamp GetAnotherCamp(EUnitCamp camp)
@@ -134,7 +136,7 @@ public class U3D : MonoBehaviour {
     }
 
     public static int GetWeaponBySort(int weapon, bool next) {
-        List<ItemData> we = Main.Ins.DataMgr.GetItemDatas();
+        List<ItemData> we = DataMgr.Ins.GetItemDatas();
         bool compare_begin = false;
         int firstWeapon = -1;
         int step = next ? 1 : -1;
@@ -178,7 +180,7 @@ public class U3D : MonoBehaviour {
             weaponList = new List<int>();
         if (weaponList.Count == 0)
         {
-            List<ItemData> we = Main.Ins.DataMgr.GetItemDatas();
+            List<ItemData> we = DataMgr.Ins.GetItemDatas();
             for (int i = 0; i < we.Count; i++)
             {
                 if (we[i].MainType == (int)UnitType.Weapon)
@@ -200,10 +202,10 @@ public class U3D : MonoBehaviour {
     static int[] weaponCode = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 47, 51, 55 };
     //1,13,17,女性
     //其他男性
-    static Dictionary<int, List<int>> weaponDict = new Dictionary<int, List<int>>();
+    static SortedDictionary<int, List<int>> weaponDict = new SortedDictionary<int, List<int>>();
     public static void SpawnRobot(int idx, EUnitCamp camp, int weaponIndex = 0, int hpMax = 1000)
     {
-        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
+        if (CombatData.Ins.GLevelMode == LevelMode.MultiplyPlayer)
         {
             U3D.PopupTip("联机无法添加机器人");
             return;
@@ -216,7 +218,7 @@ public class U3D : MonoBehaviour {
             weaponList = new List<int>();
         if (weaponList.Count == 0)
         {
-            List<ItemData> we = Main.Ins.DataMgr.GetItemDatas();
+            List<ItemData> we = DataMgr.Ins.GetItemDatas();
             for (int i = 0; i < we.Count; i++)
             {
                 if (we[i].MainType == (int)UnitType.Weapon)
@@ -258,47 +260,47 @@ public class U3D : MonoBehaviour {
         mon.View = 1000;//视野给大一点
         unit.Init(idx, mon);
         UnitTopState unitTopState = new UnitTopState(unit);
-        Main.Ins.EnterState(unitTopState);
-        Main.Ins.MeteorManager.OnGenerateUnit(unit);
+        PersistDialogMgr.Ins.EnterState(unitTopState);
+        MeteorManager.Ins.OnGenerateUnit(unit);
         unit.SetGround(false);
 
         if (camp == EUnitCamp.EUC_FRIEND)
         {
-            unit.SetPosition(Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampASpawnIndex]);
-            Main.Ins.CombatData.CampASpawnIndex++;
-            Main.Ins.CombatData.CampASpawnIndex %= 8;
+            unit.SetPosition(CombatData.Ins.GCampASpawn[CombatData.Ins.CampASpawnIndex]);
+            CombatData.Ins.CampASpawnIndex++;
+            CombatData.Ins.CampASpawnIndex %= 8;
         }
         else if (camp == EUnitCamp.EUC_ENEMY)
         {
-            unit.SetPosition(Main.Ins.CombatData.GCampBSpawn[Main.Ins.CombatData.CampBSpawnIndex]);
-            Main.Ins.CombatData.CampBSpawnIndex++;
-            Main.Ins.CombatData.CampBSpawnIndex %= 8;
+            unit.SetPosition(CombatData.Ins.GCampBSpawn[CombatData.Ins.CampBSpawnIndex]);
+            CombatData.Ins.CampBSpawnIndex++;
+            CombatData.Ins.CampBSpawnIndex %= 8;
         }
         else
         {
             //16个点
-            unit.SetPosition(Main.Ins.CombatData.GLevelSpawn[Main.Ins.CombatData.SpawnIndex]);
-            Main.Ins.CombatData.SpawnIndex++;
-            Main.Ins.CombatData.SpawnIndex %= 16;
+            unit.SetPosition(CombatData.Ins.GLevelSpawn[CombatData.Ins.SpawnIndex]);
+            CombatData.Ins.SpawnIndex++;
+            CombatData.Ins.SpawnIndex %= 16;
         }
         
-        InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
+        InsertSystemMsg(U3D.GetCampEnterLevelStr(unit.Camp, unit.name));
         //找寻敌人攻击.因为这个并没有脚本模板
         unit.StateMachine.ChangeState(unit.StateMachine.WaitState);
 
         
-        if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
+        if (CombatData.Ins.GGameMode == GameMode.MENGZHU)
         {
             
         }
-        else if (Main.Ins.CombatData.GGameMode == GameMode.ANSHA)
+        else if (CombatData.Ins.GGameMode == GameMode.ANSHA)
         {
             if (unit.IsLeader)
                 U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "enemyvip" });
             else
                 U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "vip" });
         }
-        else if (Main.Ins.CombatData.GGameMode == GameMode.SIDOU)
+        else if (CombatData.Ins.GGameMode == GameMode.SIDOU)
         {
             if (unit.IsLeader)
                 U3D.ChangeBehaviorEx(unit.InstanceId, "follow", new object[] { "enemyvip" });
@@ -308,127 +310,152 @@ public class U3D : MonoBehaviour {
         return;
     }
 
-    public static void ChangePlayerModel(int model)
-    {
-        Main.Ins.CombatData.PauseAll = true;
-        Main.Ins.LocalPlayer.meteorController.InputLocked = true;
-        Main.Ins.LocalPlayer.Init(model, Main.Ins.LocalPlayer.Attr, true);
-        Main.Ins.CombatData.PauseAll = false;
-        Main.Ins.LocalPlayer.meteorController.InputLocked = false;
-        Main.Ins.GameStateMgr.gameStatus.UseModel = model;
+    public static List<int> GetUnitBuffs(MeteorUnit player) {
+        List<int> buffs = new List<int>();
+        foreach (var each in BuffMng.Ins.BufDict) {
+            if (each.Value.Units.ContainsKey(player))
+                buffs.Add(each.Key);
+        }
+        return buffs;
     }
 
-    public static MeteorUnit InitNetPlayer(PlayerEventData player)
-    {
-        MonsterEx mon = Main.Ins.SceneMng.InitNetPlayer(player);
+    public static void ChangePlayerModel(MeteorUnit player, int model) {
+        player.Init(model, player.Attr, true);
+    }
+
+    public static MeteorUnit InitNetPlayer(PlayerSync player) {
+        MonsterEx mon = SceneMng.Ins.InitNetPlayer(player);
         GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
-        
         GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
         MeteorUnit unit = ins.GetComponent<MeteorUnit>();
         if (mon.IsPlayer)
             Main.Ins.LocalPlayer = unit;
-        unit.Camp = (EUnitCamp)player.camp; 
+        unit.Camp = (EUnitCamp)player.camp;
         unit.Init(mon.Model, mon);
-        Main.Ins.MeteorManager.OnGenerateUnit(unit, (int)player.playerId);
-        unit.SetGround(false);
-        if (Main.Ins.CombatData.GLevelMode == LevelMode.MultiplyPlayer)
-        {
-            if (Main.Ins.CombatData.GGameMode == GameMode.Normal)
-            {
-                unit.transform.position = Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
-                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
-            }
-            else if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
-            {
-                //16个点
-                unit.transform.position = Main.Ins.CombatData.GLevelSpawn[mon.SpawnPoint];
-                unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
-            }
-            else if (Main.Ins.CombatData.GGameMode == GameMode.ANSHA || Main.Ins.CombatData.GGameMode == GameMode.SIDOU)
-            {
-                //2个队伍8个点.必须带阵营.
-                if (unit.Camp == EUnitCamp.EUC_FRIEND)
-                {
-                    unit.transform.position = Main.Ins.CombatData.GCampASpawn[mon.SpawnPoint];
-                }
-                else if (unit.Camp == EUnitCamp.EUC_ENEMY)
-                {
-                    unit.transform.position = Main.Ins.CombatData.GCampASpawn[mon.SpawnPoint];
-                }
-            }
+        if (player.playerId != NetWorkBattle.Ins.PlayerId) {
+            UnitTopState unitTopState = new UnitTopState(unit);
+            PersistDialogMgr.Ins.EnterState(unitTopState);
         }
-        else
-        {
-            //Vector3 spawnPos;
-            //Quaternion quat;
-            //unit.transform.position = spawnPos;
-            //unit.transform.rotation = quat;
+        MeteorManager.Ins.OnGenerateUnit(unit, (int)player.playerId);
+        unit.SetGround(false);
+        if (U3D.IsMultiplyPlayer()) {
+            if (player.position != null)
+                unit.transform.position = new Vector3(player.position.x / 1000.0f, player.position.y / 1000.0f, player.position.z / 1000.0f);//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+            if (player.rotation != null)
+                unit.transform.rotation = new Quaternion(player.rotation.x / 1000.0f, player.rotation.y / 1000.0f, player.rotation.z / 1000.0f, player.rotation.w / 1000.0f);
+            //设置角色当前的BUFF状态
+            if (player.buff != null) {
+                for (int i = 0; i < player.buff.Count; i++) {
+                    AddBuff((int)player.playerId, (int)player.buff[i]);
+                }
+            }
+            //设置角色当前动作
+            unit.ActionMgr.SetAction(player.action);
         }
         return unit;
     }
 
+    public static MeteorUnit InitNetPlayer(PlayerEvent player)
+    {
+        MonsterEx mon = SceneMng.Ins.InitNetPlayer(player);
+        GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
+        GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
+        MeteorUnit unit = ins.GetComponent<MeteorUnit>();
+        if (mon.IsPlayer)
+            Main.Ins.LocalPlayer = unit;
+        unit.Camp = (EUnitCamp)player.camp;
+        unit.Init(mon.Model, mon);
+        if (player.playerId != NetWorkBattle.Ins.PlayerId) {
+            UnitTopState unitTopState = new UnitTopState(unit);
+            PersistDialogMgr.Ins.EnterState(unitTopState);
+        }
+        MeteorManager.Ins.OnGenerateUnit(unit, (int)player.playerId);
+        unit.SetGround(false);
+        unit.ResetPosition();
+        return unit;
+    }
+
+    public static void OnDestroyNetPlayer(PlayerEvent player) {
+        MeteorUnit unit = GetUnit((int)player.playerId);
+        if (unit != null) {
+            InsertSystemMsg(player.name + "离开了战场");
+            MeteorManager.Ins.OnRemoveUnit(unit);
+        }
+    }
+
+    public static void OnCreateNetPlayer(PlayerSync player) {
+        MeteorUnit unit = InitNetPlayer(player);
+        InsertSystemMsg(GetCampEnterLevelStr(unit.Camp, unit.name));
+    }
+
+    public static void OnCreateNetPlayer(PlayerEvent player) {
+        MeteorUnit unit = InitNetPlayer(player);
+        InsertSystemMsg(GetCampEnterLevelStr(unit.Camp, unit.name));
+    }
+
+
     public static MeteorUnit InitPlayer(LevelScriptBase script)
     {
-        MonsterEx mon = Main.Ins.SceneMng.InitPlayer(script);
+        MonsterEx mon = SceneMng.Ins.InitPlayer(script);
         GameObject objPrefab = Resources.Load("MeteorUnit") as GameObject;
         GameObject ins = GameObject.Instantiate(objPrefab, Vector3.zero, Quaternion.identity) as GameObject;
         MeteorUnit unit = ins.GetComponent<MeteorUnit>();
         Main.Ins.LocalPlayer = unit;
         unit.Camp = EUnitCamp.EUC_FRIEND;//流星阵营
         //单机剧本.用设置的主角，刷新替换掉，关卡里设定的.
-        if (Main.Ins.GameStateMgr.gameStatus.UseModel != -1 && Main.Ins.CombatData.GLevelMode <= LevelMode.CreateWorld) {
+        if (GameStateMgr.Ins.gameStatus.UseModel != -1 && CombatData.Ins.GLevelMode <= LevelMode.CreateWorld) {
             //先检查这个ID是否正常
-            ModelItem model = DlcMng.GetPluginModel(Main.Ins.GameStateMgr.gameStatus.UseModel);
+            ModelItem model = DlcMng.GetPluginModel(GameStateMgr.Ins.gameStatus.UseModel);
             if (model != null)
-                mon.Model = Main.Ins.GameStateMgr.gameStatus.UseModel;
+                mon.Model = GameStateMgr.Ins.gameStatus.UseModel;
             else
-                Main.Ins.GameStateMgr.gameStatus.UseModel = -1;
+                GameStateMgr.Ins.gameStatus.UseModel = -1;
         }
         unit.Init(mon.Model, mon);
-        Main.Ins.MeteorManager.OnGenerateUnit(unit);
+        MeteorManager.Ins.OnGenerateUnit(unit);
         unit.SetGround(false);
-        if (Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (CombatData.Ins.GLevelMode <= LevelMode.SinglePlayerTask)
         {
-            if (Main.Ins.CombatData.wayPoints.Count == 0)
+            if (CombatData.Ins.wayPoints.Count == 0)
             {
-                unit.transform.position = Main.Ins.CombatData.GLevelSpawn[mon.SpawnPoint];
+                unit.transform.position = CombatData.Ins.GLevelSpawn[mon.SpawnPoint];
             }
             else
-                unit.transform.position = Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                unit.transform.position = CombatData.Ins.wayPoints.Count > mon.SpawnPoint ? CombatData.Ins.wayPoints[mon.SpawnPoint].pos : CombatData.Ins.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
         }
-        else if (Main.Ins.CombatData.GLevelMode > LevelMode.SinglePlayerTask && Main.Ins.CombatData.GLevelMode <= LevelMode.MultiplyPlayer)
+        else if (CombatData.Ins.GLevelMode > LevelMode.SinglePlayerTask && CombatData.Ins.GLevelMode <= LevelMode.MultiplyPlayer)
         {
-            if (Main.Ins.CombatData.GGameMode == GameMode.Normal)
+            if (CombatData.Ins.GGameMode == GameMode.Normal)
             {
-                unit.transform.position = Main.Ins.CombatData.wayPoints.Count > mon.SpawnPoint ? Main.Ins.CombatData.wayPoints[mon.SpawnPoint].pos : Main.Ins.CombatData.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
+                unit.transform.position = CombatData.Ins.wayPoints.Count > mon.SpawnPoint ? CombatData.Ins.wayPoints[mon.SpawnPoint].pos : CombatData.Ins.wayPoints[0].pos;//等关卡脚本实现之后在设置单机出生点.PlayerEx.Instance.SpawnPoint
             }
-            else if (Main.Ins.CombatData.GGameMode == GameMode.MENGZHU)
+            else if (CombatData.Ins.GGameMode == GameMode.MENGZHU)
             {
                 //16个点
-                unit.transform.position = Main.Ins.CombatData.GLevelSpawn[Main.Ins.CombatData.SpawnIndex];
-                Main.Ins.CombatData.SpawnIndex++;
-                Main.Ins.CombatData.SpawnIndex %= 16;
+                unit.transform.position = CombatData.Ins.GLevelSpawn[CombatData.Ins.SpawnIndex];
+                CombatData.Ins.SpawnIndex++;
+                CombatData.Ins.SpawnIndex %= 16;
                 unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
             }
-            else if (Main.Ins.CombatData.GGameMode == GameMode.ANSHA || Main.Ins.CombatData.GGameMode == GameMode.SIDOU)
+            else if (CombatData.Ins.GGameMode == GameMode.ANSHA || CombatData.Ins.GGameMode == GameMode.SIDOU)
             {
                 //2个队伍8个点.
                 if (unit.Camp == EUnitCamp.EUC_FRIEND)
                 {
-                    unit.transform.position = Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampASpawnIndex];
-                    Main.Ins.CombatData.CampASpawnIndex++;
-                    Main.Ins.CombatData.CampASpawnIndex %= 8;
+                    unit.transform.position = CombatData.Ins.GCampASpawn[CombatData.Ins.CampASpawnIndex];
+                    CombatData.Ins.CampASpawnIndex++;
+                    CombatData.Ins.CampASpawnIndex %= 8;
                 }
                 else if (unit.Camp == EUnitCamp.EUC_ENEMY)
                 {
-                    unit.transform.position = Main.Ins.CombatData.GCampASpawn[Main.Ins.CombatData.CampBSpawnIndex];
-                    Main.Ins.CombatData.CampBSpawnIndex++;
-                    Main.Ins.CombatData.CampBSpawnIndex %= 8;
+                    unit.transform.position = CombatData.Ins.GCampASpawn[CombatData.Ins.CampBSpawnIndex];
+                    CombatData.Ins.CampBSpawnIndex++;
+                    CombatData.Ins.CampBSpawnIndex %= 8;
                 }
             }
         }
         unit.transform.eulerAngles = new Vector3(0, mon.SpawnDir, 0);
-        U3D.InsertSystemMsg(U3D.GetCampEnterLevelStr(unit));
+        U3D.InsertSystemMsg(U3D.GetCampEnterLevelStr(unit.Camp, unit.name));
         return unit;
     }
 
@@ -457,7 +484,7 @@ public class U3D : MonoBehaviour {
         string shortName = Path.Substring(k + 1);
         shortName = shortName.Substring(0, shortName.Length - 4);
         if (local)
-            return ResMng.localPath + "/Plugins/" + shortDir + "/" + (inzipPath ? shortName + "/" + shortName: shortName) + suffix;//.zip => .png
+            return Main.Ins.localPath + "/Plugins/" + shortDir + "/" + (inzipPath ? shortName + "/" + shortName: shortName) + suffix;//.zip => .png
         return Path.Substring(0, Path.Length - 4) + suffix;
     }
 
@@ -465,7 +492,7 @@ public class U3D : MonoBehaviour {
     {
         if (string.IsNullOrEmpty(script))
             return -1;
-        MeteorUnit target = Main.Ins.SceneMng.Spawn(script);
+        MeteorUnit target = SceneMng.Ins.Spawn(script);
         return target.InstanceId;
     }
 
@@ -478,13 +505,13 @@ public class U3D : MonoBehaviour {
         return string.Format("{0}", "无");
     }
 
-    public static string GetCampEnterLevelStr(MeteorUnit unit)
+    public static string GetCampEnterLevelStr(EUnitCamp Camp, string name)
     {
-        if (unit.Camp == EUnitCamp.EUC_ENEMY)
-            return string.Format("{0} 选择蝴蝶, 进入战场", unit.name);
-        if (unit.Camp == EUnitCamp.EUC_FRIEND)
-            return string.Format("{0} 选择流星,进入战场", unit.name);
-        return string.Format("{0} 进入战场", unit.name);
+        if (Camp == EUnitCamp.EUC_ENEMY)
+            return string.Format("{0} 选择蝴蝶,进入战场", name);
+        if (Camp == EUnitCamp.EUC_FRIEND)
+            return string.Format("{0} 选择流星,进入战场", name);
+        return string.Format("{0} 进入战场", name);
     }
 
     public static void InsertSystemMsg(string msg)
@@ -493,6 +520,10 @@ public class U3D : MonoBehaviour {
             GameOverlayDialogState.Instance.InsertSystemMsg(msg);
     }
 
+    public static void ShowTargetBlood() {
+        GameStateMgr.Ins.gameStatus.ShowBlood = true;
+        InsertSystemMsg("打开敌方血量,攻击任意敌方后展示");
+    }
     //弹出一个简单提示
     public static void PopupTip(string str)
     {
@@ -507,15 +538,16 @@ public class U3D : MonoBehaviour {
     public static void GoToLevelMenu()
     {
         U3D.LoadScene("Startup", () => {
-            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LevelDialogState, Main.Ins.CombatData.Chapter == null);
+            Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LevelDialogState, CombatData.Ins.Chapter == null);
             ClearLevelData();
         });
     }
     //返回到主目录
     public static void GoBack()
     {
-        Main.Ins.CombatData.GLevelItem = null;
-        Main.Ins.CombatData.wayPoints = null;
+        CombatData.Ins.GLevelItem = null;
+        CombatData.Ins.wayPoints = null;
+        CombatData.Ins.GLevelMode = LevelMode.SinglePlayerTask;
         U3D.LoadScene("Startup", () => {
             Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainMenuState);
             ClearLevelData();
@@ -525,9 +557,10 @@ public class U3D : MonoBehaviour {
     //修改版本号后回到Startup重新加载资源
     public static void ReStart()
     {
-        FrameReplay.Instance.OnDisconnected();
-        Main.Ins.CombatData.GLevelItem = null;
-        Main.Ins.CombatData.wayPoints = null;
+        FrameReplay.Ins.OnDisconnected();
+        CombatData.Ins.GLevelItem = null;
+        CombatData.Ins.wayPoints = null;
+        CombatData.Ins.GLevelMode = LevelMode.SinglePlayerTask;
         U3D.LoadScene("Startup", () => {
             Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.StartupDialogState);
             ClearLevelData();
@@ -537,49 +570,9 @@ public class U3D : MonoBehaviour {
     void OnLoadMainFinished(Action t)
     {
         //MainWnd.Instance.Open();
-        Main.Ins.GameStateMgr.SaveState();
+        GameStateMgr.Ins.SaveState();
         if (t != null)
             t.Invoke();
-    }
-
-    public static FileStream save;
-    //清理存档文件
-    public static void SaveClean()
-    {
-        if (save != null)
-            save.Close();
-        save = null;
-    }
-
-    public static void SaveState(string str, object val)
-    {
-        if (save == null)
-        {
-            string path = string.Format("{0}/{1}", Application.persistentDataPath, Main.Ins.GameStateMgr.gameStatus.saveSlot);
-            string script_path = string.Format("{0}/script_status.txt", path);
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
-            save = File.Open(script_path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
-            save.SetLength(0);
-        }
-        byte[] line = new byte[2] { (byte)'\r', (byte)'\n' };
-        if (save != null)
-        {
-            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(string.Format("{0}={1}", str, val));
-            save.Write(buffer, 0, buffer.Length);
-            save.Write(line, 0, 2);
-            save.Flush();
-        }
-    }
-
-    public static void SaveDone()
-    {
-        if (save != null)
-        {
-            save.Flush();
-            save.Close();
-        }
-        save = null;
     }
 
     public static void OpenRobotWnd()
@@ -609,11 +602,11 @@ public class U3D : MonoBehaviour {
 
     public static void OpenSystemWnd()
     {
-        if (Main.Ins.CombatData.GLevelItem != null)
+        if (CombatData.Ins.GLevelItem != null)
         {
             Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.EscDialogState);
-            if (NGUIJoystick.instance != null)
-                NGUIJoystick.instance.Lock(true);
+            if (NGUIJoystick.Ins != null)
+                NGUIJoystick.Ins.Lock(true);
             return;
         }
     }
@@ -621,17 +614,12 @@ public class U3D : MonoBehaviour {
     public static void PlayBtnAudio(string audio = "btn")
     {
         if (Main.Ins.SoundManager != null)
-            Main.Ins.SoundManager.PlaySound(audio);
-    }
-
-    public static void LoadNetLevel()
-    {
-        Main.Ins.NetWorkBattle.Load();
+            SoundManager.Ins.PlaySound(audio);
     }
 
     public static void LoadScene(string scene, Action OnFinished)
     {
-        LevelHelper helper = Instance.gameObject.AddComponent<LevelHelper>();
+        LevelHelper helper = Ins.gameObject.AddComponent<LevelHelper>();
         helper.LoadScene(scene, OnFinished);
     }
 
@@ -639,56 +627,76 @@ public class U3D : MonoBehaviour {
     public static void LoadLevelEx()
     {
         ClearLevelData();
-
-        Main.Ins.SoundManager.StopAll();
-        Main.Ins.SoundManager.Enable(false);
+        SoundManager.Ins.StopAll();
+        SoundManager.Ins.Enable(false);
         Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LoadingDialogState);
-        LevelHelper helper = Instance.gameObject.AddComponent<LevelHelper>();
+        LevelHelper helper = Ins.gameObject.AddComponent<LevelHelper>();
         helper.Load();
-        Log.Write("helper.load end");
     }
 
     static bool CheckRecord(GameRecord rec) {
-        if (rec.frames == null)
+        if (rec.frames == null) {
+            PopupTip("指令记录为空,无法播放");
             return false;
-        if (rec.RecordVersion != Main.Ins.AppInfo.AppVersion())
+        }
+
+        if (rec.AppVersion != AppInfo.Ins.AppVersion()) {
+            PopupTip(string.Format("游戏版本不一致,无法播放 录像:{0} 当前:{1}", rec.AppVersion, AppInfo.Ins.AppVersion()));
             return false;
+        }
+
+        if (rec.MeteorVersion != AppInfo.Ins.MeteorV1()) {
+            PopupTip("流星版本不一致,无法播放,录像:" + (rec.MeteorVersion == 1 ? "1.07" : "9.07") + " 当前:" + (AppInfo.Ins.MeteorV1() == 1 ? "1.07" : "9.07"));
+            return false;
+        }
+
         return true;
     }
 
-    //播放路线
+    public static bool IsMultiplyPlayer() {
+        if (CombatData.Ins.GLevelMode == LevelMode.MultiplyPlayer)
+            return true;
+        return false;
+    }
+
+    //播放录像-不够精确会导致演算误差越来越大
     public static void PlayRecord(GameRecord rec)
     {
-        if (CheckRecord(rec)) {
-            Main.Ins.CombatData.GRecord = rec;
-            Main.Ins.CombatData.GLevelItem = Main.Ins.CombatData.GetLevel(rec.Chapter, rec.Id);
-            Main.Ins.CombatData.Chapter = DlcMng.GetPluginChapter(rec.Chapter);
-            Main.Ins.CombatData.GLevelMode = LevelMode.SinglePlayerTask;
-            Main.Ins.CombatData.GGameMode = GameMode.Normal;
-            Main.Ins.CombatData.wayPoints = CombatData.GetWayPoint(Main.Ins.CombatData.GLevelItem);
-            LoadLevelEx();
-        } else {
-            U3D.PopupTip("录像文件版本不兼容，无法播放");
-        }
+        U3D.PopupTip("功能已取消");
+        //if (CheckRecord(rec)) {
+        //    //第二部检查，需要查看录像保存的设置，和当前的设置之间的差异，有差异的，要提醒，不然表现会不一样
+        //    //录像的状态，覆盖当前的状态，但是不保存
+        //    GameStateMgr.Ins.gameStatus.EnableGodMode = rec.EnableGodMode;
+        //    GameStateMgr.Ins.gameStatus.HidePlayer = rec.HidePlayer;
+        //    GameStateMgr.Ins.gameStatus.EnableInfiniteAngry = rec.EnableInfiniteAngry;
+        //    GameStateMgr.Ins.gameStatus.Undead = rec.Undead;
+        //    CombatData.Ins.GRecord = rec;
+        //    CombatData.Ins.GLevelItem = rec.Level;
+        //    CombatData.Ins.Chapter = DlcMng.GetPluginChapter(rec.Chapter);
+        //    CombatData.Ins.GLevelMode = rec.LevelMode;
+        //    CombatData.Ins.GGameMode = rec.GameMode;
+        //    CombatData.Ins.wayPoints = CombatData.GetWayPoint(CombatData.Ins.GLevelItem);
+        //    LoadLevelEx();
+        //}
     }
 
     //走参数指定关卡.非剧本&非回放
     public static void LoadLevel(LevelData lev, LevelMode levelmode, GameMode gamemode)
     {
-        Main.Ins.CombatData.GRecord = null;
-        Main.Ins.CombatData.Chapter = null;
+        CombatData.Ins.GRecord = null;
+        CombatData.Ins.Chapter = null;
         ClearLevelData();
         Resources.UnloadUnusedAssets();
         GC.Collect();
-        Main.Ins.CombatData.GLevelItem = lev;
-        Main.Ins.CombatData.GLevelMode = levelmode;
-        Main.Ins.CombatData.GGameMode = gamemode;
+        CombatData.Ins.GLevelItem = lev;
+        CombatData.Ins.GLevelMode = levelmode;
+        CombatData.Ins.GGameMode = gamemode;
         Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LoadingDialogState);
         //暂时不允许使用声音管理器，在切换场景时不允许播放
-        Main.Ins.SoundManager.StopAll();
-        Main.Ins.SoundManager.Enable(false);
-        Main.Ins.CombatData.wayPoints = CombatData.GetWayPoint(lev);
-        if (!string.IsNullOrEmpty(lev.sceneItems) && !Main.Ins.GameStateMgr.gameStatus.SkipVideo && levelmode == LevelMode.SinglePlayerTask && Main.Ins.CombatData.Chapter == null)
+        SoundManager.Ins.StopAll();
+        SoundManager.Ins.Enable(false);
+        CombatData.Ins.wayPoints = CombatData.GetWayPoint(lev);
+        if (!string.IsNullOrEmpty(lev.sceneItems) && !GameStateMgr.Ins.gameStatus.SkipVideo && levelmode == LevelMode.SinglePlayerTask && CombatData.Ins.Chapter == null)
         {
             string num = lev.sceneItems.Substring(2);
             int number = 0;
@@ -696,64 +704,51 @@ public class U3D : MonoBehaviour {
             {
                 if (lev.Id >= 0 && lev.Id <= 9)
                 {
-                    string movie = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, "Mmv/" + "b" + number + ".mv");
-                    U3D.PlayMovie(movie);
+                    string movie = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, "mmv/" + "b" + number + ".mv");
+                    Main.Ins.PlayMovie(movie);
                 }
             }
         }
-        LevelHelper helper = Instance.gameObject.AddComponent<LevelHelper>();
+        LevelHelper helper = Ins.gameObject.AddComponent<LevelHelper>();
         helper.Load();
     }
 
     public static void ClearLevelData()
     {
-        Main.Ins.SFXLoader.Clear();
-        Main.Ins.DesLoader.Clear();
-        Main.Ins.GMCLoader.Clear();
-        Main.Ins.GMBLoader.Clear();
-        Main.Ins.FMCLoader.Clear();
-        Main.Ins.SkcLoader.Clear();
-        Main.Ins.BncLoader.Clear();
-        Main.Ins.FMCPoseLoader.Clear();
+        SFXLoader.Ins.Clear();
+        DesLoader.Ins.Clear();
+        GMCLoader.Ins.Clear();
+        GMBLoader.Ins.Clear();
+        FMCLoader.Ins.Clear();
+        SkcLoader.Ins.Clear();
+        BncLoader.Ins.Clear();
+        FMCPoseLoader.Ins.Clear();
         //先清理BUF
-        Main.Ins.BuffMng.Clear();
-        Main.Ins.MeteorManager.Clear();
+        BuffMng.Ins.Clear();
+        MeteorManager.Ins.Clear();
         LevelScriptBase.Clear();
-        Main.Ins.CombatData.CampASpawnIndex = 0;
-        Main.Ins.CombatData.CampBSpawnIndex = 0;
-        Main.Ins.CombatData.SpawnIndex = 0;
+        CombatData.Ins.GLevelSpawn = null;
+        CombatData.Ins.GCampASpawn = null;
+        CombatData.Ins.GCampBSpawn = null;
+        CombatData.Ins.CampASpawnIndex = 0;
+        CombatData.Ins.CampBSpawnIndex = 0;
+        CombatData.Ins.SpawnIndex = 0;
+        CombatData.Ins.GameFinished = false;
         Resources.UnloadUnusedAssets();
         GC.Collect();
     }
 
-    //对接原版脚本
-    static Loader sceneRoot;
     public static void SetSceneItem(string name, string features, int value1)
     {
-        if (sceneRoot == null)
-            sceneRoot = FindObjectOfType<Loader>();
-        GameObject objSelected = NodeHelper.Find(name, sceneRoot.gameObject);
-        if (objSelected == null)
-        {
-            //Debug.LogError(name + " can not find");
-            return;
-        }
-        SceneItemAgent agent = objSelected.GetComponent<SceneItemAgent>();
+
+        SceneItemAgent agent = MeteorManager.Ins.FindSceneItem(name);
         if (agent != null)
             agent.SetSceneItem(features, value1);
     }
 
     public static void SetSceneItem(string name, string features, string sub_features, int value)
     {
-        if (sceneRoot == null)
-            sceneRoot = FindObjectOfType<Loader>();
-        GameObject objSelected = NodeHelper.Find(name, sceneRoot.gameObject);
-        if (objSelected == null)
-        {
-            //Debug.LogError(name + " can not find");
-            return;
-        }
-        SceneItemAgent agent = objSelected.GetComponent<SceneItemAgent>();
+        SceneItemAgent agent = MeteorManager.Ins.FindSceneItem(name);
         if (agent != null)
             agent.SetSceneItem(features, sub_features, value);
     }
@@ -761,142 +756,98 @@ public class U3D : MonoBehaviour {
     //setSceneItem("xx", "pos", posid, loop)
     public static void SetSceneItem(string name, string features, int value1, int value2)
     {
-        GameObject objSelected = NodeHelper.Find(name, Loader.Instance.gameObject);
-        if (objSelected == null)
-        {
-            //Debug.LogError(name + " can not find");
-            return;
-        }
-        SceneItemAgent agent = objSelected.GetComponent<SceneItemAgent>();
+        SceneItemAgent agent = MeteorManager.Ins.FindSceneItem(name);
         if (agent != null)
             agent.SetSceneItem(features, value1, value2);
     }
 
     public static void SetSceneItem(int id, string features, string sub_feature, int value)
     {
-        SceneItemAgent objSelected = null;
-        SceneItemAgent[] agents = FindObjectsOfType<SceneItemAgent>();
-        for (int i = 0; i < agents.Length; i++)
-        {
-            if (agents[i].InstanceId == id)
-            {
-                objSelected = agents[i];
-                break;
-            }
-        }
-        if (objSelected == null)
-        {
-            //Debug.LogError("id: " + id + " can not find");
-            return;
-        }
+        SceneItemAgent objSelected = GetSceneItem(id);
         if (objSelected != null)
             objSelected.SetSceneItem(features, sub_feature, value);
     }
 
     public static void SetSceneItem(int id, string features, int value1, int value2)
     {
-        SceneItemAgent objSelected = null;
-        SceneItemAgent[] agents = FindObjectsOfType<SceneItemAgent>();
-        for (int i = 0; i < agents.Length; i++)
-        {
-            if (agents[i].InstanceId == id)
-            {
-                objSelected = agents[i];
-                break;
-            }
-        }
-        if (objSelected == null)
-        {
-            //Debug.LogError("id: " + id + " can not find");
-            return;
-        }
+        SceneItemAgent objSelected = GetSceneItem(id);
         if (objSelected != null)
             objSelected.SetSceneItem(features, value1, value2);
     }
 
     public static void SetSceneItem(int id, string feature, string value)
     {
-        SceneItemAgent objSelected = null;
-        SceneItemAgent[] agents = FindObjectsOfType<SceneItemAgent>();
-        for (int i = 0; i < agents.Length; i++)
-        {
-            if (agents[i].InstanceId == id)
-            {
-                objSelected = agents[i];
-                break;
-            }
-        }
-        if (objSelected == null)
-        {
-            //Debug.LogError("id: " + id + " can not find");
-            return;
-        }
+        SceneItemAgent objSelected = GetSceneItem(id);
+        
         if (objSelected != null)
             objSelected.SetSceneItem(feature, value);
     }
     public static void SetSceneItem(string name, string feature, string value)
     {
-        GameObject objSelected = NodeHelper.Find(name, Loader.Instance.gameObject);
-        if (objSelected == null)
-        {
-            //Debug.LogError(name + " can not find");
-            return;
-        }
-        SceneItemAgent agent = objSelected.GetComponent<SceneItemAgent>();
+        SceneItemAgent agent = MeteorManager.Ins.FindSceneItem(name);
         if (agent != null)
             agent.SetSceneItem(feature, value);
     }
 
     public static SceneItemAgent GetSceneItem(string name)
     {
-        for (int i = 0; i < Main.Ins.MeteorManager.SceneItems.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.SceneItems.Count; i++)
         {
-            if (Main.Ins.MeteorManager.SceneItems[i].name == name)
-                return Main.Ins.MeteorManager.SceneItems[i];
+            if (MeteorManager.Ins.SceneItems[i].name == name)
+                return MeteorManager.Ins.SceneItems[i];
         }
         return null;
     }
 
     public static int GetSceneItem(string name, string feature)
     {
-        for (int i = 0; i < Main.Ins.MeteorManager.SceneItems.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.SceneItems.Count; i++)
         {
-            if (Main.Ins.MeteorManager.SceneItems[i].name == name)
-                return Main.Ins.MeteorManager.SceneItems[i].GetSceneItem(feature);
+            if (MeteorManager.Ins.SceneItems[i].name == name)
+                return MeteorManager.Ins.SceneItems[i].GetSceneItem(feature);
         }
         return -1;
     }
 
     public static SceneItemAgent GetSceneItem(int id)
     {
-        for (int i = 0; i < Main.Ins.MeteorManager.SceneItems.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.SceneItems.Count; i++)
         {
-            if (Main.Ins.MeteorManager.SceneItems[i].InstanceId == id)
-                return Main.Ins.MeteorManager.SceneItems[i];
+            if (MeteorManager.Ins.SceneItems[i].InstanceId == id)
+                return MeteorManager.Ins.SceneItems[i];
         }
         return null;
     }
+
+    public static PickupItemAgent GetPickupItem(int id) {
+        for (int i = 0; i < MeteorManager.Ins.PickupItems.Count; i++) {
+            if (MeteorManager.Ins.PickupItems[i].InstanceId == id)
+                return MeteorManager.Ins.PickupItems[i];
+        }
+        return null;
+    }
+
     public static int GetSceneItem(int id, string feature)
     {
-        for (int i = 0; i < Main.Ins.MeteorManager.SceneItems.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.SceneItems.Count; i++)
         {
-            if (Main.Ins.MeteorManager.SceneItems[i].InstanceId == id)
-                return Main.Ins.MeteorManager.SceneItems[i].GetSceneItem(feature);
+            if (MeteorManager.Ins.SceneItems[i].InstanceId == id)
+                return MeteorManager.Ins.SceneItems[i].GetSceneItem(feature);
         }
         return -1;
     }
 
     public static int GetTeam(int characterId)
     {
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
         {
-            if (Main.Ins.MeteorManager.UnitInfos[i].InstanceId == characterId)
-                return (int)Main.Ins.MeteorManager.UnitInfos[i].Camp;
+            if (MeteorManager.Ins.UnitInfos[i].InstanceId == characterId)
+                return (int)MeteorManager.Ins.UnitInfos[i].Camp;
         }
 
-        for (int i = 0; i < Main.Ins.MeteorManager.DeadUnits.Count; i++) {
-            if (Main.Ins.MeteorManager.DeadUnits[i].InstanceId == characterId)
-                return (int)Main.Ins.MeteorManager.DeadUnits[i].Camp;
+        for (int i = 0; i < MeteorManager.Ins.DeadUnits.Count; i++) {
+            if (MeteorManager.Ins.DeadUnits[i].InstanceId == characterId)
+                return (int)MeteorManager.Ins.DeadUnits[i].Camp;
         }
         return -1;
     }
@@ -914,7 +865,7 @@ public class U3D : MonoBehaviour {
             }
         }
         if (Main.Ins.SFXLoader != null && objEffect != null)
-            Main.Ins.SFXLoader.PlayEffect(effect, objEffect, !loop);
+            SFXLoader.Ins.PlayEffect(effect, objEffect, !loop);
     }
 
     public static void CreateEffect(int id, string effect, bool loop = false)
@@ -930,17 +881,17 @@ public class U3D : MonoBehaviour {
             }
         }
         if (Main.Ins.SFXLoader != null && objEffect != null)
-            Main.Ins.SFXLoader.PlayEffect(effect, objEffect.gameObject, !loop);
+            SFXLoader.Ins.PlayEffect(effect, objEffect.gameObject, !loop);
     }
 
     public static MeteorUnit GetTeamLeader(EUnitCamp camp)
     {
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
         {
-            if (Main.Ins.MeteorManager.UnitInfos[i].Camp == camp)
+            if (MeteorManager.Ins.UnitInfos[i].Camp == camp)
             {
-                if (Main.Ins.MeteorManager.UnitInfos[i].IsLeader)
-                    return Main.Ins.MeteorManager.UnitInfos[i];
+                if (MeteorManager.Ins.UnitInfos[i].IsLeader)
+                    return MeteorManager.Ins.UnitInfos[i];
             }
         }
         return null;
@@ -1088,10 +1039,10 @@ public class U3D : MonoBehaviour {
 
     public static MeteorUnit GetFlag()
     {
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
         {
-            if (Main.Ins.MeteorManager.UnitInfos[i].GetFlag)
-                return Main.Ins.MeteorManager.UnitInfos[i];
+            if (MeteorManager.Ins.UnitInfos[i].GetFlag)
+                return MeteorManager.Ins.UnitInfos[i];
         }
         return null;
     }
@@ -1103,26 +1054,26 @@ public class U3D : MonoBehaviour {
         //取得谁获得了任务物品
         if (player == "flag")
         {
-            for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+            for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
             {
-                if (Main.Ins.MeteorManager.UnitInfos[i].GetFlag)
-                    return Main.Ins.MeteorManager.UnitInfos[i].InstanceId;
+                if (MeteorManager.Ins.UnitInfos[i].GetFlag)
+                    return MeteorManager.Ins.UnitInfos[i].InstanceId;
             }
             return -1;
         }
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
         {
-            if (Main.Ins.MeteorManager.UnitInfos[i].name == player)
-                return Main.Ins.MeteorManager.UnitInfos[i].InstanceId;
+            if (MeteorManager.Ins.UnitInfos[i].name == player)
+                return MeteorManager.Ins.UnitInfos[i].InstanceId;
         }
 
-        for (int i = 0; i < Main.Ins.MeteorManager.DeadUnits.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.DeadUnits.Count; i++)
         {
-            if (Main.Ins.MeteorManager.DeadUnits[i].name == player)
-                return Main.Ins.MeteorManager.DeadUnits[i].InstanceId;
+            if (MeteorManager.Ins.DeadUnits[i].name == player)
+                return MeteorManager.Ins.DeadUnits[i].InstanceId;
         }
 
-        foreach (var each in Main.Ins.MeteorManager.LeavedUnits)
+        foreach (var each in MeteorManager.Ins.LeavedUnits)
         {
             if (each.Value == player)
                 return each.Key;
@@ -1135,15 +1086,15 @@ public class U3D : MonoBehaviour {
     {
         if (name == "player")
             return 0;
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
         {
-            if (Main.Ins.MeteorManager.UnitInfos[i].name == name)
-                return Main.Ins.MeteorManager.UnitInfos[i].InstanceId;
+            if (MeteorManager.Ins.UnitInfos[i].name == name)
+                return MeteorManager.Ins.UnitInfos[i].InstanceId;
         }
-        for (int i = 0; i < Main.Ins.MeteorManager.DeadUnits.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.DeadUnits.Count; i++)
         {
-            if (Main.Ins.MeteorManager.DeadUnits[i].name == name)
-                return Main.Ins.MeteorManager.DeadUnits[i].InstanceId;
+            if (MeteorManager.Ins.DeadUnits[i].name == name)
+                return MeteorManager.Ins.DeadUnits[i].InstanceId;
         }
         return -1;
     }
@@ -1158,29 +1109,29 @@ public class U3D : MonoBehaviour {
 
     public static int GetHP(int id)
     {
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
         {
-            if (Main.Ins.MeteorManager.UnitInfos[i].InstanceId == id)
-                return Main.Ins.MeteorManager.UnitInfos[i].Attr.hpCur;
+            if (MeteorManager.Ins.UnitInfos[i].InstanceId == id)
+                return MeteorManager.Ins.UnitInfos[i].Attr.hpCur;
         }
-        for (int i = 0; i < Main.Ins.MeteorManager.DeadUnits.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.DeadUnits.Count; i++)
         {
-            if (Main.Ins.MeteorManager.DeadUnits[i].InstanceId == id)
-                return Main.Ins.MeteorManager.DeadUnits[i].Attr.hpCur;
+            if (MeteorManager.Ins.DeadUnits[i].InstanceId == id)
+                return MeteorManager.Ins.DeadUnits[i].Attr.hpCur;
         }
         return 0;
     }
     public static int GetMaxHP(int id)
     {
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
         {
-            if (Main.Ins.MeteorManager.UnitInfos[i].InstanceId == id)
-                return Main.Ins.MeteorManager.UnitInfos[i].Attr.HpMax;
+            if (MeteorManager.Ins.UnitInfos[i].InstanceId == id)
+                return MeteorManager.Ins.UnitInfos[i].Attr.HpMax;
         }
-        for (int i = 0; i < Main.Ins.MeteorManager.DeadUnits.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.DeadUnits.Count; i++)
         {
-            if (Main.Ins.MeteorManager.DeadUnits[i].InstanceId == id)
-                return Main.Ins.MeteorManager.DeadUnits[i].Attr.HpMax;
+            if (MeteorManager.Ins.DeadUnits[i].InstanceId == id)
+                return MeteorManager.Ins.DeadUnits[i].Attr.HpMax;
         }
         return 0;
     }
@@ -1289,7 +1240,7 @@ public class U3D : MonoBehaviour {
         //停止动作的时候，状态为等待，一般遇见敌人时会调用此接口
         if (u != null)
         {
-            u.AIPause(false);
+            u.AIPause(false, 0);
             //先清除该角色的聊天动作，其他动画动作不处理。
             Main.Ins.GameBattleEx.StopAction(id);
         }
@@ -1300,7 +1251,7 @@ public class U3D : MonoBehaviour {
     //获得2个角色的距离.
     public static float Distance(int idx1, int idx2)
     {
-        if (Main.Ins.CombatData.GLevelItem != null && Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (CombatData.Ins.GLevelItem != null && CombatData.Ins.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             MeteorUnit a = GetUnit(idx1);
             MeteorUnit b = GetUnit(idx2);
@@ -1313,13 +1264,13 @@ public class U3D : MonoBehaviour {
 
     public static int Rand(int n)
     {
-        return UnityEngine.Random.Range(0, n);
+        return Utility.Range(0, n);
     }
 
     //单机下
     public static void RotatePlayer(string name, float yRotate)
     {
-        if (Main.Ins.CombatData.GLevelItem != null && Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (CombatData.Ins.GLevelItem != null && CombatData.Ins.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             int id = GetChar(name);
             if (id != -1)
@@ -1333,7 +1284,7 @@ public class U3D : MonoBehaviour {
 
     public static void MovePlayer(string name, Vector3 position)
     {
-        if (Main.Ins.CombatData.GLevelItem != null && Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (CombatData.Ins.GLevelItem != null && CombatData.Ins.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             int id = GetChar(name);
             if (id != -1)
@@ -1347,7 +1298,7 @@ public class U3D : MonoBehaviour {
 
     public static void MoveNpc(string name, int spawnPoint)
     {
-        if (Main.Ins.CombatData.GLevelItem != null && Main.Ins.CombatData.GLevelMode <= LevelMode.SinglePlayerTask)
+        if (CombatData.Ins.GLevelItem != null && CombatData.Ins.GLevelMode <= LevelMode.SinglePlayerTask)
         {
             int id = GetChar(name);
             if (id != -1)
@@ -1364,7 +1315,7 @@ public class U3D : MonoBehaviour {
         MeteorUnit unit = GetUnit(id);
         bool dead = unit.Dead;
         string message = unit.name + " 离开战场";
-        Main.Ins.MeteorManager.OnRemoveUnit(unit);
+        MeteorManager.Ins.OnRemoveUnit(unit);
         if (!dead)
             InsertSystemMsg(message);
     }
@@ -1375,18 +1326,23 @@ public class U3D : MonoBehaviour {
         monster.Attr.UpdateAttr();
     }
 
+    public static string GetNetPlayerName(int id) {
+        MeteorUnit unit = GetUnit(id);
+        return unit != null ? unit.name : "不明身份者";
+    }
+
     public static MeteorUnit GetUnit(int id)
     {
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
         {
-            if (Main.Ins.MeteorManager.UnitInfos[i].InstanceId == id)
-                return Main.Ins.MeteorManager.UnitInfos[i];
+            if (MeteorManager.Ins.UnitInfos[i].InstanceId == id)
+                return MeteorManager.Ins.UnitInfos[i];
         }
 
-        for (int i = 0; i < Main.Ins.MeteorManager.DeadUnits.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.DeadUnits.Count; i++)
         {
-            if (Main.Ins.MeteorManager.DeadUnits[i].InstanceId == id)
-                return Main.Ins.MeteorManager.DeadUnits[i];
+            if (MeteorManager.Ins.DeadUnits[i].InstanceId == id)
+                return MeteorManager.Ins.DeadUnits[i];
         }
         return null;
     }
@@ -1397,88 +1353,14 @@ public class U3D : MonoBehaviour {
             Main.Ins.GameBattleEx.PushActionSay(id, param);//1=say 2=pause
     }
 
-    [DoNotToLua]
-    static WebClient downloadMovie;
-    [DoNotToLua]
-    public static List<string> WaitDownload = new List<string>();
-    public static void PlayMovie(string movie)
-    {
-        if (Main.Ins.GameStateMgr.gameStatus.LocalMovie.ContainsKey(movie))
-        {
-            Debug.Log("PlayMovie:" + movie);
-            if (downloadMovie == null)
-            {
-                if (WaitDownload.Count != 0)
-                {
-                    downloadMovie = new WebClient();
-                    string download = WaitDownload[0];
-                    int index = download.LastIndexOf("/");
-                    string file = movie.Substring(index + 1);
-                    string local = Application.persistentDataPath + "/Mmv/" + file;//start.mv
-                    local = local.Replace(".mv", ".mp4");
-                    Debug.Log("file:" + file);
-                    downloadMovie.DownloadFileCompleted += (object sender, AsyncCompletedEventArgs e) => {
-                        if (e.Error != null)
-                        {
-                            Main.Ins.GameStateMgr.gameStatus.LocalMovie.Add(download, local);
-                            WaitDownload.Remove(download);
-                        }
-                        downloadMovie.CancelAsync();
-                        downloadMovie.Dispose();
-                        downloadMovie = null;
-                    };
-                    downloadMovie.DownloadFileAsync(new Uri(download), local);
-                    Debug.Log("downloadMovieQueue:" + download + " to" + local);
-                }
-            }
-            try {
-                Handheld.PlayFullScreenMovie(Main.Ins.GameStateMgr.gameStatus.LocalMovie[movie], Color.black, FullScreenMovieControlMode.CancelOnInput, FullScreenMovieScalingMode.AspectFit);
-            }
-            catch(Exception exp) {
-                Log.WriteError("PlayFullScreenMovie:" + exp.Message + exp.StackTrace);
-            }
-        }
-        else
-        {
-            if (Main.Ins.GameStateMgr.gameStatus.SkipVideo)
-                return;
-            if (!Directory.Exists(Application.persistentDataPath + "/Mmv"))
-                Directory.CreateDirectory(Application.persistentDataPath + "/Mmv");
-            if (downloadMovie != null)
-            {
-                //还在下载其他
-                if (!WaitDownload.Contains(movie))
-                    WaitDownload.Add(movie);
-                return;
-            }
-            downloadMovie = new WebClient();
-            int index = movie.LastIndexOf("/");
-            string file = movie.Substring(index + 1);
-            string local = Application.persistentDataPath + "/Mmv/" + file;
-            local = local.Replace(".mv", ".mp4");
-            Debug.Log("file:" + file);
-            downloadMovie.DownloadFileCompleted += (object sender, AsyncCompletedEventArgs e) => {
-                if (e.Error == null)
-                {
-                    Debug.Log("download completed");
-                    Main.Ins.GameStateMgr.gameStatus.LocalMovie.Add(movie, local);
-                    Main.Ins.GameStateMgr.SaveState();
-                }
-                downloadMovie.CancelAsync();
-                downloadMovie.Dispose();
-                downloadMovie = null;
-            };
-            downloadMovie.DownloadFileAsync(new Uri(movie), local);
-            Debug.Log("downloadMovie:" + movie + " to" + local);
-        }
-    }
+    
 
     public static int GetEnemyCount()
     {
         int total = 0;
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
         {
-            if (Main.Ins.MeteorManager.UnitInfos[i].Camp != EUnitCamp.EUC_Meteor)
+            if (MeteorManager.Ins.UnitInfos[i].Camp != EUnitCamp.EUC_Meteor)
                 total++;
         }
         return total;
@@ -1507,20 +1389,6 @@ public class U3D : MonoBehaviour {
             u.AddAngry(angry);
     }
 
-    public static void Drop(int itemIdx)
-    {
-        MakeItem(itemIdx);
-    }
-    //仍物品到前方地面上
-    public static void MakeItem(int itemIdx)
-    {
-        ItemData it = Main.Ins.GameStateMgr.FindItemByIdx(itemIdx);
-        if (it != null && it.MainType == (int)UnitType.Weapon) {
-            Main.Ins.DropMng.DropWeapon2(it.UnitId);
-            return;
-        }
-    }
-
     public static Camera GetMainCamera()
     {
         GameObject objCamera = GameObject.Find("CameraEx");
@@ -1534,7 +1402,7 @@ public class U3D : MonoBehaviour {
 
     public static bool IsSpecialWeapon(int itemIdx)
     {
-        ItemData it0 = Main.Ins.GameStateMgr.FindItemByIdx(itemIdx);
+        ItemData it0 = GameStateMgr.Ins.FindItemByIdx(itemIdx);
         if (it0 == null)
             return false;
         if (it0.SubType == (int)EquipWeaponType.Gun || 
@@ -1548,18 +1416,16 @@ public class U3D : MonoBehaviour {
 
     public static void UnlockLevel()
     {
-        Main.Ins.GameStateMgr.gameStatus.Level = CombatData.LEVELMAX;
-        if (Main.Ins.GameStateMgr.gameStatus.pluginChapter != null) {
-            for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginChapter.Count; i++) {
-                Chapter chapter = Main.Ins.GameStateMgr.gameStatus.pluginChapter[i];
+        GameStateMgr.Ins.gameStatus.Level = CombatData.LEVELMAX;
+        if (GameStateMgr.Ins.gameStatus.pluginChapter != null) {
+            for (int i = 0; i < GameStateMgr.Ins.gameStatus.pluginChapter.Count; i++) {
+                Chapter chapter = GameStateMgr.Ins.gameStatus.pluginChapter[i];
                 List<LevelData> all = chapter.LoadAll();
                 if (all != null && all.Count != 0)
                     chapter.level = all[all.Count - 1].Id;
             }
         }
-        Main.Ins.GameStateMgr.SaveState();
-        Main.Ins.GameStateMgr.SyncDlcState();
-        Main.Ins.GameStateMgr.SaveDlc();
+        GameStateMgr.Ins.SaveState();
     }
 
     public static bool IsUnitDead(int instanceid)
@@ -1573,11 +1439,13 @@ public class U3D : MonoBehaviour {
     public static bool AllFriendDead()
     {
         bool alldead = true;
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
         {
-            if (Main.Ins.MeteorManager.UnitInfos[i].SameCamp(Main.Ins.LocalPlayer))
+            if (MeteorManager.Ins.UnitInfos[i] == null)
+                continue;
+            if (MeteorManager.Ins.UnitInfos[i].SameCamp(Main.Ins.LocalPlayer))
             {
-                if (!Main.Ins.MeteorManager.UnitInfos[i].Dead)
+                if (!MeteorManager.Ins.UnitInfos[i].Dead)
                 {
                     alldead = false;
                     break;
@@ -1590,11 +1458,13 @@ public class U3D : MonoBehaviour {
     public static bool AllEnemyDead()
     {
         bool alldead = true;
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
         {
-            if (!Main.Ins.MeteorManager.UnitInfos[i].SameCamp(Main.Ins.LocalPlayer))
+            if (MeteorManager.Ins.UnitInfos[i] == null)
+                continue;
+            if (!MeteorManager.Ins.UnitInfos[i].SameCamp(Main.Ins.LocalPlayer))
             {
-                if (!Main.Ins.MeteorManager.UnitInfos[i].Dead)
+                if (!MeteorManager.Ins.UnitInfos[i].Dead)
                 {
                     alldead = false;
                     break;
@@ -1607,44 +1477,52 @@ public class U3D : MonoBehaviour {
     public static void OnPauseAI()
     {
         //Debug.LogError("pause ai");
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
         {
-            Main.Ins.MeteorManager.UnitInfos[i].EnableAI(false);
+            if (MeteorManager.Ins.UnitInfos[i] == null)
+                continue;
+            MeteorManager.Ins.UnitInfos[i].EnableAI(false);
         }
     }
 
     public static void EnableUpdate(bool enable) {
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++) {
-            Main.Ins.MeteorManager.UnitInfos[i].EnableUpdate(enable);
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++) {
+            if (MeteorManager.Ins.UnitInfos[i] == null)
+                continue;
+            MeteorManager.Ins.UnitInfos[i].EnableUpdate(enable);
         }
     }
 
     public static void OnResumeAI()
     {
         //Debug.LogError("resume ai");
-        for (int i = 0; i < Main.Ins.MeteorManager.UnitInfos.Count; i++)
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++)
         {
-            Main.Ins.MeteorManager.UnitInfos[i].EnableAI(true);
+            if (MeteorManager.Ins.UnitInfos[i] == null)
+                continue;
+            MeteorManager.Ins.UnitInfos[i].EnableAI(true);
         }
     }
 
+    public static void Snow() {
+        if (CombatData.Ins.GScript != null)
+            CombatData.Ins.GScript.Snow();
+    }
+
     public static void DoScript() {
-        Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.ScriptInputDialogState);
+        ScriptInputDialogState.State.Open();
     }
 
     //以下为脚本系统执行面板里能响应的操作
     public static void GodLike()
     {
-        Main.Ins.GameStateMgr.gameStatus.CheatEnable = !Main.Ins.GameStateMgr.gameStatus.CheatEnable;
-        U3D.InsertSystemMsg(Main.Ins.GameStateMgr.gameStatus.CheatEnable ? "作弊[开]" : "作弊[关]");
-        //if (EscWnd.Exist)
-        //    EscWnd.Instance.Close();
-        //EscWnd.Instance.Open();
+        GameStateMgr.Ins.gameStatus.CheatEnable = !GameStateMgr.Ins.gameStatus.CheatEnable;
+        U3D.InsertSystemMsg(GameStateMgr.Ins.gameStatus.CheatEnable ? "作弊[开]" : "作弊[关]");
     }
 
     public static WeaponData GetWeaponProperty(int weaponIdx)
     {
-        WeaponData w = Main.Ins.DataMgr.GetWeaponData(weaponIdx);
+        WeaponData w = DataMgr.Ins.GetWeaponData(weaponIdx);
         //if (w == null)
         //    w = PluginWeaponMng.Instance.GetItem(weaponIdx);
         if (w == null)
@@ -1655,11 +1533,11 @@ public class U3D : MonoBehaviour {
     public static void DeletePlugins(int filter = 0)
     {
         if (filter == 0)
-            Main.Ins.GameStateMgr.gameStatus.pluginChapter.Clear();
+            GameStateMgr.Ins.gameStatus.pluginChapter.Clear();
         if (filter == 1)
-            Main.Ins.GameStateMgr.gameStatus.pluginModel.Clear();
-        Main.Ins.CombatData.PluginUpdated = false;
-        Main.Ins.GameStateMgr.SaveState();
+            GameStateMgr.Ins.gameStatus.pluginModel.Clear();
+        CombatData.Ins.PluginUpdated = false;
+        GameStateMgr.Ins.SaveState();
     }
 
     /// <summary>
@@ -1674,15 +1552,13 @@ public class U3D : MonoBehaviour {
     {
         MeteorUnit uEnemy = U3D.GetTeamLeader(EUnitCamp.EUC_ENEMY);
         MeteorUnit uPlayer = U3D.GetUnit(0);
-        Main.Ins.SFXLoader.PlayEffect("vipblue.ef", uPlayer.gameObject, false);
+        SFXLoader.Ins.PlayEffect("vipblue.ef", uPlayer.gameObject, false);
         if (uEnemy != null)
-            Main.Ins.SFXLoader.PlayEffect("vipred.ef", uEnemy.gameObject, false);
+            SFXLoader.Ins.PlayEffect("vipred.ef", uEnemy.gameObject, false);
     }
 
-    //杀 UI上的编号1是主角，在游戏内的序号是0
-    public static void Kill(int uiIndex) {
-        int id = uiIndex - 1;
-        MeteorUnit unit = GetUnit(id);
+    public static void Kill(int instance) {
+        MeteorUnit unit = GetUnit(instance);
         if (unit != null) {
             unit.OnDead();
         }

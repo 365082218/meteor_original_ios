@@ -15,7 +15,7 @@
     <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
     <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
-    <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
+    <UnityBuildTarget>Android:13</UnityBuildTarget>
     <UnityVersion>5.5.5p1</UnityVersion>
     <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
@@ -27,7 +27,7 @@
     <IntermediateOutputPath>Temp\UnityVS_obj\Debug\</IntermediateOutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DefineConstants>DEBUG;TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_5_5;UNITY_5_5;UNITY_5;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_DUCK_TYPING;ENABLE_GENERICS;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;INCLUDE_DYNAMIC_GI;INCLUDE_GI;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_SCRIPTING_NEW_CSHARP_COMPILER;UNITY_STANDALONE_WIN;UNITY_STANDALONE;ENABLE_SUBSTANCE;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_EVENT_QUEUE;ENABLE_CLUSTERINPUT;ENABLE_VIDEO;ENABLE_VR;ENABLE_WEBSOCKET_HOST;ENABLE_MONO;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;UNITY_TEAM_LICENSE;ENABLE_VSTU;UNITY_PRO_LICENSE;BUILD_PC;RAVEN_COMPILED;</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_5_5;UNITY_5_5;UNITY_5;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_GENERICS;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;INCLUDE_DYNAMIC_GI;INCLUDE_GI;PLATFORM_SUPPORTS_MONO;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_SCRIPTING_NEW_CSHARP_COMPILER;UNITY_ANDROID;ENABLE_SUBSTANCE;UNITY_ANDROID_API;ENABLE_EGL;ENABLE_NETWORK;ENABLE_RUNTIME_GI;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;PLATFORM_SUPPORTS_ADS_ID;UNITY_CAN_SHOW_SPLASH_SCREEN;ENABLE_VIDEO;ENABLE_VR;ENABLE_UNITYADS_RUNTIME;UNITY_UNITYADS_API;ENABLE_MONO;DEVELOPMENT_BUILD;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;UNITY_TEAM_LICENSE;ENABLE_VSTU;UNITY_PRO_LICENSE;STRIP_KEYBOARD;</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -37,7 +37,7 @@
     <IntermediateOutputPath>Temp\UnityVS_obj\Release\</IntermediateOutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DefineConstants>TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_5_5;UNITY_5_5;UNITY_5;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_DUCK_TYPING;ENABLE_GENERICS;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;INCLUDE_DYNAMIC_GI;INCLUDE_GI;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_SCRIPTING_NEW_CSHARP_COMPILER;UNITY_STANDALONE_WIN;UNITY_STANDALONE;ENABLE_SUBSTANCE;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_EVENT_QUEUE;ENABLE_CLUSTERINPUT;ENABLE_VIDEO;ENABLE_VR;ENABLE_WEBSOCKET_HOST;ENABLE_MONO;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;UNITY_TEAM_LICENSE;ENABLE_VSTU;UNITY_PRO_LICENSE;BUILD_PC;RAVEN_COMPILED;</DefineConstants>
+    <DefineConstants>TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_5_5;UNITY_5_5;UNITY_5;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_GENERICS;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;INCLUDE_DYNAMIC_GI;INCLUDE_GI;PLATFORM_SUPPORTS_MONO;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_SCRIPTING_NEW_CSHARP_COMPILER;UNITY_ANDROID;ENABLE_SUBSTANCE;UNITY_ANDROID_API;ENABLE_EGL;ENABLE_NETWORK;ENABLE_RUNTIME_GI;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;PLATFORM_SUPPORTS_ADS_ID;UNITY_CAN_SHOW_SPLASH_SCREEN;ENABLE_VIDEO;ENABLE_VR;ENABLE_UNITYADS_RUNTIME;UNITY_UNITYADS_API;ENABLE_MONO;DEVELOPMENT_BUILD;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;UNITY_TEAM_LICENSE;ENABLE_VSTU;UNITY_PRO_LICENSE;STRIP_KEYBOARD;</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
@@ -132,7 +132,6 @@
     <Compile Include="Assets\Code\Datas\Model.cs" />
     <Compile Include="Assets\Code\Datas\Weapon.cs" />
     <Compile Include="Assets\Code\Idevgame\3DUtil\BoundsGizmos.cs" />
-    <Compile Include="Assets\Code\Idevgame\3DUtil\CubeTest.cs" />
     <Compile Include="Assets\Code\Idevgame\3DUtil\GizMosHelper.cs" />
     <Compile Include="Assets\Code\Idevgame\3DUtil\OBB2D.cs" />
     <Compile Include="Assets\Code\Idevgame\3DUtil\OBB2DEx.cs" />
@@ -144,11 +143,11 @@
     <Compile Include="Assets\Code\Idevgame\Common\StateManagement\DialogStateManagement\DialogStateManager.cs" />
     <Compile Include="Assets\Code\Idevgame\Common\StateManagement\GameStateManagement\GameStateManager.cs" />
     <Compile Include="Assets\Code\Idevgame\Common\StateManagement\StateManager.cs" />
-    <Compile Include="Assets\Code\Idevgame\Common\Util\BiMap.cs" />
     <Compile Include="Assets\Code\Idevgame\Common\Util\EventBus.cs" />
     <Compile Include="Assets\Code\Idevgame\Common\Util\MathUtility.cs" />
     <Compile Include="Assets\Code\Idevgame\Common\Util\NodeHelper.cs" />
     <Compile Include="Assets\Code\Idevgame\Common\Util\ObjectUtils.cs" />
+    <Compile Include="Assets\Code\Idevgame\Common\Util\PingTool.cs" />
     <Compile Include="Assets\Code\Idevgame\Common\Util\SerializerType.cs" />
     <Compile Include="Assets\Code\Idevgame\Common\Util\Timer.cs" />
     <Compile Include="Assets\Code\Idevgame\Common\Util\UIHelper.cs" />
@@ -158,8 +157,8 @@
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\CampSelectDialog.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\ChatDialog.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\ConnectWnd.cs" />
+    <Compile Include="Assets\Code\Idevgame\GUI\Dialog\CreateRoomDialog.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\Dialog.cs" />
-    <Compile Include="Assets\Code\Idevgame\GUI\Dialog\DialogUtils.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\EnhanceItem.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\EnhanceScrollView.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\EscConfirmWnd.cs" />
@@ -168,6 +167,7 @@
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\GameOverlayWnd.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\GunShootUI.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\HostEditDialog.cs" />
+    <Compile Include="Assets\Code\Idevgame\GUI\Dialog\IdevButton.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\ItemInfoDialog.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\LevelDialog.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\LoadingEx.cs" />
@@ -187,11 +187,11 @@
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\PsdEditWnd.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\ReConnectWnd.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\RecordDialog.cs" />
+    <Compile Include="Assets\Code\Idevgame\GUI\Dialog\RecordSelectDialog.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\ReplayWnd.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\RobotDialog.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\RoleSelectDialog.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\RoomChatDialog.cs" />
-    <Compile Include="Assets\Code\Idevgame\GUI\Dialog\RoomOptionDialog.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\ScriptInputDialog.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\ServerListDialog.cs" />
     <Compile Include="Assets\Code\Idevgame\GUI\Dialog\SettingDialog.cs" />
@@ -216,9 +216,11 @@
     <Compile Include="Assets\Code\Idevgame\GameState\GameState\Tutorial\HelperHandController.cs" />
     <Compile Include="Assets\Code\Idevgame\LayerManager.cs" />
     <Compile Include="Assets\Code\Idevgame\PlayerJoyStick.cs" />
+    <Compile Include="Assets\Code\Prefs\Cookie.cs" />
     <Compile Include="Assets\DoubleSideMeshCollider.cs" />
     <Compile Include="Assets\GameConfig.cs" />
     <Compile Include="Assets\GamePool.cs" />
+    <Compile Include="Assets\ItemLoader.cs" />
     <Compile Include="Assets\LinkLabel.cs" />
     <Compile Include="Assets\MeshMng.cs" />
     <Compile Include="Assets\Meteor\AI\RVOController.cs" />
@@ -229,12 +231,10 @@
     <Compile Include="Assets\Meteor\CameraFollow.cs" />
     <Compile Include="Assets\Meteor\CameraFree.cs" />
     <Compile Include="Assets\Meteor\CheatCode.cs" />
-    <Compile Include="Assets\Meteor\ClientProxy.cs" />
     <Compile Include="Assets\Meteor\Common.cs" />
     <Compile Include="Assets\Meteor\DartLoader.cs" />
     <Compile Include="Assets\Meteor\DlcManagerWnd.cs" />
     <Compile Include="Assets\Meteor\DlcWnd.cs" />
-    <Compile Include="Assets\Meteor\Encrypt.cs" />
     <Compile Include="Assets\Meteor\FightBox.cs" />
     <Compile Include="Assets\Meteor\FlyWheel.cs" />
     <Compile Include="Assets\Meteor\GameButton.cs" />
@@ -257,6 +257,7 @@
     <Compile Include="Assets\Meteor\Monster.cs" />
     <Compile Include="Assets\Meteor\PMDSave.cs" />
     <Compile Include="Assets\Meteor\PShadow.cs" />
+    <Compile Include="Assets\Meteor\PacketProxy.cs" />
     <Compile Include="Assets\Meteor\PathMng.cs" />
     <Compile Include="Assets\Meteor\ResLoader\ActionInterrupt.cs" />
     <Compile Include="Assets\Meteor\ResLoader\BNCLoader.cs" />
@@ -285,13 +286,15 @@
     <Compile Include="Assets\Meteor\SkillEvent\CharPoseShadow.cs" />
     <Compile Include="Assets\Meteor\SoundManager.cs" />
     <Compile Include="Assets\Meteor\Spline.cs" />
-    <Compile Include="Assets\Meteor\Sync\Fix64.cs" />
-    <Compile Include="Assets\Meteor\Sync\FrameRecord.cs" />
-    <Compile Include="Assets\Meteor\Sync\FrameReplay.cs" />
-    <Compile Include="Assets\Meteor\TcpProxy.cs" />
+    <Compile Include="Assets\Meteor\TcpClientProxy.cs" />
     <Compile Include="Assets\Meteor\TextEffect.cs" />
+    <Compile Include="Assets\Meteor\TrueSync\FrameRecord.cs" />
+    <Compile Include="Assets\Meteor\TrueSync\FrameReplay.cs" />
+    <Compile Include="Assets\Meteor\TrueSync\FrameSnapShot.cs" />
+    <Compile Include="Assets\Meteor\TrueSync\INetUpdate.cs" />
     <Compile Include="Assets\Meteor\U3D.cs" />
     <Compile Include="Assets\Meteor\UIFunCtrl.cs" />
+    <Compile Include="Assets\Meteor\UdpClientProxy.cs" />
     <Compile Include="Assets\Meteor\UnitTopUI.cs" />
     <Compile Include="Assets\Meteor\UpdateDialog.cs" />
     <Compile Include="Assets\Meteor\WeaponTrail.cs" />
@@ -302,6 +305,7 @@
     <Compile Include="Assets\PluginsWrapper\AndroidWrapper.cs" />
     <Compile Include="Assets\PluginsWrapper\IosWrapper.cs" />
     <Compile Include="Assets\ProtoHandler.cs" />
+    <Compile Include="Assets\Script\ActionBar.cs" />
     <Compile Include="Assets\Script\CFX_AutoDestructShuriken.cs" />
     <Compile Include="Assets\Script\CFX_AutoRotate.cs" />
     <Compile Include="Assets\Script\CFX_AutodestructWhenNoChildren.cs" />
@@ -330,9 +334,6 @@
     <Compile Include="Assets\Script\NGUIJoystick.cs" />
     <Compile Include="Assets\Script\NetWorkBattle.cs" />
     <Compile Include="Assets\Script\ObjectPool.cs" />
-    <Compile Include="Assets\Script\PhysicWrapper\Collider.cs" />
-    <Compile Include="Assets\Script\PhysicWrapper\INetUpdate.cs" />
-    <Compile Include="Assets\Script\PhysicWrapper\Worlds.cs" />
     <Compile Include="Assets\Script\PickupItemAgent.cs" />
     <Compile Include="Assets\Script\PressDrag.cs" />
     <Compile Include="Assets\Script\SceneItemAgent.cs" />
@@ -1104,6 +1105,7 @@
     <Compile Include="Assets\ThirdParty\7zip\Compress\RangeCoder\RangeCoderBitTree.cs" />
     <Compile Include="Assets\ThirdParty\7zip\ICoder.cs" />
     <Compile Include="Assets\ThirdParty\7zip\LZMAHelper.cs" />
+    <Compile Include="Assets\ThirdParty\ByteBuf.cs" />
     <Compile Include="Assets\ThirdParty\Jitter\Collision\CollisionIsland.cs" />
     <Compile Include="Assets\ThirdParty\Jitter\Collision\CollisionSystem.cs" />
     <Compile Include="Assets\ThirdParty\Jitter\Collision\CollisionSystemBrute.cs" />
@@ -1126,7 +1128,6 @@
     <Compile Include="Assets\ThirdParty\Jitter\Collision\Shapes\TerrainShape.cs" />
     <Compile Include="Assets\ThirdParty\Jitter\Collision\Shapes\TriangleMeshShape.cs" />
     <Compile Include="Assets\ThirdParty\Jitter\Collision\XenoCollide.cs" />
-    <Compile Include="Assets\ThirdParty\Jitter\DataStructures\Action.cs" />
     <Compile Include="Assets\ThirdParty\Jitter\DataStructures\Hashset.cs" />
     <Compile Include="Assets\ThirdParty\Jitter\DataStructures\ReadOnlyHashset.cs" />
     <Compile Include="Assets\ThirdParty\Jitter\Dynamics\Arbiter.cs" />
@@ -1136,9 +1137,6 @@
     <Compile Include="Assets\ThirdParty\Jitter\Dynamics\Constraints\PointOnLine.cs" />
     <Compile Include="Assets\ThirdParty\Jitter\Dynamics\Constraints\PointOnPoint.cs" />
     <Compile Include="Assets\ThirdParty\Jitter\Dynamics\Constraints\PointPointDistance.cs" />
-    <Compile Include="Assets\ThirdParty\Jitter\Dynamics\Constraints\SingleBody\FixedAngle.cs" />
-    <Compile Include="Assets\ThirdParty\Jitter\Dynamics\Constraints\SingleBody\PointOnLine.cs" />
-    <Compile Include="Assets\ThirdParty\Jitter\Dynamics\Constraints\SingleBody\PointOnPoint.cs" />
     <Compile Include="Assets\ThirdParty\Jitter\Dynamics\Contact.cs" />
     <Compile Include="Assets\ThirdParty\Jitter\Dynamics\IConstraint.cs" />
     <Compile Include="Assets\ThirdParty\Jitter\Dynamics\Joints\HingeJoint.cs" />
@@ -1160,6 +1158,7 @@
     <Compile Include="Assets\ThirdParty\Jitter\ThreadManager.cs" />
     <Compile Include="Assets\ThirdParty\Jitter\World.cs" />
     <Compile Include="Assets\ThirdParty\KCP.cs" />
+    <Compile Include="Assets\ThirdParty\KcpOnUdp.cs" />
     <Compile Include="Assets\ThirdParty\Lightbeam\Scripts\EnableDepthTexture.cs" />
     <Compile Include="Assets\ThirdParty\Lightbeam\Scripts\Lightbeam.cs" />
     <Compile Include="Assets\ThirdParty\Lightbeam\Scripts\LightbeamSettings.cs" />
@@ -1247,6 +1246,7 @@
     <Compile Include="Assets\ThirdParty\NGUI\Scripts\UI\UITexture.cs" />
     <Compile Include="Assets\ThirdParty\NGUI\Scripts\UI\UITiledSprite.cs" />
     <Compile Include="Assets\ThirdParty\NGUI\Scripts\UI\UIViewport.cs" />
+    <Compile Include="Assets\ThirdParty\Output.cs" />
     <Compile Include="Assets\ThirdParty\RnM UI 2 for UGUI\Scripts\Databases\UIItemDatabase.cs" />
     <Compile Include="Assets\ThirdParty\RnM UI 2 for UGUI\Scripts\Databases\UISpellDatabase.cs" />
     <Compile Include="Assets\ThirdParty\RnM UI 2 for UGUI\Scripts\Databases\UITalentDatabase.cs" />
@@ -1424,10 +1424,8 @@
     <Compile Include="Assets\ThirdParty\protobuf-net\SubItemToken.cs" />
     <Compile Include="Assets\ThirdParty\protobuf-net\WireType.cs" />
     <Compile Include="Assets\Update\Ftp.cs" />
-    <Compile Include="Assets\Update\HttpManager.cs" />
     <Compile Include="Assets\Update\Main.cs" />
     <Compile Include="Assets\Update\ReferenceNode.cs" />
-    <Compile Include="Assets\Update\ResMng.cs" />
     <Compile Include="Assets\Update\UPKPacker.cs" />
     <Compile Include="Assets\Update\UpkExtra.cs" />
     <Compile Include="Assets\WSLog.cs" />
@@ -1456,7 +1454,6 @@
     <None Include="Assets\Meteor\Shader\Resources\OneOne-s.shader" />
     <None Include="Assets\Meteor\Shader\Resources\OverColor.shader" />
     <None Include="Assets\Meteor\Shader\Resources\Shadow.shader" />
-    <None Include="Assets\Meteor\Shader\Resources\TestS.shader" />
     <None Include="Assets\Meteor\Shader\Resources\TextureColorKey.shader" />
     <None Include="Assets\Meteor\Shader\Resources\TextureColorKey2.shader" />
     <None Include="Assets\Meteor\Shader\Resources\TextureMask.shader" />
@@ -1475,6 +1472,7 @@
     <None Include="Assets\Meteor\Shader\Resources\UnlitUV.shader" />
     <None Include="Assets\Meteor\Shader\Resources\WeaponTextureMask.shader" />
     <None Include="Assets\Meteor\Shader\Resources\skyboxadd.shader" />
+    <None Include="Assets\Meteor\TrueSync\link.xml" />
     <None Include="Assets\Meteor\mod\readme.txt" />
     <None Include="Assets\Plugins\Android\AndroidManifest.xml" />
     <None Include="Assets\Plugins\Android\res\layout\activity_main2.xml" />
@@ -1551,6 +1549,9 @@
     <None Include="Assets\Resource\Script\Resources\npc23_02.txt" />
     <None Include="Assets\Resource\Script\Resources\npc23_03.txt" />
     <None Include="Assets\Resource\Script\Resources\npc23_04.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc23_05.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc23_06.txt" />
+    <None Include="Assets\Resource\Script\Resources\npc23_07.txt" />
     <None Include="Assets\Resource\Script\Resources\npc31_01.txt" />
     <None Include="Assets\Resource\Script\Resources\npc31_02.txt" />
     <None Include="Assets\Resource\Script\Resources\npc31_03.txt" />
@@ -1567,6 +1568,7 @@
     <None Include="Assets\Resource\Script\Resources\sword.txt" />
     <None Include="Assets\Resource\Script\Resources\swordlook.txt" />
     <None Include="Assets\Resource\Script\Resources\unguard.txt" />
+    <None Include="Assets\Resource\Table\Resources\Author.txt" />
     <None Include="Assets\Resource\Table\Resources\ChangeLog.txt" />
     <None Include="Assets\Resource\Table\Resources\CheatCodeList.txt" />
     <None Include="Assets\Resource\Table\Resources\NameBoys.txt" />

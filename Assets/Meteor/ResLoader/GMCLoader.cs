@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System;
 
-public class GMCLoader
+public class GMCLoader:Singleton<GMCLoader>
 {
-    Dictionary<string, GMCFile> GMCFile = new Dictionary<string, global::GMCFile>();
+    SortedDictionary<string, GMCFile> GMCFile = new SortedDictionary<string, global::GMCFile>();
     public GMCFile Load(string file)
     {
         string file_no_ext = file;
@@ -14,8 +14,8 @@ public class GMCLoader
         if (GMCFile.ContainsKey(file))
             return GMCFile[file];
         GMCFile f = null;
-        if (Main.Ins.CombatData.Chapter != null) {
-            string path = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Gmc, file_no_ext);
+        if (CombatData.Ins.Chapter != null) {
+            string path = CombatData.Ins.Chapter.GetResPath(FileExt.Gmc, file_no_ext);
             if (!string.IsNullOrEmpty(path)) {
                 f = new GMCFile();
                 f.Load(path);

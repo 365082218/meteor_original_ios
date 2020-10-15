@@ -170,14 +170,14 @@ public class WeaponLoader : MonoBehaviour {
         InventoryItem i = ui ? weaponModel : Weapon;
         if (i == null)
         {
-            i = ui ? weaponModel = Main.Ins.GameStateMgr.MakeEquip(unitid):Main.Ins.GameStateMgr.MakeEquip(unitid);
+            i = ui ? weaponModel = GameStateMgr.Ins.MakeEquip(unitid):GameStateMgr.Ins.MakeEquip(unitid);
             //WeaponBase weaponProperty = U3D.GetWeaponProperty(i.Info().UnitId);
             EquipWeapon(i, true);
         }
         else
         {
             UnEquipWeapon();
-            i = ui ? weaponModel = Main.Ins.GameStateMgr.MakeEquip(unitid):Main.Ins.GameStateMgr.MakeEquip(unitid);
+            i = ui ? weaponModel = GameStateMgr.Ins.MakeEquip(unitid):GameStateMgr.Ins.MakeEquip(unitid);
             //WeaponBase weaponProperty = U3D.GetWeaponProperty(i.Info().UnitId);
             EquipWeapon(i, true);
         }
@@ -231,14 +231,14 @@ public class WeaponLoader : MonoBehaviour {
                     GameObject weaponPrefab = Resources.Load<GameObject>(weaponL);
                     if (weaponPrefab == null)
                     {
-                        GMCFile fGmcL = Main.Ins.GMCLoader.Load(weaponL);
-                        DesFile fDesL = Main.Ins.DesLoader.Load(weaponL);
+                        GMCFile fGmcL = GMCLoader.Ins.Load(weaponL);
+                        DesFile fDesL = DesLoader.Ins.Load(weaponL);
 
                         if (fGmcL != null && fDesL != null)
                             GenerateWeaponModel(weaponL, fGmcL, fDesL, false, scale, weaponProperty.TextureL, ModelLayer);
                         else if (fGmcL == null && fDesL != null)
                         {
-                            GMBFile fGmbL = Main.Ins.GMBLoader.Load(weaponL);
+                            GMBFile fGmbL = GMBLoader.Ins.Load(weaponL);
                             GenerateWeaponModel(weaponL, fGmbL, fDesL, false, scale, weaponProperty.TextureL, ModelLayer);
                         }
                     }
@@ -305,13 +305,13 @@ public class WeaponLoader : MonoBehaviour {
                     GameObject weaponPrefab = Resources.Load<GameObject>(weaponR);
                     if (weaponPrefab == null)
                     {
-                        GMCFile fGmcR = Main.Ins.GMCLoader.Load(weaponR);
-                        DesFile fDesR = Main.Ins.DesLoader.Load(weaponR);
+                        GMCFile fGmcR = GMCLoader.Ins.Load(weaponR);
+                        DesFile fDesR = DesLoader.Ins.Load(weaponR);
                         if (fGmcR != null && fDesR != null)
                             GenerateWeaponModel(weaponR, fGmcR, fDesR, true, scale, weaponProperty.TextureR, ModelLayer);
                         else if (fGmcR == null && fDesR != null)
                         {
-                            GMBFile fGmbR = Main.Ins.GMBLoader.Load(weaponR);
+                            GMBFile fGmbR = GMBLoader.Ins.Load(weaponR);
                             GenerateWeaponModel(weaponR, fGmbR, fDesR, true, scale, weaponProperty.TextureR, ModelLayer);
                         }
                     }
@@ -446,7 +446,7 @@ public class WeaponLoader : MonoBehaviour {
         //武器挂点必须在缩放正确后才能到指定的位置
         WR.localScale = Vector3.one;
         Material[] mat = new Material[fModel.TexturesCount];
-        Dictionary<int, string> iflMaterials = new Dictionary<int, string>();
+        SortedDictionary<int, string> iflMaterials = new SortedDictionary<int, string>();
         for (int x = 0; x < fModel.TexturesCount; x++)
         {
             mat[x] = null;
@@ -511,7 +511,7 @@ public class WeaponLoader : MonoBehaviour {
                     realObject = true;
                     Mesh w = new Mesh();
                     //前者子网格编号，后者 索引缓冲区
-                    Dictionary<int, List<int>> tr = new Dictionary<int, List<int>>();
+                    SortedDictionary<int, List<int>> tr = new SortedDictionary<int, List<int>>();
                     List<Vector3> ve = new List<Vector3>();
                     List<Vector2> uv = new List<Vector2>();
                     List<Vector3> nor = new List<Vector3>();
@@ -702,7 +702,7 @@ public class WeaponLoader : MonoBehaviour {
         //武器挂点必须在缩放正确后才能到指定的位置
         WR.localScale = Vector3.one;
         Material[] mat = new Material[fModel.TexturesCount];
-        Dictionary<int, string> iflMaterials = new Dictionary<int, string>();
+        SortedDictionary<int, string> iflMaterials = new SortedDictionary<int, string>();
         for (int x = 0; x < fModel.TexturesCount; x++)
         {
             mat[x] = null;
@@ -767,7 +767,7 @@ public class WeaponLoader : MonoBehaviour {
                     realObject = true;
                     Mesh w = new Mesh();
                     //前者子网格编号，后者 索引缓冲区
-                    Dictionary<int, List<int>> tr = new Dictionary<int, List<int>>();
+                    SortedDictionary<int, List<int>> tr = new SortedDictionary<int, List<int>>();
                     List<Vector3> ve = new List<Vector3>();
                     List<Vector2> uv = new List<Vector2>();
                     List<Vector3> nor = new List<Vector3>();
@@ -945,9 +945,9 @@ public class WeaponLoader : MonoBehaviour {
             trail[i].Emit = drag == null ? false : true;
             if (drag != null)
             {
-                dragC.r = drag.Color.x / 255.0f;
-                dragC.g = drag.Color.y / 255.0f;
-                dragC.b = drag.Color.z / 255.0f;
+                dragC.r = (drag.Color.x / 255.0f);
+                dragC.g = (drag.Color.y / 255.0f);
+                dragC.b = (drag.Color.z / 255.0f);
                 dragC.a = 0.5f;
             }
             trail[i]._colors[0] = drag == null ? Color.white : dragC;

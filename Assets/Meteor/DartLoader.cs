@@ -1,6 +1,7 @@
 ﻿using Excel2Json;
 using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 
 
@@ -49,7 +50,7 @@ public class DartLoader : NetBehaviour {
             addVelocity = false;
         }
         float dis = FrameReplay.deltaTime * _speed;
-        transform.position = transform.position + velocity * FrameReplay.deltaTime;
+        transform.position = (transform.position + velocity * FrameReplay.deltaTime);
         if (addVelocity)
             velocity += velocity.normalized * gspeed * FrameReplay.deltaTime;
         maxDistance -= dis;
@@ -102,7 +103,7 @@ public class DartLoader : NetBehaviour {
 
     public static void Init(Vector3 spawn, Vector3 forw, InventoryItem weapon, AttackDes att, MeteorUnit owner)
     {
-        GameObject dartObj = GameObject.Instantiate(ResMng.LoadPrefab("DartLoader"), spawn, Quaternion.identity, null) as GameObject;
+        GameObject dartObj = GameObject.Instantiate(Resources.Load("DartLoader"), spawn, Quaternion.identity, null) as GameObject;
         dartObj.layer = LayerManager.Flight;
         DartLoader dart = dartObj.GetComponent<DartLoader>();
         dart.LoadAttack(weapon, forw, att, owner);
@@ -180,17 +181,17 @@ public class DartLoader : NetBehaviour {
 
             if (!string.IsNullOrEmpty(weaponR))
             {
-                GameObject weaponPrefab = ResMng.LoadPrefab(weaponR) as GameObject;
+                GameObject weaponPrefab = Resources.Load(weaponR) as GameObject;
                 if (weaponPrefab == null)
                 {
-                    GMCFile fGmcL = Main.Ins.GMCLoader.Load(weaponR);
-                    DesFile fDesL = Main.Ins.DesLoader.Load(weaponR);
+                    GMCFile fGmcL = GMCLoader.Ins.Load(weaponR);
+                    DesFile fDesL = DesLoader.Ins.Load(weaponR);
 
                     if (fGmcL != null && fDesL != null)
                         GenerateWeaponModel(weaponR, fGmcL, fDesL, scale, weaponProperty.TextureL);
                     else if (fGmcL == null && fDesL != null)
                     {
-                        GMBFile fGmbL = Main.Ins.GMBLoader.Load(weaponR);
+                        GMBFile fGmbL = GMBLoader.Ins.Load(weaponR);
                         GenerateWeaponModel(weaponR, fGmbL, fDesL, scale, weaponProperty.TextureL);
                     }
                 }
@@ -248,7 +249,7 @@ public class DartLoader : NetBehaviour {
         //武器挂点必须在缩放正确后才能到指定的位置
         WR.localScale = Vector3.one;
         Material[] mat = new Material[fModel.TexturesCount];
-        Dictionary<int, string> iflMaterials = new Dictionary<int, string>();
+        SortedDictionary<int, string> iflMaterials = new SortedDictionary<int, string>();
         for (int x = 0; x < fModel.TexturesCount; x++)
         {
             mat[x] = null;
@@ -311,7 +312,7 @@ public class DartLoader : NetBehaviour {
                     realObject = true;
                     Mesh w = new Mesh();
                     //前者子网格编号，后者 索引缓冲区
-                    Dictionary<int, List<int>> tr = new Dictionary<int, List<int>>();
+                    SortedDictionary<int, List<int>> tr = new SortedDictionary<int, List<int>>();
                     List<Vector3> ve = new List<Vector3>();
                     List<Vector2> uv = new List<Vector2>();
                     List<Vector3> nor = new List<Vector3>();
@@ -451,7 +452,7 @@ public class DartLoader : NetBehaviour {
         //武器挂点必须在缩放正确后才能到指定的位置
         WR.localScale = Vector3.one;
         Material[] mat = new Material[fModel.TexturesCount];
-        Dictionary<int, string> iflMaterials = new Dictionary<int, string>();
+        SortedDictionary<int, string> iflMaterials = new SortedDictionary<int, string>();
         for (int x = 0; x < fModel.TexturesCount; x++)
         {
             mat[x] = null;
@@ -515,7 +516,7 @@ public class DartLoader : NetBehaviour {
                     realObject = true;
                     Mesh w = new Mesh();
                     //前者子网格编号，后者 索引缓冲区
-                    Dictionary<int, List<int>> tr = new Dictionary<int, List<int>>();
+                    SortedDictionary<int, List<int>> tr = new SortedDictionary<int, List<int>>();
                     List<Vector3> ve = new List<Vector3>();
                     List<Vector2> uv = new List<Vector2>();
                     List<Vector3> nor = new List<Vector3>();

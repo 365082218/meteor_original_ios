@@ -12,13 +12,30 @@ using protocol;
 //加载关卡内的虚拟物品，类似原来流星蝴蝶剑的箱子/酒坛，或者之类的
 public class Loader : MonoBehaviour {
     //public List<MapObject> mapObjectList = new List<MapObject>();
-    //测试代码
+    //创建1-16 USER teamA teamB的位置
+    public void CreateSpawnPoint() {
+        for (int i = 1; i <= 16; i++) {
+            string s = string.Format("D_user{0:d2}", i);
+            GameObject obj = new GameObject(s);
+        }
+
+        for (int i = 1; i <= 8; i++) {
+            string s = string.Format("D_teamA{0:d2}", i);
+            GameObject obj = new GameObject(s);
+        }
+
+        for (int i = 1; i <= 8; i++) {
+            string s = string.Format("D_teamB{0:d2}", i);
+            GameObject obj = new GameObject(s);
+        }
+    }
+
     public string defFile;
     public void LoadSceneObjsFromDes(string des)
     {
         //mapObjectList.Clear();
-        Main.Ins.DesLoader.Clear();
-        DesFile desDat = Main.Ins.DesLoader.Load(des);
+        DesLoader.Ins.Clear();
+        DesFile desDat = DesLoader.Ins.Load(des);
         int j = 0;
         for (int i = desDat.ObjectCount; i < desDat.SceneItems.Count; i++)
         {
@@ -171,10 +188,17 @@ public class Loader : MonoBehaviour {
 
     public int LevelId;
     public static Loader Instance;
+    List<string> blacklist = new List<string>();
     void Awake()
     {
         if (Instance == null)
             Instance = this;
+        //外传有些场景模型不存在
+        if (blacklist.Count == 0) {
+            for (int i = 0; i < 10; i++) {
+                blacklist.Add(i.ToString());
+            }
+        }
         //单独场景测试时，直接加载
         //if (Main.Instance == null)
         //    LoadSceneObjs(LevelId);
@@ -196,7 +220,7 @@ public class Loader : MonoBehaviour {
     //静态固有物件。类似声音，位置点
     public void LoadFixedScene(string sceneItems)
     {
-        DesFile des = Main.Ins.DesLoader.Load(sceneItems);
+        DesFile des = DesLoader.Ins.Load(sceneItems);
         for (int i = des.ObjectCount; i < des.SceneItems.Count; i++)
         {
             //一些特殊物件不需要加脚本，只相当于环境，也不用保存,只设置位置.
@@ -218,7 +242,7 @@ public class Loader : MonoBehaviour {
     {
         //return;
         //mapObjectList.Clear();
-        DesFile des = Main.Ins.DesLoader.Load(sceneItems);
+        DesFile des = DesLoader.Ins.Load(sceneItems);
         for (int i = des.ObjectCount; i < des.SceneItems.Count; i++)
         {
             //一些特殊物件不需要加脚本，只相当于环境，也不用保存,只设置位置.
@@ -233,7 +257,7 @@ public class Loader : MonoBehaviour {
                 string[] subtype = type.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
                 for (int t = 0; t < subtype.Length; t++)
                 {
-                    if (int.Parse(subtype[t]) == (int)Main.Ins.CombatData.GGameMode)
+                    if (int.Parse(subtype[t]) == (int)CombatData.Ins.GGameMode)
                     {
                         active = true;
                         break;
@@ -251,6 +275,10 @@ public class Loader : MonoBehaviour {
             {
                 if (!string.IsNullOrEmpty(model))
                 {
+                    //先检查这个模型是否存在，1：安装包内带有资源 2：外传资源里带有资源,
+                    //若都不存在，则忽略这个物件
+                    if (blacklist.IndexOf(model) != -1)
+                        continue;
                     SceneItemAgent target = obj.AddComponent<SceneItemAgent>();
                     target.tag = "SceneItemAgent";
                     target.Load(model);
@@ -258,13 +286,12 @@ public class Loader : MonoBehaviour {
                     target.ApplyPost();
                     if (target.root != null)
                         target.root.gameObject.SetActive(active);
-                    Main.Ins.MeteorManager.OnGenerateSceneItem(target);
                 }
             }
             //环境特效.一直存在的特效.和特效挂载点
             string effect;
             if (des.SceneItems[i].ContainsKey("effect", out effect))
-                Main.Ins.SFXLoader.PlayEffect(string.Format("{0}.ef", effect), obj);
+                SFXLoader.Ins.PlayEffect(string.Format("{0}.ef", effect), obj);
             obj.transform.position = des.SceneItems[i].pos;
             obj.transform.rotation = des.SceneItems[i].quat;
             obj.transform.SetParent(transform);

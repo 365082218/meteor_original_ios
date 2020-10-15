@@ -86,7 +86,7 @@ ENDCG
 CGPROGRAM
 #pragma vertex vert
 #pragma exclude_renderers shaderonly
-// use the same vertex program as in FP path
+// use the same vertex program as in float path
 ENDCG
 
 			

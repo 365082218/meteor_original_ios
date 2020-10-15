@@ -7,13 +7,15 @@ using UnityEngine;
 public class MeteorMenu {
     [MenuItem("Meteor/重置设置")]
     public static void DeleteState() {
-        if (File.Exists(Application.persistentDataPath + "/" + "game_state.dat"))
-            File.Delete(Application.persistentDataPath + "/" + "game_state.dat");
+        string path = string.Format("{0}/{1}/game_state.dat", Application.persistentDataPath, AppInfo.Ins.AppVersion());
+        if (File.Exists(path))
+            File.Delete(path);
     }
     [MenuItem("Meteor/重置资料片设置")]
     public static void DeleteDlcState() {
-        if (File.Exists(Application.persistentDataPath + "/" + "dlc_state.dat"))
-            File.Delete(Application.persistentDataPath + "/" + "dlc_state.dat");
+        string path = string.Format("{0}/{1}/dlc_state.dat", Application.persistentDataPath, AppInfo.Ins.AppVersion());
+        if (File.Exists(path))
+            File.Delete(path);
     }
 }
 

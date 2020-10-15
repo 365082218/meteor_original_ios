@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+
 //using System.IO;
 //using System.Xml.Serialization;
 //using System.Runtime.Serialization.Formatters.Binary;
@@ -24,7 +25,7 @@ public class ExplosionObject01 : MonoBehaviour {
     /// <param name="forward">角色背向</param>
     /// <param name="ERadius">丢落半径</param>
     /// <param name="EGroundHeight">离地高度</param>
-    public static void DropItem(GameObject EObject, Vector3 position, Vector3 forward, float ERadius = 100.0f, float EGroundHeight = 10.0f)
+    public static void DropItem(GameObject EObject, Vector3 position, Vector3 forward, float ERadius, float EGroundHeight)
     {
         //有可能会丢到墙里的。
         Vector3 targetPos = (position + 50 * Vector3.up) + ERadius * forward;
@@ -33,10 +34,10 @@ public class ExplosionObject01 : MonoBehaviour {
         if (Physics.Raycast(targetPos, Vector3.down, out hit, 1000, LayerManager.SceneMask))
             endPoint = hit.point + EGroundHeight * Vector3.up;
         float h = Mathf.Abs((endPoint.y + EGroundHeight) - (position.y + 50));
-        float t = Mathf.Sqrt(2 * h / (Main.Ins.CombatData.gGravity / 10));
+        float t = Mathf.Sqrt(2 * h / (CombatData.Ins.gGravity / 10));
         EObject.AddComponent<ParaCurve>().Init(endPoint, t, () => { OnComplete(EObject); });
         CFX_AutoRotate rotate = EObject.AddComponent<CFX_AutoRotate>();
-        rotate.rotation = new Vector3(Random.Range(180, 360), Random.Range(180, 360), Random.Range(180, 360));
+        rotate.rotation = new Vector3(Utility.Range(180, 360), Utility.Range(180, 360), Utility.Range(180, 360));
     }
 
     public static void OnComplete(GameObject obj)

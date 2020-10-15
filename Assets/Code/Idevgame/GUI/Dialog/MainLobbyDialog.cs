@@ -1,15 +1,17 @@
-﻿using Idevgame.GameState.DialogState;
+﻿using Excel2Json;
+using Idevgame.GameState.DialogState;
 using protocol;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using System;
 
 public class MainLobbyDialogState : CommonDialogState<MainLobbyDialog>
 {
     public override string DialogName { get { return "MainLobby"; } }
-    public MainLobbyDialogState(MainDialogStateManager stateMgr):base(stateMgr)
+    public MainLobbyDialogState(MainDialogMgr stateMgr):base(stateMgr)
     {
 
     }
@@ -25,10 +27,13 @@ public class MainLobbyDialog : Dialog
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
         Init();
+        RoomMng.Ins.SelectRoom(-1);
     }
 
     public override void OnClose()
     {
+        Main.Ins.EventBus.UnRegister(EventId.PingChanged, OnPingChanged);
+        Main.Ins.EventBus.UnRegister(EventId.RoomUpdate, OnRoomUpdate);
         if (Update != null)
         {
             Main.Ins.StopCoroutine(Update);
@@ -46,13 +51,13 @@ public class MainLobbyDialog : Dialog
         rooms.Clear();
     }
 
-    public void OnGetRoom(GetRoomRsp rsp)
+    public void OnGetRoom(List<RoomInfo> rooms)
     {
         ClearRooms();
-        int cnt = rsp.RoomInLobby.Count;
+        int cnt = rooms.Count;
         GameObject prefab = Resources.Load<GameObject>("RoomInfoItem");
         for (int i = 0; i < cnt; i++)
-            InsertRoomItem(rsp.RoomInLobby[i], prefab);
+            InsertRoomItem(rooms[i], prefab);
     }
 
     string[] ruleS = new string[5] { "盟主", "劫镖", "防守", "暗杀", "死斗" };
@@ -65,12 +70,10 @@ public class MainLobbyDialog : Dialog
         roomObj.transform.rotation = Quaternion.identity;
         roomObj.transform.SetParent(RoomRoot.transform);
         Control("Name", roomObj).GetComponent<Text>().text = room.roomName;
-        Control("Pattern", roomObj).GetComponent<Text>().text = "";
-        Control("Password", roomObj).GetComponent<Text>().text = "无";
+        Control("Password", roomObj).GetComponent<Text>().text = room.password == 0 ? "无":"有";
         Control("Rule", roomObj).GetComponent<Text>().text = ruleS[(int)room.rule - 1];//盟主，死斗，暗杀
-        Control("LevelName", roomObj).GetComponent<Text>().text = Main.Ins.DataMgr.GetLevelData((int)room.levelIdx).Name;
-        Control("Version", roomObj).GetComponent<Text>().text = Main.Ins.AppInfo.MeteorVersion;
-        Control("Ping", roomObj).GetComponent<Text>().text = "???";
+        Control("LevelName", roomObj).GetComponent<Text>().text = DataMgr.Ins.GetLevelData((int)room.levelIdx).Name;
+        Control("Version", roomObj).GetComponent<Text>().text = room.version == RoomInfo.MeteorVersion.V107 ? "107": "907";
         Control("Group1", roomObj).GetComponent<Text>().text = room.Group1.ToString();
         Control("Group2", roomObj).GetComponent<Text>().text = room.Group2.ToString();
         Control("PlayerCount", roomObj).GetComponent<Text>().text = room.playerCount.ToString() + "/" + room.maxPlayer;
@@ -91,10 +94,10 @@ public class MainLobbyDialog : Dialog
         SelectRoomId = (int)id;
     }
 
-    public void OnSelectService()
+    public void OnSelectService(int ping = 0)
     {
-        Control("Server").GetComponent<Text>().text = string.Format("服务器:{0}        IP:{1}        端口:{2}", Main.Ins.CombatData.Server.ServerName,
-            TcpClientProxy.server == null ? "还未取得" : TcpClientProxy.server.Address.ToString(), TcpClientProxy.server == null ? "还未取得" : TcpClientProxy.server.Port.ToString());
+        Control("Server").GetComponent<Text>().text = string.Format("服务器:{0}    IP:{1}    端口:{2}    ping:{3}ms", CombatData.Ins.Server.ServerName,
+            TcpClientProxy.Ins.server == null ? "还未取得" : TcpClientProxy.Ins.server.Address.ToString(), TcpClientProxy.Ins.server == null ? "还未取得" : TcpClientProxy.Ins.server.Port.ToString(), ping); 
     }
 
     Coroutine Update;//更新服务器列表的协程.
@@ -118,19 +121,32 @@ public class MainLobbyDialog : Dialog
         });
 
         RoomRoot = Control("RoomRoot");
-        Control("Version").GetComponent<Text>().text = Main.Ins.GameStateMgr.gameStatus.MeteorVersion;
-        if (Main.Ins.CombatData.Servers.Count == 0)
+        Control("Version").GetComponent<Text>().text = GameStateMgr.Ins.gameStatus.MeteorVersion;
+        if (CombatData.Ins.Servers.Count == 0 && !serverListUpdate) {
             Update = Main.Ins.StartCoroutine(UpdateServiceList());
-        else
+            WaitDialogState.State.Open("正在拉取服务器列表，请稍后");
+        } else
             OnGetServerListDone();
+        Main.Ins.EventBus.Register(EventId.PingChanged, OnPingChanged);
+        Main.Ins.EventBus.Register(EventId.RoomUpdate, OnRoomUpdate);
+    }
+
+    private void OnRoomUpdate(object sender, TEventArgs e) {
+        U3D.InsertSystemMsg("房间信息已刷新");
+        OnGetRoom(RoomMng.Ins.rooms);
+    }
+
+    private void OnPingChanged(object sender, TEventArgs e) {
+        OnSelectService(TcpClientProxy.Ins.ping);
     }
 
     GameObject serverRoot;
+    bool serverListUpdate = false;//是否成功更新了服务器，如果更新了，选择的服务器为第一个服务器，否则不设定服务器
     IEnumerator UpdateServiceList()
     {
         UnityWebRequest vFile = new UnityWebRequest();
         vFile.url = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, Main.strServices);
-        vFile.timeout = 5;
+        vFile.timeout = 2;
         DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
         vFile.downloadHandler = dH;
         yield return vFile.Send();
@@ -139,10 +155,15 @@ public class MainLobbyDialog : Dialog
             Debug.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
             vFile.Dispose();
             Update = null;
+            CombatData.Ins.Servers.Clear();
+            for (int i = 0; i < GameStateMgr.Ins.gameStatus.ServerList.Count; i++)
+                CombatData.Ins.Servers.Add(GameStateMgr.Ins.gameStatus.ServerList[i]);
+            serverListUpdate = false;
+            OnGetServerListDone();
             yield break;
         }
-
-        Main.Ins.CombatData.Servers.Clear();
+        serverListUpdate = true;
+        CombatData.Ins.Servers.Clear();
         LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
         for (int i = 0; i < js["services"].Count; i++)
         {
@@ -156,13 +177,13 @@ public class MainLobbyDialog : Dialog
             else
                 s.ServerIP = js["services"][i]["addr"].ToString();
             s.ServerName = js["services"][i]["name"].ToString();
-            Main.Ins.CombatData.Servers.Add(s);
+            CombatData.Ins.Servers.Add(s);
         }
         Update = null;
 
         //合并所有服务器到全局变量里
-        for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.ServerList.Count; i++)
-            Main.Ins.CombatData.Servers.Add(Main.Ins.GameStateMgr.gameStatus.ServerList[i]);
+        for (int i = 0; i < GameStateMgr.Ins.gameStatus.ServerList.Count; i++)
+            CombatData.Ins.Servers.Add(GameStateMgr.Ins.gameStatus.ServerList[i]);
 
         OnGetServerListDone();
     }
@@ -175,8 +196,10 @@ public class MainLobbyDialog : Dialog
         {
             Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.ServerListDialogState);
         });
-
-        Main.Ins.CombatData.Server = Main.Ins.CombatData.Servers[0];
+        //保存的列表最少有一项默认的
+        if (CombatData.Ins.Server == null)
+            CombatData.Ins.Server = CombatData.Ins.Servers[0];
+        OnSelectService();
         GameObject Services = Control("Services", WndObject);
         serverRoot = Control("Content", Services);
         int childNum = serverRoot.transform.childCount;
@@ -184,56 +207,80 @@ public class MainLobbyDialog : Dialog
         {
             GameObject.Destroy(serverRoot.transform.GetChild(i).gameObject);
         }
-        for (int i = 0; i < Main.Ins.CombatData.Servers.Count; i++)
+        for (int i = 0; i < CombatData.Ins.Servers.Count; i++)
         {
-            InsertServerItem(Main.Ins.CombatData.Servers[i], i);
+            InsertServerItem(CombatData.Ins.Servers[i], i);
         }
-        TcpClientProxy.ReStart();
+        TcpClientProxy.Ins.ReStart();
+        if (WaitDialogState.Exist())
+            WaitDialogState.State.WaitExit(0.5f);
     }
 
     void InsertServerItem(ServerInfo svr, int i)
     {
-        GameObject btn = GameObject.Instantiate(ResMng.Load("ButtonNormal")) as GameObject;
+        GameObject btn = Instantiate(Resources.Load("ButtonNormal")) as GameObject;
         btn.transform.SetParent(serverRoot.transform);
         btn.transform.localScale = Vector3.one;
         btn.transform.localPosition = Vector3.zero;
         btn.transform.localRotation = Quaternion.identity;
         btn.GetComponent<Button>().onClick.AddListener(() =>
         {
+            ServerInfo s = svr;
             //弹出一个连接框，告知正在与服务器连接
-            if (Main.Ins.CombatData.Server == Main.Ins.CombatData.Servers[i])
+            if (CombatData.Ins.Server == CombatData.Ins.Servers[i])
             {
-                if (TcpClientProxy.CheckNeedReConnect()) {
-                    if (!ConnectServerDialogState.Exist())
-                        Main.Ins.EnterState(Main.Ins.ConnectServerState);
+                if (TcpClientProxy.Ins.CheckNeedReConnect()) {
+                    ConnectServerDialogState.State.Open();
                 }
                 return;
             }
-            if (!ConnectServerDialogState.Exist())
-                Main.Ins.EnterState(Main.Ins.ConnectServerState);
-            TcpClientProxy.Exit();
+            ConnectServerDialogState.State.Open();
+            TcpClientProxy.Ins.Exit();
             ClearRooms();
-            Main.Ins.CombatData.Server = svr;
-            TcpClientProxy.ReStart();
+            CombatData.Ins.Server = s;
+            TcpClientProxy.Ins.ReStart();
         });
         btn.GetComponentInChildren<Text>().text = svr.ServerName;
     }
 
     void OnRefresh()
     {
-        TcpClientProxy.UpdateGameServer();
+        if (!TcpProtoHandler.Ins.VerifySuccess) {
+            U3D.PopupTip("服务器验证失败 无法拉取房间列表");
+            return;
+        }
+        TcpClientProxy.Ins.UpdateGameServer();
     }
 
     void OnCreateRoom()
     {
+        if (TcpClientProxy.Ins.server == null || TcpClientProxy.Ins.sProxy == null || !TcpClientProxy.Ins.sProxy.Connected) {
+            U3D.PopupTip("需要先选择服务器");
+            return;
+        }
+
+        if (!TcpProtoHandler.Ins.VerifySuccess) {
+            U3D.PopupTip("服务器验证失败 无法创建房间");
+            return;
+        }
         Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.RoomOptionDialogState);
     }
 
     void OnJoinRoom()
     {
-        if (SelectRoomId != -1)
-        {
-            TcpClientProxy.JoinRoom(SelectRoomId);
+        if (SelectRoomId != -1) {
+            RoomInfo r = RoomMng.Ins.GetRoom(SelectRoomId);
+            for (int i = 0; i < r.models.Count; i++) {
+                ModelItem m = null;
+                if (!GameStateMgr.Ins.gameStatus.IsModelInstalled((int)r.models[i], ref m)) {
+                    if (m == null) {
+                        m = DlcMng.Ins.GetModelMeta((int)r.models[i]);
+                    }
+                    U3D.PopupTip(string.Format("需要安装-模型{0}后方可进入房间", m == null ? r.models[i].ToString():m.Name));
+                    return;
+                }
+            }
+            TcpClientProxy.Ins.JoinRoom(SelectRoomId);
         }
     }
 }

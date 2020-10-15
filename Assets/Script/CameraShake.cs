@@ -39,7 +39,7 @@ public class CameraShake : MonoBehaviour {
 	
 	void Play()
 	{
-        transform.position = mOrigWorldPos + new Vector3(Random.Range(-1, 1) * mAmplitude, Random.Range(-1, 1) * mAmplitude, 0f);
+        transform.position = mOrigWorldPos + new Vector3(Utility.Range(-1, 1) * mAmplitude, Utility.Range(-1, 1) * mAmplitude, 0f);
 		mCount++;
         if (mCount < mTotal)
             Invoke("Play", mFrequence / 1000);

@@ -101,27 +101,91 @@ MonoBehaviour:
     Bone0: 
     Bone1: 
     Texture: 
-    Active: 0
+    DoubleSide: 0
     Hidden: 0
-    uSpeed: 0
-    vSpeed: 0
-    Unknown2: 0
+    uSpeed:
+      _serializedValue: 0
+    vSpeed:
+      _serializedValue: 0
     BlendType: 0
-    Unknown3: 0
+    BlendType2: 0
+    BlendType3: 0
     FrameCnt: 0
     audioLoop: 0
-    SphereScale: 0
+    SphereRadius:
+      _serializedValue: 0
     frames: []
-    origScale: {x: 1, y: 1, z: 1}
-    origAtt: {x: 0, y: 0}
-    sphereAttr: {x: 0, y: 0, z: 0, w: 0}
+    origScale:
+      x:
+        _serializedValue: 0
+      y:
+        _serializedValue: 0
+      z:
+        _serializedValue: 0
+    origAtt:
+      x:
+        _serializedValue: 0
+      y:
+        _serializedValue: 0
+    sphereAttr:
+      x:
+        _serializedValue: 0
+      y:
+        _serializedValue: 0
+      z:
+        _serializedValue: 0
+      w:
+        _serializedValue: 0
+    version: 0
     Tails:
     - 
     - 
     - 
+    MaxParticles: 0
+    startSizeMin:
+      _serializedValue: 0
+    startSizeMax:
+      _serializedValue: 0
+    emitWidth:
+      _serializedValue: 0
+    emitLong:
+      _serializedValue: 0
+    gravity:
+      _serializedValue: 0
+    StartLifetime:
+      _serializedValue: 0
+    StartLifetime2:
+      _serializedValue: 0
+    unknwon2:
+      _serializedValue: 0
+    unknown3:
+      _serializedValue: 0
+    linear0:
+      _serializedValue: 0
+    linear1:
+      _serializedValue: 0
+    EmitStartAxis: {x: 0, y: 0, z: 0}
+    unknown7:
+      _serializedValue: 0
+    unknown8:
+      _serializedValue: 0
+    EmitEndAxis: {x: 0, y: 0, z: 0}
+    unknown10:
+      _serializedValue: 0
+    unknown11:
+      _serializedValue: 0
+    particleNotLoop: 0
+    Speed: 0
+    FadeIn: 0
+    FadeInAlpha:
+      _serializedValue: 0
+    FadeOut: 0
+    FadeOutAlpha:
+      _serializedValue: 0
   EffectType: 
   mOwner: {fileID: 0}
   damageBox: {fileID: 0}
+  hitBox: {fileID: 0}
   PositionFollow: {fileID: 0}
   RotateFollow: {fileID: 0}
   texture: 

@@ -1,15 +1,17 @@
 ﻿using Excel2Json;
+using ProtoBuf;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 namespace Excel2Json {
+    [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
     public interface ITableItem {
         int Key { get; }
     }
 
-    public class DataMgr {
+    public class DataMgr:Singleton<DataMgr> {
         public LevelDataMgr debugData;
         public LevelDataMgr levelData;
         public ItemDataMgr itemData;

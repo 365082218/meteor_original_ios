@@ -12,8 +12,8 @@ public class UIAdjust : MonoBehaviour {
     public int UIIndex = 0;//0指代调整摇杆的位置 1-所有UIBUTTON的位置
     void Awake()
     {
-        Target.anchoredPosition = Main.Ins.GameStateMgr.gameStatus.JoyAnchor;
-        //posLabel.text = string.Format("{0} {1}", Main.Ins.GameStateMgr.gameStatus.JoyAnchor.x, Main.Ins.GameStateMgr.gameStatus.JoyAnchor.y);
+        Target.anchoredPosition = GameStateMgr.Ins.gameStatus.JoyAnchor;
+        //posLabel.text = string.Format("{0} {1}", GameStateMgr.Ins.gameStatus.JoyAnchor.x, GameStateMgr.Ins.gameStatus.JoyAnchor.y);
     }
 
     //Vector2 mFingerDownPos;
@@ -26,7 +26,7 @@ public class UIAdjust : MonoBehaviour {
     {
         RectTransform rect = active == null ? null : active.GetComponent<RectTransform>();
         if (Target != null)
-            Target.GetComponent<CanvasGroup>().alpha = Main.Ins.GameStateMgr.gameStatus.UIAlpha;
+            Target.GetComponent<CanvasGroup>().alpha = GameStateMgr.Ins.gameStatus.UIAlpha;
         Target = rect;
         if (Target != null)
             Target.GetComponent<CanvasGroup>().alpha = 1.0f;
@@ -72,17 +72,17 @@ public class UIAdjust : MonoBehaviour {
                 Target.anchoredPosition = UICamera.currentTouch.pos - vecOffset;
                 if (UIIndex == 0)
                 {
-                    Main.Ins.GameStateMgr.gameStatus.JoyAnchor.x = Target.anchoredPosition.x;
-                    Main.Ins.GameStateMgr.gameStatus.JoyAnchor.y = Target.anchoredPosition.y;
+                    GameStateMgr.Ins.gameStatus.JoyAnchor.x = Mathf.FloorToInt(Target.anchoredPosition.x);
+                    GameStateMgr.Ins.gameStatus.JoyAnchor.y = Mathf.FloorToInt(Target.anchoredPosition.y);
                 }
                 else
                 {
                     //左下角是0，0右上方越来越大.
-                    MyVector2 vec = Main.Ins.GameStateMgr.gameStatus.UIAnchor[UIIndex - 1];
-                    vec.x = Target.anchoredPosition.x;
-                    vec.y = Target.anchoredPosition.y;
-                    Main.Ins.GameStateMgr.gameStatus.UIAnchor[UIIndex - 1] = vec;
-                    Main.Ins.GameStateMgr.gameStatus.HasUIAnchor[UIIndex - 1] = true;
+                    Vector2 vec = GameStateMgr.Ins.gameStatus.UIAnchor[UIIndex - 1];
+                    vec.x = Mathf.FloorToInt(Target.anchoredPosition.x);
+                    vec.y = Mathf.FloorToInt(Target.anchoredPosition.y);
+                    GameStateMgr.Ins.gameStatus.UIAnchor[UIIndex - 1] = vec;
+                    GameStateMgr.Ins.gameStatus.HasUIAnchor[UIIndex - 1] = true;
                 }
                 //posLabel.text = string.Format("{0} {1}", Target.anchoredPosition.x, Target.anchoredPosition.y);
             }

@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-public class DesLoader
+public class DesLoader:Singleton<DesLoader>
 {
-    Dictionary<string, DesFile> DesFile = new Dictionary<string, global::DesFile>();
+    SortedDictionary<string, DesFile> DesFile = new SortedDictionary<string, global::DesFile>();
     public DesFile Load(string file)
     {
         string file_no_ext = file;
@@ -14,8 +14,8 @@ public class DesLoader
             return DesFile[file];
 
         DesFile f = null;
-        if (Main.Ins.CombatData.Chapter != null) {
-            string path = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Des, file_no_ext);
+        if (CombatData.Ins.Chapter != null) {
+            string path = CombatData.Ins.Chapter.GetResPath(FileExt.Des, file_no_ext);
             if (!string.IsNullOrEmpty(path)) {
                 f = new DesFile();
                 f.Load(path);
@@ -36,10 +36,10 @@ public class DesLoader
 public class DesItem
 {
     public string name;
-    public FixVector3 pos = new FixVector3((Fix64)0, (Fix64)0, (Fix64)0);
-    public FixQuaternion quat = new FixQuaternion((Fix64)0, (Fix64)0, (Fix64)0, (Fix64)0);
+    public Vector3 pos = new Vector3(0, 0, 0);
+    public Quaternion quat = new Quaternion(0, 0, 0, 0);
     public bool useTextAnimation; //是否使用uv动画
-    public FixVector2 textAnimation = new FixVector2(0, 0);//uv参数
+    public Vector2 textAnimation = new Vector2(0, 0);//uv参数
     public List<string> custom = new List<string>();
     public bool ContainsKey(string key, out string value)
     {
@@ -82,22 +82,22 @@ public class DesItem
             //Z UP TO Y UP x轴z轴取反
             if (keyValue[0] == "Position:" && readLeftToken && leftTokenStack == 1)
             {
-                pos.x = (Fix64)float.Parse(keyValue[1]);
-                pos.z = (Fix64)float.Parse(keyValue[2]);
-                pos.y = (Fix64)float.Parse(keyValue[3]);
+                pos.x = Mathf.FloorToInt(10000 * float.Parse(keyValue[1])) / 10000.0f;
+                pos.z = Mathf.FloorToInt(10000 * float.Parse(keyValue[2])) / 10000.0f;
+                pos.y = Mathf.FloorToInt(10000 * float.Parse(keyValue[3])) / 10000.0f;
             }
             if (keyValue[0] == "Quaternion:" && readLeftToken && leftTokenStack == 1)
             {
-                quat.w = (Fix64)float.Parse(keyValue[1]);
-                quat.x = -(Fix64)float.Parse(keyValue[2]);
-                quat.y = -(Fix64)float.Parse(keyValue[4]);
-                quat.z = -(Fix64)float.Parse(keyValue[3]);
+                quat.w = Mathf.FloorToInt(10000 * float.Parse(keyValue[1])) / 10000.0f;
+                quat.x = -Mathf.FloorToInt(10000 * float.Parse(keyValue[2])) / 10000.0f;
+                quat.y = -Mathf.FloorToInt(10000 * float.Parse(keyValue[4])) / 10000.0f;
+                quat.z = -Mathf.FloorToInt(10000 * float.Parse(keyValue[3])) / 10000.0f;
             }
             if (keyValue[0] == "TextureAnimation:" && readLeftToken && leftTokenStack == 1)
             {
                 useTextAnimation = (int.Parse(keyValue[1]) == 1);
-                textAnimation.x = (Fix64)float.Parse(keyValue[2]);
-                textAnimation.y = (Fix64)float.Parse(keyValue[3]);
+                textAnimation.x = float.Parse(keyValue[2]);
+                textAnimation.y = float.Parse(keyValue[3]);
             }
             if (keyValue[0] == "Custom:" && readLeftToken && leftTokenStack == 1)
             {
@@ -140,15 +140,15 @@ public class DesFile
         SceneItems.Clear();
         if (!string.IsNullOrEmpty(strFile))
         {
-            TextAsset assetDes = Resources.Load<TextAsset>(strFile);
             byte[] body = null;
-            if (assetDes == null){
-                if (File.Exists(strFile))
-                    body = File.ReadAllBytes(strFile);
+            if (File.Exists(strFile))
+                body = File.ReadAllBytes(strFile);
+            else 
+            {
+                TextAsset assetDes = Resources.Load<TextAsset>(strFile);
+                body = assetDes != null ? assetDes.bytes: null;
             }
-            else {
-                body = assetDes.bytes;
-            }
+
             if (body == null)
                 return;
             MemoryStream ms = new MemoryStream(body);

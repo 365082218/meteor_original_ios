@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class DlcManagerDialogState : CommonDialogState<DlcManagerWnd> {
     public override string DialogName { get { return "DlcManagerWnd"; } }
-    public DlcManagerDialogState(MainDialogStateManager stateMgr) : base(stateMgr) {
+    public DlcManagerDialogState(MainDialogMgr stateMgr) : base(stateMgr) {
 
     }
 }
@@ -46,7 +46,7 @@ public class DlcManagerWnd : Dialog {
         Control("PluginPrev").GetComponent<Button>().onClick.AddListener(OnPrevPagePlugin);
         Control("PluginNext").GetComponent<Button>().onClick.AddListener(OnNextPagePlugin);
         Control("ResetModel").GetComponent<Button>().onClick.AddListener(()=> {
-            Main.Ins.GameStateMgr.gameStatus.UseModel = -1;
+            GameStateMgr.Ins.gameStatus.UseModel = -1;
             U3D.PopupTip("已设置使用默认角色");
         });
         ChapterRoot = Control("Content", chapterTab);
@@ -59,7 +59,7 @@ public class DlcManagerWnd : Dialog {
             Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.DlcManagerDialogState, f);
         });
         Toggle togShowInstallPlugin = Control("ShowInstallToggle").GetComponent<Toggle>();
-        togShowInstallPlugin.onValueChanged.AddListener((bool value) => { this.showInstallPlugin = value; Main.Ins.DlcMng.CollectAll(this.showInstallPlugin, filter); this.PluginPageRefreshEx(); });
+        togShowInstallPlugin.onValueChanged.AddListener((bool value) => { this.showInstallPlugin = value; DlcMng.Ins.CollectAll(this.showInstallPlugin, filter); this.PluginPageRefreshEx(); });
         togShowInstallPlugin.isOn = true;
 
         Control("InstallAll").GetComponent<Button>().onClick.AddListener(OnInstallAll);
@@ -80,21 +80,19 @@ public class DlcManagerWnd : Dialog {
     }
 
     void Close() {
-        Main.Ins.GameStateMgr.SaveState();
-        Main.Ins.GameStateMgr.SyncGameState();
+        GameStateMgr.Ins.SaveState();
         Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainMenuState);
     }
 
     void OnInstallAll() {
         for (int i = 0; i < pluginList.Count; i++) {
             if (pluginList[i].Chapter != null) {
-                Main.Ins.DownloadManager.AddTask(TaskType.Chapter, pluginList[i].Chapter.ChapterId);
+                DownloadManager.Ins.AddTask(TaskType.Chapter, pluginList[i].Chapter.ChapterId);
             }
             else {
-                Main.Ins.DownloadManager.AddTask(TaskType.Model, pluginList[i].Model.ModelId);
+                DownloadManager.Ins.AddTask(TaskType.Model, pluginList[i].Model.ModelId);
             }
         }
-            
     }
 
     public void ShowTab(int tab) {
@@ -120,13 +118,13 @@ public class DlcManagerWnd : Dialog {
     }
 
     void OnTabEnter() {
-        if (Main.Ins.CombatData.PluginUpdated) {
+        if (CombatData.Ins.PluginUpdated) {
             //已经更新过插件列表
             if (PluginPageUpdate != null)//翻页中
                 Main.Ins.StopCoroutine(PluginPageUpdate);
             
-            Main.Ins.DlcMng.CollectAll(this.showInstallPlugin, filter);
-            pluginCount = Main.Ins.DlcMng.allItem.Count;
+            DlcMng.Ins.CollectAll(this.showInstallPlugin, filter);
+            pluginCount = DlcMng.Ins.allItem.Count;
             pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
             if (PluginPageUpdate != null) {
                 Main.Ins.StopCoroutine(PluginPageUpdate);
@@ -142,36 +140,38 @@ public class DlcManagerWnd : Dialog {
         UnityWebRequest vFile = new UnityWebRequest();
         vFile.url = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, Main.strPlugins);
         vFile.timeout = 5;
+        WaitDialogState.State.Open("正在拉取模组信息");
         DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
         vFile.downloadHandler = dH;
         yield return vFile.Send();
+        WaitDialogState.State.WaitExit(1.0f);
         if (vFile.isError || vFile.responseCode != 200) {
-            Debug.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
+            Debug.Log(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
             Control("Warning").SetActive(false);//
             U3D.InsertSystemMsg("无法连接至服务器");
             vFile.Dispose();
             pluginCount = 0;
             //显示出存档中保存得DLC信息
-            Main.Ins.DlcMng.ClearModel();
-            for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginModel.Count; i++) {
-                if (Main.Ins.GameStateMgr.gameStatus.pluginModel[i] == null)
+            DlcMng.Ins.ClearModel();
+            for (int i = 0; i < GameStateMgr.Ins.gameStatus.pluginModel.Count; i++) {
+                if (GameStateMgr.Ins.gameStatus.pluginModel[i] == null)
                     continue;
-                Main.Ins.GameStateMgr.gameStatus.pluginModel[i].Check();
-                if (Main.Ins.GameStateMgr.gameStatus.pluginModel[i].Installed)
-                    Main.Ins.DlcMng.Models.Add(Main.Ins.GameStateMgr.gameStatus.pluginModel[i]);
+                GameStateMgr.Ins.gameStatus.pluginModel[i].Check();
+                if (GameStateMgr.Ins.gameStatus.pluginModel[i].Installed)
+                    DlcMng.Ins.Models.Add(GameStateMgr.Ins.gameStatus.pluginModel[i]);
             }
-            Main.Ins.DlcMng.ClearDlc();
-            for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginChapter.Count; i++) {
-                if (Main.Ins.GameStateMgr.gameStatus.pluginChapter[i] == null)
+            DlcMng.Ins.ClearDlc();
+            for (int i = 0; i < GameStateMgr.Ins.gameStatus.pluginChapter.Count; i++) {
+                if (GameStateMgr.Ins.gameStatus.pluginChapter[i] == null)
                     continue;
-                Main.Ins.GameStateMgr.gameStatus.pluginChapter[i].Check();
-                if (Main.Ins.GameStateMgr.gameStatus.pluginChapter[i].Installed)
-                    Main.Ins.DlcMng.Dlcs.Add(Main.Ins.GameStateMgr.gameStatus.pluginChapter[i]);
+                GameStateMgr.Ins.gameStatus.pluginChapter[i].Check();
+                if (GameStateMgr.Ins.gameStatus.pluginChapter[i].Installed)
+                    DlcMng.Ins.Dlcs.Add(GameStateMgr.Ins.gameStatus.pluginChapter[i]);
             }
 
             pluginPage = 0;
-            Main.Ins.DlcMng.CollectAll(this.showInstallPlugin, filter);
-            pluginCount = Main.Ins.DlcMng.allItem.Count;
+            DlcMng.Ins.CollectAll(this.showInstallPlugin, filter);
+            pluginCount = DlcMng.Ins.allItem.Count;
             pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
 
             Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
@@ -182,6 +182,7 @@ public class DlcManagerWnd : Dialog {
             Control("Warning").SetActive(false);
             CleanModelList();
             LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
+            Main.Ins.baseUrl = js["url"].ToString();
             for (int i = 0; i < js["Scene"].Count; i++) {
                 //ServerInfo s = new ServerInfo();
                 //if (!int.TryParse(js["services"][i]["port"].ToString(), out s.ServerPort))
@@ -210,7 +211,7 @@ public class DlcManagerWnd : Dialog {
                 //Global.Instance.Servers.Add(s);
             }
 
-            Main.Ins.DlcMng.ClearModel();
+            DlcMng.Ins.ClearModel();
             for (int i = 0; i < js["Model"].Count; i++) {
                 int modelIndex = int.Parse(js["Model"][i]["Idx"].ToString());
                 //Debug.LogError(modelIndex + js["Model"][i]["name"].ToString());
@@ -221,9 +222,9 @@ public class DlcManagerWnd : Dialog {
                 if (js["Model"][i]["desc"] != null)
                     Info.Desc = js["Model"][i]["desc"].ToString();
                 Info.useFemalePos = js["Model"][i]["gender"] != null ? js["Model"][i]["gender"].ToString() == "1" : false;
-                Main.Ins.DlcMng.AddModel(Info);
+                DlcMng.Ins.AddModel(Info);
             }
-            Main.Ins.DlcMng.ClearDlc();
+            DlcMng.Ins.ClearDlc();
             for (int i = 0; i < js["Dlc"].Count; i++) {
                 Chapter c = new Chapter();
                 c.Installed = false;
@@ -234,14 +235,14 @@ public class DlcManagerWnd : Dialog {
                     c.version = js["Dlc"][i]["version"].ToString();
                 if (js["Dlc"][i]["desc"] != null)
                     c.Desc = js["Dlc"][i]["desc"].ToString();
-                Main.Ins.DlcMng.AddDlc(c);
+                DlcMng.Ins.AddDlc(c);
             }
             pluginPage = 0;
-            Main.Ins.DlcMng.CollectAll(this.showInstallPlugin, filter);
-            pluginCount = Main.Ins.DlcMng.allItem.Count;
+            DlcMng.Ins.CollectAll(this.showInstallPlugin, filter);
+            pluginCount = DlcMng.Ins.allItem.Count;
             pageMax = pluginCount / pluginPerPage + ((pluginCount % pluginPerPage == 0) ? 0 : 1);
             PluginPageUpdate = Main.Ins.StartCoroutine(PluginPageRefresh());
-            Main.Ins.CombatData.PluginUpdated = true;
+            CombatData.Ins.PluginUpdated = true;
             PluginUpdate = null;
             Control("Pages").GetComponent<Text>().text = (pluginPage + 1) + "/" + pageMax;
         }
@@ -275,11 +276,11 @@ public class DlcManagerWnd : Dialog {
             GameObject.Destroy(pluginList[i].gameObject);
         }
         pluginList.Clear();
-        for (int i = pluginPage * pluginPerPage; i < Mathf.Min((pluginPage + 1) * pluginPerPage, Main.Ins.DlcMng.allItem.Count); i++) {
-            if (Main.Ins.DlcMng.allItem[i] is ModelItem)
-                InsertModel(Main.Ins.DlcMng.allItem[i] as ModelItem);
+        for (int i = pluginPage * pluginPerPage; i < Mathf.Min((pluginPage + 1) * pluginPerPage, DlcMng.Ins.allItem.Count); i++) {
+            if (DlcMng.Ins.allItem[i] is ModelItem)
+                InsertModel(DlcMng.Ins.allItem[i] as ModelItem);
             else
-                InsertDlc(Main.Ins.DlcMng.allItem[i] as Chapter);
+                InsertDlc(DlcMng.Ins.allItem[i] as Chapter);
             yield return 0;
         }
         PluginPageUpdate = null;
@@ -287,7 +288,7 @@ public class DlcManagerWnd : Dialog {
 
     public override void OnRefresh(int message, object param) {
         for (int i = 0; i < pluginList.Count; i++) {
-            pluginList[i].OnStateChange();
+            pluginList[i].OnStateChange(message, (TaskType)param);
         }
     }
 
@@ -322,7 +323,7 @@ public class DlcManagerWnd : Dialog {
     GameObject prefabGameItem;
     void InsertModel(ModelItem item) {
         if (prefabPluginWnd == null)
-            prefabPluginWnd = ResMng.Load("PluginWnd") as GameObject;
+            prefabPluginWnd = Resources.Load("PluginWnd") as GameObject;
         GameObject insert = GameObject.Instantiate(prefabPluginWnd);
         insert.transform.SetParent(PluginRoot.transform);
         insert.transform.localPosition = Vector3.zero;
@@ -337,7 +338,7 @@ public class DlcManagerWnd : Dialog {
 
     void InsertDlc(Chapter item) {
         if (prefabPluginWnd == null)
-            prefabPluginWnd = ResMng.Load("PluginWnd") as GameObject;
+            prefabPluginWnd = Resources.Load("PluginWnd") as GameObject;
         GameObject insert = GameObject.Instantiate(prefabPluginWnd);
         insert.transform.SetParent(PluginRoot.transform);
         insert.transform.localPosition = Vector3.zero;

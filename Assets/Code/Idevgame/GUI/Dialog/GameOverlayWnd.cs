@@ -6,15 +6,16 @@ using Idevgame.GameState.DialogState;
 public class GameOverlayDialogState : PersistDialog<GameOverlayWnd>
 {
     public override string DialogName { get { return "GameOverlayWnd"; } }
-    public GameOverlayDialogState() : base()
-    {
-
-    }
 
     //自带画布，不属于画布之下的预设
     protected override bool CanvasMode()
     {
         return true;
+    }
+
+    //不要卸载，这个界面永久的.
+    public override void OnStateExit() {
+
     }
 }
 
@@ -25,7 +26,6 @@ public class GameOverlayWnd : Dialog  {
     {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
         GameObject.DontDestroyOnLoad(gameObject);
-        InsertSystemMsg("OK");
     }
 
     public static int MaxMsg = 10;
@@ -41,8 +41,8 @@ public class GameOverlayWnd : Dialog  {
             txt.font = Main.Ins.TextFont;
             txt.fontSize = 32;
             txt.alignment = TextAnchor.MiddleLeft;
-            txt.raycastTarget = false;
-            txt.color = new Color(0, 0X8A / 255.0f, 1, 1);
+            txt.raycastTarget = false; 
+            txt.color = new Color(1, 0XF8 / 255.0f, 0XDD/255.0F, 1);
             for (int i = 0; i < content.transform.childCount - MaxMsg; i++)
                 GameObject.Destroy(content.transform.GetChild(i).gameObject);
             obj.transform.SetParent(content.transform);

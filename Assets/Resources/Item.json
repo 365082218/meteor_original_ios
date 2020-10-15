@@ -1586,8 +1586,8 @@
       "MainType": 1,
       "SubType": 10,
       "UnitId": 605,
-      "Damage": 150,
-      "Def": 15,
+      "Damage": 120,
+      "Def": 18,
       "Speed": 100
     },
     "606": {
@@ -1596,8 +1596,8 @@
       "MainType": 1,
       "SubType": 10,
       "UnitId": 606,
-      "Damage": 150,
-      "Def": 15,
+      "Damage": 120,
+      "Def": 25,
       "Speed": 100
     },
     "607": {
@@ -1606,7 +1606,7 @@
       "MainType": 1,
       "SubType": 10,
       "UnitId": 607,
-      "Damage": 100,
+      "Damage": 145,
       "Def": 15,
       "Speed": 100
     },
@@ -1666,9 +1666,9 @@
       "MainType": 1,
       "SubType": 11,
       "UnitId": 665,
-      "Damage": 200,
-      "Def": 50,
-      "Speed": 100
+      "Damage": 120,
+      "Def": 30,
+      "Speed": 120
     }
   }
 }

@@ -7,7 +7,17 @@ using ProtoBuf;
 using System.Net;
 using protocol;
 using Excel2Json;
+using UnityEngine;
+public enum GetItemType {
+    SceneItem = 1,
+    PickupItem = 2,
+}
 
+public enum OperateType {
+    Kill = 1,
+    Kick = 2,
+    Skick = 3,
+}
 [ProtoContract]
 public class RBase
 {
@@ -33,7 +43,7 @@ public class InventoryItem
 
     public ItemData Info()
     {
-        return Main.Ins.GameStateMgr.FindItemByIdx(this.Idx);
+        return GameStateMgr.Ins.FindItemByIdx(this.Idx);
     }
 }
 
@@ -195,245 +205,7 @@ public enum EquipWeaponType
 //所有发出请求都在这里.
 public class Common
 {
-    //请求登录.
-    //public static string password;
-    //public static void SendLoginRequest(string account, string strPassword, Action<RBase> cb = null)
-    //{
-    //    LoginData data = new LoginData();
-    //    data.cmd = (short)CmdAction.AuthReq;
-    //    data.Account = Encoding.UTF8.GetBytes(account);
-    //    data.Password = new byte[] { };
-    //    password = strPassword;
-    //    Exec<LoginData>(ClientProxy.sProxy, data, cb);
-    //}
-
-    //请求注册，包头后面 留CMD+密码.
-    public static void SendRegRequest(string account, string strPassword)
-    {
-        //RegData reg = new RegData();
-        //reg.cmd = (short)CmdAction.RegReq;
-        ////加密数据
-        //byte[] acc = Encrypt.EncryptArray(Encoding.UTF8.GetBytes(account));
-        //reg.Account = acc;
-        //byte[] psw = Encrypt.EncryptArray(Encoding.UTF8.GetBytes(strPassword));
-        //reg.Password = psw;
-        //Exec<RegData>(ClientProxy.sProxy, reg);
-    }
-
-    public static void SendLogoutRequest(uint userid)
-    {
-        //RBase req = new RBase();
-        //req.cmd = (short)CmdAction.LoginOutReq;
-        //Exec<RBase>(ClientProxy.sProxy, req);
-    }
-
-    public static void SendChatMessage(string message)
-    {
-        ChatMsg msg = new ChatMsg();
-        msg.channelType = 0;
-        msg.chatMessage = message;
-        msg.playerId = (uint)Main.Ins.NetWorkBattle.PlayerId;
-        Exec(TcpClientProxy.sProxy,(int)MeteorMsg.MsgType.ChatInRoomReq, msg);
-    }
-
-    public static void SendAudioMessage(byte [] data)
-    {
-        AudioChatMsg msg = new AudioChatMsg();
-        msg.type = 0;
-        msg.audio_data = data;
-        msg.playerId = (uint)Main.Ins.NetWorkBattle.PlayerId;
-        Exec(TcpClientProxy.sProxy, (int)MeteorMsg.MsgType.AudioChat, msg);
-    }
-
-    public static void Exec(Socket s, int msg)
-    {
-        if (s != null && s.Connected)
-        {
-            byte[] Length = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(8));
-            byte[] wIdent = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(msg));
-            byte[] data = new byte[8];
-            Buffer.BlockCopy(Length, 0, data, 0, 4);
-            Buffer.BlockCopy(wIdent, 0, data, 4, 4);
-            try
-            {
-                s.Send(data, 8, SocketFlags.None);
-            }
-            catch (Exception exp)
-            {
-                Log.WriteError(exp.Message);
-            }
-        }
-    }
-
-    public static void Exec<T>(Socket s, int msg, T rsp)
-    {
-        //UnityEngine.Debug.LogError("send msg:" + msg);
-        if (s != null && s.Connected)
-        {
-            MemoryStream ms = new MemoryStream();
-            Serializer.Serialize<T>(ms, rsp);
-            byte[] coreData = ms.ToArray();
-            int length = 8 + coreData.Length;
-            byte[] data = new byte[length];
-            Buffer.BlockCopy(coreData, 0, data, 8, coreData.Length);
-            byte[] Length = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(length));
-            byte[] wIdent = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(msg));
-            Buffer.BlockCopy(Length, 0, data, 0, 4);
-            Buffer.BlockCopy(wIdent, 0, data, 4, 4);
-            try
-            {
-                //UnityEngine.Debug.LogError("send msg 2:" + msg);
-                s.Send(data, length, SocketFlags.None);
-            }
-            catch (Exception exp)
-            {
-                Log.WriteError(exp.Message);
-            }
-        }
-    }
-
-    //public static void OnAuthRsp(RBase rsp, Action<RBase> cb = null)
-    //{
-    //    RegData data = rsp as RegData;
-    //    data.cmd = (short)CmdAction.LoginReq;
-    //    string strPassword = Encoding.UTF8.GetString(data.Password);
-    //    strPassword += password;
-
-    //    byte[] result = new byte[32];
-    //    byte[] content = ASCIIEncoding.Unicode.GetBytes(strPassword);
-    //    result = SM3Digest.SM3Digest.SM3(content);
-    //    string keySm3 = "";
-    //    for (int j = 0; j < 32; j++)
-    //        keySm3 += result[j].ToString("X2");
-    //    data.Password = Encoding.UTF8.GetBytes(keySm3);
-    //    Exec<RegData>(ClientProxy.sProxy, data, cb);
-    //}
-
-    //加入游戏大厅
-    public static void SendJoinLobbyRequest()
-    {
-        //Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ProtocolVeritify);
-    }
-
-    public static void SendRecord(GameRecord record) {
-        //Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType., record);
-    }
-
-    public static void SendUpdateGameServer()
-    {
-        Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.GetRoomReq);
-    }
-
-    public static void SendAutoLogin()
-    {
-        ProtocolVerifyReq req = new ProtocolVerifyReq();
-        req.protocol = AppInfo.ProtocolVersion;
-        req.data = Main.Ins.GameStateMgr.gameStatus.NickName;
-        Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ProtocolVerifyReq, req);
-    }
-
-    //public static void SendRebornRequest(int playerid)
-    //{
-    //    UserId id = new UserId();
-    //    id.Player.Add((uint)playerid);
-    //    Exec(ClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.UserRebornReq, id);
-    //}
-
-    public static void SendJoinRoom(int roomId, string sec = "")
-    {
-        JoinRoomReq req = new JoinRoomReq();
-        req.roomId = (uint)roomId;
-        req.version = Main.Ins.AppInfo.MeteorV2();
-        req.password = sec;
-        Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.JoinRoomReq, req);//进入房间-还未进入战场，战前准备阶段
-    }
-
-    public static void EnterQueue()
-    {
-        Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.EnterQueueReq);
-    }
-
-    //在排队中-退出排队
-    public static void LeaveQueue()
-    {
-        Exec(TcpClientProxy.sProxy, (int)protocol.MeteorMsg.MsgType.ExitQueueReq);
-    }
-
-
-    //创建房间.
-    public static void CreateRoom(string name, string sec)
-    {
-        CreateRoomReq req = new CreateRoomReq();
-        req.hpMax = (uint)Main.Ins.GameStateMgr.gameStatus.NetWork.Life;
-        //章节编号×1000 + 关卡序号
-        req.levelIdx = (uint)Main.Ins.GameStateMgr.gameStatus.NetWork.ChapterTemplate * 1000 + (uint)Main.Ins.GameStateMgr.gameStatus.NetWork.LevelTemplate;
-        req.maxPlayer = (uint)Main.Ins.GameStateMgr.gameStatus.NetWork.MaxPlayer;
-        req.roomName = name;
-        req.roundTime = (uint)Main.Ins.GameStateMgr.gameStatus.NetWork.RoundTime;
-        req.rule = (RoomInfo.RoomRule)Main.Ins.GameStateMgr.gameStatus.NetWork.Mode;
-        req.secret = sec;
-        req.version = Main.Ins.AppInfo.MeteorV2();//107 907
-        req.pattern = (RoomInfo.RoomPattern)Main.Ins.GameStateMgr.gameStatus.NetWork.Pattern;
-        if (req.pattern == RoomInfo.RoomPattern._Replay)
-        {
-            //向服务器发送某个录像文件
-        }
-        else if (req.pattern == RoomInfo.RoomPattern._Record)
-        {
-            //服务器保存录像文件，在单轮结束后
-        }
-        //把本地的武器ID，模型ID传过去，其他人进入房间后，选择角色或者武器，就受到房间此信息限制
-        //req.weapons.Add();
-        //只包含外接模型-基础0-19无论如何都可以使用.
-        int total = Main.Ins.GameStateMgr.gameStatus.pluginModel.Count;
-        for (int i = 0; i < total; i++)
-            req.models.Add((uint)Main.Ins.GameStateMgr.gameStatus.pluginModel[i].ModelId);
-        Exec(TcpClientProxy.sProxy, (int)MeteorMsg.MsgType.CreateRoomReq, req);
-        //1,人数上限
-        //2.关卡模式
-        //3.时长
-        //4.地图模板
-        //5.生命上限
-        //6.禁用远程武器
-    }
-    //public static void SyncFrame(KeyFrame k)
-    //{
-    //    Exec(ClientProxy.sProxy, (int)MeteorMsg.MsgType.KeyFrameReq, k);
-    //}
-
-    //public static void SendEnterMap(EntryPoint ept)
-    //{
-    //    EnterMap req = new EnterMap();
-    //    req.account = GameData.user.account;
-    //    req.cmd = (short)CmdAction.EnterMapReq;
-    //    req.roleId = GameData.RoleId;
-    //    req.uid = GameData.user.uid;
-    //    req.map = ept;
-    //    Exec(ClientProxy.sProxy, req);
-    //}
-
-    //public static void SendItemReq(int itemid, ItemOp opcode, int targetIdx, Action<RBase> call)
-    //{
-    //    ItemReq req = new ItemReq();
-    //    req.account = GameData.user.account;
-    //    req.cmd = (short)CmdAction.ItemReq;
-    //    req.itemId = itemid;
-    //    req.roleId = GameData.MainRole.roleId;
-    //    req.op = (int)opcode;
-    //    Exec(ClientProxy.sProxy, req, call);
-    //}
-
-    //public static void SendBattleResult(bool result, int battleId, List<int> monster, Action<RBase> cb)
-    //{
-    //    BattleResultReq req = new BattleResultReq();
-    //    req.cmd = (short)CmdAction.BattleResultReq;
-    //    req.account = GameData.user.account;
-    //    req.roleId = GameData.MainRole.roleId;
-    //    req.result = result ? 1 : 0;
-    //    req.battleIdx = battleId;
-    //    req.monster = monster;
-    //    Exec(ClientProxy.sProxy, req, cb);
-    //}
+    
 
     
 }

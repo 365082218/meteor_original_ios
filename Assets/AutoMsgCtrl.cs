@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 //查找亲儿子,给个时间显示,之后渐变Alpha,之后删除
 public class AutoMsgCtrl : MonoBehaviour {
     float lastTime = 2.5f;
     float alphaTime = 0.5f;
-    Coroutine fade;
     // Use this for initialization
     public void SetConfig(float last, float alpha)
     {
@@ -25,11 +25,9 @@ public class AutoMsgCtrl : MonoBehaviour {
 
     // Update is called once per frame
     protected void Update() {
-        if (FrameReplay.Instance == null)
-            return;
         if (transform.childCount != 0)
         {
-            tick -= FrameReplay.deltaTime;
+            tick -= Time.deltaTime;
             if (tick <= 0.0f)
             {
                 Transform son = transform.GetChild(0);
@@ -48,7 +46,7 @@ public class AutoMsgCtrl : MonoBehaviour {
             }
         }
 
-        if (FrameReplay.Instance.time - lastTick > 1f && msg.Count != 0)
+        if (Time.time - lastTick > 1f && msg.Count != 0)
         {
             GameObject obj = new GameObject();
             obj.name = (transform.childCount + 1).ToString();
@@ -64,7 +62,7 @@ public class AutoMsgCtrl : MonoBehaviour {
             obj.transform.localScale = Vector3.one;
             obj.transform.localPosition = Vector3.zero;
             obj.transform.localRotation = Quaternion.identity;
-            lastTick = FrameReplay.Instance.time;
+            lastTick = Time.time;
             msg.RemoveAt(0);
         }
     }
@@ -76,7 +74,7 @@ public class AutoMsgCtrl : MonoBehaviour {
     List<string> msg = new List<string>();
     public void PushMessage(string text)
     {
-        if (FrameReplay.Instance.time - lastTick <= 1f || msg.Count != 0)
+        if (Time.time - lastTick <= 1f || msg.Count != 0)
         {
             msg.Add(text);
         }
@@ -95,7 +93,7 @@ public class AutoMsgCtrl : MonoBehaviour {
             obj.transform.localScale = Vector3.one;
             obj.transform.localPosition = Vector3.zero;
             obj.transform.localRotation = Quaternion.identity;
-            lastTick = FrameReplay.Instance.time;
+            lastTick = Time.time;
         }
     }
 }

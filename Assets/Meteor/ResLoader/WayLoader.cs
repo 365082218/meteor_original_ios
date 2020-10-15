@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
+
 public class WayLoader
 {
     //每进入一关加载唯一的一次.
@@ -13,8 +14,8 @@ public class WayLoader
         byte[] body = null;
         //尝试先读DLC数据
         if (Main.Ins != null) {
-            if (Main.Ins.CombatData.Chapter != null) {
-                body = Main.Ins.CombatData.Chapter.GetResBytes(FileExt.WayPoint, file);
+            if (CombatData.Ins.Chapter != null) {
+                body = CombatData.Ins.Chapter.GetResBytes(FileExt.WayPoint, file);
             }
         }
         TextAsset asset = null;
@@ -44,7 +45,7 @@ public class WayLoader
                 } else if (eachline[0] == "Size") {
                     wpeach.size = int.Parse(eachline[1]);
                 } else if (eachline[0] == "Link") {
-                    wpeach.link = new Dictionary<int, WayLength>();
+                    wpeach.link = new SortedDictionary<int, WayLength>();
                 } else {
                     WayLength wayl = new WayLength();
                     wayl.length = float.Parse(eachline[2]);

@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
+
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -55,6 +56,11 @@ public class Utility
         return q;
     }
 
+    public static void Clamp(ref Vector3 vec, float speedMin, float speedMax) {
+        vec.x = Mathf.Clamp(vec.x, speedMin, speedMax);
+        vec.y = Mathf.Clamp(vec.y, speedMin, speedMax);
+        vec.z = Mathf.Clamp(vec.z, speedMin, speedMax);
+    }
     public static Quaternion NormalizeSafe(Quaternion q)
     {
 	    float mag = Magnitude(q);
@@ -160,8 +166,37 @@ public class Utility
         }
     }
 
+    static int index = 0;
+    public static int Range(int min, int max) {
+        return CombatData.Ins.Random.Next(min, max);
+    }
+
+    public static float Range(float min, float max) {
+        return UnityEngine.Random.Range(min, max);
+    }
+
+    public static void SavePng(string path, byte[] content) {
+        try {
+            System.IO.File.WriteAllBytes(path, content);
+        }
+        catch (Exception exp){
+            Debug.LogError(exp.Message);
+        }
+    }
+
     public static bool SameCrc(string file, string md5) {
         return getFileHash(file) == md5;
+    }
+
+    public static bool LoadPreview(Image preview, string localPath) {
+        if (System.IO.File.Exists(localPath)) {
+            byte[] array = System.IO.File.ReadAllBytes(localPath);
+            Texture2D tex = new Texture2D(0, 0);
+            tex.LoadImage(array);
+            preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+            return true;
+        }
+        return false;
     }
 
     //把图片放到整个画布，不要留黑边，可以超越屏幕
@@ -210,9 +245,9 @@ public class Utility
     public static void ShowMeteorObject(string file, Transform parent, bool gen = false) {
         if (file.EndsWith(".des"))
             file = file.Substring(0, file.Length - 4);
-        DesFile fIns = Main.Ins.DesLoader.Load(file);
-        GMBFile gmb = Main.Ins.GMBLoader.Load(file);
-        GMCFile fModel = Main.Ins.GMCLoader.Load(file);
+        DesFile fIns = DesLoader.Ins.Load(file);
+        GMBFile gmb = GMBLoader.Ins.Load(file);
+        GMCFile fModel = GMCLoader.Ins.Load(file);
         //保存材质球
         if (Application.isEditor) {
             if (!System.IO.Directory.Exists("Assets/Materials/Weapons/resources/"))
@@ -226,7 +261,7 @@ public class Utility
             Material[] mat = new Material[gmb.TexturesCount];
             for (int i = 0; i < mat.Length; i++)
                 mat[i] = null;
-            Dictionary<int, string> iflMat = new Dictionary<int, string>();//IFL材质特殊处理,IFL材质均为mobile/particle/additive
+            SortedDictionary<int, string> iflMat = new SortedDictionary<int, string>();//IFL材质特殊处理,IFL材质均为mobile/particle/additive
             for (int x = 0; x < gmb.TexturesCount; x++) {
                 string tex = gmb.TexturesNames[x];
                 if (tex.ToLower().EndsWith(".ifl")) {
@@ -273,7 +308,7 @@ public class Utility
                     //realObject = true;
                     Mesh w = new Mesh();
                     //前者子网格编号，后者 索引缓冲区
-                    Dictionary<int, List<int>> tr = new Dictionary<int, List<int>>();
+                    SortedDictionary<int, List<int>> tr = new SortedDictionary<int, List<int>>();
                     List<Vector3> ve = new List<Vector3>();
                     List<Vector2> uv = new List<Vector2>();
                     List<Vector3> nor = new List<Vector3>();
@@ -395,7 +430,7 @@ public class Utility
             Material[] mat = new Material[fModel.TexturesCount];
             for (int i = 0; i < mat.Length; i++)
                 mat[i] = null;
-            Dictionary<int, string> iflMat = new Dictionary<int, string>();//IFL材质特殊处理,IFL材质均为mobile/particle/additive
+            SortedDictionary<int, string> iflMat = new SortedDictionary<int, string>();//IFL材质特殊处理,IFL材质均为mobile/particle/additive
 
             for (int x = 0; x < fModel.TexturesCount; x++) {
                 string tex = fModel.TexturesNames[x];
@@ -457,7 +492,7 @@ public class Utility
                         //realObject = true;
                         Mesh w = new Mesh();
                         //前者子网格编号，后者 索引缓冲区
-                        Dictionary<int, List<int>> tr = new Dictionary<int, List<int>>();
+                        SortedDictionary<int, List<int>> tr = new SortedDictionary<int, List<int>>();
                         List<Vector3> ve = new List<Vector3>();
                         List<Vector2> uv = new List<Vector2>();
                         List<Vector3> nor = new List<Vector3>();
@@ -596,15 +631,10 @@ public class Utility
     }
 
     //得到小时：分钟：秒
-    public static string GetDuration(int frames, int framerate) {
-        if (framerate == 0) {
-            return "00:00:00";
-        }
-        int hour = frames / (framerate * 60 * 60);
-        int minute_frame = frames - (hour * framerate * 60 * 60);
-        int minute = minute_frame / (framerate * 60);
-        int second_frame = minute_frame - minute * framerate * 60;
-        int second = second_frame / framerate;
+    public static string GetDuration(float duration) {
+        int hour = Mathf.FloorToInt(duration / (60 * 60));
+        int minute = Mathf.FloorToInt((duration - (hour * 60 * 60)) / 60);
+        int second = Mathf.FloorToInt(duration - (hour * 60 * 60) - minute * 60);
         return string.Format("{0:D2}:{1:D2}:{2:D2}", hour, minute, second);
     }
 
@@ -626,7 +656,7 @@ public class Utility
         if (vec.x == Player.transform.position.x && vec.z == Player.transform.position.z)
             return 0;
 
-        Vector3 vec1 = -Player.transform.forward;
+        Vector3 vec1 = -1 * Player.transform.forward;
         Vector3 vec2 = (vec - Player.mPos2d).normalized;
         vec2.y = 0;
         float radian = Vector3.Dot(vec1, vec2);
@@ -754,16 +784,18 @@ public class Utility
 public class StringUtils
 {
     //读取表就OK了，后续改.
-    public static Dictionary<string, string> language = new Dictionary<string, string>();
+    public static SortedDictionary<string, string> language = new SortedDictionary<string, string>();
     public const string Install = "安裝";
     public const string Cancel = "取消";
     public const string InstallFailed = "安裝失敗";
     public const string Uninstall = "卸载";
-    public const string ModelName = "「模型-{0}」";
-    public const string DlcName = "「剧本-{0}」";
+    public const string ModelName = "「{0}-{1}」";//id-name
+    public const string DlcName = "「{0}-{1}」";//id-name
     public const string UninstallModel = "卸载「模型-{0}」";
     public const string UninstallChapter = "卸载「剧本-{0}」";
     public const string Startup = "流星正在启动{0}%";
     public const string SetPlayerModel = "已设置主角使用「模型-{0}」";
     public const string DefaultPlayer = "孟星魂";
+    public const string Unzip = "解压中";
+    public const string Error = "出错";
 }

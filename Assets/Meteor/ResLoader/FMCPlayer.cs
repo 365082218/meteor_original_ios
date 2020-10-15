@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
+
 public class MiniPose
 {
     public int idx;
@@ -10,12 +11,12 @@ public class MiniPose
     public int end;
 }
 
-public class FMCPoseLoader
+public class FMCPoseLoader:Singleton<FMCPoseLoader>
 {
     public void Clear() {
         fmcPose.Clear();
     }
-    public Dictionary<string, FMCPose> fmcPose = new Dictionary<string, FMCPose>();
+    public SortedDictionary<string, FMCPose> fmcPose = new SortedDictionary<string, FMCPose>();
     public FMCPose LoadPose(string file)
     {
         string file_no_ext = file;
@@ -23,8 +24,8 @@ public class FMCPoseLoader
         if (fmcPose.ContainsKey(file))
             return fmcPose[file];
         byte[] body = null;
-        if (Main.Ins.CombatData.Chapter != null) {
-            string path = Main.Ins.CombatData.Chapter.GetResPath(FileExt.Pos, file_no_ext);
+        if (CombatData.Ins.Chapter != null) {
+            string path = CombatData.Ins.Chapter.GetResPath(FileExt.Pos, file_no_ext);
             if (!string.IsNullOrEmpty(path)) {
                 if (File.Exists(path)) {
                     body = File.ReadAllBytes(path);
@@ -180,16 +181,16 @@ public class FMCPlayer :NetBehaviour {
     {
         int i = asset.name.IndexOf('.');
         fmcFile = asset.name.Substring(0, i);
-        frames = Main.Ins.FMCLoader.Load(asset);
-        pose = Main.Ins.FMCPoseLoader.LoadPose(fmcFile);
+        frames = FMCLoader.Ins.Load(asset);
+        pose = FMCPoseLoader.Ins.LoadPose(fmcFile);
         state = 1;
     }
 
     public void Init(string file, FMCFile f = null)
     {
         fmcFile = file;
-        frames = f != null ? f : Main.Ins.FMCLoader.Load(fmcFile);
-        pose = Main.Ins.FMCPoseLoader.LoadPose(fmcFile);
+        frames = f != null ? f : FMCLoader.Ins.Load(fmcFile);
+        pose = FMCPoseLoader.Ins.LoadPose(fmcFile);
         state = 1;
         //ChangePose(0, 0);
     }

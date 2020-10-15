@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class CalcDistance : MonoBehaviour {
     public GameObject target0;
     public GameObject target1;

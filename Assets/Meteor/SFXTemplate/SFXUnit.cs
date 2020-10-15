@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
+
 //播放一个sfxfile中的一个子特效
 //自己追踪目标的位置和旋转。
 //子Mesh设置自己的本地坐标和旋转。
@@ -43,6 +44,7 @@ DRAG*/
     {
         base.Awake();
     }
+
     protected new void OnDestroy()
     {
         base.OnDestroy();
@@ -54,8 +56,36 @@ DRAG*/
     {
         if (mRender != null)
             mRender.enabled = false;
+        if (particle != null) {
+            ParticleSystemRenderer render = particle.GetComponent<ParticleSystemRenderer>();
+            if (render != null)
+                render.enabled = false;
+        }
     }
 
+
+    //打到的物件列表,0.15S后可再次攻击同个目标
+    List<SceneItemAgent> keyS = new List<SceneItemAgent>();
+    List<SceneItemAgent> removedS = new List<SceneItemAgent>();
+    Dictionary<SceneItemAgent, float> HurtItems = new Dictionary<SceneItemAgent, float>();
+    List<MeteorUnit> keyM = new List<MeteorUnit>();
+    List<MeteorUnit> removedM = new List<MeteorUnit>();
+    Dictionary<MeteorUnit, float> HurtUnit = new Dictionary<MeteorUnit, float>();
+    public bool ExistDamage(SceneItemAgent item) {
+        return HurtItems.ContainsKey(item);
+    }
+
+    public bool ExistDamage(MeteorUnit item) {
+        return HurtUnit.ContainsKey(item);
+    }
+
+    public void Attack(SceneItemAgent item) {
+        HurtItems.Add(item, CombatData.DamageDetectDelay);
+    }
+
+    public void Attack(MeteorUnit unit) {
+        HurtUnit.Add(unit, CombatData.DamageDetectDelay);
+    }
     //public void SaveParticle(string file)
     //{
     //    if (source != null && source.particle != null)
@@ -70,7 +100,7 @@ DRAG*/
     //}
 
     //原粒子系统是右手坐标系的，转移到左手坐标系后非常多问题，特别是父子关系以及，跟随和子物体旋转叠加
-    public void Init(SfxEffect effect, SFXEffectPlay parent, int index, float timePlayed = 0.0f, bool preLoad = false)
+    public void Init(SfxEffect effect, SFXEffectPlay parent, int index, float timePlayed, bool preLoad = false)
     {
         playedTime = timePlayed;
         PlayDone = false;
@@ -88,26 +118,46 @@ DRAG*/
             ParticleSystem.MainModule mainModule = particle.main;
             ParticleSystem.EmissionModule emissionModule = particle.emission;
             ParticleSystem.ShapeModule shapeModule = particle.shape;
+            ParticleSystem.ForceOverLifetimeModule force = particle.forceOverLifetime;
             
             emissionModule.rateOverTime = new ParticleSystem.MinMaxCurve(effect.MaxParticles, effect.MaxParticles);
-            mainModule.startLifetime = effect.StartLifetime;
+            mainModule.startLifetime = new ParticleSystem.MinMaxCurve(effect.StartLifetime, effect.StartLifetime2);
             mainModule.maxParticles = effect.MaxParticles;
             mainModule.startSize3D = false;
             mainModule.startSize = new ParticleSystem.MinMaxCurve(effect.startSizeMin, effect.startSizeMax);
-            mainModule.startSpeed = new ParticleSystem.MinMaxCurve(effect.startSpeedMin, effect.startSpeedMax);
-            mainModule.loop = true;
-            mainModule.duration = 1.0f;
+            mainModule.startSpeed = new ParticleSystem.MinMaxCurve(effect.Speed, effect.Speed);
+            mainModule.loop = effect.particleNotLoop == 0;
+            mainModule.duration = effect.frames[effect.FrameCnt - 1].startTime;
+            mainModule.gravityModifierMultiplier = effect.gravity;
 
+
+
+            //96字节
+            if (effect.ParticleBytes == 96) {
+
+            }
             //124字节的，烟雾特效，旋转角度 0-360，shape使用box, render使用billboard
-            if (effect.version == 1)
+            else if (effect.ParticleBytes == 124)
             {
-                mainModule.startRotation = new ParticleSystem.MinMaxCurve(0, 360);
+                mainModule.startRotation3D = effect.EnableParticleRotate == 1;
+                if (mainModule.startRotation3D) {
+                    mainModule.startRotationX = effect.RotateAxis.x;
+                    mainModule.startRotationY = effect.RotateAxis.y;
+                    mainModule.startRotationZ = effect.RotateAxis.z;
+                }
+                mainModule.startRotation = new ParticleSystem.MinMaxCurve(effect.HRotateSpeed, effect.VRotateSpeed);
+
                 shapeModule.shapeType = ParticleSystemShapeType.Box;
                 shapeModule.box = new Vector3(effect.startSizeMin, 0, effect.startSizeMax);
+                //shapeModule.box = new Vector3(effect.emitWidth, 0, effect.emitLong);
                 ParticleSystemRenderer r = particle.GetComponent<ParticleSystemRenderer>();
                 r.renderMode = ParticleSystemRenderMode.Billboard;
                 r.minParticleSize = 0.1f;
                 r.maxParticleSize = 0.1f;
+            }
+            //112字节的,
+            else if (effect.ParticleBytes == 112) {
+
             }
         }
 
@@ -196,13 +246,13 @@ DRAG*/
         if (meshIndex != -1 && meshIndex < GamePool.Instance.MeshMng.Meshes.Length)
         {
             if (meshIndex == 4)
-                mFilter.mesh = Main.Ins.SfxMeshGenerator.CreateCylinder(source.origAtt.y, source.origAtt.x, source.origScale.x);
+                mFilter.mesh = SfxMeshGenerator.Ins.CreateCylinder(source.origAtt.y, source.origAtt.x, source.origScale.x);
             else if (meshIndex == 3)
-                mFilter.mesh = Main.Ins.SfxMeshGenerator.CreateSphere(source.SphereRadius);
+                mFilter.mesh = SfxMeshGenerator.Ins.CreateSphere(source.SphereRadius);
             else if (meshIndex == 0)
-                mFilter.mesh = Main.Ins.SfxMeshGenerator.CreatePlane(source.origScale.x, source.origScale.y);
+                mFilter.mesh = SfxMeshGenerator.Ins.CreatePlane(source.origScale.x, source.origScale.y);
             //else if (meshIndex == 1)
-            //    mFilter.mesh = Main.Ins.SfxMeshGenerator.CreateBox(source.origScale.x, source.origScale.y, source.origScale.z);
+            //    mFilter.mesh = SfxMeshGenerator.Ins.CreateBox(source.origScale.x, source.origScale.y, source.origScale.z);
             else
                 mFilter.mesh = GamePool.Instance.MeshMng.Meshes[meshIndex];
         }
@@ -255,7 +305,7 @@ DRAG*/
                 render.material.SetColor("_Color", effect.frames[0].colorRGB);
                 render.material.SetColor("_TintColor", effect.frames[0].colorRGB);
                 render.material.SetFloat("_Intensity", effect.frames[0].TailFlags[9]);
-                if (Main.Ins.GameStateMgr.gameStatus != null && !Main.Ins.GameStateMgr.gameStatus.DisableParticle)
+                if (GameStateMgr.Ins.gameStatus != null && !GameStateMgr.Ins.gameStatus.DisableParticle)
                     particle.Play();
             }
             else
@@ -337,6 +387,7 @@ DRAG*/
                 //Debug.LogError("attackBox not Box:" + name);
             }
             hitBox = gameObject.AddComponent<FightBox>();
+            //多个子特效是可以打到多次的，由子特效存储攻击到的目标，决定后续是否能再击中
             hitBox.Init(mOwner, null);
             damageBox.enabled = false;
             if (U3D.showBox) {
@@ -376,8 +427,34 @@ DRAG*/
     // Update is called once per frame
     public override void NetUpdate()
     {
-        if (pause || PlayDone)
+        keyS.Clear();
+        keyS.AddRange(HurtItems.Keys);
+        removedS.Clear();
+        foreach (var each in keyS) {
+            HurtItems[each] -= FrameReplay.deltaTime;
+            if (HurtItems[each] < 0.0f)
+                removedS.Add(each);
+        }
+
+        for (int i = 0; i < removedS.Count; i++)
+            HurtItems.Remove(removedS[i]);
+
+
+        keyM.Clear();
+        keyM.AddRange(HurtUnit.Keys);
+        removedM.Clear();
+        foreach (var each in keyM) {
+            HurtUnit[each] -= FrameReplay.deltaTime;
+            if (HurtUnit[each] < 0.0f)
+                removedM.Add(each);
+        }
+
+        for (int i = 0; i < removedM.Count; i++)
+            HurtUnit.Remove(removedM[i]);
+
+        if (pause || PlayDone) {
             return;
+        }
         playedTime += FrameReplay.deltaTime;
         if (playedIndex < source.frames.Count)
         {
@@ -452,7 +529,7 @@ DRAG*/
                 else
                 {
                     OnLastFrame(timeRatio2, vertexColor);
-                    transform.localScale = Vector3.Slerp(source.frames[playedIndex - 1].scale, source.frames[playedIndex].scale, timeRatio2);
+                    transform.localScale = Vector3.Lerp(source.frames[playedIndex - 1].scale, source.frames[playedIndex].scale, timeRatio2);
                 }
             }
             else if (source.EffectType.Equals("BILLBOARD"))
@@ -492,7 +569,7 @@ DRAG*/
                 else
                 {
                     OnLastFrame(timeRatio2, vertexColor);
-                    transform.localScale = Vector3.Slerp(source.frames[playedIndex - 1].scale, source.frames[playedIndex].scale, timeRatio2);
+                    transform.localScale = Vector3.Lerp(source.frames[playedIndex - 1].scale, source.frames[playedIndex].scale, timeRatio2);
                 }
             }
             else if (source.EffectType.Equals("PARTICLE"))
@@ -500,12 +577,12 @@ DRAG*/
                 if (source.frames[playedIndex].startTime <= playedTime)
                 {
                     OnNewFrame(vertexColor);
-                    //transform.localScale = source.frames[playedIndex - 1].scale;
+                    transform.localScale = source.frames[playedIndex - 1].scale;
                     ParticleSystemRenderer render = particle.GetComponent<ParticleSystemRenderer>();
                     render.material.SetColor("_Color", source.frames[playedIndex - 1].colorRGB);
                     render.material.SetColor(vertexColor, source.frames[playedIndex - 1].colorRGB);
                     //粒子不要设置强度了，原版本的粒子实现和UNITY的不一样
-                    render.material.SetFloat("_Intensity", source.multiplyAlpha == 1 ? source.alpha * source.frames[playedIndex - 1].TailFlags[9] : source.frames[playedIndex - 1].TailFlags[9]);
+                    render.material.SetFloat("_Intensity", (source.FadeOut == 1 ? source.FadeOutAlpha * source.frames[playedIndex - 1].TailFlags[9] : source.frames[playedIndex - 1].TailFlags[9]));
                     //particle.Play();
                     //particle.Emit(source.MaxParticles);
                     //particle.Simulate();
@@ -515,6 +592,7 @@ DRAG*/
                 else
                 {
                     OnLastFrame(timeRatio2, vertexColor);
+                    transform.localScale = Vector3.Lerp(source.frames[playedIndex - 1].scale, source.frames[playedIndex].scale, timeRatio2);
                 }
             }
             else if (source.EffectType.Equals("DONUT"))
@@ -547,8 +625,13 @@ DRAG*/
         else
         {
             PlayDone = true;
-            if (parentSfx != null)
+            if (parentSfx != null) {
+                if (parentSfx.loop) {
+                    RePlay();
+                    return;
+                }
                 parentSfx.OnPlayDone(this);
+            }
             else
                 Destroy(gameObject);
         }
@@ -564,30 +647,32 @@ DRAG*/
 
     public void ShowKeyFrame(string vertexColor)
     {
-        if (RotateFollow != null)
-            transform.rotation = RotateFollow.rotation * source.frames[playedIndex].quat;
-        else
-            transform.rotation = source.frames[playedIndex].quat;
+        if (source.localSpace == 0 && RotateFollow == null && PositionFollow == null) {
 
-        //if (source.localSpace == 1)
-        //{
-        if (RotateFollow != null)
-        {
-            Vector3 targetPos = RotateFollow.TransformPoint(source.frames[playedIndex].pos) - RotateFollow.position;
-            if (PositionFollow != null)
-                transform.position = PositionFollow.position + targetPos;
+        } else {
+            if (RotateFollow != null)
+                transform.rotation = (RotateFollow.rotation * source.frames[playedIndex].quat);
             else
-                transform.position = targetPos;
-        }
-        //}
-        else
-        {
-            if (PositionFollow != null)
-                transform.position = PositionFollow.position + source.frames[playedIndex].pos;
-            else
-                transform.position = source.frames[playedIndex].pos;
-        }
+                transform.rotation = source.frames[playedIndex].quat;
 
+            //if (source.localSpace == 1)
+            //{
+            if (RotateFollow != null) {
+                Vector3 targetPos = RotateFollow.TransformPoint(source.frames[playedIndex].pos) - RotateFollow.position;
+                if (PositionFollow != null)
+                    transform.position = PositionFollow.position + targetPos;
+                else
+                    transform.position = targetPos;
+            }
+            //}
+            else {
+                if (PositionFollow != null)
+                    transform.position = PositionFollow.position + source.frames[playedIndex].pos;
+                else
+                    transform.position = source.frames[playedIndex].pos;
+            }
+
+        }
         mRender.material.SetFloat("_Intensity", source.frames[playedIndex].TailFlags[9]);
         mRender.material.SetColor(vertexColor, source.frames[playedIndex].colorRGB);
     }
@@ -600,15 +685,17 @@ DRAG*/
 
     public void OnLastFrame(float timeRatio2, string vertexColor)
     {
-        if (RotateFollow != null)
-            transform.rotation = RotateFollow.rotation * Quaternion.Slerp(source.frames[playedIndex - 1].quat, source.frames[playedIndex].quat, timeRatio2);
-        else
-            transform.rotation = Quaternion.Slerp(source.frames[playedIndex - 1].quat, source.frames[playedIndex].quat, timeRatio2);
+        if (source.localSpace == 0 && RotateFollow == null && PositionFollow == null) {
 
-        //if (source.localSpace == 1)
-        //{
+        } else {
             if (RotateFollow != null)
-            {
+                transform.rotation = (RotateFollow.rotation * Quaternion.Slerp(source.frames[playedIndex - 1].quat, source.frames[playedIndex].quat, timeRatio2));
+            else
+                transform.rotation = Quaternion.Slerp(source.frames[playedIndex - 1].quat, source.frames[playedIndex].quat, timeRatio2);
+
+            //if (source.localSpace == 1)
+            //{
+            if (RotateFollow != null) {
                 Vector3 targetPos = RotateFollow.TransformPoint(Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2)) - RotateFollow.position;
                 if (PositionFollow != null)
                     transform.position = PositionFollow.position + targetPos;
@@ -616,16 +703,14 @@ DRAG*/
                     transform.position = targetPos;
             }
         //}
-        else
-        {
-            if (PositionFollow != null)
-                transform.position = PositionFollow.position + Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2);
-            else
-                transform.position = Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2);
+        else {
+                if (PositionFollow != null)
+                    transform.position = PositionFollow.position + Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2);
+                else
+                    transform.position = Vector3.Lerp(source.frames[playedIndex - 1].pos, source.frames[playedIndex].pos, timeRatio2);
+            }
         }
-
-        
-        mRender.material.SetFloat("_Intensity", Mathf.Lerp(source.multiplyAlpha == 1 ? source.alpha * source.frames[playedIndex - 1].TailFlags[9] : source.frames[playedIndex - 1].TailFlags[9], source.multiplyAlpha == 1 ? source.alpha * source.frames[playedIndex].TailFlags[9] : source.frames[playedIndex].TailFlags[9], timeRatio2));
+        mRender.material.SetFloat("_Intensity", Mathf.Lerp(source.FadeOut == 1 ? source.FadeOutAlpha * source.frames[playedIndex - 1].TailFlags[9] : source.frames[playedIndex - 1].TailFlags[9], source.FadeOut == 1 ? source.FadeOutAlpha * source.frames[playedIndex].TailFlags[9] : source.frames[playedIndex].TailFlags[9], timeRatio2));
         mRender.material.SetColor(vertexColor, Color.Lerp(source.frames[playedIndex - 1].colorRGB, source.frames[playedIndex].colorRGB, timeRatio2));
     }
 

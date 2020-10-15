@@ -75,6 +75,32 @@
       "BgTexture": "",
       "Pass": 1,
       "Param": ""
+    },
+    "7": {
+      "Id": 7,
+      "Scene": "Meteor_02",
+      "Name": "单人录像测试",
+      "LevelType": 2,
+      "LevelScript": "sn02_2",
+      "BgmName": "S2",
+      "StartScript": "",
+      "sceneItems": "sn02",
+      "BgTexture": "",
+      "Pass": 1,
+      "Param": ""
+    },
+    "8": {
+      "Id": 8,
+      "Scene": "Meteor_23",
+      "Name": "大决战",
+      "LevelType": 5,
+      "LevelScript": "sn23",
+      "BgmName": "S11",
+      "StartScript": "",
+      "sceneItems": "",
+      "BgTexture": "",
+      "Pass": 1,
+      "Param": ""
     }
   }
 }

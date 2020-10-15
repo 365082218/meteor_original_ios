@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class MatchDialogState : CommonDialogState<MatchDialog>
 {
     public override string DialogName { get { return "MatchWnd"; } }
-    public MatchDialogState(MainDialogStateManager stateMgr) : base(stateMgr)
+    public MatchDialogState(MainDialogMgr stateMgr) : base(stateMgr)
     {
 
     }
@@ -47,49 +47,49 @@ public class MatchDialog : Dialog
 
         Control("Enter").GetComponent<Button>().onClick.AddListener(() =>
         {
-            Main.Ins.EnterState(Main.Ins.LoadingEx);
-            Common.EnterQueue();
-            EnterQueueTimeOut.Start();
+            //Main.Ins.EnterState(Main.Ins.LoadingEx);
+            ////Common.EnterQueue();
+            //EnterQueueTimeOut.Start();
         });
         Control("Quit").GetComponent<Button>().onClick.AddListener(() =>
         {
             quit = true;
             TimesUsed.text = "00:00";
             tick = 0;
-            Main.Ins.EnterState(Main.Ins.LoadingEx);
-            LeaveQueueTimeOut.Start();
-            Common.LeaveQueue();
+            //Main.Ins.EnterState(Main.Ins.LoadingEx);
+            //LeaveQueueTimeOut.Start();
+            //Common.LeaveQueue();
         });
     }
 
     public void OnLeaveTimeOut(object sender, System.Timers.ElapsedEventArgs e)
     {
-        Main.Ins.ExitState(Main.Ins.LoadingEx);
+        //Main.Ins.ExitState(Main.Ins.LoadingEx);
         LeaveQueueTimeOut.Stop();
     }
 
     public void OnEnterTimeOut(object sender, System.Timers.ElapsedEventArgs e)
     {
-        Main.Ins.ExitState(Main.Ins.LoadingEx);
+        //Main.Ins.ExitState(Main.Ins.LoadingEx);
         EnterQueueTimeOut.Stop();
     }
 
     public void OnEnterQueue()
     {
-        Main.Ins.ExitState(Main.Ins.LoadingEx);
+        //Main.Ins.ExitState(Main.Ins.LoadingEx);
         EnterQueueTimeOut.Stop();
         btnLeave.SetActive(false);
     }
 
     public void OnLeaveQueue()
     {
-        Main.Ins.ExitState(Main.Ins.LoadingEx);
+        //Main.Ins.ExitState(Main.Ins.LoadingEx);
         EnterQueueTimeOut.Stop();
         btnLeave.SetActive(true);
     }
 
     float tick = 0;
-    int TotalSeconds = 0;
+    float TotalSeconds = 0;
     bool quit = false;//等待退出
     //bool queue = false;//排队中
     void Update()
@@ -101,14 +101,14 @@ public class MatchDialog : Dialog
                 OnLeaveQueue();
             return;
         }
-        int left = Mathf.FloorToInt(tick);
+        float left = tick;
         if (left < 0)
             left = 0;
         if (left <= TotalSeconds)
             return;
         TotalSeconds = left;
-        int minute = left / 60;
-        int seconds = left % 60;
+        float minute = left / 60;
+        float seconds = left % 60;
         string t = "";
         t = string.Format("{0:D2}:{1:D2}", minute, seconds);
         TimesUsed.text = t;

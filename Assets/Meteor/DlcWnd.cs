@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 public class DlcDialogState : CommonDialogState<DlcWnd> {
     public override string DialogName { get { return "DlcWnd"; } }
-    public DlcDialogState(MainDialogStateManager stateMgr) : base(stateMgr) {
+    public DlcDialogState(MainDialogMgr stateMgr) : base(stateMgr) {
 
     }
 }
@@ -52,12 +52,12 @@ public class DlcWnd : Dialog {
             Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainMenuState);
         });
 
-        if (Main.Ins.GameStateMgr.gameStatus.pluginChapter != null)
+        if (GameStateMgr.Ins.gameStatus.pluginChapter != null)
         {
             int insertCount = 0;
-            for (int i = 0; i < Main.Ins.GameStateMgr.gameStatus.pluginChapter.Count; i++)
+            for (int i = 0; i < GameStateMgr.Ins.gameStatus.pluginChapter.Count; i++)
             {
-                Chapter lev = Main.Ins.GameStateMgr.gameStatus.pluginChapter[i];
+                Chapter lev = GameStateMgr.Ins.gameStatus.pluginChapter[i];
                 if (lev == null)
                     continue;
                 lev.Check();
@@ -122,7 +122,7 @@ public class DlcWnd : Dialog {
         if (select != null)
         {
             //普通关卡对待.
-            Main.Ins.CombatData.Chapter = select;
+            CombatData.Ins.Chapter = select;
             Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.LevelDialogState, false);
         }
         else

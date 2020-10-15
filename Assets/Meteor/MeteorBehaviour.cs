@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 
 //不BB了，硬编码，很难抽象出层次优化，第一个版本就硬写代码
-public class MeteorBehaviour {
+public class MeteorBehaviour:Singleton<MeteorBehaviour> {
     //防御，换武器，爆气3连处理.
     public bool ProcessNormalAction(MeteorUnit Owner) {
         MeteorInput Input = Owner.meteorController.Input;
@@ -22,16 +23,16 @@ public class MeteorBehaviour {
     public void MoveOnCrouch(MeteorUnit Owner, Vector2 moveVec) {
         if (moveVec.y != 0) {
             if (moveVec.y > 0 && Owner.ActionMgr.mActiveAction.Idx != CommonAction.CrouchForw)
-                Owner.ActionMgr.ChangeAction(CommonAction.CrouchForw);
+                Owner.ActionMgr.ChangeAction(CommonAction.CrouchForw, 0.1f);
             else if (moveVec.y < 0 && Owner.ActionMgr.mActiveAction.Idx != CommonAction.CrouchBack)
-                Owner.ActionMgr.ChangeAction(CommonAction.CrouchBack);
+                Owner.ActionMgr.ChangeAction(CommonAction.CrouchBack, 0.1f);
             return;
         }
         if (moveVec.x != 0) {
             if (moveVec.x > 0 && Owner.ActionMgr.mActiveAction.Idx != CommonAction.CrouchRight)
-                Owner.ActionMgr.ChangeAction(CommonAction.CrouchRight);
+                Owner.ActionMgr.ChangeAction(CommonAction.CrouchRight, 0.1f);
             else if (moveVec.x < 0 && Owner.ActionMgr.mActiveAction.Idx != CommonAction.CrouchLeft)
-                Owner.ActionMgr.ChangeAction(CommonAction.CrouchLeft);
+                Owner.ActionMgr.ChangeAction(CommonAction.CrouchLeft, 0.1f);
         }
     }
 
@@ -52,7 +53,7 @@ public class MeteorBehaviour {
         if (moveVec.x != 0) {
             if (Owner.HasBuff((int)EBUFF_ID.DrugEx) || Owner.HasBuff((int)EBUFF_ID.Drug)) {
                 if (Owner.ActionMgr.mActiveAction.Idx != CommonAction.RunOnDrug)
-                    Owner.ActionMgr.ChangeAction(CommonAction.RunOnDrug);
+                    Owner.ActionMgr.ChangeAction(CommonAction.RunOnDrug, 0.1f);
             } else {
                 if (moveVec.x > 0 && Owner.ActionMgr.mActiveAction.Idx != CommonAction.WalkRight)
                     Owner.ActionMgr.ChangeAction(CommonAction.WalkRight, 0.1f);
@@ -85,6 +86,8 @@ public class MeteorBehaviour {
     }
 
     public void ProcessBehaviour(MeteorUnit target) {
+        if (CombatData.Ins.GLevelMode == LevelMode.MultiplyPlayer && !target.Attr.IsPlayer)
+            return;
         ActionManager posMng = target.ActionMgr;
         MeteorInput Input = target.meteorController.Input;
         MeteorUnit Owner = target;
@@ -98,7 +101,7 @@ public class MeteorBehaviour {
                 return;
             } else if (Input.HasInput((int)EKeyList.KL_Help, (int)EInputType.EIT_Click)) {
                 //复活队友
-                Owner.ActionMgr.ChangeAction(CommonAction.Reborn);
+                Owner.ActionMgr.ChangeAction(CommonAction.Reborn, 0.1f);
             } else if (Input.HasInput((int)EKeyList.KL_Defence, (int)EInputType.EIT_Pressing)) {
                 Owner.Defence();
                 return;
@@ -171,7 +174,7 @@ public class MeteorBehaviour {
         } else if (posMng.mActiveAction.Idx == CommonAction.Run || posMng.mActiveAction.Idx == CommonAction.RunOnDrug) {
             if (Input.HasInput((int)EKeyList.KL_Help, (int)EInputType.EIT_Click)) {
                 //复活队友
-                Owner.ActionMgr.ChangeAction(CommonAction.Reborn);
+                Owner.ActionMgr.ChangeAction(CommonAction.Reborn, 0.1f);
             } else if (Input.HasInput((int)EKeyList.KL_Crouch, (int)EInputType.EIT_Pressing)) {
                 Owner.OnCrouch();
             } else
@@ -389,7 +392,7 @@ public class MeteorBehaviour {
             MoveOnCrouch(Owner, Input.mInputVector);
         } else if (Input.mInputVector == Vector2.zero && !posMng.Rotateing) {
             if (posMng.mActiveAction.Idx != CommonAction.GunIdle)
-                posMng.ChangeAction(CommonAction.GunIdle);
+                posMng.ChangeAction(CommonAction.GunIdle, 0.1f);
         }
     }
 }

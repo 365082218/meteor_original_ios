@@ -4,11 +4,12 @@ using System;
 using UnityEngine.UI;
 using Idevgame.GameState.DialogState;
 using Excel2Json;
+using System.Collections.Generic;
 
 public class LevelDialogState:CommonDialogState<LevelDialog>
 {
     public override string DialogName { get { return "LevelDialog"; } }
-    public LevelDialogState(MainDialogStateManager stateMgr):base(stateMgr)
+    public LevelDialogState(MainDialogMgr stateMgr):base(stateMgr)
     {
 
     }
@@ -52,7 +53,8 @@ public class LevelDialog : Dialog {
         normalLevel = (bool)data;
         Init();
     }
-
+    Dictionary<string, Button> levelBtns = new Dictionary<string, Button>();
+    Button selectedBtn;
     void Init()
     {
         Yes.onClick.AddListener(() =>
@@ -67,9 +69,9 @@ public class LevelDialog : Dialog {
         if (normalLevel)
         {
             //单机关卡
-            for (int i = 1; i <= Main.Ins.GameStateMgr.gameStatus.Level; i++)
+            for (int i = 1; i <= GameStateMgr.Ins.gameStatus.Level; i++)
             {
-                LevelData lev = Main.Ins.DataMgr.GetLevelData(i);
+                LevelData lev = DataMgr.Ins.GetLevelData(i);
                 if (lev == null)
                     continue;
                 Idevgame.Util.LevelUtils.AddGridItem(lev, rootMenu.transform, OnSelectLevel);
@@ -79,14 +81,19 @@ public class LevelDialog : Dialog {
         else
         {
             //剧本关卡
-            for (int i = 1; i <= Main.Ins.CombatData.Chapter.level; i++)
+            for (int i = 1; i <= CombatData.Ins.Chapter.level; i++)
             {
-                LevelData lev = Main.Ins.CombatData.Chapter.GetLevel(i);
+                LevelData lev = CombatData.Ins.Chapter.GetLevel(i);
                 if (lev == null)
                     continue;
                 Idevgame.Util.LevelUtils.AddGridItem(lev, rootMenu.transform, OnSelectLevel);
                 select = lev;
             }
+        }
+        for (int i = 0; i < rootMenu.transform.childCount; i++) {
+            Transform tri = rootMenu.transform.GetChild(i);
+            Button btn = tri.GetComponent<Button>();
+            levelBtns.Add(tri.name, btn);
         }
         OnSelectLevel(select);
     }
@@ -103,11 +110,11 @@ public class LevelDialog : Dialog {
               }
             else
             {
-                for (int i = 0; i < Main.Ins.CombatData.Chapter.resPath.Count; i++)
+                for (int i = 0; i < CombatData.Ins.Chapter.resPath.Count; i++)
                 {
-                    if (Main.Ins.CombatData.Chapter.resPath[i].EndsWith(lev.BgTexture + ".jpg"))
+                    if (CombatData.Ins.Chapter.resPath[i].EndsWith(lev.BgTexture + ".jpg"))
                     {
-                        byte[] array = System.IO.File.ReadAllBytes(Main.Ins.CombatData.Chapter.resPath[i]);
+                        byte[] array = System.IO.File.ReadAllBytes(CombatData.Ins.Chapter.resPath[i]);
                         Texture2D tex = new Texture2D(0, 0);
                         tex.LoadImage(array);
                         loadingTexture = tex;
@@ -122,8 +129,15 @@ public class LevelDialog : Dialog {
             background.color = Color.white;
         }
         Utility.Expand(background, loadingTexture.width, loadingTexture.height);
+        Control("Image").GetComponent<RectTransform>().sizeDelta = background.GetComponent<RectTransform>().sizeDelta;
         select = lev;
         Task.text = select.Name;
+        if (selectedBtn != null) {
+            selectedBtn.image.color = new Color(1, 1, 1, 0);
+            selectedBtn = null;
+        }
+        selectedBtn = levelBtns[lev.Name];
+        selectedBtn.image.color = new Color(144.0f / 255.0f, 104.0f / 255.0f, 104.0f / 255.0f, 104.0f / 255.0f);
     }
 
     void OnEnterLevel()
@@ -137,7 +151,7 @@ public class LevelDialog : Dialog {
             }
             else
             {
-                Main.Ins.DlcMng.PlayDlc(Main.Ins.CombatData.Chapter, select.Id);
+                DlcMng.Ins.PlayDlc(CombatData.Ins.Chapter, select.Id);
             }
             if (background.material == null)
                 OnBackPress();
