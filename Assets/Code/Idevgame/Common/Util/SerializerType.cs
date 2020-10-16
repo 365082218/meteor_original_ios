@@ -73,7 +73,9 @@ public struct MyVector2
     {
         return lhs.x != rhs.x || lhs.y != rhs.y;
     }
-
+    public static bool Equals(MyVector2 lhs, MyVector2 rhs) {
+        return lhs.x == rhs.x && lhs.y == rhs.y;
+    }
     public static MyVector2 Zero = Vector2.zero;
 }
 [System.Serializable]

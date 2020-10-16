@@ -155,7 +155,7 @@ public class SceneMng:Singleton<SceneMng>
         ret.name = player.name;
 
         ret.SpawnPoint = (int)player.spwanIndex;
-        ret.Speed = 950;
+        ret.Speed = 1000;
         ret.IsPlayer = false;
         return ret;
     }
@@ -172,7 +172,7 @@ public class SceneMng:Singleton<SceneMng>
         ret.name = player.name;
 
         ret.SpawnPoint = (int)player.spawnIndex;
-        ret.Speed = 950;
+        ret.Speed = 1000;
         ret.IsPlayer = player.playerId == NetWorkBattle.Ins.PlayerId;
         return ret;
     }

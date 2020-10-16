@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class GameButtonEx : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
     [SerializeField]
-    public GameButton[] JoyButton;
+    GameButton[] JoyButton;
     public void OnPointerDown(PointerEventData eventData)
     {
         for (int i = 0; i < JoyButton.Length; i++)

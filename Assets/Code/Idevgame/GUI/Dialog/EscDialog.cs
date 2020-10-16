@@ -61,8 +61,8 @@ public class EscDialog : Dialog
         OnFollowEnemy(U3D.WatchAi);
         toggleFollowEnemy.onValueChanged.AddListener(OnFollowEnemy);
 
-        Control("PrevRobot").GetComponent<Button>().onClick.AddListener(WatchPrevRobot);
-        Control("NextRobot").GetComponent<Button>().onClick.AddListener(WatchNextRobot);
+        Control("PrevRobot").GetComponent<Button>().onClick.AddListener(U3D.WatchPrevRobot);
+        Control("NextRobot").GetComponent<Button>().onClick.AddListener(U3D.WatchNextRobot);
 
         Control("Mission").GetComponent<Text>().text = GetMission();
         Control("LevelDesc").GetComponent<Text>().text = GetLevelDesc();
@@ -84,54 +84,6 @@ public class EscDialog : Dialog
         if (Main.Ins.CameraFree != null && Main.Ins.CameraFree.isActiveAndEnabled)
             return true;
         return false;
-    }
-
-    void WatchPrevRobot() {
-        if (!U3D.WatchAi) {
-            U3D.InsertSystemMsg("需要先[观察电脑]");
-            return;
-        }
-        MeteorUnit watchTarget = Main.Ins.CameraFree.Watched;
-        List<MeteorUnit> allow = new List<MeteorUnit>();
-        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++) {
-            if (MeteorManager.Ins.UnitInfos[i].Dead)
-                continue;
-            if (MeteorManager.Ins.UnitInfos[i] == Main.Ins.LocalPlayer)
-                continue;
-            allow.Add(MeteorManager.Ins.UnitInfos[i]);
-        }
-
-        int j = allow.IndexOf(watchTarget);
-        if (j == 0) {
-            watchTarget = allow[allow.Count - 1];
-        } else {
-            watchTarget = allow[j - 1];
-        }
-        Main.Ins.CameraFree.Init(watchTarget);
-    }
-
-    void WatchNextRobot() {
-        if (!U3D.WatchAi) {
-            U3D.InsertSystemMsg("需要先[观察电脑]");
-            return;
-        }
-        MeteorUnit watchTarget = Main.Ins.CameraFree.Watched;
-        List<MeteorUnit> allow = new List<MeteorUnit>();
-        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++) {
-            if (MeteorManager.Ins.UnitInfos[i].Dead)
-                continue;
-            if (MeteorManager.Ins.UnitInfos[i] == Main.Ins.LocalPlayer)
-                continue;
-            allow.Add(MeteorManager.Ins.UnitInfos[i]);
-        }
-
-        int j = allow.IndexOf(watchTarget);
-        if (j == allow.Count - 1) {
-            watchTarget = allow[0];
-        } else {
-            watchTarget = allow[j + 1];
-        }
-        Main.Ins.CameraFree.Init(watchTarget);
     }
 
     void OnFollowEnemy(bool follow)
@@ -162,6 +114,10 @@ public class EscDialog : Dialog
                 Main.Ins.GameBattleEx.EnableFollowCamera(true);
                 Main.Ins.GameBattleEx.EnableFreeCamera(false);
                 Main.Ins.MainCamera = Main.Ins.CameraFollow.m_Camera;
+            }
+
+            if (FightState.Exist()) {
+                FightState.Instance.UpdateUIButton();
             }
         }
     }

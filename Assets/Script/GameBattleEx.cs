@@ -134,8 +134,8 @@ public partial class GameBattleEx : NetBehaviour {
 
         if (NGUICameraJoystick.Ins)
             NGUICameraJoystick.Ins.Lock(true);
-        if (NGUIJoystick.Ins)
-            NGUIJoystick.Ins.Lock(true);
+        if (UGUIJoystick.Ins)
+            UGUIJoystick.Ins.Lock(true);
         //如果胜利，且不是最后一关，打开最新关标志.
         if (result == 1 || result == 2)
         {
@@ -803,8 +803,8 @@ public partial class GameBattleEx : NetBehaviour {
     {
         if (Main.Ins.LocalPlayer != null)
             Main.Ins.LocalPlayer.meteorController.LockInput(true);
-        if (NGUIJoystick.Ins != null)
-            NGUIJoystick.Ins.Lock(true);
+        if (UGUIJoystick.Ins != null)
+            UGUIJoystick.Ins.Lock(true);
         if (NGUICameraJoystick.Ins != null)
             NGUICameraJoystick.Ins.Lock(true);
         U3D.OnPauseAI();
@@ -823,8 +823,8 @@ public partial class GameBattleEx : NetBehaviour {
         if (Main.Ins.LocalPlayer != null){
             Main.Ins.LocalPlayer.meteorController.LockInput(false);
         }
-        if (NGUIJoystick.Ins != null)
-            NGUIJoystick.Ins.Lock(false);
+        if (UGUIJoystick.Ins != null)
+            UGUIJoystick.Ins.Lock(false);
         if (NGUICameraJoystick.Ins != null)
             NGUICameraJoystick.Ins.Lock(false);
         U3D.OnResumeAI();

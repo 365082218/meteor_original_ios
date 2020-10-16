@@ -38,7 +38,7 @@ public class MainMenu : Dialog
     [SerializeField]
     Button Replay;
     [SerializeField]
-    Button EnterQueue;
+    Button Leave;
     [SerializeField]
     Button UploadLog;
     [SerializeField]
@@ -98,9 +98,9 @@ public class MainMenu : Dialog
         {
             OnReplay();
         });
-        EnterQueue.onClick.AddListener(() =>
+        Leave.onClick.AddListener(() =>
         {
-            OnEnterQueue();
+            Application.Quit();
         });
         //if (GameStateMgr.Ins.gameStatus.CheatEnable)
         //{

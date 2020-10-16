@@ -52,24 +52,14 @@ public class FightUiConroller : Dialog
 
     void OnSkillBarHide() {
         Control("SkillHotArea").SetActive(true);
+        Control("SkillHotArea").GetComponent<Image>().color = Color.white;
+        Control("SkillHotArea").GetComponent<Image>().DOColor(Color.clear, 0.5f);
     }
 
     public void HideCameraBtn()
     {
         if (Unlock != null)
             Unlock.SetActive(false);
-    }
-
-    public void EnableJoyStick()
-    {
-        if (NGUIJoystick.Ins != null)
-            NGUIJoystick.Ins.JoyCollider.enabled = true;
-    }
-
-    public void DisableJoyStick()
-    {
-        if (NGUIJoystick.Ins != null)
-            NGUIJoystick.Ins.JoyCollider.enabled = false;
     }
 
     //显示所有人属性
@@ -91,8 +81,17 @@ public class FightUiConroller : Dialog
     Image TargetHp;
     Text TargetHPLabel;
     Text TargetName;
+    GameObject Menu2HotArea;
+    GameObject Prev;
+    GameObject Next;
     void Init()
     {
+        Prev = Control("Prev");
+        Next = Control("Next");
+        Button PrevBtn = Control("PrevPanel").GetComponent<Button>();
+        Button NextBtn = Control("NextPanel").GetComponent<Button>();
+        PrevBtn.onClick.AddListener(U3D.WatchPrevRobot);
+        NextBtn.onClick.AddListener(U3D.WatchNextRobot);
         Position = Control("Position").GetComponent<Text>();
         clickPanel = Control("ClickPanel");
         LevelTalkRoot = Control("LevelTalk", WndObject).transform;
@@ -176,14 +175,15 @@ public class FightUiConroller : Dialog
         Control("JoyArrow").SetActive(false);
 #endif
         //使用手柄时，不再显示右下侧按键和方向盘.
-        if (GameStateMgr.Ins.gameStatus.UseJoyDevice) {
+        if (GameStateMgr.Ins.gameStatus.UseGamePad) {
             Control("ClickPanel").SetActive(false);
             Control("JoyArrow").SetActive(false);
         }
 
         OnBattleStart();
-        Control("Menu2HotArea", WndObject).GetComponent<Button>().onClick.AddListener(ShowSysMenu2);
-        Control("Menu2HotArea", WndObject).SetActive(false);
+        Menu2HotArea = Control("Menu2HotArea", WndObject);
+        Menu2HotArea.GetComponent<Button>().onClick.AddListener(ShowSysMenu2);
+        Menu2HotArea.SetActive(false);
         Control("HideBtn", WndObject).GetComponent<Button>().onClick.AddListener(SysMenu2Hide);
     }
 
@@ -212,12 +212,14 @@ public class FightUiConroller : Dialog
 
     void OnSysMenu2Show() {
         system2Hide = false;
-        Control("Menu2HotArea", WndObject).SetActive(false);
+        Menu2HotArea.SetActive(false);
     }
 
     void OnSysMenu2Hide() {
         system2Hide = true;
-        Control("Menu2HotArea", WndObject).SetActive(true);
+        Menu2HotArea.SetActive(true);
+        Menu2HotArea.GetComponent<Image>().color = Color.white;
+        Menu2HotArea.GetComponent<Image>().DOColor(Color.clear, 0.5f);
     }
 
     public override void OnRefresh(int message, object param)
@@ -318,13 +320,15 @@ public class FightUiConroller : Dialog
         NodeHelper.Find("Robot", gameObject).SetActive(GameStateMgr.Ins.gameStatus.EnableDebugRobot);
         NodeHelper.Find("MiniMap", gameObject).SetActive(true);
 
-        if (NGUIJoystick.Ins != null)
-        {
-            NGUIJoystick.Ins.OnDisabled();
+        if (UGUIJoystick.Ins != null) {
+            UGUIJoystick.Ins.SetJoyEnable(GameStateMgr.Ins.gameStatus.JoyEnable);
         }
 
-        if (NGUIJoystick.Ins != null)
-            NGUIJoystick.Ins.SetAnchor(GameStateMgr.Ins.gameStatus.JoyAnchor);
+        if (UGUIJoystick.Ins != null)
+            UGUIJoystick.Ins.SetAnchor(GameStateMgr.Ins.gameStatus.JoyAnchor);
+
+        Prev.gameObject.SetActive(U3D.WatchAi);
+        Next.gameObject.SetActive(U3D.WatchAi);
         int j = 0;
         for (int i = 0; i < clickPanel.transform.childCount; i++)
         {

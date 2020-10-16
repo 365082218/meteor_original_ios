@@ -29,6 +29,7 @@ public class SettingDialog : Dialog {
     Toggle lowPerfor;
     Toggle highPerfor;
     Toggle superHighPerfor;
+    Toggle LowMiddle;
     void Init()
     {
         Control("Return").GetComponent<Button>().onClick.AddListener(() =>
@@ -58,13 +59,18 @@ public class SettingDialog : Dialog {
                 NickNameDialogState.State.Open();
             }
         );
-        highPerfor = Control("HighPerformance").GetComponent<Toggle>();
-        highPerfor.isOn = GameStateMgr.Ins.gameStatus.TargetFrame == 60;
-        highPerfor.onValueChanged.AddListener(OnChangePerformance);
 
         lowPerfor = Control("LowPerformance").GetComponent<Toggle>();
         lowPerfor.isOn = GameStateMgr.Ins.gameStatus.TargetFrame == 30;
         lowPerfor.onValueChanged.AddListener(OnChangePerformance);
+
+        LowMiddle = Control("LowMiddle").GetComponent<Toggle>();
+        LowMiddle.isOn = GameStateMgr.Ins.gameStatus.TargetFrame == 60;
+        LowMiddle.onValueChanged.AddListener(OnChangePerformance);
+
+        highPerfor = Control("HighPerformance").GetComponent<Toggle>();
+        highPerfor.isOn = GameStateMgr.Ins.gameStatus.TargetFrame == 90;
+        highPerfor.onValueChanged.AddListener(OnChangePerformance);
 
         superHighPerfor = Control("SuperHighPerformance").GetComponent<Toggle>();
         superHighPerfor.isOn = GameStateMgr.Ins.gameStatus.TargetFrame == 120;
@@ -95,9 +101,9 @@ public class SettingDialog : Dialog {
         Control("EffectSlider").GetComponent<Slider>().onValueChanged.AddListener(OnEffectVolumeChange);
         Control("SetJoyPosition").GetComponent<Button>().onClick.AddListener(OnSetUIPosition);
 
-        Toggle EnableJoy = Control("EnableJoy").GetComponent<Toggle>();
-        EnableJoy.isOn = GameStateMgr.Ins.gameStatus.UseJoyDevice;
-        EnableJoy.onValueChanged.AddListener((bool selected) => { GameStateMgr.Ins.gameStatus.UseJoyDevice = selected; Main.Ins.JoyStick.enabled = selected; });
+        Toggle EnableGamePad = Control("EnableGamePad").GetComponent<Toggle>();
+        EnableGamePad.isOn = GameStateMgr.Ins.gameStatus.UseGamePad;
+        EnableGamePad.onValueChanged.AddListener((bool selected) => { GameStateMgr.Ins.gameStatus.UseGamePad = selected; Main.Ins.JoyStick.enabled = selected; });
 
         //显示战斗界面的调试按钮
         Toggle toggleDebug = Control("EnableSFX").GetComponent<Toggle>();
@@ -150,6 +156,15 @@ public class SettingDialog : Dialog {
         Toggle toggleSkipVideo = Control("SkipVideo").GetComponent<Toggle>();
         toggleSkipVideo.isOn = GameStateMgr.Ins.gameStatus.SkipVideo;
         toggleSkipVideo.onValueChanged.AddListener(OnSkipVideo);
+
+        Toggle toggleJoyEnable = Control("EnableJoy").GetComponent<Toggle>();
+        toggleJoyEnable.isOn = GameStateMgr.Ins.gameStatus.JoyEnable;
+        toggleJoyEnable.onValueChanged.AddListener(OnJoyEnable);
+
+        Toggle toggleJoyOnlyRotate = Control("JoyOnlyRotate").GetComponent<Toggle>();
+        toggleJoyOnlyRotate.isOn = GameStateMgr.Ins.gameStatus.JoyRotateOnly;
+        toggleJoyOnlyRotate.onValueChanged.AddListener(OnJoyRotateOnly);
+
 
         GameObject debugTab = Control("DebugTab", WndObject);
         Toggle debugToggle = Control("Debug", WndObject).GetComponent<Toggle>();
@@ -374,6 +389,14 @@ public class SettingDialog : Dialog {
         Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.UIAdjustDialogState);
     }
 
+    void OnJoyEnable(bool enable) {
+        GameStateMgr.Ins.gameStatus.JoyEnable = enable;
+    }
+
+    void OnJoyRotateOnly(bool only) {
+        GameStateMgr.Ins.gameStatus.JoyRotateOnly = only;
+    }
+
     void OnSkipVideo(bool skip)
     {
         GameStateMgr.Ins.gameStatus.SkipVideo = skip;
@@ -483,8 +506,10 @@ public class SettingDialog : Dialog {
         if (on) {
             if (lowPerfor.isOn)
                 GameStateMgr.Ins.gameStatus.TargetFrame = 30;
-            if (highPerfor.isOn)
+            if (LowMiddle.isOn)
                 GameStateMgr.Ins.gameStatus.TargetFrame = 60;
+            if (highPerfor.isOn)
+                GameStateMgr.Ins.gameStatus.TargetFrame = 90;
             if (superHighPerfor.isOn)
                 GameStateMgr.Ins.gameStatus.TargetFrame = 120;
         }

@@ -81,6 +81,8 @@ public class InputItem
                 targetPose = -1;
                 return false;
             }
+
+            //
             //技能中的动作，不许接输入
             if (mOwner.IsPlaySkill)
             {
@@ -117,7 +119,7 @@ public class InputItem
                 }
 
                 //枪射击大招
-                if (mOwner.ActionMgr.mActiveAction.Idx == 216) {
+                if (mOwner.ActionMgr.mActiveAction.Idx == CommonAction.GunSkillShootMax) {
                     targetPose = -1;
                     return false;
                 }

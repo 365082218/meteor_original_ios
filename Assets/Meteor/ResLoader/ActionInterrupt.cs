@@ -464,6 +464,14 @@ public class ActionInterrupt:Singleton<ActionInterrupt>
             Whole.Add(i, n);
         }
 
+        for (int i = 117; i < 118; i++) {
+            ActionNode n = new ActionNode();
+            n.ActionIdx = i;
+            n.KeyMap = 0;
+            level0.Add(n);
+            Whole.Add(i, n);
+        }
+
         for (int i = 140; i <= 148; i++)
         {
             ActionNode n = new ActionNode();

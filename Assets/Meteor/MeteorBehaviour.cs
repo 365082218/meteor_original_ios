@@ -94,8 +94,7 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
         //后面改为状态机 遵循 当前动作-遍历每一个中断动作-扫描切换所需状态.符合则切换（关键是这个状态表不好生成）
         //除了idle以外还有其他预备动作，都可以随意切换
         if (posMng.mActiveAction.Idx == CommonAction.Idle ||
-            ActionManager.IsReadyAction(posMng.mActiveAction.Idx) ||
-            posMng.mActiveAction.Idx == CommonAction.Dead)//动作是假死，角色没有挂
+            ActionManager.IsReadyAction(posMng.mActiveAction.Idx))//动作是假死，角色没有挂
         {
             if (ProcessNormalAction(Owner)) {
                 return;
@@ -304,7 +303,7 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
             if (Input.HasInput((int)EKeyList.KL_Defence, (int)EInputType.EIT_Releasing)) {
                 Owner.ReleaseDefence();
             }
-        } else if (posMng.mActiveAction.Idx == CommonAction.Struggle || posMng.mActiveAction.Idx == CommonAction.Struggle0)//地面挣扎.僵直中无法输入.
+        } else if (posMng.mActiveAction.Idx == CommonAction.Struggle || posMng.mActiveAction.Idx == CommonAction.Struggle0 || posMng.mActiveAction.Idx == CommonAction.Dead)//地面挣扎.僵直中无法输入.
           {
             if (Owner.IsOnGround()) {
                 if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_Release)) {

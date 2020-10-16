@@ -130,7 +130,7 @@ namespace Idevgame.GameState.DialogState {
 
             UnloadGuiOnExit = true;
 
-#if UNITY_2017 || UNITY_5_5
+#if UNITY_2017 || UNITY_5_5 || UNITY_5_6
             if (Use3DCanvas())
             {
                 if (mRootUI == null)
@@ -228,7 +228,7 @@ namespace Idevgame.GameState.DialogState {
                 return;
             }
 
-#if UNITY_2017 || UNITY_5_5
+#if UNITY_2017 || UNITY_5_5 || UNITY_5_6
             if (Use3DCanvas())
             {
                 if (mRootUI == null)
@@ -354,7 +354,7 @@ namespace Idevgame.GameState.DialogState {
 
             UnloadGuiOnExit = true;
 
-#if UNITY_2017 || UNITY_5_5
+#if UNITY_2017 || UNITY_5_5 || UNITY_5_6
             if (Use3DCanvas())
             {
                 if (mRootUI == null)

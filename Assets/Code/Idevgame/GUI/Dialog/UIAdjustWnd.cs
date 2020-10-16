@@ -16,16 +16,21 @@ public class UIAdjustDialogState : CommonDialogState<UIAdjustWnd> {
 public class UIAdjustWnd : Dialog {
     public override void OnClose() {
         if (FightState.Exist()) {
-            FightState.Instance.EnableJoyStick();
             FightState.Instance.OnRefresh(0, null);
+        }
+        if (NGUICameraJoystick.Ins != null) {
+            NGUICameraJoystick.Ins.enabled = true;
         }
         base.OnClose();
     }
 
     public override void OnDialogStateEnter(BaseDialogState ownerState, BaseDialogState previousDialog, object data) {
         base.OnDialogStateEnter(ownerState, previousDialog, data);
-        Debug.Log("OnAdjustWndOpen");
+        //Debug.Log("OnAdjustWndOpen");
         Init();
+        if (NGUICameraJoystick.Ins != null) {
+            NGUICameraJoystick.Ins.enabled = false;
+        }
     }
     //界面每次进入时，都是使用默认数值的。记录下来
     MyVector2[] original = new MyVector2[10];//只记录了右侧按键的位置.
@@ -33,9 +38,6 @@ public class UIAdjustWnd : Dialog {
     int SelectIndex = -1;//选中按钮序号
 
     void Init() {
-        //禁用方向上的触发器
-        if (FightState.Exist())
-            FightState.Instance.DisableJoyStick();
 
         Control("Close").GetComponent<Button>().onClick.AddListener(() => {
             if (Main.Ins.GameBattleEx != null)

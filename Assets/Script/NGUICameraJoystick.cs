@@ -36,13 +36,6 @@ public class NGUICameraJoystick : NetBehaviour
         if (isPress)
         {
             mPressTime += FrameReplay.deltaTime;
-            //if (mLastFingerId == UICamera.currentTouchID && !MeteorManager.Instance.LocalPlayer.Dead)
-            //{
-            //    Vector2 touchPos = UICamera.currentTouch.pos - mFingerDownPos;
-            //    deltaLast = touchPos;
-            //    //Debug.LogError(string.Format("{0}:{1}", deltaLast.x, deltaLast.y));
-            //    mFingerDownPos = UICamera.currentTouch.pos;
-            //}
         }
         else
             mPressTime = 0.0f;
@@ -54,8 +47,6 @@ public class NGUICameraJoystick : NetBehaviour
 	bool isPress = false;
     void OnPress(bool pressed)
     {
-        //if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
-        //    return;
         if (CombatData.Ins.PauseAll)
             return;
         if (enabled && gameObject.activeSelf)

@@ -7,12 +7,14 @@ using System.IO;
 public class NetBehaviour:MonoBehaviour {
     protected void Awake()
     {
-        FrameReplay.Ins.RegisterObject(this);
+        if (FrameReplay.Ins != null)
+            FrameReplay.Ins.RegisterObject(this);
     }
 
     protected void OnDestroy()
     {
-        FrameReplay.Ins.UnRegisterObject(this);
+        if (FrameReplay.Ins != null)
+            FrameReplay.Ins.UnRegisterObject(this);
     }
 
     public virtual void NetUpdate()

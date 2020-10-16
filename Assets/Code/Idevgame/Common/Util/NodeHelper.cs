@@ -4,17 +4,23 @@ using UnityEngine;
 
 public static class NodeHelper {
     //必须不区分大小写字母.一些关卡原件大小写未明确.
+    //广度优先
     public static GameObject Find(string name, GameObject parent)
     {
         if (parent.name == name)
             return parent;
-        for (int i = 0; i < parent.transform.childCount; i++)
-        {
+        List<GameObject> childs = new List<GameObject>();
+        for (int i = 0; i < parent.transform.childCount; i++) {
             GameObject childObj = parent.transform.GetChild(i).gameObject;
-            if (name.ToLower() == childObj.name.ToLower())
-            {
+            if (name.ToLower() == childObj.name.ToLower()) {
                 return childObj;
             }
+            childs.Add(childObj);
+        }
+
+        for (int i = 0; i < childs.Count; i++)
+        {
+            GameObject childObj = childs[i];
             GameObject childchildObj = Find(name, childObj);
             if (childchildObj != null)
                 return childchildObj;

@@ -223,7 +223,12 @@ public class MapLoaderInspector : Editor
         }
     }
 }
-
+[CustomEditor(typeof(UGUIJoystick))]
+public class UGUIJoystickInspector : Editor {
+    public override void OnInspectorGUI() {
+        base.OnInspectorGUI();
+    }
+}
 
 [CustomEditor(typeof(MeteorUnit))]
 public class MeteorUnitInspector : Editor

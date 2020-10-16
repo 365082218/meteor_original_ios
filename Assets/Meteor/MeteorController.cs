@@ -22,7 +22,7 @@ public class MeteorInput
     public KeyState[] KeyStates = new KeyState[(int)EKeyList.KL_Max];
     public static float DoubleClickTime = 0.4f;
     public static float LongPressedTime = 0.2f;
-    public static float ShortPressTime = 0.1f;//按住的时间大于这个时间前就松开，视为按键抬起响应，触发轻键，类似小跳，当按住时间大于这个时间，若仍没松开，视为按键按下响应，触发重键行为，类似大跳
+    public static float ShortPressTime = 0.12f;//按住的时间大于这个时间前就松开，视为按键抬起响应，触发轻键，类似小跳，当按住时间大于这个时间，若仍没松开，视为按键按下响应，触发重键行为，类似大跳
     public static float SuperJumpTime = 0.35f;//按住跳跃持续0.35S还未松开
     MeteorUnit mOwner;
     ActionManager posMng;
@@ -113,6 +113,7 @@ public class MeteorInput
         if (!CombatData.Ins.PauseAll)
         {
             Vector2 vec = Vector2.zero;
+            bool RotateY = false;
             if (!mOwner.meteorController.InputLocked)
             {
                 if (mOwner.Attr.IsPlayer)
@@ -122,18 +123,20 @@ public class MeteorInput
                         if (Main.Ins.JoyStick.mJoyPressed) {
                             //如果左侧摇杆在操作。
                             vec = new Vector2(Main.Ins.JoyStick.Delta.x, Main.Ins.JoyStick.Delta.y);
+                            RotateY = true;
                         } else if (Main.Ins.JoyStick.ArrowPressed) {
                             vec = new Vector2(Main.Ins.JoyStick.Delta.x, Main.Ins.JoyStick.Delta.y);
                         } else
                             vec = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
                     } else {
                         //使用触摸屏UI操作
-                        if (NGUIJoystick.Ins != null) {
+                        if (UGUIJoystick.Ins != null) {
                             //如果方向键按下了
-                            if (NGUIJoystick.Ins.mJoyPressed)
-                                vec = new Vector2(NGUIJoystick.Ins.Delta.x, NGUIJoystick.Ins.Delta.y);
-                            else if (NGUIJoystick.Ins.ArrowPressed)
-                                vec = new Vector2(NGUIJoystick.Ins.Delta.x, NGUIJoystick.Ins.Delta.y);
+                            if (UGUIJoystick.Ins.mJoyPressed) {
+                                vec = new Vector2(UGUIJoystick.Ins.Delta.x, UGUIJoystick.Ins.Delta.y);
+                                RotateY = true;
+                            } else if (UGUIJoystick.Ins.ArrowPressed)
+                                vec = new Vector2(UGUIJoystick.Ins.Delta.x, UGUIJoystick.Ins.Delta.y);
                             else
                                 vec = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
                         }
@@ -158,9 +161,18 @@ public class MeteorInput
             //    //    FrameSyncServer.Ins.PushJoyDelta(mOwner.InstanceId, mInputVector.x, mInputVector.y);
             //} else {
                 mInputVector = mOwner.meteorController.MoveLocked ? Vector2.zero : vec;
-                //if (mOwner.Attr.IsPlayer)
-                //    FrameSyncLocal.Ins.PushDelta(MeteorMsg.Command.Joy, mOwner.InstanceId, x, y);
+            //if (mOwner.Attr.IsPlayer)
+            //    FrameSyncLocal.Ins.PushDelta(MeteorMsg.Command.Joy, mOwner.InstanceId, x, y);
             //}
+            if (RotateY && GameStateMgr.Ins.gameStatus.JoyRotateOnly)
+                mInputVector = Vector2.zero;
+            if (RotateY && vec != Vector2.zero) {
+                if (mOwner.ActionMgr.CanRotateY) {
+                    float yAngle = Mathf.Atan2(vec.x, vec.y) * Mathf.Rad2Deg;
+                    yAngle *= FrameReplay.deltaTime;
+                    mOwner.OnPlayerMouseDelta(0,  yAngle);
+                }
+            }
         }
 
         if (!mOwner.meteorController.InputLocked)
@@ -1896,6 +1908,8 @@ public class MeteorInput
 
     public void OnKeyDownProxy(EKeyList key, bool system = false)
     {
+        if (mOwner.Dead)
+            return;
         //if (CombatData.Ins.Replay) {
         //    if (!mOwner.Attr.IsPlayer)
         //        OnKeyDownProxy(KeyStates[(int)key], system);
@@ -1912,6 +1926,8 @@ public class MeteorInput
 
     public void OnKeyUpProxy(EKeyList key, bool system = false)
     {
+        if (mOwner.Dead)
+            return;
         //if (CombatData.Ins.Replay) {
         //    if (!mOwner.Attr.IsPlayer)
         //        OnKeyUpProxy(KeyStates[(int)key], system);
@@ -1920,7 +1936,7 @@ public class MeteorInput
         //    if (mOwner.Attr.IsPlayer)
         //        FrameSyncServer.Ins.PushKeyUp(mOwner.InstanceId, key);
         //} else {
-            OnKeyUpProxy(KeyStates[(int)key], system);
+        OnKeyUpProxy(KeyStates[(int)key], system);
         //    if (mOwner.Attr.IsPlayer)
         //        FrameSyncLocal.Ins.PushKeyUp(mOwner.InstanceId, key);
         //}
@@ -2076,7 +2092,7 @@ public class MeteorController {
     MeteorUnit mOwner;
     ActionManager posMng;
     bool mInputLocked = false;
-    public bool InputLocked { get { return mInputLocked; } set { mInputLocked = value; } }
+    public bool InputLocked { get { return mInputLocked || Owner.Dead; } set { mInputLocked = value; } }
     bool mMoveLocked = false;
     public bool MoveLocked { get { return mMoveLocked; } set { mMoveLocked = value; } }
     public MeteorUnit Owner { get { return mOwner; } }

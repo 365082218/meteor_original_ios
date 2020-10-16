@@ -9,6 +9,15 @@ using Idevgame.Util;
 using System.IO;
 using protocol;
 
+public class QueueParam {
+    public QueueParam(int a, float f) {
+        action = a;
+        fade = f;
+    }
+    public int action;
+    public float fade;
+}
+
 //管理角色的动画帧，用自己的方式实现动画
 [Serializable]
 public class ActionManager {
@@ -242,6 +251,7 @@ public class ActionManager {
 
     public SortedDictionary<int, int> LinkInput = new SortedDictionary<int, int>();
     public SortedDictionary<int, int> QueuedAction = new SortedDictionary<int, int>();
+    public Dictionary<int, QueueParam> QueuedAction2 = new Dictionary<int, QueueParam>();
     public static bool IgnoreActionMove(int idx) {
         ActionData act = DataMgr.Ins.GetActionData(idx);
         if (act == null)
@@ -293,6 +303,12 @@ public class ActionManager {
             return false;
         Pose p = ActionList[UnitId][i];
         return !(p.Attack == null || p.Attack.Count == 0);
+    }
+
+    public void QueueAction2(int idx, int action, float crossfade) {
+        if (!QueuedAction2.ContainsKey(idx)) {
+            QueuedAction2.Add(idx, new QueueParam(action, crossfade));
+        }
     }
 
     //在循环动作中添加一个链接动作，如果循环动作准备播放下一次了，那么先检查连接动作，有的话就切换动作.
@@ -354,9 +370,9 @@ public class ActionManager {
                 //Debug.LogError("等待结束后连接动作：" + idx);
             } else {
                 //Debug.LogError("link action 2");
-                if (mActiveAction.Next != null)
-                    ChangeAction(idx, mActiveAction.Next.Time);
-                else
+                if (mActiveAction.Next != null) {
+                    QueueAction2(mActiveAction.Idx, idx, mActiveAction.Next.Time);
+                } else
                     ChangeAction(idx, 0);
             }
         }
@@ -373,8 +389,18 @@ public class ActionManager {
             return;
         }
 
+        if (mActiveAction.Idx == CommonAction.Dead)
+            return;
+
         if (mActiveAction.Idx == CommonAction.Struggle0 || mActiveAction.Idx == CommonAction.Struggle)
             return;
+
+        if (QueuedAction2.ContainsKey(mActiveAction.Idx)) {
+            int key = mActiveAction.Idx;
+            QueueParam param = QueuedAction2[key];
+            ChangeAction(param.action, param.fade);
+            QueuedAction2.Remove(key);
+        }
 
         if (QueuedAction.ContainsKey(mActiveAction.Idx)) {
             int idx = mActiveAction.Idx;
@@ -502,6 +528,7 @@ public class ActionManager {
     public void OnReborn() {
         CanControl = true;
         PoseStartEvent.Clear();
+        ChangeAction(CommonAction.Idle, 0);
     }
 
     public void OnDead() {
@@ -1191,6 +1218,7 @@ public class ActionManager {
     }
 
     //动作开始播放时触发的事件
+
     Dictionary<int, int> PoseStartEvent = new Dictionary<int, int>();
     public void LinkEvent(int pose, PoseEvt evt) {
         if (PoseStartEvent.ContainsKey(pose))

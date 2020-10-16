@@ -361,7 +361,7 @@ public partial class MeteorUnit : NetBehaviour {
     }
 
     public int ClimbingSpeed { get { return 1250; } }//这个值是慢慢调出来的，没有实际参考意义，不会1S就跑这么多
-    public int ClimbingSpeedY { get { return 850; } }
+    public int ClimbingSpeedY { get { return 700; } }
     public int MoveSpeed { get { return (int)(Attr.Speed * GetMoveSpeedScale()); } }
     //远程近战武器，攻击距离
     public float AttackRange {
@@ -833,7 +833,7 @@ public partial class MeteorUnit : NetBehaviour {
     //    }
     //}
 
-    protected void OnPlayerMouseDelta(float x, float y) {
+    public void OnPlayerMouseDelta(float x, float y) {
         if (y != 0)
             Main.Ins.LocalPlayer.SetOrientation(y, false);
         if (this == Main.Ins.LocalPlayer) {
@@ -1026,7 +1026,7 @@ public partial class MeteorUnit : NetBehaviour {
         if (StateMachine != null) {
             if (unit != null && unit.isActiveAndEnabled) {
                 KillTarget = unit;
-                if (!KillTarget.Dead) {
+                if (KillTarget != null && !KillTarget.Dead) {
                     StateMachine.ChangeState(StateMachine.KillState);
                 }
             }
@@ -1181,16 +1181,16 @@ public partial class MeteorUnit : NetBehaviour {
         }
 
         charController = gameObject.GetComponent<CharacterController>();
-        ModelData modeldata = DataMgr.Ins.GetModelData(ModelId);
-        float height = modeldata != null ? modeldata.Height : 34;
-        float pivot = modeldata != null ? modeldata.Pivot: 17f;
+        //ModelData modeldata = DataMgr.Ins.GetModelData(ModelId);
+        //float height = modeldata != null ? modeldata.Height : 32;
+        //float pivot = modeldata != null ? modeldata.Pivot: 16f;
         //一定要让角色倒地的时候，还在地面上一点高度，否则很多招式就无法再打到这个倒地的角色了
         if (charController == null)
             charController = gameObject.AddComponent<CharacterController>();
         if (charController != null) {
-            charController.center = new Vector3(0, pivot, 0);
-            charController.height = height;
-            charController.radius = 6.0f;
+            charController.center = new Vector3(0, 16, 0);
+            charController.height = 32;
+            charController.radius = 9.0f;
             charController.stepOffset = 6.8f;//以钟乳洞中间的高台为准
         }
         ShowAttackBox();
@@ -1477,7 +1477,7 @@ public partial class MeteorUnit : NetBehaviour {
     //1:浮空站在陡峭墙壁上,无法站立的那种
     //2:站立在地表的边缘,一侧身体浮空
     //3:站在凹陷的坑内    
-    public bool ProcessFall(bool lockMove = true) {
+    public bool ProcessFall(bool lockMove = false) {
         //是否需要推动，要看这个推力方向上是否有阻碍，如果有阻碍，就不要推动了.
         Vector3 vec = transform.position - hitPoint;
         vec.y = 0;
@@ -1528,7 +1528,6 @@ public partial class MeteorUnit : NetBehaviour {
         }
 
         //减少射线发射次数.
-        
         if (Physics.SphereCast(transform.position + Vector3.up * 2, 0.5f, Vector3.down, out hit, 1000, LayerManager.AllSceneMask)) {
             MoveOnGroundEx = hit.distance <= 4f;
             //Debug.Log(string.Format("distance:{0}", hit.distance));

@@ -140,6 +140,8 @@ public class CameraFollow:NetBehaviour {
         if (m_Camera && !m_Camera.enabled) {
             return;
         }
+        if (!enabled)
+            return;
         //Debug.LogError("lockupdate:" + Time.frameCount);
         if (Main.Ins.LocalPlayer != null && !CombatData.Ins.PauseAll)
         {
@@ -367,25 +369,19 @@ public class CameraFollow:NetBehaviour {
         }
         else
         {
-            if (xRotate != 0.0f)
-            {
+            if (xRotate != 0.0f) {
                 //根据参数调整高度，和距离.
                 //最高俯仰75度。
                 lastAngle -= xRotate;//鼠标往上，是仰视，往下是俯视
-                if (lastAngle >= angleMax)
-                {
+                if (lastAngle >= angleMax) {
                     lastAngle = angleMax;
                     followDistance = Mathf.Abs(fRadis * Mathf.Cos(lastAngle * Mathf.Deg2Rad));
                     followHeight = Mathf.Abs(fRadis * Mathf.Sin(lastAngle * Mathf.Deg2Rad));
-                }
-                else if (lastAngle <= angleMin)
-                {
+                } else if (lastAngle <= angleMin) {
                     lastAngle = angleMin;
                     followDistance = Mathf.Abs(fRadis * Mathf.Cos(lastAngle * Mathf.Deg2Rad));
                     followHeight = -Mathf.Abs(fRadis * Mathf.Sin(lastAngle * Mathf.Deg2Rad));
-                }
-                else
-                {
+                } else {
                     followDistance = Mathf.Abs(fRadis * Mathf.Cos(lastAngle * Mathf.Deg2Rad));
                     followHeight = lastAngle == 0.0f ? 0 : (lastAngle / Mathf.Abs(lastAngle)) * Mathf.Abs(fRadis * Mathf.Sin(lastAngle * Mathf.Deg2Rad));
                 }

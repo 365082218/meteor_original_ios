@@ -293,7 +293,9 @@ public class GameState {
     public bool AutoLock;//无锁定
     public bool DisableParticle;//无粒子特效
     public bool SnowParticle;//雪粒子
-    public bool UseJoyDevice;//使用手柄设备-不显示战斗UI的操作部分-当未识别到手柄设备时，不起效
+    public bool UseGamePad;//使用手柄设备-不显示战斗UI的操作部分-当未识别到手柄设备时，不起效
+    public bool JoyEnable;//使用摇杆
+    public bool JoyRotateOnly;//摇杆仅控制方向-否则还控制位移
     public bool SkipVideo;//忽略过场视频
     public int UseModel = -1;//强制使用的主角模型,可能会被特殊关卡设置无效 默认为-1
     public Dictionary<EKeyList, KeyCode> KeyMapping = new Dictionary<EKeyList, KeyCode>();//虚拟键映射关系.
@@ -385,7 +387,7 @@ public class GameStateMgr:Singleton<GameStateMgr>
             gameStatus.SoundVolume = 0.5f;
             gameStatus.NickName = "昱泉杀手";
             gameStatus.JoyAnchor = new MyVector2(390,340);
-            gameStatus.AxisSensitivity = new MyVector2(1, 1);
+            gameStatus.AxisSensitivity = new MyVector2(0.5f, 0.5f);
             gameStatus.MeteorVersion = "9.07";
 #if UNITY_STANDALONE_WIN
             gameStatus.TargetFrame = 120;//PC上120帧
@@ -406,7 +408,9 @@ public class GameStateMgr:Singleton<GameStateMgr>
             gameStatus.DisableParticle = true;
             gameStatus.AutoLock = true;
             gameStatus.SkipVideo = true;
-            gameStatus.UseJoyDevice = false;
+            gameStatus.UseGamePad = false;
+            gameStatus.JoyEnable = true;
+            gameStatus.JoyRotateOnly = false;
             gameStatus.UseModel = -1;
 
             int maxNum = 10;
@@ -547,7 +551,7 @@ public class CombatData:Singleton<CombatData>
     public int PlayerLife;
     public int PlayerModel;
     public int NormalWeaponProbability = 75;//100-98=2几率切换到远程武器，每次Think都有2%几率
-    public static float JumpLimit = 70.0f;//跳跃高度上限.
+    public static float JumpLimit = 68.0f;//跳跃高度上限.
     public static float AimDegree = 30.0f;//夹角超过30度，需要重新瞄准
     public MeteorInput GMeteorInput = null;
     public LevelData GLevelItem = null;//普通关卡

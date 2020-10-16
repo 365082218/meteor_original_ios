@@ -588,7 +588,7 @@ namespace Idevgame.Meteor.AI
             ThickTick = ThinkRound;
 
             //倒地挣扎处理.放到Think里，间隔一会，不然硬直消失就可以在下一帧起身了
-            if ((Player.ActionMgr.mActiveAction.Idx == CommonAction.Struggle || Player.ActionMgr.mActiveAction.Idx == CommonAction.Struggle0) && !Player.ActionMgr.InTransition()) {
+            if ((Player.ActionMgr.mActiveAction.Idx == CommonAction.Struggle || Player.ActionMgr.mActiveAction.Idx == CommonAction.Struggle0 || Player.ActionMgr.mActiveAction.Idx == CommonAction.Dead) && !Player.ActionMgr.InTransition()) {
                 //随机输入方向-攻击-跳跃其中的一个按键
                 List<VirtualInput> keys = new List<VirtualInput> { new VirtualInput(EKeyList.KL_Attack),new VirtualInput(EKeyList.KL_Jump),
                     new VirtualInput(EKeyList.KL_KeyW), new VirtualInput(EKeyList.KL_KeyS), new VirtualInput(EKeyList.KL_KeyA), new VirtualInput(EKeyList.KL_KeyD)};

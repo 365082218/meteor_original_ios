@@ -605,8 +605,8 @@ public class U3D : MonoBehaviour {
         if (CombatData.Ins.GLevelItem != null)
         {
             Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.EscDialogState);
-            if (NGUIJoystick.Ins != null)
-                NGUIJoystick.Ins.Lock(true);
+            if (UGUIJoystick.Ins != null)
+                UGUIJoystick.Ins.Lock(true);
             return;
         }
     }
@@ -1602,5 +1602,55 @@ public class U3D : MonoBehaviour {
     [DoNotToLua]
     public static void CancelWatch() {
         WatchAi = false;
+    }
+
+    [DoNotToLua]
+    public static void WatchPrevRobot() {
+        if (!U3D.WatchAi) {
+            U3D.InsertSystemMsg("需要先[观察电脑]");
+            return;
+        }
+        MeteorUnit watchTarget = Main.Ins.CameraFree.Watched;
+        List<MeteorUnit> allow = new List<MeteorUnit>();
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++) {
+            if (MeteorManager.Ins.UnitInfos[i].Dead)
+                continue;
+            if (MeteorManager.Ins.UnitInfos[i] == Main.Ins.LocalPlayer)
+                continue;
+            allow.Add(MeteorManager.Ins.UnitInfos[i]);
+        }
+
+        int j = allow.IndexOf(watchTarget);
+        if (j == 0) {
+            watchTarget = allow[allow.Count - 1];
+        } else {
+            watchTarget = allow[j - 1];
+        }
+        Main.Ins.CameraFree.Init(watchTarget);
+    }
+
+    [DoNotToLua]
+    public static void WatchNextRobot() {
+        if (!U3D.WatchAi) {
+            U3D.InsertSystemMsg("需要先[观察电脑]");
+            return;
+        }
+        MeteorUnit watchTarget = Main.Ins.CameraFree.Watched;
+        List<MeteorUnit> allow = new List<MeteorUnit>();
+        for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++) {
+            if (MeteorManager.Ins.UnitInfos[i].Dead)
+                continue;
+            if (MeteorManager.Ins.UnitInfos[i] == Main.Ins.LocalPlayer)
+                continue;
+            allow.Add(MeteorManager.Ins.UnitInfos[i]);
+        }
+
+        int j = allow.IndexOf(watchTarget);
+        if (j == allow.Count - 1) {
+            watchTarget = allow[0];
+        } else {
+            watchTarget = allow[j + 1];
+        }
+        Main.Ins.CameraFree.Init(watchTarget);
     }
 }

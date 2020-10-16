@@ -169,7 +169,7 @@ public class PlayerJoyStick : MonoBehaviour {
     }
 
     public void Register(EKeyList ek, KeyCode k) {
-        GameStateMgr.Ins.gameStatus.UseJoyDevice = true;
+        GameStateMgr.Ins.gameStatus.UseGamePad = true;
         List<EKeyList> Keys = new List<EKeyList>();
         foreach (var each in GameStateMgr.Ins.gameStatus.KeyMapping) {
             Keys.Add(each.Key);

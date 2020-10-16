@@ -80,18 +80,18 @@ public class MonsterEx
             Attack1 = Utility.Range(45, 55);
             Attack2 = Utility.Range(55, 65);
             Attack3 = Utility.Range(65, 75);
-            Guard = Utility.Range(0, 2);
-            GetItem = Utility.Range(0, 2);
-            Burst = Utility.Range(0, 2);
-            Look = 0;
-            Jump = 0;
-            Dodge = 0;
+            Guard = Utility.Range(5, 10);
+            GetItem = Utility.Range(5, 10);
+            Burst = Utility.Range(5, 10);
+            Look = Utility.Range(5, 10);
+            Jump = Utility.Range(5, 10);
+            Dodge = Utility.Range(5, 10);
         }
         Team = 2;
         View = 600;
         Aim = 80;
         HpMax = HPMAX;
-        Speed = 950;
+        Speed = 1000;
         hpCur = HpMax;
         AngryValue = 0;
     }
@@ -143,7 +143,7 @@ public class MonsterEx
         Think = (int)(double)sState["Think"];
         HpMax = (int)(double)sState["HP"];
         SpawnPoint = (int)(double)sState["Spawn"];
-        Speed = 950;
+        Speed = 1000;
         Guard = (int)(double)sState["Guard"];
         Jump = (int)(double)sState["Jump"];
         Look = (int)(double)sState["Look"];
@@ -261,7 +261,7 @@ public class MonsterEx
     {
         Team = 1;
         IsPlayer = true;
-        Speed = 800;
+        Speed = 1000;
         if (script == null)
         {
             name = StringUtils.DefaultPlayer;

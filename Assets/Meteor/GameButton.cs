@@ -27,7 +27,7 @@ public class GameButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
         if (ChangeColor)
         {
             Img = GetComponent<Image>();
-            hilight = Color.white;
+            hilight = Color.red;
             normal = Img.color;
         }
         polygonCollider = transform.GetComponent<PolygonCollider2D>();
@@ -104,20 +104,24 @@ public class GameButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        isPointDown = false;
-        if (OnRelease != null)
-        {
-            if (ChangeColor)
-                Img.color = normal;
-            OnRelease.Invoke();
+        if (isPointDown) {
+            isPointDown = false;
+            if (OnRelease != null) {
+                if (ChangeColor)
+                    Img.color = normal;
+                OnRelease.Invoke();
+            }
+            UIButtonScale sc = gameObject.GetComponent<UIButtonScale>();
+            if (sc != null)
+                sc.OnPress(false);
         }
-        UIButtonScale sc = gameObject.GetComponent<UIButtonScale>();
-        if (sc != null)
-            sc.OnPress(false);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        if (isPointDown) {
+            OnPointerUp(eventData);
+        }
         isPointDown = false;
     }
 }
