@@ -28,6 +28,14 @@ public class U3D : MonoBehaviour {
     public static List<string> NicksBoys;
     [DoNotToLua]
     public static List<string> NicksGirls;
+    [DoNotToLua]
+    public static void ClearNames() {
+        if (NicksBoys != null)
+            NicksBoys.Clear();
+        if (NicksGirls != null)
+            NicksGirls.Clear();
+    }
+
     public static string GetRandomName(bool girls = true)
     {
         List<string> nl = girls ? NicksGirls : NicksBoys;
@@ -284,10 +292,14 @@ public class U3D : MonoBehaviour {
             CombatData.Ins.SpawnIndex %= 16;
         }
         
-        InsertSystemMsg(U3D.GetCampEnterLevelStr(unit.Camp, unit.name));
+        //战场开始后才进入战场，否则交给关卡初始化部分处理角色入场
+        if (FrameReplay.Ins.Started)
+            InsertSystemMsg(U3D.GetCampEnterLevelStr(unit.Camp, unit.name));
         //找寻敌人攻击.因为这个并没有脚本模板
-        unit.StateMachine.ChangeState(unit.StateMachine.WaitState);
-
+        if (Main.Ins.LocalPlayer != null)
+            unit.StateMachine.FollowTarget(Main.Ins.LocalPlayer.InstanceId);
+        else
+            unit.StateMachine.ChangeState(unit.StateMachine.WaitState);
         
         if (CombatData.Ins.GGameMode == GameMode.MENGZHU)
         {

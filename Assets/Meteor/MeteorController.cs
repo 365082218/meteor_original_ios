@@ -121,13 +121,18 @@ public class MeteorInput
                     //手柄不为空,且在使用的情况下.
                     if (Main.Ins.JoyStick.isActiveAndEnabled) {
                         if (Main.Ins.JoyStick.mJoyPressed) {
-                            //如果左侧摇杆在操作。
+                            //如果左侧摇杆在操作。虚拟摇杆
                             vec = new Vector2(Main.Ins.JoyStick.Delta.x, Main.Ins.JoyStick.Delta.y);
                             RotateY = true;
-                        } else if (Main.Ins.JoyStick.ArrowPressed) {
+                        } else if (Main.Ins.JoyStick.ArrowPressed) {//虚拟按键
                             vec = new Vector2(Main.Ins.JoyStick.Delta.x, Main.Ins.JoyStick.Delta.y);
-                        } else
-                            vec = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+                        } else {
+                            //硬件摇杆
+                            RotateY = true;
+                            vec = new Vector2(Input.GetAxisRaw("X axis"), -Input.GetAxisRaw("Y axis"));
+                            vec.x = Mathf.Abs(vec.x) > 0.02f ? vec.x : 0;
+                            vec.y = Mathf.Abs(vec.y) > 0.02f ? vec.y : 0;
+                        }
                     } else {
                         //使用触摸屏UI操作
                         if (UGUIJoystick.Ins != null) {
@@ -137,8 +142,10 @@ public class MeteorInput
                                 RotateY = true;
                             } else if (UGUIJoystick.Ins.ArrowPressed)
                                 vec = new Vector2(UGUIJoystick.Ins.Delta.x, UGUIJoystick.Ins.Delta.y);
-                            else
+                            else {
+                                RotateY = true;
                                 vec = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+                            }
                         }
                     }
                 }

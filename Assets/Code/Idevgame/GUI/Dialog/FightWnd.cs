@@ -317,7 +317,7 @@ public class FightUiConroller : Dialog
     {
         NodeHelper.Find("WeaponSelect", gameObject).SetActive(GameStateMgr.Ins.gameStatus.EnableWeaponChoose);
         NodeHelper.Find("SfxMenu", gameObject).SetActive(GameStateMgr.Ins.gameStatus.EnableDebugSFX);
-        NodeHelper.Find("Robot", gameObject).SetActive(GameStateMgr.Ins.gameStatus.EnableDebugRobot);
+        NodeHelper.Find("Robot", gameObject).SetActive(GameStateMgr.Ins.gameStatus.EnableDebugRobot && !U3D.IsMultiplyPlayer());
         NodeHelper.Find("MiniMap", gameObject).SetActive(true);
 
         if (UGUIJoystick.Ins != null) {

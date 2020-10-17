@@ -361,7 +361,7 @@ public partial class MeteorUnit : NetBehaviour {
     }
 
     public int ClimbingSpeed { get { return 1250; } }//这个值是慢慢调出来的，没有实际参考意义，不会1S就跑这么多
-    public int ClimbingSpeedY { get { return 700; } }
+    public int ClimbingSpeedY { get { return 800; } }
     public int MoveSpeed { get { return (int)(Attr.Speed * GetMoveSpeedScale()); } }
     //远程近战武器，攻击距离
     public float AttackRange {
@@ -1034,7 +1034,7 @@ public partial class MeteorUnit : NetBehaviour {
     }
 
     public void FaceToTarget(Vector3 target) {
-        Vector3 vdiff = transform.position - target;
+        Vector3 vdiff = (transform.position - target).normalized;
         vdiff.y = 0;
         if (vdiff == Vector3.zero)
             return;
@@ -1190,7 +1190,7 @@ public partial class MeteorUnit : NetBehaviour {
         if (charController != null) {
             charController.center = new Vector3(0, 16, 0);
             charController.height = 32;
-            charController.radius = 9.0f;
+            charController.radius = 8f;
             charController.stepOffset = 6.8f;//以钟乳洞中间的高台为准
         }
         ShowAttackBox();
@@ -1477,7 +1477,7 @@ public partial class MeteorUnit : NetBehaviour {
     //1:浮空站在陡峭墙壁上,无法站立的那种
     //2:站立在地表的边缘,一侧身体浮空
     //3:站在凹陷的坑内    
-    public bool ProcessFall(bool lockMove = false) {
+    public bool ProcessFall(bool lockMove = true, bool change = true) {
         //是否需要推动，要看这个推力方向上是否有阻碍，如果有阻碍，就不要推动了.
         Vector3 vec = transform.position - hitPoint;
         vec.y = 0;
@@ -1493,7 +1493,8 @@ public partial class MeteorUnit : NetBehaviour {
                 AddWorldVelocity(Vector3.Normalize(vec) * speed);
                 if (lockMove)
                     meteorController.LockMove(true);//在恢复到正常状态前，不可以再输入方向键.
-                ActionMgr.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
+                if (change)
+                    ActionMgr.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                 return true;
             }
         } else {
@@ -1531,7 +1532,7 @@ public partial class MeteorUnit : NetBehaviour {
         if (Physics.SphereCast(transform.position + Vector3.up * 2, 0.5f, Vector3.down, out hit, 1000, LayerManager.AllSceneMask)) {
             MoveOnGroundEx = hit.distance <= 4f;
             //Debug.Log(string.Format("distance:{0}", hit.distance));
-            Floating = hit.distance >= 15.0f;
+            Floating = hit.distance >= 8.0f;
             if (blobShadow != null) {
                 blobShadow.transform.position = hit.point + new Vector3(0, 0.2f, 0);
                 blobShadow.transform.forward = hit.normal;
@@ -1558,10 +1559,11 @@ public partial class MeteorUnit : NetBehaviour {
                         ProcessFall(true);
                     }
                 } else if (MoveOnGroundEx) {
-                    Debug.LogError("爬墙碰到地面-落到地面");
+                    //Debug.LogError("爬墙碰到地面-落到地面");
                     ProcessFall(true);
                     //ActionMgr.ChangeAction(CommonAction.JumpFall, 0.1f);//短时间内落地姿势
                 } else {
+                    //Debug.LogError("爬墙中。。。");
                     ProcessFall(true);
                 }
             } else if (OnTouchWall && Floating && FrameReplay.Ins.time - floatTick >= 0.5f)//贴墙浮空，被墙壁推开
@@ -1580,10 +1582,10 @@ public partial class MeteorUnit : NetBehaviour {
                         ActionMgr.mActiveAction.Idx == CommonAction.JumpRightFall ||
                         ActionMgr.mActiveAction.Idx == CommonAction.JumpBackFall ||
                         ActionMgr.mActiveAction.Idx == CommonAction.JumpFallOnGround) {
-                    ProcessFall();
+                    ProcessFall(true, false);
                 }
             } else if (Floating) {
-                ProcessFall();
+                ProcessFall(true, false);
             } else {
             }
         } else {
@@ -1604,6 +1606,7 @@ public partial class MeteorUnit : NetBehaviour {
                                 //3条射线，-5°面向 5°左边近就调用右爬，中间则上爬，右边近则左爬.
                                 //Debug.LogError("轻功开始");
                                 ActionMgr.CheckClimb = false;//单次爬墙不重复检测
+                                ActionMgr.ClimbFallTick = 0.0f;
                                 float left = 100;
                                 float middle = 100;
                                 float right = 100;
@@ -1687,6 +1690,7 @@ public partial class MeteorUnit : NetBehaviour {
                     //如果在跳跃落地锁帧过程，如果与墙壁接触，但是未触底，悬挂着
                     if (Floating) {
                         //ProcessFall();
+                        ActionMgr.ChangeAction(0, 0.1f);
                     } else {
                         //是切换到待机，还是被墙壁给推开，或者继续轻工
                         ActionMgr.ChangeAction(0, 0.1f);
@@ -1695,8 +1699,6 @@ public partial class MeteorUnit : NetBehaviour {
                 if ((ActionMgr.mActiveAction.Idx == CommonAction.Jump || ActionMgr.mActiveAction.Idx == CommonAction.JumpLeft || ActionMgr.mActiveAction.Idx == CommonAction.JumpRight || ActionMgr.mActiveAction.Idx == CommonAction.JumpBack)) {
                     ActionMgr.ChangeAction(ActionMgr.mActiveAction.Idx + 1, 0.1f);
                 } else if ((ActionMgr.mActiveAction.Idx == CommonAction.JumpFall || ActionMgr.mActiveAction.Idx == CommonAction.JumpLeftFall || ActionMgr.mActiveAction.Idx == CommonAction.JumpRightFall || ActionMgr.mActiveAction.Idx == CommonAction.JumpBackFall)) {
-                    //是切换到待机，还是被墙壁给推开，或者继续轻工
-                    //如果速度足够大，且
                     if (Floating && OnGround && !MoveOnGroundEx) {
                         //ProcessFall();
                         //ActionMgr.ChangeAction(CommonAction.JumpFall, 0.1f);
@@ -1714,10 +1716,6 @@ public partial class MeteorUnit : NetBehaviour {
     }
 
     public void Move(Vector3 trans) {
-        int x = Mathf.FloorToInt(trans.x * 1000);
-        int y = Mathf.FloorToInt(trans.y * 1000);
-        int z = Mathf.FloorToInt(trans.z * 1000);
-        trans = new Vector3(x / 1000.0f, y / 1000.0f, z / 1000.0f);
         if (charController != null) {
             if (charController != null && charController.enabled) {
                 contactTarget = null;//如果在这次的Move中发生碰撞，记录下碰撞到的对象
@@ -1814,10 +1812,14 @@ public partial class MeteorUnit : NetBehaviour {
         meteorController.LockMove(true);
     }
 
+    //小跳版本0.12高度
+    //中跳版本0.32高度
     public void Jump(bool ShortJump, int act = CommonAction.Jump) {
         canControlOnAir = true;
         OnGround = false;
         float ShortScale = ShortJump ? 0.32f:1.0f;
+        if (StateMachine != null)
+            ShortScale = 1.0f;
         float h = CombatData.JumpLimit * ShortScale;
         ImpluseVec.y = CalcVelocity(h);
         ActionMgr.JumpTick = 0.0f;

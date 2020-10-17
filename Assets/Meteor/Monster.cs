@@ -88,7 +88,7 @@ public class MonsterEx
             Dodge = Utility.Range(5, 10);
         }
         Team = 2;
-        View = 600;
+        View = 1200;
         Aim = 80;
         HpMax = HPMAX;
         Speed = 1000;

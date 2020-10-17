@@ -33,6 +33,14 @@ namespace cocosocket4unity {
             this.received = new LinkedList<ByteBuf>();
             this.sendList = new LinkedList<ByteBuf>();
         }
+
+        public void DisConnect() {
+            try {
+                client.Close();
+            } catch (Exception exp) {
+                UnityEngine.Debug.LogError(exp.Message);
+            }
+        }
         /// <summary>
         /// 连接到地址
         /// </summary>

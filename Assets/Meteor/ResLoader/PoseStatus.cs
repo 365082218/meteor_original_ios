@@ -759,8 +759,12 @@ public class ActionManager {
                     //主角.
                     if (mOwner.GetWeaponType() != (int)EquipWeaponType.Guillotines &&
                         mOwner.GetWeaponType() != (int)EquipWeaponType.Gun &&
-                        mOwner.GetWeaponType() != (int)EquipWeaponType.Dart)
+                        mOwner.GetWeaponType() != (int)EquipWeaponType.Dart) {
+                        //if (idx == 297) {
+                        //    UnityEngine.Debug.LogError("true");
+                        //}
                         mOwner.FaceToTarget(mOwner.LockTarget);
+                    }
                 }
             }
 
@@ -801,7 +805,8 @@ public class ActionManager {
                     loop = false;
                     break;
                 case (int)PoseEvt.Fall:
-                    mOwner.ProcessFall();
+                    loop = false;
+                    mOwner.ProcessFall(true, false);
                     break;
             }
         }
@@ -931,12 +936,7 @@ public class ActionManager {
                     }
                 }
                 curIndex = PoseState.EvaluatePoseClamp(playedTimeFadeInWrapped, mActiveAction, ref activeStatus, UnitId, runCycle);
-                try {
-                    ApplyPose(activeStatus, true);
-                }
-                catch {
-                    UnityEngine.Debug.LogError("error");
-                }
+                ApplyPose(activeStatus, true);
                 PlayNextKeyFrame();
             } else {
                 ChangeWeaponTrail();
@@ -1244,6 +1244,9 @@ public class ActionManager {
     BoneStatus activeStatus = new BoneStatus();
     BoneStatus fadeOutStatus = new BoneStatus();
     public void ChangeActionCore(Pose pos, float BlendTime = 0.0f) {
+        //没有提取动作的信息前先烘一遍.
+        if (!pos.baked)
+            pos.Bake();
         //UnityEngine.Debug.Log("change action:" + pos.Idx);
         //一些招式，需要把尾部事件执行完才能切换武器.
         //if (pos.Idx == mActiveActionIdx && pos.Idx == 0)
@@ -1349,10 +1352,12 @@ public class ActionManager {
             switch (evt) {
                 case (int)PoseEvt.WeaponIsReturned:
                     loop = false;
+                    PoseStartEvent.Remove(mActiveAction.Idx);
                     //blendTime = 0.0f;
                     break;
+                case (int)PoseEvt.Fall:
+                    break;
             }
-            PoseStartEvent.Remove(mActiveAction.Idx);
         }
 
         if (pos.Idx == CommonAction.Struggle || pos.Idx == CommonAction.Struggle0) {
@@ -1652,9 +1657,9 @@ public class ActionManager {
         //}
         if (ActionList[id].Count < 573)
             UnityEngine.Debug.LogError("action parse error");
-        for (int i = 0; i < ActionList[id].Count; i++) {
-            ActionList[id][i].Bake();
-        }
+        //for (int i = 0; i < ActionList[id].Count; i++) {
+        //    ActionList[id][i].Bake();
+        //}
     }
 }
 
@@ -1682,6 +1687,7 @@ public class Pose {
     //        UnityEngine.Debug.LogError("pos:" + Idx + " on unit:" + unitid + " contains error");
     //    }
     //}
+    public bool baked = false;
     public void Bake() {
         float speedScale = 1.0f;
         int Prev = Start;
@@ -1701,6 +1707,7 @@ public class Pose {
         Cache = new KeyValuePair<float, float>(KeyFrames[0], KeyFrames[KeyFrames.Count - 1]);
         if (LoopStart != 0 && LoopEnd != 0)
             LoopCache = new KeyValuePair<float, float>(KeyFrames[LoopStart - Start], KeyFrames[LoopEnd - Start]);
+        baked = true;
     }
     //每个pose烘培一个自己的.
     public List<float> KeyFrames = new List<float>();

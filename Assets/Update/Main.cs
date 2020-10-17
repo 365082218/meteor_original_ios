@@ -303,7 +303,7 @@ public class Main : MonoBehaviour {
         PopupStateManager.Update();
         PersistMgr.Update();
 
-        if (CombatData.GLevelItem == null) {
+        if (GameBattleEx == null) {
             DownloadManager.Update();
             DownloadMovie();
         }

@@ -58,6 +58,7 @@ class KcpClient : Singleton<KcpClient>, KcpListener {
         }
         
         Connected = false;
+        kcp.DisConnect();
         Packet.Clear();
         return true;
     }

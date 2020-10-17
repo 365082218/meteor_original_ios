@@ -327,6 +327,7 @@ public class MeteorBehaviour:Singleton<MeteorBehaviour> {
             }
         } else if (Owner.Climbing) {
             if (Input.HasInput((int)EKeyList.KL_KeyW, (int)EInputType.EIT_Release)) {
+                //Owner.ProcessFall();
                 //Owner.meteorController.LockMove(true);
                 Owner.ActionMgr.QueueAction(CommonAction.JumpFall, PoseEvt.Fall);
             } else if (Owner.ImpluseVec.y > 0 && Owner.OnTouchWall) {

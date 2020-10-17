@@ -119,7 +119,7 @@ public class CreateRoomDialog : Dialog
             PatternToggle.isOn = GameStateMgr.Ins.gameStatus.NetWork.Pattern == (int)ConstPattern[k];
             PatternToggle.onValueChanged.AddListener((bool selected) => {
                 if (selected)
-                    GameStateMgr.Ins.gameStatus.NetWork.Pattern = (int)ConstPlayer[k];
+                    GameStateMgr.Ins.gameStatus.NetWork.Pattern = (int)ConstPattern[k];
             });
         }
 

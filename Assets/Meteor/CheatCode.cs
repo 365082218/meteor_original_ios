@@ -25,18 +25,18 @@ public class CheatCode {
             return true;
         }
         else if (CheatParam2(cheatcode, "follow", ref param1, ref param2)) {
-            MeteorUnit unit = U3D.GetUnit(param1);
+            MeteorUnit unit = U3D.GetUnit(param1 - 1);
             if (unit != null && unit.StateMachine != null) {
-                MeteorUnit target = U3D.GetUnit(param2);
+                MeteorUnit target = U3D.GetUnit(param2 - 1);
                 U3D.InsertSystemMsg(string.Format("{0}开始跟随{1}", unit.name, target.name));
                 unit.FollowTarget = target;
             }
             return true;
         }
         else if (CheatParam2(cheatcode, "chase", ref param1, ref param2)) {
-            MeteorUnit unit = U3D.GetUnit(param1);
+            MeteorUnit unit = U3D.GetUnit(param1 - 1);
             if (unit != null) {
-                MeteorUnit target = U3D.GetUnit(param2);
+                MeteorUnit target = U3D.GetUnit(param2 - 1);
                 if (target != null && !target.SameCamp(unit)) {
                     U3D.InsertSystemMsg(string.Format("{0}开始追杀{1}", unit.name, target.name));
                     unit.Kill(target);
@@ -45,7 +45,7 @@ public class CheatCode {
             return true;
         }
         else if (CheatParam(cheatcode, "wait", ref param1)){
-            MeteorUnit unit = U3D.GetUnit(param1);
+            MeteorUnit unit = U3D.GetUnit(param1 - 1);
             if (unit != null && unit.StateMachine != null) {
                 U3D.InsertSystemMsg(string.Format("{0}空闲下来了", unit.name));
                 unit.StateMachine.ChangeState(unit.StateMachine.WaitState);

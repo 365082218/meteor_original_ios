@@ -435,6 +435,7 @@ public partial class GameBattleEx : NetBehaviour {
 
     void SpawnAllRobot()
     {
+        U3D.ClearNames();
         if (CombatData.Ins.GGameMode == GameMode.MENGZHU)
         {
             for (int i = 1; i < CombatData.Ins.MaxPlayer; i++)

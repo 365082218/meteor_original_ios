@@ -127,7 +127,7 @@ public class DlcWnd : Dialog {
         }
         else
         {
-            U3D.PopupTip("请先在设置-模组中安装资料片");
+            U3D.PopupTip("请先在主页-资料片中安装对应剧本");
         }
     }
 
