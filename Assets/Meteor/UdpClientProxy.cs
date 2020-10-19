@@ -49,6 +49,10 @@ class KcpClient : Singleton<KcpClient>, KcpListener {
         if (!Connected) {
             return;
         }
+        if (WillDisconnect) {
+            Disconnect();
+            return;
+        }
         kcp.Update();
     }
 
@@ -107,7 +111,7 @@ class KcpClient : Singleton<KcpClient>, KcpListener {
     }
 
     public void handleException(Exception exp) {
-
+        WillDisconnect = true;
     }
 
     public void handleClose(KcpOnUdp kcp, int errorCode) {

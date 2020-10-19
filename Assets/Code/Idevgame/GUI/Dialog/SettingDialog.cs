@@ -153,10 +153,6 @@ public class SettingDialog : Dialog {
         toggleDisableParticle.onValueChanged.AddListener(OnDisableParticle);
         OnDisableParticle(toggleDisableParticle.isOn);
 
-        Toggle toggleSkipVideo = Control("SkipVideo").GetComponent<Toggle>();
-        toggleSkipVideo.isOn = GameStateMgr.Ins.gameStatus.SkipVideo;
-        toggleSkipVideo.onValueChanged.AddListener(OnSkipVideo);
-
         Toggle toggleJoyEnable = Control("EnableJoy").GetComponent<Toggle>();
         toggleJoyEnable.isOn = GameStateMgr.Ins.gameStatus.JoyEnable;
         toggleJoyEnable.onValueChanged.AddListener(OnJoyEnable);
@@ -395,11 +391,6 @@ public class SettingDialog : Dialog {
 
     void OnJoyRotateOnly(bool only) {
         GameStateMgr.Ins.gameStatus.JoyRotateOnly = only;
-    }
-
-    void OnSkipVideo(bool skip)
-    {
-        GameStateMgr.Ins.gameStatus.SkipVideo = skip;
     }
 
     void OnDisableParticle(bool disable)

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace UnityEngine.UI
 {
 	[AddComponentMenu("UI/Effects/Nicer Outline")]
-#if UNITY_2017 || UNITY_5_5|| UNITY_5_6
+#if UNITY_2017 || UNITY_5_5|| UNITY_5_6 || UNITY_2020
     public class NicerOutline : BaseMeshEffect
 #else
 	public class NicerOutline : BaseVertexEffect
@@ -131,7 +131,7 @@ namespace UnityEngine.UI
 			}
 		}
 
-#if UNITY_2017 || UNITY_5_5 || UNITY_5_6
+#if UNITY_2017 || UNITY_5_5 || UNITY_5_6 || UNITY_2020
         public override void ModifyMesh(VertexHelper vertexHelper)
         {
             if (!this.IsActive())
@@ -147,7 +147,7 @@ namespace UnityEngine.UI
         }
 #endif
 
-#if UNITY_2017 || UNITY_5_5 || UNITY_5_6
+#if UNITY_2017 || UNITY_5_5 || UNITY_5_6 || UNITY_2020
         public void ModifyVertices(List<UIVertex> verts)
 #else
         public override void ModifyVertices(List<UIVertex> verts)

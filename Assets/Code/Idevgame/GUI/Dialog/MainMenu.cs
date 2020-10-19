@@ -53,7 +53,7 @@ public class MainMenu : Dialog
         Main.Ins.listener.enabled = true;
         menu.volume = GameStateMgr.Ins.gameStatus.MusicVolume;
         //每次进入主界面，触发一次更新APP信息的操作，如果
-        Main.Ins.UpdateAppInfo();
+        //Main.Ins.UpdateAppInfo();
     }
 
     void Init()

@@ -73,8 +73,8 @@ public class FightBox : NetBehaviour {
             }
 
             if (processed) {
-                int num = CollisionCheck.OverlapBox(center, half, box.transform.rotation, colliders, 1 << LayerManager.Bone | 1 << LayerManager.DetectAll | 1 << LayerManager.Trigger);
-                for (int i = 0; i < num; i++) {
+                Collider[] colliders = Physics.OverlapBox(center, half, box.transform.rotation, 1 << LayerManager.Bone | 1 << LayerManager.DetectAll | 1 << LayerManager.Trigger);
+                for (int i = 0; i < colliders.Length; i++) {
                     if (colliders[i] is BoxCollider) {
                         BoxCollider boxBone = colliders[i] as BoxCollider;
                         if (Owner != null && Owner.HurtList.Contains(boxBone))

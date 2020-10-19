@@ -150,7 +150,7 @@ public class MainLobbyDialog : Dialog
         DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
         vFile.downloadHandler = dH;
         yield return vFile.Send();
-        if (vFile.isError || vFile.responseCode != 200 || string.IsNullOrEmpty(dH.text))
+        if (vFile.isNetworkError || vFile.responseCode != 200 || string.IsNullOrEmpty(dH.text))
         {
             Debug.LogError(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
             vFile.Dispose();

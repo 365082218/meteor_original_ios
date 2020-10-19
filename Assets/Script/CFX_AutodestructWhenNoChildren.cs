@@ -10,7 +10,7 @@ public class CFX_AutodestructWhenNoChildren : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-		if( transform.GetChildCount() == 0)
+		if( transform.childCount == 0)
 		{
 			GameObject.Destroy(this.gameObject);
 		}

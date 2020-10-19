@@ -24,8 +24,8 @@ public class FightUiConroller : Dialog
 
     public override void OnDialogStateExit() {
         base.OnDialogStateExit();
-        BaseDialogState.UICamera.clearFlags = CameraClearFlags.Color;
-        BaseDialogState.UICamera.backgroundColor = Color.black;
+        //BaseDialogState.UICamera.clearFlags = CameraClearFlags.Color;
+        //BaseDialogState.UICamera.backgroundColor = Color.black;
     }
 
 

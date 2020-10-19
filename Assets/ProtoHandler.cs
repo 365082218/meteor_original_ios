@@ -126,11 +126,11 @@ public class TcpProtoHandler : ProtoHandler {
                                 ChatMsg chatRsp = Serializer.Deserialize<ChatMsg>(ms);
                                 OnReceiveChatMsg(chatRsp);
                                 break;
-                            case (int)MeteorMsg.MsgType.AudioChat:
-                                //ms = new MemoryStream(each.Value);
-                                AudioChatMsg audioRsp = Serializer.Deserialize<AudioChatMsg>(ms);
-                                OnReceiveAudioMsg(audioRsp);
-                                break;
+                            //case (int)MeteorMsg.MsgType.AudioChat:
+                            //    //ms = new MemoryStream(each.Value);
+                            //    AudioChatMsg audioRsp = Serializer.Deserialize<AudioChatMsg>(ms);
+                            //    OnReceiveAudioMsg(audioRsp);
+                            //    break;
                             case (int)MeteorMsg.MsgType.OnPlayerLeaveLevel://其他玩家离开关卡
                                 //ms = new MemoryStream(each.Value);
                                 PlayerEvent rspLeaveLevel = Serializer.Deserialize<PlayerEvent>(ms);
@@ -188,10 +188,10 @@ public class TcpProtoHandler : ProtoHandler {
         }
     }
 
-    void OnReceiveAudioMsg(AudioChatMsg msg) {
-        RoomChatDialogState.State.Open();
-        RoomChatDialogState.Instance.Add((int)msg.playerId, msg.audio_data);
-    }
+    //void OnReceiveAudioMsg(AudioChatMsg msg) {
+    //    RoomChatDialogState.State.Open();
+    //    RoomChatDialogState.Instance.Add((int)msg.playerId, msg.audio_data);
+    //}
 
     void OnReceiveChatMsg(ChatMsg msg) {
         RoomChatDialogState.State.Open();

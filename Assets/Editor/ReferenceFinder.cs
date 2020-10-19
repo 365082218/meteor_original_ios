@@ -828,7 +828,7 @@ namespace Meteor.Editor {
                                         invalidProperties++;
                                     } else if ((properties[j].Name.Equals("material") || properties[j].Name.Equals("materials")) &&
                                                (IsTypeDerivedFrom(componentType, typeof(Renderer)) || IsTypeDerivedFrom(componentType, typeof(Collider)) ||
-                                               IsTypeDerivedFrom(componentType, typeof(Collider2D)) || IsTypeDerivedFrom(componentType, typeof(GUIText)))) {
+                                               IsTypeDerivedFrom(componentType, typeof(Collider2D)) || IsTypeDerivedFrom(componentType, typeof(UnityEngine.UI.Text)))) {
                                         invalidProperties++;
                                     } else {
                                         validProperties.Add(properties[j]);

@@ -153,16 +153,16 @@ public class ResourceChecker : EditorWindow
 						return 4;
 				case TextureFormat.PVRTC_RGBA4://	 PowerVR (iOS) 4 bits/pixel compressed with alpha channel texture format
 						return 4;
-				case TextureFormat.ETC_RGB4://	 ETC (GLES2.0) 4 bits/pixel compressed RGB texture format.
+				//case TextureFormat.ETC_RGB4://	 ETC (GLES2.0) 4 bits/pixel compressed RGB texture format.
+				//		return 4;
+				case TextureFormat.ETC_RGB4://	 ATC (ATITC) 4 bits/pixel compressed RGB texture format.
 						return 4;
-				case TextureFormat.ATC_RGB4://	 ATC (ATITC) 4 bits/pixel compressed RGB texture format.
-						return 4;
-				case TextureFormat.ATC_RGBA8://	 ATC (ATITC) 8 bits/pixel compressed RGB texture format.
+				case TextureFormat.ETC2_RGBA8://	 ATC (ATITC) 8 bits/pixel compressed RGB texture format.
 						return 8;
 				case TextureFormat.BGRA32://	 Format returned by iPhone camera
 						return 32;
-#if (!UNITY_2017 && !UNITY_5_5 && !UNITY_5_6)
-                case TextureFormat.ATF_RGB_DXT1://	 Flash-specific RGB DXT1 compressed color texture format.
+#if (!UNITY_2017 && !UNITY_5_5 && !UNITY_5_6 && !UNITY_2020)
+            case TextureFormat.ATF_RGB_DXT1://	 Flash-specific RGB DXT1 compressed color texture format.
 				case TextureFormat.ATF_RGBA_JPG://	 Flash-specific RGBA JPG-compressed color texture format.
 				case TextureFormat.ATF_RGB_JPG://	 Flash-specific RGB JPG-compressed color texture format.
 						return 0; //Not supported yet

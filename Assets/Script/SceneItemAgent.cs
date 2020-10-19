@@ -746,6 +746,13 @@ public class SceneItemAgent :NetBehaviour {
                 if (b == null) {
                     b = gameObject.AddComponent<BoxCollider>();
                 }
+                //部分官卡不会合并网格，圣诞夜，宝箱材质是多个无法合并
+                if (combine == null) {
+                    if (name.StartsWith("D_BBox")) {
+                        b.size = new Vector3(40, 40, 40);
+                        b.center = new Vector3(0, 20, 0);
+                    }
+                }
                 MeshCollider[] co = GetComponentsInChildren<MeshCollider>();
                 for (int i = 0; i < co.Length; i++) {
                     Destroy(co[i]);

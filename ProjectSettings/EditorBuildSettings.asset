@@ -8,8 +8,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scene/Patch.unity
   - enabled: 1
-    path: Assets/Scene/Startup.unity
-  - enabled: 1
     path: Assets/Scene/Meteor/Meteor_01.unity
   - enabled: 1
     path: Assets/Scene/Meteor/Meteor_02.unity
@@ -63,3 +61,5 @@ EditorBuildSettings:
     path: Assets/Scene/NewMeteor/Meteor_27.unity
   - enabled: 1
     path: Assets/Scene/NewMeteor/Meteor_23.unity
+  - enabled: 1
+    path: Assets/Scene/Startup.unity

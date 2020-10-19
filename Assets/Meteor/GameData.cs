@@ -296,7 +296,6 @@ public class GameState {
     public bool UseGamePad;//使用手柄设备-不显示战斗UI的操作部分-当未识别到手柄设备时，不起效
     public bool JoyEnable;//使用摇杆
     public bool JoyRotateOnly;//摇杆仅控制方向-否则还控制位移
-    public bool SkipVideo;//忽略过场视频
     public int UseModel = -1;//强制使用的主角模型,可能会被特殊关卡设置无效 默认为-1
     public Dictionary<EKeyList, KeyCode> KeyMapping = new Dictionary<EKeyList, KeyCode>();//虚拟键映射关系.
     public List<ServerInfo> ServerList;//自定义服务器
@@ -407,7 +406,6 @@ public class GameStateMgr:Singleton<GameStateMgr>
             gameStatus.Quality = 0;
             gameStatus.DisableParticle = true;
             gameStatus.AutoLock = true;
-            gameStatus.SkipVideo = true;
             gameStatus.UseGamePad = false;
             gameStatus.JoyEnable = true;
             gameStatus.JoyRotateOnly = false;

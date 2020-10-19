@@ -110,11 +110,10 @@ public class Buff {
         if (refresh_type == 99999)//按固定时间0.1秒刷新.
             Units[unit].refresh_round_tick = (refresh_delay == 0 ? 0.1f : refresh_delay);//没有值就每0.1S刷新，否则就以值为刷新
 
-        //if (unit.Attr.IsPlayer)
-        //{
-        //    //FightWnd.Instance.AddBuff(this);
-        //    //FightWnd.Instance.UpdatePlayerInfo();
-        //}
+        if (unit.Attr.IsPlayer) {
+            if (FightState.Exist())
+                FightState.Instance.UpdatePlayerInfo();
+        }
     }
 
     public void Clear() {
@@ -1260,7 +1259,7 @@ public partial class MeteorUnit : NetBehaviour {
             //跳跃键现在状态是按下，按下的时间超过0.3S
             if (ninjaState == NinjaState.Ready) {
                 if (meteorController.Input.HasInput((int)EKeyList.KL_Jump, (int)EInputType.EIT_PressingEnough)) {
-                    Jump(false, CommonAction.Jump);
+                    Jump(1, CommonAction.Jump);
                     return true;
                 }
             }
@@ -1814,10 +1813,10 @@ public partial class MeteorUnit : NetBehaviour {
 
     //小跳版本0.12高度
     //中跳版本0.32高度
-    public void Jump(bool ShortJump, int act = CommonAction.Jump) {
+    public void Jump(float ShortScale, int act = CommonAction.Jump) {
         canControlOnAir = true;
         OnGround = false;
-        float ShortScale = ShortJump ? 0.32f:1.0f;
+        //float ShortScale = ShortJump ? 0.32f:1.0f;
         if (StateMachine != null)
             ShortScale = 1.0f;
         float h = CombatData.JumpLimit * ShortScale;

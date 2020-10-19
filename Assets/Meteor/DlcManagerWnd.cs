@@ -145,7 +145,7 @@ public class DlcManagerWnd : Dialog {
         vFile.downloadHandler = dH;
         yield return vFile.Send();
         WaitDialogState.State.WaitExit(1.0f);
-        if (vFile.isError || vFile.responseCode != 200) {
+        if (vFile.isNetworkError || vFile.responseCode != 200) {
             Debug.Log(string.Format("update version file error:{0} or responseCode:{1}", vFile.error, vFile.responseCode));
             Control("Warning").SetActive(false);//
             U3D.InsertSystemMsg("无法连接至服务器");

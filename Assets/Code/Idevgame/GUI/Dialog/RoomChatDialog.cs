@@ -34,10 +34,10 @@ public class RoomChatDialog : Dialog
             time.Stop();
             time = null;
         }
-        if (checkSound != null) {
-            checkSound.Stop();
-            checkSound = null;
-        }
+        //if (checkSound != null) {
+        //    checkSound.Stop();
+        //    checkSound = null;
+        //}
     }
 
     private void Crossfade() {
@@ -56,12 +56,12 @@ public class RoomChatDialog : Dialog
     private void Delete() {
         if (Root.transform.childCount != 0) {
             Transform son = Root.transform.GetChild(0);
-            int audio = -1;
-            if (int.TryParse(son.name, out audio)) {
-                if (audioCache.ContainsKey(audio)) {
-                    audioCache.Remove(audio);
-                }
-            }
+            //int audio = -1;
+            //if (int.TryParse(son.name, out audio)) {
+            //    if (audioCache.ContainsKey(audio)) {
+            //        audioCache.Remove(audio);
+            //    }
+            //}
             GameObject.Destroy(son.gameObject);
             StartCheck();
         } else {
@@ -75,57 +75,67 @@ public class RoomChatDialog : Dialog
         Root = Control("LevelTalk");
         WndObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(180, -180);
         vscrollBar = Control("Scrollbar Vertical").GetComponent<Scrollbar>();
-        soundPlay = gameObject.AddComponent<AudioSource>();
+        //soundPlay = gameObject.AddComponent<AudioSource>();
     }
 
     //加入声音UI按钮
-    Dictionary<int, byte[]> audioCache = new Dictionary<int, byte[]>();
-    public void Add(int playerId, byte[] audio)
-    {
-        GameObject obj = GameObject.Instantiate(Resources.Load("AudioMsg")) as GameObject;
-        obj.name = (Root.transform.childCount + 1).ToString();
-        obj.transform.GetChild(0).GetComponent<Text>().text = U3D.GetNetPlayerName(playerId) + "发来了一条语音信息";
-        obj.transform.GetChild(1).GetComponent<UIFunCtrl>().SetEvent((int audioIdx) => { OnPlayAudio(audioIdx); }, Root.transform.childCount);
-        obj.transform.SetParent(Root.transform);
-        obj.transform.localScale = Vector3.one;
-        obj.transform.localPosition = Vector3.zero;
-        obj.transform.localRotation = Quaternion.identity;
-        WndObject.GetComponent<CanvasGroup>().alpha = 1.0f;
-        audioCache.Add(Root.transform.childCount - 1, audio);
-        vscrollBar.value = 0;
-        StartCheck();
-    }
+    //Dictionary<int, byte[]> audioCache = new Dictionary<int, byte[]>();
+    //public void Add(int playerId, byte[] audio)
+    //{
+    //    GameObject obj = GameObject.Instantiate(Resources.Load("AudioMsg")) as GameObject;
+    //    obj.name = (Root.transform.childCount + 1).ToString();
+    //    obj.transform.GetChild(0).GetComponent<Text>().text = U3D.GetNetPlayerName(playerId) + "发来了一条语音信息";
+    //    obj.transform.GetChild(1).GetComponent<UIFunCtrl>().SetEvent((int audioIdx) => { OnPlayAudio(audioIdx); }, Root.transform.childCount);
+    //    obj.transform.SetParent(Root.transform);
+    //    obj.transform.localScale = Vector3.one;
+    //    obj.transform.localPosition = Vector3.zero;
+    //    obj.transform.localRotation = Quaternion.identity;
+    //    WndObject.GetComponent<CanvasGroup>().alpha = 1.0f;
+    //    audioCache.Add(Root.transform.childCount - 1, audio);
+    //    vscrollBar.value = 0;
+    //    StartCheck();
+    //}
 
-    AudioSource soundPlay;
-    void OnPlayAudio(int audioIndex)
-    {
-        if (audioCache.ContainsKey(audioIndex))
-        {
-            SoundManager.Ins.Mute(true);
-            AudioClip au = AudioClip.Create("talk", audioCache[audioIndex].Length, 1, MicChat.samplingRate, false);
-            MicChat.SetData(au, audioCache[audioIndex]);
-            soundPlay.PlayOneShot(au);
-            if (checkSound != null)
-                checkSound.Stop();
-            checkSound = Timer.loop(0.5f, CheckSoundPlaying);
+    //AudioSource soundPlay;
+    //void OnPlayAudio(int audioIndex)
+    //{
+    //    if (audioCache.ContainsKey(audioIndex))
+    //    {
+    //        SoundManager.Ins.Mute(true);
+    //        AudioClip au = AudioClip.Create("talk", audioCache[audioIndex].Length, 1, MicChat.samplingRate, false);
+    //        MicChat.SetData(au, audioCache[audioIndex]);
+    //        soundPlay.PlayOneShot(au);
+    //        if (checkSound != null)
+    //            checkSound.Stop();
+    //        checkSound = Timer.loop(0.5f, CheckSoundPlaying);
+    //    }
+    //}
+
+    //Timer checkSound;
+    //void CheckSoundPlaying() {
+    //    if (!soundPlay.isPlaying) {
+    //        SoundManager.Ins.Mute(false);
+    //        checkSound.Stop();
+    //        checkSound = null;
+    //    }
+    //}
+
+    public List<string> msgHistory = new List<string>();
+    public string GetHistoryMsg() {
+        string msg = "";
+        for (int i = 0; i < msgHistory.Count; i++) {
+            msg += msgHistory[i] + "\n";
         }
+        return msg;
     }
-
-    Timer checkSound;
-    void CheckSoundPlaying() {
-        if (!soundPlay.isPlaying) {
-            SoundManager.Ins.Mute(false);
-            checkSound.Stop();
-            checkSound = null;
-        }
-    }
-
     public void Add(int playerId, string message)
     {
         GameObject obj = new GameObject();
         obj.name = (Root.transform.childCount + 1).ToString();
         Text txt = obj.AddComponent<Text>();
-        txt.text = string.Format("{0}:{1}", U3D.GetNetPlayerName(playerId), message);
+        string msg = string.Format("{0}[{1}]:{2}", U3D.GetNetPlayerName(playerId), playerId, message);
+        txt.text = msg;
+        msgHistory.Add(msg);
         //00AAFFFF
         txt.font = Main.Ins.TextFont;
         txt.fontSize = 32;

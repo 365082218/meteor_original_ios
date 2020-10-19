@@ -21,14 +21,14 @@ public class ChatDialog : Dialog
 
     public override void OnClose()
     {
-        if (checkSound != null) {
-            checkSound.Stop();
-            checkSound = null;
-        }
-        if (Microphone.IsRecording(null))
-        {
-            Record();
-        }
+        //if (checkSound != null) {
+        //    checkSound.Stop();
+        //    checkSound = null;
+        //}
+        //if (Microphone.IsRecording(null))
+        //{
+        //    Record();
+        //}
     }
 
 
@@ -59,6 +59,9 @@ public class ChatDialog : Dialog
         {
             OnBackPress();
         });
+        Control("CloseHistoryMsg", WndObject).GetComponent<Button>().onClick.AddListener(() => {
+            OnBackPress();
+        });
         Control("CloseAudioMsg", WndObject).GetComponent<Button>().onClick.AddListener(() =>
         {
             OnBackPress();
@@ -75,122 +78,143 @@ public class ChatDialog : Dialog
             int j = i;
             Control(i.ToString(), WndObject).GetComponent<Button>().onClick.AddListener(() => { SendQuickMsg(j); });
         }
-        Control("Record", WndObject).GetComponent<Button>().onClick.AddListener(() => { Record(); });
-        Control("SendAudio", WndObject).GetComponent<Button>().onClick.AddListener(() => { SendAudioMsg(); });
-        GameObject objListen = Control("Listen", WndObject);
-        source = objListen.GetComponent<AudioSource>();
-        Listen = objListen.GetComponent<Button>();
-        Listen.onClick.AddListener(() =>
-        {
-            if (MicChat.clip != null) {
-                SoundManager.Ins.Mute(true);
-                source.PlayOneShot(MicChat.clip);
-                Debug.Log("play clip");
-                if (checkSound != null) {
-                    checkSound.Stop();
-                }
-                    checkSound = Timer.loop(0.5f, CheckSound);
-            }
-        });
-        CountDown = Control("CountDown", WndObject);
-    }
-
-    void CheckSound() {
-        if (!source.isPlaying) {
-            checkSound.Stop();
-            checkSound = null;
-            SoundManager.Ins.Mute(false);
+        //Control("Record", WndObject).GetComponent<Button>().onClick.AddListener(() => { Record(); });
+        //Control("SendAudio", WndObject).GetComponent<Button>().onClick.AddListener(() => { SendAudioMsg(); });
+        //GameObject objListen = Control("Listen", WndObject);
+        //source = objListen.GetComponent<AudioSource>();
+        //Listen = objListen.GetComponent<Button>();
+        //Listen.onClick.AddListener(() =>
+        //{
+        //    if (MicChat.clip != null) {
+        //        SoundManager.Ins.Mute(true);
+        //        source.PlayOneShot(MicChat.clip);
+        //        Debug.Log("play clip");
+        //        if (checkSound != null) {
+        //            checkSound.Stop();
+        //        }
+        //            checkSound = Timer.loop(0.5f, CheckSound);
+        //    }
+        //});
+        if (RoomChatDialogState.Exist()) {
+            string msg = RoomChatDialogState.Instance.GetHistoryMsg();
+            Add(msg);
         }
+        //CountDown = Control("CountDown", WndObject);
     }
 
-    Timer checkSound;
+    public void Add(string message) {
+        GameObject Root = Control("MsgHistory");
+        GameObject obj = new GameObject();
+        obj.name = (Root.transform.childCount + 1).ToString();
+        Text txt = obj.AddComponent<Text>();
+        txt.text = message;
+        //00AAFFFF
+        txt.font = Main.Ins.TextFont;
+        txt.fontSize = 32;
+        txt.alignment = TextAnchor.MiddleLeft;
+        txt.raycastTarget = false;
+        txt.color = new Color(1.0f, 1.0f, 1.0f, 1f);
+        obj.transform.SetParent(Root.transform);
+        obj.transform.localScale = Vector3.one;
+        obj.transform.localPosition = Vector3.zero;
+        obj.transform.localRotation = Quaternion.identity;
+    }
+    //void CheckSound() {
+    //    if (!source.isPlaying) {
+    //        checkSound.Stop();
+    //        checkSound = null;
+    //        SoundManager.Ins.Mute(false);
+    //    }
+    //}
+
+    //Timer checkSound;
     void SendQuickMsg(int i)
     {
         TcpClientProxy.Ins.SendChatMessage(jsData["Msg"][i].ToString());
         OnBackPress();
     }
 
-    void SendAudioMsg()
-    {
-        if (!recording && audioData != null && audioData.Length != 0 && Listen != null && Listen.IsActive())
-        {
-            Debug.LogWarning("audio data length:" + audioData.Length);
-            if (audioData.Length > PacketProxy.MaxSize) {
-                U3D.PopupTip("语音包太大，无法发送");
-                return;
-            }
-            TcpClientProxy.Ins.SendAudioMessage(audioData);
-        }
-        OnBackPress();
-    }
+    //void SendAudioMsg()
+    //{
+    //    if (!recording && audioData != null && audioData.Length != 0 && Listen != null && Listen.IsActive())
+    //    {
+    //        Debug.LogWarning("audio data length:" + audioData.Length);
+    //        if (audioData.Length > PacketProxy.MaxSize) {
+    //            U3D.PopupTip("语音包太大，无法发送");
+    //            return;
+    //        }
+    //        TcpClientProxy.Ins.SendAudioMessage(audioData);
+    //    }
+    //    OnBackPress();
+    //}
 
-    bool recording = false;
-    byte[] audioData;
-    AudioSource source;
-    AudioClip clip;
-    Button Listen;
-    GameObject CountDown;
-    float RecordTick = 0;
-    void Record()
-    {
-        if (recording)
-        {
-            Stop();
-            return;
-        }
-        else
-        {
-            //把音效和音乐全部静止
-            SoundManager.Ins.Mute(true);
-            recording = MicChat.TryStartRecording();
-            if (recording)
-            {
-                Control("Record", WndObject).GetComponentInChildren<Text>().text = "停止";
-                if (Listen == null)
-                {
-                    GameObject objListen = Control("Listen", WndObject);
-                    Listen = objListen.GetComponent<Button>();
-                    objListen.SetActive(false);
-                }
-                else
-                {
-                    Listen.gameObject.SetActive(false);
-                }
-                CountDown.SetActive(true);
-                RecordTick = 0;
-                nSeconds = MicChat.maxRecordTime - (int)RecordTick;
-                CountDown.GetComponentInChildren<Text>().text = string.Format("录制中{0}", nSeconds);
-            }
-        }
-    }
+    //bool recording = false;
+    //byte[] audioData;
+    //AudioSource source;
+    //AudioClip clip;
+    //Button Listen;
+    //GameObject CountDown;
+    //float RecordTick = 0;
+    //void Record()
+    //{
+    //    if (recording)
+    //    {
+    //        Stop();
+    //        return;
+    //    }
+    //    else
+    //    {
+    //        //把音效和音乐全部静止
+    //        SoundManager.Ins.Mute(true);
+    //        recording = MicChat.TryStartRecording();
+    //        if (recording)
+    //        {
+    //            Control("Record", WndObject).GetComponentInChildren<Text>().text = "停止";
+    //            if (Listen == null)
+    //            {
+    //                GameObject objListen = Control("Listen", WndObject);
+    //                Listen = objListen.GetComponent<Button>();
+    //                objListen.SetActive(false);
+    //            }
+    //            else
+    //            {
+    //                Listen.gameObject.SetActive(false);
+    //            }
+    //            CountDown.SetActive(true);
+    //            RecordTick = 0;
+    //            nSeconds = MicChat.maxRecordTime - (int)RecordTick;
+    //            CountDown.GetComponentInChildren<Text>().text = string.Format("录制中{0}", nSeconds);
+    //        }
+    //    }
+    //}
 
-    void Stop() {
-        SoundManager.Ins.Mute(false);
-        int length = 0;
-        clip = null;
-        MicChat.EndRecording(out length, out clip);
-        recording = false;
-        CountDown.SetActive(false);
-        audioData = clip.GetData();
-        if (audioData != null && audioData.Length != 0)
-            Listen.gameObject.SetActive(true);
-        Control("Record", WndObject).GetComponentInChildren<Text>().text = "录音";
-    }
+    //void Stop() {
+    //    SoundManager.Ins.Mute(false);
+    //    int length = 0;
+    //    clip = null;
+    //    MicChat.EndRecording(out length, out clip);
+    //    recording = false;
+    //    CountDown.SetActive(false);
+    //    audioData = clip.GetData();
+    //    if (audioData != null && audioData.Length != 0)
+    //        Listen.gameObject.SetActive(true);
+    //    Control("Record", WndObject).GetComponentInChildren<Text>().text = "录音";
+    //}
 
-    int nSeconds = 0;
-    void Update()
-    {
-        if (recording) {
-            RecordTick += FrameReplay.deltaTime;
-            if (RecordTick >= 8) {
-                Stop();
-            } else {
-                int i = MicChat.maxRecordTime - (int)RecordTick;
-                if (nSeconds != i) {
-                    nSeconds = i;
-                    CountDown.GetComponentInChildren<Text>().text = string.Format("录制中{0}", nSeconds);
-                }
-            }
-        }
-    }
+    //int nSeconds = 0;
+    //void Update()
+    //{
+    //    if (recording) {
+    //        RecordTick += FrameReplay.deltaTime;
+    //        if (RecordTick >= 8) {
+    //            Stop();
+    //        } else {
+    //            int i = MicChat.maxRecordTime - (int)RecordTick;
+    //            if (nSeconds != i) {
+    //                nSeconds = i;
+    //                CountDown.GetComponentInChildren<Text>().text = string.Format("录制中{0}", nSeconds);
+    //            }
+    //        }
+    //    }
+    //}
 }

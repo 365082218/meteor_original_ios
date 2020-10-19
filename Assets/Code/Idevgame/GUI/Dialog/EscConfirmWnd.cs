@@ -50,18 +50,17 @@ public class EscConfirmWnd : Dialog
     {
         GameStateMgr.Ins.SaveState();
         Main.Ins.GameBattleEx.Pause();
-        Main.Ins.StopAllCoroutines();
         SoundManager.Ins.StopAll();
+        Main.Ins.StopAllCoroutines();
         PathHelper.Ins.StopCalc();
-        OnBackPress();
         FightState.State.Close();
+        MeteorManager.Ins.Reset();
         if (GameOverlayDialogState.Exist())
             GameOverlayDialogState.Instance.ClearSystemMsg();
         //离开副本
         if (U3D.IsMultiplyPlayer())
             TcpClientProxy.Ins.LeaveLevel();
-        else
-        {
+        else {
             FrameReplay.Ins.OnDisconnected();
             U3D.GoBack();
         }

@@ -148,7 +148,7 @@ DRAG*/
                 mainModule.startRotation = new ParticleSystem.MinMaxCurve(effect.HRotateSpeed, effect.VRotateSpeed);
 
                 shapeModule.shapeType = ParticleSystemShapeType.Box;
-                shapeModule.box = new Vector3(effect.startSizeMin, 0, effect.startSizeMax);
+                shapeModule.scale = new Vector3(effect.startSizeMin, 0, effect.startSizeMax);
                 //shapeModule.box = new Vector3(effect.emitWidth, 0, effect.emitLong);
                 ParticleSystemRenderer r = particle.GetComponent<ParticleSystemRenderer>();
                 r.renderMode = ParticleSystemRenderMode.Billboard;

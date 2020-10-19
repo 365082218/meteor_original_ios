@@ -43,7 +43,7 @@ public class RecordDialog : Dialog
     string recDir;
     protected virtual void Init()
     {
-        recDir = Main.Ins.replayPath;
+        //recDir = Main.Ins.replayPath;
         if (Prefab == null)
             Prefab = Resources.Load("UI/Dialogs/RecordItem") as GameObject;
 

@@ -68,7 +68,11 @@ namespace cocosocket4unity {
             this.timeout = timeout;
         }
         public override void output(ByteBuf msg, Kcp kcp) {
-            this.client.Send(msg.GetRaw(), msg.ReadableBytes());
+            try {
+                this.client.Send(msg.GetRaw(), msg.ReadableBytes());
+            } catch(Exception exp) {
+                HandleException(exp);
+            }
         }
         private void Received(IAsyncResult ar) {
             UdpClient client = (UdpClient)ar.AsyncState;

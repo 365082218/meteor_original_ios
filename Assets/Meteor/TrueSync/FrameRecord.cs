@@ -61,7 +61,7 @@ public class RecordMgr : Singleton<RecordMgr> {
         version = Main.Ins.AppInfo.AppVersion();
         if (WriteThread != null)
             return;
-        recordPath = Main.Ins.replayPath;
+        //recordPath = Main.Ins.replayPath;
         screenShot = Utility.CaptureScreen(Main.Ins.MainCamera);
         //frame = FrameReplay.Instance.EndFrame;
         duration = Mathf.FloorToInt(FrameReplay.Ins.time);

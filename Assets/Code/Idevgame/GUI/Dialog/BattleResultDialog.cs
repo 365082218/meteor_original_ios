@@ -98,7 +98,7 @@ public class BattleResultDialog : Dialog
 
             } else {
                 FrameReplay.Ins.OnDisconnected();
-                Main.Ins.PlayEndMovie(result == 1);
+                Main.Ins.GotoMenu();
             }
         });
         //Control("SaveRecord").SetActive(false);

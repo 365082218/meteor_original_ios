@@ -293,16 +293,16 @@ class TcpClientProxy:Singleton<TcpClientProxy>
         Exec(sProxy, (int)MeteorMsg.MsgType.ChatInRoomReq, msg);
     }
 
-    public void SendAudioMessage(byte[] data) {
-        AudioChatMsg msg = new AudioChatMsg();
-        msg.type = 0;
-        msg.audio_data = data;
-        msg.playerId = (uint)NetWorkBattle.Ins.PlayerId;
-        Exec(sProxy, (int)MeteorMsg.MsgType.AudioChat, msg);
-        //客户端直接收到自己的发言，其他人的发言通过网络
-        RoomChatDialogState.State.Open();
-        RoomChatDialogState.Instance.Add((int)msg.playerId, msg.audio_data);
-    }
+    //public void SendAudioMessage(byte[] data) {
+    //    AudioChatMsg msg = new AudioChatMsg();
+    //    msg.type = 0;
+    //    msg.audio_data = data;
+    //    msg.playerId = (uint)NetWorkBattle.Ins.PlayerId;
+    //    Exec(sProxy, (int)MeteorMsg.MsgType.AudioChat, msg);
+    //    //客户端直接收到自己的发言，其他人的发言通过网络
+    //    RoomChatDialogState.State.Open();
+    //    RoomChatDialogState.Instance.Add((int)msg.playerId, msg.audio_data);
+    //}
 
     public void Exec(Socket s, int msg) {
         if (s != null && s.Connected) {

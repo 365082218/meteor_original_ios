@@ -130,7 +130,7 @@ namespace Idevgame.GameState.DialogState {
 
             UnloadGuiOnExit = true;
 
-#if UNITY_2017 || UNITY_5_5 || UNITY_5_6
+#if UNITY_2017 || UNITY_5_5 || UNITY_5_6 || UNITY_2020
             if (Use3DCanvas())
             {
                 if (mRootUI == null)
@@ -159,7 +159,7 @@ namespace Idevgame.GameState.DialogState {
                     Dialog.transform.SetParent(mRootUI.transform);
                     Dialog.transform.localScale = Vector3.one;
                     Dialog.transform.localRotation = Quaternion.identity;
-                    Dialog.layer = mRootUI.transform.gameObject.layer;
+                    //Dialog.layer = mRootUI.transform.gameObject.layer;
                 }
                 RectTransform rectTran = Dialog.GetComponent<RectTransform>();
                 if (rectTran != null && rectTran.anchorMin == Vector2.zero && rectTran.anchorMax == Vector2.one)
@@ -228,7 +228,7 @@ namespace Idevgame.GameState.DialogState {
                 return;
             }
 
-#if UNITY_2017 || UNITY_5_5 || UNITY_5_6
+#if UNITY_2017 || UNITY_5_5 || UNITY_5_6 || UNITY_2020
             if (Use3DCanvas())
             {
                 if (mRootUI == null)
@@ -257,7 +257,7 @@ namespace Idevgame.GameState.DialogState {
                     Dialog.transform.SetParent(mRootUI.transform);
                     Dialog.transform.localScale = Vector3.one;
                     Dialog.transform.localRotation = Quaternion.identity;
-                    Dialog.layer = mRootUI.transform.gameObject.layer;
+                    //Dialog.layer = mRootUI.transform.gameObject.layer;
                 }
                 RectTransform rectTran = Dialog.GetComponent<RectTransform>();
                 if (rectTran != null && rectTran.anchorMin == Vector2.zero && rectTran.anchorMax == Vector2.one)
@@ -354,7 +354,7 @@ namespace Idevgame.GameState.DialogState {
 
             UnloadGuiOnExit = true;
 
-#if UNITY_2017 || UNITY_5_5 || UNITY_5_6
+#if UNITY_2017 || UNITY_5_5 || UNITY_5_6 || UNITY_2020
             if (Use3DCanvas())
             {
                 if (mRootUI == null)
@@ -382,7 +382,7 @@ namespace Idevgame.GameState.DialogState {
                     Dialog.transform.SetParent(mCanvasRoot.transform);
                     Dialog.transform.localScale = Vector3.one;
                     Dialog.transform.localRotation = Quaternion.identity;
-                    Dialog.layer = mRootUI.transform.gameObject.layer;
+                    //Dialog.layer = mRootUI.transform.gameObject.layer;
                 }
                 RectTransform rectTran = Dialog.GetComponent<RectTransform>();
                 if (rectTran != null && rectTran.anchorMin == Vector2.zero && rectTran.anchorMax == Vector2.one)

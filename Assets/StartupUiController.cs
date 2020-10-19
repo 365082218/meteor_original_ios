@@ -55,11 +55,6 @@ public class StartupUiController : Dialog {
             yield return 0;
         }
         Application.targetFrameRate = GameStateMgr.Ins.gameStatus.TargetFrame;
-        if (!GameStateMgr.Ins.gameStatus.SkipVideo)
-        {
-            string movie = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, "mmv/start.mv");
-            Main.Ins.PlayMovie(movie);
-        }
         DlcMng.Ins.Init();
         Main.Ins.DialogStateManager.ChangeState(Main.Ins.DialogStateManager.MainMenuState);
         Main.Ins.SplashScreenHidden = true;

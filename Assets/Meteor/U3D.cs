@@ -708,19 +708,6 @@ public class U3D : MonoBehaviour {
         SoundManager.Ins.StopAll();
         SoundManager.Ins.Enable(false);
         CombatData.Ins.wayPoints = CombatData.GetWayPoint(lev);
-        if (!string.IsNullOrEmpty(lev.sceneItems) && !GameStateMgr.Ins.gameStatus.SkipVideo && levelmode == LevelMode.SinglePlayerTask && CombatData.Ins.Chapter == null)
-        {
-            string num = lev.sceneItems.Substring(2);
-            int number = 0;
-            if (int.TryParse(num, out number))
-            {
-                if (lev.Id >= 0 && lev.Id <= 9)
-                {
-                    string movie = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, "mmv/" + "b" + number + ".mv");
-                    Main.Ins.PlayMovie(movie);
-                }
-            }
-        }
         LevelHelper helper = Ins.gameObject.AddComponent<LevelHelper>();
         helper.Load();
     }
@@ -1625,6 +1612,8 @@ public class U3D : MonoBehaviour {
         MeteorUnit watchTarget = Main.Ins.CameraFree.Watched;
         List<MeteorUnit> allow = new List<MeteorUnit>();
         for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++) {
+            if (MeteorManager.Ins.UnitInfos[i] == null)
+                continue;
             if (MeteorManager.Ins.UnitInfos[i].Dead)
                 continue;
             if (MeteorManager.Ins.UnitInfos[i] == Main.Ins.LocalPlayer)
@@ -1632,13 +1621,15 @@ public class U3D : MonoBehaviour {
             allow.Add(MeteorManager.Ins.UnitInfos[i]);
         }
 
-        int j = allow.IndexOf(watchTarget);
-        if (j == 0) {
-            watchTarget = allow[allow.Count - 1];
-        } else {
-            watchTarget = allow[j - 1];
+        if (allow.Count != 0) {
+            int j = allow.IndexOf(watchTarget);
+            if (j <= 0) {
+                watchTarget = allow[allow.Count - 1];
+            } else {
+                watchTarget = allow[j - 1];
+            }
+            Main.Ins.CameraFree.Init(watchTarget);
         }
-        Main.Ins.CameraFree.Init(watchTarget);
     }
 
     [DoNotToLua]
@@ -1650,19 +1641,22 @@ public class U3D : MonoBehaviour {
         MeteorUnit watchTarget = Main.Ins.CameraFree.Watched;
         List<MeteorUnit> allow = new List<MeteorUnit>();
         for (int i = 0; i < MeteorManager.Ins.UnitInfos.Count; i++) {
+            if (MeteorManager.Ins.UnitInfos[i] == null)
+                continue;
             if (MeteorManager.Ins.UnitInfos[i].Dead)
                 continue;
             if (MeteorManager.Ins.UnitInfos[i] == Main.Ins.LocalPlayer)
                 continue;
             allow.Add(MeteorManager.Ins.UnitInfos[i]);
         }
-
-        int j = allow.IndexOf(watchTarget);
-        if (j == allow.Count - 1) {
-            watchTarget = allow[0];
-        } else {
-            watchTarget = allow[j + 1];
+        if (allow.Count != 0) {
+            int j = allow.IndexOf(watchTarget);
+            if (j == allow.Count - 1 || j == -1) {
+                watchTarget = allow[0];
+            } else {
+                watchTarget = allow[j + 1];
+            }
+            Main.Ins.CameraFree.Init(watchTarget);
         }
-        Main.Ins.CameraFree.Init(watchTarget);
     }
 }

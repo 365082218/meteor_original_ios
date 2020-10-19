@@ -28,7 +28,7 @@ public class Main : MonoBehaviour {
     //版本仓库地址
     public static string strFile = "http://{0}:{1}/{2}/{3}";//域名+端口+项目名称+指定文件
     public string localPath;
-    public string replayPath;
+    //public string replayPath;
     public string userPath;//临时变量存储
     public string baseUrl;//下载资源根目录
     public Font TextFont;
@@ -148,7 +148,7 @@ public class Main : MonoBehaviour {
         localPath = Application.persistentDataPath;
         
         userPath = string.Format("{0}/State/user.dat", Application.persistentDataPath);
-        replayPath = string.Format("{0}/Replay/", Application.persistentDataPath);
+        //replayPath = string.Format("{0}/Replay/", Application.persistentDataPath);
         string dir = string.Format("{0}/{1}", Application.persistentDataPath, AppInfo.Ins.AppVersion());
         if (!Directory.Exists(dir))
             Directory.CreateDirectory(dir);
@@ -159,12 +159,8 @@ public class Main : MonoBehaviour {
             Directory.CreateDirectory(dir);
 
         //录像文件
-        if (!Directory.Exists(replayPath))
-            Directory.CreateDirectory(replayPath);
-
-        //过场动画
-        if (!Directory.Exists(Application.persistentDataPath + "/mmv"))
-            Directory.CreateDirectory(Application.persistentDataPath + "/mmv");
+        //if (!Directory.Exists(replayPath))
+        //    Directory.CreateDirectory(replayPath);
 
         UserPref.Ins.Load(userPath);
         Create();
@@ -259,26 +255,7 @@ public class Main : MonoBehaviour {
         }
     }
 
-    public void PlayEndMovie(bool play)
-    {
-        if (!string.IsNullOrEmpty(CombatData.GLevelItem.sceneItems) && play && !GameStateMgr.Ins.gameStatus.SkipVideo && CombatData.GLevelMode == LevelMode.SinglePlayerTask && CombatData.Chapter == null)
-        {
-            string num = CombatData.GLevelItem.sceneItems.Substring(2);
-            int number = 0;
-            if (int.TryParse(num, out number))
-            {
-                if (CombatData.GLevelItem.Id >= 0 && CombatData.GLevelItem.Id <= 9)
-                {
-                    string movie = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, "mmv/" + "v" + number + ".mv");
-                    Main.Ins.PlayMovie(movie);
-                }
-            }
-        }
-
-        GotoMenu();
-    }
-
-    void GotoMenu()
+    public void GotoMenu()
     {
         if (CombatData.GLevelMode == LevelMode.Teach || CombatData.GLevelMode == LevelMode.CreateWorld)
             U3D.GoBack();
@@ -302,69 +279,8 @@ public class Main : MonoBehaviour {
         DialogStateManager.Update();
         PopupStateManager.Update();
         PersistMgr.Update();
-
         if (GameBattleEx == null) {
             DownloadManager.Update();
-            DownloadMovie();
-        }
-    }
-
-    void DownloadMovie() {
-        if (downloadMovie == null) {
-            lock (WaitDownload) {
-                if (WaitDownload.Count != 0) {
-                    downloadMovie = new WebClient();
-                    string download = WaitDownload[0];
-                    int index = download.LastIndexOf("/");
-                    string file = download.Substring(index + 1);
-                    string local = Application.persistentDataPath + "/mmv/" + file;//start.mv
-                    local = local.Replace(".mv", ".mp4");
-                    downloadMovie.DownloadFileCompleted += (object sender, AsyncCompletedEventArgs e) => {
-                        if (e.Error != null) {
-                            GameStateMgr.Ins.gameStatus.LocalMovie.Add(download, local);
-                            GameStateMgr.Ins.SaveState();
-                        }
-                        lock (WaitDownload) {
-                            WaitDownload.Remove(download);
-                        }
-                        downloadMovie.CancelAsync();
-                        downloadMovie.Dispose();
-                        downloadMovie = null;
-                    };
-                    downloadMovie.DownloadFileAsync(new Uri(download), local);
-                }
-            }
-        }
-    }
-
-    WebClient downloadMovie;
-    public List<string> WaitDownload = new List<string>();
-    public void PlayMovie(string movie) {
-        if (GameStateMgr.Ins.gameStatus.LocalMovie.ContainsKey(movie)) {
-            string localPath = GameStateMgr.Ins.gameStatus.LocalMovie[movie];
-            if (!File.Exists(localPath)) {
-                lock (WaitDownload) {
-                    if (!WaitDownload.Contains(movie))
-                        WaitDownload.Add(movie);
-                }
-                return;
-            }
-            //有就播放
-#if UNITY_ANDROID
-            try {
-                Handheld.PlayFullScreenMovie(localPath, Color.black, FullScreenMovieControlMode.CancelOnInput, FullScreenMovieScalingMode.AspectFit);
-            }
-            catch(Exception exp) {
-                Log.WriteError("PlayFullScreenMovie:" + exp.Message + exp.StackTrace);
-            }
-#endif
-        } else {
-            //放到队列里.
-            lock (WaitDownload) {
-                if (!WaitDownload.Contains(movie))
-                    WaitDownload.Add(movie);
-                DownloadMovie();
-            }
         }
     }
 
@@ -377,34 +293,34 @@ public class Main : MonoBehaviour {
     }
 
     //拉取Global.json,得到新版本信息和地址.
-    Coroutine GlobalJsonUpdate;
-    bool GlobalJsonLoaded = false;
-    public void UpdateAppInfo()
-    {
-        if (GlobalJsonLoaded)
-            return;
-        GlobalJsonUpdate = StartCoroutine(UpdateAppInfoCoroutine());
-    }
+    //Coroutine GlobalJsonUpdate;
+    //bool GlobalJsonLoaded = false;
+    //public void UpdateAppInfo()
+    //{
+    //    if (GlobalJsonLoaded)
+    //        return;
+    //    GlobalJsonUpdate = StartCoroutine(UpdateAppInfoCoroutine());
+    //}
 
-    IEnumerator UpdateAppInfoCoroutine()
-    {
-        UnityWebRequest vFile = new UnityWebRequest();
-        vFile.url = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, Main.strNewVersionName);
-        vFile.timeout = 20;
-        DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
-        vFile.downloadHandler = dH;
-        yield return vFile.Send();
-        if (vFile.isError || vFile.responseCode != 200)
-        {
-            Debug.LogWarning(string.Format("update version file:{0} error:{1} or responseCode:{2}", vFile.url, vFile.error, vFile.responseCode));
-            vFile.Dispose();
-            GlobalJsonUpdate = null;
-            GlobalJsonLoaded = true;
-            yield break;
-        }
-        Debug.Log("download:" + vFile.url);
-        LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
-        GameNotice.LoadGrid(js);
-        GlobalJsonLoaded = true;
-    }
+    //IEnumerator UpdateAppInfoCoroutine()
+    //{
+    //    UnityWebRequest vFile = new UnityWebRequest();
+    //    vFile.url = string.Format(Main.strFile, Main.strHost, Main.port, Main.strProjectUrl, Main.strNewVersionName);
+    //    vFile.timeout = 20;
+    //    DownloadHandlerBuffer dH = new DownloadHandlerBuffer();
+    //    vFile.downloadHandler = dH;
+    //    yield return vFile.Send();
+    //    if (vFile.isNetworkError || vFile.responseCode != 200)
+    //    {
+    //        Debug.LogWarning(string.Format("update version file:{0} error:{1} or responseCode:{2}", vFile.url, vFile.error, vFile.responseCode));
+    //        vFile.Dispose();
+    //        GlobalJsonUpdate = null;
+    //        GlobalJsonLoaded = true;
+    //        yield break;
+    //    }
+    //    Debug.Log("download:" + vFile.url);
+    //    LitJson.JsonData js = LitJson.JsonMapper.ToObject(dH.text);
+    //    GameNotice.LoadGrid(js);
+    //    GlobalJsonLoaded = true;
+    //}
 }

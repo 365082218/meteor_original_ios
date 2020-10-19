@@ -99,22 +99,21 @@ namespace UnityEngine.UI
 		{
 			return base.IsPressed();
 		}
-		
-		/// <summary>
-		/// Determines whether this option is highlighted.
-		/// </summary>
-		/// <returns><c>true</c> if this instance is highlighted the specified eventData; otherwise, <c>false</c>.</returns>
-		/// <param name="eventData">Event data.</param>
-		new public bool IsHighlighted(BaseEventData eventData)
-		{
-			return base.IsHighlighted(eventData);
-		}
-		
-		/// <summary>
-		/// Raises the pointer up event.
-		/// </summary>
-		/// <param name="eventData">Event data.</param>
-		public override void OnPointerUp(PointerEventData eventData)
+
+        /// <summary>
+        /// Determines whether this option is highlighted.
+        /// </summary>
+        /// <returns><c>true</c> if this instance is highlighted the specified eventData; otherwise, <c>false</c>.</returns>
+        /// <param name="eventData">Event data.</param>
+        public bool IsHighlighted(BaseEventData eventData) {
+            return base.IsHighlighted();
+        }
+
+        /// <summary>
+        /// Raises the pointer up event.
+        /// </summary>
+        /// <param name="eventData">Event data.</param>
+        public override void OnPointerUp(PointerEventData eventData)
 		{
 			base.OnPointerUp(eventData);
 			

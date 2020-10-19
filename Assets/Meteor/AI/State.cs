@@ -258,8 +258,6 @@ namespace Idevgame.Meteor.AI {
         }
 
         public override void Think() {
-            if (NavCheck())
-                return;
             bool needRefresh = false;
             if (KillTarget == null || KillTarget.Dead) {
                 ChangeState(Machine.WaitState);
@@ -1099,8 +1097,6 @@ namespace Idevgame.Meteor.AI {
         }
 
         public override void Think() {
-            if (NavCheck())
-                return;
             if (refreshTick < 0) {
                 positionEnd = FollowTarget.mSkeletonPivot;
                 int index = PathMng.Ins.GetWayIndex(positionEnd);
@@ -1265,8 +1261,6 @@ namespace Idevgame.Meteor.AI {
         //没有跟随目标，判断是否有巡逻设定，有切换到巡逻
         //没有巡逻设定.原地待机，等待敌人经过.
         public override void Think() {
-            if (NavCheck())
-                return;
             if (Machine.LostTarget()) {
                 //丢失目标后，等动作切换到待机或者准备，再切换到待机姿势.
                 if ((Player.ActionMgr.mActiveAction.Idx == CommonAction.Idle ||
@@ -1333,7 +1327,7 @@ namespace Idevgame.Meteor.AI {
                 //如果距离太短，要切换到近战武器
                 float d = Util.MathUtility.DistanceSqr(Player.mSkeletonPivot, LockTarget.mSkeletonPivot);
                 if (d < CombatData.AttackRange) {
-                    if (Player.Attr.Weapon2 == 0) {
+                    if (Player.Attr.Weapon2 == 0 || U3D.IsSpecialWeapon(Player.Attr.Weapon2)) {
                         //副手武器为空，只有远程武器，逃避。
                         ChangeState(Machine.DodgeState, LockTarget);
                         return true;

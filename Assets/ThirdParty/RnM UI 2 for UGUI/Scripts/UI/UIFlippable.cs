@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace UnityEngine.UI
 {
 	[RequireComponent(typeof(RectTransform)), RequireComponent(typeof(Graphic)), DisallowMultipleComponent, AddComponentMenu("UI/Flippable")]
-#if UNITY_2017 || UNITY_5_5 || UNITY_5_6
+#if UNITY_2017 || UNITY_5_5 || UNITY_5_6 || UNITY_2020
     public class UIFlippable : MonoBehaviour, IMeshModifier {
 #else
     public class UIFlippable : MonoBehaviour, IVertexModifier {
@@ -40,7 +40,7 @@ namespace UnityEngine.UI
 		}
 #endif
 
-#if UNITY_2017 || UNITY_5_5 || UNITY_5_6
+#if UNITY_2017 || UNITY_5_5 || UNITY_5_6 || UNITY_2020
         public void ModifyMesh(VertexHelper vertexHelper)
 		{
 			if (!this.enabled)

@@ -99,9 +99,9 @@ namespace UnityEngine.UI
 		/// </summary>
 		/// <returns><c>true</c> if this instance is highlighted the specified eventData; otherwise, <c>false</c>.</returns>
 		/// <param name="eventData">Event data.</param>
-		new public bool IsHighlighted(BaseEventData eventData)
+		public bool IsHighlighted(BaseEventData eventData)
 		{
-			return base.IsHighlighted(eventData);
+			return base.IsHighlighted();
 		}
 	}
 }
