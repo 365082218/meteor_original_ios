@@ -294,6 +294,7 @@ public class GameState {
     public bool DisableParticle;//无粒子特效
     public bool SnowParticle;//雪粒子
     public bool UseGamePad;//使用手柄设备-不显示战斗UI的操作部分-当未识别到手柄设备时，不起效
+    public bool UseMouse;//使用鼠标控制视角
     public bool JoyEnable;//使用摇杆
     public bool JoyRotateOnly;//摇杆仅控制方向-否则还控制位移
     public int UseModel = -1;//强制使用的主角模型,可能会被特殊关卡设置无效 默认为-1
@@ -407,6 +408,7 @@ public class GameStateMgr:Singleton<GameStateMgr>
             gameStatus.DisableParticle = true;
             gameStatus.AutoLock = true;
             gameStatus.UseGamePad = false;
+            gameStatus.UseMouse = false;
             gameStatus.JoyEnable = true;
             gameStatus.JoyRotateOnly = false;
             gameStatus.UseModel = -1;
@@ -568,7 +570,7 @@ public class CombatData:Singleton<CombatData>
     public Type GScriptType;
     public long RandSeed;
     public System.Random Random;
-    public static float DamageDetectDelay = 0.33f;//伤害检测间隔，持续时间长的攻击盒，可以伤害更多次敌人
+    public static float DamageDetectDelay = 0.25f;//伤害检测间隔，持续时间长的攻击盒，可以伤害更多次敌人
     bool mPauseAll;
     public Vector3 BodyHeight = new Vector3(0, 28, 0);
     public Chapter Chapter;

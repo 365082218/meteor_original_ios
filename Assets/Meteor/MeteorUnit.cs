@@ -378,12 +378,19 @@ public partial class MeteorUnit : NetBehaviour {
         }
     }
 
+    public bool angryMax { get; set; }
     public int AngryValue {
         get {
+            if (angryMax)
+                return CombatData.ANGRYMAX;
             return Attr.AngryValue;
         }
         set {
-            Attr.AngryValue = Mathf.Clamp(value, 0, 100);
+            if (angryMax)
+                Attr.AngryValue = CombatData.ANGRYMAX;
+            else {
+                Attr.AngryValue = Mathf.Clamp(value, 0, 100);
+            }
             if (Attr.IsPlayer && FightState.Exist())
                 FightState.Instance.UpdateAngryBar();
         }
@@ -725,31 +732,30 @@ public partial class MeteorUnit : NetBehaviour {
         } else {
             if (Attr.IsPlayer) {
                 if (!meteorController.InputLocked && !Main.Ins.GameBattleEx.BattleFinished()) {
-                    float yRotate = 0;//量1000
+                    float yRotate = 0;
+                    float yRotate1 = 0;
+                    float yRotate2 = 0;
                     if (ActionMgr.CanRotateY) {
-#if STRIP_KEYBOARD
                     //读取手柄上的相机左旋转，相机右旋.
                     if (Main.Ins.JoyStick.isActiveAndEnabled) {
-                        yRotate = Main.Ins.JoyStick.CameraAxisX * 5 * GameStateMgr.Ins.gameStatus.AxisSensitivity.x;
+                        yRotate1 = Main.Ins.JoyStick.CameraAxisX * 5 * GameStateMgr.Ins.gameStatus.AxisSensitivity.x;
                     } else {
-                        yRotate = NGUICameraJoystick.Ins.deltaLast.x * GameStateMgr.Ins.gameStatus.AxisSensitivity.x;
+                        yRotate1 = NGUICameraJoystick.Ins.deltaLast.x * GameStateMgr.Ins.gameStatus.AxisSensitivity.x;
                     }
-#else
-                        yRotate = Input.GetAxis("Mouse X") * 5 * GameStateMgr.Ins.gameStatus.AxisSensitivity.x;
-#endif
+                        yRotate2 = Input.GetAxis("Mouse X") * 5 * GameStateMgr.Ins.gameStatus.AxisSensitivity.x;
                     }
+                    yRotate = GameStateMgr.Ins.gameStatus.UseMouse ? yRotate2 : yRotate1;
 
                     float xRotate = 0;
-#if STRIP_KEYBOARD
+                    float xRotate1 = 0;
+                    float xRotate2 = 0;
                     if (Main.Ins.JoyStick.isActiveAndEnabled) {
-                        xRotate = Main.Ins.JoyStick.CameraAxisY * 2 * GameStateMgr.Ins.gameStatus.AxisSensitivity.y;
+                        xRotate1 = Main.Ins.JoyStick.CameraAxisY * 2 * GameStateMgr.Ins.gameStatus.AxisSensitivity.y;
                     } else {
-                        xRotate = NGUICameraJoystick.Ins.deltaLast.y * GameStateMgr.Ins.gameStatus.AxisSensitivity.y;
+                        xRotate1 = NGUICameraJoystick.Ins.deltaLast.y * GameStateMgr.Ins.gameStatus.AxisSensitivity.y;
                     }
-#else
-                    xRotate = Input.GetAxis("Mouse Y") * 2 * GameStateMgr.Ins.gameStatus.AxisSensitivity.y;
-#endif
-
+                    xRotate2 = Input.GetAxis("Mouse Y") * 2 * GameStateMgr.Ins.gameStatus.AxisSensitivity.y;
+                    xRotate = GameStateMgr.Ins.gameStatus.UseMouse ? xRotate2 : xRotate1;
                     if (xRotate != 0 || yRotate != 0) {
                         //if (CombatData.Ins.Replay) {
                         //    OnPlayerMouseDelta(xRotate, yRotate);
@@ -1058,7 +1064,7 @@ public partial class MeteorUnit : NetBehaviour {
         Pause = false;
         Vector3 vec = transform.position;
         Quaternion rotation = transform.rotation;
-
+        
         tag = "meteorUnit";
         ModelId = modelIdx;
         Attr = mon;
@@ -1073,6 +1079,7 @@ public partial class MeteorUnit : NetBehaviour {
             if (StateMachine != null) {
                 StateMachine.Init(this);
             }
+            angryMax = GameStateMgr.Ins.gameStatus.EnableInfiniteAngry && Attr.IsPlayer;
         }
 
         if (meteorController == null)
@@ -1389,10 +1396,10 @@ public partial class MeteorUnit : NetBehaviour {
 
 
     public void DoBreakOut() {
-        if (AngryValue >= 60 || GameStateMgr.Ins.gameStatus.EnableInfiniteAngry) {
+        if (AngryValue >= 60) {
             ActionMgr.ChangeAction(CommonAction.BreakOut, 0);
             ActionMgr.LockTime(0);
-            AngryValue -= GameStateMgr.Ins.gameStatus.EnableInfiniteAngry ? 0 : 60;
+            AngryValue -= 60;
             if (Attr.IsPlayer) {
                 if (FightState.Exist())
                     FightState.Instance.UpdateAngryBar();
@@ -3168,9 +3175,9 @@ public partial class MeteorUnit : NetBehaviour {
     public void PlaySkill(int skill = 0) {
         //技能0为当前武器绝招
         if (skill == 0) {
-            if (AngryValue >= 100 || GameStateMgr.Ins.gameStatus.EnableInfiniteAngry) {
+            if (AngryValue >= 100) {
                 //得到武器的大绝pose号码。
-                AngryValue -= GameStateMgr.Ins.gameStatus.EnableInfiniteAngry ? 0 : 100;
+                AngryValue -= 100;
                 int skillPose = ActionInterrupt.Ins.GetSkillPose(this);
                 if (skillPose != 0) {
                     ActionMgr.ChangeAction(skillPose, 0.1f);

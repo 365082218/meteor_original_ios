@@ -16,10 +16,11 @@ Shader "Custom/MeshDeform2"
 
 	SubShader
 	{
-		Tags{ "RenderType" = "Opaque" }
+		Tags{ "RenderType" = "Opaque"}
 		LOD 200
 		cull off Lighting Off
 		CGPROGRAM
+#pragma target 4.0
 #pragma surface surf nolight vertex:vert alpha
 
 	sampler2D _MainTex;

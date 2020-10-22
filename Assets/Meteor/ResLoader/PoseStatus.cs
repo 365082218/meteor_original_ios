@@ -331,7 +331,6 @@ public class ActionManager {
         mOwner.UpdateNinjaState(NinjaState.None);
         if (mActiveAction != null) {
             PosAction act = null;
-            int curIndex = GetCurrentFrameIndex();
             for (int i = 0; i < mActiveAction.ActionList.Count; i++) {
                 if (mActiveAction.ActionList[i].Type.Equals("Blend")) {
                     act = mActiveAction.ActionList[i];
@@ -923,7 +922,7 @@ public class ActionManager {
             lastFrameStatus.DummyPos[i] = Characterloader.dummy[i].localPosition;
         }
     }
-
+    
     void UpdateAnimation2() {
         if (mActiveAction != null) {
             if (blendTime == 0.0f) {
@@ -1378,10 +1377,23 @@ public class ActionManager {
         }
     }
 
+    //在某一帧之前
+    bool IsBeforeFrame(int frame) {
+        int f = Mathf.Clamp(frame, mActiveAction.Start, mActiveAction.End);
+        return playedTimeFadeInWrapped <= mActiveAction.KeyFrames[f - mActiveAction.Start];
+    }
+
+    //是否在指定的2帧之间
+    public bool IsInKeyFrame(int min, int max) {
+        int start = Mathf.Clamp(min, mActiveAction.Start, mActiveAction.End);
+        int end = Mathf.Clamp(max, mActiveAction.Start, mActiveAction.End); 
+        return (playedTimeFadeInWrapped >= mActiveAction.KeyFrames[start-mActiveAction.Start] && playedTimeFadeInWrapped <= mActiveAction.KeyFrames[end-mActiveAction.Start]);
+    }
+
     void ChangeAttack() {
         bool open = false;
         for (int i = 0; i < mActiveAction.Attack.Count; i++) {
-            if (curIndex >= mActiveAction.Attack[i].Start && curIndex <= mActiveAction.Attack[i].End) {
+            if (IsInKeyFrame(mActiveAction.Attack[i].Start, mActiveAction.Attack[i].End)) {
                 mOwner.ChangeAttack(mActiveAction.Attack[i]);
                 open = true;
                 break;
@@ -1397,7 +1409,7 @@ public class ActionManager {
             return;
         //开启武器拖尾
         if (mActiveAction.Drag != null) {
-            if (curIndex >= mActiveAction.Drag.Start && curIndex <= mActiveAction.Drag.End)
+            if (IsInKeyFrame(mActiveAction.Drag.Start, mActiveAction.Drag.End))
                 mOwner.ChangeWeaponTrail(mActiveAction.Drag);
             else
                 mOwner.ChangeWeaponTrail(null);

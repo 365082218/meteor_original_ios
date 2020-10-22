@@ -166,12 +166,14 @@ public class CheatCode {
                 Main.Ins.LocalPlayer.SetPosition(pos);
             }
             return true;
-        } else if (CheatOK(cheatcode, "ang")) {
+        } else if (CheatParam(cheatcode, "ang", ref param1)) {
             if (U3D.IsMultiplyPlayer()) {
                 return false;
             }
-            if (Main.Ins.LocalPlayer != null) {
-                Main.Ins.LocalPlayer.AddAngry(CombatData.ANGRYMAX);
+            MeteorUnit target = U3D.GetUnit(param1 - 1);
+            if (target != null) {
+                target.angryMax = !target.angryMax;
+                U3D.InsertSystemMsg(string.Format("{0}真气{1}", target.name, target.angryMax ? "满":"空"));
             }
             return true;
         } else if (CheatParam(cheatcode, "weapon", ref param1)) {

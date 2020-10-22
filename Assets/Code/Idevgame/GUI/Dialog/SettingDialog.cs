@@ -105,6 +105,10 @@ public class SettingDialog : Dialog {
         EnableGamePad.isOn = GameStateMgr.Ins.gameStatus.UseGamePad;
         EnableGamePad.onValueChanged.AddListener((bool selected) => { GameStateMgr.Ins.gameStatus.UseGamePad = selected; Main.Ins.JoyStick.enabled = selected; });
 
+        Toggle EnableMouse = Control("EnableMouse").GetComponent<Toggle>();
+        EnableMouse.isOn = GameStateMgr.Ins.gameStatus.UseMouse;
+        EnableMouse.onValueChanged.AddListener((bool selected) => { GameStateMgr.Ins.gameStatus.UseMouse = selected;});
+        
         //显示战斗界面的调试按钮
         Toggle toggleDebug = Control("EnableSFX").GetComponent<Toggle>();
         toggleDebug.isOn = GameStateMgr.Ins.gameStatus.EnableDebugSFX;

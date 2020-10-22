@@ -7,12 +7,12 @@ using Idevgame.GameState;
 using Idevgame.GameState.DialogState;
 using DG.Tweening;
 
-public class FightState : PersistDialog<FightUiConroller>
+public class FightState : PersistDialog<FightWnd>
 {
     public override string DialogName { get { return "FightWnd"; } }
 }
 
-public class FightUiConroller : Dialog
+public class FightWnd : Dialog
 {
     public override void OnDialogStateEnter(PersistState ownerState, BaseDialogState previousDialog, object data)
     {
@@ -170,10 +170,6 @@ public class FightUiConroller : Dialog
         CanvasGroup[] c = WndObject.GetComponentsInChildren<CanvasGroup>();
         for (int i = 0; i < c.Length; i++)
             c[i].alpha = GameStateMgr.Ins.gameStatus.UIAlpha;
-#if (UNITY_EDITOR || UNITY_STANDALONE_WIN) && !STRIP_KEYBOARD
-        Control("ClickPanel").SetActive(false);
-        Control("JoyArrow").SetActive(false);
-#endif
         //使用手柄时，不再显示右下侧按键和方向盘.
         if (GameStateMgr.Ins.gameStatus.UseGamePad) {
             Control("ClickPanel").SetActive(false);
@@ -455,7 +451,7 @@ public class FightUiConroller : Dialog
         //Debug.Log("OnBreakOut");
         if (CombatData.Ins.GMeteorInput == null || CombatData.Ins.PauseAll)
             return;
-        if (Main.Ins.LocalPlayer.AngryValue >= 60 || GameStateMgr.Ins.gameStatus.EnableInfiniteAngry)
+        if (Main.Ins.LocalPlayer.AngryValue >= 60)
         {
             CombatData.Ins.GMeteorInput.OnKeyDownProxy(EKeyList.KL_BreakOut);
             //Debug.Log("OnKeyDown");

@@ -84,10 +84,6 @@ public class NGUICameraJoystick : NetBehaviour
 
     public void OnDrag(Vector2 delta)
     {
-#if !STRIP_KEYBOARD
-        if (Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
-            return;
-#endif
         if (Main.Ins.LocalPlayer == null || Main.Ins.LocalPlayer.Dead)
             return;
         if (isPress && enabled && gameObject.activeSelf)

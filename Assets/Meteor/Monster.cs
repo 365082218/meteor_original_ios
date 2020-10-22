@@ -75,7 +75,7 @@ public class MonsterEx
         if (!player) {
             
             Think = Utility.Range(45, 100);
-            CombatChance = CombatData.CombatChancePerThink * Think / 5.0f;
+            CombatChance = CombatData.CombatChancePerThink * Think / 8.0f;
             //默认属性即为机器人属性.
             Attack1 = Utility.Range(25, 35);
             Attack2 = Utility.Range(35, 45);
@@ -125,7 +125,7 @@ public class MonsterEx
         GetItem = (int)(double)sState["GetItem"];
         View = (int)(double)sState["View"];
         Dodge = (int)(double)sState["Dodge"];
-        CombatChance = CombatData.CombatChancePerThink * Think / 5.0f;
+        CombatChance = CombatData.CombatChancePerThink * Think / 8.0f;
     }
 
     //unit id , 名称, 所在队伍中的下标.
@@ -154,7 +154,7 @@ public class MonsterEx
         Attack2 = (int)(double)sState["Attack2"];
         Attack3 = (int)(double)sState["Attack3"];
         Dodge = (int)(double)sState["Dodge"];
-        CombatChance = CombatData.CombatChancePerThink * Think / 5.0f;
+        CombatChance = CombatData.CombatChancePerThink * Think / 8.0f;
         hpCur = HpMax;
         mpCur = MpMax;
         return true;
