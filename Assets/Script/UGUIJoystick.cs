@@ -67,6 +67,11 @@ public class UGUIJoystick:MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
             aKey.OnPress.AddListener(() => { CombatData.Ins.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyA); });
             dKey.OnPress.AddListener(() => { CombatData.Ins.GMeteorInput.OnAxisKeyPress(EKeyList.KL_KeyD); });
 
+            wKey.OnPressing.AddListener(() => { CombatData.Ins.GMeteorInput.OnAxisKeyPressing(EKeyList.KL_KeyW); });
+            sKey.OnPressing.AddListener(() => { CombatData.Ins.GMeteorInput.OnAxisKeyPressing(EKeyList.KL_KeyS); });
+            aKey.OnPressing.AddListener(() => { CombatData.Ins.GMeteorInput.OnAxisKeyPressing(EKeyList.KL_KeyA); });
+            dKey.OnPressing.AddListener(() => { CombatData.Ins.GMeteorInput.OnAxisKeyPressing(EKeyList.KL_KeyD); });
+
             wKey.OnRelease.AddListener(() => { CombatData.Ins.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyW); });
             sKey.OnRelease.AddListener(() => { CombatData.Ins.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyS); });
             aKey.OnRelease.AddListener(() => { CombatData.Ins.GMeteorInput.OnAxisKeyRelease(EKeyList.KL_KeyA); });

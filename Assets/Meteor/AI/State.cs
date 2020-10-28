@@ -1295,7 +1295,7 @@ namespace Idevgame.Meteor.AI {
                 //爆气几率.
                 if (!Machine.HasInput()) {
                     if (Player.CanBreakout()) {
-                        int breakOut = Utility.Range(0, 100);
+                        int breakOut = Utility.Range(0, 1000);
                         //20时，就为20几率，0-19 共20
                         if (breakOut < CombatData.BreakChance)
                             Machine.ReceiveInput(new VirtualInput(EKeyList.KL_BreakOut));

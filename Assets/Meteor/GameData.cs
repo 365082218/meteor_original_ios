@@ -569,7 +569,6 @@ public class CombatData:Singleton<CombatData>
     public bool Replay { get { return GRecord != null; } }
     public Type GScriptType;
     public long RandSeed;
-    public System.Random Random;
     public static float DamageDetectDelay = 0.25f;//伤害检测间隔，持续时间长的攻击盒，可以伤害更多次敌人
     bool mPauseAll;
     public Vector3 BodyHeight = new Vector3(0, 28, 0);
@@ -602,7 +601,7 @@ public class CombatData:Singleton<CombatData>
     public static float PlayerLeave = 6400;//隐身衣状态下，视野丢失所需距离
     public static float FollowDistanceEnd = 10000;//距离小于100结束跟随
     public static float FollowDistanceStart = 14400;//距离超过120开始跟随
-    public const int BreakChance = 1;//3%爆气几率
+    public const int BreakChance = 3;//千分之三爆气几率
     public const int CombatChancePerThink = 3;//THINK越大，连击概率越大
     public static float DistanceSkipAngle = 3600;//距离足够近时，不论角度如何都应有感知
     public static float WallForce = 1000;//贴紧墙壁受到的推开速度 

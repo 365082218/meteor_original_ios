@@ -60,8 +60,8 @@ public class LevelHelper : MonoBehaviour
         //if (CombatData.Ins.Replay)
         //    CombatData.Ins.RandSeed = CombatData.Ins.GRecord.RandomSeed;
         //else
-            CombatData.Ins.RandSeed = DateTime.Now.ToFileTime();
-        CombatData.Ins.Random = new System.Random((int)CombatData.Ins.RandSeed);
+        //    CombatData.Ins.RandSeed = DateTime.Now.ToFileTime();
+        //CombatData.Ins.Random = new System.Random((int)CombatData.Ins.RandSeed);
         int displayProgress = 0;
         int toProgress = 0;
         yield return 0;

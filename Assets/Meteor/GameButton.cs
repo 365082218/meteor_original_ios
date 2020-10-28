@@ -9,6 +9,7 @@ public class GameButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     [SerializeField]
     public UnityEvent OnPress = new UnityEvent();
     public UnityEvent OnRelease = new UnityEvent();
+    public UnityEvent OnPressing = new UnityEvent();
     public bool PointDown { get { return isPointDown; } }
     public void Reset()
     {
@@ -36,11 +37,16 @@ public class GameButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
     void Start()
     {
     }
-    
+
     // Update is called once per frame
+    int pointDownFrame;
     void Update()
     {
-
+        if (isPointDown && pointDownFrame != Time.frameCount) {
+            if (OnPressing != null) {
+                OnPressing.Invoke();
+            }
+        }
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -60,6 +66,7 @@ public class GameButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
                     sc.OnPress(true);
                 isPointDown = true;
                 lastInvokeTime = Time.time;
+                pointDownFrame = Time.frameCount;
             }
         }
         else
@@ -75,6 +82,7 @@ public class GameButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
                 sc.OnPress(true);
             isPointDown = true;
             lastInvokeTime = Time.time;
+            pointDownFrame = Time.frameCount;
         }
     }
 

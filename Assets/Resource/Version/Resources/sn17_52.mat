@@ -4,43 +4,34 @@
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: sn17_52
   m_Shader: {fileID: 4800000, guid: 7444682d20fae524587667993da59ded, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
   m_CustomRenderQueue: 3100
   stringTagMap: {}
+  disabledShaderPasses: []
   m_SavedProperties:
-    serializedVersion: 2
+    serializedVersion: 3
     m_TexEnvs:
-    - first:
-        name: <noninit>
-      second:
+    - <noninit>:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - first:
-        name: _MainTex
-      second:
-        m_Texture: {fileID: 2800000, guid: 77ed49cf15efd624aae11815a696f563, type: 3}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 39fa8f71396a297439813a4f5c9c18b3, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - first:
-        name: <noninit>
-      second: 0
-    - first:
-        name: _u
-      second: 0
-    - first:
-        name: _v
-      second: 0
+    - <noninit>: 0
+    - _u: 0
+    - _v: 0
     m_Colors:
-    - first:
-        name: <noninit>
-      second: {r: 0, g: 1.5254462e+10, b: 0, a: 1.5254397e+10}
-    - first:
-        name: _TintColor
-      second: {r: 1, g: 1, b: 1, a: 1}
+    - <noninit>: {r: 0, g: 1.5254462e+10, b: 0, a: 1.5254397e+10}
+    - _TintColor: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []

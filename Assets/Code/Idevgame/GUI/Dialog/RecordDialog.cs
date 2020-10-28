@@ -197,7 +197,7 @@ public class RecordDialog : Dialog
         recItems.Add(recordItem);
         GameObject recordButton = NodeHelper.Find("RecordName", recordItem);
         recordButton.GetComponent<Text>().text = rec.Name;
-        Texture2D tex = new Texture2D(rec.screenWidth, rec.screenHeight);
+        Texture2D tex = new Texture2D(rec.screenWidth, rec.screenHeight, TextureFormat.ARGB32, false);
 
         tex.LoadImage(screenBytes);
         NodeHelper.Find("CaptureScreen", recordItem).GetComponent<Image>().sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);

@@ -411,7 +411,7 @@ public class SkcFile
         fs.Close();
         fs.Dispose();
         //转化为Texture2D
-        Texture2D t2d = new Texture2D(0, 0);
+        Texture2D t2d = new Texture2D(0, 0, TextureFormat.ARGB32, false);
 
         t2d.LoadImage(imgBytes);
         t2d.Apply();

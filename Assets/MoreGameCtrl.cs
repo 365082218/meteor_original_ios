@@ -30,7 +30,7 @@ public class MoreGameCtrl : MonoBehaviour {
             byte[] bitIcon = preview.DownloadData(urlIconPreview);
             if (bitIcon != null && bitIcon.Length != 0)
             {
-                Texture2D tex = new Texture2D(200, 150);
+                Texture2D tex = new Texture2D(200, 150, TextureFormat.ARGB32, false);
                 tex.LoadImage(bitIcon);
                 Preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
             }

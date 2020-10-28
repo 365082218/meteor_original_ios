@@ -168,7 +168,7 @@ public class Utility
 
     static int index = 0;
     public static int Range(int min, int max) {
-        return CombatData.Ins.Random.Next(min, max);
+        return UnityEngine.Random.Range(min, max);
     }
 
     public static float Range(float min, float max) {
@@ -191,7 +191,7 @@ public class Utility
     public static bool LoadPreview(Image preview, string localPath) {
         if (System.IO.File.Exists(localPath)) {
             byte[] array = System.IO.File.ReadAllBytes(localPath);
-            Texture2D tex = new Texture2D(0, 0);
+            Texture2D tex = new Texture2D(0, 0, TextureFormat.ARGB32, false);
             tex.LoadImage(array);
             preview.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
             return true;
@@ -223,7 +223,7 @@ public class Utility
         }
         int width = targetCamera.targetTexture.width;
         int height = targetCamera.targetTexture.height;
-        Texture2D texture = new Texture2D(width, height);
+        Texture2D texture = new Texture2D(width, height, TextureFormat.ARGB32, false);
         RenderTexture.active = null;
         RenderTexture.active = targetCamera.targetTexture;
         targetCamera.Render();

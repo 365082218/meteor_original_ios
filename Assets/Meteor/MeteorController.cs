@@ -42,6 +42,10 @@ public class MeteorInput
         return (mInputVector.x != 0 || mInputVector.y != 0);
     }
 
+    public void OnAxisKeyPressing(EKeyList k) {
+        OnKeyPressingProxy(k);
+    }
+
     public void OnAxisKeyPress(EKeyList k)
     {
         OnKeyDownProxy(k);
@@ -291,18 +295,16 @@ public class MeteorInput
             int inputEnd = p.Next.End;
             int curIndex = mOwner.ActionMgr.GetCurrentFrameIndex();
             //边界条件会导致部分招式衔接过快
-            if (posMng.IsInKeyFrame(p.Next.Start, inputEnd)) {
+            //if (posMng.IsInKeyFrame(p.Next.Start, inputEnd)) {
+            //    return true;
+            //} else
+            //    return false;
+            if (p.Next.Start < curIndex && curIndex < inputEnd) {
+                //if (posMng.mActiveAction.Idx >= 295 && posMng.mActiveAction.Idx <= 300)
+                //    Debug.LogError("pos:" + p.Idx + " p.next start:" + p.Next.Start + "  cur index = " + curIndex + " input end:" + inputEnd);
                 return true;
             } else
                 return false;
-            //if (p.Next.Start < curIndex && curIndex < inputEnd)
-            //{
-            //    //if (posMng.mActiveAction.Idx >= 295 && posMng.mActiveAction.Idx <= 300)
-            //    //    Debug.LogError("pos:" + p.Idx + " p.next start:" + p.Next.Start + "  cur index = " + curIndex + " input end:" + inputEnd);
-            //    return true;
-            //}
-            //else
-            //    return false;
         }
         else
         {

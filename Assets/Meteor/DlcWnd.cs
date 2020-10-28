@@ -138,7 +138,7 @@ public class DlcWnd : Dialog {
         obj.transform.SetParent(parent);
         obj.name = lev.Name;
         //obj.GetComponent<Button>().onClick.AddListener(() => { OnSelectChapter(lev); });
-        Texture2D tex = new Texture2D(0, 0);
+        Texture2D tex = new Texture2D(0, 0, TextureFormat.ARGB32, false);
         if (System.IO.File.Exists(lev.Preview))
         {
             byte[] bit = System.IO.File.ReadAllBytes(lev.Preview);

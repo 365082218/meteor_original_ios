@@ -105,13 +105,13 @@ public class Main : MonoBehaviour {
         FtpLog.Uninit();
     }
 
-    private void OnApplicationPause(bool pause) {
-        if (pause) {
-            if (CombatData.Ins.GLevelItem != null && CombatData.Ins.GLevelMode == LevelMode.MultiplyPlayer) {
-                NetWorkBattle.Ins.OnDisconnect();
-            }
-        }    
-    }
+    //private void OnApplicationPause(bool pause) {
+    //    if (pause) {
+    //        if (CombatData.Ins.GLevelItem != null && CombatData.Ins.GLevelMode == LevelMode.MultiplyPlayer) {
+    //            NetWorkBattle.Ins.OnDisconnect();
+    //        }
+    //    }    
+    //}
 
     private void InitCertificate() {
         ServicePointManager.ServerCertificateValidationCallback = MyRemoteCertificateValidationCallback;
@@ -165,6 +165,13 @@ public class Main : MonoBehaviour {
         UserPref.Ins.Load(userPath);
         Create();
         Init();
+#if UNITY_ANDROID && !UNITY_EDITOR
+        Screen.orientation = ScreenOrientation.AutoRotation;
+        Screen.autorotateToLandscapeLeft = true;
+        Screen.autorotateToLandscapeRight = true;
+        Screen.autorotateToPortrait = false;
+        Screen.autorotateToPortraitUpsideDown = false;
+#endif
     }
 
     public void ShowFps(bool active)

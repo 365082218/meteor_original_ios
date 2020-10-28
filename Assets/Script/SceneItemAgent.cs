@@ -472,7 +472,7 @@ public class SceneItemAgent :NetBehaviour {
                 player = GetComponent<FMCPlayer>();
                 if (player != null)
                 {
-                    DestroyObject(player);
+                    Destroy(player);
                     player = null;
                 }
             }

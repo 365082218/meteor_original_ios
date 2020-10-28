@@ -20,7 +20,7 @@ public class GameRecord {
     public Guid guid;//录像唯一编号.
     public int Chapter;//剧本ID-单机为0
     public int Id;//关卡ID-单机有效
-    public long RandomSeed;//随机种子
+    //public long RandomSeed;//随机种子
     public GameMode GameMode;
     public LevelMode LevelMode;
     public LevelData Level;//关卡数据
@@ -41,7 +41,7 @@ public class GameRecord {
             Debug.LogError(exp.Message);
             return null;
         }
-        Texture2D tex = new Texture2D(screenWidth, screenHeight);
+        Texture2D tex = new Texture2D(screenWidth, screenHeight, TextureFormat.ARGB32, false);
         tex.LoadImage(screenBytes);
         return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
     }
@@ -85,7 +85,7 @@ public class RecordMgr : Singleton<RecordMgr> {
         record.LevelMode = CombatData.Ins.GLevelMode;
         record.Chapter = (int)(CombatData.Ins.Chapter == null ? 0 : CombatData.Ins.Chapter.ChapterId);
         record.Id = (int)(CombatData.Ins.GLevelItem.Id);
-        record.RandomSeed = CombatData.Ins.RandSeed;
+        //record.RandomSeed = CombatData.Ins.RandSeed;
         //record.frames = FrameSyncLocal.Ins.Frames;
         record.Level = CombatData.Ins.GLevelItem;
         record.screenWidth = (int)(UIHelper.CanvasWidth / 5);

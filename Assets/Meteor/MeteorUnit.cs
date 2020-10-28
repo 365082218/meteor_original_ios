@@ -1616,11 +1616,11 @@ public partial class MeteorUnit : NetBehaviour {
                                 float left = 100;
                                 float middle = 100;
                                 float right = 100;
-                                if (Physics.Raycast(transform.position, Quaternion.AngleAxis(-5, Vector3.up) * -transform.forward, out hit, charController.radius + 5, LayerManager.SceneMask))
+                                if (Physics.Raycast(transform.position, Quaternion.AngleAxis(-15, Vector3.up) * -transform.forward, out hit, charController.radius + 5, LayerManager.SceneMask))
                                     left = Vector3.Distance(hit.point, transform.position);
                                 if (Physics.Raycast(transform.position, -transform.forward, out hit, charController.radius + 5, LayerManager.SceneMask))
                                     middle = Vector3.Distance(hit.point, transform.position);
-                                if (Physics.Raycast(transform.position, Quaternion.AngleAxis(5, Vector3.up) * -transform.forward, out hit, charController.radius + 5, LayerManager.SceneMask))
+                                if (Physics.Raycast(transform.position, Quaternion.AngleAxis(15, Vector3.up) * -transform.forward, out hit, charController.radius + 5, LayerManager.SceneMask))
                                     right = Vector3.Distance(hit.point, transform.position);
                                 float fMin = Mathf.Min(left, middle, right);
                                 if (fMin != 100) {

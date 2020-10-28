@@ -20,12 +20,17 @@ public class FightWnd : Dialog
         Input.multiTouchEnabled = true;//忍刀
         Init();
         BaseDialogState.UICamera.clearFlags = CameraClearFlags.Depth;
+        //如果使用鼠标。那么锁定鼠标
+#if UNITY_ANDROID
+        Cursor.lockState = GameStateMgr.Ins.gameStatus.UseMouse ? CursorLockMode.Locked : CursorLockMode.None;
+#endif
     }
 
     public override void OnDialogStateExit() {
         base.OnDialogStateExit();
-        //BaseDialogState.UICamera.clearFlags = CameraClearFlags.Color;
-        //BaseDialogState.UICamera.backgroundColor = Color.black;
+        BaseDialogState.UICamera.clearFlags = CameraClearFlags.Color;
+        BaseDialogState.UICamera.backgroundColor = Color.black;
+        Cursor.lockState = CursorLockMode.None;
     }
 
 

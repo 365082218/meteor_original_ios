@@ -115,7 +115,7 @@ public class LevelDialog : Dialog {
                     if (CombatData.Ins.Chapter.resPath[i].EndsWith(lev.BgTexture + ".jpg"))
                     {
                         byte[] array = System.IO.File.ReadAllBytes(CombatData.Ins.Chapter.resPath[i]);
-                        Texture2D tex = new Texture2D(0, 0);
+                        Texture2D tex = new Texture2D(0, 0, TextureFormat.ARGB32, false);
                         tex.LoadImage(array);
                         loadingTexture = tex;
                         break;
