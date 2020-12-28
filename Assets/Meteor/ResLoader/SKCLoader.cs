@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using System.IO;
 using UnityEngine.UI;
+using Unity.Collections;
 
 public class SkcLoader:Singleton<SkcLoader>
 {
@@ -91,11 +92,6 @@ public class MaterialUnit
     public bool TwoSide;
 }
 
-public class BoneWeightEx
-{
-    public int BoneIndex;
-    public float Weight;
-}
 public class SkcFile
 {
     int StaticSkins = 0;
@@ -261,7 +257,8 @@ public class SkcFile
                 mesh = new Mesh();
                 mesh.name = Skin;
                 int count = int.Parse(lineobj[1]);
-                List<BoneWeight> boneWeight = new List<BoneWeight>();
+                List<byte> bonesPerVertex = new List<byte>();
+                List<BoneWeight1> boneWeight = new List<BoneWeight1>();
                 List<Vector3> vec = new List<Vector3>();
                 List<Vector2> uv = new List<Vector2>();
                 for (int s = i + 1; s < i + 1 + count; s++)
@@ -270,6 +267,7 @@ public class SkcFile
                     string[] subline = line2.Split(new char[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
                     if (subline.Length == 1)
                         subline = subline[0].Split(new char[] { '\t' }, System.StringSplitOptions.RemoveEmptyEntries);
+                    //顶点权重非固定
                     if (subline[0] == "v")
                     {
                         Vector3 v = new Vector3();
@@ -281,45 +279,41 @@ public class SkcFile
                         Vector2 uvv = new Vector2();
                         uvv.x = float.Parse(subline[5]);
                         uvv.y = float.Parse(subline[6]);
-                        BoneWeight weight = new BoneWeight();
-                        List<BoneWeightEx> boneW = new List<BoneWeightEx>();
+                        List<BoneWeight1> boneW = new List<BoneWeight1>();
                         int boneCtrlNum = int.Parse(subline[8]);
                         for (int z = 9; z < 9 + 2 * boneCtrlNum; z += 2)
                         {
                             int b = (int)float.Parse(subline[z]);
                             float w = float.Parse(subline[z + 1]);
-                            //部分骨骼权重太低，剪掉这个骨骼
-                            if (w <= 0.005f)
-                            {
-                                //Debug.LogError("忽略了权重为0的骨骼,");
-                                continue;
-                            }
-                            BoneWeightEx e = new BoneWeightEx();
-                            e.BoneIndex = b;
-                            e.Weight = w;
+                            BoneWeight1 e = new BoneWeight1();
+                            e.boneIndex = b;
+                            e.weight = w;
                             boneW.Add(e);
                         }
                         //重新按权重设置各自的比例
-                        float weightTotal = 0.0f;
-                        for (int k = 0; k < boneW.Count; k++)
-                            weightTotal += boneW[k].Weight;
-                        weight.boneIndex0 = boneW.Count >= 1 ? boneW[0].BoneIndex : 0;
-                        weight.weight0 = boneW.Count >= 1 ? boneW[0].Weight / weightTotal : 0;
-                        weight.boneIndex1 = boneW.Count >= 2 ? boneW[1].BoneIndex : 0;
-                        weight.weight1 = boneW.Count >= 2 ? boneW[1].Weight / weightTotal : 0;
-                        weight.boneIndex2 = boneW.Count >= 3 ? boneW[2].BoneIndex : 0;
-                        weight.weight2 = boneW.Count >= 3 ? boneW[2].Weight / weightTotal : 0;
-                        weight.boneIndex3 = boneW.Count >= 4 ? boneW[3].BoneIndex : 0;
-                        weight.weight3 = boneW.Count >= 4 ? boneW[3].Weight / weightTotal : 0;
-                        boneWeight.Add(weight);
+                        //float weightTotal = 0.0f;
+                        //for (int k = 0; k < boneW.Count; k++)
+                        //    weightTotal += boneW[k].Weight;
+                        //weight.boneIndex0 = boneW.Count >= 1 ? boneW[0].BoneIndex : 0;
+                        //weight.weight0 = boneW.Count >= 1 ? boneW[0].Weight / weightTotal : 0;
+                        //weight.boneIndex1 = boneW.Count >= 2 ? boneW[1].BoneIndex : 0;
+                        //weight.weight1 = boneW.Count >= 2 ? boneW[1].Weight / weightTotal : 0;
+                        //weight.boneIndex2 = boneW.Count >= 3 ? boneW[2].BoneIndex : 0;
+                        //weight.weight2 = boneW.Count >= 3 ? boneW[2].Weight / weightTotal : 0;
+                        //weight.boneIndex3 = boneW.Count >= 4 ? boneW[3].BoneIndex : 0;
+                        //weight.weight3 = boneW.Count >= 4 ? boneW[3].Weight / weightTotal : 0;
+                        //boneWeight.Add(weight);
+                        bonesPerVertex.Add((byte)boneW.Count);
+                        boneWeight.AddRange(boneW);
                         vec.Add(v);
                         uv.Add(uvv);
                     }
                 }
                 mesh.SetVertices(vec);
                 mesh.uv = uv.ToArray();
-
-                mesh.boneWeights = boneWeight.ToArray();
+                var bonesPerVertexArray = new NativeArray<byte>(bonesPerVertex.ToArray(), Allocator.Temp);
+                var weightsArray = new NativeArray<BoneWeight1>(boneWeight.ToArray(), Allocator.Temp);
+                mesh.SetBoneWeights(bonesPerVertexArray, weightsArray);
                 i += count;
             }
             else if (lineobj[0] == "Triangles:")
