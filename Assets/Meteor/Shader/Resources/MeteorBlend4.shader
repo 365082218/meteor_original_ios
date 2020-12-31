@@ -65,7 +65,7 @@ Overlay	该渲染队列是为覆盖物效果服务的。任何最后被渲染的
 			o.Emission = c.rgb * _Intensity;
 			// Metallic and smoothness come from slider variables
 			//o.Alpha = (c.r + c.g + c.b) *_TransVal;
-			//o.Alpha = 0.5f;
+			o.Alpha = c.a;
 		}
 		ENDCG
 	}
