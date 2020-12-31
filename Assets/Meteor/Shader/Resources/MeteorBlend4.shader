@@ -28,20 +28,19 @@ Overlay	该渲染队列是为覆盖物效果服务的。任何最后被渲染的
 	SubShader {
 		Tags{ "RenderType" = "Transparent" "Queue" = "Transparent+10" }
 		LOD 100
-		ZWrite Off Lighting Off
-		//流星很多特效都是把高光的透明度降低做的
+		ZWrite Off 
+		Lighting Off
 		Blend SrcAlpha One
 		//Blend One OneMinusSrcColor  //忽略了透明
 			//Blend OneMinusDstColor One
 		//Blend One One
 		Cull Off
-		Lighting Off
 		CGPROGRAM
 		// Physically based Standard lighting model, and enable shadows on all light types
-		#pragma surface surf Lambert
+		#pragma surface surf Lambert alpha
 
 		// Use shader model 3.0 target, to get nicer looking lighting
-		//#pragma target 3.0
+		#pragma target 3.0
 
 		sampler2D _MainTex;
 
